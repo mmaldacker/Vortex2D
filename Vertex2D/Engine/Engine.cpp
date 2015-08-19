@@ -7,6 +7,7 @@
 //
 
 #include "Engine.h"
+#include "Disable.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
 #include <iostream>
@@ -211,12 +212,7 @@ void GPUFluidEngine::Solve()
 {
     if(!mRun) return;
 
-    GLint blend = GL_FALSE;
-    glGetIntegerv(GL_BLEND, &blend);
-    if(blend == GL_TRUE)
-    {
-        glDisable(GL_BLEND);
-    }
+    Renderer::Disable d(GL_BLEND);
 
     mReader.Read();
 
@@ -229,11 +225,6 @@ void GPUFluidEngine::Solve()
     Project();
     Advect(mVelocity, mAdvectShader);
     Advect(mDensity, mAdvectDensityShader);
-
-    if(blend == GL_TRUE)
-    {
-        glEnable(GL_BLEND);
-    }
 
     CHECK_GL_ERROR_DEBUG();
 }

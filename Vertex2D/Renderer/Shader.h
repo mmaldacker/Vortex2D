@@ -103,12 +103,6 @@ private:
     GLuint mProgram;
     Uniform<glm::mat4> mMVP;
 
-    static Program mTexturePositionProgram;
-    static Program mPositionProgram;
-    static Program mColourTexturePositionProgram;
-    static Program mColourPositionProgram;
-    static Program mCircleProgram;
-
     static int CurrentProgram;
 };
 

@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		CE6D62EE1B84E001006729F0 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = CE6D62ED1B84E001006729F0 /* main.c */; };
+		CE6D62EE1B84E001006729F0 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D62ED1B84E001006729F0 /* main.cpp */; };
 		CE6D62F01B84E084006729F0 /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE6D62EF1B84E084006729F0 /* SDL2.framework */; };
 		CE6D63091B84E20D006729F0 /* RenderTexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D62F31B84E20D006729F0 /* RenderTexture.cpp */; };
 		CE6D630E1B84E20D006729F0 /* Shapes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D62FE1B84E20D006729F0 /* Shapes.cpp */; };
@@ -16,7 +16,6 @@
 		CE6D63111B84E20D006729F0 /* WindowRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D63031B84E20D006729F0 /* WindowRenderer.cpp */; };
 		CE6D63121B84E20D006729F0 /* Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D63051B84E20D006729F0 /* Texture.cpp */; };
 		CE6D63141B84E5E3006729F0 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE6D63131B84E5E3006729F0 /* OpenGL.framework */; };
-		CE6D63181B84E790006729F0 /* ResourcePath.mm in Sources */ = {isa = PBXBuildFile; fileRef = CE6D63171B84E790006729F0 /* ResourcePath.mm */; };
 		CE6D63231B84E7B6006729F0 /* Engine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D631B1B84E7B6006729F0 /* Engine.cpp */; };
 		CE6D63241B84E7B6006729F0 /* Sink.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D631C1B84E7B6006729F0 /* Sink.cpp */; };
 		CE6D63251B84E7B6006729F0 /* Emitter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D631D1B84E7B6006729F0 /* Emitter.cpp */; };
@@ -56,7 +55,7 @@
 /* Begin PBXFileReference section */
 		CE6D62CA1B84DF98006729F0 /* Vertex2D.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Vertex2D.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE6D62CE1B84DF98006729F0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		CE6D62ED1B84E001006729F0 /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		CE6D62ED1B84E001006729F0 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		CE6D62EF1B84E084006729F0 /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = ../../../Library/Frameworks/SDL2.framework; sourceTree = "<group>"; };
 		CE6D62F21B84E20D006729F0 /* Texture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Texture.h; path = Renderer/Texture.h; sourceTree = "<group>"; };
 		CE6D62F31B84E20D006729F0 /* RenderTexture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RenderTexture.cpp; path = Renderer/RenderTexture.cpp; sourceTree = "<group>"; };
@@ -76,7 +75,6 @@
 		CE6D63131B84E5E3006729F0 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		CE6D63151B84E603006729F0 /* Transformable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Transformable.h; path = Renderer/Transformable.h; sourceTree = "<group>"; };
 		CE6D63161B84E790006729F0 /* ResourcePath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResourcePath.h; sourceTree = "<group>"; };
-		CE6D63171B84E790006729F0 /* ResourcePath.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ResourcePath.mm; sourceTree = "<group>"; };
 		CE6D631A1B84E7B6006729F0 /* Engine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Engine.h; path = Engine/Engine.h; sourceTree = "<group>"; };
 		CE6D631B1B84E7B6006729F0 /* Engine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Engine.cpp; path = Engine/Engine.cpp; sourceTree = "<group>"; };
 		CE6D631C1B84E7B6006729F0 /* Sink.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Sink.cpp; path = Engine/Sink.cpp; sourceTree = "<group>"; };
@@ -121,6 +119,7 @@
 		CE6D63511B84F1A3006729F0 /* TexturePosition.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = TexturePosition.vsh; path = Shaders/TexturePosition.vsh; sourceTree = "<group>"; };
 		CE6D636C1B84F4DB006729F0 /* Reader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Reader.cpp; path = Renderer/Reader.cpp; sourceTree = "<group>"; };
 		CE6D636D1B84F4DB006729F0 /* Reader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Reader.h; path = Renderer/Reader.h; sourceTree = "<group>"; };
+		CE6D63711B850064006729F0 /* Disable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Disable.h; path = Renderer/Disable.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -157,15 +156,15 @@
 		CE6D62CC1B84DF98006729F0 /* Vertex2D */ = {
 			isa = PBXGroup;
 			children = (
+				CE6D636F1B84FE01006729F0 /* Visualiser */,
 				CE6D63371B84F18F006729F0 /* Shaders */,
 				CE6D63191B84E7AC006729F0 /* Engine */,
 				CE6D62F11B84E201006729F0 /* Renderer */,
 				CE6D62CD1B84DF98006729F0 /* Supporting Files */,
-				CE6D62ED1B84E001006729F0 /* main.c */,
+				CE6D62ED1B84E001006729F0 /* main.cpp */,
 				CE6D63271B84E7F4006729F0 /* hfloat.h */,
 				CE6D63281B84E7F4006729F0 /* hfloat.cpp */,
 				CE6D63161B84E790006729F0 /* ResourcePath.h */,
-				CE6D63171B84E790006729F0 /* ResourcePath.mm */,
 			);
 			path = Vertex2D;
 			sourceTree = "<group>";
@@ -181,6 +180,7 @@
 		CE6D62F11B84E201006729F0 /* Renderer */ = {
 			isa = PBXGroup;
 			children = (
+				CE6D63711B850064006729F0 /* Disable.h */,
 				CE6D63151B84E603006729F0 /* Transformable.h */,
 				CE6D62F21B84E20D006729F0 /* Texture.h */,
 				CE6D63051B84E20D006729F0 /* Texture.cpp */,
@@ -263,6 +263,13 @@
 				CE6D63511B84F1A3006729F0 /* TexturePosition.vsh */,
 			);
 			name = Shaders;
+			sourceTree = "<group>";
+		};
+		CE6D636F1B84FE01006729F0 /* Visualiser */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Visualiser;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -366,11 +373,10 @@
 				CE6D63231B84E7B6006729F0 /* Engine.cpp in Sources */,
 				CE6D63241B84E7B6006729F0 /* Sink.cpp in Sources */,
 				CE6D630E1B84E20D006729F0 /* Shapes.cpp in Sources */,
-				CE6D63181B84E790006729F0 /* ResourcePath.mm in Sources */,
 				CE6D63251B84E7B6006729F0 /* Emitter.cpp in Sources */,
 				CE6D63291B84E7F4006729F0 /* hfloat.cpp in Sources */,
 				CE6D63361B84ED96006729F0 /* SuccessiveOverRelaxation.cpp in Sources */,
-				CE6D62EE1B84E001006729F0 /* main.c in Sources */,
+				CE6D62EE1B84E001006729F0 /* main.cpp in Sources */,
 				CE6D63091B84E20D006729F0 /* RenderTexture.cpp in Sources */,
 				CE6D636E1B84F4DB006729F0 /* Reader.cpp in Sources */,
 				CE6D63121B84E20D006729F0 /* Texture.cpp in Sources */,
@@ -515,6 +521,7 @@
 				CE6D62E91B84DF98006729F0 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

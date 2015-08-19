@@ -162,67 +162,61 @@ Program & Program::SetMVP(const glm::mat4 &mvp)
     return *this;
 }
 
-Program Program::mTexturePositionProgram;
-Program Program::mPositionProgram;
-Program Program::mColourTexturePositionProgram;
-Program Program::mColourPositionProgram;
-Program Program::mCircleProgram;
-
 Program & Program::TexturePositionProgram()
 {
-    if(!mTexturePositionProgram.mProgram)
+    static Program program;
+    if(!program.mProgram)
     {
-        Program program("TexturePosition.vsh", "TexturePosition.fsh");
+        program = Program("TexturePosition.vsh", "TexturePosition.fsh");
         program.Use().Set("u_Texture", 0);
-        mTexturePositionProgram = std::move(program);
     }
 
-    return mTexturePositionProgram;
+    return program;
 }
 
 Program & Program::PositionProgram()
 {
-    if(!mPositionProgram.mProgram)
+    static Program program;
+    if(!program.mProgram)
     {
-        Program program("Position.vsh", "Position.fsh");
-        mPositionProgram = std::move(program);
+        program = Program("Position.vsh", "Position.fsh");
     }
 
-    return mPositionProgram;
+    return program;
 }
 
 Program & Program::ColourTexturePositionProgram()
 {
-    if(!mColourTexturePositionProgram.mProgram)
+    static Program program;
+    if(!program.mProgram)
     {
-        Program program("ColourTexturePosition.vsh", "ColourTexturePosition.fsh");
+        program = Program("ColourTexturePosition.vsh", "ColourTexturePosition.fsh");
         program.Use().Set("u_Texture", 0);
-        mColourTexturePositionProgram = std::move(program);
     }
 
-    return mColourTexturePositionProgram;
+    return program;
 }
 
 Program & Program::ColourPositionProgram()
 {
-    if(!mColourPositionProgram.mProgram)
+    static Program program;
+    if(!program.mProgram)
     {
-        Program program("ColourPosition.vsh", "ColourPosition.fsh");
-        mColourPositionProgram = std::move(program);
+        program = Program("ColourPosition.vsh", "ColourPosition.fsh");
     }
 
-    return mColourPositionProgram;
+    return program;
 }
 
 Program & Program::CircleProgram()
 {
-    if(!mCircleProgram.mProgram)
+    static Program program;
+    if(!program.mProgram)
     {
-        Program program("Circle.vsh", "Circle.fsh");
-        mCircleProgram = std::move(program);
+        program = Program("Circle.vsh", "Circle.fsh");
     }
 
-    return mCircleProgram;
+    return program;
 }
 
 }
