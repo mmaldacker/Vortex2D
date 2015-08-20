@@ -7,15 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CE50E2491B8509B500548C19 /* GridVisualiser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE50E2471B8509B500548C19 /* GridVisualiser.cpp */; };
+		CE50E24B1B850D5E00548C19 /* SDL2_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE50E24A1B850D5E00548C19 /* SDL2_ttf.framework */; };
+		CE50E2511B862F0700548C19 /* WindowRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE50E24F1B862F0700548C19 /* WindowRenderer.cpp */; };
+		CE50E2531B863B0600548C19 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE6D63131B84E5E3006729F0 /* OpenGL.framework */; };
 		CE6D62EE1B84E001006729F0 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D62ED1B84E001006729F0 /* main.cpp */; };
 		CE6D62F01B84E084006729F0 /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE6D62EF1B84E084006729F0 /* SDL2.framework */; };
 		CE6D63091B84E20D006729F0 /* RenderTexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D62F31B84E20D006729F0 /* RenderTexture.cpp */; };
 		CE6D630E1B84E20D006729F0 /* Shapes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D62FE1B84E20D006729F0 /* Shapes.cpp */; };
 		CE6D630F1B84E20D006729F0 /* Sprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D63001B84E20D006729F0 /* Sprite.cpp */; };
 		CE6D63101B84E20D006729F0 /* Shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D63011B84E20D006729F0 /* Shader.cpp */; };
-		CE6D63111B84E20D006729F0 /* WindowRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D63031B84E20D006729F0 /* WindowRenderer.cpp */; };
 		CE6D63121B84E20D006729F0 /* Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D63051B84E20D006729F0 /* Texture.cpp */; };
-		CE6D63141B84E5E3006729F0 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE6D63131B84E5E3006729F0 /* OpenGL.framework */; };
 		CE6D63231B84E7B6006729F0 /* Engine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D631B1B84E7B6006729F0 /* Engine.cpp */; };
 		CE6D63241B84E7B6006729F0 /* Sink.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D631C1B84E7B6006729F0 /* Sink.cpp */; };
 		CE6D63251B84E7B6006729F0 /* Emitter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D631D1B84E7B6006729F0 /* Emitter.cpp */; };
@@ -53,6 +55,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		CE50E2471B8509B500548C19 /* GridVisualiser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GridVisualiser.cpp; path = Visualiser/GridVisualiser.cpp; sourceTree = "<group>"; };
+		CE50E2481B8509B500548C19 /* GridVisualiser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GridVisualiser.h; path = Visualiser/GridVisualiser.h; sourceTree = "<group>"; };
+		CE50E24A1B850D5E00548C19 /* SDL2_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_ttf.framework; path = ../../../Library/Frameworks/SDL2_ttf.framework; sourceTree = "<group>"; };
+		CE50E24F1B862F0700548C19 /* WindowRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WindowRenderer.cpp; path = Visualiser/WindowRenderer.cpp; sourceTree = "<group>"; };
+		CE50E2501B862F0700548C19 /* WindowRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WindowRenderer.h; path = Visualiser/WindowRenderer.h; sourceTree = "<group>"; };
 		CE6D62CA1B84DF98006729F0 /* Vertex2D.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Vertex2D.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE6D62CE1B84DF98006729F0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CE6D62ED1B84E001006729F0 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
@@ -67,10 +74,8 @@
 		CE6D63001B84E20D006729F0 /* Sprite.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Sprite.cpp; path = Renderer/Sprite.cpp; sourceTree = "<group>"; };
 		CE6D63011B84E20D006729F0 /* Shader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Shader.cpp; path = Renderer/Shader.cpp; sourceTree = "<group>"; };
 		CE6D63021B84E20D006729F0 /* Sprite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sprite.h; path = Renderer/Sprite.h; sourceTree = "<group>"; };
-		CE6D63031B84E20D006729F0 /* WindowRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WindowRenderer.cpp; path = Renderer/WindowRenderer.cpp; sourceTree = "<group>"; };
 		CE6D63051B84E20D006729F0 /* Texture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Texture.cpp; path = Renderer/Texture.cpp; sourceTree = "<group>"; };
 		CE6D63061B84E20D006729F0 /* Drawable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Drawable.h; path = Renderer/Drawable.h; sourceTree = "<group>"; };
-		CE6D63071B84E20D006729F0 /* WindowRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WindowRenderer.h; path = Renderer/WindowRenderer.h; sourceTree = "<group>"; };
 		CE6D63081B84E20D006729F0 /* Uniform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Uniform.h; path = Renderer/Uniform.h; sourceTree = "<group>"; };
 		CE6D63131B84E5E3006729F0 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		CE6D63151B84E603006729F0 /* Transformable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Transformable.h; path = Renderer/Transformable.h; sourceTree = "<group>"; };
@@ -127,7 +132,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CE6D63141B84E5E3006729F0 /* OpenGL.framework in Frameworks */,
+				CE50E2531B863B0600548C19 /* OpenGL.framework in Frameworks */,
+				CE50E24B1B850D5E00548C19 /* SDL2_ttf.framework in Frameworks */,
 				CE6D62F01B84E084006729F0 /* SDL2.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -138,6 +144,7 @@
 		CE6D62C11B84DF98006729F0 = {
 			isa = PBXGroup;
 			children = (
+				CE50E24A1B850D5E00548C19 /* SDL2_ttf.framework */,
 				CE6D63131B84E5E3006729F0 /* OpenGL.framework */,
 				CE6D62EF1B84E084006729F0 /* SDL2.framework */,
 				CE6D62CC1B84DF98006729F0 /* Vertex2D */,
@@ -193,8 +200,6 @@
 				CE6D62FE1B84E20D006729F0 /* Shapes.cpp */,
 				CE6D63021B84E20D006729F0 /* Sprite.h */,
 				CE6D63001B84E20D006729F0 /* Sprite.cpp */,
-				CE6D63071B84E20D006729F0 /* WindowRenderer.h */,
-				CE6D63031B84E20D006729F0 /* WindowRenderer.cpp */,
 				CE6D63061B84E20D006729F0 /* Drawable.h */,
 				CE6D63081B84E20D006729F0 /* Uniform.h */,
 				CE6D632B1B84EAEA006729F0 /* Quad.cpp */,
@@ -268,6 +273,10 @@
 		CE6D636F1B84FE01006729F0 /* Visualiser */ = {
 			isa = PBXGroup;
 			children = (
+				CE50E24F1B862F0700548C19 /* WindowRenderer.cpp */,
+				CE50E2501B862F0700548C19 /* WindowRenderer.h */,
+				CE50E2471B8509B500548C19 /* GridVisualiser.cpp */,
+				CE50E2481B8509B500548C19 /* GridVisualiser.h */,
 			);
 			name = Visualiser;
 			sourceTree = "<group>";
@@ -367,9 +376,9 @@
 			files = (
 				CE6D632D1B84EAEA006729F0 /* Quad.cpp in Sources */,
 				CE6D63101B84E20D006729F0 /* Shader.cpp in Sources */,
+				CE50E2511B862F0700548C19 /* WindowRenderer.cpp in Sources */,
 				CE6D630F1B84E20D006729F0 /* Sprite.cpp in Sources */,
 				CE6D63261B84E7B6006729F0 /* Obstacle.cpp in Sources */,
-				CE6D63111B84E20D006729F0 /* WindowRenderer.cpp in Sources */,
 				CE6D63231B84E7B6006729F0 /* Engine.cpp in Sources */,
 				CE6D63241B84E7B6006729F0 /* Sink.cpp in Sources */,
 				CE6D630E1B84E20D006729F0 /* Shapes.cpp in Sources */,
@@ -380,6 +389,7 @@
 				CE6D63091B84E20D006729F0 /* RenderTexture.cpp in Sources */,
 				CE6D636E1B84F4DB006729F0 /* Reader.cpp in Sources */,
 				CE6D63121B84E20D006729F0 /* Texture.cpp in Sources */,
+				CE50E2491B8509B500548C19 /* GridVisualiser.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -478,6 +488,8 @@
 				);
 				INFOPLIST_FILE = Vertex2D/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = "";
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -498,6 +510,8 @@
 				);
 				INFOPLIST_FILE = Vertex2D/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = "";
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

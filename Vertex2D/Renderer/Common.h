@@ -8,16 +8,16 @@
 
 #ifndef Vortex_Common_h
 #define Vortex_Common_h
-
+ 
 #include <OpenGL/gl3.h>
-#include <SDL2/SDL.h>
-
 #include <vector>
+#include <iostream>
 
 #define GLM_SWIZZLE
 #include <glm/glm.hpp>
 
-#define CHECK_GL_ERROR_DEBUG() ({ GLenum __error = glGetError(); if(__error) SDL_Log("OpenGL error 0x%04X in %s %d\n", __error, __FUNCTION__, __LINE__); })
+//FIXME better error logging
+#define CHECK_GL_ERROR_DEBUG() ({ GLenum __error = glGetError(); if(__error) std::cout << "OpenGL error " << __error << " " << __FILE__ << ":" << __FUNCTION__ << ":" << __LINE__ << "\n"; })
 
 namespace Renderer
 {

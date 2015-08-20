@@ -9,33 +9,33 @@
 #ifndef __Vortex__WindowRenderer__
 #define __Vortex__WindowRenderer__
 
+#include <SDL2/SDL.h>
 #include <vector>
 
 #include "Common.h"
 #include "Drawable.h"
 
-namespace Renderer
-{
 
 class WindowRenderer
 {
 public:
-    WindowRenderer(SDL_Window * window);
+    WindowRenderer(const glm::vec2 & size);
+    ~WindowRenderer();
 
     void SetBackgroundColour(const glm::vec4 & colour);
 
-    void AddDrawable(Drawable * drawable);
+    void AddDrawable(Renderer::Drawable * drawable);
     void Render();
 
     glm::mat4 Ortho;
 
 private:
     SDL_Window * mWindow;
+    SDL_GLContext mContext;
     glm::vec4 mBackgroundColour;
 
-    std::vector<Drawable*> mDrawables;
+    std::vector<Renderer::Drawable*> mDrawables;
 };
 
-}
 
 #endif /* defined(__Vortex__WindowRenderer__) */

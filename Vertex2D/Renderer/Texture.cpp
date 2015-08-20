@@ -80,7 +80,6 @@ Texture::~Texture()
 {
     if (mId)
     {
-        SDL_Log("Delete texture %d", mId);
         glDeleteTextures(1, &mId);
     }
 }

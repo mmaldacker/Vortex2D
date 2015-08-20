@@ -86,38 +86,4 @@ void Rectangle::SetRectangle(const glm::vec2 &size)
     Set({{0.0f, 0.0f}, {size.x, 0.0f}, {0.0f, size.y}, {size.x, 0.0f,}, {size.x, size.y}, {0.0f, size.y}});
 }
 
-Circle::Circle(float size)
-{
-    SetCircle(size);
-}
-
-int GetNumSegments(float size)
-{
-    return 6.0f * std::sqrt(size);
-}
-
-Path MakeCircle(float radius)
-{
-    int segs = GetNumSegments(radius);
-
-    Path circle;
-    const float coef = 2.0f * (float)M_PI/segs;
-
-    for(int i = 0;i <= segs; i++)
-    {
-        float rads = i*coef;
-        int j = radius * cosf(rads);
-        int k = radius * sinf(rads);
-        circle.emplace_back(j,k);
-    }
-    
-    return circle;
-}
-
-void Circle::SetCircle(float size)
-{
-    SetType(GL_TRIANGLE_FAN);
-    Set(MakeCircle(size));
-}
-
 }

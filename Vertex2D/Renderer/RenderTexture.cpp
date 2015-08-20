@@ -54,12 +54,10 @@ RenderTexture::~RenderTexture()
 {
     if(mFrameBuffer)
     {
-        SDL_Log("Deleting Framebuffer %d", mFrameBuffer);
         glDeleteFramebuffers(1, &mFrameBuffer);
     }
 	if (mDepthRenderBuffer)
     {
-        SDL_Log("Deleting Renderbuffer %d", mDepthRenderBuffer);
 		glDeleteRenderbuffers(1, &mDepthRenderBuffer);
     }
 }

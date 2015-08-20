@@ -30,7 +30,7 @@ public:
     void RenderDensity(const glm::mat4 & ortho) override;
     
 private:
-    Renderer::Circle mShape;
+    Renderer::Rectangle mShape;
 };
 
 }

@@ -12,13 +12,13 @@
 namespace Fluid
 {
 
-Emitter::Emitter(float size) : mShape(size)
+Emitter::Emitter(float size) : mShape({size,size})
 {
 }
 
 void Emitter::SetSize(float size)
 {
-    mShape.SetCircle(size);
+    mShape.SetRectangle({size, size});
 }
 
 void Emitter::RenderVelocity(const glm::mat4 & ortho)

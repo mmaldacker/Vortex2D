@@ -69,13 +69,9 @@ FragmentShader::FragmentShader() : Shader(glCreateShader(GL_FRAGMENT_SHADER))
 {
 }
 
-int Program::CurrentProgram = -1;
+int Program::CurrentProgram = 0;
 
-Program::Program() : mProgram(glCreateProgram())
-{
-}
-
-Program::Program(const std::string & vertexSource, const std::string & fragmentSource) : Program()
+Program::Program(const std::string & vertexSource, const std::string & fragmentSource) : mProgram(glCreateProgram())
 {
     VertexShader vertex;
     vertex.Source(vertexSource).Compile();
@@ -88,18 +84,25 @@ Program::Program(const std::string & vertexSource, const std::string & fragmentS
     Link();
 }
 
+Program::Program() : mProgram(0)
+{
+}
+
 Program::~Program()
 {
     if(mProgram)
     {
-        SDL_Log("Delete program %d", mProgram);
         glDeleteProgram(mProgram);
     }
 }
 
 Program::Program(Program && other)
 {
-    *this = std::move(other);
+    mProgram = other.mProgram;
+    mMVP.mLocation = other.mMVP.mLocation;
+
+    other.mProgram = 0;
+    other.mMVP.mLocation = GL_INVALID_VALUE;
 }
 
 Program & Program::operator=(Program && other)
@@ -108,7 +111,7 @@ Program & Program::operator=(Program && other)
     mMVP.mLocation = other.mMVP.mLocation;
 
     other.mProgram = 0;
-    other.mMVP.mLocation = -1;
+    other.mMVP.mLocation = GL_INVALID_VALUE;
 
     return *this;
 }
@@ -136,7 +139,6 @@ Program & Program::Link()
 		GLchar src[length];
 
 		glGetProgramInfoLog(mProgram, length, NULL, src);
-        SDL_Log("Error linking program: %s", src);
 		throw std::runtime_error("Error linking program: " + std::string(src));
     }
 
