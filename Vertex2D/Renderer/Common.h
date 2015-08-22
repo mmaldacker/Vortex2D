@@ -40,6 +40,18 @@ inline bool supports_npot_textures()
 
 typedef std::vector<glm::vec2> Path;
 
+struct Rect
+{
+    glm::vec2 Pos;
+    glm::vec2 Size;
+};
+
+struct TextureCoords
+{
+    Rect rect;
+    glm::vec2 pos;
+};
+
 inline glm::vec4 GetBoundingBox(const Path & path)
 {
     glm::vec2 min{std::numeric_limits<float>::max()};

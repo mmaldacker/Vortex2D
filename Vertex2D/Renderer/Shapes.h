@@ -30,7 +30,7 @@ public:
 
     void SetType(GLuint type);
     void Set(const Path & path);
-    void SetProgram(Program * program);
+    void SetProgram(Program & program);
 
     void Render(const glm::mat4 & ortho);
 

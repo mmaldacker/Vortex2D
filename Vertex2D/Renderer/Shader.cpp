@@ -25,7 +25,6 @@ Shader::~Shader()
 {
     if(mShader)
     {
-        SDL_Log("Delete shader %d", mShader);
         glDeleteShader(mShader);
     }
 }
@@ -54,8 +53,7 @@ Shader & Shader::Compile()
 		GLchar src[length];
 
 		glGetShaderInfoLog(mShader, length, NULL, src);
-        SDL_Log("Error compiling shader %s", src);
-		throw std::runtime_error("Error compiling shader: " + std::string(src));
+		throw std::runtime_error("Error compiling shader: \n" + std::string(src));
 	}
 
     return *this;

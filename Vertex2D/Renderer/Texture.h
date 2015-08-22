@@ -23,6 +23,8 @@ public:
     {
         // 32-bit texture: RGBA8888
         RGBA8888,
+        // 32-bit texture: RGB888
+        RGB888,
         // 16-bit texture without Alpha channel
         RGB565,
         // 16-bit float texture
@@ -35,7 +37,8 @@ public:
         RF,
     };
 
-    Texture(int width, int height, PixelFormat pixelFormat, void * data = nullptr);
+    Texture() = default;
+    Texture(int width, int height, PixelFormat pixelFormat, const void * data = nullptr);
     virtual ~Texture();
 
     Texture(Texture &&);
@@ -43,8 +46,6 @@ public:
 
     int Width() const { return mWidth; }
     int Height() const { return mHeight; }
-    int OffsetX() const { return mOffsetX; }
-    int OffsetY() const { return mOffsetY; }
 
     int StoredWidth() const { return mStoredWidth; }
     int StoredHeight() const { return mStoredHeight; }

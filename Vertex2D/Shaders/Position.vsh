@@ -1,6 +1,8 @@
+#version 150
+
 precision highp float;
 
-attribute mediump vec2 a_Position;
+in mediump vec2 a_Position;
 
 uniform mat4 u_Projection;
 

@@ -35,10 +35,10 @@ Quad::Quad(glm::vec2 size)
     // set up tex coords
     float dx = 1.0/mStoredSize.x;
     float dy = 1.0/mStoredSize.y;
-    quad[0].p = 0.0;                        quad[0].q = dy*(mStoredSize.y-mSize.y);
-    quad[1].p = 0.0;                        quad[1].q = 0.0;
-    quad[2].p = dx*(mStoredSize.x-mSize.x); quad[2].q = dy*(mStoredSize.y-mSize.y);
-    quad[3].p = dx*(mStoredSize.x-mSize.x); quad[3].q = 0.0;
+    quad[0].p = 0.0;                              quad[0].q = 1.0 - dy*(mStoredSize.y-mSize.y);
+    quad[1].p = 0.0;                              quad[1].q = 0.0;
+    quad[2].p = 1.0 - dx*(mStoredSize.x-mSize.x); quad[2].q = 1.0 - dy*(mStoredSize.y-mSize.y);
+    quad[3].p = 1.0 - dx*(mStoredSize.x-mSize.x); quad[3].q = 0.0;
 
     glGenVertexArrays(1,&mVertexArray);
     glBindVertexArray(mVertexArray);

@@ -9,7 +9,6 @@
 #include "Sink.h"
 #include <glm/gtx/vector_angle.hpp>
 
-
 namespace Fluid
 {
 
@@ -21,12 +20,12 @@ Sink::Sink(float size)
 void Sink::SetSize(float size)
 {
     mShape.SetRectangle({size,size*0.25f});
-    mShape.SetAnchor(glm::vec2{size*0.5f, size*0.125f});
+    mShape.Anchor = glm::vec2{size*0.5f, size*0.125f};
 }
 
 void Sink::RenderObstacleVelocity(const glm::mat4 & ortho)
 {
-    auto velocity = glm::rotate(glm::vec2{0.0f, -Magnitude}, Transformable->Rotation());
+    auto velocity = glm::rotate(glm::vec2{0.0f, -Magnitude}, (float)Transformable->Rotation);
     mShape.Colour = glm::vec4{velocity, 0.0f, 0.0f};
     mShape.Render(Transformable->GetTransform(ortho));
 }

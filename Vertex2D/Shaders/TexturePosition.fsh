@@ -1,6 +1,8 @@
+#version 150
+
 precision highp float;
 
-varying mediump vec2 v_TexCoords;
+in mediump vec2 v_TexCoords;
 uniform sampler2D u_Texture;
 
 void main()

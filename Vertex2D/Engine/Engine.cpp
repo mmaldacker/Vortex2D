@@ -40,7 +40,7 @@ GPUFluidEngine::GPUFluidEngine(const glm::vec2 & size, float scale, float dt, in
     Reset();
     SetupShaders();
 
-    mDensitySprite.SetScale(glm::vec2(mScale));
+    mDensitySprite.Scale = glm::vec2(mScale);
 
     mVertical.Colour = {1.0f,1.0f,1.0f,1.0f};
     mHorizontal.Colour = {1.0f,1.0f,1.0f,1.0f};
@@ -108,16 +108,16 @@ void GPUFluidEngine::SetupShaders()
 void GPUFluidEngine::Sources()
 {
     mObstacles.begin({0.0f, 0.0f, 0.0f, 0.0f});
-    mHorizontal.SetPosition({0.0f, 0.0f});
+    mHorizontal.Position = {0.0f, 0.0f};
     mHorizontal.Render(mObstacles.Orth);
 
-    mHorizontal.SetPosition({0.0f, mAntiAlias*(mQuad.Size().y-1.0f)});
+    mHorizontal.Position = {0.0f, mAntiAlias*(mQuad.Size().y-1.0f)};
     mHorizontal.Render(mObstacles.Orth);
 
-    mVertical.SetPosition({0.0f, 0.0f});
+    mVertical.Position = {0.0f, 0.0f};
     mVertical.Render(mObstacles.Orth);
 
-    mVertical.SetPosition({mAntiAlias*(mQuad.Size().x-1.0f), 0.0f});
+    mVertical.Position = {mAntiAlias*(mQuad.Size().x-1.0f), 0.0f};
     mVertical.Render(mObstacles.Orth);
 
     auto invScale = glm::scale(glm::vec3{1.0f/mScale, 1.0f/mScale, 1.0f});

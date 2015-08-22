@@ -24,7 +24,7 @@ public:
 
     void SetBackgroundColour(const glm::vec4 & colour);
 
-    void AddDrawable(Renderer::Drawable * drawable);
+    void AddDrawable(Renderer::Drawable & drawable);
     void Render();
 
     glm::mat4 Ortho;

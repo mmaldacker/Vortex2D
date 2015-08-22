@@ -1,11 +1,13 @@
+#version 150
+
 precision highp float;
 
-attribute mediump vec2 a_Position;
-attribute mediump vec4 a_Colour;
+in mediump vec2 a_Position;
+in mediump vec4 a_Colour;
 
 uniform mat4 u_Projection;
 
-varying mediump vec4 v_Colour;
+out mediump vec4 v_Colour;
 
 void main()
 {

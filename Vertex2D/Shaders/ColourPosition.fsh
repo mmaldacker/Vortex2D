@@ -1,6 +1,8 @@
+#version 150
+
 precision highp float;
 
-varying mediump vec4 v_Colour;
+in mediump vec4 v_Colour;
 
 uniform mediump vec4 u_Colour;
 

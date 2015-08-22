@@ -1,6 +1,8 @@
+#version 150
+
 precision mediump float;
 
-attribute mediump vec2 a_Position;
+in mediump vec2 a_Position;
 
 uniform float u_Radius;
 uniform mat4 u_Projection;

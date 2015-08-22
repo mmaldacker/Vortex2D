@@ -44,10 +44,10 @@ void Shape::SetType(GLuint type)
     mType = type;
 }
 
-void Shape::SetProgram(Program * program)
+void Shape::SetProgram(Program & program)
 {
-    mProgram = program;
-    mColourUniform.SetLocation(*mProgram, "u_Colour");
+    mProgram = &program;
+    mColourUniform.SetLocation(program, "u_Colour");
 }
 
 void Shape::Set(const Path & path)

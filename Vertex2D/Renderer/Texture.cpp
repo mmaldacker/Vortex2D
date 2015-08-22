@@ -14,11 +14,11 @@ namespace Renderer
 #include <cassert>
 #include <stdexcept>
 
-int Texture::BoundId[4] = {-1};
+int Texture::BoundId[4] = {0};
 int Texture::ActiveUnit = -1;
 
-Texture::Texture(int width, int height, PixelFormat pixelFormat, void * data)
-: mWidth(width), mHeight(height), mOffsetX(0), mOffsetY(0)
+Texture::Texture(int width, int height, PixelFormat pixelFormat, const void * data)
+: mWidth(width), mHeight(height)
 {
     assert(mWidth > 0);
     assert(mHeight > 0);
@@ -33,15 +33,6 @@ Texture::Texture(int width, int height, PixelFormat pixelFormat, void * data)
         mStoredHeight = next_power_of_two(mHeight);
     }
 
-    /*
-     In the absence of OES_texture_npot, which lifts these restrictions, neither
-     mipmapping nor wrap modes other than CLAMP_TO_EDGE are supported in
-     conjunction with NPOT 2D textures.  A NPOT 2D texture with a wrap mode that
-     is not CLAMP_TO_EDGE or a minfilter that is not NEAREST or LINEAR is
-     considered incomplete.  If such a texture is bound to a texture unit, it is
-     as if texture mapping were disabled for that texture unit.
-     */
-
     glGenTextures(1, &mId);
     Bind(0);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -53,6 +44,9 @@ Texture::Texture(int width, int height, PixelFormat pixelFormat, void * data)
     {
         case PixelFormat::RGBA8888:
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei) width, (GLsizei) height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+            break;
+        case PixelFormat::RGB888:
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (GLsizei) width, (GLsizei) height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
             break;
         case PixelFormat::RGB565:
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (GLsizei) width, (GLsizei) height, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, data);
@@ -90,8 +84,6 @@ Texture::Texture(Texture && other)
     , mHeight(other.mHeight)
     , mStoredWidth(other.mStoredWidth)
     , mStoredHeight(other.mStoredHeight)
-    , mOffsetX(other.mOffsetX)
-    , mOffsetY(other.mOffsetY)
 {
     other.mId = 0;
 }
@@ -103,8 +95,6 @@ Texture & Texture::operator=(Texture && other)
     mHeight = other.mHeight;
     mStoredWidth = other.mStoredWidth;
     mStoredHeight = other.mStoredHeight;
-    mOffsetX = other.mOffsetX;
-    mOffsetY = other.mOffsetY;
 
     other.mId = 0;
 
@@ -144,7 +134,7 @@ void Texture::Bind(int textureUnit)
 void Texture::Unbind()
 {
     assert(ActiveUnit >= 0);
-    BoundId[ActiveUnit] = -1;
+    BoundId[ActiveUnit] = 0;
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 

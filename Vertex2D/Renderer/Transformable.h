@@ -16,14 +16,41 @@
 namespace Renderer
 {
 
+struct Transformable;
+
+template<typename T, typename Transformable = Transformable>
+class property
+{
+    T value;
+    Transformable & t;
+public:
+    property(Transformable & t) : t(t) {}
+
+    T & operator = (const T &i)
+    {
+        value = i;
+        t.Update();
+        return value;
+    }
+
+    operator T const & () const
+    {
+        return value;
+    }
+};
+
 struct Transformable
 {
     Transformable()
-        : mPosition({0.0f, 0.0f})
-        , mScale({1.0f, 1.0f})
-        , mRotation(0.0f)
-        , mAnchor({0.0f, 0.0f})
+        : Position(*this)
+        , Scale(*this)
+        , Rotation(*this)
+        , Anchor(*this)
     {
+        Position = {0.0f, 0.0f};
+        Scale = {1.0f, 1.0f};
+        Rotation = 0.0f;
+        Anchor = {0.0f, 0.0f};
     }
 
     virtual ~Transformable(){}
@@ -38,37 +65,24 @@ struct Transformable
         return mInverseTransform;
     }
 
-    glm::vec2 & Position() { return mPosition; }
-    void SetPosition(glm::vec2 position) { mPosition = position; Update(); }
-
-    glm::vec2 & Scale() { return mScale; }
-    void SetScale(glm::vec2 scale) { mScale = scale; Update(); }
-
-    float & Rotation() { return mRotation; }
-    void SetRotation(float rotation) { mRotation = rotation; Update(); }
-
-    glm::vec2 & Anchor() { return mAnchor; }
-    void SetAnchor(glm::vec2 anchor) { mAnchor = anchor; Update(); }
-
-private:
+    property<glm::vec2> Position;
+    property<glm::vec2> Scale;
+    property<float> Rotation;
+    property<glm::vec2> Anchor;
 
     void Update()
     {
-        mTransform = glm::translate(glm::vec3{mPosition, 0.0f});
-        mTransform = glm::scale(mTransform, glm::vec3{mScale, 1.0f});
-        mTransform = glm::rotate(mTransform, mRotation, glm::vec3{0.0f, 0.0f, 1.0f});
-        mTransform = glm::translate(mTransform, glm::vec3{-mAnchor, 0.0f});
+        mTransform = glm::translate(glm::vec3{(glm::vec2)Position, 0.0f});
+        mTransform = glm::scale(mTransform, glm::vec3{(glm::vec2)Scale, 1.0f});
+        mTransform = glm::rotate(mTransform, (float)Rotation, glm::vec3{0.0f, 0.0f, 1.0f});
+        mTransform = glm::translate(mTransform, glm::vec3{-(glm::vec2)Anchor, 0.0f});
 
         mInverseTransform = glm::inverse(mTransform);
     }
 
+private:
     glm::mat4 mTransform;
     glm::mat4 mInverseTransform;
-
-    glm::vec2 mPosition;
-    glm::vec2 mScale;
-    float mRotation;
-    glm::vec2 mAnchor;
 };
 
 }

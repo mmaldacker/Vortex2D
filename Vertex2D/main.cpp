@@ -3,6 +3,7 @@
 #include "ResourcePath.h"
 #include "GridVisualiser.h"
 #include "WindowRenderer.h"
+#include "Text.h"
 
 #include <string>
 
@@ -19,7 +20,9 @@ int main(int argc, const char * argv[])
     WindowRenderer window({size*scale,size*scale});
     window.SetBackgroundColour({1.0, 0.0, 0.0, 0.0});
 
-    GridVisualiser grid({size,size}, scale);
+    Text text;
+    auto textSprite = text.Render("Hello World!");
+    window.AddDrawable(textSprite);
 
     SDL_Event e;
     bool quit = false;
@@ -32,10 +35,6 @@ int main(int argc, const char * argv[])
                 quit = true;
             }
         }
-
-        grid.RenderGrid();
-        grid.RenderValue({5,5}, 4.5);
-        grid.Render();
 
         window.Render();
     }

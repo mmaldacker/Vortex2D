@@ -52,6 +52,9 @@
 		CE6D636A1B84F1A3006729F0 /* TexturePosition.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE6D63501B84F1A3006729F0 /* TexturePosition.fsh */; };
 		CE6D636B1B84F1A3006729F0 /* TexturePosition.vsh in Resources */ = {isa = PBXBuildFile; fileRef = CE6D63511B84F1A3006729F0 /* TexturePosition.vsh */; };
 		CE6D636E1B84F4DB006729F0 /* Reader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D636C1B84F4DB006729F0 /* Reader.cpp */; };
+		CE9F2C601B88A12200EDDF5A /* Image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE9F2C5E1B88A12200EDDF5A /* Image.cpp */; };
+		CE9F2C621B88A15400EDDF5A /* font.png in Resources */ = {isa = PBXBuildFile; fileRef = CE9F2C611B88A15400EDDF5A /* font.png */; };
+		CEE61C451B86626600A1FC9C /* Text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEE61C431B86626600A1FC9C /* Text.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -125,6 +128,11 @@
 		CE6D636C1B84F4DB006729F0 /* Reader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Reader.cpp; path = Renderer/Reader.cpp; sourceTree = "<group>"; };
 		CE6D636D1B84F4DB006729F0 /* Reader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Reader.h; path = Renderer/Reader.h; sourceTree = "<group>"; };
 		CE6D63711B850064006729F0 /* Disable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Disable.h; path = Renderer/Disable.h; sourceTree = "<group>"; };
+		CE9F2C5E1B88A12200EDDF5A /* Image.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Image.cpp; sourceTree = "<group>"; };
+		CE9F2C5F1B88A12200EDDF5A /* Image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Image.h; sourceTree = "<group>"; };
+		CE9F2C611B88A15400EDDF5A /* font.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = font.png; sourceTree = SOURCE_ROOT; };
+		CEE61C431B86626600A1FC9C /* Text.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Text.cpp; sourceTree = "<group>"; };
+		CEE61C441B86626600A1FC9C /* Text.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Text.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -172,6 +180,10 @@
 				CE6D63271B84E7F4006729F0 /* hfloat.h */,
 				CE6D63281B84E7F4006729F0 /* hfloat.cpp */,
 				CE6D63161B84E790006729F0 /* ResourcePath.h */,
+				CEE61C431B86626600A1FC9C /* Text.cpp */,
+				CEE61C441B86626600A1FC9C /* Text.h */,
+				CE9F2C5E1B88A12200EDDF5A /* Image.cpp */,
+				CE9F2C5F1B88A12200EDDF5A /* Image.h */,
 			);
 			path = Vertex2D;
 			sourceTree = "<group>";
@@ -179,6 +191,7 @@
 		CE6D62CD1B84DF98006729F0 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				CE9F2C611B88A15400EDDF5A /* font.png */,
 				CE6D62CE1B84DF98006729F0 /* Info.plist */,
 			);
 			name = "Supporting Files";
@@ -240,12 +253,43 @@
 		CE6D63371B84F18F006729F0 /* Shaders */ = {
 			isa = PBXGroup;
 			children = (
+				CE9F2C641B88C63C00EDDF5A /* Engine */,
+				CE9F2C631B88C62B00EDDF5A /* Renderer */,
+			);
+			name = Shaders;
+			sourceTree = "<group>";
+		};
+		CE6D636F1B84FE01006729F0 /* Visualiser */ = {
+			isa = PBXGroup;
+			children = (
+				CE50E24F1B862F0700548C19 /* WindowRenderer.cpp */,
+				CE50E2501B862F0700548C19 /* WindowRenderer.h */,
+				CE50E2471B8509B500548C19 /* GridVisualiser.cpp */,
+				CE50E2481B8509B500548C19 /* GridVisualiser.h */,
+			);
+			name = Visualiser;
+			sourceTree = "<group>";
+		};
+		CE9F2C631B88C62B00EDDF5A /* Renderer */ = {
+			isa = PBXGroup;
+			children = (
+				CE6D634E1B84F1A3006729F0 /* Position.fsh */,
+				CE6D634F1B84F1A3006729F0 /* Position.vsh */,
+				CE6D63501B84F1A3006729F0 /* TexturePosition.fsh */,
+				CE6D63511B84F1A3006729F0 /* TexturePosition.vsh */,
 				CE6D63381B84F1A3006729F0 /* Circle.fsh */,
 				CE6D63391B84F1A3006729F0 /* Circle.vsh */,
 				CE6D633A1B84F1A3006729F0 /* ColourPosition.fsh */,
 				CE6D633B1B84F1A3006729F0 /* ColourPosition.vsh */,
 				CE6D633C1B84F1A3006729F0 /* ColourTexturePosition.fsh */,
 				CE6D633D1B84F1A3006729F0 /* ColourTexturePosition.vsh */,
+			);
+			name = Renderer;
+			sourceTree = "<group>";
+		};
+		CE9F2C641B88C63C00EDDF5A /* Engine */ = {
+			isa = PBXGroup;
+			children = (
 				CE6D633E1B84F1A3006729F0 /* fluid-advect-density.fsh */,
 				CE6D633F1B84F1A3006729F0 /* fluid-advect.fsh */,
 				CE6D63401B84F1A3006729F0 /* fluid-correct.fsh */,
@@ -262,23 +306,8 @@
 				CE6D634B1B84F1A3006729F0 /* fluid-stencil.fsh */,
 				CE6D634C1B84F1A3006729F0 /* fluid-weights.fsh */,
 				CE6D634D1B84F1A3006729F0 /* fluid.vsh */,
-				CE6D634E1B84F1A3006729F0 /* Position.fsh */,
-				CE6D634F1B84F1A3006729F0 /* Position.vsh */,
-				CE6D63501B84F1A3006729F0 /* TexturePosition.fsh */,
-				CE6D63511B84F1A3006729F0 /* TexturePosition.vsh */,
 			);
-			name = Shaders;
-			sourceTree = "<group>";
-		};
-		CE6D636F1B84FE01006729F0 /* Visualiser */ = {
-			isa = PBXGroup;
-			children = (
-				CE50E24F1B862F0700548C19 /* WindowRenderer.cpp */,
-				CE50E2501B862F0700548C19 /* WindowRenderer.h */,
-				CE50E2471B8509B500548C19 /* GridVisualiser.cpp */,
-				CE50E2481B8509B500548C19 /* GridVisualiser.h */,
-			);
-			name = Visualiser;
+			name = Engine;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -340,6 +369,7 @@
 			files = (
 				CE6D63691B84F1A3006729F0 /* Position.vsh in Resources */,
 				CE6D63571B84F1A3006729F0 /* ColourTexturePosition.vsh in Resources */,
+				CE9F2C621B88A15400EDDF5A /* font.png in Resources */,
 				CE6D63541B84F1A3006729F0 /* ColourPosition.fsh in Resources */,
 				CE6D63631B84F1A3006729F0 /* fluid-restrict.vsh in Resources */,
 				CE6D63651B84F1A3006729F0 /* fluid-stencil.fsh in Resources */,
@@ -377,6 +407,7 @@
 				CE6D632D1B84EAEA006729F0 /* Quad.cpp in Sources */,
 				CE6D63101B84E20D006729F0 /* Shader.cpp in Sources */,
 				CE50E2511B862F0700548C19 /* WindowRenderer.cpp in Sources */,
+				CEE61C451B86626600A1FC9C /* Text.cpp in Sources */,
 				CE6D630F1B84E20D006729F0 /* Sprite.cpp in Sources */,
 				CE6D63261B84E7B6006729F0 /* Obstacle.cpp in Sources */,
 				CE6D63231B84E7B6006729F0 /* Engine.cpp in Sources */,
@@ -388,6 +419,7 @@
 				CE6D62EE1B84E001006729F0 /* main.cpp in Sources */,
 				CE6D63091B84E20D006729F0 /* RenderTexture.cpp in Sources */,
 				CE6D636E1B84F4DB006729F0 /* Reader.cpp in Sources */,
+				CE9F2C601B88A12200EDDF5A /* Image.cpp in Sources */,
 				CE6D63121B84E20D006729F0 /* Texture.cpp in Sources */,
 				CE50E2491B8509B500548C19 /* GridVisualiser.cpp in Sources */,
 			);
@@ -485,11 +517,12 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					/Users/mmaldacker/glm,
+					/opt/local/include/,
 				);
 				INFOPLIST_FILE = Vertex2D/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = "";
-				OTHER_LDFLAGS = "";
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				OTHER_LDFLAGS = "-lpng";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -507,11 +540,12 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					/Users/mmaldacker/glm,
+					/opt/local/include/,
 				);
 				INFOPLIST_FILE = Vertex2D/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = "";
-				OTHER_LDFLAGS = "";
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				OTHER_LDFLAGS = "-lpng";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

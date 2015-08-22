@@ -25,6 +25,9 @@ WindowRenderer::WindowRenderer(const glm::vec2 & size)
 
     glViewport(0, 0, size.x, size.y);
 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     Ortho = glm::ortho(0.0f, size.x, size.y, 0.0f, -1.0f, 1.0f);
 }
 
@@ -40,9 +43,9 @@ void WindowRenderer::SetBackgroundColour(const glm::vec4 &colour)
     glClearColor(colour.r, colour.g, colour.b, colour.a);
 }
 
-void WindowRenderer::AddDrawable(Renderer::Drawable * drawable)
+void WindowRenderer::AddDrawable(Renderer::Drawable & drawable)
 {
-    mDrawables.push_back(drawable);
+    mDrawables.push_back(&drawable);
 }
 
 void WindowRenderer::Render()

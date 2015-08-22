@@ -13,8 +13,21 @@
 namespace Renderer
 {
 
-Sprite::Sprite(Texture & texture)
+Sprite::Sprite(Texture & texture) : Sprite(texture,
+    {
+        {glm::vec2{0.0f}, glm::vec2{(float)texture.Width(), (float)texture.Height()}},
+        glm::vec2{0.0f}
+    })
+{
+}
+
+Sprite::Sprite(Texture & texture, const TextureCoords & coords) : Sprite(texture, std::vector<TextureCoords>{coords})
+{
+}
+
+Sprite::Sprite(Texture & texture, const std::vector<TextureCoords> & rects)
     : Colour({1,1,1,1})
+    , mTexture(texture)
     , mColourUniform(Program::ColourTexturePositionProgram(), "u_Colour")
 {
     glGenVertexArrays(1,&mVertexArray);
@@ -37,10 +50,10 @@ Sprite::Sprite(Texture & texture)
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    Update(texture);
+    Update(rects);
 }
 
-Sprite::Sprite(Sprite && other)
+Sprite::Sprite(Sprite && other) : Sprite(other.mTexture)
 {
     mVertexBuffer = other.mVertexBuffer;
     mTexCoordsBuffer = other.mTexCoordsBuffer;
@@ -50,44 +63,78 @@ Sprite::Sprite(Sprite && other)
     other.mTexCoordsBuffer = 0;
     other.mVertexArray = 0;
 
-    mTexture = other.mTexture;
     mColourUniform = other.mColourUniform;
 
     Colour = other.Colour;
-
-    Update(*mTexture);
 }
 
-void Sprite::Update(Texture & texture)
+void Sprite::Coords(const TextureCoords & coords, std::vector<float> & texCoords, std::vector<float> & vertices)
 {
-    mTexture = &texture;
+    float dx = 1.0f/mTexture.StoredWidth();
+    float dy = 1.0f/mTexture.StoredHeight();
 
-    float fac_x = (float)mTexture->Width() / mTexture->StoredWidth();
-    float fac_y = (float)mTexture->Height() / mTexture->StoredHeight();
-    float off_x = (float)mTexture->OffsetX() / mTexture->StoredWidth();
-    float off_y = (float)mTexture->OffsetY() / mTexture->StoredHeight();
+    auto rect = coords.rect;
+    auto pos = coords.pos;
 
-    float texcoords[] =
+    glm::vec2 a,b,c,d;
+
+    a.x = rect.Pos.x * dx, a.y = (rect.Pos.y + rect.Size.y) * dy;
+    b.x = rect.Pos.x * dx, b.y = rect.Pos.y * dy;
+    c.x = (rect.Pos.x + rect.Size.x) * dx, c.y = (rect.Pos.y + rect.Size.y) * dy;
+    d.x = (rect.Pos.x + rect.Size.x) * dx, d.y = rect.Pos.y * dy;
+
+    /*
+         b ---- d
+         |      |
+         |      |
+         a ---- c
+     
+     */
+
+    texCoords.insert(texCoords.end(),
     {
-        off_x, fac_y + off_y,
-        off_x, off_y,
-        fac_x + off_x, fac_y + off_y,
-        fac_x + off_x, off_y
-    };
+        a.x, a.y,
+        c.x, c.y,
+        b.x, b.y,
 
-    float vertices[] =
+        c.x, c.y,
+        d.x, d.y,
+        b.x, b.y,
+    });
+
+
+    a.x = pos.x, a.y = pos.y + rect.Size.y;
+    b.x = pos.x, b.y = pos.y,
+    c.x = pos.x + rect.Size.x, c.y = pos.y + rect.Size.y;
+    d.x = pos.x + rect.Size.x, d.y = pos.y;
+
+    vertices.insert(vertices.end(),
     {
-        0.0, (float)mTexture->Height(),
-        0.0, 0.0,
-        (float)mTexture->Width(), (float)mTexture->Height(),
-        (float)mTexture->Width(), 0.0
-    };
+        a.x, a.y,
+        c.x, c.y,
+        b.x, b.y,
+
+        c.x, c.y,
+        d.x, d.y,
+        b.x, b.y,
+    });
+}
+
+void Sprite::Update(const std::vector<TextureCoords> & coords)
+{
+    std::vector<float> texCoords, vertices;
+    mNumTriangles = 0;
+    for(auto && coord : coords)
+    {
+        Coords(coord, texCoords, vertices);
+        mNumTriangles += 2;
+    }
 
     glBindBuffer(GL_ARRAY_BUFFER, mTexCoordsBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(texcoords), texcoords, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * texCoords.size(), texCoords.data(), GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, mVertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(), vertices.data(), GL_DYNAMIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
@@ -96,10 +143,10 @@ void Sprite::Render(const glm::mat4 & ortho)
 {
     Program::ColourTexturePositionProgram().Use().SetMVP(GetTransform(ortho));
     mColourUniform.Set(Colour);
-    mTexture->Bind(0);
+    mTexture.Bind(0);
     
     glBindVertexArray(mVertexArray);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	glDrawArrays(GL_TRIANGLES, 0, mNumTriangles*3);
     glBindVertexArray(0);
 }
 

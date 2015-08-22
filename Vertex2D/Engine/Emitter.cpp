@@ -23,7 +23,7 @@ void Emitter::SetSize(float size)
 
 void Emitter::RenderVelocity(const glm::mat4 & ortho)
 {
-    auto velocity = glm::rotate(glm::vec2{Magnitude, 0.0f}, Transformable->Rotation());
+    auto velocity = glm::rotate(glm::vec2{Magnitude, 0.0f}, (float)Transformable->Rotation);
     mShape.Colour = glm::vec4{velocity, 0.0f, 0.0f};
     mShape.Render(Transformable->GetTransform(ortho));
 }
