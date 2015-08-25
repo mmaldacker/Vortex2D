@@ -25,8 +25,6 @@
 		CE6D63291B84E7F4006729F0 /* hfloat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D63281B84E7F4006729F0 /* hfloat.cpp */; };
 		CE6D632D1B84EAEA006729F0 /* Quad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D632B1B84EAEA006729F0 /* Quad.cpp */; };
 		CE6D63361B84ED96006729F0 /* SuccessiveOverRelaxation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D63341B84ED96006729F0 /* SuccessiveOverRelaxation.cpp */; };
-		CE6D63521B84F1A3006729F0 /* Circle.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE6D63381B84F1A3006729F0 /* Circle.fsh */; };
-		CE6D63531B84F1A3006729F0 /* Circle.vsh in Resources */ = {isa = PBXBuildFile; fileRef = CE6D63391B84F1A3006729F0 /* Circle.vsh */; };
 		CE6D63541B84F1A3006729F0 /* ColourPosition.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE6D633A1B84F1A3006729F0 /* ColourPosition.fsh */; };
 		CE6D63551B84F1A3006729F0 /* ColourPosition.vsh in Resources */ = {isa = PBXBuildFile; fileRef = CE6D633B1B84F1A3006729F0 /* ColourPosition.vsh */; };
 		CE6D63561B84F1A3006729F0 /* ColourTexturePosition.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE6D633C1B84F1A3006729F0 /* ColourTexturePosition.fsh */; };
@@ -99,8 +97,6 @@
 		CE6D63331B84ED96006729F0 /* LinearSolver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LinearSolver.h; path = Engine/LinearSolver/LinearSolver.h; sourceTree = "<group>"; };
 		CE6D63341B84ED96006729F0 /* SuccessiveOverRelaxation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SuccessiveOverRelaxation.cpp; path = Engine/LinearSolver/SuccessiveOverRelaxation.cpp; sourceTree = "<group>"; };
 		CE6D63351B84ED96006729F0 /* SuccessiveOverRelaxation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SuccessiveOverRelaxation.h; path = Engine/LinearSolver/SuccessiveOverRelaxation.h; sourceTree = "<group>"; };
-		CE6D63381B84F1A3006729F0 /* Circle.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Circle.fsh; path = Shaders/Circle.fsh; sourceTree = "<group>"; };
-		CE6D63391B84F1A3006729F0 /* Circle.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Circle.vsh; path = Shaders/Circle.vsh; sourceTree = "<group>"; };
 		CE6D633A1B84F1A3006729F0 /* ColourPosition.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ColourPosition.fsh; path = Shaders/ColourPosition.fsh; sourceTree = "<group>"; };
 		CE6D633B1B84F1A3006729F0 /* ColourPosition.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ColourPosition.vsh; path = Shaders/ColourPosition.vsh; sourceTree = "<group>"; };
 		CE6D633C1B84F1A3006729F0 /* ColourTexturePosition.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ColourTexturePosition.fsh; path = Shaders/ColourTexturePosition.fsh; sourceTree = "<group>"; };
@@ -277,8 +273,6 @@
 				CE6D634F1B84F1A3006729F0 /* Position.vsh */,
 				CE6D63501B84F1A3006729F0 /* TexturePosition.fsh */,
 				CE6D63511B84F1A3006729F0 /* TexturePosition.vsh */,
-				CE6D63381B84F1A3006729F0 /* Circle.fsh */,
-				CE6D63391B84F1A3006729F0 /* Circle.vsh */,
 				CE6D633A1B84F1A3006729F0 /* ColourPosition.fsh */,
 				CE6D633B1B84F1A3006729F0 /* ColourPosition.vsh */,
 				CE6D633C1B84F1A3006729F0 /* ColourTexturePosition.fsh */,
@@ -374,13 +368,11 @@
 				CE6D63631B84F1A3006729F0 /* fluid-restrict.vsh in Resources */,
 				CE6D63651B84F1A3006729F0 /* fluid-stencil.fsh in Resources */,
 				CE6D636A1B84F1A3006729F0 /* TexturePosition.fsh in Resources */,
-				CE6D63521B84F1A3006729F0 /* Circle.fsh in Resources */,
 				CE6D63551B84F1A3006729F0 /* ColourPosition.vsh in Resources */,
 				CE6D63621B84F1A3006729F0 /* fluid-restrict.fsh in Resources */,
 				CE6D635A1B84F1A3006729F0 /* fluid-correct.fsh in Resources */,
 				CE6D63671B84F1A3006729F0 /* fluid.vsh in Resources */,
 				CE6D635B1B84F1A3006729F0 /* fluid-damped-jacobi.fsh in Resources */,
-				CE6D63531B84F1A3006729F0 /* Circle.vsh in Resources */,
 				CE6D63641B84F1A3006729F0 /* fluid-sor.fsh in Resources */,
 				CE6D636B1B84F1A3006729F0 /* TexturePosition.vsh in Resources */,
 				CE6D63661B84F1A3006729F0 /* fluid-weights.fsh in Resources */,

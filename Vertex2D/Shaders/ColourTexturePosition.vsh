@@ -2,10 +2,10 @@
 
 precision highp float;
 
-in mediump vec2 a_Position;
-in mediump vec2 a_TexCoords;
+in vec2 a_Position;
+in vec2 a_TexCoords;
 
-out mediump vec2 v_TexCoords;
+out vec2 v_TexCoords;
 
 uniform mat4 u_Projection;
 

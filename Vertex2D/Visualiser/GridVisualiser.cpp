@@ -10,67 +10,38 @@
 #include <sstream>
 #include <iomanip>
 
-GridVisualiser::GridVisualiser(const glm::vec2 & size, int scale) : mSize(size), mScale(scale)
+GridVisualiser::GridVisualiser(SDL_Window * window, SDL_GLContext context, const glm::vec2 & size, int scale) : WindowRenderer(window, context)
+    , mSize(size)
+    , mScale(scale)
 {
-    mFont = TTF_OpenFont("/Library/Fonts/Verdana.ttf",10);
-    if(!mFont)
-    {
-        throw std::runtime_error(TTF_GetError());
-    }
-    mWindow = SDL_CreateWindow(NULL, 0, 0, size.x*scale, size.y*scale, 0);
-    mRenderer = SDL_CreateRenderer(mWindow, -1, SDL_RENDERER_ACCELERATED);
-}
-
-GridVisualiser::~GridVisualiser()
-{
-    TTF_CloseFont(mFont);
-    SDL_DestroyRenderer(mRenderer);
-    SDL_DestroyWindow(mWindow);
-}
-
-void GridVisualiser::RenderGrid()
-{
-    SDL_SetRenderDrawColor(mRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
-    SDL_RenderClear(mRenderer);
-
-    SDL_SetRenderDrawColor(mRenderer, 0x00, 0x00, 0x00, 0xFF);
+    SetBackgroundColour({1.0f, 1.0f, 1.0f, 1.0f});
 
     for(int i = 0 ; i < mSize.x ; ++i)
     {
-        SDL_Rect fillRect = {i * mScale, 0, 1, (int)mSize.y * mScale};
-        SDL_RenderFillRect(mRenderer, &fillRect);
+        Renderer::Rectangle rect({2, mSize.y * mScale});
+        rect.Position = glm::vec2{ i * mScale, 0 };
+        rect.Colour = {0.0f, 0.0f, 0.0f, 1.0f};
+
+        mGrid.push_back(std::move(rect));
     }
 
     for(int i = 0 ; i < mSize.y ; ++i)
     {
-        SDL_Rect fillRect = {0, i * mScale, (int)mSize.x * mScale, 1};
-        SDL_RenderFillRect(mRenderer, &fillRect);
+        Renderer::Rectangle rect({mSize.x * mScale,2});
+        rect.Position = glm::vec2{0, i * mScale };
+        rect.Colour = {0.0f, 0.0f, 0.0f, 1.0f};
+
+        mGrid.push_back(std::move(rect));
     }
+
+    for(auto && rect : mGrid)
+    {
+        AddDrawable(rect);
+    }
+
 }
 
 void GridVisualiser::RenderValue(const glm::vec2 & size, float value)
 {
-    std::stringstream number;
-    number << std::setprecision(2) << value;
-
-    SDL_Texture * t = RenderText(number.str(), {0x00, 0x00, 0x00, 0xFF});
-    glm::vec2 pos = size * mSize;
-    int w, h;
-    SDL_QueryTexture(t, NULL, NULL, &w, &h);
-    SDL_Rect r{(int)pos.x, (int)pos.y, w, h};
-    SDL_RenderCopy(mRenderer, t, NULL, &r);
-    SDL_DestroyTexture(t);
-}
-
-void GridVisualiser::Render()
-{
-    SDL_RenderPresent(mRenderer);
-}
-
-SDL_Texture* GridVisualiser::RenderText(const std::string &message, SDL_Color color)
-{
-    SDL_Surface *surf = TTF_RenderText_Blended(mFont, message.c_str(), color);
-    SDL_Texture *texture = SDL_CreateTextureFromSurface(mRenderer, surf);
-    SDL_FreeSurface(surf);
-    return texture;
+    
 }

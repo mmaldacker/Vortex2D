@@ -29,7 +29,6 @@ public:
     ~Sprite();
 
     Sprite(Sprite &&);
-    Sprite & operator=(Sprite &&);
 
     void Render(const glm::mat4 & ortho);
 

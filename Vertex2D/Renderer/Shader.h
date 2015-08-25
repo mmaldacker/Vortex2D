@@ -95,7 +95,6 @@ public:
     static Program & PositionProgram();
     static Program & ColourTexturePositionProgram();
     static Program & ColourPositionProgram();
-    static Program & CircleProgram();
 
     template<typename T>
     friend class Uniform;
@@ -129,6 +128,7 @@ void Uniform<T>::SetLocation(Program & program, const std::string & name)
 {
     program.Use();
     mLocation = glGetUniformLocation(program.mProgram, name.c_str());
+    assert(mLocation != -1);
 }
 
 template<typename T>

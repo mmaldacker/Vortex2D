@@ -10,28 +10,22 @@
 #define __Vertex2D__GridVisualiser__
 
 #include "Common.h"
-#include <SDL2/SDL.h>
-#include <SDL2_ttf/SDL_ttf.h>
-#include <string>
+#include "WindowRenderer.h"
+#include "Shapes.h"
+#include <vector>
 
-class GridVisualiser
+class GridVisualiser : public WindowRenderer
 {
 public:
-    GridVisualiser(const glm::vec2 & size, int scale);
-    ~GridVisualiser();
+    GridVisualiser(SDL_Window * window, SDL_GLContext context, const glm::vec2 & size, int scale);
 
-    void RenderGrid();
     void RenderValue(const glm::vec2 & size, float value);
-    void Render();
 
 private:
-    SDL_Texture* RenderText(const std::string &message, SDL_Color color);
-
     glm::vec2 mSize;
     int mScale;
-    SDL_Window * mWindow;
-    SDL_Renderer * mRenderer;
-    TTF_Font * mFont;
+
+    std::vector<Renderer::Rectangle> mGrid;
 };
 
 #endif /* defined(__Vertex2D__GridVisualiser__) */

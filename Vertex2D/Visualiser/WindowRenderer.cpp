@@ -10,25 +10,17 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-WindowRenderer::WindowRenderer(const glm::vec2 & size)
+WindowRenderer::WindowRenderer(SDL_Window * window, SDL_GLContext context) : mWindow(window), mContext(context)
 {
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    int w,h;
+    SDL_GetWindowSize(mWindow, &w, &h);
 
-    mWindow = SDL_CreateWindow(NULL, 0, 0, size.x, size.y, SDL_WINDOW_OPENGL);
-    mContext = SDL_GL_CreateContext(mWindow);
-    if(!mContext)
-    {
-        throw std::runtime_error(SDL_GetError());
-    }
-
-    glViewport(0, 0, size.x, size.y);
+    glViewport(0, 0, w, h);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    Ortho = glm::ortho(0.0f, size.x, size.y, 0.0f, -1.0f, 1.0f);
+    Ortho = glm::ortho(0.0f, (float)h, (float)w, 0.0f, -1.0f, 1.0f);
 }
 
 WindowRenderer::~WindowRenderer()
@@ -50,7 +42,7 @@ void WindowRenderer::AddDrawable(Renderer::Drawable & drawable)
 
 void WindowRenderer::Render()
 {
-    if(SDL_GL_MakeCurrent(mWindow, mContext))
+    if(SDL_GL_MakeCurrent(mWindow, mContext) < 0)
     {
         throw std::runtime_error(SDL_GetError());
     }

@@ -13,9 +13,9 @@ namespace Renderer
 {
 
 Shape::Shape()
-: mNumVertices(0)
-, mColourUniform(Program::PositionProgram(), "u_Colour")
-, mProgram(&Program::PositionProgram())
+    : mNumVertices(0)
+    , mColourUniform(Program::PositionProgram(), "u_Colour")
+    , mProgram(&Program::PositionProgram())
 {
     glGenVertexArrays(1,&mVertexArray);
     glBindVertexArray(mVertexArray);
@@ -37,6 +37,19 @@ Shape::~Shape()
         glDeleteBuffers(1, &mVertexBuffer);
         glDeleteVertexArrays(1, &mVertexArray);
     }
+}
+
+Shape::Shape(Shape && other)
+    : Transformable(other)
+    , Colour(other.Colour)
+    , mType(other.mType)
+    , mVertexBuffer(other.mVertexBuffer)
+    , mVertexArray(other.mVertexArray)
+    , mNumVertices(other.mNumVertices)
+    , mColourUniform(other.mColourUniform)
+    , mProgram(other.mProgram)
+{
+    other.mVertexArray = 0;
 }
 
 void Shape::SetType(GLuint type)

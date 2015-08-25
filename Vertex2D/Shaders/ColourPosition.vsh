@@ -2,8 +2,8 @@
 
 precision highp float;
 
-in mediump vec2 a_Position;
-in mediump vec4 a_Colour;
+in vec2 a_Position;
+in vec4 a_Colour;
 
 uniform mat4 u_Projection;
 

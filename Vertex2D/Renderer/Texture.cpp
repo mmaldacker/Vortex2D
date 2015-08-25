@@ -40,6 +40,8 @@ Texture::Texture(int width, int height, PixelFormat pixelFormat, const void * da
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    
     switch(pixelFormat)
     {
         case PixelFormat::RGBA8888:

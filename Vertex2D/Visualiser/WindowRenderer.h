@@ -19,7 +19,7 @@
 class WindowRenderer
 {
 public:
-    WindowRenderer(const glm::vec2 & size);
+    WindowRenderer(SDL_Window * window, SDL_GLContext context);
     ~WindowRenderer();
 
     void SetBackgroundColour(const glm::vec4 & colour);

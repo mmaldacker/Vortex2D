@@ -2,11 +2,13 @@
 
 precision highp float;
 
-in mediump vec4 v_Colour;
+in vec4 v_Colour;
 
 uniform mediump vec4 u_Colour;
 
+out vec4 out_color;
+
 void main()
 {
-	gl_FragColor = v_Colour * u_Colour;
+	out_color = v_Colour * u_Colour;
 }

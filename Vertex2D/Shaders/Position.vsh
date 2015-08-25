@@ -2,7 +2,7 @@
 
 precision highp float;
 
-in mediump vec2 a_Position;
+in vec2 a_Position;
 
 uniform mat4 u_Projection;
 

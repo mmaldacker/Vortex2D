@@ -208,15 +208,4 @@ Program & Program::ColourPositionProgram()
     return program;
 }
 
-Program & Program::CircleProgram()
-{
-    static Program program;
-    if(!program.mProgram)
-    {
-        program = Program("Circle.vsh", "Circle.fsh");
-    }
-
-    return program;
-}
-
 }

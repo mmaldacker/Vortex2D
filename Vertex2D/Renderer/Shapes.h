@@ -25,8 +25,7 @@ public:
     Shape();
     ~Shape();
 
-    Shape(const Shape &) = delete;
-    Shape & operator=(const Shape &) = delete;
+    Shape(Shape &&);
 
     void SetType(GLuint type);
     void Set(const Path & path);

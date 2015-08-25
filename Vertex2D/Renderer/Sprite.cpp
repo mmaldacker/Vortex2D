@@ -53,19 +53,17 @@ Sprite::Sprite(Texture & texture, const std::vector<TextureCoords> & rects)
     Update(rects);
 }
 
-Sprite::Sprite(Sprite && other) : Sprite(other.mTexture)
+Sprite::Sprite(Sprite && other)
+    : Transformable(other)
+    , Colour(other.Colour)
+    , mVertexBuffer(other.mVertexBuffer)
+    , mTexCoordsBuffer(other.mTexCoordsBuffer)
+    , mVertexArray(other.mVertexArray)
+    , mNumTriangles(other.mNumTriangles)
+    , mTexture(other.mTexture)
+    , mColourUniform(other.mColourUniform)
 {
-    mVertexBuffer = other.mVertexBuffer;
-    mTexCoordsBuffer = other.mTexCoordsBuffer;
-    mVertexArray = other.mVertexArray;
-
-    other.mVertexBuffer = 0;
-    other.mTexCoordsBuffer = 0;
     other.mVertexArray = 0;
-
-    mColourUniform = other.mColourUniform;
-
-    Colour = other.Colour;
 }
 
 void Sprite::Coords(const TextureCoords & coords, std::vector<float> & texCoords, std::vector<float> & vertices)
@@ -78,8 +76,8 @@ void Sprite::Coords(const TextureCoords & coords, std::vector<float> & texCoords
 
     glm::vec2 a,b,c,d;
 
-    a.x = rect.Pos.x * dx, a.y = (rect.Pos.y + rect.Size.y) * dy;
-    b.x = rect.Pos.x * dx, b.y = rect.Pos.y * dy;
+    a.x = rect.Pos.x * dx,                 a.y = (rect.Pos.y + rect.Size.y) * dy;
+    b.x = rect.Pos.x * dx,                 b.y = rect.Pos.y * dy;
     c.x = (rect.Pos.x + rect.Size.x) * dx, c.y = (rect.Pos.y + rect.Size.y) * dy;
     d.x = (rect.Pos.x + rect.Size.x) * dx, d.y = rect.Pos.y * dy;
 
@@ -152,9 +150,12 @@ void Sprite::Render(const glm::mat4 & ortho)
 
 Sprite::~Sprite()
 {
-    glDeleteBuffers(1, &mVertexBuffer);
-    glDeleteBuffers(1, &mTexCoordsBuffer);
-    glDeleteVertexArrays(1, &mVertexArray);
+    if(mVertexArray)
+    {
+        glDeleteBuffers(1, &mVertexBuffer);
+        glDeleteBuffers(1, &mTexCoordsBuffer);
+        glDeleteVertexArrays(1, &mVertexArray);
+    }
 }
 
 }
