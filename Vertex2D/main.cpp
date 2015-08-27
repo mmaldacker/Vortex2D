@@ -1,4 +1,3 @@
-#include <SDL2/SDL.h>
 #include "Common.h"
 #include "ResourcePath.h"
 #include "GridVisualiser.h"
@@ -7,51 +6,47 @@
 
 #include <string>
 
+void error_callback(int error, const char* description)
+{
+    std::cout << "GLFW erro " << error << " : " << description << std::endl;
+}
+
 int main(int argc, const char * argv[])
 {
-    SDL_Init(SDL_INIT_VIDEO);
+    if(!glfwInit()) { std::cout << "Could not initialize GLFW" << std::endl; exit(EXIT_FAILURE); }
 
-    int size = 32;
+    glfwSetErrorCallback(error_callback);
+
+    int size = 30;
     int scale = 30;
 
-    SDL_Log("My resource path is %s", getResourcePath().c_str());
+    std::cout << "My resource path is " << getResourcePath() << std::endl;
 
-    /*WindowRenderer window({size*scale,size*scale});
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+    GridVisualiser grid({size, size}, scale);
+
+    WindowRenderer window({size*scale,size*scale}, &grid);
     window.SetBackgroundColour({1.0, 0.0, 0.0, 0.0});
+
+    Renderer::Rectangle rect(glm::vec2{40.0f, 40.0f});
+    rect.Position = {100.0f, 100.0f};
+    rect.Colour = {0.0f, 1.0f, 0.0f, 1.0f};
 
     Text text;
     auto textSprite = text.Render("3.14159");
-    window.AddDrawable(textSprite);*/
+    window.AddDrawable(textSprite);
 
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-
-    SDL_Window * window = SDL_CreateWindow(NULL, 0, 0, size*scale, size*scale, SDL_WINDOW_OPENGL);
-    SDL_GLContext context = SDL_GL_CreateContext(window);
-    if(!context)
+    while (!window.ShouldClose() && !grid.ShouldClose())
     {
-        throw std::runtime_error(SDL_GetError());
-    }
-
-
-    GridVisualiser grid(window, context, {size, size}, scale);
-
-    SDL_Event e;
-    bool quit = false;
-    while (!quit)
-    {
-        while (SDL_PollEvent(&e))
-        {
-            if (e.type == SDL_QUIT)
-            {
-                quit = true;
-            }
-        }
-
-        //window.Render();
+        window.Render();
         grid.Render();
+
+        glfwPollEvents();
     }
 
-    SDL_Quit();
+    glfwTerminate();
 }

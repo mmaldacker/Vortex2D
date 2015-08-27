@@ -10,7 +10,7 @@
 #include <sstream>
 #include <iomanip>
 
-GridVisualiser::GridVisualiser(SDL_Window * window, SDL_GLContext context, const glm::vec2 & size, int scale) : WindowRenderer(window, context)
+GridVisualiser::GridVisualiser(const glm::vec2 & size, int scale) : WindowRenderer(size*glm::vec2{scale})
     , mSize(size)
     , mScale(scale)
 {

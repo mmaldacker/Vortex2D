@@ -17,7 +17,7 @@
 class GridVisualiser : public WindowRenderer
 {
 public:
-    GridVisualiser(SDL_Window * window, SDL_GLContext context, const glm::vec2 & size, int scale);
+    GridVisualiser(const glm::vec2 & size, int scale);
 
     void RenderValue(const glm::vec2 & size, float value);
 
