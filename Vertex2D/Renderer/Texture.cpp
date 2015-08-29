@@ -119,7 +119,7 @@ void Texture::SetAntiAliasTexParameters()
     Unbind();
 }
 
-void Texture::Bind(int textureUnit)
+void Texture::Bind(int textureUnit) const
 {
     if(ActiveUnit != textureUnit)
     {

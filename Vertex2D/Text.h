@@ -20,6 +20,8 @@ public:
 
     Renderer::Sprite Render(const std::string & text);
 
+    const Renderer::Texture & GetFont() const;
+
 private:
     Renderer::Texture mFont;
 };

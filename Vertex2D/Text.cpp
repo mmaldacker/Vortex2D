@@ -36,13 +36,18 @@ Renderer::Sprite Text::Render(const std::string &text)
         int y = c / 16;
 
         Renderer::TextureCoords coord;
-        coord.rect = {{x*size.x, y*size.y}, size};
-        coord.pos = pos;
+        coord.tex = {{x*size.x, y*size.y}, size};
+        coord.pos = {pos, size};
 
         coords.push_back(coord);
 
         pos.x += size.x;
     }
 
-    return Renderer::Sprite(mFont, coords);
+    return Renderer::Sprite(mFont, {{mFont.Width(), mFont.Height()}, coords});
+}
+
+const Renderer::Texture & Text::GetFont() const
+{
+    return mFont;
 }

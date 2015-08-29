@@ -37,13 +37,26 @@ int main(int argc, const char * argv[])
     rect.Colour = {0.0f, 1.0f, 0.0f, 1.0f};
 
     Text text;
-    auto textSprite = text.Render("3.14159");
+    auto textSprite = text.Render(std::to_string(3.657));
+    textSprite.Position = glm::vec2{100.f};
+
+    Renderer::Sprite font(text.GetFont());
+
+    Renderer::TextureCoords c;
+    c.tex = {glm::vec2{96.0f}, glm::vec2{32.0f}};
+    c.pos = {glm::vec2{0.0f}, glm::vec2{32.0f}};
+    Renderer::Sprite font2(text.GetFont(), Renderer::Quad{{text.GetFont().Width(), text.GetFont().Height()},c});
+    //font2.Position = {100.0f, 100.0f};
+
+    window.AddDrawable(rect);
+    //window.AddDrawable(font);
+    //window.AddDrawable(font2);
     window.AddDrawable(textSprite);
 
     while (!window.ShouldClose() && !grid.ShouldClose())
     {
         window.Render();
-        grid.Render();
+        //grid.Render();
 
         glfwPollEvents();
     }

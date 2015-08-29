@@ -14,6 +14,7 @@
 #include "Texture.h"
 #include "Shader.h"
 #include "Transformable.h"
+#include "Quad.h"
 
 #include <vector>
 
@@ -23,27 +24,18 @@ namespace Renderer
 class Sprite : public Drawable, public Transformable
 {
 public:
-    explicit Sprite(Texture & texture);
-    Sprite(Texture & texture, const TextureCoords & rect);
-    Sprite(Texture & texture, const std::vector<TextureCoords> & rect);
-    ~Sprite();
+    explicit Sprite(const Texture & texture);
+    Sprite(const Texture & texture, Quad && quad);
 
     Sprite(Sprite &&);
 
     void Render(const glm::mat4 & ortho);
 
     glm::vec4 Colour;
-private:
-    void Update(const std::vector<TextureCoords> & coords);
-    void Coords(const TextureCoords & coords, std::vector<float> & texCoords, std::vector<float> & vertices);
     
-    GLuint mVertexBuffer;
-    GLuint mTexCoordsBuffer;
-    GLuint mVertexArray;
-    int mNumTriangles;
-
-    Texture & mTexture;
-
+private:
+    Quad mQuad;
+    const Texture & mTexture;
     Uniform<glm::vec4> mColourUniform;
 };
 

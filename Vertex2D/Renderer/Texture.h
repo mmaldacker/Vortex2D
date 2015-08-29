@@ -50,7 +50,7 @@ public:
     int StoredWidth() const { return mStoredWidth; }
     int StoredHeight() const { return mStoredHeight; }
 
-    void Bind(int n);
+    void Bind(int n) const;
     static void Unbind();
 
     void SetAliasTexParameters();

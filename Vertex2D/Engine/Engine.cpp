@@ -18,20 +18,21 @@ namespace Fluid
 GPUFluidEngine::GPUFluidEngine(const glm::vec2 & size, float scale, float dt, int antiAlias, int iterations)
     : mScale(scale)
     , mAntiAlias(antiAlias)
-    , mQuad(glm::floor(size/scale))
-    , mVelocity(mQuad.Size().x, mQuad.Size().y, Renderer::Texture::PixelFormat::RGF)
-    , mDensity(mQuad.Size().x, mQuad.Size().y, Renderer::Texture::PixelFormat::RGBA8888)
-    , mPressure(mQuad.Size().x, mQuad.Size().y, Renderer::Texture::PixelFormat::RGF, Renderer::RenderTexture::DepthFormat::DEPTH24_STENCIL8)
-    , mObstacles(mAntiAlias*mQuad.Size().x, mAntiAlias*mQuad.Size().y, Renderer::Texture::PixelFormat::RF)
-    , mObstaclesVelocity(mQuad.Size().x, mQuad.Size().y, Renderer::Texture::PixelFormat::RGF)
-    , mWeights(mQuad.Size().x, mQuad.Size().y, Renderer::Texture::PixelFormat::RGBAF)
+    , mSize(glm::floor(size/scale))
+    , mQuad(mSize)
+    , mVelocity(mSize.x, mSize.y, Renderer::Texture::PixelFormat::RGF)
+    , mDensity(mSize.x, mSize.y, Renderer::Texture::PixelFormat::RGBA8888)
+    , mPressure(mSize.x, mSize.y, Renderer::Texture::PixelFormat::RGF, Renderer::RenderTexture::DepthFormat::DEPTH24_STENCIL8)
+    , mObstacles(mAntiAlias*mSize.x, mAntiAlias*mSize.y, Renderer::Texture::PixelFormat::RF)
+    , mObstaclesVelocity(mSize.x, mSize.y, Renderer::Texture::PixelFormat::RGF)
+    , mWeights(mSize.x, mSize.y, Renderer::Texture::PixelFormat::RGBAF)
     , mLinearSolver(mQuad, mVelocity, mWeights)
     , mReader(mQuad, mVelocity.Front)
     , mDt(dt)
     , mDensitySprite(mDensity.Front)
     , mRun(true)
-    , mHorizontal({mAntiAlias*mQuad.Size().x, mAntiAlias})
-    , mVertical({mAntiAlias, mAntiAlias*mQuad.Size().y})
+    , mHorizontal({mAntiAlias*mSize.x, mAntiAlias})
+    , mVertical({mAntiAlias, mAntiAlias*mSize.y})
 {
     mObstaclesVelocity.SetAliasTexParameters();
     mDensity.Front.SetAntiAliasTexParameters();
@@ -51,7 +52,7 @@ GPUFluidEngine::GPUFluidEngine(const glm::vec2 & size, float scale, float dt, in
 Renderer::Program GPUFluidEngine::CreateProgramWithShader(const std::string & fragmentSource)
 {
     Renderer::Program program("fluid.vsh", fragmentSource);
-    program.Use().Set("h", mQuad.FullSize());
+    program.Use().Set("h", mQuad.Size());
     return program;
 }
 
@@ -69,7 +70,7 @@ void GPUFluidEngine::SetupShaders()
     mAdvectShader.Use()
         .Set("delta", mDt)
         .Set("xy_min", glm::vec2{0.5f, 0.5f})
-        .Set("xy_max", mQuad.Size() - glm::vec2{1.5})
+        .Set("xy_max", mSize - glm::vec2{1.5})
         .Set("u_texture", 0)
         .Set("u_velocity", 1)
         .Set("u_obstacles", 2);
@@ -79,7 +80,7 @@ void GPUFluidEngine::SetupShaders()
     mAdvectDensityShader.Use()
         .Set("delta", mDt)
         .Set("xy_min", glm::vec2{0.5f, 0.5f})
-        .Set("xy_max", mQuad.Size() - glm::vec2{1.5})
+        .Set("xy_max", mSize - glm::vec2{1.5})
         .Set("u_texture", 0)
         .Set("u_velocity", 1)
         .Set("u_obstacles", 2);
@@ -111,13 +112,13 @@ void GPUFluidEngine::Sources()
     mHorizontal.Position = {0.0f, 0.0f};
     mHorizontal.Render(mObstacles.Orth);
 
-    mHorizontal.Position = {0.0f, mAntiAlias*(mQuad.Size().y-1.0f)};
+    mHorizontal.Position = {0.0f, mAntiAlias*(mSize.y-1.0f)};
     mHorizontal.Render(mObstacles.Orth);
 
     mVertical.Position = {0.0f, 0.0f};
     mVertical.Render(mObstacles.Orth);
 
-    mVertical.Position = {mAntiAlias*(mQuad.Size().x-1.0f), 0.0f};
+    mVertical.Position = {mAntiAlias*(mSize.x-1.0f), 0.0f};
     mVertical.Render(mObstacles.Orth);
 
     auto invScale = glm::scale(glm::vec3{1.0f/mScale, 1.0f/mScale, 1.0f});

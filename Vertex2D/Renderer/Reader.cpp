@@ -14,7 +14,7 @@ namespace Renderer
 Reader::Reader(const Renderer::Quad & quad, Renderer::RenderTexture & texture)
     : mQuad(quad)
     , mTexture(texture)
-    , mPixels(new hfloat[(int)quad.FullSize().x*(int)quad.FullSize().y*2])
+    , mPixels(new hfloat[(int)quad.Size().x*(int)quad.Size().y*2])
 {
 }
 

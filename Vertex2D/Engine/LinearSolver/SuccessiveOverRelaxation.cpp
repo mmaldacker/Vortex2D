@@ -27,13 +27,13 @@ SuccessiveOverRelaxation::SuccessiveOverRelaxation(Renderer::Quad & quad,
     double w = 2.0/(1.0+std::sin(4.0*std::atan(1.0)/std::sqrt(quad.Size().x*quad.Size().y)));
 
     mSorShader.Use()
-    .Set("h", quad.FullSize())
+    .Set("h", quad.Size())
     .Set("u_texture", 0)
     .Set("u_weights", 1)
     .Set("w", w);
 
     mStencilShader.Use()
-    .Set("h", quad.FullSize());
+    .Set("h", quad.Size());
 }
 
 void SuccessiveOverRelaxation::Init()

@@ -50,6 +50,7 @@ private:
     float mScale;
     int mAntiAlias;
 
+    glm::vec2 mSize;
     Renderer::Quad mQuad;
 
     Renderer::PingPong mVelocity;
