@@ -43,5 +43,9 @@ GridVisualiser::GridVisualiser(const glm::vec2 & size, int scale) : WindowRender
 
 void GridVisualiser::RenderValue(const glm::vec2 & size, float value)
 {
-    
+    auto text = mFont.Render(std::to_string(value));
+    text.Position = size * glm::vec2{mScale};
+
+    mValues.push_back(std::move(text));
+    AddDrawable(mValues.back());
 }

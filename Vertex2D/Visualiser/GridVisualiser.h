@@ -12,6 +12,7 @@
 #include "Common.h"
 #include "WindowRenderer.h"
 #include "Shapes.h"
+#include "Text.h"
 #include <vector>
 
 class GridVisualiser : public WindowRenderer
@@ -25,7 +26,9 @@ private:
     glm::vec2 mSize;
     int mScale;
 
+    Text mFont;
     std::vector<Renderer::Rectangle> mGrid;
+    std::vector<Renderer::Sprite> mValues;
 };
 
 #endif /* defined(__Vertex2D__GridVisualiser__) */
