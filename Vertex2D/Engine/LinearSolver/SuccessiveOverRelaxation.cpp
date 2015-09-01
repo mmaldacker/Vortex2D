@@ -21,8 +21,8 @@ SuccessiveOverRelaxation::SuccessiveOverRelaxation(Renderer::Quad & quad,
     , mX(x)
     , mWeights(weights)
     , mIterations(iterations)
-    , mSorShader("fluid.vsh", "fluid-sor.fsh")
-    , mStencilShader("fluid.vsh", "fluid-stencil.fsh")
+    , mSorShader("Diff.vsh", "SOR.fsh")
+    , mStencilShader("Diff.vsh", "Stencil.fsh")
     , mIdentityShader(Renderer::Program::TexturePositionProgram())
 {
     double w = 2.0/(1.0+std::sin(4.0*std::atan(1.0)/std::sqrt(quad.Size().x*quad.Size().y)));

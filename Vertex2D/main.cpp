@@ -2,7 +2,7 @@
 #include "ResourcePath.h"
 #include "GridVisualiser.h"
 #include "WindowRenderer.h"
-#include "Text.h"
+#include "Engine.h"
 
 #include <string>
 
@@ -31,12 +31,17 @@ int main(int argc, const char * argv[])
 
     grid.RenderValue({3,3}, 3.45);
 
-    WindowRenderer window({size*scale,size*scale}, &grid);
-    window.SetBackgroundColour({1.0, 0.0, 0.0, 0.0});
+    auto realSize = glm::vec2{size*scale,size*scale};
+    WindowRenderer window(realSize, &grid);
+
+    Fluid::Engine engine(realSize, scale, 0.33, 2, 16);
+    window.AddDrawable(engine.GetDensity());
 
     while (!window.ShouldClose() && !grid.ShouldClose())
     {
         window.Render();
+        engine.Solve();
+        
         grid.Render();
 
         glfwPollEvents();

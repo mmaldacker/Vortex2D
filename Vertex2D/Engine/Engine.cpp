@@ -1,5 +1,5 @@
 //
-//  GPUFluidEngine.cpp
+//  Engine.cpp
 //  Vortex
 //
 //  Created by Maximilian Maldacker on 08/04/2014.
@@ -15,7 +15,7 @@
 namespace Fluid
 {
 
-GPUFluidEngine::GPUFluidEngine(const glm::vec2 & size, float scale, float dt, int antiAlias, int iterations)
+Engine::Engine(const glm::vec2 & size, float scale, float dt, int antiAlias, int iterations)
     : mScale(scale)
     , mAntiAlias(antiAlias)
     , mSize(glm::floor(size/scale))
@@ -23,18 +23,17 @@ GPUFluidEngine::GPUFluidEngine(const glm::vec2 & size, float scale, float dt, in
     , mVelocity(mSize.x, mSize.y, Renderer::Texture::PixelFormat::RGF)
     , mDensity(mSize.x, mSize.y, Renderer::Texture::PixelFormat::RGBA8888)
     , mPressure(mSize.x, mSize.y, Renderer::Texture::PixelFormat::RGF, Renderer::RenderTexture::DepthFormat::DEPTH24_STENCIL8)
-    , mObstacles(mAntiAlias*mSize.x, mAntiAlias*mSize.y, Renderer::Texture::PixelFormat::RF)
-    , mObstaclesVelocity(mSize.x, mSize.y, Renderer::Texture::PixelFormat::RGF)
+    , mBoundaries(mAntiAlias*mSize.x, mAntiAlias*mSize.y, Renderer::Texture::PixelFormat::RF)
+    , mBoundariesVelocity(mSize.x, mSize.y, Renderer::Texture::PixelFormat::RGF)
     , mWeights(mSize.x, mSize.y, Renderer::Texture::PixelFormat::RGBAF)
     , mLinearSolver(mQuad, mVelocity, mWeights)
     , mReader(mQuad, mVelocity.Front)
     , mDt(dt)
     , mDensitySprite(mDensity.Front)
-    , mRun(true)
     , mHorizontal({mAntiAlias*mSize.x, mAntiAlias})
     , mVertical({mAntiAlias, mAntiAlias*mSize.y})
 {
-    mObstaclesVelocity.SetAliasTexParameters();
+    mBoundariesVelocity.SetAliasTexParameters();
     mDensity.Front.SetAntiAliasTexParameters();
     mDensity.Back.SetAntiAliasTexParameters();
 
@@ -49,24 +48,24 @@ GPUFluidEngine::GPUFluidEngine(const glm::vec2 & size, float scale, float dt, in
     CHECK_GL_ERROR_DEBUG();
 }
 
-Renderer::Program GPUFluidEngine::CreateProgramWithShader(const std::string & fragmentSource)
+Renderer::Program Engine::CreateProgramWithShader(const std::string & fragmentSource)
 {
-    Renderer::Program program("fluid.vsh", fragmentSource);
+    Renderer::Program program("Diff.vsh", fragmentSource);
     program.Use().Set("h", mQuad.Size());
     return program;
 }
 
-void GPUFluidEngine::SetupShaders()
+void Engine::SetupShaders()
 {
     mIdentityShader = &Renderer::Program::TexturePositionProgram();
-    mObstacleShader = &Renderer::Program::PositionProgram();
+    mBoundarieshader = &Renderer::Program::PositionProgram();
 
     // obstacles velocity shader
     Renderer::Program obstaclesVelocityProgram("fluid-obstacle-velocity.vsh", "fluid-obstacle-velocity.fsh");
-    mObstaclesVelocityShader = std::move(obstaclesVelocityProgram);
+    mBoundariesVelocityShader = std::move(obstaclesVelocityProgram);
 
     // advection shader
-    mAdvectShader = CreateProgramWithShader("fluid-advect.fsh");
+    mAdvectShader = CreateProgramWithShader("Advect.fsh");
     mAdvectShader.Use()
         .Set("delta", mDt)
         .Set("xy_min", glm::vec2{0.5f, 0.5f})
@@ -77,7 +76,7 @@ void GPUFluidEngine::SetupShaders()
         .Unuse();
     
     // advection shader
-    mAdvectDensityShader = CreateProgramWithShader("fluid-advect-density.fsh");
+    mAdvectDensityShader = CreateProgramWithShader("AdvectDensity.fsh");
     mAdvectDensityShader.Use()
         .Set("delta", mDt)
         .Set("xy_min", glm::vec2{0.5f, 0.5f})
@@ -88,7 +87,7 @@ void GPUFluidEngine::SetupShaders()
         .Unuse();
 
     // projection shader
-    mProjectShader = CreateProgramWithShader("fluid-project.fsh");
+    mProjectShader = CreateProgramWithShader("Project.fsh");
     mProjectShader.Use()
         .Set("u_texture", 0)
         .Set("u_pressure", 1)
@@ -97,7 +96,7 @@ void GPUFluidEngine::SetupShaders()
         .Unuse();
 
     // div shader
-    mDivShader = CreateProgramWithShader("fluid-div.fsh");
+    mDivShader = CreateProgramWithShader("Div.fsh");
     mDivShader.Use()
         .Set("u_texture", 0)
         .Set("u_weights", 1)
@@ -105,43 +104,43 @@ void GPUFluidEngine::SetupShaders()
         .Unuse();
 
     // weights shader
-    mWeightsShader = CreateProgramWithShader("fluid-weights.fsh");
+    mWeightsShader = CreateProgramWithShader("Weights.fsh");
     mWeightsShader.Use()
         .Set("u_texture", 0)
         .Unuse();
 }
 
-void GPUFluidEngine::Sources()
+void Engine::Sources()
 {
-    mObstacles.begin({0.0f, 0.0f, 0.0f, 0.0f});
+    mBoundaries.begin({0.0f, 0.0f, 0.0f, 0.0f});
     mHorizontal.Position = {0.0f, 0.0f};
-    mHorizontal.Render(mObstacles.Orth);
+    mHorizontal.Render(mBoundaries.Orth);
 
     mHorizontal.Position = {0.0f, mAntiAlias*(mSize.y-1.0f)};
-    mHorizontal.Render(mObstacles.Orth);
+    mHorizontal.Render(mBoundaries.Orth);
 
     mVertical.Position = {0.0f, 0.0f};
-    mVertical.Render(mObstacles.Orth);
+    mVertical.Render(mBoundaries.Orth);
 
     mVertical.Position = {mAntiAlias*(mSize.x-1.0f), 0.0f};
-    mVertical.Render(mObstacles.Orth);
+    mVertical.Render(mBoundaries.Orth);
 
     auto invScale = glm::scale(glm::vec3{1.0f/mScale, 1.0f/mScale, 1.0f});
     invScale = glm::translate(invScale, glm::vec3{-mScale*0.5f, -mScale*0.5f, 0.0f});
 
-    auto scaled = glm::scale(mObstacles.Orth, glm::vec3(mAntiAlias, mAntiAlias, 1.0f));
+    auto scaled = glm::scale(mBoundaries.Orth, glm::vec3(mAntiAlias, mAntiAlias, 1.0f));
     for(auto input : mFluidInputs)
     {
         input->RenderObstacle(scaled*invScale);
     }
-    mObstacles.end();
+    mBoundaries.end();
 
-    mObstaclesVelocity.begin({0.0f, 0.0f, 0.0f, 0.0f});
+    mBoundariesVelocity.begin({0.0f, 0.0f, 0.0f, 0.0f});
     for(auto input : mFluidInputs)
     {
-        input->RenderObstacleVelocity(mObstaclesVelocity.Orth*invScale);
+        input->RenderObstacleVelocity(mBoundariesVelocity.Orth*invScale);
     }
-    mObstaclesVelocity.end();
+    mBoundariesVelocity.end();
 
     mVelocity.begin();
     for(auto input : mFluidInputs)
@@ -158,25 +157,25 @@ void GPUFluidEngine::Sources()
     mDensity.end();
 }
 
-void GPUFluidEngine::Weights()
+void Engine::Weights()
 {
     mWeights.begin();
     mWeightsShader.Use().SetMVP(mWeights.Orth);
 
-    mObstacles.Bind(0);
+    mBoundaries.Bind(0);
     mQuad.Render();
 
     mWeightsShader.Unuse();
     mWeights.end();
 }
 
-void GPUFluidEngine::Advect(Renderer::PingPong & renderTexture, Renderer::Program & program)
+void Engine::Advect(Renderer::PingPong & renderTexture, Renderer::Program & program)
 {
     renderTexture.swap();
     renderTexture.begin();
     program.Use().SetMVP(renderTexture.Orth);
 
-    mObstacles.Bind(2);
+    mBoundaries.Bind(2);
     mVelocity.Back.Bind(1);
     renderTexture.Back.Bind(0);
 
@@ -186,13 +185,13 @@ void GPUFluidEngine::Advect(Renderer::PingPong & renderTexture, Renderer::Progra
     renderTexture.end();
 }
 
-void GPUFluidEngine::Project()
+void Engine::Project()
 {
     mVelocity.swap();
     mVelocity.begin();
     mProjectShader.Use().SetMVP(mVelocity.Orth);
 
-    mObstaclesVelocity.Bind(3);
+    mBoundariesVelocity.Bind(3);
     mWeights.Bind(2);
     mPressure.Front.Bind(1);
     mVelocity.Back.Bind(0);
@@ -203,12 +202,12 @@ void GPUFluidEngine::Project()
     mVelocity.end();
 }
 
-void GPUFluidEngine::Div()
+void Engine::Div()
 {
     mPressure.begin();
     mDivShader.Use().SetMVP(mPressure.Orth);
 
-    mObstaclesVelocity.Bind(2);
+    mBoundariesVelocity.Bind(2);
     mWeights.Bind(1);
     mVelocity.Front.Bind(0);
 
@@ -218,10 +217,8 @@ void GPUFluidEngine::Div()
     mPressure.end();
 }
 
-void GPUFluidEngine::Solve()
+void Engine::Solve()
 {
-    if(!mRun) return;
-
     Renderer::Disable d(GL_BLEND);
 
     mReader.Read();
@@ -239,35 +236,25 @@ void GPUFluidEngine::Solve()
     CHECK_GL_ERROR_DEBUG();
 }
 
-void GPUFluidEngine::AddInput(FluidInput *input)
+void Engine::AddInput(FluidInput *input)
 {
     mFluidInputs.push_back(input);
 }
 
-Renderer::Sprite & GPUFluidEngine::GetDensity()
+Renderer::Sprite & Engine::GetDensity()
 {
     return mDensitySprite;
 }
 
-void GPUFluidEngine::Reset()
+void Engine::Reset()
 {
-    mObstacles.Clear();
-    mObstaclesVelocity.Clear();
+    mBoundaries.Clear();
+    mBoundariesVelocity.Clear();
     mWeights.Clear();
     mVelocity.Clear();
     mDensity.Clear();
     mPressure.Clear();
     mFluidInputs.clear();
-}
-
-void GPUFluidEngine::Start()
-{
-    mRun = true;
-}
-
-void GPUFluidEngine::Stop()
-{
-    mRun = false;
 }
 
 }

@@ -10,6 +10,30 @@
 		CE2ED4D21B96234C007343DA /* Image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE2ED4CE1B96234C007343DA /* Image.cpp */; };
 		CE2ED4D31B96234C007343DA /* Text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE2ED4D01B96234C007343DA /* Text.cpp */; };
 		CE2ED4D61B962357007343DA /* hfloat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE2ED4D41B962357007343DA /* hfloat.cpp */; };
+		CE2ED4E21B962942007343DA /* ColourPosition.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED4DA1B962942007343DA /* ColourPosition.fsh */; };
+		CE2ED4E31B962942007343DA /* ColourPosition.vsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED4DB1B962942007343DA /* ColourPosition.vsh */; };
+		CE2ED4E41B962942007343DA /* ColourTexturePosition.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED4DC1B962942007343DA /* ColourTexturePosition.fsh */; };
+		CE2ED4E51B962942007343DA /* ColourTexturePosition.vsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED4DD1B962942007343DA /* ColourTexturePosition.vsh */; };
+		CE2ED4E61B962942007343DA /* Position.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED4DE1B962942007343DA /* Position.fsh */; };
+		CE2ED4E71B962942007343DA /* Position.vsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED4DF1B962942007343DA /* Position.vsh */; };
+		CE2ED4E81B962942007343DA /* TexturePosition.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED4E01B962942007343DA /* TexturePosition.fsh */; };
+		CE2ED4E91B962942007343DA /* TexturePosition.vsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED4E11B962942007343DA /* TexturePosition.vsh */; };
+		CE2ED5331B96295B007343DA /* Advect.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED5201B96295B007343DA /* Advect.fsh */; };
+		CE2ED5341B96295B007343DA /* AdvectDensity.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED5211B96295B007343DA /* AdvectDensity.fsh */; };
+		CE2ED5351B96295B007343DA /* Diff.vsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED5221B96295B007343DA /* Diff.vsh */; };
+		CE2ED5361B96295B007343DA /* Div.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED5231B96295B007343DA /* Div.fsh */; };
+		CE2ED5371B96295B007343DA /* Correct.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED5261B96295B007343DA /* Correct.fsh */; };
+		CE2ED5381B96295B007343DA /* DampedJacobi.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED5271B96295B007343DA /* DampedJacobi.fsh */; };
+		CE2ED5391B96295B007343DA /* Prolongate.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED5281B96295B007343DA /* Prolongate.fsh */; };
+		CE2ED53A1B96295B007343DA /* Residual.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED5291B96295B007343DA /* Residual.fsh */; };
+		CE2ED53B1B96295B007343DA /* Restrict.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED52A1B96295B007343DA /* Restrict.fsh */; };
+		CE2ED53C1B96295B007343DA /* Restrict.vsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED52B1B96295B007343DA /* Restrict.vsh */; };
+		CE2ED53D1B96295B007343DA /* Sentcil.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED52D1B96295B007343DA /* Sentcil.fsh */; };
+		CE2ED53E1B96295B007343DA /* SOR.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED52E1B96295B007343DA /* SOR.fsh */; };
+		CE2ED53F1B96295B007343DA /* Project.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED52F1B96295B007343DA /* Project.fsh */; };
+		CE2ED5401B96295B007343DA /* Velocity.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED5301B96295B007343DA /* Velocity.fsh */; };
+		CE2ED5411B96295B007343DA /* Velocity.vsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED5311B96295B007343DA /* Velocity.vsh */; };
+		CE2ED5421B96295B007343DA /* Weights.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED5321B96295B007343DA /* Weights.fsh */; };
 		CE50E2491B8509B500548C19 /* GridVisualiser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE50E2471B8509B500548C19 /* GridVisualiser.cpp */; };
 		CE50E2511B862F0700548C19 /* WindowRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE50E24F1B862F0700548C19 /* WindowRenderer.cpp */; };
 		CE50E2531B863B0600548C19 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE6D63131B84E5E3006729F0 /* OpenGL.framework */; };
@@ -25,30 +49,6 @@
 		CE6D63261B84E7B6006729F0 /* Obstacle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D631F1B84E7B6006729F0 /* Obstacle.cpp */; };
 		CE6D632D1B84EAEA006729F0 /* Quad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D632B1B84EAEA006729F0 /* Quad.cpp */; };
 		CE6D63361B84ED96006729F0 /* SuccessiveOverRelaxation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D63341B84ED96006729F0 /* SuccessiveOverRelaxation.cpp */; };
-		CE6D63541B84F1A3006729F0 /* ColourPosition.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE6D633A1B84F1A3006729F0 /* ColourPosition.fsh */; };
-		CE6D63551B84F1A3006729F0 /* ColourPosition.vsh in Resources */ = {isa = PBXBuildFile; fileRef = CE6D633B1B84F1A3006729F0 /* ColourPosition.vsh */; };
-		CE6D63561B84F1A3006729F0 /* ColourTexturePosition.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE6D633C1B84F1A3006729F0 /* ColourTexturePosition.fsh */; };
-		CE6D63571B84F1A3006729F0 /* ColourTexturePosition.vsh in Resources */ = {isa = PBXBuildFile; fileRef = CE6D633D1B84F1A3006729F0 /* ColourTexturePosition.vsh */; };
-		CE6D63581B84F1A3006729F0 /* fluid-advect-density.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE6D633E1B84F1A3006729F0 /* fluid-advect-density.fsh */; };
-		CE6D63591B84F1A3006729F0 /* fluid-advect.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE6D633F1B84F1A3006729F0 /* fluid-advect.fsh */; };
-		CE6D635A1B84F1A3006729F0 /* fluid-correct.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE6D63401B84F1A3006729F0 /* fluid-correct.fsh */; };
-		CE6D635B1B84F1A3006729F0 /* fluid-damped-jacobi.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE6D63411B84F1A3006729F0 /* fluid-damped-jacobi.fsh */; };
-		CE6D635C1B84F1A3006729F0 /* fluid-div.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE6D63421B84F1A3006729F0 /* fluid-div.fsh */; };
-		CE6D635D1B84F1A3006729F0 /* fluid-obstacle-velocity.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE6D63431B84F1A3006729F0 /* fluid-obstacle-velocity.fsh */; };
-		CE6D635E1B84F1A3006729F0 /* fluid-obstacle-velocity.vsh in Resources */ = {isa = PBXBuildFile; fileRef = CE6D63441B84F1A3006729F0 /* fluid-obstacle-velocity.vsh */; };
-		CE6D635F1B84F1A3006729F0 /* fluid-project.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE6D63451B84F1A3006729F0 /* fluid-project.fsh */; };
-		CE6D63601B84F1A3006729F0 /* fluid-prolongate.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE6D63461B84F1A3006729F0 /* fluid-prolongate.fsh */; };
-		CE6D63611B84F1A3006729F0 /* fluid-residual.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE6D63471B84F1A3006729F0 /* fluid-residual.fsh */; };
-		CE6D63621B84F1A3006729F0 /* fluid-restrict.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE6D63481B84F1A3006729F0 /* fluid-restrict.fsh */; };
-		CE6D63631B84F1A3006729F0 /* fluid-restrict.vsh in Resources */ = {isa = PBXBuildFile; fileRef = CE6D63491B84F1A3006729F0 /* fluid-restrict.vsh */; };
-		CE6D63641B84F1A3006729F0 /* fluid-sor.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE6D634A1B84F1A3006729F0 /* fluid-sor.fsh */; };
-		CE6D63651B84F1A3006729F0 /* fluid-stencil.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE6D634B1B84F1A3006729F0 /* fluid-stencil.fsh */; };
-		CE6D63661B84F1A3006729F0 /* fluid-weights.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE6D634C1B84F1A3006729F0 /* fluid-weights.fsh */; };
-		CE6D63671B84F1A3006729F0 /* fluid.vsh in Resources */ = {isa = PBXBuildFile; fileRef = CE6D634D1B84F1A3006729F0 /* fluid.vsh */; };
-		CE6D63681B84F1A3006729F0 /* Position.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE6D634E1B84F1A3006729F0 /* Position.fsh */; };
-		CE6D63691B84F1A3006729F0 /* Position.vsh in Resources */ = {isa = PBXBuildFile; fileRef = CE6D634F1B84F1A3006729F0 /* Position.vsh */; };
-		CE6D636A1B84F1A3006729F0 /* TexturePosition.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE6D63501B84F1A3006729F0 /* TexturePosition.fsh */; };
-		CE6D636B1B84F1A3006729F0 /* TexturePosition.vsh in Resources */ = {isa = PBXBuildFile; fileRef = CE6D63511B84F1A3006729F0 /* TexturePosition.vsh */; };
 		CE6D636E1B84F4DB006729F0 /* Reader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D636C1B84F4DB006729F0 /* Reader.cpp */; };
 		CE9F2C621B88A15400EDDF5A /* font.png in Resources */ = {isa = PBXBuildFile; fileRef = CE9F2C611B88A15400EDDF5A /* font.png */; };
 /* End PBXBuildFile section */
@@ -60,6 +60,30 @@
 		CE2ED4D11B96234C007343DA /* Text.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Text.h; path = Visualiser/Text.h; sourceTree = "<group>"; };
 		CE2ED4D41B962357007343DA /* hfloat.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hfloat.cpp; path = Engine/hfloat.cpp; sourceTree = "<group>"; };
 		CE2ED4D51B962357007343DA /* hfloat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hfloat.h; path = Engine/hfloat.h; sourceTree = "<group>"; };
+		CE2ED4DA1B962942007343DA /* ColourPosition.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ColourPosition.fsh; path = Shaders/Renderer/ColourPosition.fsh; sourceTree = "<group>"; };
+		CE2ED4DB1B962942007343DA /* ColourPosition.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ColourPosition.vsh; path = Shaders/Renderer/ColourPosition.vsh; sourceTree = "<group>"; };
+		CE2ED4DC1B962942007343DA /* ColourTexturePosition.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ColourTexturePosition.fsh; path = Shaders/Renderer/ColourTexturePosition.fsh; sourceTree = "<group>"; };
+		CE2ED4DD1B962942007343DA /* ColourTexturePosition.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ColourTexturePosition.vsh; path = Shaders/Renderer/ColourTexturePosition.vsh; sourceTree = "<group>"; };
+		CE2ED4DE1B962942007343DA /* Position.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Position.fsh; path = Shaders/Renderer/Position.fsh; sourceTree = "<group>"; };
+		CE2ED4DF1B962942007343DA /* Position.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Position.vsh; path = Shaders/Renderer/Position.vsh; sourceTree = "<group>"; };
+		CE2ED4E01B962942007343DA /* TexturePosition.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = TexturePosition.fsh; path = Shaders/Renderer/TexturePosition.fsh; sourceTree = "<group>"; };
+		CE2ED4E11B962942007343DA /* TexturePosition.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = TexturePosition.vsh; path = Shaders/Renderer/TexturePosition.vsh; sourceTree = "<group>"; };
+		CE2ED5201B96295B007343DA /* Advect.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Advect.fsh; path = Shaders/Engine/Advect.fsh; sourceTree = "<group>"; };
+		CE2ED5211B96295B007343DA /* AdvectDensity.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = AdvectDensity.fsh; path = Shaders/Engine/AdvectDensity.fsh; sourceTree = "<group>"; };
+		CE2ED5221B96295B007343DA /* Diff.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Diff.vsh; path = Shaders/Engine/Diff.vsh; sourceTree = "<group>"; };
+		CE2ED5231B96295B007343DA /* Div.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Div.fsh; path = Shaders/Engine/Div.fsh; sourceTree = "<group>"; };
+		CE2ED5261B96295B007343DA /* Correct.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Correct.fsh; sourceTree = "<group>"; };
+		CE2ED5271B96295B007343DA /* DampedJacobi.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = DampedJacobi.fsh; sourceTree = "<group>"; };
+		CE2ED5281B96295B007343DA /* Prolongate.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Prolongate.fsh; sourceTree = "<group>"; };
+		CE2ED5291B96295B007343DA /* Residual.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Residual.fsh; sourceTree = "<group>"; };
+		CE2ED52A1B96295B007343DA /* Restrict.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Restrict.fsh; sourceTree = "<group>"; };
+		CE2ED52B1B96295B007343DA /* Restrict.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Restrict.vsh; sourceTree = "<group>"; };
+		CE2ED52D1B96295B007343DA /* Sentcil.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Sentcil.fsh; sourceTree = "<group>"; };
+		CE2ED52E1B96295B007343DA /* SOR.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = SOR.fsh; sourceTree = "<group>"; };
+		CE2ED52F1B96295B007343DA /* Project.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Project.fsh; path = Shaders/Engine/Project.fsh; sourceTree = "<group>"; };
+		CE2ED5301B96295B007343DA /* Velocity.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Velocity.fsh; path = Shaders/Engine/Velocity.fsh; sourceTree = "<group>"; };
+		CE2ED5311B96295B007343DA /* Velocity.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Velocity.vsh; path = Shaders/Engine/Velocity.vsh; sourceTree = "<group>"; };
+		CE2ED5321B96295B007343DA /* Weights.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Weights.fsh; path = Shaders/Engine/Weights.fsh; sourceTree = "<group>"; };
 		CE50E2471B8509B500548C19 /* GridVisualiser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GridVisualiser.cpp; path = Visualiser/GridVisualiser.cpp; sourceTree = "<group>"; };
 		CE50E2481B8509B500548C19 /* GridVisualiser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GridVisualiser.h; path = Visualiser/GridVisualiser.h; sourceTree = "<group>"; };
 		CE50E24F1B862F0700548C19 /* WindowRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WindowRenderer.cpp; path = Visualiser/WindowRenderer.cpp; sourceTree = "<group>"; };
@@ -97,30 +121,6 @@
 		CE6D63331B84ED96006729F0 /* LinearSolver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LinearSolver.h; path = Engine/LinearSolver/LinearSolver.h; sourceTree = "<group>"; };
 		CE6D63341B84ED96006729F0 /* SuccessiveOverRelaxation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SuccessiveOverRelaxation.cpp; path = Engine/LinearSolver/SuccessiveOverRelaxation.cpp; sourceTree = "<group>"; };
 		CE6D63351B84ED96006729F0 /* SuccessiveOverRelaxation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SuccessiveOverRelaxation.h; path = Engine/LinearSolver/SuccessiveOverRelaxation.h; sourceTree = "<group>"; };
-		CE6D633A1B84F1A3006729F0 /* ColourPosition.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ColourPosition.fsh; path = Shaders/ColourPosition.fsh; sourceTree = "<group>"; };
-		CE6D633B1B84F1A3006729F0 /* ColourPosition.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ColourPosition.vsh; path = Shaders/ColourPosition.vsh; sourceTree = "<group>"; };
-		CE6D633C1B84F1A3006729F0 /* ColourTexturePosition.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ColourTexturePosition.fsh; path = Shaders/ColourTexturePosition.fsh; sourceTree = "<group>"; };
-		CE6D633D1B84F1A3006729F0 /* ColourTexturePosition.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ColourTexturePosition.vsh; path = Shaders/ColourTexturePosition.vsh; sourceTree = "<group>"; };
-		CE6D633E1B84F1A3006729F0 /* fluid-advect-density.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = "fluid-advect-density.fsh"; path = "Shaders/fluid-advect-density.fsh"; sourceTree = "<group>"; };
-		CE6D633F1B84F1A3006729F0 /* fluid-advect.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = "fluid-advect.fsh"; path = "Shaders/fluid-advect.fsh"; sourceTree = "<group>"; };
-		CE6D63401B84F1A3006729F0 /* fluid-correct.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = "fluid-correct.fsh"; path = "Shaders/fluid-correct.fsh"; sourceTree = "<group>"; };
-		CE6D63411B84F1A3006729F0 /* fluid-damped-jacobi.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = "fluid-damped-jacobi.fsh"; path = "Shaders/fluid-damped-jacobi.fsh"; sourceTree = "<group>"; };
-		CE6D63421B84F1A3006729F0 /* fluid-div.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = "fluid-div.fsh"; path = "Shaders/fluid-div.fsh"; sourceTree = "<group>"; };
-		CE6D63431B84F1A3006729F0 /* fluid-obstacle-velocity.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = "fluid-obstacle-velocity.fsh"; path = "Shaders/fluid-obstacle-velocity.fsh"; sourceTree = "<group>"; };
-		CE6D63441B84F1A3006729F0 /* fluid-obstacle-velocity.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = "fluid-obstacle-velocity.vsh"; path = "Shaders/fluid-obstacle-velocity.vsh"; sourceTree = "<group>"; };
-		CE6D63451B84F1A3006729F0 /* fluid-project.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = "fluid-project.fsh"; path = "Shaders/fluid-project.fsh"; sourceTree = "<group>"; };
-		CE6D63461B84F1A3006729F0 /* fluid-prolongate.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = "fluid-prolongate.fsh"; path = "Shaders/fluid-prolongate.fsh"; sourceTree = "<group>"; };
-		CE6D63471B84F1A3006729F0 /* fluid-residual.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = "fluid-residual.fsh"; path = "Shaders/fluid-residual.fsh"; sourceTree = "<group>"; };
-		CE6D63481B84F1A3006729F0 /* fluid-restrict.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = "fluid-restrict.fsh"; path = "Shaders/fluid-restrict.fsh"; sourceTree = "<group>"; };
-		CE6D63491B84F1A3006729F0 /* fluid-restrict.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = "fluid-restrict.vsh"; path = "Shaders/fluid-restrict.vsh"; sourceTree = "<group>"; };
-		CE6D634A1B84F1A3006729F0 /* fluid-sor.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = "fluid-sor.fsh"; path = "Shaders/fluid-sor.fsh"; sourceTree = "<group>"; };
-		CE6D634B1B84F1A3006729F0 /* fluid-stencil.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = "fluid-stencil.fsh"; path = "Shaders/fluid-stencil.fsh"; sourceTree = "<group>"; };
-		CE6D634C1B84F1A3006729F0 /* fluid-weights.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = "fluid-weights.fsh"; path = "Shaders/fluid-weights.fsh"; sourceTree = "<group>"; };
-		CE6D634D1B84F1A3006729F0 /* fluid.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = fluid.vsh; path = Shaders/fluid.vsh; sourceTree = "<group>"; };
-		CE6D634E1B84F1A3006729F0 /* Position.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Position.fsh; path = Shaders/Position.fsh; sourceTree = "<group>"; };
-		CE6D634F1B84F1A3006729F0 /* Position.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Position.vsh; path = Shaders/Position.vsh; sourceTree = "<group>"; };
-		CE6D63501B84F1A3006729F0 /* TexturePosition.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = TexturePosition.fsh; path = Shaders/TexturePosition.fsh; sourceTree = "<group>"; };
-		CE6D63511B84F1A3006729F0 /* TexturePosition.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = TexturePosition.vsh; path = Shaders/TexturePosition.vsh; sourceTree = "<group>"; };
 		CE6D636C1B84F4DB006729F0 /* Reader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Reader.cpp; path = Renderer/Reader.cpp; sourceTree = "<group>"; };
 		CE6D636D1B84F4DB006729F0 /* Reader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Reader.h; path = Renderer/Reader.h; sourceTree = "<group>"; };
 		CE6D63711B850064006729F0 /* Disable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Disable.h; path = Renderer/Disable.h; sourceTree = "<group>"; };
@@ -139,6 +139,38 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		CE2ED5241B96295B007343DA /* LinearSolver */ = {
+			isa = PBXGroup;
+			children = (
+				CE2ED5251B96295B007343DA /* Multigrid */,
+				CE2ED52C1B96295B007343DA /* SOR */,
+			);
+			name = LinearSolver;
+			path = Shaders/Engine/LinearSolver;
+			sourceTree = "<group>";
+		};
+		CE2ED5251B96295B007343DA /* Multigrid */ = {
+			isa = PBXGroup;
+			children = (
+				CE2ED5261B96295B007343DA /* Correct.fsh */,
+				CE2ED5271B96295B007343DA /* DampedJacobi.fsh */,
+				CE2ED5281B96295B007343DA /* Prolongate.fsh */,
+				CE2ED5291B96295B007343DA /* Residual.fsh */,
+				CE2ED52A1B96295B007343DA /* Restrict.fsh */,
+				CE2ED52B1B96295B007343DA /* Restrict.vsh */,
+			);
+			path = Multigrid;
+			sourceTree = "<group>";
+		};
+		CE2ED52C1B96295B007343DA /* SOR */ = {
+			isa = PBXGroup;
+			children = (
+				CE2ED52D1B96295B007343DA /* Sentcil.fsh */,
+				CE2ED52E1B96295B007343DA /* SOR.fsh */,
+			);
+			path = SOR;
+			sourceTree = "<group>";
+		};
 		CE6D62C11B84DF98006729F0 = {
 			isa = PBXGroup;
 			children = (
@@ -261,14 +293,14 @@
 		CE9F2C631B88C62B00EDDF5A /* Renderer */ = {
 			isa = PBXGroup;
 			children = (
-				CE6D634E1B84F1A3006729F0 /* Position.fsh */,
-				CE6D634F1B84F1A3006729F0 /* Position.vsh */,
-				CE6D63501B84F1A3006729F0 /* TexturePosition.fsh */,
-				CE6D63511B84F1A3006729F0 /* TexturePosition.vsh */,
-				CE6D633A1B84F1A3006729F0 /* ColourPosition.fsh */,
-				CE6D633B1B84F1A3006729F0 /* ColourPosition.vsh */,
-				CE6D633C1B84F1A3006729F0 /* ColourTexturePosition.fsh */,
-				CE6D633D1B84F1A3006729F0 /* ColourTexturePosition.vsh */,
+				CE2ED4DA1B962942007343DA /* ColourPosition.fsh */,
+				CE2ED4DB1B962942007343DA /* ColourPosition.vsh */,
+				CE2ED4DC1B962942007343DA /* ColourTexturePosition.fsh */,
+				CE2ED4DD1B962942007343DA /* ColourTexturePosition.vsh */,
+				CE2ED4DE1B962942007343DA /* Position.fsh */,
+				CE2ED4DF1B962942007343DA /* Position.vsh */,
+				CE2ED4E01B962942007343DA /* TexturePosition.fsh */,
+				CE2ED4E11B962942007343DA /* TexturePosition.vsh */,
 			);
 			name = Renderer;
 			sourceTree = "<group>";
@@ -276,22 +308,15 @@
 		CE9F2C641B88C63C00EDDF5A /* Engine */ = {
 			isa = PBXGroup;
 			children = (
-				CE6D633E1B84F1A3006729F0 /* fluid-advect-density.fsh */,
-				CE6D633F1B84F1A3006729F0 /* fluid-advect.fsh */,
-				CE6D63401B84F1A3006729F0 /* fluid-correct.fsh */,
-				CE6D63411B84F1A3006729F0 /* fluid-damped-jacobi.fsh */,
-				CE6D63421B84F1A3006729F0 /* fluid-div.fsh */,
-				CE6D63431B84F1A3006729F0 /* fluid-obstacle-velocity.fsh */,
-				CE6D63441B84F1A3006729F0 /* fluid-obstacle-velocity.vsh */,
-				CE6D63451B84F1A3006729F0 /* fluid-project.fsh */,
-				CE6D63461B84F1A3006729F0 /* fluid-prolongate.fsh */,
-				CE6D63471B84F1A3006729F0 /* fluid-residual.fsh */,
-				CE6D63481B84F1A3006729F0 /* fluid-restrict.fsh */,
-				CE6D63491B84F1A3006729F0 /* fluid-restrict.vsh */,
-				CE6D634A1B84F1A3006729F0 /* fluid-sor.fsh */,
-				CE6D634B1B84F1A3006729F0 /* fluid-stencil.fsh */,
-				CE6D634C1B84F1A3006729F0 /* fluid-weights.fsh */,
-				CE6D634D1B84F1A3006729F0 /* fluid.vsh */,
+				CE2ED5201B96295B007343DA /* Advect.fsh */,
+				CE2ED5211B96295B007343DA /* AdvectDensity.fsh */,
+				CE2ED5221B96295B007343DA /* Diff.vsh */,
+				CE2ED5231B96295B007343DA /* Div.fsh */,
+				CE2ED5241B96295B007343DA /* LinearSolver */,
+				CE2ED52F1B96295B007343DA /* Project.fsh */,
+				CE2ED5301B96295B007343DA /* Velocity.fsh */,
+				CE2ED5311B96295B007343DA /* Velocity.vsh */,
+				CE2ED5321B96295B007343DA /* Weights.fsh */,
 			);
 			name = Engine;
 			sourceTree = "<group>";
@@ -353,31 +378,31 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CE6D63691B84F1A3006729F0 /* Position.vsh in Resources */,
-				CE6D63571B84F1A3006729F0 /* ColourTexturePosition.vsh in Resources */,
+				CE2ED4E51B962942007343DA /* ColourTexturePosition.vsh in Resources */,
 				CE9F2C621B88A15400EDDF5A /* font.png in Resources */,
-				CE6D63541B84F1A3006729F0 /* ColourPosition.fsh in Resources */,
-				CE6D63631B84F1A3006729F0 /* fluid-restrict.vsh in Resources */,
-				CE6D63651B84F1A3006729F0 /* fluid-stencil.fsh in Resources */,
-				CE6D636A1B84F1A3006729F0 /* TexturePosition.fsh in Resources */,
-				CE6D63551B84F1A3006729F0 /* ColourPosition.vsh in Resources */,
-				CE6D63621B84F1A3006729F0 /* fluid-restrict.fsh in Resources */,
-				CE6D635A1B84F1A3006729F0 /* fluid-correct.fsh in Resources */,
-				CE6D63671B84F1A3006729F0 /* fluid.vsh in Resources */,
-				CE6D635B1B84F1A3006729F0 /* fluid-damped-jacobi.fsh in Resources */,
-				CE6D63641B84F1A3006729F0 /* fluid-sor.fsh in Resources */,
-				CE6D636B1B84F1A3006729F0 /* TexturePosition.vsh in Resources */,
-				CE6D63661B84F1A3006729F0 /* fluid-weights.fsh in Resources */,
-				CE6D635C1B84F1A3006729F0 /* fluid-div.fsh in Resources */,
-				CE6D635D1B84F1A3006729F0 /* fluid-obstacle-velocity.fsh in Resources */,
-				CE6D63581B84F1A3006729F0 /* fluid-advect-density.fsh in Resources */,
-				CE6D63601B84F1A3006729F0 /* fluid-prolongate.fsh in Resources */,
-				CE6D63611B84F1A3006729F0 /* fluid-residual.fsh in Resources */,
-				CE6D635F1B84F1A3006729F0 /* fluid-project.fsh in Resources */,
-				CE6D63681B84F1A3006729F0 /* Position.fsh in Resources */,
-				CE6D635E1B84F1A3006729F0 /* fluid-obstacle-velocity.vsh in Resources */,
-				CE6D63561B84F1A3006729F0 /* ColourTexturePosition.fsh in Resources */,
-				CE6D63591B84F1A3006729F0 /* fluid-advect.fsh in Resources */,
+				CE2ED4E21B962942007343DA /* ColourPosition.fsh in Resources */,
+				CE2ED4E41B962942007343DA /* ColourTexturePosition.fsh in Resources */,
+				CE2ED5371B96295B007343DA /* Correct.fsh in Resources */,
+				CE2ED53B1B96295B007343DA /* Restrict.fsh in Resources */,
+				CE2ED5381B96295B007343DA /* DampedJacobi.fsh in Resources */,
+				CE2ED5351B96295B007343DA /* Diff.vsh in Resources */,
+				CE2ED53D1B96295B007343DA /* Sentcil.fsh in Resources */,
+				CE2ED5421B96295B007343DA /* Weights.fsh in Resources */,
+				CE2ED4E81B962942007343DA /* TexturePosition.fsh in Resources */,
+				CE2ED5411B96295B007343DA /* Velocity.vsh in Resources */,
+				CE2ED5401B96295B007343DA /* Velocity.fsh in Resources */,
+				CE2ED5391B96295B007343DA /* Prolongate.fsh in Resources */,
+				CE2ED53F1B96295B007343DA /* Project.fsh in Resources */,
+				CE2ED53C1B96295B007343DA /* Restrict.vsh in Resources */,
+				CE2ED5361B96295B007343DA /* Div.fsh in Resources */,
+				CE2ED4E61B962942007343DA /* Position.fsh in Resources */,
+				CE2ED53A1B96295B007343DA /* Residual.fsh in Resources */,
+				CE2ED4E91B962942007343DA /* TexturePosition.vsh in Resources */,
+				CE2ED5341B96295B007343DA /* AdvectDensity.fsh in Resources */,
+				CE2ED4E71B962942007343DA /* Position.vsh in Resources */,
+				CE2ED53E1B96295B007343DA /* SOR.fsh in Resources */,
+				CE2ED5331B96295B007343DA /* Advect.fsh in Resources */,
+				CE2ED4E31B962942007343DA /* ColourPosition.vsh in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

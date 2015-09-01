@@ -1,13 +1,13 @@
 //
-//  GPUFluidEngine.h
+//  Engine.h
 //  Vortex
 //
 //  Created by Maximilian Maldacker on 08/04/2014.
 //
 //
 
-#ifndef __Vortex__GPUFluidEngine__
-#define __Vortex__GPUFluidEngine__
+#ifndef __Vortex__Engine__
+#define __Vortex__Engine__
 
 #include "SuccessiveOverRelaxation.h"
 #include "Shader.h"
@@ -23,18 +23,15 @@
 namespace Fluid
 {
 
-class GPUFluidEngine
+class Engine
 {
 public:
-    GPUFluidEngine(const glm::vec2 & size, float scale, float dt, int antiAlias, int iterations);
+    Engine(const glm::vec2 & size, float scale, float dt, int antiAlias, int iterations);
     
     void Solve();
     void AddInput(FluidInput * input);
     Renderer::Sprite & GetDensity();
     void Reset();
-
-    void Start();
-    void Stop();
 
 private:
     Renderer::Program CreateProgramWithShader(const std::string & fragmentSource);
@@ -56,8 +53,8 @@ private:
     Renderer::PingPong mVelocity;
     Renderer::PingPong mDensity;
     Renderer::PingPong mPressure;
-    Renderer::RenderTexture mObstacles;
-    Renderer::RenderTexture mObstaclesVelocity;
+    Renderer::RenderTexture mBoundaries;
+    Renderer::RenderTexture mBoundariesVelocity;
     Renderer::RenderTexture mWeights;
 
     SuccessiveOverRelaxation mLinearSolver;
@@ -67,10 +64,10 @@ private:
     Renderer::Program mDivShader;
     Renderer::Program mProjectShader;
     Renderer::Program mAdvectDensityShader;
-    Renderer::Program * mObstacleShader;
+    Renderer::Program * mBoundarieshader;
     Renderer::Program * mIdentityShader;
     Renderer::Program mWeightsShader;
-    Renderer::Program mObstaclesVelocityShader;
+    Renderer::Program mBoundariesVelocityShader;
 
     float mDt;
 
@@ -78,15 +75,10 @@ private:
 
     Renderer::Sprite mDensitySprite;
 
-    void PrintGrid(Renderer::RenderTexture & renderTexture, int format, int component);
-
-    bool mRun;
-    bool mDebug;
-
     Renderer::Rectangle mHorizontal;
     Renderer::Rectangle mVertical;
 };
 
 }
 
-#endif /* defined(__Vortex__GPUFluidEngine__) */
+#endif /* defined(__Vortex__Engine__) */
