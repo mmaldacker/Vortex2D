@@ -67,7 +67,6 @@ private:
     Renderer::Program * mBoundarieshader;
     Renderer::Program * mIdentityShader;
     Renderer::Program mWeightsShader;
-    Renderer::Program mBoundariesVelocityShader;
 
     float mDt;
 

@@ -60,10 +60,6 @@ void Engine::SetupShaders()
     mIdentityShader = &Renderer::Program::TexturePositionProgram();
     mBoundarieshader = &Renderer::Program::PositionProgram();
 
-    // obstacles velocity shader
-    Renderer::Program obstaclesVelocityProgram("fluid-obstacle-velocity.vsh", "fluid-obstacle-velocity.fsh");
-    mBoundariesVelocityShader = std::move(obstaclesVelocityProgram);
-
     // advection shader
     mAdvectShader = CreateProgramWithShader("Advect.fsh");
     mAdvectShader.Use()

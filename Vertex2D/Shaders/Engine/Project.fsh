@@ -1,10 +1,12 @@
+#version 150
+
 precision highp float;
 
-varying mediump vec2 v_texCoord;
-varying mediump vec2 v_texCoordxp;
-varying mediump vec2 v_texCoordxn;
-varying mediump vec2 v_texCoordyp;
-varying mediump vec2 v_texCoordyn;
+in vec2 v_texCoord;
+in vec2 v_texCoordxp;
+in vec2 v_texCoordxn;
+in vec2 v_texCoordyp;
+in vec2 v_texCoordyn;
 
 
 uniform sampler2D u_texture; // this is the velocity texture
@@ -14,18 +16,20 @@ uniform sampler2D u_obstacles_velocity;
 
 uniform vec2 h;
 
+out vec4 out_color;
+
 void main() 
 {
     
-	vec2 cell = texture2D(u_texture, v_texCoord).xy; 
+	vec2 cell = texture(u_texture, v_texCoord).xy; 
     
-    //float p   = texture2D(u_pressure, v_texCoord).y;
-	float pxp = texture2D(u_pressure, v_texCoordxp).y;
-	float pxn = texture2D(u_pressure, v_texCoordxn).y; 
-	float pyp = texture2D(u_pressure, v_texCoordyp).y;
-	float pyn = texture2D(u_pressure, v_texCoordyn).y;
+    //float p   = texture(u_pressure, v_texCoord).y;
+	float pxp = texture(u_pressure, v_texCoordxp).y;
+	float pxn = texture(u_pressure, v_texCoordxn).y; 
+	float pyp = texture(u_pressure, v_texCoordyp).y;
+	float pyn = texture(u_pressure, v_texCoordyn).y;
 
-    vec4 c = texture2D(u_weights, v_texCoord);
+    vec4 c = texture(u_weights, v_texCoord);
     
 	vec2 pGrad = vec2(pxp-pxn, pyp-pyn);
     
@@ -35,25 +39,25 @@ void main()
     if (c.x < 1.0)
     { 
         mask.x = 0.0; 
-        obsV.x = texture2D(u_obstacles_velocity, v_texCoordxp).x;
+        obsV.x = texture(u_obstacles_velocity, v_texCoordxp).x;
     }
     if (c.y < 1.0)
     { 
         mask.x = 0.0; 
-        obsV.x = texture2D(u_obstacles_velocity, v_texCoordxn).x;
+        obsV.x = texture(u_obstacles_velocity, v_texCoordxn).x;
     }
     if (c.z < 1.0)
     { 
         mask.y = 0.0; 
-        obsV.y = texture2D(u_obstacles_velocity, v_texCoordyp).y;
+        obsV.y = texture(u_obstacles_velocity, v_texCoordyp).y;
     }
     if (c.w < 1.0)
     { 
         mask.y = 0.0; 
-        obsV.y = texture2D(u_obstacles_velocity, v_texCoordyn).y;
+        obsV.y = texture(u_obstacles_velocity, v_texCoordyn).y;
     }
     
     // Enforce the free-slip boundary condition:
     vec2 new_cell = cell - (0.5 * h.x) * pGrad;
-    gl_FragColor = vec4(mask * new_cell + obsV, 0.0, 0.0);  
+    out_color = vec4(mask * new_cell + obsV, 0.0, 0.0);
 }
