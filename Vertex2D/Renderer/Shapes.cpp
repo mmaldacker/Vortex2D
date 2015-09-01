@@ -80,11 +80,14 @@ void Shape::Render(const glm::mat4 & ortho)
     if(mNumVertices > 0)
     {
         mProgram->Use().SetMVP(GetTransform(ortho));
+
         mColourUniform.Set(Colour);
 
         glBindVertexArray(mVertexArray);
         glDrawArrays(mType, 0, mNumVertices);
         glBindVertexArray(0);
+
+        mProgram->Unuse();
     }
 }
 

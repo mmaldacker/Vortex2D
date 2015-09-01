@@ -73,7 +73,8 @@ void GPUFluidEngine::SetupShaders()
         .Set("xy_max", mSize - glm::vec2{1.5})
         .Set("u_texture", 0)
         .Set("u_velocity", 1)
-        .Set("u_obstacles", 2);
+        .Set("u_obstacles", 2)
+        .Unuse();
     
     // advection shader
     mAdvectDensityShader = CreateProgramWithShader("fluid-advect-density.fsh");
@@ -83,7 +84,8 @@ void GPUFluidEngine::SetupShaders()
         .Set("xy_max", mSize - glm::vec2{1.5})
         .Set("u_texture", 0)
         .Set("u_velocity", 1)
-        .Set("u_obstacles", 2);
+        .Set("u_obstacles", 2)
+        .Unuse();
 
     // projection shader
     mProjectShader = CreateProgramWithShader("fluid-project.fsh");
@@ -91,19 +93,22 @@ void GPUFluidEngine::SetupShaders()
         .Set("u_texture", 0)
         .Set("u_pressure", 1)
         .Set("u_weights", 2)
-        .Set("u_obstacles_velocity", 3);
+        .Set("u_obstacles_velocity", 3)
+        .Unuse();
 
     // div shader
     mDivShader = CreateProgramWithShader("fluid-div.fsh");
     mDivShader.Use()
         .Set("u_texture", 0)
         .Set("u_weights", 1)
-        .Set("u_obstacles_velocity", 2);
+        .Set("u_obstacles_velocity", 2)
+        .Unuse();
 
     // weights shader
     mWeightsShader = CreateProgramWithShader("fluid-weights.fsh");
     mWeightsShader.Use()
-        .Set("u_texture", 0);
+        .Set("u_texture", 0)
+        .Unuse();
 }
 
 void GPUFluidEngine::Sources()
@@ -161,6 +166,7 @@ void GPUFluidEngine::Weights()
     mObstacles.Bind(0);
     mQuad.Render();
 
+    mWeightsShader.Unuse();
     mWeights.end();
 }
 
@@ -176,6 +182,7 @@ void GPUFluidEngine::Advect(Renderer::PingPong & renderTexture, Renderer::Progra
 
     mQuad.Render();
 
+    program.Unuse();
     renderTexture.end();
 }
 
@@ -192,6 +199,7 @@ void GPUFluidEngine::Project()
 
     mQuad.Render();
 
+    mProjectShader.Unuse();
     mVelocity.end();
 }
 
@@ -206,6 +214,7 @@ void GPUFluidEngine::Div()
 
     mQuad.Render();
 
+    mDivShader.Unuse();
     mPressure.end();
 }
 

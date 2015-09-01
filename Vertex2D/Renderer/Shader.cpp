@@ -156,6 +156,12 @@ Program & Program::Use()
     return *this;
 }
 
+void Program::Unuse()
+{
+    CurrentProgram = 0;
+    glUseProgram(0);
+}
+
 Program & Program::SetMVP(const glm::mat4 &mvp)
 {
     mMVP.Set(mvp);
@@ -168,7 +174,7 @@ Program & Program::TexturePositionProgram()
     if(!program.mProgram)
     {
         program = Program("TexturePosition.vsh", "TexturePosition.fsh");
-        program.Use().Set("u_Texture", 0);
+        program.Use().Set("u_Texture", 0).Unuse();
     }
 
     return program;
@@ -191,7 +197,7 @@ Program & Program::ColourTexturePositionProgram()
     if(!program.mProgram)
     {
         program = Program("ColourTexturePosition.vsh", "ColourTexturePosition.fsh");
-        program.Use().Set("u_Texture", 0);
+        program.Use().Set("u_Texture", 0).Unuse();
     }
 
     return program;

@@ -40,8 +40,9 @@ void Sprite::Render(const glm::mat4 & ortho)
 {
     Program::ColourTexturePositionProgram().Use().SetMVP(GetTransform(ortho));
     mColourUniform.Set(Colour);
-    mTexture.Bind(0);
+    mTexture.Bind();
     mQuad.Render();
+    Program::Unuse();
 }
 
 }

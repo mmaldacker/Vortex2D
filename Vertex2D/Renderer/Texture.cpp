@@ -34,7 +34,7 @@ Texture::Texture(int width, int height, PixelFormat pixelFormat, const void * da
     }
 
     glGenTextures(1, &mId);
-    Bind(0);
+    Bind();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -105,7 +105,7 @@ Texture & Texture::operator=(Texture && other)
 
 void Texture::SetAliasTexParameters()
 {
-    Bind(0);
+    Bind();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     Unbind();
@@ -113,7 +113,7 @@ void Texture::SetAliasTexParameters()
 
 void Texture::SetAntiAliasTexParameters()
 {
-    Bind(0);
+    Bind();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     Unbind();

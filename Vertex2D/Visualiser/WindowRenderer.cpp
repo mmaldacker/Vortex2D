@@ -32,7 +32,10 @@ WindowRenderer::WindowRenderer(const glm::vec2 & size, WindowRenderer * share)
 
 WindowRenderer::~WindowRenderer()
 {
-    glfwDestroyWindow(mWindow);
+    if(mWindow)
+    {
+        glfwDestroyWindow(mWindow);
+    }
 }
 
 void WindowRenderer::MakeCurrent()

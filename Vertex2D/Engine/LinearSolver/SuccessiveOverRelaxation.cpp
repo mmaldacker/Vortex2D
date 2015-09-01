@@ -8,6 +8,7 @@
 
 #include "SuccessiveOverRelaxation.h"
 #include "Common.h"
+#include "Disable.h"
 
 namespace Fluid
 {
@@ -30,10 +31,12 @@ SuccessiveOverRelaxation::SuccessiveOverRelaxation(Renderer::Quad & quad,
     .Set("h", quad.Size())
     .Set("u_texture", 0)
     .Set("u_weights", 1)
-    .Set("w", w);
+    .Set("w", w)
+    .Unuse();
 
     mStencilShader.Use()
-    .Set("h", quad.Size());
+    .Set("h", quad.Size())
+    .Unuse();
 }
 
 void SuccessiveOverRelaxation::Init()
@@ -50,6 +53,7 @@ void SuccessiveOverRelaxation::Init()
     mX.begin({0.0f, 0.0f, 0.0f, 0.0f});
     mStencilShader.Use().SetMVP(mX.Orth);
     mQuad.Render();
+    mStencilShader.Unuse();
     mX.end();
 
     mX.swap();
@@ -77,7 +81,7 @@ void SuccessiveOverRelaxation::Step(bool isRed)
     GLenum equal = isRed ? GL_EQUAL : GL_NOTEQUAL;
     GLenum notEqual = isRed ? GL_NOTEQUAL : GL_EQUAL;
 
-    glEnable(GL_STENCIL_TEST);
+    Renderer::Enable e{GL_STENCIL_TEST};
     glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
     mX.swap();
@@ -92,15 +96,17 @@ void SuccessiveOverRelaxation::Step(bool isRed)
 
     mQuad.Render();
 
+    mSorShader.Unuse();
+
     glStencilFunc(notEqual, 1, -1);
 
     mIdentityShader.Use().SetMVP(mX.Orth);
     
     mQuad.Render();
-    
+
+    mIdentityShader.Unuse();
+
     mX.end();
-    
-    glDisable(GL_STENCIL_TEST);
 }
 
 }

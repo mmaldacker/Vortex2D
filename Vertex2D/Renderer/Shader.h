@@ -78,6 +78,7 @@ public:
     Program & AttachShader(const Shader & shader);
     Program & Link();
     Program & Use();
+    static void Unuse();
 
     template<typename T>
     Program & Set(const std::string & name, T value)
@@ -129,6 +130,7 @@ void Uniform<T>::SetLocation(Program & program, const std::string & name)
     program.Use();
     mLocation = glGetUniformLocation(program.mProgram, name.c_str());
     assert(mLocation != -1);
+    program.Unuse();
 }
 
 template<typename T>

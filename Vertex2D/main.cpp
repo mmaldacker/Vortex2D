@@ -56,7 +56,7 @@ int main(int argc, const char * argv[])
     while (!window.ShouldClose() && !grid.ShouldClose())
     {
         window.Render();
-        //grid.Render();
+        grid.Render();
 
         glfwPollEvents();
     }
