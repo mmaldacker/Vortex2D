@@ -14,8 +14,6 @@
 namespace Renderer
 {
 
-class RenderTexture;
-
 class Texture
 {
 public:
@@ -56,15 +54,19 @@ public:
     void SetAliasTexParameters();
     void SetAntiAliasTexParameters();
 
-    friend class RenderTexture;
-private:
+    PixelFormat GetFormat() const;
+
+protected:
     GLuint mId = 0;
+
+private:
     int mWidth;
     int mHeight;
     int mStoredWidth;
     int mStoredHeight;
     int mOffsetX;
     int mOffsetY;
+    PixelFormat mFormat;
 
     static int BoundId[4];
     static int ActiveUnit;

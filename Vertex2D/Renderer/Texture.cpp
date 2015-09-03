@@ -18,7 +18,7 @@ int Texture::BoundId[4] = {0};
 int Texture::ActiveUnit = -1;
 
 Texture::Texture(int width, int height, PixelFormat pixelFormat, const void * data)
-: mWidth(width), mHeight(height)
+: mWidth(width), mHeight(height), mFormat(pixelFormat)
 {
     assert(mWidth > 0);
     assert(mHeight > 0);
@@ -86,6 +86,7 @@ Texture::Texture(Texture && other)
     , mHeight(other.mHeight)
     , mStoredWidth(other.mStoredWidth)
     , mStoredHeight(other.mStoredHeight)
+    , mFormat(other.mFormat)
 {
     other.mId = 0;
 }
@@ -97,6 +98,7 @@ Texture & Texture::operator=(Texture && other)
     mHeight = other.mHeight;
     mStoredWidth = other.mStoredWidth;
     mStoredHeight = other.mStoredHeight;
+    mFormat = other.mFormat;
 
     other.mId = 0;
 
@@ -138,6 +140,11 @@ void Texture::Unbind()
     assert(ActiveUnit >= 0);
     BoundId[ActiveUnit] = 0;
     glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+Texture::PixelFormat Texture::GetFormat() const
+{
+    return mFormat;
 }
 
 }

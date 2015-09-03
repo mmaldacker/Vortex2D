@@ -10,7 +10,7 @@ in vec2 v_texCoordyn;
 
 
 uniform sampler2D u_texture; // this is the velocity texture
-uniform sampler2D u_pressure; // this is the pressure texture as solved by jacobi iterations
+uniform sampler2D u_pressure; 
 uniform sampler2D u_weights;
 uniform sampler2D u_obstacles_velocity;
 
@@ -23,7 +23,6 @@ void main()
     
 	vec2 cell = texture(u_texture, v_texCoord).xy; 
     
-    //float p   = texture(u_pressure, v_texCoord).y;
 	float pxp = texture(u_pressure, v_texCoordxp).y;
 	float pxn = texture(u_pressure, v_texCoordxn).y; 
 	float pyp = texture(u_pressure, v_texCoordyp).y;

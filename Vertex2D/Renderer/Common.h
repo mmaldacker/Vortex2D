@@ -19,6 +19,8 @@
 //FIXME better error logging
 #define CHECK_GL_ERROR_DEBUG() ({ GLenum __error = glGetError(); if(__error) std::cout << "OpenGL error " << __error << " " << __FILE__ << ":" << __FUNCTION__ << ":" << __LINE__ << "\n"; })
 
+#define GLSL(src) "#version 150 core\n" #src
+
 namespace Renderer
 {
 

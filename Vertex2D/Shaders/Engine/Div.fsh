@@ -8,7 +8,6 @@ in vec2 v_texCoordxn;
 in vec2 v_texCoordyp;
 in vec2 v_texCoordyn;
 
-
 uniform sampler2D u_texture; // this is the velocity texture
 uniform sampler2D u_weights;
 uniform sampler2D u_obstacles_velocity;

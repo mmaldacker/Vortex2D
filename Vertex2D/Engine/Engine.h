@@ -12,11 +12,11 @@
 #include "SuccessiveOverRelaxation.h"
 #include "Shader.h"
 #include "RenderTexture.h"
-#include "FluidInput.h"
 #include "Sprite.h"
 #include "Shapes.h"
 #include "Reader.h"
-#include "hfloat.h"
+#include "Boundaries.h"
+#include "Size.h"
 
 #include <vector>
 
@@ -26,56 +26,42 @@ namespace Fluid
 class Engine
 {
 public:
-    Engine(const glm::vec2 & size, float scale, float dt, int antiAlias, int iterations);
+    Engine(Dimensions dimensions, float dt);
     
     void Solve();
-    void AddInput(FluidInput * input);
     Renderer::Sprite & GetDensity();
     void Reset();
+
+    void RenderVelocity(const std::vector<Renderer::Drawable*> & objects);
+    void RenderDensity(const std::vector<Renderer::Drawable*> & objects);
 
 private:
     Renderer::Program CreateProgramWithShader(const std::string & fragmentSource);
 
-    void SetupShaders();
-
-    void Sources();
-    void Weights();
     void Advect(Renderer::PingPong &, Renderer::Program &);
     void Project();
     void Div();
 
-    float mScale;
-    int mAntiAlias;
-
-    glm::vec2 mSize;
+    Dimensions mDimensions;
     Renderer::Quad mQuad;
 
     Renderer::PingPong mVelocity;
     Renderer::PingPong mDensity;
     Renderer::PingPong mPressure;
-    Renderer::RenderTexture mBoundaries;
-    Renderer::RenderTexture mBoundariesVelocity;
-    Renderer::RenderTexture mWeights;
+
+    Boundaries mBoundaries;
 
     SuccessiveOverRelaxation mLinearSolver;
     Renderer::Reader mReader;
 
     Renderer::Program mAdvectShader;
+    Renderer::Program mAdvectDensityShader;
     Renderer::Program mDivShader;
     Renderer::Program mProjectShader;
-    Renderer::Program mAdvectDensityShader;
-    Renderer::Program * mBoundarieshader;
-    Renderer::Program * mIdentityShader;
-    Renderer::Program mWeightsShader;
 
     float mDt;
 
-    std::vector<FluidInput*> mFluidInputs;
-
     Renderer::Sprite mDensitySprite;
-
-    Renderer::Rectangle mHorizontal;
-    Renderer::Rectangle mVertical;
 };
 
 }

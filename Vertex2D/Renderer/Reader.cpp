@@ -25,34 +25,50 @@ Reader::~Reader()
 
 void Reader::Read()
 {
+    GLenum format;
+    switch(mTexture.GetFormat())
+    {
+        case Texture::PixelFormat::RF:
+            format = GL_RED;
+            break;
+        case Texture::PixelFormat::RGF:
+            format = GL_RG;
+            break;
+        case Texture::PixelFormat::RGBAF:
+            format = GL_RGBA;
+            break;
+        default:
+            throw std::runtime_error("unsupported read format");
+            break;
+    }
+
     mTexture.begin();
-    glReadPixels(0, 0, mQuad.Size().x, mQuad.Size().y, GL_RG,GL_HALF_FLOAT, mPixels);
+    glReadPixels(0, 0, mQuad.Size().x, mQuad.Size().y, format,GL_HALF_FLOAT, mPixels);
     mTexture.end();
 }
 
-glm::vec2 Reader::GetInterpolatedVelocityAt(int x, int y)
+float Reader::GetFloat(int x, int y)
 {
-    glm::vec2 xy = glm::vec2{x,y};
-
-    glm::vec2 ij = glm::floor(xy);
-    glm::vec2 kl = ij + glm::vec2(1.0);
-    glm::vec2 f = xy - ij;
-
-    glm::vec2 t11 = GetVelocityAt(ij.x, ij.y);
-    glm::vec2 t21 = GetVelocityAt(ij.x, kl.y);
-    glm::vec2 t12 = GetVelocityAt(kl.x, ij.y);
-    glm::vec2 t22 = GetVelocityAt(kl.x, kl.y);
-
-    return glm::mix(glm::mix(t11,t21,f.y),glm::mix(t12,t22,f.y),f.x);
+    return Get(x, y, 1, 0);
 }
 
-glm::vec2 Reader::GetVelocityAt(int x, int y)
+glm::vec2 Reader::GetVec2(int x, int y)
+{
+    return {Get(x,y,2,0), Get(x,y,2,1)};
+}
+
+glm::vec4 Reader::GetVec4(int x, int y)
+{
+    return {Get(x,y,4,0), Get(x,y,4,1), Get(x,y,4,2), Get(x,y,4,3)};
+}
+
+float Reader::Get(int x, int y, int size, int offset)
 {
     assert(x >=0 && x < mQuad.Size().x);
     assert(y >=0 && y < mQuad.Size().y);
 
     int width = mQuad.Size().x;
-    return {convertHFloatToFloat(mPixels[(x+y*width)*2]), convertHFloatToFloat(mPixels[(x+y*width)*2+1])};
+    return convertHFloatToFloat(mPixels[(x+y*width)*size+offset]);
 }
 
 }

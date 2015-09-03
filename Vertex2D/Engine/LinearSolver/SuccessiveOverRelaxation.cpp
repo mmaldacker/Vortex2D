@@ -15,11 +15,11 @@ namespace Fluid
 
 SuccessiveOverRelaxation::SuccessiveOverRelaxation(Renderer::Quad & quad,
                                                    Renderer::PingPong & x,
-                                                   Renderer::RenderTexture & weights,
+                                                   Boundaries & boundaries,
                                                    int iterations)
     : mQuad(quad)
     , mX(x)
-    , mWeights(weights)
+    , mBoundaries(boundaries)
     , mIterations(iterations)
     , mSorShader("Diff.vsh", "SOR.fsh")
     , mStencilShader("Diff.vsh", "Stencil.fsh")
@@ -91,7 +91,8 @@ void SuccessiveOverRelaxation::Step(bool isRed)
 
     mSorShader.Use().SetMVP(mX.Orth);
 
-    mWeights.Bind(1);
+    //FIXME
+    //mWeights.Bind(1);
     mX.Back.Bind(0);
 
     mQuad.Render();

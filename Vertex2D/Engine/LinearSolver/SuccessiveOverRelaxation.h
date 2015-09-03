@@ -12,6 +12,7 @@
 #include "LinearSolver.h"
 #include "Quad.h"
 #include "RenderTexture.h"
+#include "Boundaries.h"
 
 namespace Fluid
 {
@@ -21,7 +22,7 @@ class SuccessiveOverRelaxation : public LinearSolver
 public:
     SuccessiveOverRelaxation(Renderer::Quad & quad,
                              Renderer::PingPong & x,
-                             Renderer::RenderTexture & weights,
+                             Boundaries & boundaries,
                              int iterations = 20);
 
     void Init();
@@ -32,7 +33,7 @@ private:
 
     Renderer::Quad & mQuad;
     Renderer::PingPong & mX;
-    Renderer::RenderTexture & mWeights;
+    Boundaries & mBoundaries;
     int mIterations;
 
     Renderer::Program mSorShader;

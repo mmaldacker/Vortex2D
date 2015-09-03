@@ -29,19 +29,20 @@ int main(int argc, const char * argv[])
 
     GridVisualiser grid({size, size}, scale);
 
-    grid.RenderValue({3,3}, 3.45);
-
     auto realSize = glm::vec2{size*scale,size*scale};
     WindowRenderer window(realSize, &grid);
 
-    Fluid::Engine engine(realSize, scale, 0.33, 2, 16);
-    window.AddDrawable(engine.GetDensity());
+    Fluid::Dimensions dimensions(realSize, scale);
+    Renderer::Quad quad(dimensions.Size);
+    Fluid::Boundaries boundaries(dimensions, 2);
+
+    Renderer::Rectangle rect({4.0f, 4.0f});
+    boundaries.Render({&rect});
+    boundaries.RenderWeights(quad);
 
     while (!window.ShouldClose() && !grid.ShouldClose())
     {
         window.Render();
-        engine.Solve();
-        
         grid.Render();
 
         glfwPollEvents();

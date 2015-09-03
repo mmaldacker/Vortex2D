@@ -25,10 +25,12 @@ public:
 
     void Read();
 
-    glm::vec2 GetInterpolatedVelocityAt(int x, int y);
+    float GetFloat(int x, int y);
+    glm::vec2 GetVec2(int x, int y);
+    glm::vec4 GetVec4(int x, int y);
 
 private:
-    glm::vec2 GetVelocityAt(int x, int y);
+    float Get(int x, int y, int size, int offset);
 
     const Renderer::Quad & mQuad;
     Renderer::RenderTexture & mTexture;
