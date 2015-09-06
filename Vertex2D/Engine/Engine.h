@@ -52,7 +52,6 @@ private:
     Boundaries mBoundaries;
 
     SuccessiveOverRelaxation mLinearSolver;
-    Renderer::Reader mReader;
 
     Renderer::Program mAdvectShader;
     Renderer::Program mAdvectDensityShader;

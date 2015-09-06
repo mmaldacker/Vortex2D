@@ -44,10 +44,16 @@ Renderer::Sprite Text::Render(const std::string &text)
         pos.x += size.x;
     }
 
-    return Renderer::Sprite(mFont, {{mFont.Width(), mFont.Height()}, coords});
+    Renderer::Quad quad{{mFont.Width(), mFont.Height()}, coords};
+    return Renderer::Sprite(mFont, std::move(quad));
 }
 
 const Renderer::Texture & Text::GetFont() const
 {
     return mFont;
+}
+
+int Text::GetCharacterHeight() const
+{
+    return mFont.Height() / 16;
 }

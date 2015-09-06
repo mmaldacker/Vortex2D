@@ -21,6 +21,7 @@ public:
     GridVisualiser(const glm::vec2 & size, int scale);
 
     void RenderValue(const glm::vec2 & size, float value);
+    void Render();
 
 private:
     glm::vec2 mSize;

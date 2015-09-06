@@ -19,7 +19,7 @@ struct Dimensions
     Dimensions(const glm::vec2 & size, float scale) : Scale(scale), Size(glm::floor(size/scale))
     {
         InvScale = glm::scale(glm::vec3{1.0f/Scale, 1.0f/Scale, 1.0f});
-        InvScale = glm::translate(InvScale, glm::vec3{-Scale*0.5f, -Scale*0.5f, 0.0f});
+        //InvScale = glm::translate(InvScale, glm::vec3{-Scale*0.5f, -Scale*0.5f, 0.0f});
     }
     
     int Scale;

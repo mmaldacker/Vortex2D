@@ -23,7 +23,6 @@ Engine::Engine(Dimensions dimensions, float dt)
     , mPressure(dimensions.Size.x, dimensions.Size.y, Renderer::Texture::PixelFormat::RGF, Renderer::RenderTexture::DepthFormat::DEPTH24_STENCIL8)
     , mBoundaries(dimensions, 2)
     , mLinearSolver(mQuad, mVelocity, mBoundaries)
-    , mReader(mQuad, mVelocity.Front)
     , mDt(dt)
     , mDensitySprite(mDensity.Front)
 {
@@ -151,8 +150,6 @@ void Engine::Div()
 void Engine::Solve()
 {
     Renderer::Disable d(GL_BLEND);
-
-    mReader.Read();
 
     Div();
 

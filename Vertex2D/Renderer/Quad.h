@@ -24,8 +24,6 @@ public:
 
     Quad(Quad &&);
 
-    Quad(const Quad &) = delete;
-
     void Render();
 
     const glm::vec2 & Size() const;

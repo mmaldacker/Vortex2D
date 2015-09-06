@@ -12,6 +12,7 @@
 #include "RenderTexture.h"
 #include "Shapes.h"
 #include "Size.h"
+#include "Reader.h"
 
 namespace Fluid
 {
@@ -23,13 +24,17 @@ public:
 
     void Render(const std::vector<Renderer::Drawable*> & objects);
     void RenderVelocities(const std::vector<Renderer::Drawable*> & objects);
-    void RenderWeights(Renderer::Quad & quad);
+    void RenderWeights();
 
     void Clear();
+    Renderer::Reader GetWeightsReader();
+    Renderer::Reader GetReader();
 
 private:
     Dimensions mDimensions;
     int mAntialias;
+
+    Renderer::Quad mQuad;
     
     Renderer::RenderTexture mBoundaries;
     Renderer::RenderTexture mBoundariesVelocity;

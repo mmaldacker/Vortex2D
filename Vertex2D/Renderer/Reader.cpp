@@ -11,31 +11,59 @@
 namespace Renderer
 {
 
-Reader::Reader(const Renderer::Quad & quad, Renderer::RenderTexture & texture)
-    : mQuad(quad)
-    , mTexture(texture)
-    , mPixels(new hfloat[(int)quad.Size().x*(int)quad.Size().y*2])
+Reader::Reader(Renderer::RenderTexture & texture)
+    : mTexture(texture)
 {
+    int size;
+    switch(mTexture.GetFormat())
+    {
+        case Texture::PixelFormat::RF:
+            size = 1;
+            break;
+        case Texture::PixelFormat::RGF:
+            size = 2;
+            break;
+        case Texture::PixelFormat::RGBAF:
+            size = 4;
+            break;
+        default:
+            throw std::runtime_error("unsupported read format");
+            break;
+    }
+
+    mPixels = new float[texture.StoredHeight()*texture.StoredWidth()*size];
 }
 
 Reader::~Reader()
 {
-    delete [] mPixels;
+    if(mPixels)
+    {
+        delete [] mPixels;
+    }
+}
+
+Reader::Reader(Reader && other) : mTexture(other.mTexture), mPixels(other.mPixels)
+{
+    other.mPixels = nullptr;
 }
 
 void Reader::Read()
 {
     GLenum format;
+    int size ;
     switch(mTexture.GetFormat())
     {
         case Texture::PixelFormat::RF:
             format = GL_RED;
+            size = 1;
             break;
         case Texture::PixelFormat::RGF:
             format = GL_RG;
+            size = 2;
             break;
         case Texture::PixelFormat::RGBAF:
             format = GL_RGBA;
+            size = 4;
             break;
         default:
             throw std::runtime_error("unsupported read format");
@@ -43,8 +71,27 @@ void Reader::Read()
     }
 
     mTexture.begin();
-    glReadPixels(0, 0, mQuad.Size().x, mQuad.Size().y, format,GL_HALF_FLOAT, mPixels);
+    glReadPixels(0, 0, mTexture.StoredWidth(), mTexture.StoredHeight(), format, GL_FLOAT, mPixels);
     mTexture.end();
+
+    glFlush();
+
+    for(int i = 0 ; i < mTexture.StoredWidth() ; ++i)
+    {
+        for(int j = 0 ; j < mTexture.StoredHeight() ; ++j)
+        {
+            std::cout << "(";
+            int width = mTexture.StoredWidth();
+            for(int k = 0 ; k < size ; k++)
+            {
+                //std::cout << convertHFloatToFloat(mPixels[i*width*size + j*size + k]) << ",";
+                float value = mPixels[i*width*size + j*size + k];
+                std::cout << value << ",";
+            }
+            std::cout << ")";
+        }
+        std::cout << std::endl;
+    }
 }
 
 float Reader::GetFloat(int x, int y)
@@ -64,11 +111,12 @@ glm::vec4 Reader::GetVec4(int x, int y)
 
 float Reader::Get(int x, int y, int size, int offset)
 {
-    assert(x >=0 && x < mQuad.Size().x);
-    assert(y >=0 && y < mQuad.Size().y);
+    assert(x >=0 && x < mTexture.StoredWidth());
+    assert(y >=0 && y < mTexture.StoredHeight());
 
-    int width = mQuad.Size().x;
-    return convertHFloatToFloat(mPixels[(x+y*width)*size+offset]);
+    int width = mTexture.StoredWidth();
+    //return convertHFloatToFloat(mPixels[(x+y*width)*size+offset]);
+    return mPixels[(x+y*width)*size+offset];
 }
 
 }

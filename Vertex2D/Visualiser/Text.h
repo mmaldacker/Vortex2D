@@ -22,6 +22,8 @@ public:
 
     const Renderer::Texture & GetFont() const;
 
+    int GetCharacterHeight() const;
+
 private:
     Renderer::Texture mFont;
 };

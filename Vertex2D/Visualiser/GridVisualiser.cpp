@@ -33,19 +33,21 @@ GridVisualiser::GridVisualiser(const glm::vec2 & size, int scale) : WindowRender
 
         mGrid.push_back(std::move(rect));
     }
-
-    for(auto && rect : mGrid)
-    {
-        AddDrawable(rect);
-    }
-
 }
 
 void GridVisualiser::RenderValue(const glm::vec2 & size, float value)
 {
     auto text = mFont.Render(std::to_string(value));
     text.Position = size * glm::vec2{mScale};
+    text.Scale = {1.0f, 0.8f * (float)mScale / mFont.GetCharacterHeight()};
 
     mValues.push_back(std::move(text));
-    AddDrawable(mValues.back());
+}
+
+void GridVisualiser::Render()
+{
+    Clear();
+    WindowRenderer::Render(mGrid);
+    WindowRenderer::Render(mValues);
+    Swap();
 }

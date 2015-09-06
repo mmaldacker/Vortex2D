@@ -24,10 +24,15 @@ public:
 
     void SetBackgroundColour(const glm::vec4 & colour);
 
-    void AddDrawable(Renderer::Drawable & drawable);
-    void Render();
-    void MakeCurrent();
+    template<typename T>
+    void Render(std::vector<T> & objects)
+    {
+        for(auto && object : objects) object.Render(Ortho);
+    }
 
+    void MakeCurrent();
+    void Clear();
+    void Swap();
     bool ShouldClose();
 
     glm::mat4 Ortho;
@@ -35,8 +40,6 @@ public:
 private:
     GLFWwindow * mWindow;
     glm::vec4 mBackgroundColour;
-
-    std::vector<Renderer::Drawable*> mDrawables;
 };
 
 

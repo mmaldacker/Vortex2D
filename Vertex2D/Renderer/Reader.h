@@ -20,7 +20,8 @@ namespace Renderer
 class Reader
 {
 public:
-    Reader(const Renderer::Quad & quad, Renderer::RenderTexture & texture);
+    Reader(Renderer::RenderTexture & texture);
+    Reader(Reader &&);
     ~Reader();
 
     void Read();
@@ -32,9 +33,8 @@ public:
 private:
     float Get(int x, int y, int size, int offset);
 
-    const Renderer::Quad & mQuad;
     Renderer::RenderTexture & mTexture;
-    hfloat * mPixels;
+    float * mPixels;
 };
 
 }

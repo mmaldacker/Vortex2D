@@ -40,22 +40,24 @@ void Coords(const glm::vec2 & size, const TextureCoords & coords, std::vector<fl
     c.p = pos.Pos.x + pos.Size.x, c.q = pos.Pos.y + pos.Size.y;
     d.p = pos.Pos.x + pos.Size.x, d.q = pos.Pos.y;
 
-    buffer.insert(buffer.end(),
-                    {
-                        a.x, a.y, a.p, a.q,
-                        c.x, c.y, c.p, c.q,
-                        b.x, b.y, b.p, b.q,
+    std::vector<float> attributes =
+    {
+        a.x, a.y, a.p, a.q,
+        c.x, c.y, c.p, c.q,
+        b.x, b.y, b.p, b.q,
 
-                        c.x, c.y, c.p, c.q,
-                        d.x, d.y, d.p, d.q,
-                        b.x, b.y, b.p, b.q
-                    });
+        c.x, c.y, c.p, c.q,
+        d.x, d.y, d.p, d.q,
+        b.x, b.y, b.p, b.q
+    };
+
+    std::copy(attributes.begin(), attributes.end(), std::back_inserter(buffer));
 }
 
 Quad::Quad(const glm::vec2 & size) : Quad(size,
     {
-        {{0.0f, 0.0f}, size},
-        {{0.0f, 0.0f}, size}
+        Rect{glm::vec2{0.0f}, size},
+        Rect{glm::vec2{0.0f}, size}
     })
 {
 
@@ -79,10 +81,11 @@ Quad::Quad(const glm::vec2 & size, const std::vector<TextureCoords> & rect) : mN
     }
 
     std::vector<float> buffer;
+    mNumTriangles = rect.size()*2;
+
     for(auto && r : rect)
     {
         Coords(mSize, r, buffer);
-        mNumTriangles +=2 ;
     }
 
     glGenVertexArrays(1,&mVertexArray);

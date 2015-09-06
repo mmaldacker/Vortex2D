@@ -54,23 +54,13 @@ void WindowRenderer::SetBackgroundColour(const glm::vec4 &colour)
     glClearColor(colour.r, colour.g, colour.b, colour.a);
 }
 
-void WindowRenderer::AddDrawable(Renderer::Drawable & drawable)
-{
-    mDrawables.push_back(&drawable);
-}
-
-void WindowRenderer::Render()
+void WindowRenderer::Clear()
 {
     MakeCurrent();
-
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+}
 
-    for(auto drawable : mDrawables)
-    {
-        drawable->Render(Ortho);
-    }
-
-    CHECK_GL_ERROR_DEBUG();
-
+void WindowRenderer::Swap()
+{
     glfwSwapBuffers(mWindow);
 }

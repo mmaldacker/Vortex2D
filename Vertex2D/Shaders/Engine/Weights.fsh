@@ -14,8 +14,6 @@ out vec4 out_color;
 
 void main()
 {
-    float o = texture(u_texture, v_texCoord).x;
-
     vec4 p;
     p.x = texture(u_texture, v_texCoordxp).x;
     p.y = texture(u_texture, v_texCoordxn).x;
