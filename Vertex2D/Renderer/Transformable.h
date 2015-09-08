@@ -10,8 +10,6 @@
 #define Vortex_Transformable_h
 
 #include "Common.h"
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/transform.hpp>
 
 namespace Renderer
 {

@@ -46,6 +46,7 @@
 		CE6D632D1B84EAEA006729F0 /* Quad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D632B1B84EAEA006729F0 /* Quad.cpp */; };
 		CE6D63361B84ED96006729F0 /* SuccessiveOverRelaxation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D63341B84ED96006729F0 /* SuccessiveOverRelaxation.cpp */; };
 		CE6D636E1B84F4DB006729F0 /* Reader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D636C1B84F4DB006729F0 /* Reader.cpp */; };
+		CE6E0F691B9F4DF800D77927 /* Advection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6E0F671B9F4DF800D77927 /* Advection.cpp */; };
 		CE9F2C621B88A15400EDDF5A /* font.png in Resources */ = {isa = PBXBuildFile; fileRef = CE9F2C611B88A15400EDDF5A /* font.png */; };
 /* End PBXBuildFile section */
 
@@ -114,6 +115,8 @@
 		CE6D636C1B84F4DB006729F0 /* Reader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Reader.cpp; path = Renderer/Reader.cpp; sourceTree = "<group>"; };
 		CE6D636D1B84F4DB006729F0 /* Reader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Reader.h; path = Renderer/Reader.h; sourceTree = "<group>"; };
 		CE6D63711B850064006729F0 /* Disable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Disable.h; path = Renderer/Disable.h; sourceTree = "<group>"; };
+		CE6E0F671B9F4DF800D77927 /* Advection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Advection.cpp; path = Engine/Advection.cpp; sourceTree = "<group>"; };
+		CE6E0F681B9F4DF800D77927 /* Advection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Advection.h; path = Engine/Advection.h; sourceTree = "<group>"; };
 		CE9F2C611B88A15400EDDF5A /* font.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = font.png; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
@@ -238,6 +241,8 @@
 				CE6D631A1B84E7B6006729F0 /* Engine.h */,
 				CE6D631B1B84E7B6006729F0 /* Engine.cpp */,
 				CE2ED54C1B96363B007343DA /* Size.h */,
+				CE6E0F671B9F4DF800D77927 /* Advection.cpp */,
+				CE6E0F681B9F4DF800D77927 /* Advection.h */,
 			);
 			name = Engine;
 			sourceTree = "<group>";
@@ -401,6 +406,7 @@
 				CE2ED4D31B96234C007343DA /* Text.cpp in Sources */,
 				CE6D630F1B84E20D006729F0 /* Sprite.cpp in Sources */,
 				CE6D63231B84E7B6006729F0 /* Engine.cpp in Sources */,
+				CE6E0F691B9F4DF800D77927 /* Advection.cpp in Sources */,
 				CE6D630E1B84E20D006729F0 /* Shapes.cpp in Sources */,
 				CE6D63361B84ED96006729F0 /* SuccessiveOverRelaxation.cpp in Sources */,
 				CE6D62EE1B84E001006729F0 /* main.cpp in Sources */,

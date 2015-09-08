@@ -16,6 +16,7 @@
 #include "Shapes.h"
 #include "Reader.h"
 #include "Boundaries.h"
+#include "Advection.h"
 #include "Size.h"
 
 #include <vector>
@@ -26,41 +27,29 @@ namespace Fluid
 class Engine
 {
 public:
-    Engine(Dimensions dimensions, float dt);
+    Engine(Dimensions dimensions, Boundaries & boundaries, Advection & advection);
     
     void Solve();
-    Renderer::Sprite & GetDensity();
-    void Reset();
 
-    void RenderVelocity(const std::vector<Renderer::Drawable*> & objects);
-    void RenderDensity(const std::vector<Renderer::Drawable*> & objects);
+    Renderer::Reader GetPressureReader();
+
+    void Div();
+    void Project();
+    void LinearSolve();
 
 private:
-    Renderer::Program CreateProgramWithShader(const std::string & fragmentSource);
-
-    void Advect(Renderer::PingPong &, Renderer::Program &);
-    void Project();
-    void Div();
-
     Dimensions mDimensions;
     Renderer::Quad mQuad;
 
-    Renderer::PingPong mVelocity;
-    Renderer::PingPong mDensity;
     Renderer::PingPong mPressure;
 
-    Boundaries mBoundaries;
+    Boundaries & mBoundaries;
+    Advection & mAdvection;
 
     SuccessiveOverRelaxation mLinearSolver;
 
-    Renderer::Program mAdvectShader;
-    Renderer::Program mAdvectDensityShader;
     Renderer::Program mDivShader;
     Renderer::Program mProjectShader;
-
-    float mDt;
-
-    Renderer::Sprite mDensitySprite;
 };
 
 }

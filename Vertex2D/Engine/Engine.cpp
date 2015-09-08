@@ -15,114 +15,45 @@
 namespace Fluid
 {
 
-Engine::Engine(Dimensions dimensions, float dt)
+Engine::Engine(Dimensions dimensions, Boundaries & boundaries, Advection & advection)
     : mDimensions(dimensions)
     , mQuad(dimensions.Size)
-    , mVelocity(dimensions.Size.x, dimensions.Size.y, Renderer::Texture::PixelFormat::RGF)
-    , mDensity(dimensions.Size.x, dimensions.Size.y, Renderer::Texture::PixelFormat::RGBA8888)
     , mPressure(dimensions.Size.x, dimensions.Size.y, Renderer::Texture::PixelFormat::RGF, Renderer::RenderTexture::DepthFormat::DEPTH24_STENCIL8)
-    , mBoundaries(dimensions, 2)
-    , mLinearSolver(mQuad, mVelocity, mBoundaries)
-    , mDt(dt)
-    , mDensitySprite(mDensity.Front)
+    , mBoundaries(boundaries)
+    , mAdvection(advection)
+    , mLinearSolver(mQuad, mPressure, mBoundaries, 1)
 {
-    mDensity.Front.SetAntiAliasTexParameters();
-    mDensity.Back.SetAntiAliasTexParameters();
-    mDensitySprite.Scale = glm::vec2(dimensions.Scale);
-
-    Reset();
-
-    // advection shader
-    mAdvectShader = CreateProgramWithShader("Advect.fsh");
-    mAdvectShader.Use()
-    .Set("delta", mDt)
-    .Set("xy_min", glm::vec2{0.5f, 0.5f})
-    .Set("xy_max", dimensions.Size - glm::vec2{1.5})
-    .Set("u_texture", 0)
-    .Set("u_velocity", 1)
-    .Set("u_obstacles", 2)
-    .Unuse();
-
-    // advection shader
-    mAdvectDensityShader = CreateProgramWithShader("AdvectDensity.fsh");
-    mAdvectDensityShader.Use()
-    .Set("delta", mDt)
-    .Set("xy_min", glm::vec2{0.5f, 0.5f})
-    .Set("xy_max", mDimensions.Size - glm::vec2{1.5})
-    .Set("u_texture", 0)
-    .Set("u_velocity", 1)
-    .Set("u_obstacles", 2)
-    .Unuse();
+    mPressure.Clear();
 
     // projection shader
-    mProjectShader = CreateProgramWithShader("Project.fsh");
+    mProjectShader = Renderer::Program("Diff.vsh", "Project.fsh");
     mProjectShader.Use()
     .Set("u_texture", 0)
     .Set("u_pressure", 1)
     .Set("u_weights", 2)
     .Set("u_obstacles_velocity", 3)
+    .Set("h", mQuad.Size())
     .Unuse();
 
     // div shader
-    mDivShader = CreateProgramWithShader("Div.fsh");
+    mDivShader = Renderer::Program("Diff.vsh", "Div.fsh");
     mDivShader.Use()
     .Set("u_texture", 0)
     .Set("u_weights", 1)
     .Set("u_obstacles_velocity", 2)
+    .Set("h", mQuad.Size())
     .Unuse();
-}
-
-Renderer::Program Engine::CreateProgramWithShader(const std::string & fragmentSource)
-{
-    Renderer::Program program("Diff.vsh", fragmentSource);
-    program.Use().Set("h", mQuad.Size());
-    return program;
-}
-
-void Engine::RenderVelocity(const std::vector<Renderer::Drawable*> & objects)
-{
-    mVelocity.begin();
-    for(auto object : objects)
-    {
-        object->Render(mVelocity.Orth*mDimensions.InvScale);
-    }
-    mVelocity.end();
-}
-
-void Engine::RenderDensity(const std::vector<Renderer::Drawable*> & objects)
-{
-    mDensity.begin();
-    for(auto object : objects)
-    {
-        object->Render(mDensity.Orth*mDimensions.InvScale);
-    }
-    mDensity.end();
-}
-
-void Engine::Advect(Renderer::PingPong & renderTexture, Renderer::Program & program)
-{
-    renderTexture.swap();
-    renderTexture.begin();
-    program.Use().SetMVP(renderTexture.Orth);
-
-    //mBoundaries.Bind(2);
-    mVelocity.Back.Bind(1);
-    renderTexture.Back.Bind(0);
-
-    mQuad.Render();
-
-    program.Unuse();
-    renderTexture.end();
 }
 
 void Engine::Project()
 {
+/*
     mVelocity.swap();
     mVelocity.begin();
     mProjectShader.Use().SetMVP(mVelocity.Orth);
 
-    //mBoundariesVelocity.Bind(3);
-    //mWeights.Bind(2);
+    mBoundaries.BindBoundary(3);
+    mBoundaries.BindWeights(2);
     mPressure.Front.Bind(1);
     mVelocity.Back.Bind(0);
 
@@ -130,21 +61,29 @@ void Engine::Project()
 
     mProjectShader.Unuse();
     mVelocity.end();
+*/
 }
 
 void Engine::Div()
 {
+/*
     mPressure.begin();
     mDivShader.Use().SetMVP(mPressure.Orth);
 
-    //mBoundariesVelocity.Bind(2);
-    //mWeights.Bind(1);
+    mBoundaries.BindVelocity(2);
+    mBoundaries.BindBoundary(1);
     mVelocity.Front.Bind(0);
 
     mQuad.Render();
 
     mDivShader.Unuse();
     mPressure.end();
+*/
+}
+
+void Engine::LinearSolve()
+{
+    mLinearSolver.Solve();
 }
 
 void Engine::Solve()
@@ -157,23 +96,12 @@ void Engine::Solve()
 
     Project();
 
-    Advect(mVelocity, mAdvectShader);
-    Advect(mDensity, mAdvectDensityShader);
-
     CHECK_GL_ERROR_DEBUG();
 }
 
-Renderer::Sprite & Engine::GetDensity()
+Renderer::Reader Engine::GetPressureReader()
 {
-    return mDensitySprite;
-}
-
-void Engine::Reset()
-{
-    mBoundaries.Clear();
-    mVelocity.Clear();
-    mDensity.Clear();
-    mPressure.Clear();
+    return {mPressure.Front};
 }
 
 }

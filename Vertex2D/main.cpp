@@ -3,6 +3,7 @@
 #include "GridVisualiser.h"
 #include "WindowRenderer.h"
 #include "Engine.h"
+#include "Disable.h"
 
 #include <string>
 
@@ -18,10 +19,10 @@ struct Main
         int size = 12;
         int scale = 30;
 
-        GridVisualiser grid({size, size}, scale);
-
         auto realSize = glm::vec2{size*scale,size*scale};
-        WindowRenderer window(realSize, &grid);
+        WindowRenderer window(realSize);
+
+        Renderer::Disable d(GL_BLEND);
 
         Fluid::Dimensions dimensions(realSize, scale);
         Fluid::Boundaries boundaries(dimensions, 2);
@@ -40,26 +41,25 @@ struct Main
         auto weights = boundaries.GetWeightsReader();
         weights.Read();
 
-        grid.MakeCurrent();
+        Renderer::Rectangle source({60.0f, 60.0f});
+        source.Position = {240.0f, 240.0f};
+        source.Colour = {34.5f, 12.0f, 0.0f, 0.0f};
 
-        /*
-         for(int i = 0 ; i < dimensions.Size.x ; i++)
-         {
-         for(int j = 0 ; j < dimensions.Size.y ; j++)
-         {
-         grid.RenderValue({i,j}, reader.GetVec4(i, j).x);
-         }
-         }
-        */
+        Fluid::Advection advection(dimensions, boundaries, 0.33);
+
+        advection.RenderVelocity({&source});
+
+        auto velocity = advection.GetVelocityReader();
+        velocity.Read();
+
         /*
          auto v = reader.GetVec4(5,5).x;
          grid.RenderValue({5,5}, v);
          
          while (!window.ShouldClose() && !grid.ShouldClose())
          {
-         //window.Render();
-         grid.Render();
-         
+         window.Render();
+
          glfwPollEvents();
          }
         */
@@ -80,8 +80,6 @@ int main(int argc, const char * argv[])
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     Main();
-
-    CHECK_GL_ERROR_DEBUG();
 
     glfwTerminate();
 }

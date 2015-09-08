@@ -26,6 +26,10 @@ public:
     void RenderVelocities(const std::vector<Renderer::Drawable*> & objects);
     void RenderWeights();
 
+    void BindBoundary(int n);
+    void BindWeights(int n);
+    void BindVelocity(int n);
+
     void Clear();
     Renderer::Reader GetWeightsReader();
     Renderer::Reader GetReader();

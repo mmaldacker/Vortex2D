@@ -18,6 +18,7 @@ Boundaries::Boundaries(Dimensions dimensions, int antialias)
     , mBoundaries(antialias*dimensions.Size.x, antialias*dimensions.Size.y, Renderer::Texture::PixelFormat::RF)
     , mBoundariesVelocity(dimensions.Size.x, dimensions.Size.y, Renderer::Texture::PixelFormat::RGF)
     , mWeights(dimensions.Size.x, dimensions.Size.y, Renderer::Texture::PixelFormat::RGBAF)
+    , mWeightsShader("Diff.vsh", "Weights.fsh")
     , mHorizontal({antialias*dimensions.Size.x, antialias})
     , mVertical({antialias, antialias*dimensions.Size.y})
 {
@@ -26,10 +27,7 @@ Boundaries::Boundaries(Dimensions dimensions, int antialias)
     mVertical.Colour = {1.0f,1.0f,1.0f,1.0f};
     mHorizontal.Colour = {1.0f,1.0f,1.0f,1.0f};
 
-    glm::vec2 size = {mWeights.StoredWidth(), mWeights.StoredHeight()};
-
-    mWeightsShader = Renderer::Program("Diff.vsh", "Weights.fsh");
-    mWeightsShader.Use().Set("h", size).Set("u_texture", 0).Unuse();
+    mWeightsShader.Use().Set("h", mQuad.Size()).Set("u_texture", 0).Unuse();
 }
 
 void Boundaries::Render(const std::vector<Renderer::Drawable*> & objects)
@@ -92,6 +90,21 @@ Renderer::Reader Boundaries::GetReader()
 Renderer::Reader Boundaries::GetWeightsReader()
 {
     return {mWeights};
+}
+
+void Boundaries::BindBoundary(int n)
+{
+    mBoundaries.Bind(n);
+}
+
+void Boundaries::BindWeights(int n)
+{
+    mWeights.Bind(n);
+}
+
+void Boundaries::BindVelocity(int n)
+{
+    mBoundariesVelocity.Bind(n);
 }
 
 }
