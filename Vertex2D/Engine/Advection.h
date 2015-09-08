@@ -13,15 +13,16 @@
 #include "Quad.h"
 #include "RenderTexture.h"
 #include "Reader.h"
-#include "Boundaries.h"
 
 namespace Fluid
 {
 
+class Boundaries;
+
 class Advection
 {
 public:
-    Advection(Dimensions dimensions, Boundaries & boundaries, float dt);
+    Advection(Dimensions dimensions, float dt);
 
     void RenderVelocity(const std::vector<Renderer::Drawable*> & objects);
     void RenderDensity(const std::vector<Renderer::Drawable*> & objects);
@@ -31,11 +32,11 @@ public:
 
     void Advect();
 
+    friend class Boundaries;
 private:
     void Advect(Renderer::PingPong & renderTexture, Renderer::Program & program);
 
     Dimensions mDimensions;
-    Boundaries & mBoundaries;
     Renderer::Quad mQuad;
     Renderer::PingPong mVelocity;
     Renderer::PingPong mDensity;

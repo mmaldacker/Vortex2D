@@ -22,47 +22,47 @@ struct Main
         auto realSize = glm::vec2{size*scale,size*scale};
         WindowRenderer window(realSize);
 
-        Renderer::Disable d(GL_BLEND);
+        // -------------------
 
-        Fluid::Dimensions dimensions(realSize, scale);
-        Fluid::Boundaries boundaries(dimensions, 2);
+        Renderer::Rectangle source({60.0f, 60.0f});
+        source.Position = {200.0f, 200.0f};
+        source.Colour = {-1.0f, -2.0f, 0.0f, 0.0f};
+
+        Renderer::Rectangle blocked({30.0f, 30.0f});
+        blocked.Position = {120.0f, 120.0f};
+        blocked.Colour = {-1.0f, -2.0f, 0.0f, 0.0f};
+
+        std::vector<Renderer::Drawable*> sources = {&source, &blocked};
 
         Renderer::Rectangle rect({80.0f, 80.0f});
         rect.Position = {100.0f, 100.0f};
         rect.Colour = {1.0f, 1.0f, 1.0f, 1.0f};
-        boundaries.Render({&rect});
+
+        std::vector<Renderer::Drawable*> borders = {&rect};
+
+        // -------------------
+
+        Renderer::Disable d(GL_BLEND);
+
+        Fluid::Dimensions dimensions(realSize, scale);
+        Fluid::Advection advection(dimensions, 0.33);
+        Fluid::Boundaries boundaries(dimensions, 2);
+
+        boundaries.Render(advection, borders);
         boundaries.RenderWeights();
+        advection.RenderVelocity(sources);
 
         glFlush();
 
-        auto reader = boundaries.GetReader();
-        reader.Read();
-
-        auto weights = boundaries.GetWeightsReader();
-        weights.Read();
-
-        Renderer::Rectangle source({60.0f, 60.0f});
-        source.Position = {240.0f, 240.0f};
-        source.Colour = {34.5f, 12.0f, 0.0f, 0.0f};
-
-        Fluid::Advection advection(dimensions, boundaries, 0.33);
-
-        advection.RenderVelocity({&source});
-
         auto velocity = advection.GetVelocityReader();
-        velocity.Read();
+        velocity.Read().Print().PrintStencil();
 
-        /*
-         auto v = reader.GetVec4(5,5).x;
-         grid.RenderValue({5,5}, v);
-         
-         while (!window.ShouldClose() && !grid.ShouldClose())
-         {
-         window.Render();
+        //boundaries.GetReader().Read().Print();
+        //boundaries.GetWeightsReader().Read().Print();
 
-         glfwPollEvents();
-         }
-        */
+        advection.Advect();
+
+        velocity.Read().Print();
     }
 };
 

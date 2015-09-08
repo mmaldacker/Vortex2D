@@ -7,6 +7,7 @@
 //
 
 #include "Boundaries.h"
+#include "Disable.h"
 
 namespace Fluid
 {
@@ -19,8 +20,8 @@ Boundaries::Boundaries(Dimensions dimensions, int antialias)
     , mBoundariesVelocity(dimensions.Size.x, dimensions.Size.y, Renderer::Texture::PixelFormat::RGF)
     , mWeights(dimensions.Size.x, dimensions.Size.y, Renderer::Texture::PixelFormat::RGBAF)
     , mWeightsShader("Diff.vsh", "Weights.fsh")
-    , mHorizontal({antialias*dimensions.Size.x, antialias})
-    , mVertical({antialias, antialias*dimensions.Size.y})
+    , mHorizontal({dimensions.Size.x, 1.0f})
+    , mVertical({1.0f, dimensions.Size.y})
 {
     mBoundariesVelocity.SetAliasTexParameters();
 
@@ -30,27 +31,61 @@ Boundaries::Boundaries(Dimensions dimensions, int antialias)
     mWeightsShader.Use().Set("h", mQuad.Size()).Set("u_texture", 0).Unuse();
 }
 
-void Boundaries::Render(const std::vector<Renderer::Drawable*> & objects)
+void Boundaries::Render(Advection & advection, const std::vector<Renderer::Drawable*> & objects)
 {
     mBoundaries.begin({0.0f, 0.0f, 0.0f, 0.0f});
-    mHorizontal.Position = {0.0f, 0.0f};
-    mHorizontal.Render(mBoundaries.Orth);
+    RenderAtScale(mAntialias, objects, mBoundaries.Orth);
+    mBoundaries.end();
 
-    mHorizontal.Position = {0.0f, mAntialias*(mDimensions.Size.y-1.0f)};
-    mHorizontal.Render(mBoundaries.Orth);
+    RenderMask(advection.mVelocity.Front, objects);
+    RenderMask(advection.mDensity.Front, objects);
+
+    RenderMask(advection.mVelocity.Back, objects);
+    RenderMask(advection.mDensity.Back, objects);
+}
+
+void Boundaries::RenderMask(Renderer::RenderTexture & mask, const std::vector<Renderer::Drawable*> & objects)
+{
+    Renderer::Enable e(GL_STENCIL_TEST);
+
+    glStencilFunc(GL_ALWAYS, 1, 0xFF); // write 1 in stencil buffer
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); // replace value with above
+    glStencilMask(0xFF); // enable stencil writing
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+
+    mask.begin();
+
+    glClearStencil(0);
+    glClear(GL_STENCIL_BUFFER_BIT); // clear stencil buffer
+
+    RenderAtScale(1, objects, mask.Orth);
+    mask.end();
+
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    glStencilMask(0x00); // disable stencil writing
+}
+
+void Boundaries::RenderAtScale(int scale, const std::vector<Renderer::Drawable*> & objects, const glm::mat4 & orth)
+{
+    mHorizontal.Position = {0.0f, 0.0f};
+    mHorizontal.Scale = glm::vec2{scale};
+    mHorizontal.Render(orth);
+
+    mHorizontal.Position = {0.0f, scale*(mDimensions.Size.y-1.0f)};
+    mHorizontal.Render(orth);
 
     mVertical.Position = {0.0f, 0.0f};
-    mVertical.Render(mBoundaries.Orth);
+    mVertical.Scale = glm::vec2{scale};
+    mVertical.Render(orth);
 
-    mVertical.Position = {mAntialias*(mDimensions.Size.x-1.0f), 0.0f};
-    mVertical.Render(mBoundaries.Orth);
+    mVertical.Position = {scale*(mDimensions.Size.x-1.0f), 0.0f};
+    mVertical.Render(orth);
 
-    auto scaled = glm::scale(mBoundaries.Orth, glm::vec3(mAntialias, mAntialias, 1.0f));
+    auto scaled = glm::scale(orth, glm::vec3(scale, scale, 1.0f));
     for(auto object : objects)
     {
         object->Render(scaled*mDimensions.InvScale);
     }
-    mBoundaries.end();
 }
 
 void Boundaries::RenderVelocities(const std::vector<Renderer::Drawable*> & objects)
@@ -90,21 +125,6 @@ Renderer::Reader Boundaries::GetReader()
 Renderer::Reader Boundaries::GetWeightsReader()
 {
     return {mWeights};
-}
-
-void Boundaries::BindBoundary(int n)
-{
-    mBoundaries.Bind(n);
-}
-
-void Boundaries::BindWeights(int n)
-{
-    mWeights.Bind(n);
-}
-
-void Boundaries::BindVelocity(int n)
-{
-    mBoundariesVelocity.Bind(n);
 }
 
 }

@@ -14,24 +14,10 @@ namespace Renderer
 Reader::Reader(Renderer::RenderTexture & texture)
     : mTexture(texture)
 {
-    int size;
-    switch(mTexture.GetFormat())
-    {
-        case Texture::PixelFormat::RF:
-            size = 1;
-            break;
-        case Texture::PixelFormat::RGF:
-            size = 2;
-            break;
-        case Texture::PixelFormat::RGBAF:
-            size = 4;
-            break;
-        default:
-            throw std::runtime_error("unsupported read format");
-            break;
-    }
+    int size = GetSize();
 
     mPixels = new float[texture.StoredHeight()*texture.StoredWidth()*size];
+    mStencil = new uint8_t[texture.StoredHeight()*texture.StoredWidth()];
 }
 
 Reader::~Reader()
@@ -39,31 +25,48 @@ Reader::~Reader()
     if(mPixels)
     {
         delete [] mPixels;
+        delete [] mStencil;
     }
 }
 
-Reader::Reader(Reader && other) : mTexture(other.mTexture), mPixels(other.mPixels)
+Reader::Reader(Reader && other) : mTexture(other.mTexture), mPixels(other.mPixels), mStencil(other.mStencil)
 {
     other.mPixels = nullptr;
 }
 
-void Reader::Read()
+int Reader::GetSize() const
+{
+    switch(mTexture.GetFormat())
+    {
+        case Texture::PixelFormat::RF:
+            return 1;
+            break;
+        case Texture::PixelFormat::RGF:
+            return 2;
+            break;
+        case Texture::PixelFormat::RGBAF:
+            return 4;
+            break;
+        default:
+            throw std::runtime_error("unsupported read format");
+            break;
+    }
+}
+
+Reader & Reader::Read()
 {
     GLenum format;
-    int size ;
+    int size = GetSize();
     switch(mTexture.GetFormat())
     {
         case Texture::PixelFormat::RF:
             format = GL_RED;
-            size = 1;
             break;
         case Texture::PixelFormat::RGF:
             format = GL_RG;
-            size = 2;
             break;
         case Texture::PixelFormat::RGBAF:
             format = GL_RGBA;
-            size = 4;
             break;
         default:
             throw std::runtime_error("unsupported read format");
@@ -72,10 +75,17 @@ void Reader::Read()
 
     mTexture.begin();
     glReadPixels(0, 0, mTexture.StoredWidth(), mTexture.StoredHeight(), format, GL_FLOAT, mPixels);
+    glReadPixels(0, 0, mTexture.StoredWidth(), mTexture.StoredHeight(), GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, mStencil);
     mTexture.end();
 
     glFlush();
 
+    return *this;
+}
+
+Reader & Reader::Print()
+{
+    int size = GetSize();
     for(int i = 0 ; i < mTexture.StoredWidth() ; ++i)
     {
         for(int j = 0 ; j < mTexture.StoredHeight() ; ++j)
@@ -84,14 +94,29 @@ void Reader::Read()
             int width = mTexture.StoredWidth();
             for(int k = 0 ; k < size ; k++)
             {
-                //std::cout << convertHFloatToFloat(mPixels[i*width*size + j*size + k]) << ",";
-                float value = mPixels[i*width*size + j*size + k];
-                std::cout << value << ",";
+                std::cout << mPixels[i*width*size + j*size + k] << ",";
             }
             std::cout << ")";
         }
         std::cout << std::endl;
     }
+
+    return *this;
+}
+
+Reader & Reader::PrintStencil()
+{
+    for(int i = 0 ; i < mTexture.StoredWidth() ; ++i)
+    {
+        for(int j = 0 ; j < mTexture.StoredHeight() ; ++j)
+        {
+            int width = mTexture.StoredWidth();
+            std::cout << "(" << (int)mStencil[i*width + j] << ")";
+        }
+        std::cout << std::endl;
+    }
+
+    return *this;
 }
 
 float Reader::GetFloat(int x, int y)
@@ -115,7 +140,6 @@ float Reader::Get(int x, int y, int size, int offset)
     assert(y >=0 && y < mTexture.StoredHeight());
 
     int width = mTexture.StoredWidth();
-    //return convertHFloatToFloat(mPixels[(x+y*width)*size+offset]);
     return mPixels[(x+y*width)*size+offset];
 }
 

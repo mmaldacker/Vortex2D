@@ -7,16 +7,16 @@
 //
 
 #include "Advection.h"
+#include "Disable.h"
 
 namespace Fluid
 {
 
-Advection::Advection(Dimensions dimensions, Boundaries & boundaries, float dt)
+Advection::Advection(Dimensions dimensions, float dt)
     : mDimensions(dimensions)
-    , mBoundaries(boundaries)
     , mQuad(dimensions.Size)
-    , mVelocity(dimensions.Size.x, dimensions.Size.y, Renderer::Texture::PixelFormat::RGF)
-    , mDensity(dimensions.Size.x, dimensions.Size.y, Renderer::Texture::PixelFormat::RGBA8888)
+    , mVelocity(dimensions.Size.x, dimensions.Size.y, Renderer::Texture::PixelFormat::RGF, Renderer::RenderTexture::DepthFormat::DEPTH24_STENCIL8)
+    , mDensity(dimensions.Size.x, dimensions.Size.y, Renderer::Texture::PixelFormat::RGBA8888, Renderer::RenderTexture::DepthFormat::DEPTH24_STENCIL8)
     , mAdvectShader("Diff.vsh", "Advect.fsh")
     , mAdvectDensityShader("Diff.vsh", "AdvectDensity.fsh")
     , mDensitySprite(mDensity.Front)
@@ -30,27 +30,25 @@ Advection::Advection(Dimensions dimensions, Boundaries & boundaries, float dt)
 
     mAdvectShader.Use()
     .Set("delta", dt)
-    .Set("xy_min", glm::vec2{0.5f, 0.5f})
-    .Set("xy_max", dimensions.Size - glm::vec2{1.5})
     .Set("u_texture", 0)
     .Set("u_velocity", 1)
-    .Set("u_obstacles", 2)
     .Set("h", mQuad.Size())
     .Unuse();
 
     mAdvectDensityShader.Use()
     .Set("delta", dt)
-    .Set("xy_min", glm::vec2{0.5f, 0.5f})
-    .Set("xy_max", dimensions.Size - glm::vec2{1.5})
     .Set("u_texture", 0)
     .Set("u_velocity", 1)
-    .Set("u_obstacles", 2)
     .Set("h", mQuad.Size())
     .Unuse();
 }
 
 void Advection::RenderVelocity(const std::vector<Renderer::Drawable*> & objects)
 {
+    Renderer::Enable e(GL_STENCIL_TEST);
+    glStencilFunc(GL_EQUAL, 0, 0xFF);
+    glStencilMask(0x00);
+
     mVelocity.begin();
     for(auto object : objects)
     {
@@ -61,6 +59,10 @@ void Advection::RenderVelocity(const std::vector<Renderer::Drawable*> & objects)
 
 void Advection::RenderDensity(const std::vector<Renderer::Drawable*> & objects)
 {
+    Renderer::Enable e(GL_STENCIL_TEST);
+    glStencilFunc(GL_EQUAL, 0, 0xFF);
+    glStencilMask(0x00);
+    
     mDensity.begin();
     for(auto object : objects)
     {
@@ -87,11 +89,14 @@ void Advection::Advect()
 
 void Advection::Advect(Renderer::PingPong & renderTexture, Renderer::Program & program)
 {
+    Renderer::Enable e(GL_STENCIL_TEST);
+    glStencilFunc(GL_EQUAL, 0, 0xFF);
+    glStencilMask(0x00);
+
     renderTexture.swap();
     renderTexture.begin({0.0f, 0.0f, 0.0f, 0.0f});
     program.Use().SetMVP(renderTexture.Orth);
 
-    mBoundaries.BindBoundary(2);
     mVelocity.Back.Bind(1);
     renderTexture.Back.Bind(0);
 

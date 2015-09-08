@@ -13,6 +13,7 @@
 #include "Shapes.h"
 #include "Size.h"
 #include "Reader.h"
+#include "Advection.h"
 
 namespace Fluid
 {
@@ -22,19 +23,19 @@ class Boundaries
 public:
     Boundaries(Dimensions dimensions, int antialias);
 
-    void Render(const std::vector<Renderer::Drawable*> & objects);
+    void Render(Advection & advection, const std::vector<Renderer::Drawable*> & objects);
     void RenderVelocities(const std::vector<Renderer::Drawable*> & objects);
     void RenderWeights();
 
-    void BindBoundary(int n);
-    void BindWeights(int n);
-    void BindVelocity(int n);
-
     void Clear();
+    
     Renderer::Reader GetWeightsReader();
     Renderer::Reader GetReader();
 
 private:
+    void RenderMask(Renderer::RenderTexture & mask, const std::vector<Renderer::Drawable*> & objects);
+    void RenderAtScale(int scale, const std::vector<Renderer::Drawable*> & objects, const glm::mat4 & orth);
+    
     Dimensions mDimensions;
     int mAntialias;
 

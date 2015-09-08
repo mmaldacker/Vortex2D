@@ -24,17 +24,21 @@ public:
     Reader(Reader &&);
     ~Reader();
 
-    void Read();
+    Reader & Read();
+    Reader & Print();
+    Reader & PrintStencil();
 
     float GetFloat(int x, int y);
     glm::vec2 GetVec2(int x, int y);
     glm::vec4 GetVec4(int x, int y);
 
 private:
+    int GetSize() const;
     float Get(int x, int y, int size, int offset);
 
     Renderer::RenderTexture & mTexture;
     float * mPixels;
+    uint8_t * mStencil;
 };
 
 }
