@@ -35,6 +35,8 @@ public:
 
     void Div();
     void Project();
+
+    void LinearInit(const std::vector<Renderer::Drawable*> & objects);
     void LinearSolve();
 
 private:

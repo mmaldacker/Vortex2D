@@ -29,12 +29,7 @@ void main()
 
     vec4 c = texture(u_weights, v_texCoord);
 
-    float factor = dot(q,c);
-    float pressure = 0.0;
-    if(factor > 0.0)
-    {
-        pressure = mix(cell.y, (dot(p,c) + cell.x) / factor, w);
-    }
+    float pressure = mix(cell.y, (dot(p,c) + cell.x) / dot(q,c), w);
 
     out_color = vec4(cell.x, pressure, 0.0, 0.0);
 }

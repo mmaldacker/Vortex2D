@@ -2,6 +2,7 @@
 #include "ResourcePath.h"
 #include "WindowRenderer.h"
 #include "Engine.h"
+#include "SuccessiveOverRelaxation.h"
 #include "Disable.h"
 
 #include <string>
@@ -46,22 +47,40 @@ struct Main
         Fluid::Dimensions dimensions(realSize, scale);
         Fluid::Advection advection(dimensions, 0.33);
         Fluid::Boundaries boundaries(dimensions, 2);
+        Fluid::Engine engine(dimensions, boundaries, advection);
 
-        boundaries.Render(advection, borders);
+        boundaries.Render(borders);
         boundaries.RenderWeights();
+        advection.RenderMask(boundaries, borders);
         advection.RenderVelocity(sources);
 
         glFlush();
 
-        auto velocity = advection.GetVelocityReader();
-        velocity.Read().Print().PrintStencil();
+        //auto velocity = advection.GetVelocityReader();
+        //velocity.Read().Print().PrintStencil();
 
         //boundaries.GetReader().Read().Print();
         //boundaries.GetWeightsReader().Read().Print();
 
-        advection.Advect();
+        //advection.Advect();
+        //velocity.Read().Print();
 
-        velocity.Read().Print();
+        engine.Div();
+
+        engine.GetPressureReader().Read().Print();
+
+        engine.LinearInit(borders);
+
+        engine.GetPressureReader().Read().PrintStencil();
+
+        engine.LinearSolve();
+
+        engine.GetPressureReader().Read().Print();
+
+        engine.LinearSolve();
+
+        engine.GetPressureReader().Read().Print();
+
     }
 };
 

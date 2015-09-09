@@ -71,6 +71,14 @@ void Advection::RenderDensity(const std::vector<Renderer::Drawable*> & objects)
     mDensity.end();
 }
 
+void Advection::RenderMask(Boundaries & boundaries, const std::vector<Renderer::Drawable*> & objects)
+{
+    boundaries.RenderMask(mVelocity.Front, objects);
+    boundaries.RenderMask(mVelocity.Back, objects);
+    boundaries.RenderMask(mDensity.Front, objects);
+    boundaries.RenderMask(mDensity.Back, objects);
+}
+
 Renderer::Reader Advection::GetVelocityReader()
 {
     return {mVelocity.Front};

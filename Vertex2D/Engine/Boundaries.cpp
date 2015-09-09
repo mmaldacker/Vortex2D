@@ -25,23 +25,20 @@ Boundaries::Boundaries(Dimensions dimensions, int antialias)
 {
     mBoundariesVelocity.SetAliasTexParameters();
 
+    mBoundaries.Clear();
+    mBoundariesVelocity.Clear();
+
     mVertical.Colour = {1.0f,1.0f,1.0f,1.0f};
     mHorizontal.Colour = {1.0f,1.0f,1.0f,1.0f};
 
     mWeightsShader.Use().Set("h", mQuad.Size()).Set("u_texture", 0).Unuse();
 }
 
-void Boundaries::Render(Advection & advection, const std::vector<Renderer::Drawable*> & objects)
+void Boundaries::Render(const std::vector<Renderer::Drawable*> & objects)
 {
     mBoundaries.begin({0.0f, 0.0f, 0.0f, 0.0f});
     RenderAtScale(mAntialias, objects, mBoundaries.Orth);
     mBoundaries.end();
-
-    RenderMask(advection.mVelocity.Front, objects);
-    RenderMask(advection.mDensity.Front, objects);
-
-    RenderMask(advection.mVelocity.Back, objects);
-    RenderMask(advection.mDensity.Back, objects);
 }
 
 void Boundaries::RenderMask(Renderer::RenderTexture & mask, const std::vector<Renderer::Drawable*> & objects)

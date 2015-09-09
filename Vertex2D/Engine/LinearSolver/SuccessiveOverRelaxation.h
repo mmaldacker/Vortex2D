@@ -10,7 +10,7 @@
 #define __Vertex2D__SuccessiveOverRelaxation__
 
 #include "LinearSolver.h"
-#include "Quad.h"
+#include "Size.h"
 #include "RenderTexture.h"
 #include "Boundaries.h"
 
@@ -20,18 +20,21 @@ namespace Fluid
 class SuccessiveOverRelaxation : public LinearSolver
 {
 public:
-    SuccessiveOverRelaxation(Renderer::Quad & quad,
+    SuccessiveOverRelaxation(Dimensions dimensions,
+                             Renderer::RenderTexture & weights,
                              Renderer::PingPong & x,
                              Boundaries & boundaries,
                              int iterations = 20);
 
-    void Init();
+
+    void RenderMask(const std::vector<Renderer::Drawable*> & objects);
     void Solve() override;
 
 private:
     void Step(bool isRed);
 
-    Renderer::Quad & mQuad;
+    Renderer::Quad mQuad;
+    Renderer::RenderTexture & mWeights;
     Renderer::PingPong & mX;
     Boundaries & mBoundaries;
     int mIterations;

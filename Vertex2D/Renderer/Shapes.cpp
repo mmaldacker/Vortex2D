@@ -65,7 +65,7 @@ void Shape::SetProgram(Program & program)
 
 void Shape::Set(const Path & path)
 {
-    mNumVertices = path.size();
+    mNumVertices = (uint32_t)path.size();
 
     if(mNumVertices > 0)
     {

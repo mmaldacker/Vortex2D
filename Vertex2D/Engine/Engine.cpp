@@ -21,7 +21,7 @@ Engine::Engine(Dimensions dimensions, Boundaries & boundaries, Advection & advec
     , mPressure(dimensions.Size.x, dimensions.Size.y, Renderer::Texture::PixelFormat::RGF, Renderer::RenderTexture::DepthFormat::DEPTH24_STENCIL8)
     , mBoundaries(boundaries)
     , mAdvection(advection)
-    , mLinearSolver(mQuad, mPressure, mBoundaries, 1)
+    , mLinearSolver(dimensions, mBoundaries.mWeights, mPressure, mBoundaries)
 {
     mPressure.Clear();
 
@@ -47,38 +47,39 @@ Engine::Engine(Dimensions dimensions, Boundaries & boundaries, Advection & advec
 
 void Engine::Project()
 {
-/*
-    mVelocity.swap();
-    mVelocity.begin();
-    mProjectShader.Use().SetMVP(mVelocity.Orth);
+    mAdvection.mVelocity.swap();
+    mAdvection.mVelocity.begin();
+    mProjectShader.Use().SetMVP(mAdvection.mVelocity.Orth);
 
-    mBoundaries.BindBoundary(3);
-    mBoundaries.BindWeights(2);
+    mBoundaries.mBoundaries.Bind(3);
+    mBoundaries.mWeights.Bind(2);
     mPressure.Front.Bind(1);
-    mVelocity.Back.Bind(0);
+    mAdvection.mVelocity.Back.Bind(0);
 
     mQuad.Render();
 
     mProjectShader.Unuse();
-    mVelocity.end();
-*/
+    mAdvection.mVelocity.end();
 }
 
 void Engine::Div()
 {
-/*
-    mPressure.begin();
+    mPressure.begin({0.0f, 0.0f, 0.0f, 0.0f});
     mDivShader.Use().SetMVP(mPressure.Orth);
 
-    mBoundaries.BindVelocity(2);
-    mBoundaries.BindBoundary(1);
-    mVelocity.Front.Bind(0);
+    mBoundaries.mBoundariesVelocity.Bind(2);
+    mBoundaries.mBoundaries.Bind(1);
+    mAdvection.mVelocity.Front.Bind(0);
 
     mQuad.Render();
 
     mDivShader.Unuse();
     mPressure.end();
-*/
+}
+
+void Engine::LinearInit(const std::vector<Renderer::Drawable*> & objects)
+{
+    mLinearSolver.RenderMask(objects);
 }
 
 void Engine::LinearSolve()

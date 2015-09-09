@@ -13,11 +13,13 @@
 namespace Fluid
 {
 
-SuccessiveOverRelaxation::SuccessiveOverRelaxation(Renderer::Quad & quad,
+SuccessiveOverRelaxation::SuccessiveOverRelaxation(Dimensions dimensions,
+                                                   Renderer::RenderTexture & weights,
                                                    Renderer::PingPong & x,
                                                    Boundaries & boundaries,
                                                    int iterations)
-    : mQuad(quad)
+    : mQuad(dimensions.Size)
+    , mWeights(weights)
     , mX(x)
     , mBoundaries(boundaries)
     , mIterations(iterations)
@@ -25,46 +27,50 @@ SuccessiveOverRelaxation::SuccessiveOverRelaxation(Renderer::Quad & quad,
     , mStencilShader("Diff.vsh", "Stencil.fsh")
     , mIdentityShader(Renderer::Program::TexturePositionProgram())
 {
-    float w = 2.0f/(1.0f+std::sin(4.0f*std::atan(1.0f)/std::sqrt(quad.Size().x*quad.Size().y)));
+    float w = 2.0f/(1.0f+std::sin(4.0f*std::atan(1.0f)/std::sqrt(mQuad.Size().x*mQuad.Size().y)));
 
     mSorShader.Use()
-    .Set("h", quad.Size())
+    .Set("h", mQuad.Size())
     .Set("u_texture", 0)
     .Set("u_weights", 1)
     .Set("w", w)
     .Unuse();
 
     mStencilShader.Use()
-    .Set("h", quad.Size())
+    .Set("h", mQuad.Size())
     .Unuse();
 }
 
-void SuccessiveOverRelaxation::Init()
+void SuccessiveOverRelaxation::RenderMask(const std::vector<Renderer::Drawable*> & objects)
 {
-    glEnable(GL_STENCIL_TEST);
-    glDisable(GL_DEPTH_TEST);
+    mBoundaries.RenderMask(mX.Front, objects);
+    mBoundaries.RenderMask(mX.Back, objects);
+
+    Renderer::Enable e(GL_STENCIL_TEST);
+
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF); // write value in stencil buffer
+    glStencilOp(GL_KEEP, GL_KEEP, GL_INVERT); // invert value
+    glStencilMask(0x02); // write in second place
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-    glDepthMask(GL_FALSE);
-    glStencilMask(-1);
-    glClearStencil(0);
-    glStencilFunc(GL_ALWAYS, 1, -1);
-    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
-    mX.begin({0.0f, 0.0f, 0.0f, 0.0f});
     mStencilShader.Use().SetMVP(mX.Orth);
-    mQuad.Render();
-    mStencilShader.Unuse();
-    mX.end();
 
+    mX.begin();
+
+    mQuad.Render();
+
+    mX.end();
+    mX.swap();
+    mX.begin();
+
+    mQuad.Render();
+
+    mX.end();
     mX.swap();
 
-    mX.begin({0.0f, 0.0f, 0.0f, 0.0f});
-    mQuad.Render();
-    mX.end();
-
-    glDisable(GL_STENCIL_TEST);
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    glStencilMask(0);
+    glStencilMask(0x00); // disable stencil writing
+
 }
 
 void SuccessiveOverRelaxation::Solve()
@@ -78,28 +84,24 @@ void SuccessiveOverRelaxation::Solve()
 
 void SuccessiveOverRelaxation::Step(bool isRed)
 {
-    GLenum equal = isRed ? GL_EQUAL : GL_NOTEQUAL;
-    GLenum notEqual = isRed ? GL_NOTEQUAL : GL_EQUAL;
-
-    Renderer::Enable e{GL_STENCIL_TEST};
-    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+    Renderer::Enable e(GL_STENCIL_TEST);
+    glStencilMask(0x00);
 
     mX.swap();
-    mX.begin();
+    mX.begin({0.0f, 0.0f, 0.0f, 0.0f});
 
-    glStencilFunc(equal, 1, -1);
+    glStencilFunc(GL_EQUAL, isRed ? 2 : 0, 0xFF);
 
     mSorShader.Use().SetMVP(mX.Orth);
 
-    //FIXME
-    //mWeights.Bind(1);
+    mWeights.Bind(1);
     mX.Back.Bind(0);
 
     mQuad.Render();
 
     mSorShader.Unuse();
 
-    glStencilFunc(notEqual, 1, -1);
+    glStencilFunc(GL_EQUAL, isRed ? 0 : 2, 0xFF);
 
     mIdentityShader.Use().SetMVP(mX.Orth);
     

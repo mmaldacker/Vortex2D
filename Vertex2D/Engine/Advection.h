@@ -13,11 +13,12 @@
 #include "Quad.h"
 #include "RenderTexture.h"
 #include "Reader.h"
+#include "Boundaries.h"
 
 namespace Fluid
 {
 
-class Boundaries;
+class Engine;
 
 class Advection
 {
@@ -26,13 +27,14 @@ public:
 
     void RenderVelocity(const std::vector<Renderer::Drawable*> & objects);
     void RenderDensity(const std::vector<Renderer::Drawable*> & objects);
+    void RenderMask(Boundaries & boundaries, const std::vector<Renderer::Drawable*> & objects);
 
     Renderer::Reader GetVelocityReader();
     Renderer::Sprite & GetDensity();
 
     void Advect();
 
-    friend class Boundaries;
+    friend class Engine;
 private:
     void Advect(Renderer::PingPong & renderTexture, Renderer::Program & program);
 
