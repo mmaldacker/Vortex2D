@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		CE2ED4D21B96234C007343DA /* Image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE2ED4CE1B96234C007343DA /* Image.cpp */; };
-		CE2ED4D31B96234C007343DA /* Text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE2ED4D01B96234C007343DA /* Text.cpp */; };
 		CE2ED4E21B962942007343DA /* ColourPosition.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED4DA1B962942007343DA /* ColourPosition.fsh */; };
 		CE2ED4E31B962942007343DA /* ColourPosition.vsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED4DB1B962942007343DA /* ColourPosition.vsh */; };
 		CE2ED4E41B962942007343DA /* ColourTexturePosition.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED4DC1B962942007343DA /* ColourTexturePosition.fsh */; };
@@ -33,7 +31,6 @@
 		CE2ED5421B96295B007343DA /* Weights.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED5321B96295B007343DA /* Weights.fsh */; };
 		CE2ED5451B962F0D007343DA /* hfloat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE2ED5431B962F0D007343DA /* hfloat.cpp */; };
 		CE2ED54B1B9633DA007343DA /* Boundaries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE2ED5491B9633DA007343DA /* Boundaries.cpp */; };
-		CE50E2491B8509B500548C19 /* GridVisualiser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE50E2471B8509B500548C19 /* GridVisualiser.cpp */; };
 		CE50E2511B862F0700548C19 /* WindowRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE50E24F1B862F0700548C19 /* WindowRenderer.cpp */; };
 		CE50E2531B863B0600548C19 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE6D63131B84E5E3006729F0 /* OpenGL.framework */; };
 		CE6D62EE1B84E001006729F0 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D62ED1B84E001006729F0 /* main.cpp */; };
@@ -51,10 +48,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		CE2ED4CE1B96234C007343DA /* Image.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Image.cpp; path = Visualiser/Image.cpp; sourceTree = "<group>"; };
-		CE2ED4CF1B96234C007343DA /* Image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Image.h; path = Visualiser/Image.h; sourceTree = "<group>"; };
-		CE2ED4D01B96234C007343DA /* Text.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Text.cpp; path = Visualiser/Text.cpp; sourceTree = "<group>"; };
-		CE2ED4D11B96234C007343DA /* Text.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Text.h; path = Visualiser/Text.h; sourceTree = "<group>"; };
 		CE2ED4DA1B962942007343DA /* ColourPosition.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ColourPosition.fsh; path = Shaders/Renderer/ColourPosition.fsh; sourceTree = "<group>"; };
 		CE2ED4DB1B962942007343DA /* ColourPosition.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ColourPosition.vsh; path = Shaders/Renderer/ColourPosition.vsh; sourceTree = "<group>"; };
 		CE2ED4DC1B962942007343DA /* ColourTexturePosition.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ColourTexturePosition.fsh; path = Shaders/Renderer/ColourTexturePosition.fsh; sourceTree = "<group>"; };
@@ -82,8 +75,6 @@
 		CE2ED5491B9633DA007343DA /* Boundaries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Boundaries.cpp; path = Engine/Boundaries.cpp; sourceTree = "<group>"; };
 		CE2ED54A1B9633DA007343DA /* Boundaries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Boundaries.h; path = Engine/Boundaries.h; sourceTree = "<group>"; };
 		CE2ED54C1B96363B007343DA /* Size.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Size.h; path = Engine/Size.h; sourceTree = "<group>"; };
-		CE50E2471B8509B500548C19 /* GridVisualiser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GridVisualiser.cpp; path = Visualiser/GridVisualiser.cpp; sourceTree = "<group>"; };
-		CE50E2481B8509B500548C19 /* GridVisualiser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GridVisualiser.h; path = Visualiser/GridVisualiser.h; sourceTree = "<group>"; };
 		CE50E24F1B862F0700548C19 /* WindowRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WindowRenderer.cpp; path = Visualiser/WindowRenderer.cpp; sourceTree = "<group>"; };
 		CE50E2501B862F0700548C19 /* WindowRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WindowRenderer.h; path = Visualiser/WindowRenderer.h; sourceTree = "<group>"; };
 		CE6D62CA1B84DF98006729F0 /* Vertex2D.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Vertex2D.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -269,14 +260,8 @@
 		CE6D636F1B84FE01006729F0 /* Visualiser */ = {
 			isa = PBXGroup;
 			children = (
-				CE2ED4CE1B96234C007343DA /* Image.cpp */,
-				CE2ED4CF1B96234C007343DA /* Image.h */,
-				CE2ED4D01B96234C007343DA /* Text.cpp */,
-				CE2ED4D11B96234C007343DA /* Text.h */,
 				CE50E24F1B862F0700548C19 /* WindowRenderer.cpp */,
 				CE50E2501B862F0700548C19 /* WindowRenderer.h */,
-				CE50E2471B8509B500548C19 /* GridVisualiser.cpp */,
-				CE50E2481B8509B500548C19 /* GridVisualiser.h */,
 			);
 			name = Visualiser;
 			sourceTree = "<group>";
@@ -403,7 +388,6 @@
 				CE6D632D1B84EAEA006729F0 /* Quad.cpp in Sources */,
 				CE6D63101B84E20D006729F0 /* Shader.cpp in Sources */,
 				CE50E2511B862F0700548C19 /* WindowRenderer.cpp in Sources */,
-				CE2ED4D31B96234C007343DA /* Text.cpp in Sources */,
 				CE6D630F1B84E20D006729F0 /* Sprite.cpp in Sources */,
 				CE6D63231B84E7B6006729F0 /* Engine.cpp in Sources */,
 				CE6E0F691B9F4DF800D77927 /* Advection.cpp in Sources */,
@@ -413,10 +397,8 @@
 				CE6D63091B84E20D006729F0 /* RenderTexture.cpp in Sources */,
 				CE6D636E1B84F4DB006729F0 /* Reader.cpp in Sources */,
 				CE2ED54B1B9633DA007343DA /* Boundaries.cpp in Sources */,
-				CE2ED4D21B96234C007343DA /* Image.cpp in Sources */,
 				CE2ED5451B962F0D007343DA /* hfloat.cpp in Sources */,
 				CE6D63121B84E20D006729F0 /* Texture.cpp in Sources */,
-				CE50E2491B8509B500548C19 /* GridVisualiser.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -517,10 +499,7 @@
 				INFOPLIST_FILE = Vertex2D/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = /opt/local/lib;
-				OTHER_LDFLAGS = (
-					"-lpng",
-					"-lGLFW",
-				);
+				OTHER_LDFLAGS = "-lGLFW";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -543,10 +522,7 @@
 				INFOPLIST_FILE = Vertex2D/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = /opt/local/lib;
-				OTHER_LDFLAGS = (
-					"-lpng",
-					"-lGLFW",
-				);
+				OTHER_LDFLAGS = "-lGLFW";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

@@ -18,8 +18,6 @@ class Quad
 {
 public:
     Quad(const glm::vec2 & size);
-    Quad(const glm::vec2 & size, const TextureCoords & rect);
-    Quad(const glm::vec2 & size, const std::vector<TextureCoords> & rect);
     ~Quad();
 
     Quad(Quad &&);
@@ -32,7 +30,6 @@ private:
     glm::vec2 mSize;
     GLuint mVertexArray;
     GLuint mVertexBuffer;
-    int mNumTriangles;
 };
 
 }

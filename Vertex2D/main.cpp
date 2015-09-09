@@ -1,6 +1,5 @@
 #include "Common.h"
 #include "ResourcePath.h"
-#include "GridVisualiser.h"
 #include "WindowRenderer.h"
 #include "Engine.h"
 #include "Disable.h"

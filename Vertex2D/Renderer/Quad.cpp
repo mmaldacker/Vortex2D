@@ -12,14 +12,8 @@
 namespace Renderer
 {
 
-void Coords(const glm::vec2 & size, const TextureCoords & coords, std::vector<float> & buffer)
+void Coords(const glm::vec2 & size, std::vector<float> & buffer)
 {
-    float dx = 1.0f/size.x;
-    float dy = 1.0f/size.y;
-
-    auto rect = coords.tex;
-    auto pos = coords.pos;
-
     glm::vec4 a,b,c,d;
 
     /*
@@ -30,15 +24,15 @@ void Coords(const glm::vec2 & size, const TextureCoords & coords, std::vector<fl
 
      */
 
-    a.x = rect.Pos.x * dx,                 a.y = (rect.Pos.y + rect.Size.y) * dy;
-    b.x = rect.Pos.x * dx,                 b.y = rect.Pos.y * dy;
-    c.x = (rect.Pos.x + rect.Size.x) * dx, c.y = (rect.Pos.y + rect.Size.y) * dy;
-    d.x = (rect.Pos.x + rect.Size.x) * dx, d.y = rect.Pos.y * dy;
+    a.x = 0.0f, a.y = 1.0f;
+    b.x = 0.0f, b.y = 0.0f;
+    c.x = 1.0f, c.y = 1.0f;
+    d.x = 1.0f, d.y = 0.0f;
 
-    a.p = pos.Pos.x,              a.q = pos.Pos.y + pos.Size.y;
-    b.p = pos.Pos.x,              b.q = pos.Pos.y,
-    c.p = pos.Pos.x + pos.Size.x, c.q = pos.Pos.y + pos.Size.y;
-    d.p = pos.Pos.x + pos.Size.x, d.q = pos.Pos.y;
+    a.p = 0.0f,   a.q = size.y;
+    b.p = 0.0f,   b.q = 0.0f,
+    c.p = size.x, c.q = size.y;
+    d.p = size.x, d.q = 0.0f;
 
     std::vector<float> attributes =
     {
@@ -54,21 +48,7 @@ void Coords(const glm::vec2 & size, const TextureCoords & coords, std::vector<fl
     std::copy(attributes.begin(), attributes.end(), std::back_inserter(buffer));
 }
 
-Quad::Quad(const glm::vec2 & size) : Quad(size,
-    {
-        Rect{glm::vec2{0.0f}, size},
-        Rect{glm::vec2{0.0f}, size}
-    })
-{
-
-}
-
-Quad::Quad(const glm::vec2 & size, const TextureCoords & rect) : Quad(size, std::vector<TextureCoords>{rect})
-{
-
-}
-
-Quad::Quad(const glm::vec2 & size, const std::vector<TextureCoords> & rect) : mNumTriangles(0)
+Quad::Quad(const glm::vec2 & size)
 {
     if (Renderer::supports_npot_textures())
     {
@@ -81,12 +61,7 @@ Quad::Quad(const glm::vec2 & size, const std::vector<TextureCoords> & rect) : mN
     }
 
     std::vector<float> buffer;
-    mNumTriangles = rect.size()*2;
-
-    for(auto && r : rect)
-    {
-        Coords(mSize, r, buffer);
-    }
+    Coords(mSize, buffer);
 
     glGenVertexArrays(1,&mVertexArray);
     glBindVertexArray(mVertexArray);
@@ -119,7 +94,6 @@ Quad::Quad(Quad && other)
     : mSize(other.mSize)
     , mVertexArray(other.mVertexArray)
     , mVertexBuffer(other.mVertexBuffer)
-    , mNumTriangles(other.mNumTriangles)
 {
     other.mVertexArray = 0;
 }
@@ -127,7 +101,7 @@ Quad::Quad(Quad && other)
 void Quad::Render()
 {
     glBindVertexArray(mVertexArray);
-    glDrawArrays(GL_TRIANGLES, 0, mNumTriangles*3);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
 }
 

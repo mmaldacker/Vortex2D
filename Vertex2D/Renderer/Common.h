@@ -44,22 +44,6 @@ inline bool supports_npot_textures()
 
 typedef std::vector<glm::vec2> Path;
 
-struct Rect
-{
-    Rect(glm::vec2 pos, glm::vec2 size) : Pos(pos), Size(size) {}
-    Rect(glm::vec2 size) : Pos(glm::vec2{0.0}), Size(size) {}
-    Rect() : Pos(glm::vec2{0.0}), Size(glm::vec2{0.0f}) {}
-
-    glm::vec2 Pos;
-    glm::vec2 Size;
-};
-
-struct TextureCoords
-{
-    Rect tex;
-    Rect pos;
-};
-
 }
 
 #endif
