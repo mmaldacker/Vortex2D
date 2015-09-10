@@ -23,6 +23,9 @@ Engine::Engine(Dimensions dimensions, Boundaries & boundaries, Advection & advec
     , mAdvection(advection)
     , mLinearSolver(dimensions, mBoundaries.mWeights, mPressure, mBoundaries)
 {
+    mPressure.Front.SetAliasTexParameters();
+    mPressure.Back.SetAliasTexParameters();
+    
     mPressure.Clear();
 
     // projection shader
@@ -48,10 +51,10 @@ Engine::Engine(Dimensions dimensions, Boundaries & boundaries, Advection & advec
 void Engine::Project()
 {
     mAdvection.mVelocity.swap();
-    mAdvection.mVelocity.begin();
+    mAdvection.mVelocity.begin({0.0f, 0.0f, 0.0f, 0.0f});
     mProjectShader.Use().SetMVP(mAdvection.mVelocity.Orth);
 
-    mBoundaries.mBoundaries.Bind(3);
+    mBoundaries.mBoundariesVelocity.Bind(3);
     mBoundaries.mWeights.Bind(2);
     mPressure.Front.Bind(1);
     mAdvection.mVelocity.Back.Bind(0);
@@ -68,7 +71,7 @@ void Engine::Div()
     mDivShader.Use().SetMVP(mPressure.Orth);
 
     mBoundaries.mBoundariesVelocity.Bind(2);
-    mBoundaries.mBoundaries.Bind(1);
+    mBoundaries.mWeights.Bind(1);
     mAdvection.mVelocity.Front.Bind(0);
 
     mQuad.Render();

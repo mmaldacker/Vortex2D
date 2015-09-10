@@ -24,10 +24,9 @@ public:
 
     void SetBackgroundColour(const glm::vec4 & colour);
 
-    template<typename T>
-    void Render(std::vector<T> & objects)
+    void Render(const std::vector<Renderer::Drawable*> & objects)
     {
-        for(auto && object : objects) object.Render(Ortho);
+        for(auto object : objects) object->Render(Ortho);
     }
 
     void MakeCurrent();

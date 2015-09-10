@@ -23,10 +23,12 @@ Boundaries::Boundaries(Dimensions dimensions, int antialias)
     , mHorizontal({dimensions.Size.x, 1.0f})
     , mVertical({1.0f, dimensions.Size.y})
 {
+    mWeights.SetAliasTexParameters();
     mBoundariesVelocity.SetAliasTexParameters();
 
     mBoundaries.Clear();
     mBoundariesVelocity.Clear();
+    mWeights.Clear();
 
     mVertical.Colour = {1.0f,1.0f,1.0f,1.0f};
     mHorizontal.Colour = {1.0f,1.0f,1.0f,1.0f};

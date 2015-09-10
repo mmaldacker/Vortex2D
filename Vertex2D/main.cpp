@@ -6,6 +6,8 @@
 #include "Disable.h"
 
 #include <string>
+#include <chrono>
+#include <thread>
 
 void error_callback(int error, const char* description)
 {
@@ -16,71 +18,70 @@ struct Main
 {
     Main()
     {
-        int size = 12;
-        int scale = 30;
+        int size = 500;
+        int scale = 1;
 
         auto realSize = glm::vec2{size*scale,size*scale};
         WindowRenderer window(realSize);
+        window.SetBackgroundColour({0.0f, 0.0f, 0.0f, 1.0f});
 
         // -------------------
 
         Renderer::Rectangle source({60.0f, 60.0f});
-        source.Position = {200.0f, 200.0f};
-        source.Colour = {-1.0f, -2.0f, 0.0f, 0.0f};
+        source.Position = {400.0f, 400.0f};
+        source.Colour = {-80.0f, -100.0f, 0.0f, 0.0f};
 
-        Renderer::Rectangle blocked({30.0f, 30.0f});
-        blocked.Position = {120.0f, 120.0f};
-        blocked.Colour = {-1.0f, -2.0f, 0.0f, 0.0f};
+        std::vector<Renderer::Drawable*> sources = {&source};
 
-        std::vector<Renderer::Drawable*> sources = {&source, &blocked};
-
-        Renderer::Rectangle rect({80.0f, 80.0f});
-        rect.Position = {100.0f, 100.0f};
+        Renderer::Rectangle rect({90.0f, 90.0f});
+        rect.Position = {120.0f, 120.0f};
         rect.Colour = {1.0f, 1.0f, 1.0f, 1.0f};
 
         std::vector<Renderer::Drawable*> borders = {&rect};
 
+        Renderer::Rectangle density({60.0f, 60.0f});
+        density.Position = (glm::vec2)source.Position;
+        density.Colour = {0.0f, 0.0f, 1.0f, 1.0f};
+
+        std::vector<Renderer::Drawable*> densities = {&density};
+
         // -------------------
 
         Renderer::Disable d(GL_BLEND);
+        glDisable(GL_DEPTH_TEST);
 
         Fluid::Dimensions dimensions(realSize, scale);
-        Fluid::Advection advection(dimensions, 0.33);
+        Fluid::Advection advection(dimensions, 0.033);
         Fluid::Boundaries boundaries(dimensions, 2);
         Fluid::Engine engine(dimensions, boundaries, advection);
 
+        auto & sprite = advection.GetDensity();
+
         boundaries.Render(borders);
         boundaries.RenderWeights();
+
         advection.RenderMask(boundaries, borders);
-        advection.RenderVelocity(sources);
-
-        glFlush();
-
-        //auto velocity = advection.GetVelocityReader();
-        //velocity.Read().Print().PrintStencil();
-
-        //boundaries.GetReader().Read().Print();
-        //boundaries.GetWeightsReader().Read().Print();
-
-        //advection.Advect();
-        //velocity.Read().Print();
-
-        engine.Div();
-
-        engine.GetPressureReader().Read().Print();
-
         engine.LinearInit(borders);
 
-        engine.GetPressureReader().Read().PrintStencil();
+        while (!window.ShouldClose())
+        {
+            glfwPollEvents();
 
-        engine.LinearSolve();
+            advection.RenderVelocity(sources);
+            advection.RenderDensity(densities);
 
-        engine.GetPressureReader().Read().Print();
+            engine.Div();
 
-        engine.LinearSolve();
+            engine.LinearSolve();
 
-        engine.GetPressureReader().Read().Print();
+            engine.Project();
 
+            advection.Advect();
+
+            window.Clear();
+            window.Render({&sprite});
+            window.Swap();
+        }
     }
 };
 

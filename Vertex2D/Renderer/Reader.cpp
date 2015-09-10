@@ -44,6 +44,7 @@ int Reader::GetSize() const
         case Texture::PixelFormat::RGF:
             return 2;
             break;
+        case Texture::PixelFormat::RGBA8888:
         case Texture::PixelFormat::RGBAF:
             return 4;
             break;
@@ -65,6 +66,7 @@ Reader & Reader::Read()
         case Texture::PixelFormat::RGF:
             format = GL_RG;
             break;
+        case Texture::PixelFormat::RGBA8888:
         case Texture::PixelFormat::RGBAF:
             format = GL_RGBA;
             break;
@@ -94,12 +96,14 @@ Reader & Reader::Print()
             int width = mTexture.StoredWidth();
             for(int k = 0 ; k < size ; k++)
             {
-                std::cout << mPixels[i*width*size + j*size + k] << ",";
+                std::cout << mPixels[i*width*size + j*size + k];
+                if(k < size-1) std::cout << ",";
             }
             std::cout << ")";
         }
         std::cout << std::endl;
     }
+    std::cout << std::endl;
 
     return *this;
 }

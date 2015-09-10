@@ -24,7 +24,7 @@ public:
                              Renderer::RenderTexture & weights,
                              Renderer::PingPong & x,
                              Boundaries & boundaries,
-                             int iterations = 20);
+                             int iterations = 40);
 
 
     void RenderMask(const std::vector<Renderer::Drawable*> & objects);

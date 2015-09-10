@@ -30,6 +30,7 @@ public:
     void RenderMask(Boundaries & boundaries, const std::vector<Renderer::Drawable*> & objects);
 
     Renderer::Reader GetVelocityReader();
+    Renderer::Reader GetDensityReader();
     Renderer::Sprite & GetDensity();
 
     void Advect();

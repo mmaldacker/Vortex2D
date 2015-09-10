@@ -23,6 +23,10 @@ Advection::Advection(Dimensions dimensions, float dt)
 {
     mDensity.Front.SetAntiAliasTexParameters();
     mDensity.Back.SetAntiAliasTexParameters();
+
+    mVelocity.Front.SetAliasTexParameters();
+    mVelocity.Back.SetAliasTexParameters();
+    
     mDensitySprite.Scale = glm::vec2(dimensions.Scale);
 
     mVelocity.Clear();
@@ -73,6 +77,7 @@ void Advection::RenderDensity(const std::vector<Renderer::Drawable*> & objects)
 
 void Advection::RenderMask(Boundaries & boundaries, const std::vector<Renderer::Drawable*> & objects)
 {
+    //FIXME I think only the Back ones are necessary
     boundaries.RenderMask(mVelocity.Front, objects);
     boundaries.RenderMask(mVelocity.Back, objects);
     boundaries.RenderMask(mDensity.Front, objects);
@@ -82,6 +87,11 @@ void Advection::RenderMask(Boundaries & boundaries, const std::vector<Renderer::
 Renderer::Reader Advection::GetVelocityReader()
 {
     return {mVelocity.Front};
+}
+
+Renderer::Reader Advection::GetDensityReader()
+{
+    return {mDensity.Front};
 }
 
 Renderer::Sprite & Advection::GetDensity()

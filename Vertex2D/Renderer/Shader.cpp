@@ -174,7 +174,7 @@ Program & Program::TexturePositionProgram()
     if(!program.mProgram)
     {
         program = Program("TexturePosition.vsh", "TexturePosition.fsh");
-        program.Use().Set("u_Texture", 0).Unuse();
+        program.Use().Set("u_texture", 0).Unuse();
     }
 
     return program;
@@ -197,7 +197,7 @@ Program & Program::ColourTexturePositionProgram()
     if(!program.mProgram)
     {
         program = Program("ColourTexturePosition.vsh", "ColourTexturePosition.fsh");
-        program.Use().Set("u_Texture", 0).Unuse();
+        program.Use().Set("u_texture", 0).Unuse();
     }
 
     return program;
