@@ -57,7 +57,6 @@ int Reader::GetSize() const
 Reader & Reader::Read()
 {
     GLenum format;
-    int size = GetSize();
     switch(mTexture.GetFormat())
     {
         case Texture::PixelFormat::RF:

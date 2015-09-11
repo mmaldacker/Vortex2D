@@ -26,7 +26,7 @@ public:
 
     void Render(const std::vector<Renderer::Drawable*> & objects);
     void RenderVelocities(const std::vector<Renderer::Drawable*> & objects);
-    void RenderMask(Renderer::RenderTexture & mask, const std::vector<Renderer::Drawable*> & objects);
+    void RenderMask(Renderer::RenderTexture & mask);
     void RenderWeights();
 
     void Clear();
@@ -36,7 +36,7 @@ public:
 
     friend class Engine;
 private:
-    void RenderAtScale(int scale, const std::vector<Renderer::Drawable*> & objects, const glm::mat4 & orth);
+    void RenderAtScale(const glm::mat4 & orth, float scale = 1.0f);
     
     Dimensions mDimensions;
     int mAntialias;
@@ -51,6 +51,8 @@ private:
 
     Renderer::Rectangle mHorizontal;
     Renderer::Rectangle mVertical;
+
+    std::vector<Renderer::Drawable*> mObjects;
 };
 
 }

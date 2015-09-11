@@ -27,7 +27,7 @@ public:
 
     void RenderVelocity(const std::vector<Renderer::Drawable*> & objects);
     void RenderDensity(const std::vector<Renderer::Drawable*> & objects);
-    void RenderMask(Boundaries & boundaries, const std::vector<Renderer::Drawable*> & objects);
+    void RenderMask(Boundaries & boundaries);
 
     Renderer::Reader GetVelocityReader();
     Renderer::Reader GetDensityReader();

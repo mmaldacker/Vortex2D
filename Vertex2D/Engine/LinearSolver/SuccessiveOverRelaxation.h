@@ -23,11 +23,10 @@ public:
     SuccessiveOverRelaxation(Dimensions dimensions,
                              Renderer::RenderTexture & weights,
                              Renderer::PingPong & x,
-                             Boundaries & boundaries,
                              int iterations = 40);
 
 
-    void RenderMask(const std::vector<Renderer::Drawable*> & objects);
+    void RenderMask(Boundaries & boundaries);
     void Solve() override;
 
 private:
@@ -36,7 +35,6 @@ private:
     Renderer::Quad mQuad;
     Renderer::RenderTexture & mWeights;
     Renderer::PingPong & mX;
-    Boundaries & mBoundaries;
     int mIterations;
 
     Renderer::Program mSorShader;

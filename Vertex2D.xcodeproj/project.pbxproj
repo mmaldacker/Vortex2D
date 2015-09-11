@@ -44,6 +44,7 @@
 		CE6D63361B84ED96006729F0 /* SuccessiveOverRelaxation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D63341B84ED96006729F0 /* SuccessiveOverRelaxation.cpp */; };
 		CE6D636E1B84F4DB006729F0 /* Reader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D636C1B84F4DB006729F0 /* Reader.cpp */; };
 		CE6E0F691B9F4DF800D77927 /* Advection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6E0F671B9F4DF800D77927 /* Advection.cpp */; };
+		CE6E0F6E1BA2113A00D77927 /* Multigrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6E0F6C1BA2113A00D77927 /* Multigrid.cpp */; };
 		CE9F2C621B88A15400EDDF5A /* font.png in Resources */ = {isa = PBXBuildFile; fileRef = CE9F2C611B88A15400EDDF5A /* font.png */; };
 /* End PBXBuildFile section */
 
@@ -108,6 +109,8 @@
 		CE6D63711B850064006729F0 /* Disable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Disable.h; path = Renderer/Disable.h; sourceTree = "<group>"; };
 		CE6E0F671B9F4DF800D77927 /* Advection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Advection.cpp; path = Engine/Advection.cpp; sourceTree = "<group>"; };
 		CE6E0F681B9F4DF800D77927 /* Advection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Advection.h; path = Engine/Advection.h; sourceTree = "<group>"; };
+		CE6E0F6C1BA2113A00D77927 /* Multigrid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Multigrid.cpp; sourceTree = "<group>"; };
+		CE6E0F6D1BA2113A00D77927 /* Multigrid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Multigrid.h; sourceTree = "<group>"; };
 		CE9F2C611B88A15400EDDF5A /* font.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = font.png; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
@@ -244,6 +247,8 @@
 				CE6D63331B84ED96006729F0 /* LinearSolver.h */,
 				CE6D63341B84ED96006729F0 /* SuccessiveOverRelaxation.cpp */,
 				CE6D63351B84ED96006729F0 /* SuccessiveOverRelaxation.h */,
+				CE6E0F6C1BA2113A00D77927 /* Multigrid.cpp */,
+				CE6E0F6D1BA2113A00D77927 /* Multigrid.h */,
 			);
 			name = LinearSolver;
 			sourceTree = "<group>";
@@ -390,6 +395,7 @@
 				CE50E2511B862F0700548C19 /* WindowRenderer.cpp in Sources */,
 				CE6D630F1B84E20D006729F0 /* Sprite.cpp in Sources */,
 				CE6D63231B84E7B6006729F0 /* Engine.cpp in Sources */,
+				CE6E0F6E1BA2113A00D77927 /* Multigrid.cpp in Sources */,
 				CE6E0F691B9F4DF800D77927 /* Advection.cpp in Sources */,
 				CE6D630E1B84E20D006729F0 /* Shapes.cpp in Sources */,
 				CE6D63361B84ED96006729F0 /* SuccessiveOverRelaxation.cpp in Sources */,

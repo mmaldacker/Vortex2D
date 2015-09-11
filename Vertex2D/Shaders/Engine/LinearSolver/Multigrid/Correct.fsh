@@ -1,18 +1,22 @@
+#version 150
+
 precision highp float;
 
-varying mediump vec2 v_texCoord;
-varying mediump vec2 v_texCoordxp;
-varying mediump vec2 v_texCoordxn;
-varying mediump vec2 v_texCoordyp;
-varying mediump vec2 v_texCoordyn;
+in vec2 v_texCoord;
+in vec2 v_texCoordxp;
+in vec2 v_texCoordxn;
+in vec2 v_texCoordyp;
+in vec2 v_texCoordyn;
 
 uniform sampler2D u_texture;
 uniform sampler2D u_residual;
 
+out vec4 colour_out;
+
 void main()
 {
-    float u = texture2D(u_texture, v_texCoord).x;
-    float v = texture2D(u_residual, v_texCoord).x;
+    float u = texture(u_texture, v_texCoord).x;
+    float v = texture(u_residual, v_texCoord).x;
 
-    gl_FragColor = vec4(u+v, 0.0, 0.0, 0.0);
+    colour_out = vec4(u+v, 0.0, 0.0, 0.0);
 }

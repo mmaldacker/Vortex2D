@@ -1,30 +1,34 @@
+#version 150
+
 precision highp float;
 
-varying mediump vec2 v_texCoord;
-varying mediump vec2 v_texCoordxp;
-varying mediump vec2 v_texCoordxn;
-varying mediump vec2 v_texCoordyp;
-varying mediump vec2 v_texCoordyn;
+in vec2 v_texCoord;
+in vec2 v_texCoordxp;
+in vec2 v_texCoordxn;
+in vec2 v_texCoordyp;
+in vec2 v_texCoordyn;
 
 uniform sampler2D u_texture;
 uniform sampler2D u_weights;
+
+out vec4 colour_out;
 
 const vec4 q = vec4(1.0);
 
 void main()
 {
     // cell.x is div and cell.y is pressure
-    vec2 cell = texture2D(u_texture, v_texCoord).xy;
+    vec2 cell = texture(u_texture, v_texCoord).xy;
 
     vec4 p;
-    p.x = texture2D(u_texture, v_texCoordxp).y;
-    p.y = texture2D(u_texture, v_texCoordxn).y;
-    p.z = texture2D(u_texture, v_texCoordyp).y;
-    p.w = texture2D(u_texture, v_texCoordyn).y;
+    p.x = texture(u_texture, v_texCoordxp).y;
+    p.y = texture(u_texture, v_texCoordxn).y;
+    p.z = texture(u_texture, v_texCoordyp).y;
+    p.w = texture(u_texture, v_texCoordyn).y;
 
-    vec4 c = texture2D(u_weights, v_texCoord);
+    vec4 c = texture(u_weights, v_texCoord);
 
     float residual = dot(p,c) - dot(q,c) * cell.x + cell.y;
 
-    gl_FragColor = vec4(residual, 0.0, 0.0, 0.0);
+    colour_out = vec4(residual, 0.0, 0.0, 0.0);
 }

@@ -36,7 +36,7 @@ public:
     void Div();
     void Project();
 
-    void LinearInit(const std::vector<Renderer::Drawable*> & objects);
+    void LinearInit(Boundaries & boundaries);
     void LinearSolve();
 
 private:

@@ -16,12 +16,10 @@ namespace Fluid
 SuccessiveOverRelaxation::SuccessiveOverRelaxation(Dimensions dimensions,
                                                    Renderer::RenderTexture & weights,
                                                    Renderer::PingPong & x,
-                                                   Boundaries & boundaries,
                                                    int iterations)
     : mQuad(dimensions.Size)
     , mWeights(weights)
     , mX(x)
-    , mBoundaries(boundaries)
     , mIterations(iterations)
     , mSorShader("Diff.vsh", "SOR.fsh")
     , mStencilShader("Diff.vsh", "Stencil.fsh")
@@ -41,10 +39,10 @@ SuccessiveOverRelaxation::SuccessiveOverRelaxation(Dimensions dimensions,
     .Unuse();
 }
 
-void SuccessiveOverRelaxation::RenderMask(const std::vector<Renderer::Drawable*> & objects)
+void SuccessiveOverRelaxation::RenderMask(Boundaries & boundaries)
 {
-    mBoundaries.RenderMask(mX.Front, objects);
-    mBoundaries.RenderMask(mX.Back, objects);
+    boundaries.RenderMask(mX.Front);
+    boundaries.RenderMask(mX.Back);
 
     Renderer::Enable e(GL_STENCIL_TEST);
 

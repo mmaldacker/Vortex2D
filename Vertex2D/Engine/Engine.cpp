@@ -21,7 +21,7 @@ Engine::Engine(Dimensions dimensions, Boundaries & boundaries, Advection & advec
     , mPressure(dimensions.Size.x, dimensions.Size.y, Renderer::Texture::PixelFormat::RGF, Renderer::RenderTexture::DepthFormat::DEPTH24_STENCIL8)
     , mBoundaries(boundaries)
     , mAdvection(advection)
-    , mLinearSolver(dimensions, mBoundaries.mWeights, mPressure, mBoundaries)
+    , mLinearSolver(dimensions, mBoundaries.mWeights, mPressure)
 {
     mPressure.Front.SetAliasTexParameters();
     mPressure.Back.SetAliasTexParameters();
@@ -80,9 +80,9 @@ void Engine::Div()
     mPressure.end();
 }
 
-void Engine::LinearInit(const std::vector<Renderer::Drawable*> & objects)
+void Engine::LinearInit(Boundaries & boundaries)
 {
-    mLinearSolver.RenderMask(objects);
+    mLinearSolver.RenderMask(boundaries);
 }
 
 void Engine::LinearSolve()

@@ -18,12 +18,12 @@ struct Main
 {
     Main()
     {
-        int size = 500;
-        int scale = 1;
+        int size = 10;
+        int scale = 50;
 
         auto realSize = glm::vec2{size*scale,size*scale};
         WindowRenderer window(realSize);
-        window.SetBackgroundColour({0.0f, 0.0f, 0.0f, 1.0f});
+        window.SetBackgroundColour(glm::vec4{99.0f,96.0f,93.0f,255.0f}/glm::vec4(255.0f));
 
         // -------------------
 
@@ -41,7 +41,7 @@ struct Main
 
         Renderer::Rectangle density({60.0f, 60.0f});
         density.Position = (glm::vec2)source.Position;
-        density.Colour = {0.0f, 0.0f, 1.0f, 1.0f};
+        density.Colour = glm::vec4{182.0f,172.0f,164.0f, 255.0f}/glm::vec4(255.0f);
 
         std::vector<Renderer::Drawable*> densities = {&density};
 
@@ -60,10 +60,13 @@ struct Main
         boundaries.Render(borders);
         boundaries.RenderWeights();
 
-        advection.RenderMask(boundaries, borders);
-        engine.LinearInit(borders);
+        advection.RenderMask(boundaries);
+        advection.GetVelocityReader().Read().PrintStencil();
+        engine.LinearInit(boundaries);
 
-        while (!window.ShouldClose())
+        CHECK_GL_ERROR_DEBUG();
+
+        /*while (!window.ShouldClose())
         {
             glfwPollEvents();
 
@@ -78,10 +81,11 @@ struct Main
 
             advection.Advect();
 
+            Renderer::Enable d(GL_BLEND);
             window.Clear();
             window.Render({&sprite});
             window.Swap();
-        }
+        }*/
     }
 };
 

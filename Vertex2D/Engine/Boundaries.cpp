@@ -38,12 +38,13 @@ Boundaries::Boundaries(Dimensions dimensions, int antialias)
 
 void Boundaries::Render(const std::vector<Renderer::Drawable*> & objects)
 {
+    mObjects = objects;
     mBoundaries.begin({0.0f, 0.0f, 0.0f, 0.0f});
-    RenderAtScale(mAntialias, objects, mBoundaries.Orth);
+    RenderAtScale(mBoundaries.Orth, mAntialias);
     mBoundaries.end();
 }
 
-void Boundaries::RenderMask(Renderer::RenderTexture & mask, const std::vector<Renderer::Drawable*> & objects)
+void Boundaries::RenderMask(Renderer::RenderTexture & mask)
 {
     Renderer::Enable e(GL_STENCIL_TEST);
 
@@ -57,14 +58,14 @@ void Boundaries::RenderMask(Renderer::RenderTexture & mask, const std::vector<Re
     glClearStencil(0);
     glClear(GL_STENCIL_BUFFER_BIT); // clear stencil buffer
 
-    RenderAtScale(1, objects, mask.Orth);
+    RenderAtScale(mask.Orth);
     mask.end();
 
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     glStencilMask(0x00); // disable stencil writing
 }
 
-void Boundaries::RenderAtScale(int scale, const std::vector<Renderer::Drawable*> & objects, const glm::mat4 & orth)
+void Boundaries::RenderAtScale(const glm::mat4 & orth, float scale)
 {
     mHorizontal.Position = {0.0f, 0.0f};
     mHorizontal.Scale = glm::vec2{scale};
@@ -81,7 +82,7 @@ void Boundaries::RenderAtScale(int scale, const std::vector<Renderer::Drawable*>
     mVertical.Render(orth);
 
     auto scaled = glm::scale(orth, glm::vec3(scale, scale, 1.0f));
-    for(auto object : objects)
+    for(auto object : mObjects)
     {
         object->Render(scaled*mDimensions.InvScale);
     }
@@ -114,6 +115,7 @@ void Boundaries::Clear()
     mBoundaries.Clear();
     mBoundariesVelocity.Clear();
     mWeights.Clear();
+    mObjects.clear();
 }
 
 Renderer::Reader Boundaries::GetReader()

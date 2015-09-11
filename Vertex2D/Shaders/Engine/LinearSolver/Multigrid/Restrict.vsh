@@ -1,15 +1,17 @@
+#version 150
+
 precision highp float;
 
-attribute mediump vec2 a_Position;
-attribute mediump vec2 a_TexCoords;
+in vec2 a_Position;
+in vec2 a_TexCoords;
 
 uniform mediump mat4 u_Projection;
 uniform vec2 h;
 
-varying mediump vec2 v_texCoord;
-varying mediump vec2 v_texCoordx;
-varying mediump vec2 v_texCoordy;
-varying mediump vec2 v_texCoordxy;
+out vec2 v_texCoord;
+out vec2 v_texCoordx;
+out vec2 v_texCoordy;
+out vec2 v_texCoordxy;
 
 void main()
 {

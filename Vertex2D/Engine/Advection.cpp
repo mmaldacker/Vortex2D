@@ -75,13 +75,13 @@ void Advection::RenderDensity(const std::vector<Renderer::Drawable*> & objects)
     mDensity.end();
 }
 
-void Advection::RenderMask(Boundaries & boundaries, const std::vector<Renderer::Drawable*> & objects)
+void Advection::RenderMask(Boundaries & boundaries)
 {
     //FIXME I think only the Back ones are necessary
-    boundaries.RenderMask(mVelocity.Front, objects);
-    boundaries.RenderMask(mVelocity.Back, objects);
-    boundaries.RenderMask(mDensity.Front, objects);
-    boundaries.RenderMask(mDensity.Back, objects);
+    boundaries.RenderMask(mVelocity.Front);
+    boundaries.RenderMask(mVelocity.Back);
+    boundaries.RenderMask(mDensity.Front);
+    boundaries.RenderMask(mDensity.Back);
 }
 
 Renderer::Reader Advection::GetVelocityReader()
