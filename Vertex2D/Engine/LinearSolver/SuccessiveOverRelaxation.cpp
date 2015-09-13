@@ -14,12 +14,10 @@ namespace Fluid
 {
 
 SuccessiveOverRelaxation::SuccessiveOverRelaxation(Dimensions dimensions,
-                                                   Renderer::RenderTexture & weights,
-                                                   Renderer::PingPong & x,
                                                    int iterations)
     : mQuad(dimensions.Size)
-    , mWeights(weights)
-    , mX(x)
+    , mWeights(dimensions.Size.x, dimensions.Size.y, Renderer::Texture::PixelFormat::RGBAF)
+    , mX(dimensions.Size.x, dimensions.Size.y, Renderer::Texture::PixelFormat::RGF, Renderer::RenderTexture::DepthFormat::DEPTH24_STENCIL8)
     , mIterations(iterations)
     , mSorShader("Diff.vsh", "SOR.fsh")
     , mStencilShader("Diff.vsh", "Stencil.fsh")
@@ -43,6 +41,7 @@ void SuccessiveOverRelaxation::Init(Boundaries & boundaries)
 {
     boundaries.RenderMask(mX.Front);
     boundaries.RenderMask(mX.Back);
+    boundaries.RenderWeights(mWeights, mQuad);
 
     Renderer::Enable e(GL_STENCIL_TEST);
 
@@ -69,6 +68,25 @@ void SuccessiveOverRelaxation::Init(Boundaries & boundaries)
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     glStencilMask(0x00); // disable stencil writing
 
+}
+
+void SuccessiveOverRelaxation::Render(Renderer::Program & program)
+{
+    mX.begin();
+    program.Use().SetMVP(mX.Orth);
+    mQuad.Render();
+    program.Unuse();
+    mX.end();
+}
+
+void SuccessiveOverRelaxation::BindWeights(int n)
+{
+    mWeights.Bind(n);
+}
+
+void SuccessiveOverRelaxation::BindPressure(int n)
+{
+    mX.Front.Bind(n);
 }
 
 void SuccessiveOverRelaxation::Solve()

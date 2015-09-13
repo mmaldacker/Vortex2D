@@ -15,19 +15,13 @@
 namespace Fluid
 {
 
-Engine::Engine(Dimensions dimensions, Boundaries & boundaries, Advection & advection)
+Engine::Engine(Dimensions dimensions, Boundaries & boundaries, Advection & advection, LinearSolver * linearSolver)
     : mDimensions(dimensions)
     , mQuad(dimensions.Size)
-    , mPressure(dimensions.Size.x, dimensions.Size.y, Renderer::Texture::PixelFormat::RGF, Renderer::RenderTexture::DepthFormat::DEPTH24_STENCIL8)
     , mBoundaries(boundaries)
     , mAdvection(advection)
-    , mLinearSolver(dimensions, mBoundaries.mWeights, mPressure)
+    , mLinearSolver(linearSolver)
 {
-    mPressure.Front.SetAliasTexParameters();
-    mPressure.Back.SetAliasTexParameters();
-    
-    mPressure.Clear();
-
     // projection shader
     mProjectShader = Renderer::Program("Diff.vsh", "Project.fsh");
     mProjectShader.Use()
@@ -55,8 +49,8 @@ void Engine::Project()
     mProjectShader.Use().SetMVP(mAdvection.mVelocity.Orth);
 
     mBoundaries.mBoundariesVelocity.Bind(3);
-    mBoundaries.mWeights.Bind(2);
-    mPressure.Front.Bind(1);
+    mLinearSolver->BindWeights(2);
+    mLinearSolver->BindPressure(1);
     mAdvection.mVelocity.Back.Bind(0);
 
     mQuad.Render();
@@ -67,27 +61,20 @@ void Engine::Project()
 
 void Engine::Div()
 {
-    mPressure.begin({0.0f, 0.0f, 0.0f, 0.0f});
-    mDivShader.Use().SetMVP(mPressure.Orth);
-
     mBoundaries.mBoundariesVelocity.Bind(2);
-    mBoundaries.mWeights.Bind(1);
+    mLinearSolver->BindWeights(1);
     mAdvection.mVelocity.Front.Bind(0);
-
-    mQuad.Render();
-
-    mDivShader.Unuse();
-    mPressure.end();
+    mLinearSolver->Render(mDivShader);
 }
 
 void Engine::LinearInit(Boundaries & boundaries)
 {
-    mLinearSolver.Init(boundaries);
+    mLinearSolver->Init(boundaries);
 }
 
 void Engine::LinearSolve()
 {
-    mLinearSolver.Solve();
+    mLinearSolver->Solve();
 }
 
 void Engine::Solve()
@@ -96,16 +83,11 @@ void Engine::Solve()
 
     Div();
 
-    mLinearSolver.Solve();
+    mLinearSolver->Solve();
 
     Project();
 
     CHECK_GL_ERROR_DEBUG();
-}
-
-Renderer::Reader Engine::GetPressureReader()
-{
-    return {mPressure.Front};
 }
 
 }

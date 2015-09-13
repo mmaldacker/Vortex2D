@@ -21,20 +21,21 @@ class SuccessiveOverRelaxation : public LinearSolver
 {
 public:
     SuccessiveOverRelaxation(Dimensions dimensions,
-                             Renderer::RenderTexture & weights,
-                             Renderer::PingPong & x,
                              int iterations = 40);
 
 
     void Init(Boundaries & boundaries) override;
+    void Render(Renderer::Program & program) override;
+    void BindWeights(int n) override;
+    void BindPressure(int n) override;
     void Solve() override;
 
 private:
     void Step(bool isRed);
 
     Renderer::Quad mQuad;
-    Renderer::RenderTexture & mWeights;
-    Renderer::PingPong & mX;
+    Renderer::RenderTexture mWeights;
+    Renderer::PingPong mX;
     int mIterations;
 
     Renderer::Program mSorShader;

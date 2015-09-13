@@ -20,33 +20,23 @@ namespace Fluid
 class Multigrid : public LinearSolver
 {
 public:
-    Multigrid(Dimensions dimensions,
-              Renderer::RenderTexture & weights,
-              Renderer::PingPong & x);
+    Multigrid(Dimensions dimensions);
 
-    void Init(Boundaries & boundaries);
+    void Init(Boundaries & boundaries) override;
+    void Render(Renderer::Program & program) override;
+    void BindWeights(int n) override;
+    void BindPressure(int n) override;
     void Solve() override;
 
     Renderer::Reader GetPressureReader(int depth);
 
 //private:
-    template<typename T>
-    T & Get(int depth, T & s, std::vector<T> & l);
-
-    Renderer::PingPong & GetX(int depth);
-    Renderer::RenderTexture & GetWeights(int depth);
-    Renderer::Quad & GetQuad(int depth);
-
     void DampedJacobi(int depth);
     void Residual(int depth);
     void Restrict(int depth);
     void Prolongate(int depth);
     void Correct(int depth);
 
-    Renderer::PingPong & mX;
-    Renderer::RenderTexture & mWeights;
-
-    Renderer::Quad mQuad;
     std::vector<Renderer::Quad> mQuads;
     std::vector<Renderer::PingPong> mXs;
     std::vector<Renderer::RenderTexture> mWeightss;

@@ -18,17 +18,14 @@ Boundaries::Boundaries(Dimensions dimensions, int antialias)
     , mQuad(dimensions.Size)
     , mBoundaries(antialias*dimensions.Size.x, antialias*dimensions.Size.y, Renderer::Texture::PixelFormat::RF)
     , mBoundariesVelocity(dimensions.Size.x, dimensions.Size.y, Renderer::Texture::PixelFormat::RGF)
-    , mWeights(dimensions.Size.x, dimensions.Size.y, Renderer::Texture::PixelFormat::RGBAF)
     , mWeightsShader("Diff.vsh", "Weights.fsh")
     , mHorizontal({dimensions.Size.x, 1.0f})
     , mVertical({1.0f, dimensions.Size.y})
 {
-    mWeights.SetAliasTexParameters();
     mBoundariesVelocity.SetAliasTexParameters();
 
     mBoundaries.Clear();
     mBoundariesVelocity.Clear();
-    mWeights.Clear();
 
     mVertical.Colour = {1.0f,1.0f,1.0f,1.0f};
     mHorizontal.Colour = {1.0f,1.0f,1.0f,1.0f};
@@ -98,11 +95,6 @@ void Boundaries::RenderVelocities(const std::vector<Renderer::Drawable*> & objec
     mBoundariesVelocity.end();
 }
 
-void Boundaries::RenderWeights()
-{
-    RenderWeights(mWeights, mQuad);
-}
-
 void Boundaries::RenderWeights(Renderer::RenderTexture & w, Renderer::Quad & quad)
 {
     w.begin({0.0f, 0.0f, 0.0f, 0.0f});
@@ -119,18 +111,12 @@ void Boundaries::Clear()
 {
     mBoundaries.Clear();
     mBoundariesVelocity.Clear();
-    mWeights.Clear();
     mObjects.clear();
 }
 
 Renderer::Reader Boundaries::GetReader()
 {
     return {mBoundaries};
-}
-
-Renderer::Reader Boundaries::GetWeightsReader()
-{
-    return {mWeights};
 }
 
 }

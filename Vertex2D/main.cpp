@@ -54,12 +54,14 @@ struct Main
         Fluid::Dimensions dimensions(realSize, scale);
         Fluid::Advection advection(dimensions, 0.033);
         Fluid::Boundaries boundaries(dimensions, 2);
-        Fluid::Engine engine(dimensions, boundaries, advection);
+
+        Fluid::Multigrid multigrid(dimensions);
+
+        Fluid::Engine engine(dimensions, boundaries, advection, &multigrid);
 
         auto & sprite = advection.GetDensity();
 
         boundaries.Render(borders);
-        boundaries.RenderWeights();
         boundaries.GetReader().Read().Print();
 
         advection.RenderMask(boundaries);
@@ -70,12 +72,22 @@ struct Main
         engine.Div();
         //engine.LinearSolve();
 
-        Fluid::Multigrid multigrid(dimensions, boundaries.mWeights, engine.mPressure);
-        multigrid.Init(boundaries);
+        /*Renderer::Reader{multigrid.GetX(0).Front}.Read().Print();
+        multigrid.DampedJacobi(0);
+        Renderer::Reader{multigrid.GetX(0).Front}.Read().Print();
+        multigrid.Residual(0);
+        Renderer::Reader{multigrid.GetX(0).Front}.Read().Print();
+        multigrid.Restrict(0);
+        Renderer::Reader{multigrid.GetX(1).Front}.Read().Print();
+        multigrid.DampedJacobi(1);
+        Renderer::Reader{multigrid.GetX(1).Front}.Read().Print();
+        multigrid.Prolongate(0);
+        Renderer::Reader{multigrid.GetX(0).Front}.Read().Print();
+        multigrid.Correct(0);
+        Renderer::Reader{multigrid.GetX(0).Front}.Read().Print();
+        multigrid.DampedJacobi(0);*/
 
         multigrid.Solve();
-
-        engine.GetPressureReader().Read().Print();
 
 /*
         while (!window.ShouldClose())

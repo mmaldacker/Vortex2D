@@ -13,15 +13,10 @@ namespace Fluid
 {
 
 int depth = 3;
-int jacobi = 20;
+int jacobi = 10;
 
-Multigrid::Multigrid(Dimensions dimensions,
-                     Renderer::RenderTexture & weights,
-                     Renderer::PingPong & x)
-    : mX(x)
-    , mWeights(weights)
-    , mQuad(dimensions.Size)
-    , mCorrectShader("Diff.vsh", "Correct.fsh")
+Multigrid::Multigrid(Dimensions dimensions)
+    : mCorrectShader("Diff.vsh", "Correct.fsh")
     , mDampedJacobiShader("Diff.vsh", "DampedJacobi.fsh")
     , mProlongateShader("Diff.vsh", "Prolongate.fsh")
     , mResidualShader("Diff.vsh", "Residual.fsh")
@@ -29,16 +24,17 @@ Multigrid::Multigrid(Dimensions dimensions,
 {
     auto size = dimensions.Size;
     
-    for(int i = 1 ; i < depth ; ++i)
+    for(int i = 0 ; i < depth ; ++i)
     {
-        size /= glm::vec2(2.0f);
         mQuads.emplace_back(size);
         mXs.emplace_back(size.x, size.y, Renderer::Texture::PixelFormat::RGF, Renderer::RenderTexture::DepthFormat::DEPTH24_STENCIL8);
         mXs.back().Clear();
-        mXs.back().Front.SetAntiAliasTexParameters();
-        mXs.back().Back.SetAntiAliasTexParameters();
         mWeightss.emplace_back(size.x, size.y, Renderer::Texture::PixelFormat::RGBAF);
+        mWeightss.back().SetAliasTexParameters();
         mWeightss.back().Clear();
+
+        //size = ((size - glm::vec2(2.0)) / glm::vec2(2.0f)) + glm::vec2(2.0f);
+        size /= glm::vec2(2.0);
     }
 
     mCorrectShader.Use()
@@ -66,52 +62,40 @@ Multigrid::Multigrid(Dimensions dimensions,
     .Unuse();
 }
 
-template<typename T>
-T & Multigrid::Get(int depth, T & s, std::vector<T> & l)
-{
-    if(depth == 0)
-    {
-        return s;
-    }
-    else
-    {
-        return l[depth-1];
-    }
-}
-
-Renderer::PingPong & Multigrid::GetX(int depth)
-{
-    return Get(depth, mX, mXs);
-}
-
-Renderer::RenderTexture & Multigrid::GetWeights(int depth)
-{
-    return Get(depth, mWeights, mWeightss);
-}
-
-Renderer::Quad & Multigrid::GetQuad(int depth)
-{
-    return Get(depth, mQuad, mQuads);
-}
-
 Renderer::Reader Multigrid::GetPressureReader(int depth)
 {
-    return {Get(depth, mX, mXs).Front};
+    return {mXs[depth].Front};
 }
 
 void Multigrid::Init(Boundaries & boundaries)
 {
-    boundaries.RenderMask(mX.Front);
-    boundaries.RenderMask(mX.Back);
-
     float scale = 1.0f;
-    for(int i = 0; i < depth -1 ; i++)
+    for(int i = 0; i < depth ; i++)
     {
         scale /= 2.0f;
         boundaries.RenderMask(mXs[i].Front, scale);
         boundaries.RenderMask(mXs[i].Back, scale);
         boundaries.RenderWeights(mWeightss[i], mQuads[i]);
     }
+}
+
+void Multigrid::Render(Renderer::Program & program)
+{
+    mXs[0].begin();
+    program.Use().SetMVP(mXs[0].Orth);
+    mQuads[0].Render();
+    program.Unuse();
+    mXs[0].end();
+}
+
+void Multigrid::BindWeights(int n)
+{
+    mWeightss[0].Bind(n);
+}
+
+void Multigrid::BindPressure(int n)
+{
+    mXs[0].Front.Bind(n);
 }
 
 void Multigrid::Solve()
@@ -133,9 +117,9 @@ void Multigrid::Solve()
 
 void Multigrid::DampedJacobi(int depth)
 {
-    auto & x = GetX(depth);
-    auto & weights = GetWeights(depth);
-    auto & quad = GetQuad(depth);
+    auto & x = mXs[depth];
+    auto & weights = mWeightss[depth];
+    auto & quad = mQuads[depth];
 
     Renderer::Enable e(GL_STENCIL_TEST);
     glStencilMask(0x00);
@@ -162,9 +146,13 @@ void Multigrid::DampedJacobi(int depth)
 
 void Multigrid::Residual(int depth)
 {
-    auto & x = GetX(depth);
-    auto & weights = GetWeights(depth);
-    auto & quad = GetQuad(depth);
+    auto & x = mXs[depth];
+    auto & weights = mWeightss[depth];
+    auto & quad = mQuads[depth];
+
+    Renderer::Enable e(GL_STENCIL_TEST);
+    glStencilMask(0x00);
+    glStencilFunc(GL_EQUAL, 0, 0xFF);
 
     x.swap();
     x.begin();
@@ -183,16 +171,17 @@ void Multigrid::Residual(int depth)
 
 void Multigrid::Restrict(int depth)
 {
-    auto & x = GetX(depth);
-    auto & r = GetX(depth+1);
+    auto & x = mXs[depth];
+    auto & r = mXs[depth+1];
+    auto & quad = mQuads[depth+1];
 
     r.begin();
 
-    mRestrictShader.Use().Set("h", GetQuad(depth+1).Size()).SetMVP(r.Orth);
+    mRestrictShader.Use().Set("h", quad.Size()).SetMVP(r.Orth);
 
     x.Front.Bind(0);
 
-    GetQuad(depth+1).Render();
+    quad.Render();
 
     mRestrictShader.Unuse();
 
@@ -201,9 +190,9 @@ void Multigrid::Restrict(int depth)
 
 void Multigrid::Prolongate(int depth)
 {
-    auto & x = GetX(depth);
-    auto & u = GetX(depth+1);
-    auto & quad = GetQuad(depth);
+    auto & x = mXs[depth];
+    auto & u = mXs[depth+1];
+    auto & quad = mQuads[depth];
 
     x.begin();
 
@@ -221,8 +210,8 @@ void Multigrid::Prolongate(int depth)
 
 void Multigrid::Correct(int depth)
 {
-    auto & x = GetX(depth);
-    auto & quad = GetQuad(depth);
+    auto & x = mXs[depth];
+    auto & quad = mQuads[depth];
 
     x.swap();
     x.begin();

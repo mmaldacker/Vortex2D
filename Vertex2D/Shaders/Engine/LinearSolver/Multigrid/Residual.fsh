@@ -28,7 +28,7 @@ void main()
 
     vec4 c = texture(u_weights, v_texCoord);
 
-    float residual = dot(p,c) - dot(q,c) * cell.x + cell.y;
+    float residual = dot(p,c) - dot(q,c) * cell.y + cell.x;
 
     colour_out = vec4(cell.x, residual, 0.0, 0.0);
 }

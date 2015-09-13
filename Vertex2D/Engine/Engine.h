@@ -27,11 +27,9 @@ namespace Fluid
 class Engine
 {
 public:
-    Engine(Dimensions dimensions, Boundaries & boundaries, Advection & advection);
+    Engine(Dimensions dimensions, Boundaries & boundaries, Advection & advection, LinearSolver * linearSolver);
     
     void Solve();
-
-    Renderer::Reader GetPressureReader();
 
     void Div();
     void Project();
@@ -43,12 +41,9 @@ public:
     Dimensions mDimensions;
     Renderer::Quad mQuad;
 
-    Renderer::PingPong mPressure;
-
     Boundaries & mBoundaries;
     Advection & mAdvection;
-
-    SuccessiveOverRelaxation mLinearSolver;
+    LinearSolver * mLinearSolver;
 
     Renderer::Program mDivShader;
     Renderer::Program mProjectShader;
