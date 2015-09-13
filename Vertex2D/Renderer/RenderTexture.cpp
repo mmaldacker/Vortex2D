@@ -66,6 +66,7 @@ RenderTexture::RenderTexture(RenderTexture && other) : Texture(std::move(other))
 {
     mFrameBuffer = other.mFrameBuffer;
     mDepthRenderBuffer = other.mDepthRenderBuffer;
+    Orth = other.Orth;
 
     other.mFrameBuffer = 0;
     other.mDepthRenderBuffer = 0;
@@ -75,6 +76,7 @@ RenderTexture & RenderTexture::operator=(RenderTexture && other)
 {
     mFrameBuffer = other.mFrameBuffer;
     mDepthRenderBuffer = other.mDepthRenderBuffer;
+    Orth = other.Orth;
 
     other.mFrameBuffer = 0;
     other.mDepthRenderBuffer = 0;

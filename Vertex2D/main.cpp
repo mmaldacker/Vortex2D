@@ -4,6 +4,7 @@
 #include "Engine.h"
 #include "SuccessiveOverRelaxation.h"
 #include "Disable.h"
+#include "Multigrid.h"
 
 #include <string>
 #include <chrono>
@@ -19,7 +20,7 @@ struct Main
     Main()
     {
         int size = 10;
-        int scale = 50;
+        int scale = 60;
 
         auto realSize = glm::vec2{size*scale,size*scale};
         WindowRenderer window(realSize);
@@ -37,7 +38,7 @@ struct Main
         rect.Position = {120.0f, 120.0f};
         rect.Colour = {1.0f, 1.0f, 1.0f, 1.0f};
 
-        std::vector<Renderer::Drawable*> borders = {&rect};
+        std::vector<Renderer::Drawable*> borders;// = {&rect};
 
         Renderer::Rectangle density({60.0f, 60.0f});
         density.Position = (glm::vec2)source.Position;
@@ -59,14 +60,25 @@ struct Main
 
         boundaries.Render(borders);
         boundaries.RenderWeights();
+        boundaries.GetReader().Read().Print();
 
         advection.RenderMask(boundaries);
-        advection.GetVelocityReader().Read().PrintStencil();
+        advection.RenderVelocity(sources);
+
         engine.LinearInit(boundaries);
 
-        CHECK_GL_ERROR_DEBUG();
+        engine.Div();
+        //engine.LinearSolve();
 
-        /*while (!window.ShouldClose())
+        Fluid::Multigrid multigrid(dimensions, boundaries.mWeights, engine.mPressure);
+        multigrid.Init(boundaries);
+
+        multigrid.Solve();
+
+        engine.GetPressureReader().Read().Print();
+
+/*
+        while (!window.ShouldClose())
         {
             glfwPollEvents();
 
@@ -85,8 +97,10 @@ struct Main
             window.Clear();
             window.Render({&sprite});
             window.Swap();
-        }*/
+        }
+ */
     }
+
 };
 
 int main(int argc, const char * argv[])
@@ -103,6 +117,8 @@ int main(int argc, const char * argv[])
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     Main();
+
+    CHECK_GL_ERROR_DEBUG();
 
     glfwTerminate();
 }

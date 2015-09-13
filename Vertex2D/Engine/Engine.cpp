@@ -82,7 +82,7 @@ void Engine::Div()
 
 void Engine::LinearInit(Boundaries & boundaries)
 {
-    mLinearSolver.RenderMask(boundaries);
+    mLinearSolver.Init(boundaries);
 }
 
 void Engine::LinearSolve()

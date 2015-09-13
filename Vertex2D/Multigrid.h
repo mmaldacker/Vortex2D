@@ -22,9 +22,9 @@ class Multigrid : public LinearSolver
 public:
     Multigrid(Dimensions dimensions,
               Renderer::RenderTexture & weights,
-              Renderer::PingPong & x,
-              Boundaries & boundaries);
+              Renderer::PingPong & x);
 
+    void Init(Boundaries & boundaries);
     void Solve() override;
 
     Renderer::Reader GetPressureReader(int depth);
@@ -45,7 +45,6 @@ public:
 
     Renderer::PingPong & mX;
     Renderer::RenderTexture & mWeights;
-    Boundaries & mBoundaries;
 
     Renderer::Quad mQuad;
     std::vector<Renderer::Quad> mQuads;

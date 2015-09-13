@@ -26,7 +26,7 @@ public:
                              int iterations = 40);
 
 
-    void RenderMask(Boundaries & boundaries);
+    void Init(Boundaries & boundaries) override;
     void Solve() override;
 
 private:

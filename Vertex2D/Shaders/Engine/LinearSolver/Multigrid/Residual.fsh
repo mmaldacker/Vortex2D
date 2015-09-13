@@ -30,5 +30,5 @@ void main()
 
     float residual = dot(p,c) - dot(q,c) * cell.x + cell.y;
 
-    colour_out = vec4(residual, 0.0, 0.0, 0.0);
+    colour_out = vec4(cell.x, residual, 0.0, 0.0);
 }

@@ -40,11 +40,11 @@ void Boundaries::Render(const std::vector<Renderer::Drawable*> & objects)
 {
     mObjects = objects;
     mBoundaries.begin({0.0f, 0.0f, 0.0f, 0.0f});
-    RenderAtScale(mBoundaries.Orth, mAntialias);
+    Render(mBoundaries.Orth, mAntialias, mAntialias);
     mBoundaries.end();
 }
 
-void Boundaries::RenderMask(Renderer::RenderTexture & mask)
+void Boundaries::RenderMask(Renderer::RenderTexture & mask, float scale)
 {
     Renderer::Enable e(GL_STENCIL_TEST);
 
@@ -58,27 +58,27 @@ void Boundaries::RenderMask(Renderer::RenderTexture & mask)
     glClearStencil(0);
     glClear(GL_STENCIL_BUFFER_BIT); // clear stencil buffer
 
-    RenderAtScale(mask.Orth);
+    Render(mask.Orth, 1, scale);
     mask.end();
 
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     glStencilMask(0x00); // disable stencil writing
 }
 
-void Boundaries::RenderAtScale(const glm::mat4 & orth, float scale)
+void Boundaries::Render(const glm::mat4 & orth, int thickness, float scale)
 {
     mHorizontal.Position = {0.0f, 0.0f};
-    mHorizontal.Scale = glm::vec2{scale};
+    mHorizontal.Scale = {scale, thickness};
     mHorizontal.Render(orth);
 
-    mHorizontal.Position = {0.0f, scale*(mDimensions.Size.y-1.0f)};
+    mHorizontal.Position = {0.0f, scale*mDimensions.Size.y-thickness};
     mHorizontal.Render(orth);
 
     mVertical.Position = {0.0f, 0.0f};
-    mVertical.Scale = glm::vec2{scale};
+    mVertical.Scale = {thickness, scale};
     mVertical.Render(orth);
 
-    mVertical.Position = {scale*(mDimensions.Size.x-1.0f), 0.0f};
+    mVertical.Position = {scale*mDimensions.Size.x-thickness, 0.0f};
     mVertical.Render(orth);
 
     auto scaled = glm::scale(orth, glm::vec3(scale, scale, 1.0f));
@@ -100,14 +100,19 @@ void Boundaries::RenderVelocities(const std::vector<Renderer::Drawable*> & objec
 
 void Boundaries::RenderWeights()
 {
-    mWeights.begin({0.0f, 0.0f, 0.0f, 0.0f});
-    mWeightsShader.Use().SetMVP(mWeights.Orth);
+    RenderWeights(mWeights, mQuad);
+}
+
+void Boundaries::RenderWeights(Renderer::RenderTexture & w, Renderer::Quad & quad)
+{
+    w.begin({0.0f, 0.0f, 0.0f, 0.0f});
+    mWeightsShader.Use().Set("h", quad.Size()).SetMVP(w.Orth);
 
     mBoundaries.Bind();
-    mQuad.Render();
+    quad.Render();
 
     mWeightsShader.Unuse();
-    mWeights.end();
+    w.end();
 }
 
 void Boundaries::Clear()

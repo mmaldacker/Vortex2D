@@ -39,7 +39,7 @@ SuccessiveOverRelaxation::SuccessiveOverRelaxation(Dimensions dimensions,
     .Unuse();
 }
 
-void SuccessiveOverRelaxation::RenderMask(Boundaries & boundaries)
+void SuccessiveOverRelaxation::Init(Boundaries & boundaries)
 {
     boundaries.RenderMask(mX.Front);
     boundaries.RenderMask(mX.Back);

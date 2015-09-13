@@ -7,19 +7,19 @@
 //
 
 #include "Multigrid.h"
+#include "Disable.h"
 
 namespace Fluid
 {
 
-    int depth = 3;
+int depth = 3;
+int jacobi = 20;
 
 Multigrid::Multigrid(Dimensions dimensions,
                      Renderer::RenderTexture & weights,
-                     Renderer::PingPong & x,
-                     Boundaries & boundaries)
+                     Renderer::PingPong & x)
     : mX(x)
     , mWeights(weights)
-    , mBoundaries(boundaries)
     , mQuad(dimensions.Size)
     , mCorrectShader("Diff.vsh", "Correct.fsh")
     , mDampedJacobiShader("Diff.vsh", "DampedJacobi.fsh")
@@ -33,8 +33,12 @@ Multigrid::Multigrid(Dimensions dimensions,
     {
         size /= glm::vec2(2.0f);
         mQuads.emplace_back(size);
-        mXs.emplace_back(size.x, size.y, Renderer::Texture::PixelFormat::RGF);
+        mXs.emplace_back(size.x, size.y, Renderer::Texture::PixelFormat::RGF, Renderer::RenderTexture::DepthFormat::DEPTH24_STENCIL8);
+        mXs.back().Clear();
+        mXs.back().Front.SetAntiAliasTexParameters();
+        mXs.back().Back.SetAntiAliasTexParameters();
         mWeightss.emplace_back(size.x, size.y, Renderer::Texture::PixelFormat::RGBAF);
+        mWeightss.back().Clear();
     }
 
     mCorrectShader.Use()
@@ -49,6 +53,7 @@ Multigrid::Multigrid(Dimensions dimensions,
 
     mProlongateShader.Use()
     .Set("u_texture", 0)
+    .Set("u_pressure", 1)
     .Unuse();
 
     mResidualShader.Use()
@@ -94,6 +99,21 @@ Renderer::Reader Multigrid::GetPressureReader(int depth)
     return {Get(depth, mX, mXs).Front};
 }
 
+void Multigrid::Init(Boundaries & boundaries)
+{
+    boundaries.RenderMask(mX.Front);
+    boundaries.RenderMask(mX.Back);
+
+    float scale = 1.0f;
+    for(int i = 0; i < depth -1 ; i++)
+    {
+        scale /= 2.0f;
+        boundaries.RenderMask(mXs[i].Front, scale);
+        boundaries.RenderMask(mXs[i].Back, scale);
+        boundaries.RenderWeights(mWeightss[i], mQuads[i]);
+    }
+}
+
 void Multigrid::Solve()
 {
     for(int i = 0 ; i < depth - 1 ; i++)
@@ -117,19 +137,26 @@ void Multigrid::DampedJacobi(int depth)
     auto & weights = GetWeights(depth);
     auto & quad = GetQuad(depth);
 
-    x.swap();
-    x.begin();
+    Renderer::Enable e(GL_STENCIL_TEST);
+    glStencilMask(0x00);
+    glStencilFunc(GL_EQUAL, 0, 0xFF);
 
-    mDampedJacobiShader.Use().Set("h", quad.Size()).SetMVP(mX.Orth);
+    for(int i = 0 ; i < jacobi ; i++)
+    {
+        x.swap();
+        x.begin();
 
-    weights.Bind(1);
-    x.Back.Bind(0);
+        mDampedJacobiShader.Use().Set("h", quad.Size()).SetMVP(x.Orth);
 
-    quad.Render();
+        weights.Bind(1);
+        x.Back.Bind(0);
 
-    mDampedJacobiShader.Unuse();
-    
-    x.end();
+        quad.Render();
+
+        mDampedJacobiShader.Unuse();
+        
+        x.end();
+    }
 
 }
 
@@ -161,7 +188,7 @@ void Multigrid::Restrict(int depth)
 
     r.begin();
 
-    mRestrictShader.Use().Set("h", GetQuad(depth).Size()).SetMVP(r.Orth);
+    mRestrictShader.Use().Set("h", GetQuad(depth+1).Size()).SetMVP(r.Orth);
 
     x.Front.Bind(0);
 
@@ -182,6 +209,7 @@ void Multigrid::Prolongate(int depth)
 
     mProlongateShader.Use().Set("h", quad.Size()).SetMVP(x.Orth);
 
+    x.Back.Bind(1);
     u.Front.Bind(0);
 
     quad.Render();

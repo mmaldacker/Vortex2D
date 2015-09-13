@@ -118,6 +118,7 @@ Reader & Reader::PrintStencil()
         }
         std::cout << std::endl;
     }
+    std::cout << std::endl;
 
     return *this;
 }

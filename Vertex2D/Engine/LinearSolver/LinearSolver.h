@@ -9,12 +9,15 @@
 #ifndef Vertex2D_LinearSolver_h
 #define Vertex2D_LinearSolver_h
 
+#include "Boundaries.h"
+
 namespace Fluid
 {
 
 class LinearSolver
 {
 public:
+    virtual void Init(Boundaries & boundaries) = 0;
     virtual void Solve() = 0;
 };
 

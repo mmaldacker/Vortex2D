@@ -39,7 +39,7 @@ public:
     void LinearInit(Boundaries & boundaries);
     void LinearSolve();
 
-private:
+//private:
     Dimensions mDimensions;
     Renderer::Quad mQuad;
 
