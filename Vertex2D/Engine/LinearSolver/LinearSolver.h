@@ -11,6 +11,7 @@
 
 #include "Boundaries.h"
 #include "Shader.h"
+#include "RenderTexture.h"
 
 namespace Fluid
 {
@@ -21,7 +22,7 @@ public:
     virtual void Init(Boundaries & boundaries) = 0;
     virtual void Render(Renderer::Program & program) = 0;
     virtual void BindWeights(int n) = 0;
-    virtual void BindPressure(int n) = 0;
+    virtual Renderer::PingPong & GetPressure() = 0;
     virtual void Solve() = 0;
 };
 

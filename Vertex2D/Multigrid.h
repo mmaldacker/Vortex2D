@@ -13,6 +13,7 @@
 #include "RenderTexture.h"
 #include "Boundaries.h"
 #include "LinearSolver.h"
+#include "SuccessiveOverRelaxation.h"
 
 namespace Fluid
 {
@@ -20,12 +21,12 @@ namespace Fluid
 class Multigrid : public LinearSolver
 {
 public:
-    Multigrid(Dimensions dimensions);
+    Multigrid(const glm::vec2 & size, int iterations = 4);
 
     void Init(Boundaries & boundaries) override;
     void Render(Renderer::Program & program) override;
     void BindWeights(int n) override;
-    void BindPressure(int n) override;
+    Renderer::PingPong & GetPressure() override;
     void Solve() override;
 
     Renderer::Reader GetPressureReader(int depth);
@@ -37,12 +38,11 @@ public:
     void Prolongate(int depth);
     void Correct(int depth);
 
-    std::vector<Renderer::Quad> mQuads;
-    std::vector<Renderer::PingPong> mXs;
-    std::vector<Renderer::RenderTexture> mWeightss;
+    int mDepths;
+
+    std::vector<SuccessiveOverRelaxation> mXs;
 
     Renderer::Program mCorrectShader;
-    Renderer::Program mDampedJacobiShader;
     Renderer::Program mProlongateShader;
     Renderer::Program mResidualShader;
     Renderer::Program mRestrictShader;

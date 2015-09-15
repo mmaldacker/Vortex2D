@@ -13,17 +13,21 @@
 namespace Fluid
 {
 
-SuccessiveOverRelaxation::SuccessiveOverRelaxation(Dimensions dimensions,
-                                                   int iterations)
-    : mQuad(dimensions.Size)
-    , mWeights(dimensions.Size.x, dimensions.Size.y, Renderer::Texture::PixelFormat::RGBAF)
-    , mX(dimensions.Size.x, dimensions.Size.y, Renderer::Texture::PixelFormat::RGF, Renderer::RenderTexture::DepthFormat::DEPTH24_STENCIL8)
+SuccessiveOverRelaxation::SuccessiveOverRelaxation(const glm::vec2 & size, int iterations)
+    : mQuad(size)
+    , mWeights(size.x, size.y, Renderer::Texture::PixelFormat::RGBAF)
+    , mX(size.x, size.y, Renderer::Texture::PixelFormat::RGF, Renderer::RenderTexture::DepthFormat::DEPTH24_STENCIL8)
     , mIterations(iterations)
     , mSorShader("Diff.vsh", "SOR.fsh")
     , mStencilShader("Diff.vsh", "Stencil.fsh")
     , mIdentityShader(Renderer::Program::TexturePositionProgram())
 {
     float w = 2.0f/(1.0f+std::sin(4.0f*std::atan(1.0f)/std::sqrt(mQuad.Size().x*mQuad.Size().y)));
+
+    mWeights.SetAliasTexParameters();
+
+    mWeights.Clear();
+    mX.Clear();
 
     mSorShader.Use()
     .Set("h", mQuad.Size())
@@ -34,6 +38,14 @@ SuccessiveOverRelaxation::SuccessiveOverRelaxation(Dimensions dimensions,
 
     mStencilShader.Use()
     .Set("h", mQuad.Size())
+    .Unuse();
+}
+
+SuccessiveOverRelaxation::SuccessiveOverRelaxation(const glm::vec2 & size, int iterations, float w)
+    : SuccessiveOverRelaxation(size, iterations)
+{
+    mSorShader.Use()
+    .Set("w", w)
     .Unuse();
 }
 
@@ -72,11 +84,9 @@ void SuccessiveOverRelaxation::Init(Boundaries & boundaries)
 
 void SuccessiveOverRelaxation::Render(Renderer::Program & program)
 {
-    mX.begin();
-    program.Use().SetMVP(mX.Orth);
+    program.Use().Set("h", mQuad.Size()).SetMVP(mX.Orth);
     mQuad.Render();
     program.Unuse();
-    mX.end();
 }
 
 void SuccessiveOverRelaxation::BindWeights(int n)
@@ -84,9 +94,9 @@ void SuccessiveOverRelaxation::BindWeights(int n)
     mWeights.Bind(n);
 }
 
-void SuccessiveOverRelaxation::BindPressure(int n)
+Renderer::PingPong & SuccessiveOverRelaxation::GetPressure()
 {
-    mX.Front.Bind(n);
+    return mX;
 }
 
 void SuccessiveOverRelaxation::Solve()

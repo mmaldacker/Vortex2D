@@ -41,7 +41,7 @@ void Boundaries::Render(const std::vector<Renderer::Drawable*> & objects)
     mBoundaries.end();
 }
 
-void Boundaries::RenderMask(Renderer::RenderTexture & mask, float scale)
+void Boundaries::RenderMask(Renderer::RenderTexture & mask)
 {
     Renderer::Enable e(GL_STENCIL_TEST);
 
@@ -55,6 +55,7 @@ void Boundaries::RenderMask(Renderer::RenderTexture & mask, float scale)
     glClearStencil(0);
     glClear(GL_STENCIL_BUFFER_BIT); // clear stencil buffer
 
+    float scale = mask.Width() / mDimensions.Size.x;
     Render(mask.Orth, 1, scale);
     mask.end();
 

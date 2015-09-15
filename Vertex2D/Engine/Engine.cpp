@@ -50,7 +50,7 @@ void Engine::Project()
 
     mBoundaries.mBoundariesVelocity.Bind(3);
     mLinearSolver->BindWeights(2);
-    mLinearSolver->BindPressure(1);
+    mLinearSolver->GetPressure().Front.Bind(1);
     mAdvection.mVelocity.Back.Bind(0);
 
     mQuad.Render();
@@ -64,7 +64,9 @@ void Engine::Div()
     mBoundaries.mBoundariesVelocity.Bind(2);
     mLinearSolver->BindWeights(1);
     mAdvection.mVelocity.Front.Bind(0);
+    mLinearSolver->GetPressure().begin();
     mLinearSolver->Render(mDivShader);
+    mLinearSolver->GetPressure().end();
 }
 
 void Engine::LinearInit(Boundaries & boundaries)

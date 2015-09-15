@@ -20,17 +20,16 @@ namespace Fluid
 class SuccessiveOverRelaxation : public LinearSolver
 {
 public:
-    SuccessiveOverRelaxation(Dimensions dimensions,
-                             int iterations = 40);
-
+    SuccessiveOverRelaxation(const glm::vec2 & size, int iterations = 40);
+    SuccessiveOverRelaxation(const glm::vec2 & size, int iterations, float w);
 
     void Init(Boundaries & boundaries) override;
     void Render(Renderer::Program & program) override;
     void BindWeights(int n) override;
-    void BindPressure(int n) override;
+    Renderer::PingPong & GetPressure() override;
     void Solve() override;
 
-private:
+//private:
     void Step(bool isRed);
 
     Renderer::Quad mQuad;

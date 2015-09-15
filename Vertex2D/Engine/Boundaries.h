@@ -26,7 +26,7 @@ public:
 
     void Render(const std::vector<Renderer::Drawable*> & objects);
     void RenderVelocities(const std::vector<Renderer::Drawable*> & objects);
-    void RenderMask(Renderer::RenderTexture & mask, float scale = 1.0f);
+    void RenderMask(Renderer::RenderTexture & mask);
     void RenderWeights(Renderer::RenderTexture & w, Renderer::Quad & quad);
 
     void Clear();

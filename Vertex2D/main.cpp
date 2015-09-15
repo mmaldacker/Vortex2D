@@ -19,10 +19,10 @@ struct Main
 {
     Main()
     {
-        int size = 10;
+        glm::vec2 size = glm::vec2(10);
         int scale = 60;
 
-        auto realSize = glm::vec2{size*scale,size*scale};
+        auto realSize = size * glm::vec2{scale};
         WindowRenderer window(realSize);
         window.SetBackgroundColour(glm::vec4{99.0f,96.0f,93.0f,255.0f}/glm::vec4(255.0f));
 
@@ -55,14 +55,15 @@ struct Main
         Fluid::Advection advection(dimensions, 0.033);
         Fluid::Boundaries boundaries(dimensions, 2);
 
-        Fluid::Multigrid multigrid(dimensions);
+        Fluid::SuccessiveOverRelaxation sor(size);
+        Fluid::Multigrid multigrid(size);
 
         Fluid::Engine engine(dimensions, boundaries, advection, &multigrid);
 
         auto & sprite = advection.GetDensity();
 
         boundaries.Render(borders);
-        boundaries.GetReader().Read().Print();
+        //boundaries.GetReader().Read().Print();
 
         advection.RenderMask(boundaries);
         advection.RenderVelocity(sources);
@@ -70,24 +71,30 @@ struct Main
         engine.LinearInit(boundaries);
 
         engine.Div();
+
+        Renderer::Reader{multigrid.mXs[0].mWeights}.Read().Print();
+        Renderer::Reader{multigrid.mXs[0].mX.Front}.Read().Print();
+        multigrid.DampedJacobi(0);
+        Renderer::Reader{multigrid.mXs[0].mX.Back}.Read().Print();
+        multigrid.Residual(0);
+        Renderer::Reader{multigrid.mXs[0].mX.Front}.Read().Print();
+        multigrid.Restrict(0);
+        Renderer::Reader{multigrid.mXs[1].mX.Front}.Read().Print();
+        multigrid.DampedJacobi(1);
+        Renderer::Reader{multigrid.mXs[1].mX.Front}.Read().Print();
+        multigrid.Prolongate(0);
+        Renderer::Reader{multigrid.mXs[0].mX.Front}.Read().Print();
+        multigrid.Correct(0);
+        Renderer::Reader{multigrid.mXs[0].mX.Front}.Read().Print();
+        multigrid.DampedJacobi(0);
+        Renderer::Reader{multigrid.mXs[0].mX.Front}.Read().Print();
+
+
         //engine.LinearSolve();
 
-        /*Renderer::Reader{multigrid.GetX(0).Front}.Read().Print();
-        multigrid.DampedJacobi(0);
-        Renderer::Reader{multigrid.GetX(0).Front}.Read().Print();
-        multigrid.Residual(0);
-        Renderer::Reader{multigrid.GetX(0).Front}.Read().Print();
-        multigrid.Restrict(0);
-        Renderer::Reader{multigrid.GetX(1).Front}.Read().Print();
-        multigrid.DampedJacobi(1);
-        Renderer::Reader{multigrid.GetX(1).Front}.Read().Print();
-        multigrid.Prolongate(0);
-        Renderer::Reader{multigrid.GetX(0).Front}.Read().Print();
-        multigrid.Correct(0);
-        Renderer::Reader{multigrid.GetX(0).Front}.Read().Print();
-        multigrid.DampedJacobi(0);*/
+        //Renderer::Reader{sor.mX.Front}.Read().Print().PrintStencil();
+        //Renderer::Reader{multigrid.mXs[0].mX.Front}.Read().Print();
 
-        multigrid.Solve();
 
 /*
         while (!window.ShouldClose())
@@ -110,9 +117,8 @@ struct Main
             window.Render({&sprite});
             window.Swap();
         }
- */
+*/
     }
-
 };
 
 int main(int argc, const char * argv[])
