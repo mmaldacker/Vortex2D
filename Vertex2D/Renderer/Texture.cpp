@@ -22,23 +22,13 @@ Texture::Texture(int width, int height, PixelFormat pixelFormat, const void * da
 {
     assert(mWidth > 0);
     assert(mHeight > 0);
-    
-    if (supports_npot_textures())
-    {
-        mStoredWidth = mWidth;
-        mStoredHeight = mHeight;
-    } else
-    {
-        mStoredWidth = next_power_of_two(mWidth);
-        mStoredHeight = next_power_of_two(mHeight);
-    }
 
     glGenTextures(1, &mId);
     Bind();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
     // FIXME temporary, real solution is handle alignemnt in reader (don't think anywhere else)
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
@@ -86,8 +76,6 @@ Texture::Texture(Texture && other)
     : mId(other.mId)
     , mWidth(other.mWidth)
     , mHeight(other.mHeight)
-    , mStoredWidth(other.mStoredWidth)
-    , mStoredHeight(other.mStoredHeight)
     , mFormat(other.mFormat)
 {
     other.mId = 0;
@@ -98,8 +86,6 @@ Texture & Texture::operator=(Texture && other)
     mId = other.mId;
     mWidth = other.mWidth;
     mHeight = other.mHeight;
-    mStoredWidth = other.mStoredWidth;
-    mStoredHeight = other.mStoredHeight;
     mFormat = other.mFormat;
 
     other.mId = 0;

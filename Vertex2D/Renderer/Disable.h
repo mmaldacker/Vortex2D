@@ -31,19 +31,34 @@ struct Disable
     GLint enabled;
 };
 
+struct DisableColorMask
+{
+    DisableColorMask()
+    {
+        glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    }
+
+    ~DisableColorMask()
+    {
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    }
+};
+
 struct Enable
 {
     Enable(GLenum e): e(e)
     {
-        glEnable(e);
+        glGetIntegerv(e, &enabled);
+        if(!enabled) glEnable(e);
     }
 
     ~Enable()
     {
-        glDisable(e);
+        if(!enabled) glDisable(e);
     }
     
     GLenum e;
+    GLint enabled;
 };
 
 }

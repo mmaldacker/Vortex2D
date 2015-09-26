@@ -45,9 +45,6 @@ public:
     int Width() const { return mWidth; }
     int Height() const { return mHeight; }
 
-    int StoredWidth() const { return mStoredWidth; }
-    int StoredHeight() const { return mStoredHeight; }
-
     void Bind(int n = 0) const;
     static void Unbind();
 
@@ -62,10 +59,6 @@ protected:
 private:
     int mWidth;
     int mHeight;
-    int mStoredWidth;
-    int mStoredHeight;
-    int mOffsetX;
-    int mOffsetY;
     PixelFormat mFormat;
 
     static int BoundId[4];

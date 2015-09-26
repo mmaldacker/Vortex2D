@@ -23,27 +23,4 @@
 
 #define GLSL(src) "#version 150 core\n" #src
 
-namespace Renderer
-{
-
-template<typename T>
-T next_power_of_two(T value)
-{
-    if ((value & (value - 1)) == 0)
-        return value;
-    value -= 1;
-    for (size_t i = 1; i < sizeof(T) * 8; i <<= 1)
-        value = value | value >> i;
-    return value + 1;
-}
-
-inline bool supports_npot_textures()
-{
-    return true;
-}
-
-typedef std::vector<glm::vec2> Path;
-
-}
-
 #endif

@@ -19,6 +19,8 @@
 namespace Renderer
 {
 
+typedef std::vector<glm::vec2> Path;
+
 class Shape : public Drawable, public Transformable
 {
 public:

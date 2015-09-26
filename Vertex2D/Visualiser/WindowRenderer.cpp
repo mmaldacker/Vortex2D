@@ -27,7 +27,7 @@ WindowRenderer::WindowRenderer(const glm::vec2 & size, WindowRenderer * share)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    Ortho = glm::ortho(0.0f, size.x, size.y, 0.0f, -1.0f, 1.0f);
+    Ortho = glm::ortho(0.0f, size.x, size.y, 0.0f);
 }
 
 WindowRenderer::~WindowRenderer()

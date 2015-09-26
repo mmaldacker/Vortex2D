@@ -44,11 +44,11 @@ void Boundaries::Render(const std::vector<Renderer::Drawable*> & objects)
 void Boundaries::RenderMask(Renderer::RenderTexture & mask)
 {
     Renderer::Enable e(GL_STENCIL_TEST);
+    Renderer::DisableColorMask c;
 
     glStencilFunc(GL_ALWAYS, 1, 0xFF); // write 1 in stencil buffer
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); // replace value with above
     glStencilMask(0xFF); // enable stencil writing
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 
     mask.begin();
 
@@ -59,7 +59,6 @@ void Boundaries::RenderMask(Renderer::RenderTexture & mask)
     Render(mask.Orth, 1, scale);
     mask.end();
 
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     glStencilMask(0x00); // disable stencil writing
 }
 
@@ -98,7 +97,7 @@ void Boundaries::RenderVelocities(const std::vector<Renderer::Drawable*> & objec
 
 void Boundaries::RenderWeights(Renderer::RenderTexture & w, Renderer::Quad & quad)
 {
-    w.begin({0.0f, 0.0f, 0.0f, 0.0f});
+    w.begin();
     mWeightsShader.Use().Set("h", quad.Size()).SetMVP(w.Orth);
 
     mBoundaries.Bind();

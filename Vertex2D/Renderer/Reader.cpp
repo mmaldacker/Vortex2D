@@ -16,8 +16,8 @@ Reader::Reader(Renderer::RenderTexture & texture)
 {
     int size = GetSize();
 
-    mPixels = new float[texture.StoredHeight()*texture.StoredWidth()*size];
-    mStencil = new uint8_t[texture.StoredHeight()*texture.StoredWidth()];
+    mPixels = new float[texture.Height()*texture.Width()*size];
+    mStencil = new uint8_t[texture.Height()*texture.Width()];
 }
 
 Reader::~Reader()
@@ -75,8 +75,8 @@ Reader & Reader::Read()
     }
 
     mTexture.begin();
-    glReadPixels(0, 0, mTexture.StoredWidth(), mTexture.StoredHeight(), format, GL_FLOAT, mPixels);
-    glReadPixels(0, 0, mTexture.StoredWidth(), mTexture.StoredHeight(), GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, mStencil);
+    glReadPixels(0, 0, mTexture.Width(), mTexture.Height(), format, GL_FLOAT, mPixels);
+    glReadPixels(0, 0, mTexture.Width(), mTexture.Height(), GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, mStencil);
     mTexture.end();
 
     glFlush();
@@ -87,12 +87,12 @@ Reader & Reader::Read()
 Reader & Reader::Print()
 {
     int size = GetSize();
-    for(int i = 0 ; i < mTexture.StoredWidth() ; ++i)
+    for(int i = 0 ; i < mTexture.Width() ; ++i)
     {
-        for(int j = 0 ; j < mTexture.StoredHeight() ; ++j)
+        for(int j = 0 ; j < mTexture.Height() ; ++j)
         {
             std::cout << "(";
-            int width = mTexture.StoredWidth();
+            int width = mTexture.Width();
             for(int k = 0 ; k < size ; k++)
             {
                 std::cout << mPixels[i*width*size + j*size + k];
@@ -109,11 +109,11 @@ Reader & Reader::Print()
 
 Reader & Reader::PrintStencil()
 {
-    for(int i = 0 ; i < mTexture.StoredWidth() ; ++i)
+    for(int i = 0 ; i < mTexture.Width() ; ++i)
     {
-        for(int j = 0 ; j < mTexture.StoredHeight() ; ++j)
+        for(int j = 0 ; j < mTexture.Height() ; ++j)
         {
-            int width = mTexture.StoredWidth();
+            int width = mTexture.Width();
             std::cout << "(" << (int)mStencil[i*width + j] << ")";
         }
         std::cout << std::endl;
@@ -125,7 +125,7 @@ Reader & Reader::PrintStencil()
 
 float Reader::GetFloat(int x, int y)
 {
-    return Get(x, y, 1, 0);
+    return Get(x,y,1,0);
 }
 
 glm::vec2 Reader::GetVec2(int x, int y)
@@ -140,10 +140,10 @@ glm::vec4 Reader::GetVec4(int x, int y)
 
 float Reader::Get(int x, int y, int size, int offset)
 {
-    assert(x >=0 && x < mTexture.StoredWidth());
-    assert(y >=0 && y < mTexture.StoredHeight());
+    assert(x >=0 && x < mTexture.Width());
+    assert(y >=0 && y < mTexture.Height());
 
-    int width = mTexture.StoredWidth();
+    int width = mTexture.Width();
     return mPixels[(x+y*width)*size+offset];
 }
 

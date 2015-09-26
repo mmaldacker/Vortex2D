@@ -12,56 +12,15 @@
 namespace Renderer
 {
 
-void Coords(const glm::vec2 & size, std::vector<float> & buffer)
+Quad::Quad(const glm::vec2 & size) : mSize(size)
 {
-    glm::vec4 a,b,c,d;
-
-    /*
-     b ---- d
-     |      |
-     |      |
-     a ---- c
-
-     */
-
-    a.x = 0.0f, a.y = 1.0f;
-    b.x = 0.0f, b.y = 0.0f;
-    c.x = 1.0f, c.y = 1.0f;
-    d.x = 1.0f, d.y = 0.0f;
-
-    a.p = 0.0f,   a.q = size.y;
-    b.p = 0.0f,   b.q = 0.0f,
-    c.p = size.x, c.q = size.y;
-    d.p = size.x, d.q = 0.0f;
-
-    std::vector<float> attributes =
+    float buffer[] =
     {
-        a.x, a.y, a.p, a.q,
-        c.x, c.y, c.p, c.q,
-        b.x, b.y, b.p, b.q,
-
-        c.x, c.y, c.p, c.q,
-        d.x, d.y, d.p, d.q,
-        b.x, b.y, b.p, b.q
+        0.0f, 1.0f, 0.0f, size.y,
+        0.0f, 0.0f, 0.0f, 0.0f,
+        1.0f, 1.0f, size.x, size.y,
+        1.0f, 0.0f, size.x, 0.0f
     };
-
-    std::copy(attributes.begin(), attributes.end(), std::back_inserter(buffer));
-}
-
-Quad::Quad(const glm::vec2 & size)
-{
-    if (Renderer::supports_npot_textures())
-    {
-        mSize = size;
-    }
-    else
-    {
-        mSize.x = Renderer::next_power_of_two((int)size.x);
-        mSize.y = Renderer::next_power_of_two((int)size.y);
-    }
-
-    std::vector<float> buffer;
-    Coords(mSize, buffer);
 
     glGenVertexArrays(1,&mVertexArray);
     glBindVertexArray(mVertexArray);
@@ -69,7 +28,7 @@ Quad::Quad(const glm::vec2 & size)
     glGenBuffers(1, &mVertexBuffer);
 
     glBindBuffer(GL_ARRAY_BUFFER, mVertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*buffer.size(), buffer.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(buffer), buffer, GL_STATIC_DRAW);
 
     glVertexAttribPointer(Shader::TexCoords, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), (void*)0);
     glEnableVertexAttribArray(Shader::TexCoords);
@@ -101,7 +60,7 @@ Quad::Quad(Quad && other)
 void Quad::Render()
 {
     glBindVertexArray(mVertexArray);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     glBindVertexArray(0);
 }
 

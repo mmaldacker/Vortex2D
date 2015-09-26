@@ -32,7 +32,7 @@ RenderTexture::RenderTexture(int width, int height, Texture::PixelFormat pixelFo
     {
         glGenRenderbuffers(1, &mDepthRenderBuffer);
         glBindRenderbuffer(GL_RENDERBUFFER, mDepthRenderBuffer);
-        glRenderbufferStorage(GL_RENDERBUFFER, (GLenum)depthFormat, StoredWidth(), StoredHeight());
+        glRenderbufferStorage(GL_RENDERBUFFER, (GLenum)depthFormat, Width(), Height());
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mDepthRenderBuffer);
 
         // if depth format is the one with stencil part, bind same render buffer as stencil attachment
@@ -47,7 +47,7 @@ RenderTexture::RenderTexture(int width, int height, Texture::PixelFormat pixelFo
     glBindRenderbuffer(GL_RENDERBUFFER, oldRenderBuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, mOldFrameBuffer);
 
-    Orth = glm::ortho(0.0f, (float)StoredWidth(), 0.0f, (float)StoredHeight(), -1.0f, 1.0f);
+    Orth = glm::ortho(0.0f, (float)Width(), 0.0f, (float)Height());
 }
 
 RenderTexture::~RenderTexture()

@@ -112,7 +112,7 @@ void Advection::Advect(Renderer::PingPong & renderTexture, Renderer::Program & p
     glStencilMask(0x00);
 
     renderTexture.swap();
-    renderTexture.begin({0.0f, 0.0f, 0.0f, 0.0f});
+    renderTexture.begin();
     program.Use().SetMVP(renderTexture.Orth);
 
     mVelocity.Back.Bind(1);

@@ -5,6 +5,7 @@
 #include "SuccessiveOverRelaxation.h"
 #include "Disable.h"
 #include "Multigrid.h"
+#include "Reduce.h"
 
 #include <string>
 #include <chrono>
@@ -19,8 +20,8 @@ struct Main
 {
     Main()
     {
-        glm::vec2 size = glm::vec2(10);
-        int scale = 60;
+        glm::vec2 size = glm::vec2(500);
+        int scale = 1;
 
         auto realSize = size * glm::vec2{scale};
         WindowRenderer window(realSize);
@@ -58,7 +59,7 @@ struct Main
         Fluid::SuccessiveOverRelaxation sor(size);
         Fluid::Multigrid multigrid(size);
 
-        Fluid::Engine engine(dimensions, boundaries, advection, &multigrid);
+        Fluid::Engine engine(dimensions, boundaries, advection, &sor);
 
         auto & sprite = advection.GetDensity();
 
@@ -71,7 +72,7 @@ struct Main
         engine.LinearInit(boundaries);
 
         engine.Div();
-
+/*
         Renderer::Reader{multigrid.mXs[0].mWeights}.Read().Print();
         Renderer::Reader{multigrid.mXs[0].mX.Front}.Read().Print();
         multigrid.DampedJacobi(0);
@@ -88,7 +89,10 @@ struct Main
         Renderer::Reader{multigrid.mXs[0].mX.Front}.Read().Print();
         multigrid.DampedJacobi(0);
         Renderer::Reader{multigrid.mXs[0].mX.Front}.Read().Print();
+*/
 
+        //Fluid::Reduce reduce(boundaries.mBoundaries);
+        //std::cout << reduce.Get() << std::endl;
 
         //engine.LinearSolve();
 
@@ -96,7 +100,7 @@ struct Main
         //Renderer::Reader{multigrid.mXs[0].mX.Front}.Read().Print();
 
 
-/*
+
         while (!window.ShouldClose())
         {
             glfwPollEvents();
@@ -117,7 +121,7 @@ struct Main
             window.Render({&sprite});
             window.Swap();
         }
-*/
+
     }
 };
 

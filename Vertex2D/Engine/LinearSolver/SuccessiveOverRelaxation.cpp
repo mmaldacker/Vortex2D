@@ -56,11 +56,11 @@ void SuccessiveOverRelaxation::Init(Boundaries & boundaries)
     boundaries.RenderWeights(mWeights, mQuad);
 
     Renderer::Enable e(GL_STENCIL_TEST);
+    Renderer::DisableColorMask c;
 
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF); // write value in stencil buffer
     glStencilOp(GL_KEEP, GL_KEEP, GL_INVERT); // invert value
     glStencilMask(0x02); // write in second place
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 
     mStencilShader.Use().SetMVP(mX.Orth);
 
@@ -77,9 +77,7 @@ void SuccessiveOverRelaxation::Init(Boundaries & boundaries)
     mX.end();
     mX.swap();
 
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     glStencilMask(0x00); // disable stencil writing
-
 }
 
 void SuccessiveOverRelaxation::Render(Renderer::Program & program)
@@ -114,7 +112,7 @@ void SuccessiveOverRelaxation::Step(bool isRed)
     glStencilMask(0x00);
 
     mX.swap();
-    mX.begin({0.0f, 0.0f, 0.0f, 0.0f});
+    mX.begin();
 
     glStencilFunc(GL_EQUAL, isRed ? 2 : 0, 0xFF);
 
