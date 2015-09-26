@@ -24,17 +24,13 @@ public:
     SuccessiveOverRelaxation(const glm::vec2 & size, int iterations, float w);
 
     void Init(Boundaries & boundaries) override;
-    void Render(Renderer::Program & program) override;
-    void BindWeights(int n) override;
-    Renderer::PingPong & GetPressure() override;
+    LinearSolver::Data & GetData() override;
     void Solve() override;
 
 //private:
     void Step(bool isRed);
 
-    Renderer::Quad mQuad;
-    Renderer::RenderTexture mWeights;
-    Renderer::PingPong mX;
+    LinearSolver::Data mData;
     int mIterations;
 
     Renderer::Program mSorShader;

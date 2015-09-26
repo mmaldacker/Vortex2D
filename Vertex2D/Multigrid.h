@@ -14,6 +14,7 @@
 #include "Boundaries.h"
 #include "LinearSolver.h"
 #include "SuccessiveOverRelaxation.h"
+#include "Operator.h"
 
 namespace Fluid
 {
@@ -24,9 +25,7 @@ public:
     Multigrid(const glm::vec2 & size, int iterations = 4);
 
     void Init(Boundaries & boundaries) override;
-    void Render(Renderer::Program & program) override;
-    void BindWeights(int n) override;
-    Renderer::PingPong & GetPressure() override;
+    LinearSolver::Data & GetData() override;
     void Solve() override;
 
     Renderer::Reader GetPressureReader(int depth);
@@ -42,10 +41,10 @@ public:
 
     std::vector<SuccessiveOverRelaxation> mXs;
 
-    Renderer::Program mCorrectShader;
-    Renderer::Program mProlongateShader;
-    Renderer::Program mResidualShader;
-    Renderer::Program mRestrictShader;
+    Operator mCorrect;
+    Operator mProlongate;
+    Operator mResidual;
+    Operator mRestrict;
 };
 
 }

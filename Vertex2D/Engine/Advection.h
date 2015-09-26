@@ -31,7 +31,6 @@ public:
 
     Renderer::Reader GetVelocityReader();
     Renderer::Reader GetDensityReader();
-    Renderer::Sprite & GetDensity();
 
     void Advect();
 
@@ -46,8 +45,6 @@ private:
 
     Renderer::Program mAdvectShader;
     Renderer::Program mAdvectDensityShader;
-
-    Renderer::Sprite mDensitySprite;
 };
 
 

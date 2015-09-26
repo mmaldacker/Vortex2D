@@ -21,10 +21,10 @@ Engine::Engine(Dimensions dimensions, Boundaries & boundaries, Advection & advec
     , mBoundaries(boundaries)
     , mAdvection(advection)
     , mLinearSolver(linearSolver)
+    , mDiv("Diff.vsh", "Div.fsh")
+    , mProject("Diff.vsh", "Project.fsh")
 {
-    // projection shader
-    mProjectShader = Renderer::Program("Diff.vsh", "Project.fsh");
-    mProjectShader.Use()
+    mProject.Use()
     .Set("u_texture", 0)
     .Set("u_pressure", 1)
     .Set("u_weights", 2)
@@ -32,9 +32,7 @@ Engine::Engine(Dimensions dimensions, Boundaries & boundaries, Advection & advec
     .Set("h", mQuad.Size())
     .Unuse();
 
-    // div shader
-    mDivShader = Renderer::Program("Diff.vsh", "Div.fsh");
-    mDivShader.Use()
+    mDiv.Use()
     .Set("u_texture", 0)
     .Set("u_weights", 1)
     .Set("u_obstacles_velocity", 2)
@@ -45,28 +43,21 @@ Engine::Engine(Dimensions dimensions, Boundaries & boundaries, Advection & advec
 void Engine::Project()
 {
     mAdvection.mVelocity.swap();
-    mAdvection.mVelocity.begin({0.0f, 0.0f, 0.0f, 0.0f});
-    mProjectShader.Use().SetMVP(mAdvection.mVelocity.Orth);
-
-    mBoundaries.mBoundariesVelocity.Bind(3);
-    mLinearSolver->BindWeights(2);
-    mLinearSolver->GetPressure().Front.Bind(1);
-    mAdvection.mVelocity.Back.Bind(0);
-
-    mQuad.Render();
-
-    mProjectShader.Unuse();
-    mAdvection.mVelocity.end();
+    auto & data = mLinearSolver->GetData();
+    mProject.apply(data.Quad, mAdvection.mVelocity,
+                   mAdvection.mVelocity.Back,
+                   data.Pressure.Front,
+                   data.Weights,
+                   mBoundaries.mBoundariesVelocity);
 }
 
 void Engine::Div()
 {
-    mBoundaries.mBoundariesVelocity.Bind(2);
-    mLinearSolver->BindWeights(1);
-    mAdvection.mVelocity.Front.Bind(0);
-    mLinearSolver->GetPressure().begin();
-    mLinearSolver->Render(mDivShader);
-    mLinearSolver->GetPressure().end();
+    auto & data = mLinearSolver->GetData();
+    mDiv.apply(data.Quad, data.Pressure,
+               mAdvection.mVelocity.Front,
+               data.Weights,
+               mBoundaries.mBoundariesVelocity);
 }
 
 void Engine::LinearInit(Boundaries & boundaries)

@@ -15,7 +15,6 @@ namespace Renderer
 
 const char * Shader::PositionName = "a_Position";
 const char * Shader::TexCoordsName = "a_TexCoords";
-const char * Shader::ColourName = "a_Colour";
 
 Shader::Shader(GLuint shader) : mShader(shader)
 {
@@ -124,7 +123,6 @@ Program & Program::Link()
 {
 	glBindAttribLocation(mProgram, Shader::Position, Shader::PositionName);
     glBindAttribLocation(mProgram, Shader::TexCoords, Shader::TexCoordsName);
-    glBindAttribLocation(mProgram, Shader::Colour, Shader::ColourName);
 
     glLinkProgram(mProgram);
 
@@ -186,29 +184,6 @@ Program & Program::PositionProgram()
     if(!program.mProgram)
     {
         program = Program("Position.vsh", "Position.fsh");
-    }
-
-    return program;
-}
-
-Program & Program::ColourTexturePositionProgram()
-{
-    static Program program;
-    if(!program.mProgram)
-    {
-        program = Program("ColourTexturePosition.vsh", "ColourTexturePosition.fsh");
-        program.Use().Set("u_texture", 0).Unuse();
-    }
-
-    return program;
-}
-
-Program & Program::ColourPositionProgram()
-{
-    static Program program;
-    if(!program.mProgram)
-    {
-        program = Program("ColourPosition.vsh", "ColourPosition.fsh");
     }
 
     return program;

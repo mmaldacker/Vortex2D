@@ -11,7 +11,6 @@
 
 #include "Common.h"
 #include "Texture.h"
-#include "Sprite.h"
 
 namespace Renderer
 {

@@ -10,14 +10,11 @@
 #define __Vortex__Engine__
 
 #include "SuccessiveOverRelaxation.h"
-#include "Shader.h"
 #include "RenderTexture.h"
-#include "Sprite.h"
-#include "Shapes.h"
-#include "Reader.h"
 #include "Boundaries.h"
 #include "Advection.h"
 #include "Size.h"
+#include "Operator.h"
 
 #include <vector>
 
@@ -45,8 +42,8 @@ public:
     Advection & mAdvection;
     LinearSolver * mLinearSolver;
 
-    Renderer::Program mDivShader;
-    Renderer::Program mProjectShader;
+    Operator mDiv;
+    Operator mProject;
 };
 
 }

@@ -19,15 +19,12 @@ Advection::Advection(Dimensions dimensions, float dt)
     , mDensity(dimensions.Size.x, dimensions.Size.y, Renderer::Texture::PixelFormat::RGBA8888, Renderer::RenderTexture::DepthFormat::DEPTH24_STENCIL8)
     , mAdvectShader("Diff.vsh", "Advect.fsh")
     , mAdvectDensityShader("Diff.vsh", "AdvectDensity.fsh")
-    , mDensitySprite(mDensity.Front)
 {
     mDensity.Front.SetAntiAliasTexParameters();
     mDensity.Back.SetAntiAliasTexParameters();
 
     mVelocity.Front.SetAliasTexParameters();
     mVelocity.Back.SetAliasTexParameters();
-    
-    mDensitySprite.Scale = glm::vec2(dimensions.Scale);
 
     mVelocity.Clear();
     mDensity.Clear();
@@ -92,11 +89,6 @@ Renderer::Reader Advection::GetVelocityReader()
 Renderer::Reader Advection::GetDensityReader()
 {
     return {mDensity.Front};
-}
-
-Renderer::Sprite & Advection::GetDensity()
-{
-    return mDensitySprite;
 }
 
 void Advection::Advect()

@@ -29,7 +29,6 @@ public:
 
     static const GLuint TexCoords = 1;
     static const GLuint Position = 2;
-    static const GLuint Colour = 3;
 protected:
     Shader(GLuint shader);
     GLuint mShader;
@@ -37,7 +36,6 @@ protected:
 private:
     static const char * PositionName;
     static const char * TexCoordsName;
-    static const char * ColourName;
 };
 
 struct VertexShader : Shader
@@ -54,9 +52,8 @@ template<typename T>
 class Uniform
 {
 public:
+    Uniform() : mLocation(GL_INVALID_VALUE){}
     Uniform(Program & program, const std::string & name);
-    Uniform(GLuint location = -1);
-    Uniform(const Uniform &);
     void SetLocation(Program & program, const std::string & name);
     void Set(T value);
 
@@ -84,7 +81,7 @@ public:
     Program & Set(const std::string & name, T value)
     {
         GLint location = glGetUniformLocation(mProgram, name.c_str());
-        assert(location >= 0);
+        assert(location != GL_INVALID_OPERATION);
         glUniform<T>(location, value);
 
         return *this;
@@ -94,8 +91,6 @@ public:
 
     static Program & TexturePositionProgram();
     static Program & PositionProgram();
-    static Program & ColourTexturePositionProgram();
-    static Program & ColourPositionProgram();
 
     template<typename T>
     friend class Uniform;
@@ -113,23 +108,11 @@ Uniform<T>::Uniform(Program & program, const std::string & name)
 }
 
 template<typename T>
-Uniform<T>::Uniform(GLuint location) : mLocation(location)
-{
-    
-}
-
-template<typename T>
-Uniform<T>::Uniform(const Uniform & uniform) : mLocation(uniform.mLocation)
-{
-    
-}
-
-template<typename T>
 void Uniform<T>::SetLocation(Program & program, const std::string & name)
 {
     program.Use();
     mLocation = glGetUniformLocation(program.mProgram, name.c_str());
-    assert(mLocation != -1);
+    assert(mLocation != GL_INVALID_OPERATION);
     program.Unuse();
 }
 

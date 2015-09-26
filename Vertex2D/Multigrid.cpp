@@ -14,10 +14,10 @@ namespace Fluid
 
 Multigrid::Multigrid(const glm::vec2 & s, int iterations)
     : mDepths(0)
-    , mCorrectShader("Diff.vsh", "Correct.fsh")
-    , mProlongateShader("Diff.vsh", "Prolongate.fsh")
-    , mResidualShader("Diff.vsh", "Residual.fsh")
-    , mRestrictShader("Diff.vsh", "Restrict.fsh")
+    , mCorrect("TexturePosition.vsh", "Correct.fsh")
+    , mProlongate("TexturePosition.vsh", "Prolongate.fsh")
+    , mResidual("Diff.vsh", "Residual.fsh")
+    , mRestrict("TexturePosition.vsh", "Restrict.fsh")
 {
     auto size = s;
     const float min_size = 4.0f;
@@ -31,29 +31,29 @@ Multigrid::Multigrid(const glm::vec2 & s, int iterations)
         mDepths++;
     }while(size.x > min_size && size.y > min_size);
 
-    mCorrectShader.Use()
+    mCorrect.Use()
     .Set("u_texture", 0)
     .Set("u_residual", 1)
     .Unuse();
 
-    mProlongateShader.Use()
+    mProlongate.Use()
     .Set("u_texture", 0)
     .Set("u_pressure", 1)
     .Unuse();
 
-    mResidualShader.Use()
+    mResidual.Use()
     .Set("u_texture", 0)
     .Set("u_weights", 1)
     .Unuse();
 
-    mRestrictShader.Use()
+    mRestrict.Use()
     .Set("u_texture", 0)
     .Unuse();
 }
 
 Renderer::Reader Multigrid::GetPressureReader(int depth)
 {
-    return {mXs[depth].mX.Front};
+    return {mXs[depth].GetData().Pressure.Front};
 }
 
 void Multigrid::Init(Boundaries & boundaries)
@@ -64,19 +64,9 @@ void Multigrid::Init(Boundaries & boundaries)
     }
 }
 
-void Multigrid::Render(Renderer::Program & program)
+LinearSolver::Data & Multigrid::GetData()
 {
-    mXs[0].Render(program);
-}
-
-void Multigrid::BindWeights(int n)
-{
-    mXs[0].BindWeights(n);
-}
-
-Renderer::PingPong & Multigrid::GetPressure()
-{
-    return mXs[0].GetPressure();
+    return mXs[0].GetData();
 }
 
 void Multigrid::Solve()
@@ -103,64 +93,55 @@ void Multigrid::DampedJacobi(int depth)
 
 void Multigrid::Residual(int depth)
 {
-    auto & x = mXs[depth];
+    auto & x = mXs[depth].GetData();
 
     Renderer::Enable e(GL_STENCIL_TEST);
     glStencilMask(0x00);
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 
-    x.GetPressure().swap();
-    x.GetPressure().begin();
-    x.BindWeights(1);
-    x.GetPressure().Back.Bind(0);
-    x.Render(mResidualShader);
-    x.GetPressure().end();
+    x.Pressure.swap();
+    mResidual.Use().Set("h", x.Quad.Size());
+    mResidual.apply(x.Quad, x.Pressure, x.Pressure.Back, x.Weights);
 }
 
 void Multigrid::Restrict(int depth)
 {
-    auto & x = mXs[depth];
-    auto & r = mXs[depth+1];
+    auto & x = mXs[depth].GetData();
+    auto & r = mXs[depth+1].GetData();
 
     Renderer::Enable e(GL_STENCIL_TEST);
     glStencilMask(0x00);
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 
-    r.GetPressure().begin();
-    x.GetPressure().Front.Bind(0);
-    r.Render(mRestrictShader);
-    r.GetPressure().end();
+    mRestrict.apply(r.Quad, r.Pressure,
+                    x.Pressure.Front);
 }
 
 void Multigrid::Prolongate(int depth)
 {
-    auto & x = mXs[depth];
-    auto & u = mXs[depth+1];
+    auto & x = mXs[depth].GetData();
+    auto & u = mXs[depth+1].GetData();
 
     Renderer::Enable e(GL_STENCIL_TEST);
     glStencilMask(0x00);
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 
-    x.GetPressure().begin();
-    x.GetPressure().Back.Bind(1);
-    u.GetPressure().Front.Bind(0);
-    x.Render(mProlongateShader);
-    x.GetPressure().end();
+    mProlongate.apply(x.Quad, x.Pressure,
+                      u.Pressure.Front,
+                      x.Pressure.Back);
 }
 
 void Multigrid::Correct(int depth)
 {
-    auto & x = mXs[depth];
+    auto & x = mXs[depth].GetData();
 
     Renderer::Enable e(GL_STENCIL_TEST);
     glStencilMask(0x00);
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 
-    x.GetPressure().swap();
-    x.GetPressure().begin();
-    x.GetPressure().Back.Bind(0);
-    x.Render(mCorrectShader);
-    x.GetPressure().end();
+    x.Pressure.swap();
+    mCorrect.apply(x.Quad, x.Pressure,
+                   x.Pressure.Back);
 }
 
 }

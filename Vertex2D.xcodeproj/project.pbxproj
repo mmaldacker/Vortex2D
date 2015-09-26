@@ -7,10 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		CE2ED4E21B962942007343DA /* ColourPosition.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED4DA1B962942007343DA /* ColourPosition.fsh */; };
-		CE2ED4E31B962942007343DA /* ColourPosition.vsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED4DB1B962942007343DA /* ColourPosition.vsh */; };
-		CE2ED4E41B962942007343DA /* ColourTexturePosition.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED4DC1B962942007343DA /* ColourTexturePosition.fsh */; };
-		CE2ED4E51B962942007343DA /* ColourTexturePosition.vsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED4DD1B962942007343DA /* ColourTexturePosition.vsh */; };
 		CE2ED4E61B962942007343DA /* Position.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED4DE1B962942007343DA /* Position.fsh */; };
 		CE2ED4E71B962942007343DA /* Position.vsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED4DF1B962942007343DA /* Position.vsh */; };
 		CE2ED4E81B962942007343DA /* TexturePosition.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED4E01B962942007343DA /* TexturePosition.fsh */; };
@@ -34,7 +30,6 @@
 		CE6D62EE1B84E001006729F0 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D62ED1B84E001006729F0 /* main.cpp */; };
 		CE6D63091B84E20D006729F0 /* RenderTexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D62F31B84E20D006729F0 /* RenderTexture.cpp */; };
 		CE6D630E1B84E20D006729F0 /* Shapes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D62FE1B84E20D006729F0 /* Shapes.cpp */; };
-		CE6D630F1B84E20D006729F0 /* Sprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D63001B84E20D006729F0 /* Sprite.cpp */; };
 		CE6D63101B84E20D006729F0 /* Shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D63011B84E20D006729F0 /* Shader.cpp */; };
 		CE6D63121B84E20D006729F0 /* Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D63051B84E20D006729F0 /* Texture.cpp */; };
 		CE6D63231B84E7B6006729F0 /* Engine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D631B1B84E7B6006729F0 /* Engine.cpp */; };
@@ -43,14 +38,14 @@
 		CE6D636E1B84F4DB006729F0 /* Reader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D636C1B84F4DB006729F0 /* Reader.cpp */; };
 		CE6E0F691B9F4DF800D77927 /* Advection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6E0F671B9F4DF800D77927 /* Advection.cpp */; };
 		CE6E0F6E1BA2113A00D77927 /* Multigrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6E0F6C1BA2113A00D77927 /* Multigrid.cpp */; };
+		CE9242111BA88656003E0869 /* ConjugateGradient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE92420F1BA88656003E0869 /* ConjugateGradient.cpp */; };
+		CE9242141BA893BB003E0869 /* Reduce.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE9242121BA893BB003E0869 /* Reduce.cpp */; };
+		CE9242171BA896E5003E0869 /* Reduce.vsh in Resources */ = {isa = PBXBuildFile; fileRef = CE9242161BA896E5003E0869 /* Reduce.vsh */; };
+		CE9242191BA896F0003E0869 /* Reduce.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE9242181BA896F0003E0869 /* Reduce.fsh */; };
 		CE9F2C621B88A15400EDDF5A /* font.png in Resources */ = {isa = PBXBuildFile; fileRef = CE9F2C611B88A15400EDDF5A /* font.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		CE2ED4DA1B962942007343DA /* ColourPosition.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ColourPosition.fsh; path = Shaders/Renderer/ColourPosition.fsh; sourceTree = "<group>"; };
-		CE2ED4DB1B962942007343DA /* ColourPosition.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ColourPosition.vsh; path = Shaders/Renderer/ColourPosition.vsh; sourceTree = "<group>"; };
-		CE2ED4DC1B962942007343DA /* ColourTexturePosition.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ColourTexturePosition.fsh; path = Shaders/Renderer/ColourTexturePosition.fsh; sourceTree = "<group>"; };
-		CE2ED4DD1B962942007343DA /* ColourTexturePosition.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ColourTexturePosition.vsh; path = Shaders/Renderer/ColourTexturePosition.vsh; sourceTree = "<group>"; };
 		CE2ED4DE1B962942007343DA /* Position.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Position.fsh; path = Shaders/Renderer/Position.fsh; sourceTree = "<group>"; };
 		CE2ED4DF1B962942007343DA /* Position.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Position.vsh; path = Shaders/Renderer/Position.vsh; sourceTree = "<group>"; };
 		CE2ED4E01B962942007343DA /* TexturePosition.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = TexturePosition.fsh; path = Shaders/Renderer/TexturePosition.fsh; sourceTree = "<group>"; };
@@ -84,9 +79,7 @@
 		CE6D62FB1B84E20D006729F0 /* Shader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Shader.h; path = Renderer/Shader.h; sourceTree = "<group>"; };
 		CE6D62FE1B84E20D006729F0 /* Shapes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Shapes.cpp; path = Renderer/Shapes.cpp; sourceTree = "<group>"; };
 		CE6D62FF1B84E20D006729F0 /* Shapes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Shapes.h; path = Renderer/Shapes.h; sourceTree = "<group>"; };
-		CE6D63001B84E20D006729F0 /* Sprite.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Sprite.cpp; path = Renderer/Sprite.cpp; sourceTree = "<group>"; };
 		CE6D63011B84E20D006729F0 /* Shader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Shader.cpp; path = Renderer/Shader.cpp; sourceTree = "<group>"; };
-		CE6D63021B84E20D006729F0 /* Sprite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sprite.h; path = Renderer/Sprite.h; sourceTree = "<group>"; };
 		CE6D63051B84E20D006729F0 /* Texture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Texture.cpp; path = Renderer/Texture.cpp; sourceTree = "<group>"; };
 		CE6D63061B84E20D006729F0 /* Drawable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Drawable.h; path = Renderer/Drawable.h; sourceTree = "<group>"; };
 		CE6D63081B84E20D006729F0 /* Uniform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Uniform.h; path = Renderer/Uniform.h; sourceTree = "<group>"; };
@@ -107,6 +100,13 @@
 		CE6E0F681B9F4DF800D77927 /* Advection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Advection.h; path = Engine/Advection.h; sourceTree = "<group>"; };
 		CE6E0F6C1BA2113A00D77927 /* Multigrid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Multigrid.cpp; sourceTree = "<group>"; };
 		CE6E0F6D1BA2113A00D77927 /* Multigrid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Multigrid.h; sourceTree = "<group>"; };
+		CE92420F1BA88656003E0869 /* ConjugateGradient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ConjugateGradient.cpp; path = Engine/LinearSolver/ConjugateGradient.cpp; sourceTree = "<group>"; };
+		CE9242101BA88656003E0869 /* ConjugateGradient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ConjugateGradient.h; path = Engine/LinearSolver/ConjugateGradient.h; sourceTree = "<group>"; };
+		CE9242121BA893BB003E0869 /* Reduce.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Reduce.cpp; path = Engine/LinearSolver/Reduce.cpp; sourceTree = "<group>"; };
+		CE9242131BA893BB003E0869 /* Reduce.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Reduce.h; path = Engine/LinearSolver/Reduce.h; sourceTree = "<group>"; };
+		CE9242161BA896E5003E0869 /* Reduce.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Reduce.vsh; sourceTree = "<group>"; };
+		CE9242181BA896F0003E0869 /* Reduce.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Reduce.fsh; sourceTree = "<group>"; };
+		CE92421A1BA9D3C0003E0869 /* Operator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Operator.h; sourceTree = "<group>"; };
 		CE9F2C611B88A15400EDDF5A /* font.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = font.png; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
@@ -125,6 +125,7 @@
 		CE2ED5241B96295B007343DA /* LinearSolver */ = {
 			isa = PBXGroup;
 			children = (
+				CE9242151BA89437003E0869 /* ConjugateGradient */,
 				CE2ED5251B96295B007343DA /* Multigrid */,
 				CE2ED52C1B96295B007343DA /* SOR */,
 			);
@@ -208,8 +209,6 @@
 				CE6D63011B84E20D006729F0 /* Shader.cpp */,
 				CE6D62FF1B84E20D006729F0 /* Shapes.h */,
 				CE6D62FE1B84E20D006729F0 /* Shapes.cpp */,
-				CE6D63021B84E20D006729F0 /* Sprite.h */,
-				CE6D63001B84E20D006729F0 /* Sprite.cpp */,
 				CE6D63061B84E20D006729F0 /* Drawable.h */,
 				CE6D63081B84E20D006729F0 /* Uniform.h */,
 				CE6D632C1B84EAEA006729F0 /* Quad.h */,
@@ -226,11 +225,12 @@
 				CE6D632E1B84EC14006729F0 /* LinearSolver */,
 				CE2ED5491B9633DA007343DA /* Boundaries.cpp */,
 				CE2ED54A1B9633DA007343DA /* Boundaries.h */,
-				CE6D631A1B84E7B6006729F0 /* Engine.h */,
 				CE6D631B1B84E7B6006729F0 /* Engine.cpp */,
+				CE6D631A1B84E7B6006729F0 /* Engine.h */,
 				CE2ED54C1B96363B007343DA /* Size.h */,
 				CE6E0F671B9F4DF800D77927 /* Advection.cpp */,
 				CE6E0F681B9F4DF800D77927 /* Advection.h */,
+				CE92421A1BA9D3C0003E0869 /* Operator.h */,
 			);
 			name = Engine;
 			sourceTree = "<group>";
@@ -243,6 +243,10 @@
 				CE6D63351B84ED96006729F0 /* SuccessiveOverRelaxation.h */,
 				CE6E0F6C1BA2113A00D77927 /* Multigrid.cpp */,
 				CE6E0F6D1BA2113A00D77927 /* Multigrid.h */,
+				CE92420F1BA88656003E0869 /* ConjugateGradient.cpp */,
+				CE9242101BA88656003E0869 /* ConjugateGradient.h */,
+				CE9242121BA893BB003E0869 /* Reduce.cpp */,
+				CE9242131BA893BB003E0869 /* Reduce.h */,
 			);
 			name = LinearSolver;
 			sourceTree = "<group>";
@@ -265,13 +269,19 @@
 			name = Visualiser;
 			sourceTree = "<group>";
 		};
+		CE9242151BA89437003E0869 /* ConjugateGradient */ = {
+			isa = PBXGroup;
+			children = (
+				CE9242161BA896E5003E0869 /* Reduce.vsh */,
+				CE9242181BA896F0003E0869 /* Reduce.fsh */,
+			);
+			name = ConjugateGradient;
+			path = Multigrid;
+			sourceTree = "<group>";
+		};
 		CE9F2C631B88C62B00EDDF5A /* Renderer */ = {
 			isa = PBXGroup;
 			children = (
-				CE2ED4DA1B962942007343DA /* ColourPosition.fsh */,
-				CE2ED4DB1B962942007343DA /* ColourPosition.vsh */,
-				CE2ED4DC1B962942007343DA /* ColourTexturePosition.fsh */,
-				CE2ED4DD1B962942007343DA /* ColourTexturePosition.vsh */,
 				CE2ED4DE1B962942007343DA /* Position.fsh */,
 				CE2ED4DF1B962942007343DA /* Position.vsh */,
 				CE2ED4E01B962942007343DA /* TexturePosition.fsh */,
@@ -351,10 +361,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CE2ED4E51B962942007343DA /* ColourTexturePosition.vsh in Resources */,
 				CE9F2C621B88A15400EDDF5A /* font.png in Resources */,
-				CE2ED4E21B962942007343DA /* ColourPosition.fsh in Resources */,
-				CE2ED4E41B962942007343DA /* ColourTexturePosition.fsh in Resources */,
+				CE9242171BA896E5003E0869 /* Reduce.vsh in Resources */,
 				CE2ED5371B96295B007343DA /* Correct.fsh in Resources */,
 				CE2ED53B1B96295B007343DA /* Restrict.fsh in Resources */,
 				CE2ED5351B96295B007343DA /* Diff.vsh in Resources */,
@@ -362,6 +370,7 @@
 				CE2ED5421B96295B007343DA /* Weights.fsh in Resources */,
 				CE2ED4E81B962942007343DA /* TexturePosition.fsh in Resources */,
 				CE2ED5391B96295B007343DA /* Prolongate.fsh in Resources */,
+				CE9242191BA896F0003E0869 /* Reduce.fsh in Resources */,
 				CE2ED53F1B96295B007343DA /* Project.fsh in Resources */,
 				CE2ED5361B96295B007343DA /* Div.fsh in Resources */,
 				CE2ED4E61B962942007343DA /* Position.fsh in Resources */,
@@ -371,7 +380,6 @@
 				CE2ED4E71B962942007343DA /* Position.vsh in Resources */,
 				CE2ED53E1B96295B007343DA /* SOR.fsh in Resources */,
 				CE2ED5331B96295B007343DA /* Advect.fsh in Resources */,
-				CE2ED4E31B962942007343DA /* ColourPosition.vsh in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -385,7 +393,7 @@
 				CE6D632D1B84EAEA006729F0 /* Quad.cpp in Sources */,
 				CE6D63101B84E20D006729F0 /* Shader.cpp in Sources */,
 				CE50E2511B862F0700548C19 /* WindowRenderer.cpp in Sources */,
-				CE6D630F1B84E20D006729F0 /* Sprite.cpp in Sources */,
+				CE9242111BA88656003E0869 /* ConjugateGradient.cpp in Sources */,
 				CE6D63231B84E7B6006729F0 /* Engine.cpp in Sources */,
 				CE6E0F6E1BA2113A00D77927 /* Multigrid.cpp in Sources */,
 				CE6E0F691B9F4DF800D77927 /* Advection.cpp in Sources */,
@@ -393,6 +401,7 @@
 				CE6D63361B84ED96006729F0 /* SuccessiveOverRelaxation.cpp in Sources */,
 				CE6D62EE1B84E001006729F0 /* main.cpp in Sources */,
 				CE6D63091B84E20D006729F0 /* RenderTexture.cpp in Sources */,
+				CE9242141BA893BB003E0869 /* Reduce.cpp in Sources */,
 				CE6D636E1B84F4DB006729F0 /* Reader.cpp in Sources */,
 				CE2ED54B1B9633DA007343DA /* Boundaries.cpp in Sources */,
 				CE2ED5451B962F0D007343DA /* hfloat.cpp in Sources */,
@@ -491,7 +500,6 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					/Users/mmaldacker/glm,
 					/opt/local/include/,
 				);
 				INFOPLIST_FILE = Vertex2D/Info.plist;
@@ -514,7 +522,6 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					/Users/mmaldacker/glm,
 					/opt/local/include/,
 				);
 				INFOPLIST_FILE = Vertex2D/Info.plist;

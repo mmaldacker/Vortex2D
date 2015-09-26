@@ -3,10 +3,6 @@
 precision highp float;
 
 in vec2 v_texCoord;
-in vec2 v_texCoordxp;
-in vec2 v_texCoordxn;
-in vec2 v_texCoordyp;
-in vec2 v_texCoordyn;
 
 uniform sampler2D u_texture;
 uniform sampler2D u_residual;

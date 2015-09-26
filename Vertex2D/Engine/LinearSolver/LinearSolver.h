@@ -10,19 +10,29 @@
 #define Vertex2D_LinearSolver_h
 
 #include "Boundaries.h"
-#include "Shader.h"
 #include "RenderTexture.h"
+#include "Quad.h"
 
 namespace Fluid
 {
 
-class LinearSolver
+struct LinearSolver
 {
-public:
+    struct Data
+    {
+        Data(const glm::vec2 & size)
+        : Quad(size)
+        , Weights(size.x, size.y, Renderer::Texture::PixelFormat::RGBAF)
+        , Pressure(size.x, size.y, Renderer::Texture::PixelFormat::RGF, Renderer::RenderTexture::DepthFormat::DEPTH24_STENCIL8)
+        {}
+
+        Renderer::Quad Quad;
+        Renderer::RenderTexture Weights;
+        Renderer::PingPong Pressure;
+    };
+
     virtual void Init(Boundaries & boundaries) = 0;
-    virtual void Render(Renderer::Program & program) = 0;
-    virtual void BindWeights(int n) = 0;
-    virtual Renderer::PingPong & GetPressure() = 0;
+    virtual Data & GetData() = 0;
     virtual void Solve() = 0;
 };
 

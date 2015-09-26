@@ -20,8 +20,8 @@ struct Main
 {
     Main()
     {
-        glm::vec2 size = glm::vec2(500);
-        int scale = 1;
+        glm::vec2 size = glm::vec2(10);
+        int scale = 60;
 
         auto realSize = size * glm::vec2{scale};
         WindowRenderer window(realSize);
@@ -61,8 +61,6 @@ struct Main
 
         Fluid::Engine engine(dimensions, boundaries, advection, &sor);
 
-        auto & sprite = advection.GetDensity();
-
         boundaries.Render(borders);
         //boundaries.GetReader().Read().Print();
 
@@ -99,8 +97,7 @@ struct Main
         //Renderer::Reader{sor.mX.Front}.Read().Print().PrintStencil();
         //Renderer::Reader{multigrid.mXs[0].mX.Front}.Read().Print();
 
-
-
+/*
         while (!window.ShouldClose())
         {
             glfwPollEvents();
@@ -118,10 +115,10 @@ struct Main
 
             Renderer::Enable d(GL_BLEND);
             window.Clear();
-            window.Render({&sprite});
+            //window.Render({&sprite});
             window.Swap();
         }
-
+*/
     }
 };
 
