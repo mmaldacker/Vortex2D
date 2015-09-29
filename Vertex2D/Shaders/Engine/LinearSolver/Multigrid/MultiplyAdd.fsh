@@ -14,7 +14,7 @@ void main()
 {
     float x = texture(u_texture, v_texCoord).x;
     float y = texture(u_other, v_texCoord).x;
-    float alpha = texture(u_scalar, vec2(0.5));
+    float alpha = texture(u_scalar, vec2(0.5)).x;
 
     colour_out = vec4(x+alpha*y, 0.0, 0.0, 0.0);
 }

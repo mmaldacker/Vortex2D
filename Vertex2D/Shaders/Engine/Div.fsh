@@ -44,6 +44,6 @@ void main()
 
 	float div = -0.5 * (weights.x * uxp - weights.y * uxn + weights.z * vyp - weights.w * vyn) / h.x;
 
-	//div, pressure, 0, 0
-	out_color = vec4(div, 0.0, 0.0, 0.0);
+	//pressure, div, 0, 0
+	out_color = vec4(0.0, div, 0.0, 0.0);
 }

@@ -23,10 +23,10 @@ void main()
     
 	vec2 cell = texture(u_texture, v_texCoord).xy; 
     
-	float pxp = texture(u_pressure, v_texCoordxp).y;
-	float pxn = texture(u_pressure, v_texCoordxn).y; 
-	float pyp = texture(u_pressure, v_texCoordyp).y;
-	float pyn = texture(u_pressure, v_texCoordyn).y;
+	float pxp = texture(u_pressure, v_texCoordxp).x;
+	float pxn = texture(u_pressure, v_texCoordxn).x;
+	float pyp = texture(u_pressure, v_texCoordyp).x;
+	float pyn = texture(u_pressure, v_texCoordyn).x;
 
     vec4 c = texture(u_weights, v_texCoord);
     

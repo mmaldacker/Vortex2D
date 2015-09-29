@@ -10,7 +10,7 @@ out vec4 colour_out;
 
 void main()
 {
-    float p = texture(u_texture, v_texCoord).y;
+    float p = texture(u_texture, v_texCoord).x;
 
     colour_out = vec4(p, 0.0, 0.0, 0.0);
 }

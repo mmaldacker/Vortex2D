@@ -7,6 +7,7 @@
 #include "Multigrid.h"
 #include "Reduce.h"
 #include "Sprite.h"
+#include "ConjugateGradient.h"
 
 #include <string>
 #include <chrono>
@@ -59,8 +60,9 @@ struct Main
 
         Fluid::SuccessiveOverRelaxation sor(size);
         Fluid::Multigrid multigrid(size);
+        Fluid::ConjugateGradient cg(size);
 
-        Fluid::Engine engine(dimensions, boundaries, advection, &sor);
+        Fluid::Engine engine(dimensions, boundaries, advection, &cg);
 
         Renderer::Sprite sprite{advection.mDensity.Front};
 
@@ -94,15 +96,13 @@ struct Main
         multigrid.GetPressureReader(0).Read().Print();
 */
 
-        Fluid::Reduce reduce(size);
-
-        reduce.apply(boundaries.mBoundaries, boundaries.mBoundaries);
-        std::cout << reduce.Get() << std::endl;
-
+        cg.NormalSolve();
         //engine.LinearSolve();
 
         //Renderer::Reader{sor.GetData().Pressure.Front}.Read().Print();
         //Renderer::Reader{multigrid.mXs[0].mX.Front}.Read().Print();
+        Renderer::Reader(cg.GetData().Pressure.Front).Read().Print();
+
 /*
         while (!window.ShouldClose())
         {

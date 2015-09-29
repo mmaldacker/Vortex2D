@@ -27,7 +27,7 @@ public:
     float Get();
     void Bind(int n);
 
-private:
+//private:
     std::vector<Renderer::RenderTexture> s;
     std::vector<Renderer::Quad> q;
     Operator mReduce;
