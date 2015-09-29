@@ -62,18 +62,16 @@ void SuccessiveOverRelaxation::Init(Boundaries & boundaries)
 
     mStencilShader.Use().SetMVP(mData.Pressure.Orth);
 
-    mData.Pressure.begin();
+    mData.Pressure.Front.begin();
 
     mData.Quad.Render();
 
-    mData.Pressure.end();
-    mData.Pressure.swap();
-    mData.Pressure.begin();
+    mData.Pressure.Front.end();
+    mData.Pressure.Back.begin();
 
     mData.Quad.Render();
 
-    mData.Pressure.end();
-    mData.Pressure.swap();
+    mData.Pressure.Back.end();
 
     glStencilMask(0x00); // disable stencil writing
 }
@@ -85,10 +83,15 @@ LinearSolver::Data & SuccessiveOverRelaxation::GetData()
 
 void SuccessiveOverRelaxation::Solve()
 {
+    Solve(true);
+}
+
+void SuccessiveOverRelaxation::Solve(bool up)
+{
     for (int i  = 0; i < mIterations; ++i)
     {
-        Step(true);
-        Step(false);
+        Step(up);
+        Step(!up);
     }
 }
 

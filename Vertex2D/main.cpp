@@ -6,6 +6,7 @@
 #include "Disable.h"
 #include "Multigrid.h"
 #include "Reduce.h"
+#include "Sprite.h"
 
 #include <string>
 #include <chrono>
@@ -61,6 +62,8 @@ struct Main
 
         Fluid::Engine engine(dimensions, boundaries, advection, &sor);
 
+        Renderer::Sprite sprite{advection.mDensity.Front};
+
         boundaries.Render(borders);
         //boundaries.GetReader().Read().Print();
 
@@ -71,32 +74,35 @@ struct Main
 
         engine.Div();
 /*
-        Renderer::Reader{multigrid.mXs[0].mWeights}.Read().Print();
-        Renderer::Reader{multigrid.mXs[0].mX.Front}.Read().Print();
-        multigrid.DampedJacobi(0);
-        Renderer::Reader{multigrid.mXs[0].mX.Back}.Read().Print();
+        multigrid.GetWeightsReader(0).Read().Print();
+        multigrid.GetWeightsReader(1).Read().Print();
+
+        multigrid.GetPressureReader(0).Read().Print();
+        multigrid.GaussSeidel(0, true);
+        multigrid.GetPressureReader(0).Read().Print();
         multigrid.Residual(0);
-        Renderer::Reader{multigrid.mXs[0].mX.Front}.Read().Print();
+        multigrid.GetPressureReader(0).Read().Print();
         multigrid.Restrict(0);
-        Renderer::Reader{multigrid.mXs[1].mX.Front}.Read().Print();
-        multigrid.DampedJacobi(1);
-        Renderer::Reader{multigrid.mXs[1].mX.Front}.Read().Print();
+        multigrid.GetPressureReader(1).Read().Print();
+        multigrid.GaussSeidel(1, true);
+        multigrid.GetPressureReader(1).Read().Print();
         multigrid.Prolongate(0);
-        Renderer::Reader{multigrid.mXs[0].mX.Front}.Read().Print();
+        multigrid.GetPressureReader(0).Read().Print();
         multigrid.Correct(0);
-        Renderer::Reader{multigrid.mXs[0].mX.Front}.Read().Print();
-        multigrid.DampedJacobi(0);
-        Renderer::Reader{multigrid.mXs[0].mX.Front}.Read().Print();
+        multigrid.GetPressureReader(0).Read().Print();
+        multigrid.GaussSeidel(0, false);
+        multigrid.GetPressureReader(0).Read().Print();
 */
 
-        //Fluid::Reduce reduce(boundaries.mBoundaries);
-        //std::cout << reduce.Get() << std::endl;
+        Fluid::Reduce reduce(size);
+
+        reduce.apply(boundaries.mBoundaries, boundaries.mBoundaries);
+        std::cout << reduce.Get() << std::endl;
 
         //engine.LinearSolve();
 
-        //Renderer::Reader{sor.mX.Front}.Read().Print().PrintStencil();
+        //Renderer::Reader{sor.GetData().Pressure.Front}.Read().Print();
         //Renderer::Reader{multigrid.mXs[0].mX.Front}.Read().Print();
-
 /*
         while (!window.ShouldClose())
         {
@@ -115,7 +121,7 @@ struct Main
 
             Renderer::Enable d(GL_BLEND);
             window.Clear();
-            //window.Render({&sprite});
+            window.Render({&sprite});
             window.Swap();
         }
 */

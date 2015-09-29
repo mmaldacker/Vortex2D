@@ -11,51 +11,50 @@
 namespace Fluid
 {
 
-Reduce::Reduce(Renderer::RenderTexture & r)
-    : r(r)
-    , t(glm::vec2(r.Width(), r.Height()))
-    , mReduceShader("Reduce.vsh", "Reduce.fsh")
-    , h(mReduceShader, "h")
-    , k(mReduceShader, "k")
+Reduce::Reduce(glm::vec2 size)
+    : mReduce("Reduce.vsh", "Reduce.fsh")
+    , h(mReduce.Use(), "h")
+    , k(mReduce.Use(), "k")
+    , multiply("TexturePosition.vsh", "Multiply.fsh")
 {
-    glm::vec2 size = t.Size();
+    s.emplace_back(size.x, size.y, Renderer::Texture::PixelFormat::RF);
+    q.emplace_back(size);
+
     while(size.x > 1.0f && size.y > 1.0f)
     {
         size = glm::ceil(size/glm::vec2(2.0f));
-
         s.emplace_back(size.x, size.y, Renderer::Texture::PixelFormat::RF);
         q.emplace_back(size);
     }
 
-    mReduceShader.Use().Set("u_texture", 0).Unuse();
+    mReduce.Use().Set("u_texture", 0).Unuse();
+    multiply.Use().Set("u_texture", 0).Set("u_other", 1).Unuse();
 
     reader.reset(new Renderer::Reader(s.back()));
 }
 
-float Reduce::Get()
+void Reduce::apply(Renderer::RenderTexture &a, Renderer::RenderTexture &b)
 {
-    s[0].begin();
-    r.Bind(0);
-    mReduceShader.Use().SetMVP(s[0].Orth);
-    h.Set(t.Size());
-    k.Set(q[0].Size());
-    q[0].Render();
-    mReduceShader.Unuse();
-    s[0].end();
+    multiply.apply(q[0], s[0], a, b);
 
     for(int i = 1 ; i < s.size() ; i++)
     {
-        s[i].begin();
-        s[i-1].Bind(0);
-        mReduceShader.Use().SetMVP(s[i].Orth);
+        mReduce.Use();
         h.Set(q[i-1].Size());
         k.Set(q[i].Size());
-        q[i].Render();
-        mReduceShader.Unuse();
-        s[i].end();
-    }
 
+        mReduce.apply(q[i], s[i], s[i-1]);
+    }
+}
+
+float Reduce::Get()
+{
     return reader->Read().GetFloat(0, 0);
+}
+
+void Reduce::Bind(int n)
+{
+    s.back().Bind(n);
 }
 
 }

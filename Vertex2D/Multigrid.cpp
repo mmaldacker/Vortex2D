@@ -25,9 +25,7 @@ Multigrid::Multigrid(const glm::vec2 & s, int iterations)
     do
     {
         mXs.emplace_back(size, iterations, 1.0f);
-
-        //size = ((size - glm::vec2(2.0)) / glm::vec2(2.0f)) + glm::vec2(2.0f);
-        size /= glm::vec2(2.0f);
+        size = glm::ceil(size/glm::vec2(2.0f));
         mDepths++;
     }while(size.x > min_size && size.y > min_size);
 
@@ -56,6 +54,11 @@ Renderer::Reader Multigrid::GetPressureReader(int depth)
     return {mXs[depth].GetData().Pressure.Front};
 }
 
+Renderer::Reader Multigrid::GetWeightsReader(int depth)
+{
+    return {mXs[depth].GetData().Weights};
+}
+
 void Multigrid::Init(Boundaries & boundaries)
 {
     for(int i = 0; i < mDepths ; i++)
@@ -73,22 +76,22 @@ void Multigrid::Solve()
 {
     for(int i = 0 ; i < mDepths - 1 ; i++)
     {
-        DampedJacobi(i);
+        GaussSeidel(i, true);
         Residual(i);
         Restrict(i);
     }
-    DampedJacobi(mDepths - 1);
+    GaussSeidel(mDepths - 1, true);
     for(int i = mDepths - 2 ; i >= 0 ; --i)
     {
         Prolongate(i);
         Correct(i);
-        DampedJacobi(i);
+        GaussSeidel(i, false);
     }
 }
 
-void Multigrid::DampedJacobi(int depth)
+void Multigrid::GaussSeidel(int depth, bool up)
 {
-    mXs[depth].Solve();
+    mXs[depth].Solve(up);
 }
 
 void Multigrid::Residual(int depth)
@@ -101,7 +104,8 @@ void Multigrid::Residual(int depth)
 
     x.Pressure.swap();
     mResidual.Use().Set("h", x.Quad.Size());
-    mResidual.apply(x.Quad, x.Pressure, x.Pressure.Back, x.Weights);
+    mResidual.apply(x.Quad, x.Pressure,
+                    x.Pressure.Back, x.Weights);
 }
 
 void Multigrid::Restrict(int depth)

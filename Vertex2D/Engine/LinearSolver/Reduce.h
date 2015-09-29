@@ -13,6 +13,7 @@
 #include "Shader.h"
 #include "Quad.h"
 #include "Reader.h"
+#include "Operator.h"
 
 namespace Fluid
 {
@@ -20,20 +21,22 @@ namespace Fluid
 class Reduce
 {
 public:
-    Reduce(Renderer::RenderTexture & r);
+    Reduce(glm::vec2 size);
 
+    void apply(Renderer::RenderTexture & a, Renderer::RenderTexture & b);
     float Get();
+    void Bind(int n);
 
 private:
-    Renderer::RenderTexture & r;
-    Renderer::Quad t;
     std::vector<Renderer::RenderTexture> s;
     std::vector<Renderer::Quad> q;
-    Renderer::Program mReduceShader;
+    Operator mReduce;
     Renderer::Uniform<glm::vec2> h;
     Renderer::Uniform<glm::vec2> k;
+    Operator multiply;
 
     std::unique_ptr<Renderer::Reader> reader;
+
 };
 
 }

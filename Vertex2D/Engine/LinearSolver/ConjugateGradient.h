@@ -10,7 +10,8 @@
 #define __Vertex2D__ConjugateGradient__
 
 #include "LinearSolver.h"
-#include "Multigrid.h"
+#include "Operator.h"
+#include "Reduce.h"
 
 namespace Fluid
 {
@@ -18,12 +19,20 @@ namespace Fluid
 class ConjugateGradient : public LinearSolver
 {
 public:
+    ConjugateGradient(const glm::vec2 & size);
+
     void Init(Boundaries & boundaries) override;
     LinearSolver::Data & GetData() override;
     void Solve() override;
 
+    void NormalSolve();
+
 private:
-    Multigrid mMultigrid;
+    LinearSolver::Data mData;
+    Renderer::PingPong r, p;
+    Renderer::RenderTexture z, alpha, beta;
+    Operator matrixMultiply, scalarDivision, multiplyAdd, multiplySub, residual, identity;
+    Reduce pReduce, rReduce;
 };
 
 }

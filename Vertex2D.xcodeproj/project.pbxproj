@@ -43,6 +43,12 @@
 		CE9242171BA896E5003E0869 /* Reduce.vsh in Resources */ = {isa = PBXBuildFile; fileRef = CE9242161BA896E5003E0869 /* Reduce.vsh */; };
 		CE9242191BA896F0003E0869 /* Reduce.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE9242181BA896F0003E0869 /* Reduce.fsh */; };
 		CE9F2C621B88A15400EDDF5A /* font.png in Resources */ = {isa = PBXBuildFile; fileRef = CE9F2C611B88A15400EDDF5A /* font.png */; };
+		CEA4B5111BBB116100D0830F /* MultiplySub.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CEA4B5101BBB116100D0830F /* MultiplySub.fsh */; };
+		CECA49AE1BB7F38800067D3B /* Sprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CECA49AC1BB7F38800067D3B /* Sprite.cpp */; };
+		CECA49B01BB7FA4600067D3B /* MultiplyMatrix.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CECA49AF1BB7FA4600067D3B /* MultiplyMatrix.fsh */; };
+		CECA49B21BB7FA9300067D3B /* MultiplyAdd.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CECA49B11BB7FA9300067D3B /* MultiplyAdd.fsh */; };
+		CECA49B41BB7FA9D00067D3B /* Divide.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CECA49B31BB7FA9D00067D3B /* Divide.fsh */; };
+		CECA49B61BB7FD2A00067D3B /* Multiply.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CECA49B51BB7FD2A00067D3B /* Multiply.fsh */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -108,6 +114,13 @@
 		CE9242181BA896F0003E0869 /* Reduce.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Reduce.fsh; sourceTree = "<group>"; };
 		CE92421A1BA9D3C0003E0869 /* Operator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Operator.h; sourceTree = "<group>"; };
 		CE9F2C611B88A15400EDDF5A /* font.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = font.png; sourceTree = SOURCE_ROOT; };
+		CEA4B5101BBB116100D0830F /* MultiplySub.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = MultiplySub.fsh; sourceTree = "<group>"; };
+		CECA49AC1BB7F38800067D3B /* Sprite.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Sprite.cpp; path = Renderer/Sprite.cpp; sourceTree = "<group>"; };
+		CECA49AD1BB7F38800067D3B /* Sprite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sprite.h; path = Renderer/Sprite.h; sourceTree = "<group>"; };
+		CECA49AF1BB7FA4600067D3B /* MultiplyMatrix.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = MultiplyMatrix.fsh; sourceTree = "<group>"; };
+		CECA49B11BB7FA9300067D3B /* MultiplyAdd.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = MultiplyAdd.fsh; sourceTree = "<group>"; };
+		CECA49B31BB7FA9D00067D3B /* Divide.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Divide.fsh; sourceTree = "<group>"; };
+		CECA49B51BB7FD2A00067D3B /* Multiply.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Multiply.fsh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -215,6 +228,8 @@
 				CE6D632B1B84EAEA006729F0 /* Quad.cpp */,
 				CE6D636C1B84F4DB006729F0 /* Reader.cpp */,
 				CE6D636D1B84F4DB006729F0 /* Reader.h */,
+				CECA49AC1BB7F38800067D3B /* Sprite.cpp */,
+				CECA49AD1BB7F38800067D3B /* Sprite.h */,
 			);
 			name = Renderer;
 			sourceTree = "<group>";
@@ -274,6 +289,11 @@
 			children = (
 				CE9242161BA896E5003E0869 /* Reduce.vsh */,
 				CE9242181BA896F0003E0869 /* Reduce.fsh */,
+				CECA49AF1BB7FA4600067D3B /* MultiplyMatrix.fsh */,
+				CECA49B11BB7FA9300067D3B /* MultiplyAdd.fsh */,
+				CECA49B31BB7FA9D00067D3B /* Divide.fsh */,
+				CECA49B51BB7FD2A00067D3B /* Multiply.fsh */,
+				CEA4B5101BBB116100D0830F /* MultiplySub.fsh */,
 			);
 			name = ConjugateGradient;
 			path = Multigrid;
@@ -362,10 +382,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				CE9F2C621B88A15400EDDF5A /* font.png in Resources */,
+				CECA49B61BB7FD2A00067D3B /* Multiply.fsh in Resources */,
 				CE9242171BA896E5003E0869 /* Reduce.vsh in Resources */,
+				CECA49B41BB7FA9D00067D3B /* Divide.fsh in Resources */,
 				CE2ED5371B96295B007343DA /* Correct.fsh in Resources */,
+				CECA49B01BB7FA4600067D3B /* MultiplyMatrix.fsh in Resources */,
 				CE2ED53B1B96295B007343DA /* Restrict.fsh in Resources */,
 				CE2ED5351B96295B007343DA /* Diff.vsh in Resources */,
+				CEA4B5111BBB116100D0830F /* MultiplySub.fsh in Resources */,
+				CECA49B21BB7FA9300067D3B /* MultiplyAdd.fsh in Resources */,
 				CE2ED53D1B96295B007343DA /* Stencil.fsh in Resources */,
 				CE2ED5421B96295B007343DA /* Weights.fsh in Resources */,
 				CE2ED4E81B962942007343DA /* TexturePosition.fsh in Resources */,
@@ -402,6 +427,7 @@
 				CE6D62EE1B84E001006729F0 /* main.cpp in Sources */,
 				CE6D63091B84E20D006729F0 /* RenderTexture.cpp in Sources */,
 				CE9242141BA893BB003E0869 /* Reduce.cpp in Sources */,
+				CECA49AE1BB7F38800067D3B /* Sprite.cpp in Sources */,
 				CE6D636E1B84F4DB006729F0 /* Reader.cpp in Sources */,
 				CE2ED54B1B9633DA007343DA /* Boundaries.cpp in Sources */,
 				CE2ED5451B962F0D007343DA /* hfloat.cpp in Sources */,

@@ -26,8 +26,9 @@ public:
     void Init(Boundaries & boundaries) override;
     LinearSolver::Data & GetData() override;
     void Solve() override;
+    void Solve(bool up);
 
-//private:
+private:
     void Step(bool isRed);
 
     LinearSolver::Data mData;

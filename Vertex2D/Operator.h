@@ -20,8 +20,7 @@ class Operator
 {
 public:
     Operator(const std::string & vertex, const std::string & fragment) : mProgram(vertex, fragment)
-    {
-    }
+    {}
 
     template<typename Output, typename ... Args>
     void apply(Renderer::Quad & quad, Output & output, Args & ... args)

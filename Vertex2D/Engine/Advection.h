@@ -35,7 +35,7 @@ public:
     void Advect();
 
     friend class Engine;
-private:
+//private:
     void Advect(Renderer::PingPong & renderTexture, Renderer::Program & program);
 
     Dimensions mDimensions;

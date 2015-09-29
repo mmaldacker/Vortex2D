@@ -22,16 +22,17 @@ namespace Fluid
 class Multigrid : public LinearSolver
 {
 public:
-    Multigrid(const glm::vec2 & size, int iterations = 4);
+    Multigrid(const glm::vec2 & size, int iterations = 5);
 
     void Init(Boundaries & boundaries) override;
     LinearSolver::Data & GetData() override;
     void Solve() override;
 
     Renderer::Reader GetPressureReader(int depth);
+    Renderer::Reader GetWeightsReader(int depth);
 
 //private:
-    void DampedJacobi(int depth);
+    void GaussSeidel(int depth, bool up);
     void Residual(int depth);
     void Restrict(int depth);
     void Prolongate(int depth);

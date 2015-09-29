@@ -28,13 +28,13 @@ public:
     
     void Solve();
 
+//private:
     void Div();
     void Project();
 
     void LinearInit(Boundaries & boundaries);
     void LinearSolve();
 
-//private:
     Dimensions mDimensions;
     Renderer::Quad mQuad;
 
