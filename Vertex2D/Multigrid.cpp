@@ -104,8 +104,8 @@ void Multigrid::Residual(int depth)
 
     x.Pressure.swap();
     mResidual.Use().Set("h", x.Quad.Size());
-    mResidual.apply(x.Quad, x.Pressure,
-                    x.Pressure.Back, x.Weights);
+/*    mResidual.apply(x.Quad, x.Pressure,
+                    x.Pressure.Back, x.Weights);*/
 }
 
 void Multigrid::Restrict(int depth)
@@ -117,8 +117,8 @@ void Multigrid::Restrict(int depth)
     glStencilMask(0x00);
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 
-    mRestrict.apply(r.Quad, r.Pressure,
-                    x.Pressure.Front);
+/*    mRestrict.apply(r.Quad, r.Pressure,
+                    x.Pressure.Front);*/
 }
 
 void Multigrid::Prolongate(int depth)
@@ -130,9 +130,9 @@ void Multigrid::Prolongate(int depth)
     glStencilMask(0x00);
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 
-    mProlongate.apply(x.Quad, x.Pressure,
+/*    mProlongate.apply(x.Quad, x.Pressure,
                       u.Pressure.Front,
-                      x.Pressure.Back);
+                      x.Pressure.Back);*/
 }
 
 void Multigrid::Correct(int depth)
@@ -143,9 +143,9 @@ void Multigrid::Correct(int depth)
     glStencilMask(0x00);
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 
-    x.Pressure.swap();
+/*    x.Pressure.swap();
     mCorrect.apply(x.Quad, x.Pressure,
-                   x.Pressure.Back);
+                   x.Pressure.Back);*/
 }
 
 }

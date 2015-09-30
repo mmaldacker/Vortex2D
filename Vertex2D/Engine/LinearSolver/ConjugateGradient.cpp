@@ -76,7 +76,7 @@ void ConjugateGradient::NormalSolve()
     Renderer::Enable e(GL_STENCIL_TEST);
     glStencilMask(0x00);
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-
+/*
     // r = b - Ax
     residual.apply(mData.Quad, r, mData.Pressure.Front, mData.Weights);
 
@@ -118,13 +118,13 @@ void ConjugateGradient::NormalSolve()
         pReduce.apply(r.Front, r.Front);
 
         // beta = rho_new / rho
-        scalarDivision.apply(mData.Quad, beta, rReduce, pReduce);
+        scalarDivision.apply(rReduce.quad(), beta, rReduce, pReduce);
 
         std::cout << "beta:" << std::endl;
         Renderer::Reader(beta).Read().Print();
-
+        
         // rho = rho_new
-        std::swap(pReduce, rReduce);
+        identity.apply(rReduce.quad(), rReduce, pReduce);
 
         // x = x + alpha p
         mData.Pressure.swap();
@@ -137,6 +137,7 @@ void ConjugateGradient::NormalSolve()
         p.swap();
         multiplyAdd.apply(mData.Quad, p, r.Front, p.Back, beta);
     }
+ */
 }
 
 

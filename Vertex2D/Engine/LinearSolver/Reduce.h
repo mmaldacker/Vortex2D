@@ -23,20 +23,13 @@ class Reduce
 public:
     Reduce(glm::vec2 size);
 
-    void apply(Renderer::RenderTexture & a, Renderer::RenderTexture & b);
-    float Get();
-    void Bind(int n);
+    Context<BindExpr> operator()(Buffer & a, Buffer & b);
 
-//private:
-    std::vector<Renderer::RenderTexture> s;
-    std::vector<Renderer::Quad> q;
-    Operator mReduce;
+private:
+    std::vector<Buffer> s;
+    Operator reduce;
     Renderer::Uniform<glm::vec2> h;
-    Renderer::Uniform<glm::vec2> k;
     Operator multiply;
-
-    std::unique_ptr<Renderer::Reader> reader;
-
 };
 
 }

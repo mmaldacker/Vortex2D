@@ -12,7 +12,7 @@
 #include "RenderTexture.h"
 #include "Shapes.h"
 #include "Size.h"
-#include "Reader.h"
+#include "Operator.h"
 
 namespace Fluid
 {
@@ -31,8 +31,6 @@ public:
 
     void Clear();
     
-    Renderer::Reader GetReader();
-
 //private:
     void Render(const glm::mat4 & orth, int thickness = 1, float scale = 1.0f);
     
@@ -41,7 +39,7 @@ public:
 
     Renderer::Quad mQuad;
     
-    Renderer::RenderTexture mBoundaries;
+    Buffer mBoundaries;
     Renderer::RenderTexture mBoundariesVelocity;
 
     Renderer::Program mWeightsShader;

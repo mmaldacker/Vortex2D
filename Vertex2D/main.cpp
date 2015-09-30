@@ -67,7 +67,6 @@ struct Main
         Renderer::Sprite sprite{advection.mDensity.Front};
 
         boundaries.Render(borders);
-        //boundaries.GetReader().Read().Print();
 
         advection.RenderMask(boundaries);
         advection.RenderVelocity(sources);
@@ -96,13 +95,19 @@ struct Main
         multigrid.GetPressureReader(0).Read().Print();
 */
 
-        cg.NormalSolve();
+        //cg.NormalSolve();
         //engine.LinearSolve();
 
         //Renderer::Reader{sor.GetData().Pressure.Front}.Read().Print();
         //Renderer::Reader{multigrid.mXs[0].mX.Front}.Read().Print();
-        Renderer::Reader(cg.GetData().Pressure.Front).Read().Print();
+        //Renderer::Reader(cg.GetData().Pressure.Front).Read().Print();
 
+        Fluid::Buffer x({1,1},1);
+        Fluid::Reduce reduce(glm::vec2(2.0f)*size);
+
+        x = reduce(boundaries.mBoundaries, boundaries.mBoundaries);
+
+        x.get().Read().Print();
 /*
         while (!window.ShouldClose())
         {
