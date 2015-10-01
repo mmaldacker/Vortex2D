@@ -36,7 +36,6 @@ public:
     void LinearSolve();
 
     Dimensions mDimensions;
-    Renderer::Quad mQuad;
 
     Boundaries & mBoundaries;
     Advection & mAdvection;

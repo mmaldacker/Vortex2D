@@ -17,7 +17,6 @@ namespace Fluid
 
 Engine::Engine(Dimensions dimensions, Boundaries & boundaries, Advection & advection, LinearSolver * linearSolver)
     : mDimensions(dimensions)
-    , mQuad(dimensions.Size)
     , mBoundaries(boundaries)
     , mAdvection(advection)
     , mLinearSolver(linearSolver)

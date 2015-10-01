@@ -15,10 +15,9 @@ namespace Fluid
 Advection::Advection(Dimensions dimensions, float dt)
     : mDimensions(dimensions)
     , mVelocity(dimensions.Size, 2, true, true)
-    //, mDensity(dimensions.Size, Renderer::Texture::PixelFormat::RGBA8888, true, true)
     , mDensity(dimensions.Size, 4, true, true)
-    , mAdvect("Diff.vsh", "Advect.fsh")
-    , mAdvectDensity("Diff.vsh", "AdvectDensity.fsh")
+    , mAdvect("TexturePosition.vsh", "Advect.fsh")
+    , mAdvectDensity("TexturePosition.vsh", "AdvectDensity.fsh")
 {
     mDensity.linear();
 
@@ -70,34 +69,27 @@ void Advection::RenderDensity(const std::vector<Renderer::Drawable*> & objects)
 
 void Advection::RenderMask(Boundaries & boundaries)
 {
+    // FIXME is this necessary?
+    boundaries.RenderMask(mVelocity);
     mVelocity.swap();
     boundaries.RenderMask(mVelocity);
+    mVelocity.swap();
+    boundaries.RenderMask(mDensity);
     mDensity.swap();
     boundaries.RenderMask(mDensity);
+    mDensity.swap();
 }
 
 void Advection::Advect()
 {
-//    Advect(mVelocity, mAdvectShader);
-//    Advect(mDensity, mAdvectDensityShader);
-
-    /*
     Renderer::Enable e(GL_STENCIL_TEST);
     glStencilFunc(GL_EQUAL, 0, 0xFF);
     glStencilMask(0x00);
 
-    renderTexture.swap();
-    renderTexture.begin();
-    program.Use().SetMVP(renderTexture.Orth);
-
-    mVelocity.Back.Bind(1);
-    renderTexture.Back.Bind(0);
-
-    mQuad.Render();
-    
-    program.Unuse();
-    renderTexture.end();
-     */
+    mDensity.swap();
+    mDensity = mAdvectDensity(Back(mDensity), Back(mVelocity));
+    mVelocity.swap();
+    mVelocity = mAdvect(Back(mVelocity), Back(mVelocity));
 }
 
 }

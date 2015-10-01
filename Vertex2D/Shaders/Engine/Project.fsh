@@ -9,8 +9,6 @@ uniform sampler2D u_pressure;
 uniform sampler2D u_weights;
 uniform sampler2D u_obstacles_velocity;
 
-uniform vec2 h;
-
 out vec4 out_color;
 
 void main() 
@@ -18,10 +16,10 @@ void main()
     
 	vec2 cell = texture(u_texture, v_texCoord).xy; 
 
-    float pxp = textureOffset(u_texture, v_texCoord, ivec2(1,0)).x;
-    float pxn = textureOffset(u_texture, v_texCoord, ivec2(-1,0)).x;
-    float pyp = textureOffset(u_texture, v_texCoord, ivec2(0,1)).x;
-    float pyn = textureOffset(u_texture, v_texCoord, ivec2(0,-1)).x;
+    float pxp = textureOffset(u_pressure, v_texCoord, ivec2(1,0)).x;
+    float pxn = textureOffset(u_pressure, v_texCoord, ivec2(-1,0)).x;
+    float pyp = textureOffset(u_pressure, v_texCoord, ivec2(0,1)).x;
+    float pyn = textureOffset(u_pressure, v_texCoord, ivec2(0,-1)).x;
 
     vec4 c = texture(u_weights, v_texCoord);
     
@@ -52,6 +50,6 @@ void main()
     }
     
     // Enforce the free-slip boundary condition:
-    vec2 new_cell = cell - (0.5 * h.x) * pGrad;
+    vec2 new_cell = cell - (0.5 * textureSize(u_texture,0).x) * pGrad;
     out_color = vec4(mask * new_cell + obsV, 0.0, 0.0);
 }
