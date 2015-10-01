@@ -23,7 +23,6 @@ class Reduce
 public:
     Reduce(glm::vec2 size)
         : reduce("Reduce.vsh", "Reduce.fsh")
-        , h(reduce.Use(), "h")
         , multiply("TexturePosition.vsh", "Multiply.fsh")
     {
         while(size.x > 1.0f && size.y > 1.0f)
@@ -42,20 +41,15 @@ public:
 
         for(int i = 1 ; i < s.size() ; i++)
         {
-            reduce.Use();
-            h.Set(s[i-1].size());
             s[i] = reduce(s[i-1]);
         }
 
-        // FIXME this should be included in the expression template
-        h.Set(s.back().size());
         return reduce(s.back());
     }
 
 private:
     std::vector<Buffer> s;
     Operator reduce;
-    Renderer::Uniform<glm::vec2> h;
     Operator multiply;
 };
 

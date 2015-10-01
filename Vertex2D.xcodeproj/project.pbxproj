@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CE079CD21BBD9BAF008187C8 /* Reduce.vsh in Resources */ = {isa = PBXBuildFile; fileRef = CE079CD11BBD9BAF008187C8 /* Reduce.vsh */; };
 		CE2ED4E61B962942007343DA /* Position.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED4DE1B962942007343DA /* Position.fsh */; };
 		CE2ED4E71B962942007343DA /* Position.vsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED4DF1B962942007343DA /* Position.vsh */; };
 		CE2ED4E81B962942007343DA /* TexturePosition.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE2ED4E01B962942007343DA /* TexturePosition.fsh */; };
@@ -39,7 +40,6 @@
 		CE6E0F691B9F4DF800D77927 /* Advection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6E0F671B9F4DF800D77927 /* Advection.cpp */; };
 		CE6E0F6E1BA2113A00D77927 /* Multigrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6E0F6C1BA2113A00D77927 /* Multigrid.cpp */; };
 		CE9242111BA88656003E0869 /* ConjugateGradient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE92420F1BA88656003E0869 /* ConjugateGradient.cpp */; };
-		CE9242171BA896E5003E0869 /* Reduce.vsh in Resources */ = {isa = PBXBuildFile; fileRef = CE9242161BA896E5003E0869 /* Reduce.vsh */; };
 		CE9242191BA896F0003E0869 /* Reduce.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE9242181BA896F0003E0869 /* Reduce.fsh */; };
 		CE9F2C621B88A15400EDDF5A /* font.png in Resources */ = {isa = PBXBuildFile; fileRef = CE9F2C611B88A15400EDDF5A /* font.png */; };
 		CEA4B5111BBB116100D0830F /* MultiplySub.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CEA4B5101BBB116100D0830F /* MultiplySub.fsh */; };
@@ -51,6 +51,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		CE079CD11BBD9BAF008187C8 /* Reduce.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Reduce.vsh; sourceTree = "<group>"; };
 		CE2ED4DE1B962942007343DA /* Position.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Position.fsh; path = Shaders/Renderer/Position.fsh; sourceTree = "<group>"; };
 		CE2ED4DF1B962942007343DA /* Position.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Position.vsh; path = Shaders/Renderer/Position.vsh; sourceTree = "<group>"; };
 		CE2ED4E01B962942007343DA /* TexturePosition.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = TexturePosition.fsh; path = Shaders/Renderer/TexturePosition.fsh; sourceTree = "<group>"; };
@@ -108,7 +109,6 @@
 		CE92420F1BA88656003E0869 /* ConjugateGradient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ConjugateGradient.cpp; path = Engine/LinearSolver/ConjugateGradient.cpp; sourceTree = "<group>"; };
 		CE9242101BA88656003E0869 /* ConjugateGradient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ConjugateGradient.h; path = Engine/LinearSolver/ConjugateGradient.h; sourceTree = "<group>"; };
 		CE9242131BA893BB003E0869 /* Reduce.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Reduce.h; path = Engine/LinearSolver/Reduce.h; sourceTree = "<group>"; };
-		CE9242161BA896E5003E0869 /* Reduce.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Reduce.vsh; sourceTree = "<group>"; };
 		CE9242181BA896F0003E0869 /* Reduce.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Reduce.fsh; sourceTree = "<group>"; };
 		CE92421A1BA9D3C0003E0869 /* Operator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Operator.h; sourceTree = "<group>"; };
 		CE9F2C611B88A15400EDDF5A /* font.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = font.png; sourceTree = SOURCE_ROOT; };
@@ -284,7 +284,7 @@
 		CE9242151BA89437003E0869 /* ConjugateGradient */ = {
 			isa = PBXGroup;
 			children = (
-				CE9242161BA896E5003E0869 /* Reduce.vsh */,
+				CE079CD11BBD9BAF008187C8 /* Reduce.vsh */,
 				CE9242181BA896F0003E0869 /* Reduce.fsh */,
 				CECA49AF1BB7FA4600067D3B /* MultiplyMatrix.fsh */,
 				CECA49B11BB7FA9300067D3B /* MultiplyAdd.fsh */,
@@ -379,8 +379,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				CE9F2C621B88A15400EDDF5A /* font.png in Resources */,
+				CE079CD21BBD9BAF008187C8 /* Reduce.vsh in Resources */,
 				CECA49B61BB7FD2A00067D3B /* Multiply.fsh in Resources */,
-				CE9242171BA896E5003E0869 /* Reduce.vsh in Resources */,
 				CECA49B41BB7FA9D00067D3B /* Divide.fsh in Resources */,
 				CE2ED5371B96295B007343DA /* Correct.fsh in Resources */,
 				CECA49B01BB7FA4600067D3B /* MultiplyMatrix.fsh in Resources */,

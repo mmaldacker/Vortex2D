@@ -3,9 +3,6 @@
 precision highp float;
 
 in vec2 v_texCoord;
-in vec2 v_texCoordx;
-in vec2 v_texCoordy;
-in vec2 v_texCoordxy;
 
 uniform sampler2D u_texture;
 
@@ -17,9 +14,9 @@ void main()
 {
     vec4 p;
     p.x = texture(u_texture, v_texCoord).x;
-    p.y = texture(u_texture, v_texCoordx).x;
-    p.z = texture(u_texture, v_texCoordy).x;
-    p.w = texture(u_texture, v_texCoordxy).x;
+    p.y = textureOffset(u_texture, v_texCoord, ivec2(0,1)).x;
+    p.z = textureOffset(u_texture, v_texCoord, ivec2(1,0)).x;
+    p.w = textureOffset(u_texture, v_texCoord, ivec2(1,1)).x;
 
     colour_out = vec4(dot(p,q), 0.0, 0.0, 0.0);
 }
