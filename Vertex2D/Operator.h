@@ -101,12 +101,16 @@ public:
         return mQuad.Size();
     }
 
+    void linear()
+    {
+        for(auto && t : mTextures) t.SetAntiAliasTexParameters();
+    }
+
     // FIXME hide those or remove those?
-    void bind(int n = 0) { mTextures.front().Bind(n); }
     void begin() { mTextures.front().begin(); }
     void begin(const glm::vec4 & c) { mTextures.front().begin(c); }
     void end() { mTextures.front().end(); }
-    void clear() { mTextures.front().Clear(); }
+    void clear() { for(auto && t : mTextures) t.Clear(); }
     void swap() { assert(mTextures.size() == 2); std::swap(mTextures.front(), mTextures.back()); }
     
     glm::mat4 Orth;
@@ -204,7 +208,7 @@ private:
     template<typename T, typename ... Args, REQUIRES(std::is_same<T, Buffer&>())>
     typename bind_type<T, Args...>::type bind(int unit, T && input, Args && ... args)
     {
-        return {bind(unit+1, args...), BindExpr<Front>(Front(input), unit)};
+        return {bind(unit+1, std::forward<Args>(args)...), BindExpr<Front>(Front(input), unit)};
     }
 
     template<typename T, typename ... Args, REQUIRES(std::is_same<T, Back>())>

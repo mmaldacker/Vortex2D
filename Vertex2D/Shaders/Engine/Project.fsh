@@ -3,11 +3,6 @@
 precision highp float;
 
 in vec2 v_texCoord;
-in vec2 v_texCoordxp;
-in vec2 v_texCoordxn;
-in vec2 v_texCoordyp;
-in vec2 v_texCoordyn;
-
 
 uniform sampler2D u_texture; // this is the velocity texture
 uniform sampler2D u_pressure; 
@@ -22,11 +17,11 @@ void main()
 {
     
 	vec2 cell = texture(u_texture, v_texCoord).xy; 
-    
-	float pxp = texture(u_pressure, v_texCoordxp).x;
-	float pxn = texture(u_pressure, v_texCoordxn).x;
-	float pyp = texture(u_pressure, v_texCoordyp).x;
-	float pyn = texture(u_pressure, v_texCoordyn).x;
+
+    float pxp = textureOffset(u_texture, v_texCoord, ivec2(1,0)).x;
+    float pxn = textureOffset(u_texture, v_texCoord, ivec2(-1,0)).x;
+    float pyp = textureOffset(u_texture, v_texCoord, ivec2(0,1)).x;
+    float pyn = textureOffset(u_texture, v_texCoord, ivec2(0,-1)).x;
 
     vec4 c = texture(u_weights, v_texCoord);
     
@@ -38,22 +33,22 @@ void main()
     if (c.x < 1.0)
     { 
         mask.x = 0.0; 
-        obsV.x = texture(u_obstacles_velocity, v_texCoordxp).x;
+        obsV.x = textureOffset(u_obstacles_velocity, v_texCoord, ivec2(1,0)).x;
     }
     if (c.y < 1.0)
     { 
         mask.x = 0.0; 
-        obsV.x = texture(u_obstacles_velocity, v_texCoordxn).x;
+        obsV.x = textureOffset(u_obstacles_velocity, v_texCoord, ivec2(-1,0)).x;
     }
     if (c.z < 1.0)
     { 
         mask.y = 0.0; 
-        obsV.y = texture(u_obstacles_velocity, v_texCoordyp).y;
+        obsV.y = textureOffset(u_obstacles_velocity, v_texCoord, ivec2(0,1)).y;
     }
     if (c.w < 1.0)
     { 
         mask.y = 0.0; 
-        obsV.y = texture(u_obstacles_velocity, v_texCoordyn).y;
+        obsV.y = textureOffset(u_obstacles_velocity, v_texCoord, ivec2(0,-1)).y;
     }
     
     // Enforce the free-slip boundary condition:

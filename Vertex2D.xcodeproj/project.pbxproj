@@ -41,7 +41,6 @@
 		CE6E0F6E1BA2113A00D77927 /* Multigrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6E0F6C1BA2113A00D77927 /* Multigrid.cpp */; };
 		CE9242111BA88656003E0869 /* ConjugateGradient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE92420F1BA88656003E0869 /* ConjugateGradient.cpp */; };
 		CE9242191BA896F0003E0869 /* Reduce.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE9242181BA896F0003E0869 /* Reduce.fsh */; };
-		CE9F2C621B88A15400EDDF5A /* font.png in Resources */ = {isa = PBXBuildFile; fileRef = CE9F2C611B88A15400EDDF5A /* font.png */; };
 		CEA4B5111BBB116100D0830F /* MultiplySub.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CEA4B5101BBB116100D0830F /* MultiplySub.fsh */; };
 		CECA49AE1BB7F38800067D3B /* Sprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CECA49AC1BB7F38800067D3B /* Sprite.cpp */; };
 		CECA49B01BB7FA4600067D3B /* MultiplyMatrix.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CECA49AF1BB7FA4600067D3B /* MultiplyMatrix.fsh */; };
@@ -111,7 +110,6 @@
 		CE9242131BA893BB003E0869 /* Reduce.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Reduce.h; path = Engine/LinearSolver/Reduce.h; sourceTree = "<group>"; };
 		CE9242181BA896F0003E0869 /* Reduce.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Reduce.fsh; sourceTree = "<group>"; };
 		CE92421A1BA9D3C0003E0869 /* Operator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Operator.h; sourceTree = "<group>"; };
-		CE9F2C611B88A15400EDDF5A /* font.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = font.png; sourceTree = SOURCE_ROOT; };
 		CEA4B5101BBB116100D0830F /* MultiplySub.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = MultiplySub.fsh; sourceTree = "<group>"; };
 		CECA49AC1BB7F38800067D3B /* Sprite.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Sprite.cpp; path = Renderer/Sprite.cpp; sourceTree = "<group>"; };
 		CECA49AD1BB7F38800067D3B /* Sprite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sprite.h; path = Renderer/Sprite.h; sourceTree = "<group>"; };
@@ -198,7 +196,6 @@
 		CE6D62CD1B84DF98006729F0 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				CE9F2C611B88A15400EDDF5A /* font.png */,
 				CE6D62CE1B84DF98006729F0 /* Info.plist */,
 			);
 			name = "Supporting Files";
@@ -378,7 +375,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CE9F2C621B88A15400EDDF5A /* font.png in Resources */,
 				CE079CD21BBD9BAF008187C8 /* Reduce.vsh in Resources */,
 				CECA49B61BB7FD2A00067D3B /* Multiply.fsh in Resources */,
 				CECA49B41BB7FA9D00067D3B /* Divide.fsh in Resources */,

@@ -20,13 +20,7 @@ Advection::Advection(Dimensions dimensions, float dt)
     , mAdvect("Diff.vsh", "Advect.fsh")
     , mAdvectDensity("Diff.vsh", "AdvectDensity.fsh")
 {
-    /*
-    mDensity.Front.SetAntiAliasTexParameters();
-    mDensity.Back.SetAntiAliasTexParameters();
-
-    mVelocity.Front.SetAliasTexParameters();
-    mVelocity.Back.SetAliasTexParameters();
-     */
+    mDensity.linear();
 
     mVelocity.clear();
     mDensity.clear();
@@ -76,13 +70,10 @@ void Advection::RenderDensity(const std::vector<Renderer::Drawable*> & objects)
 
 void Advection::RenderMask(Boundaries & boundaries)
 {
-    //FIXME I think only the Back ones are necessary
-    /*
-    boundaries.RenderMask(mVelocity.Front);
-    boundaries.RenderMask(mVelocity.Back);
-    boundaries.RenderMask(mDensity.Front);
-    boundaries.RenderMask(mDensity.Back);
-     */
+    mVelocity.swap();
+    boundaries.RenderMask(mVelocity);
+    mDensity.swap();
+    boundaries.RenderMask(mDensity);
 }
 
 void Advection::Advect()

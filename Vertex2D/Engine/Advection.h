@@ -31,8 +31,7 @@ public:
     void Advect();
 
     friend class Engine;
-private:
-
+//private:
     Dimensions mDimensions;
     Buffer mVelocity;
     Buffer mDensity;

@@ -41,7 +41,7 @@ void ConjugateGradient::Init(Boundaries & boundaries)
     /*
     boundaries.RenderMask(mData.Pressure.Front);
     boundaries.RenderMask(mData.Pressure.Back);
-    boundaries.RenderWeights(mData.Weights, mData.Quad);
+    boundaries.GetWeights(mData.Weights, mData.Quad);
      */
 }
 

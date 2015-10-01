@@ -21,22 +21,20 @@ Engine::Engine(Dimensions dimensions, Boundaries & boundaries, Advection & advec
     , mBoundaries(boundaries)
     , mAdvection(advection)
     , mLinearSolver(linearSolver)
-    , mDiv("Diff.vsh", "Div.fsh")
-    , mProject("Diff.vsh", "Project.fsh")
+    , mDiv("TexturePosition.vsh", "Div.fsh")
+    , mProject("TexturePosition.vsh", "Project.fsh")
 {
     mProject.Use()
     .Set("u_texture", 0)
     .Set("u_pressure", 1)
     .Set("u_weights", 2)
     .Set("u_obstacles_velocity", 3)
-    .Set("h", mQuad.Size())
     .Unuse();
 
     mDiv.Use()
     .Set("u_texture", 0)
     .Set("u_weights", 1)
     .Set("u_obstacles_velocity", 2)
-    .Set("h", mQuad.Size())
     .Unuse();
 }
 
@@ -68,12 +66,8 @@ void Engine::Solve()
     Renderer::Disable d(GL_BLEND);
 
     Div();
-
     mLinearSolver->Solve();
-
     Project();
-
-    CHECK_GL_ERROR_DEBUG();
 }
 
 }

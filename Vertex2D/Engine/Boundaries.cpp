@@ -15,20 +15,20 @@ namespace Fluid
 Boundaries::Boundaries(Dimensions dimensions, int antialias)
     : mDimensions(dimensions)
     , mAntialias(antialias)
-    , mQuad(dimensions.Size)
     , mBoundaries(glm::vec2(antialias)*dimensions.Size, 1)
     , mBoundariesVelocity(dimensions.Size, 2)
-    , mWeights("Diff.vsh", "Weights.fsh")
+    , mWeights("TexturePosition.vsh", "Weights.fsh")
     , mHorizontal({dimensions.Size.x, 1.0f})
     , mVertical({1.0f, dimensions.Size.y})
 {
     mBoundaries.clear();
+    mBoundaries.linear();
     mBoundariesVelocity.clear();
 
     mVertical.Colour = {1.0f,1.0f,1.0f,1.0f};
     mHorizontal.Colour = {1.0f,1.0f,1.0f,1.0f};
 
-    mWeights.Use().Set("h", mQuad.Size()).Set("u_texture", 0).Unuse();
+    mWeights.Use().Set("u_texture", 0).Unuse();
 }
 
 void Boundaries::Render(const std::vector<Renderer::Drawable*> & objects)
@@ -39,7 +39,7 @@ void Boundaries::Render(const std::vector<Renderer::Drawable*> & objects)
     mBoundaries.end();
 }
 
-void Boundaries::RenderMask(Renderer::RenderTexture & mask)
+void Boundaries::RenderMask(Buffer & mask)
 {
     Renderer::Enable e(GL_STENCIL_TEST);
     Renderer::DisableColorMask c;
@@ -53,7 +53,7 @@ void Boundaries::RenderMask(Renderer::RenderTexture & mask)
     glClearStencil(0);
     glClear(GL_STENCIL_BUFFER_BIT); // clear stencil buffer
 
-    float scale = mask.Width() / mDimensions.Size.x;
+    float scale = mask.size().x / mDimensions.Size.x;
     Render(mask.Orth, 1, scale);
     mask.end();
 
@@ -91,20 +91,6 @@ void Boundaries::RenderVelocities(const std::vector<Renderer::Drawable*> & objec
         object->Render(mBoundariesVelocity.Orth*mDimensions.InvScale);
     }
     mBoundariesVelocity.end();
-}
-
-void Boundaries::RenderWeights()
-{
-    /*
-    w.begin();
-    mWeightsShader.Use().Set("h", quad.Size()).SetMVP(w.Orth);
-
-    mBoundaries.bind();
-    quad.Render();
-
-    mWeightsShader.Unuse();
-    w.end();
-     */
 }
 
 void Boundaries::Clear()

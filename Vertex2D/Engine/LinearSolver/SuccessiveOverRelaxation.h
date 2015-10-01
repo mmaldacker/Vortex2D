@@ -34,9 +34,9 @@ private:
     LinearSolver::Data mData;
     int mIterations;
 
-    Renderer::Program mSorShader;
-    Renderer::Program mStencilShader;
-    Renderer::Program & mIdentityShader;
+    Operator mSor;
+    Operator mStencil;
+    Operator mIdentity;
 };
 
 }

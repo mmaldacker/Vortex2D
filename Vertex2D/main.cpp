@@ -62,7 +62,7 @@ struct Main
         Fluid::Multigrid multigrid(size);
         Fluid::ConjugateGradient cg(size);
 
-        Fluid::Engine engine(dimensions, boundaries, advection, &cg);
+        Fluid::Engine engine(dimensions, boundaries, advection, &sor);
 
         //Renderer::Sprite sprite{advection.mDensity.Front};
 
@@ -74,6 +74,7 @@ struct Main
         engine.LinearInit(boundaries);
 
         engine.Div();
+
 /*
         multigrid.GetWeightsReader(0).Read().Print();
         multigrid.GetWeightsReader(1).Read().Print();
@@ -96,18 +97,20 @@ struct Main
 */
 
         //cg.NormalSolve();
-        //engine.LinearSolve();
+        engine.LinearSolve();
 
-        //Renderer::Reader{sor.GetData().Pressure.Front}.Read().Print();
+        sor.GetData().Pressure.get().Read().Print().PrintStencil();
         //Renderer::Reader{multigrid.mXs[0].mX.Front}.Read().Print();
         //Renderer::Reader(cg.GetData().Pressure.Front).Read().Print();
 
+        /*
         Fluid::Buffer x({1,1},1);
         Fluid::Reduce reduce(glm::vec2(2.0f)*size);
 
         x = reduce(boundaries.mBoundaries, boundaries.mBoundaries);
 
         x.get().Read().Print();
+         */
 /*
         while (!window.ShouldClose())
         {

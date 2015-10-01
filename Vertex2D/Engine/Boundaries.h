@@ -17,8 +17,6 @@
 namespace Fluid
 {
 
-class Engine;
-
 class Boundaries
 {
 public:
@@ -26,18 +24,20 @@ public:
 
     void Render(const std::vector<Renderer::Drawable*> & objects);
     void RenderVelocities(const std::vector<Renderer::Drawable*> & objects);
-    void RenderMask(Renderer::RenderTexture & mask);
-    void RenderWeights();
+    void RenderMask(Buffer & mask);
+    auto GetWeights() -> decltype(std::declval<Operator>()(std::declval<Buffer&>()))
+    {
+        return mWeights(mBoundaries);
+    }
 
     void Clear();
-    
+
+    friend class Engine;
 //private:
     void Render(const glm::mat4 & orth, int thickness = 1, float scale = 1.0f);
     
     Dimensions mDimensions;
     int mAntialias;
-
-    Renderer::Quad mQuad;
     
     Buffer mBoundaries;
     Buffer mBoundariesVelocity;

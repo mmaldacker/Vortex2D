@@ -3,15 +3,10 @@
 precision highp float;
 
 in vec2 v_texCoord;
-in vec2 v_texCoordxp;
-in vec2 v_texCoordxn;
-in vec2 v_texCoordyp;
-in vec2 v_texCoordyn;
 
 uniform sampler2D u_texture; // this is the velocity texture
 uniform sampler2D u_weights;
 uniform sampler2D u_obstacles_velocity;
-uniform vec2 h;
 
 out vec4 out_color;
 
@@ -20,29 +15,29 @@ void main()
     vec4 weights = texture(u_weights, v_texCoord);
 
     vec2  uv  = texture(u_texture, v_texCoord).xy;
-	float uxp = texture(u_texture, v_texCoordxp).x;
-	float uxn = texture(u_texture, v_texCoordxn).x;
-	float vyp = texture(u_texture, v_texCoordyp).y;
-	float vyn = texture(u_texture, v_texCoordyn).y;
+    float uxp = textureOffset(u_texture, v_texCoord, ivec2(1,0)).x;
+    float uxn = textureOffset(u_texture, v_texCoord, ivec2(-1,0)).x;
+    float vyp = textureOffset(u_texture, v_texCoord, ivec2(0,1)).y;
+    float vyn = textureOffset(u_texture, v_texCoord, ivec2(0,-1)).y;
 
     if (weights.x < 1.0)
     { 
-        uxp = -uv.x + texture(u_obstacles_velocity, v_texCoordxp).x;
+        uxp = -uv.x + textureOffset(u_obstacles_velocity, v_texCoord, ivec2(1,0)).x;
     }
     if (weights.y < 1.0)
     { 
-        uxn = -uv.x + texture(u_obstacles_velocity, v_texCoordxn).x;
+        uxn = -uv.x + textureOffset(u_obstacles_velocity, v_texCoord, ivec2(-1,0)).x;
     }
     if (weights.z < 1.0)
     { 
-        vyp = -uv.y + texture(u_obstacles_velocity, v_texCoordyp).y;
+        vyp = -uv.y + textureOffset(u_obstacles_velocity, v_texCoord, ivec2(0,1)).y;
     }
     if (weights.w < 1.0)
     { 
-        vyn = -uv.y + texture(u_obstacles_velocity, v_texCoordyn).y;
+        vyn = -uv.y + textureOffset(u_obstacles_velocity, v_texCoord, ivec2(0,-1)).y;
     }
 
-	float div = -0.5 * (weights.x * uxp - weights.y * uxn + weights.z * vyp - weights.w * vyn) / h.x;
+    float div = -0.5 * (weights.x * uxp - weights.y * uxn + weights.z * vyp - weights.w * vyn) / textureSize(u_texture,0).x;
 
 	//pressure, div, 0, 0
 	out_color = vec4(0.0, div, 0.0, 0.0);

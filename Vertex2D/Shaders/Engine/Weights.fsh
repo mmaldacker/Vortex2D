@@ -3,10 +3,6 @@
 precision highp float;
 
 in vec2 v_texCoord;
-in vec2 v_texCoordxp;
-in vec2 v_texCoordxn;
-in vec2 v_texCoordyp;
-in vec2 v_texCoordyn;
 
 uniform sampler2D u_texture; // this is the obstacles
 
@@ -15,10 +11,10 @@ out vec4 out_color;
 void main()
 {
     vec4 p;
-    p.x = texture(u_texture, v_texCoordxp).x;
-    p.y = texture(u_texture, v_texCoordxn).x;
-    p.z = texture(u_texture, v_texCoordyp).x;
-    p.w = texture(u_texture, v_texCoordyn).x;
+    p.x = textureOffset(u_texture, v_texCoord, ivec2(2,0)).x;
+    p.y = textureOffset(u_texture, v_texCoord, ivec2(-2,0)).x;
+    p.z = textureOffset(u_texture, v_texCoord, ivec2(0,2)).x;
+    p.w = textureOffset(u_texture, v_texCoord, ivec2(0,-2)).x;
 
     out_color = vec4(1.0) - p;
 }

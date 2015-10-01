@@ -16,41 +16,30 @@ namespace Fluid
 SuccessiveOverRelaxation::SuccessiveOverRelaxation(const glm::vec2 & size, int iterations)
     : mData(size)
     , mIterations(iterations)
-    , mSorShader("Diff.vsh", "SOR.fsh")
-    , mStencilShader("Diff.vsh", "Stencil.fsh")
-    , mIdentityShader(Renderer::Program::TexturePositionProgram())
+    , mSor("TexturePosition.vsh", "SOR.fsh")
+    , mStencil("TexturePosition.vsh", "Stencil.fsh")
+    , mIdentity("TexturePosition.vsh", "TexturePosition.fsh")
 {
     float w = 2.0f/(1.0f+std::sin(4.0f*std::atan(1.0f)/std::sqrt(mData.Pressure.size().x*mData.Pressure.size().y)));
 
     mData.Weights.clear();
     mData.Pressure.clear();
 
-    mSorShader.Use()
-    .Set("h", mData.Pressure.size())
-    .Set("u_texture", 0)
-    .Set("u_weights", 1)
-    .Set("w", w)
-    .Unuse();
-
-    mStencilShader.Use()
-    .Set("h", mData.Pressure.size())
-    .Unuse();
+    mSor.Use().Set("u_texture", 0).Set("u_weights", 1).Set("w", w).Unuse();
 }
 
 SuccessiveOverRelaxation::SuccessiveOverRelaxation(const glm::vec2 & size, int iterations, float w)
     : SuccessiveOverRelaxation(size, iterations)
 {
-    mSorShader.Use()
-    .Set("w", w)
-    .Unuse();
+    mSor.Use().Set("w", w).Unuse();
 }
 
 void SuccessiveOverRelaxation::Init(Boundaries & boundaries)
 {
-    /*
-    boundaries.RenderMask(mData.Pressure.Front);
-    boundaries.RenderMask(mData.Pressure.Back);
-    boundaries.RenderWeights(mData.Weights, mData.Quad);
+    boundaries.RenderMask(mData.Pressure);
+    mData.Pressure.swap();
+    boundaries.RenderMask(mData.Pressure);
+    mData.Weights = boundaries.GetWeights();
 
     Renderer::Enable e(GL_STENCIL_TEST);
     Renderer::DisableColorMask c;
@@ -59,21 +48,11 @@ void SuccessiveOverRelaxation::Init(Boundaries & boundaries)
     glStencilOp(GL_KEEP, GL_KEEP, GL_INVERT); // invert value
     glStencilMask(0x02); // write in second place
 
-    mStencilShader.Use().SetMVP(mData.Pressure.Orth);
-
-    mData.Pressure.Front.begin();
-
-    mData.Quad.Render();
-
-    mData.Pressure.Front.end();
-    mData.Pressure.Back.begin();
-
-    mData.Quad.Render();
-
-    mData.Pressure.Back.end();
+    mData.Pressure = mStencil();
+    mData.Pressure.swap();
+    mData.Pressure = mStencil();
 
     glStencilMask(0x00); // disable stencil writing
-     */
 }
 
 LinearSolver::Data & SuccessiveOverRelaxation::GetData()
@@ -97,34 +76,16 @@ void SuccessiveOverRelaxation::Solve(bool up)
 
 void SuccessiveOverRelaxation::Step(bool isRed)
 {
-    /*
     Renderer::Enable e(GL_STENCIL_TEST);
     glStencilMask(0x00);
 
     mData.Pressure.swap();
-    mData.Pressure.begin();
 
     glStencilFunc(GL_EQUAL, isRed ? 2 : 0, 0xFF);
-
-    mSorShader.Use().SetMVP(mData.Pressure.Orth);
-
-    mData.Weights.Bind(1);
-    mData.Pressure.Back.Bind(0);
-
-    mData.Quad.Render();
-
-    mSorShader.Unuse();
+    mData.Pressure = mSor(Back(mData.Pressure), mData.Weights);
 
     glStencilFunc(GL_EQUAL, isRed ? 0 : 2, 0xFF);
-
-    mIdentityShader.Use().SetMVP(mData.Pressure.Orth);
-    
-    mData.Quad.Render();
-
-    mIdentityShader.Unuse();
-
-    mData.Pressure.end();
-     */
+    mData.Pressure = mIdentity(Back(mData.Pressure), mData.Weights);
 }
 
 }
