@@ -38,9 +38,11 @@ ConjugateGradient::ConjugateGradient(const glm::vec2 & size)
 
 void ConjugateGradient::Init(Boundaries & boundaries)
 {
+    /*
     boundaries.RenderMask(mData.Pressure.Front);
     boundaries.RenderMask(mData.Pressure.Back);
     boundaries.RenderWeights(mData.Weights, mData.Quad);
+     */
 }
 
 LinearSolver::Data & ConjugateGradient::GetData()

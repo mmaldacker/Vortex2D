@@ -49,16 +49,6 @@ Multigrid::Multigrid(const glm::vec2 & s, int iterations)
     .Unuse();
 }
 
-Renderer::Reader Multigrid::GetPressureReader(int depth)
-{
-    return {mXs[depth].GetData().Pressure.Front};
-}
-
-Renderer::Reader Multigrid::GetWeightsReader(int depth)
-{
-    return {mXs[depth].GetData().Weights};
-}
-
 void Multigrid::Init(Boundaries & boundaries)
 {
     for(int i = 0; i < mDepths ; i++)
@@ -103,8 +93,9 @@ void Multigrid::Residual(int depth)
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 
     x.Pressure.swap();
+    /*
     mResidual.Use().Set("h", x.Quad.Size());
-/*    mResidual.apply(x.Quad, x.Pressure,
+    mResidual.apply(x.Quad, x.Pressure,
                     x.Pressure.Back, x.Weights);*/
 }
 

@@ -14,33 +14,35 @@ namespace Fluid
 
 Advection::Advection(Dimensions dimensions, float dt)
     : mDimensions(dimensions)
-    , mQuad(dimensions.Size)
-    , mVelocity(dimensions.Size.x, dimensions.Size.y, Renderer::Texture::PixelFormat::RGF, Renderer::RenderTexture::DepthFormat::DEPTH24_STENCIL8)
-    , mDensity(dimensions.Size.x, dimensions.Size.y, Renderer::Texture::PixelFormat::RGBA8888, Renderer::RenderTexture::DepthFormat::DEPTH24_STENCIL8)
-    , mAdvectShader("Diff.vsh", "Advect.fsh")
-    , mAdvectDensityShader("Diff.vsh", "AdvectDensity.fsh")
+    , mVelocity(dimensions.Size, 2, true, true)
+    //, mDensity(dimensions.Size, Renderer::Texture::PixelFormat::RGBA8888, true, true)
+    , mDensity(dimensions.Size, 4, true, true)
+    , mAdvect("Diff.vsh", "Advect.fsh")
+    , mAdvectDensity("Diff.vsh", "AdvectDensity.fsh")
 {
+    /*
     mDensity.Front.SetAntiAliasTexParameters();
     mDensity.Back.SetAntiAliasTexParameters();
 
     mVelocity.Front.SetAliasTexParameters();
     mVelocity.Back.SetAliasTexParameters();
+     */
 
-    mVelocity.Clear();
-    mDensity.Clear();
+    mVelocity.clear();
+    mDensity.clear();
 
-    mAdvectShader.Use()
+    mAdvect.Use()
     .Set("delta", dt)
     .Set("u_texture", 0)
     .Set("u_velocity", 1)
-    .Set("h", mQuad.Size())
+    .Set("h", dimensions.Size)
     .Unuse();
 
-    mAdvectDensityShader.Use()
+    mAdvectDensity.Use()
     .Set("delta", dt)
     .Set("u_texture", 0)
     .Set("u_velocity", 1)
-    .Set("h", mQuad.Size())
+    .Set("h", dimensions.Size)
     .Unuse();
 }
 
@@ -75,30 +77,20 @@ void Advection::RenderDensity(const std::vector<Renderer::Drawable*> & objects)
 void Advection::RenderMask(Boundaries & boundaries)
 {
     //FIXME I think only the Back ones are necessary
+    /*
     boundaries.RenderMask(mVelocity.Front);
     boundaries.RenderMask(mVelocity.Back);
     boundaries.RenderMask(mDensity.Front);
     boundaries.RenderMask(mDensity.Back);
-}
-
-Renderer::Reader Advection::GetVelocityReader()
-{
-    return {mVelocity.Front};
-}
-
-Renderer::Reader Advection::GetDensityReader()
-{
-    return {mDensity.Front};
+     */
 }
 
 void Advection::Advect()
 {
-    Advect(mVelocity, mAdvectShader);
-    Advect(mDensity, mAdvectDensityShader);
-}
+//    Advect(mVelocity, mAdvectShader);
+//    Advect(mDensity, mAdvectDensityShader);
 
-void Advection::Advect(Renderer::PingPong & renderTexture, Renderer::Program & program)
-{
+    /*
     Renderer::Enable e(GL_STENCIL_TEST);
     glStencilFunc(GL_EQUAL, 0, 0xFF);
     glStencilMask(0x00);
@@ -114,6 +106,7 @@ void Advection::Advect(Renderer::PingPong & renderTexture, Renderer::Program & p
     
     program.Unuse();
     renderTexture.end();
+     */
 }
 
 }

@@ -28,9 +28,6 @@ public:
     LinearSolver::Data & GetData() override;
     void Solve() override;
 
-    Renderer::Reader GetPressureReader(int depth);
-    Renderer::Reader GetWeightsReader(int depth);
-
 //private:
     void GaussSeidel(int depth, bool up);
     void Residual(int depth);

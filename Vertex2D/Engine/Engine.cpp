@@ -44,20 +44,13 @@ void Engine::Project()
 {
     mAdvection.mVelocity.swap();
     auto & data = mLinearSolver->GetData();
-/*    mProject.apply(data.Quad, mAdvection.mVelocity,
-                   mAdvection.mVelocity.Back,
-                   data.Pressure.Front,
-                   data.Weights,
-                   mBoundaries.mBoundariesVelocity);*/
+    mAdvection.mVelocity = mProject(Back(mAdvection.mVelocity), data.Pressure, data.Weights, mBoundaries.mBoundariesVelocity);
 }
 
 void Engine::Div()
 {
     auto & data = mLinearSolver->GetData();
-/*    mDiv.apply(data.Quad, data.Pressure,
-               mAdvection.mVelocity.Front,
-               data.Weights,
-               mBoundaries.mBoundariesVelocity);*/
+    data.Pressure = mDiv(mAdvection.mVelocity, data.Weights, mBoundaries.mBoundariesVelocity);
 }
 
 void Engine::LinearInit(Boundaries & boundaries)

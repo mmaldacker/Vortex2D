@@ -27,7 +27,7 @@ public:
     void Render(const std::vector<Renderer::Drawable*> & objects);
     void RenderVelocities(const std::vector<Renderer::Drawable*> & objects);
     void RenderMask(Renderer::RenderTexture & mask);
-    void RenderWeights(Renderer::RenderTexture & w, Renderer::Quad & quad);
+    void RenderWeights();
 
     void Clear();
     
@@ -40,9 +40,9 @@ public:
     Renderer::Quad mQuad;
     
     Buffer mBoundaries;
-    Renderer::RenderTexture mBoundariesVelocity;
+    Buffer mBoundariesVelocity;
 
-    Renderer::Program mWeightsShader;
+    Operator mWeights;
 
     Renderer::Rectangle mHorizontal;
     Renderer::Rectangle mVertical;

@@ -21,14 +21,12 @@ struct LinearSolver
     struct Data
     {
         Data(const glm::vec2 & size)
-        : Quad(size)
-        , Weights(size.x, size.y, Renderer::Texture::PixelFormat::RGBAF)
-        , Pressure(size.x, size.y, Renderer::Texture::PixelFormat::RGF, Renderer::RenderTexture::DepthFormat::DEPTH24_STENCIL8)
+        : Weights(size, 4)
+        , Pressure(size, 2, true, true)
         {}
 
-        Renderer::Quad Quad;
-        Renderer::RenderTexture Weights;
-        Renderer::PingPong Pressure;
+        Buffer Weights;
+        Buffer Pressure;
     };
 
     virtual void Init(Boundaries & boundaries) = 0;

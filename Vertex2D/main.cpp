@@ -64,7 +64,7 @@ struct Main
 
         Fluid::Engine engine(dimensions, boundaries, advection, &cg);
 
-        Renderer::Sprite sprite{advection.mDensity.Front};
+        //Renderer::Sprite sprite{advection.mDensity.Front};
 
         boundaries.Render(borders);
 

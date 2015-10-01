@@ -10,8 +10,7 @@
 #define __Vertex2D__Advection__
 
 #include "Size.h"
-#include "Quad.h"
-#include "RenderTexture.h"
+#include "Operator.h"
 #include "Reader.h"
 #include "Boundaries.h"
 
@@ -29,22 +28,17 @@ public:
     void RenderDensity(const std::vector<Renderer::Drawable*> & objects);
     void RenderMask(Boundaries & boundaries);
 
-    Renderer::Reader GetVelocityReader();
-    Renderer::Reader GetDensityReader();
-
     void Advect();
 
     friend class Engine;
-//private:
-    void Advect(Renderer::PingPong & renderTexture, Renderer::Program & program);
+private:
 
     Dimensions mDimensions;
-    Renderer::Quad mQuad;
-    Renderer::PingPong mVelocity;
-    Renderer::PingPong mDensity;
+    Buffer mVelocity;
+    Buffer mDensity;
 
-    Renderer::Program mAdvectShader;
-    Renderer::Program mAdvectDensityShader;
+    Operator mAdvect;
+    Operator mAdvectDensity;
 };
 
 
