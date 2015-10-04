@@ -82,7 +82,7 @@ public:
     {
         GLint location = glGetUniformLocation(mProgram, name.c_str());
         assert(location != GL_INVALID_OPERATION);
-        glUniform<T>(location, value);
+        glUniform(location, value);
 
         return *this;
     }
@@ -119,7 +119,7 @@ void Uniform<T>::SetLocation(Program & program, const std::string & name)
 template<typename T>
 void Uniform<T>::Set(T value)
 {
-    glUniform<T>(mLocation, value);
+    glUniform(mLocation, value);
 }
 
 }

@@ -13,10 +13,7 @@ namespace Renderer
 {
 
 Sprite::Sprite(Texture & texture) : mTexture(texture), mQuad({texture.Width(), texture.Height()})
-{
-
-}
-
+{}
 
 void Sprite::Render(const glm::mat4 &ortho)
 {
