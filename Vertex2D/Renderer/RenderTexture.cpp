@@ -119,42 +119,4 @@ void RenderTexture::end()
     glViewport(mOldViewPort[0], mOldViewPort[1], mOldViewPort[2], mOldViewPort[3]);
 }
 
-PingPong::PingPong(int width, int height, Texture::PixelFormat pixelFormat, RenderTexture::DepthFormat depthFormat)
-: Front(width, height, pixelFormat, depthFormat)
-, Back(width, height, pixelFormat, depthFormat)
-{
-    Orth = Front.Orth;
-}
-
-PingPong::PingPong(PingPong && other) : Front(std::move(other.Front)), Back(std::move(other.Back))
-{
-    Orth = Front.Orth;
-}
-
-void PingPong::Clear()
-{
-    Front.Clear();
-    Back.Clear();
-}
-
-void PingPong::swap()
-{
-    std::swap(Front, Back);
-}
-
-void PingPong::begin()
-{
-    Front.begin();
-}
-
-void PingPong::begin(const glm::vec4 & colour)
-{
-    Front.begin(colour);
-}
-
-void PingPong::end()
-{
-    Front.end();
-}
-
 }

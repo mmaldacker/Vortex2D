@@ -29,10 +29,9 @@ public:
 
 private:
     LinearSolver::Data mData;
-    Renderer::PingPong r, p;
-    Renderer::RenderTexture z, alpha, beta;
+    Buffer r, p, z, alpha, beta, rho, rho_new, sigma;
     Operator matrixMultiply, scalarDivision, multiplyAdd, multiplySub, residual, identity;
-    Reduce pReduce, rReduce;
+    Reduce reduce;
 };
 
 }

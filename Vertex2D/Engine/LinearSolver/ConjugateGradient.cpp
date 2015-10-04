@@ -14,23 +14,25 @@ namespace Fluid
 
 ConjugateGradient::ConjugateGradient(const glm::vec2 & size)
     : mData(size)
-    , r(size.x, size.y, Renderer::Texture::PixelFormat::RF, Renderer::RenderTexture::DepthFormat::DEPTH24_STENCIL8)
-    , p(size.x, size.y, Renderer::Texture::PixelFormat::RF, Renderer::RenderTexture::DepthFormat::DEPTH24_STENCIL8)
-    , z(size.x, size.y, Renderer::Texture::PixelFormat::RF, Renderer::RenderTexture::DepthFormat::DEPTH24_STENCIL8)
-    , alpha(1,1,Renderer::Texture::PixelFormat::RF)
-    , beta(1,1,Renderer::Texture::PixelFormat::RF)
-    , matrixMultiply("Diff.vsh", "MultiplyMatrix.fsh")
+    , r(size, 1, true)
+    , p(size, 1, true)
+    , z(size, 1)
+    , alpha({1,1}, 1)
+    , beta({1,1}, 1)
+    , rho({1,1}, 1)
+    , rho_new({1,1}, 1)
+    , sigma({1,1}, 1)
+    , matrixMultiply("TexturePosition.vsh", "MultiplyMatrix.fsh")
     , scalarDivision("TexturePosition.vsh", "Divide.fsh")
     , multiplyAdd("TexturePosition.vsh", "MultiplyAdd.fsh")
     , multiplySub("TexturePosition.vsh", "MultiplySub.fsh")
     , residual("Diff.vsh", "Residual.fsh")
     , identity("TexturePosition.vsh", "TexturePosition.fsh")
-    , pReduce(size)
-    , rReduce(size)
+    , reduce(size)
 {
     residual.Use().Set("u_texture", 0).Set("u_weights", 1).Unuse();
     identity.Use().Set("u_texture", 0).Unuse();
-    matrixMultiply.Use().Set("h", size).Set("u_texture", 0).Set("u_weights", 1).Unuse();
+    matrixMultiply.Use().Set("u_texture", 0).Set("u_weights", 1).Unuse();
     scalarDivision.Use().Set("u_texture", 0).Set("u_other", 1).Unuse();
     multiplyAdd.Use().Set("u_texture", 0).Set("u_other", 1).Set("u_scalar", 2).Unuse();
     multiplySub.Use().Set("u_texture", 0).Set("u_other", 1).Set("u_scalar", 2).Unuse();
@@ -38,11 +40,15 @@ ConjugateGradient::ConjugateGradient(const glm::vec2 & size)
 
 void ConjugateGradient::Init(Boundaries & boundaries)
 {
-    /*
-    boundaries.RenderMask(mData.Pressure.Front);
-    boundaries.RenderMask(mData.Pressure.Back);
-    boundaries.GetWeights(mData.Weights, mData.Quad);
-     */
+    mData.Pressure.clear();
+    r.clear();
+    p.clear();
+    // FIXME needed above?
+
+    boundaries.RenderMask(mData.Pressure);
+    mData.Pressure.swap();
+    boundaries.RenderMask(mData.Pressure);
+    mData.Weights = boundaries.GetWeights();
 }
 
 LinearSolver::Data & ConjugateGradient::GetData()
@@ -52,6 +58,8 @@ LinearSolver::Data & ConjugateGradient::GetData()
 
 void ConjugateGradient::Solve()
 {
+    NormalSolve();
+    
     // initialise
     // x is solution
 
@@ -78,68 +86,48 @@ void ConjugateGradient::NormalSolve()
     Renderer::Enable e(GL_STENCIL_TEST);
     glStencilMask(0x00);
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-/*
+
     // r = b - Ax
-    residual.apply(mData.Quad, r, mData.Pressure.Front, mData.Weights);
-
-    std::cout << "weights:" << std::endl;
-    Renderer::Reader(mData.Weights).Read().Print();
-
+    r = residual(mData.Pressure, mData.Weights);
+    
     // p = r
-    identity.apply(mData.Quad, p, r.Front);
+    p = identity(r);
 
     // rho = pTr
-    rReduce.apply(p.Front, r.Front);
+    rho = reduce(p,r);
 
-    for(int i = 0 ; i < 10; ++i)
+    for(int i = 0 ; i < 40; ++i)
     {
-        std::cout << "p:" << std::endl;
-        Renderer::Reader(p.Front).Read().Print();
-
         // z = Ap
-        matrixMultiply.apply(mData.Quad, z, p.Front, mData.Weights);
+        z = matrixMultiply(p, mData.Weights);
 
-        std::cout << "z:" << std::endl;
-        Renderer::Reader(z).Read().Print();
+        // sigma = pTz
+        sigma = reduce(p,z);
 
-        // alpha = rho / pTz
-        pReduce.apply(z, p.Front);
-        scalarDivision.apply(mData.Quad, alpha, rReduce, pReduce);
+        // alpha = rho / sigma
+        alpha = scalarDivision(rho, sigma);
 
-        std::cout << "alpha:" << std::endl;
-        Renderer::Reader(alpha).Read().Print();
+        // x = x + alpha * p
+        mData.Pressure.swap();
+        mData.Pressure = multiplyAdd(Back(mData.Pressure), p, alpha);
 
-        // r = r - alpha z
+        // r = r - alpha * z
         r.swap();
-        multiplySub.apply(mData.Quad, r, r.Back, z, alpha);
-
-        std::cout << "r:" << std::endl;
-        Renderer::Reader(r.Front).Read().Print();
+        r = multiplySub(Back(r), z, alpha);
 
         // rho_new = rTr
-        pReduce.apply(r.Front, r.Front);
+        rho_new = reduce(r,r);
 
         // beta = rho_new / rho
-        scalarDivision.apply(rReduce.quad(), beta, rReduce, pReduce);
+        beta = scalarDivision(rho_new, rho);
 
-        std::cout << "beta:" << std::endl;
-        Renderer::Reader(beta).Read().Print();
-        
-        // rho = rho_new
-        identity.apply(rReduce.quad(), rReduce, pReduce);
-
-        // x = x + alpha p
-        mData.Pressure.swap();
-        multiplyAdd.apply(mData.Quad, mData.Pressure, mData.Pressure.Back, p.Front, alpha);
-
-        std::cout << "x:" << std::endl;
-        Renderer::Reader(mData.Pressure.Front).Read().Print();
-
-        // p = r + beta p
+        // p = r + beta * p
         p.swap();
-        multiplyAdd.apply(mData.Quad, p, r.Front, p.Back, beta);
+        p = multiplyAdd(r, Back(p), beta);
+
+        // rho = rho_new
+        rho = identity(rho_new);
     }
- */
 }
 
 

@@ -112,6 +112,7 @@ public:
     void end() { mTextures.front().end(); }
     void clear() { for(auto && t : mTextures) t.Clear(); }
     void swap() { assert(mTextures.size() == 2); std::swap(mTextures.front(), mTextures.back()); }
+    Renderer::Texture & texture() { return mTextures.front(); }
     
     glm::mat4 Orth;
 

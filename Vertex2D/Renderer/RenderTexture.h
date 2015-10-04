@@ -47,24 +47,6 @@ private:
     GLint mOldFrameBuffer;
 };
 
-class PingPong
-{
-public:
-    PingPong(int width, int height, Texture::PixelFormat pixelFormat, RenderTexture::DepthFormat depthFormat = RenderTexture::DepthFormat::NONE);
-    PingPong(PingPong && other);
-
-    void Clear();
-
-    void swap();
-    void begin();
-    void begin(const glm::vec4 & colour);
-    void end();
-
-    glm::mat4 Orth;
-    RenderTexture Front;
-    RenderTexture Back;
-};
-
 }
 
 #endif /* defined(__Vortex__RenderTexture__) */

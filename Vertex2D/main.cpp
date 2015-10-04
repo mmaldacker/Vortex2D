@@ -22,8 +22,8 @@ struct Main
 {
     Main()
     {
-        glm::vec2 size = glm::vec2(10);
-        int scale = 60;
+        glm::vec2 size = glm::vec2(500);
+        int scale = 1;
 
         auto realSize = size * glm::vec2{scale};
         WindowRenderer window(realSize);
@@ -62,9 +62,9 @@ struct Main
         Fluid::Multigrid multigrid(size);
         Fluid::ConjugateGradient cg(size);
 
-        Fluid::Engine engine(dimensions, boundaries, advection, &sor);
+        Fluid::Engine engine(dimensions, boundaries, advection, &cg);
 
-        //Renderer::Sprite sprite{advection.mDensity.Front};
+        Renderer::Sprite sprite{advection.mDensity.texture()};
 
         boundaries.Render(borders);
 
@@ -73,7 +73,7 @@ struct Main
 
         engine.LinearInit(boundaries);
 
-        engine.Div();
+        //engine.Div();
 
 /*
         multigrid.GetWeightsReader(0).Read().Print();
@@ -97,11 +97,11 @@ struct Main
 */
 
         //cg.NormalSolve();
-        engine.LinearSolve();
+        //engine.LinearSolve();
 
-        sor.GetData().Pressure.get().Read().Print().PrintStencil();
+        //sor.GetData().Pressure.get().Read().Print().PrintStencil();
         //Renderer::Reader{multigrid.mXs[0].mX.Front}.Read().Print();
-        //Renderer::Reader(cg.GetData().Pressure.Front).Read().Print();
+        //cg.GetData().Pressure.get().Read().Print();
 
         /*
         Fluid::Buffer x({1,1},1);
@@ -111,7 +111,7 @@ struct Main
 
         x.get().Read().Print();
          */
-/*
+
         while (!window.ShouldClose())
         {
             glfwPollEvents();
@@ -132,7 +132,7 @@ struct Main
             window.Render({&sprite});
             window.Swap();
         }
-*/
+
     }
 };
 
