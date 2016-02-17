@@ -9,12 +9,8 @@
 #ifndef __Vertex2D__Multigrid__
 #define __Vertex2D__Multigrid__
 
-#include "Size.h"
-#include "RenderTexture.h"
-#include "Boundaries.h"
 #include "LinearSolver.h"
 #include "SuccessiveOverRelaxation.h"
-#include "Operator.h"
 
 namespace Fluid
 {
@@ -24,9 +20,8 @@ class Multigrid : public LinearSolver
 public:
     Multigrid(const glm::vec2 & size, int iterations = 5);
 
-    void Init(Boundaries & boundaries) override;
-    LinearSolver::Data & GetData() override;
-    void Solve() override;
+    void Init(LinearSolver::Data & data, Boundaries & boundaries) override;
+    void Solve(LinearSolver::Data & data) override;
 
 //private:
     void GaussSeidel(int depth, bool up);
@@ -38,6 +33,7 @@ public:
     int mDepths;
 
     std::vector<SuccessiveOverRelaxation> mXs;
+    std::vector<LinearSolver::Data> mDatas;
 
     Operator mCorrect;
     Operator mProlongate;

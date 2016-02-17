@@ -10,9 +10,6 @@
 #define __Vertex2D__SuccessiveOverRelaxation__
 
 #include "LinearSolver.h"
-#include "Size.h"
-#include "RenderTexture.h"
-#include "Boundaries.h"
 
 namespace Fluid
 {
@@ -23,15 +20,13 @@ public:
     SuccessiveOverRelaxation(const glm::vec2 & size, int iterations = 40);
     SuccessiveOverRelaxation(const glm::vec2 & size, int iterations, float w);
 
-    void Init(Boundaries & boundaries) override;
-    LinearSolver::Data & GetData() override;
-    void Solve() override;
-    void Solve(bool up);
+    void Init(LinearSolver::Data & data, Boundaries & boundaries) override;
+    void Solve(LinearSolver::Data & data) override;
+    void Solve(LinearSolver::Data & data, bool up);
 
 private:
-    void Step(bool isRed);
+    void Step(LinearSolver::Data & data, bool isRed);
 
-    LinearSolver::Data mData;
     int mIterations;
 
     Operator mSor;

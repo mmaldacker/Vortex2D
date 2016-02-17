@@ -13,8 +13,7 @@ namespace Fluid
 {
 
 ConjugateGradient::ConjugateGradient(const glm::vec2 & size)
-    : mData(size)
-    , r(size, 1, true)
+    : r(size, 1, true)
     , p(size, 1, true)
     , z(size, 1)
     , alpha({1,1}, 1)
@@ -38,27 +37,22 @@ ConjugateGradient::ConjugateGradient(const glm::vec2 & size)
     multiplySub.Use().Set("u_texture", 0).Set("u_other", 1).Set("u_scalar", 2).Unuse();
 }
 
-void ConjugateGradient::Init(Boundaries & boundaries)
+void ConjugateGradient::Init(LinearSolver::Data & data, Boundaries & boundaries)
 {
-    mData.Pressure.clear();
+    data.Pressure.clear();
     r.clear();
     p.clear();
     // FIXME needed above?
 
-    boundaries.RenderMask(mData.Pressure);
-    mData.Pressure.swap();
-    boundaries.RenderMask(mData.Pressure);
-    mData.Weights = boundaries.GetWeights();
+    boundaries.RenderMask(data.Pressure);
+    data.Pressure.swap();
+    boundaries.RenderMask(data.Pressure);
+    data.Weights = boundaries.GetWeights();
 }
 
-LinearSolver::Data & ConjugateGradient::GetData()
+void ConjugateGradient::Solve(LinearSolver::Data & data)
 {
-    return mData;
-}
-
-void ConjugateGradient::Solve()
-{
-    NormalSolve();
+    NormalSolve(data);
     
     // initialise
     // x is solution
@@ -81,14 +75,14 @@ void ConjugateGradient::Solve()
 
 }
 
-void ConjugateGradient::NormalSolve()
+void ConjugateGradient::NormalSolve(LinearSolver::Data & data)
 {
     Renderer::Enable e(GL_STENCIL_TEST);
     glStencilMask(0x00);
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 
     // r = b - Ax
-    r = residual(mData.Pressure, mData.Weights);
+    r = residual(data.Pressure, data.Weights);
     
     // p = r
     p = identity(r);
@@ -99,7 +93,7 @@ void ConjugateGradient::NormalSolve()
     for(int i = 0 ; i < 40; ++i)
     {
         // z = Ap
-        z = matrixMultiply(p, mData.Weights);
+        z = matrixMultiply(p, data.Weights);
 
         // sigma = pTz
         sigma = reduce(p,z);
@@ -108,8 +102,8 @@ void ConjugateGradient::NormalSolve()
         alpha = scalarDivision(rho, sigma);
 
         // x = x + alpha * p
-        mData.Pressure.swap();
-        mData.Pressure = multiplyAdd(Back(mData.Pressure), p, alpha);
+        data.Pressure.swap();
+        data.Pressure = multiplyAdd(Back(data.Pressure), p, alpha);
 
         // r = r - alpha * z
         r.swap();

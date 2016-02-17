@@ -24,19 +24,8 @@ Advection::Advection(Dimensions dimensions, float dt)
     mVelocity.clear();
     mDensity.clear();
 
-    mAdvect.Use()
-    .Set("delta", dt)
-    .Set("u_texture", 0)
-    .Set("u_velocity", 1)
-    .Set("h", dimensions.Size)
-    .Unuse();
-
-    mAdvectDensity.Use()
-    .Set("delta", dt)
-    .Set("u_texture", 0)
-    .Set("u_velocity", 1)
-    .Set("h", dimensions.Size)
-    .Unuse();
+    mAdvect.Use().Set("delta", dt).Set("u_texture", 0).Set("u_velocity", 1).Set("h", dimensions.Size).Unuse();
+    mAdvectDensity.Use().Set("delta", dt).Set("u_texture", 0).Set("u_velocity", 1).Set("h", dimensions.Size).Unuse();
 }
 
 void Advection::RenderVelocity(const std::vector<Renderer::Drawable*> & objects)

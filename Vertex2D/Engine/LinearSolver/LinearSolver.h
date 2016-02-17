@@ -9,9 +9,8 @@
 #ifndef Vertex2D_LinearSolver_h
 #define Vertex2D_LinearSolver_h
 
+#include "Operator.h"
 #include "Boundaries.h"
-#include "RenderTexture.h"
-#include "Quad.h"
 
 namespace Fluid
 {
@@ -29,9 +28,8 @@ struct LinearSolver
         Buffer Pressure;
     };
 
-    virtual void Init(Boundaries & boundaries) = 0;
-    virtual Data & GetData() = 0;
-    virtual void Solve() = 0;
+    virtual void Init(Data & data, Boundaries & boundaries) = 0;
+    virtual void Solve(Data & data) = 0;
 };
 
 }

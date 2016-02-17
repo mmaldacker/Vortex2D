@@ -11,7 +11,6 @@
 
 #include "Size.h"
 #include "Operator.h"
-#include "Reader.h"
 #include "Boundaries.h"
 
 namespace Fluid

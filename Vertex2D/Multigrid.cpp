@@ -29,40 +29,21 @@ Multigrid::Multigrid(const glm::vec2 & s, int iterations)
         mDepths++;
     }while(size.x > min_size && size.y > min_size);
 
-    mCorrect.Use()
-    .Set("u_texture", 0)
-    .Set("u_residual", 1)
-    .Unuse();
-
-    mProlongate.Use()
-    .Set("u_texture", 0)
-    .Set("u_pressure", 1)
-    .Unuse();
-
-    mResidual.Use()
-    .Set("u_texture", 0)
-    .Set("u_weights", 1)
-    .Unuse();
-
-    mRestrict.Use()
-    .Set("u_texture", 0)
-    .Unuse();
+    mCorrect.Use().Set("u_texture", 0).Set("u_residual", 1).Unuse();
+    mProlongate.Use().Set("u_texture", 0).Set("u_pressure", 1).Unuse();
+    mResidual.Use().Set("u_texture", 0).Set("u_weights", 1).Unuse();
+    mRestrict.Use().Set("u_texture", 0).Unuse();
 }
 
-void Multigrid::Init(Boundaries & boundaries)
+void Multigrid::Init(LinearSolver::Data & data, Boundaries & boundaries)
 {
     for(int i = 0; i < mDepths ; i++)
     {
-        mXs[i].Init(boundaries);
+        mXs[i].Init(data, boundaries);
     }
 }
 
-LinearSolver::Data & Multigrid::GetData()
-{
-    return mXs[0].GetData();
-}
-
-void Multigrid::Solve()
+void Multigrid::Solve(LinearSolver::Data & data)
 {
     for(int i = 0 ; i < mDepths - 1 ; i++)
     {
@@ -81,12 +62,12 @@ void Multigrid::Solve()
 
 void Multigrid::GaussSeidel(int depth, bool up)
 {
-    mXs[depth].Solve(up);
+    mXs[depth].Solve(mDatas[depth], up);
 }
 
 void Multigrid::Residual(int depth)
 {
-    auto & x = mXs[depth].GetData();
+    auto & x = mDatas[depth];
 
     Renderer::Enable e(GL_STENCIL_TEST);
     glStencilMask(0x00);
@@ -98,8 +79,8 @@ void Multigrid::Residual(int depth)
 
 void Multigrid::Restrict(int depth)
 {
-    auto & x = mXs[depth].GetData();
-    auto & r = mXs[depth+1].GetData();
+    auto & x = mDatas[depth];
+    auto & r = mDatas[depth+1];
 
     Renderer::Enable e(GL_STENCIL_TEST);
     glStencilMask(0x00);
@@ -110,8 +91,8 @@ void Multigrid::Restrict(int depth)
 
 void Multigrid::Prolongate(int depth)
 {
-    auto & x = mXs[depth].GetData();
-    auto & u = mXs[depth+1].GetData();
+    auto & x = mDatas[depth];
+    auto & u = mDatas[depth+1];
 
     Renderer::Enable e(GL_STENCIL_TEST);
     glStencilMask(0x00);
@@ -122,7 +103,7 @@ void Multigrid::Prolongate(int depth)
 
 void Multigrid::Correct(int depth)
 {
-    auto & x = mXs[depth].GetData();
+    auto & x = mDatas[depth];
 
     Renderer::Enable e(GL_STENCIL_TEST);
     glStencilMask(0x00);

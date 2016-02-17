@@ -9,10 +9,6 @@
 #ifndef __Vertex2D__Reduce__
 #define __Vertex2D__Reduce__
 
-#include "RenderTexture.h"
-#include "Shader.h"
-#include "Quad.h"
-#include "Reader.h"
 #include "Operator.h"
 
 namespace Fluid

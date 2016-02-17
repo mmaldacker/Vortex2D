@@ -9,8 +9,7 @@
 #ifndef __Vortex__Engine__
 #define __Vortex__Engine__
 
-#include "SuccessiveOverRelaxation.h"
-#include "RenderTexture.h"
+#include "LinearSolver.h"
 #include "Boundaries.h"
 #include "Advection.h"
 #include "Size.h"
@@ -37,6 +36,7 @@ public:
 
     Dimensions mDimensions;
 
+    LinearSolver::Data mData;
     Boundaries & mBoundaries;
     Advection & mAdvection;
     LinearSolver * mLinearSolver;

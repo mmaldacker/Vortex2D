@@ -9,7 +9,6 @@
 #ifndef __Vertex2D__Boundaries__
 #define __Vertex2D__Boundaries__
 
-#include "RenderTexture.h"
 #include "Shapes.h"
 #include "Size.h"
 #include "Operator.h"
