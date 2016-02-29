@@ -40,30 +40,16 @@ struct And
 template<typename T, typename U>
 using AndExpr = Expr<And<T,U>>;
 
-struct Render
-{
-    Render(Renderer::Program & p, Renderer::Quad & q, const glm::mat4 & o) : program(p), quad(q), ortho(o) {}
-
-    void operator()()
-    {
-        program.Use().SetMVP(ortho);
-        quad.Render();
-    }
-
-    Renderer::Program & program;
-    Renderer::Quad & quad;
-    const glm::mat4 & ortho;
-};
-using RenderExpr = Expr<Render>;
-
 template<typename T>
 struct Context
 {
     Context(Renderer::Program & p, Expr<T> bind) : program(p), bind(bind) {}
 
-    AndExpr<Expr<T>, RenderExpr> render(Renderer::Quad & quad, const glm::mat4 & ortho)
+    void render(Renderer::Quad & quad, const glm::mat4 & ortho)
     {
-        return {bind, RenderExpr(program, quad, ortho)};
+        bind();
+        program.Use().SetMVP(ortho);
+        quad.Render();
     }
 
     Renderer::Program & program;
@@ -86,7 +72,7 @@ public:
     Buffer & operator=(Context<Expr<T>> expr)
     {
         mTextures.front().begin();
-        expr.render(mQuad, Orth)();
+        expr.render(mQuad, Orth);
         mTextures.front().end();
         return *this;
     }
@@ -110,6 +96,7 @@ public:
     void begin() { mTextures.front().begin(); }
     void begin(const glm::vec4 & c) { mTextures.front().begin(c); }
     void end() { mTextures.front().end(); }
+    
     void clear() { for(auto && t : mTextures) t.Clear(); }
     void swap() { assert(mTextures.size() == 2); std::swap(mTextures.front(), mTextures.back()); }
     Renderer::Texture & texture() { return mTextures.front(); }

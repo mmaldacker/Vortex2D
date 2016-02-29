@@ -14,8 +14,7 @@ namespace Fluid
 
 ConjugateGradient::ConjugateGradient(const glm::vec2 & size)
     : r(size, 1, true)
-    , p(size, 1, true)
-    , z(size, 1)
+    , s(size, 1, true)
     , alpha({1,1}, 1)
     , beta({1,1}, 1)
     , rho({1,1}, 1)
@@ -27,7 +26,10 @@ ConjugateGradient::ConjugateGradient(const glm::vec2 & size)
     , multiplySub("TexturePosition.vsh", "MultiplySub.fsh")
     , residual("Diff.vsh", "Residual.fsh")
     , identity("TexturePosition.vsh", "TexturePosition.fsh")
+    , swizzle("TexturePosition.vsh", "Swizzle.fsh")
     , reduce(size)
+    , preconditioner(size)
+    , z(size)
 {
     residual.Use().Set("u_texture", 0).Set("u_weights", 1).Unuse();
     identity.Use().Set("u_texture", 0).Unuse();
@@ -40,42 +42,20 @@ ConjugateGradient::ConjugateGradient(const glm::vec2 & size)
 void ConjugateGradient::Init(LinearSolver::Data & data, Boundaries & boundaries)
 {
     data.Pressure.clear();
+    z.Pressure.clear();
     r.clear();
-    p.clear();
+    s.clear();
     // FIXME needed above?
 
     boundaries.RenderMask(data.Pressure);
     data.Pressure.swap();
     boundaries.RenderMask(data.Pressure);
     data.Weights = boundaries.GetWeights();
+
+    preconditioner.Init(z, boundaries);
 }
 
 void ConjugateGradient::Solve(LinearSolver::Data & data)
-{
-    NormalSolve(data);
-    
-    // initialise
-    // x is solution
-
-    // r = b - Ax
-    // p is result from multigrid from r
-    // rho = pTr
-
-    // iterate
-
-    // z = Ap
-    // alpha = rho / pTz
-    // r = r - alpha z
-    // z is result from multigrid from r
-    // rho_new = zTr
-    // beta = rho_new / rho
-    // rho = rho_new
-    // x = x + alpha p
-    // p = z + beta p
-
-}
-
-void ConjugateGradient::NormalSolve(LinearSolver::Data & data)
 {
     Renderer::Enable e(GL_STENCIL_TEST);
     glStencilMask(0x00);
@@ -83,46 +63,50 @@ void ConjugateGradient::NormalSolve(LinearSolver::Data & data)
 
     // r = b - Ax
     r = residual(data.Pressure, data.Weights);
-    
-    // p = r
-    p = identity(r);
 
-    // rho = pTr
-    rho = reduce(p,r);
+    // p = 0
 
-    for(int i = 0 ; i < 40; ++i)
+    // z is result from multigrid from r
+    z.Pressure = swizzle(r);
+    preconditioner.Solve(z);
+
+    // s = z
+    s = identity(z.Pressure);
+
+    // rho = zTr
+    rho = reduce(z.Pressure,r);
+
+    for(int i = 0 ; i < 10; ++i)
     {
         // z = Ap
-        z = matrixMultiply(p, data.Weights);
+        z.Pressure = matrixMultiply(s, data.Weights);
 
-        // sigma = pTz
-        sigma = reduce(p,z);
-
-        // alpha = rho / sigma
+        // alpha = rho / zTs
+        sigma = reduce(z.Pressure,s);
         alpha = scalarDivision(rho, sigma);
 
-        // x = x + alpha * p
+        // p = p + alpha * s
         data.Pressure.swap();
-        data.Pressure = multiplyAdd(Back(data.Pressure), p, alpha);
+        data.Pressure = multiplyAdd(Back(data.Pressure), s, alpha);
 
         // r = r - alpha * z
         r.swap();
-        r = multiplySub(Back(r), z, alpha);
+        r = multiplySub(Back(r), z.Pressure, alpha);
 
-        // rho_new = rTr
-        rho_new = reduce(r,r);
+        // z is result from multigrid from r
+        z.Pressure = swizzle(r);
+        preconditioner.Solve(z);
 
-        // beta = rho_new / rho
-        beta = scalarDivision(rho_new, rho);
+        // rho_new = zTr
+        rho_new = reduce(z.Pressure,r);
 
-        // p = r + beta * p
-        p.swap();
-        p = multiplyAdd(r, Back(p), beta);
+        // s = z + beta * s
+        s.swap();
+        s = multiplyAdd(z.Pressure,Back(s),beta);
 
         // rho = rho_new
         rho = identity(rho_new);
     }
 }
-
 
 }

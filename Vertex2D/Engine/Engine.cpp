@@ -54,6 +54,7 @@ void Engine::Solve()
     Renderer::Disable d(GL_BLEND);
 
     Div();
+    mLinearSolver->Init(mData, mBoundaries);
     mLinearSolver->Solve(mData);
     Project();
 }

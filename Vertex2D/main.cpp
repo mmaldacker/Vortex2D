@@ -62,7 +62,7 @@ struct Main
         Fluid::Multigrid multigrid(size);
         Fluid::ConjugateGradient cg(size);
 
-        Fluid::Engine engine(dimensions, boundaries, advection, &cg);
+        Fluid::Engine engine(dimensions, boundaries, advection, &sor);
 
         Renderer::Sprite sprite{advection.mDensity.texture()};
 
@@ -73,44 +73,14 @@ struct Main
 
         engine.LinearInit(boundaries);
 
-        //engine.Div();
+        engine.Div();
 
-/*
-        multigrid.GetWeightsReader(0).Read().Print();
-        multigrid.GetWeightsReader(1).Read().Print();
+        //advection.mVelocity.get().Read().Print();
+        //engine.mData.Pressure.get().Read().Print();
 
-        multigrid.GetPressureReader(0).Read().Print();
-        multigrid.GaussSeidel(0, true);
-        multigrid.GetPressureReader(0).Read().Print();
-        multigrid.Residual(0);
-        multigrid.GetPressureReader(0).Read().Print();
-        multigrid.Restrict(0);
-        multigrid.GetPressureReader(1).Read().Print();
-        multigrid.GaussSeidel(1, true);
-        multigrid.GetPressureReader(1).Read().Print();
-        multigrid.Prolongate(0);
-        multigrid.GetPressureReader(0).Read().Print();
-        multigrid.Correct(0);
-        multigrid.GetPressureReader(0).Read().Print();
-        multigrid.GaussSeidel(0, false);
-        multigrid.GetPressureReader(0).Read().Print();
-*/
+        engine.LinearSolve();
 
-        //cg.NormalSolve();
-        //engine.LinearSolve();
-
-        //sor.GetData().Pressure.get().Read().Print().PrintStencil();
-        //Renderer::Reader{multigrid.mXs[0].mX.Front}.Read().Print();
-        //cg.GetData().Pressure.get().Read().Print();
-
-        /*
-        Fluid::Buffer x({1,1},1);
-        Fluid::Reduce reduce(glm::vec2(2.0f)*size);
-
-        x = reduce(boundaries.mBoundaries, boundaries.mBoundaries);
-
-        x.get().Read().Print();
-         */
+        //engine.mData.Pressure.get().Read().Print();
 
         while (!window.ShouldClose())
         {
@@ -132,7 +102,6 @@ struct Main
             window.Render({&sprite});
             window.Swap();
         }
-
     }
 };
 

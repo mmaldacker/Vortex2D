@@ -40,6 +40,7 @@
 		CE6E0F6E1BA2113A00D77927 /* Multigrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6E0F6C1BA2113A00D77927 /* Multigrid.cpp */; };
 		CE9242111BA88656003E0869 /* ConjugateGradient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE92420F1BA88656003E0869 /* ConjugateGradient.cpp */; };
 		CE9242191BA896F0003E0869 /* Reduce.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE9242181BA896F0003E0869 /* Reduce.fsh */; };
+		CEA1151B1C8321FA0031428C /* Swizzle.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CEA1151A1C8321FA0031428C /* Swizzle.fsh */; };
 		CEA4B5111BBB116100D0830F /* MultiplySub.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CEA4B5101BBB116100D0830F /* MultiplySub.fsh */; };
 		CECA49AE1BB7F38800067D3B /* Sprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CECA49AC1BB7F38800067D3B /* Sprite.cpp */; };
 		CECA49B01BB7FA4600067D3B /* MultiplyMatrix.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CECA49AF1BB7FA4600067D3B /* MultiplyMatrix.fsh */; };
@@ -108,6 +109,7 @@
 		CE9242131BA893BB003E0869 /* Reduce.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Reduce.h; path = Engine/LinearSolver/Reduce.h; sourceTree = "<group>"; };
 		CE9242181BA896F0003E0869 /* Reduce.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Reduce.fsh; sourceTree = "<group>"; };
 		CE92421A1BA9D3C0003E0869 /* Operator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Operator.h; sourceTree = "<group>"; };
+		CEA1151A1C8321FA0031428C /* Swizzle.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Swizzle.fsh; sourceTree = "<group>"; };
 		CEA4B5101BBB116100D0830F /* MultiplySub.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = MultiplySub.fsh; sourceTree = "<group>"; };
 		CECA49AC1BB7F38800067D3B /* Sprite.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Sprite.cpp; path = Renderer/Sprite.cpp; sourceTree = "<group>"; };
 		CECA49AD1BB7F38800067D3B /* Sprite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sprite.h; path = Renderer/Sprite.h; sourceTree = "<group>"; };
@@ -286,6 +288,7 @@
 				CECA49B31BB7FA9D00067D3B /* Divide.fsh */,
 				CECA49B51BB7FD2A00067D3B /* Multiply.fsh */,
 				CEA4B5101BBB116100D0830F /* MultiplySub.fsh */,
+				CEA1151A1C8321FA0031428C /* Swizzle.fsh */,
 			);
 			name = ConjugateGradient;
 			path = Multigrid;
@@ -393,6 +396,7 @@
 				CE2ED5341B96295B007343DA /* AdvectDensity.fsh in Resources */,
 				CE2ED4E71B962942007343DA /* Position.vsh in Resources */,
 				CE2ED53E1B96295B007343DA /* SOR.fsh in Resources */,
+				CEA1151B1C8321FA0031428C /* Swizzle.fsh in Resources */,
 				CE2ED5331B96295B007343DA /* Advect.fsh in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

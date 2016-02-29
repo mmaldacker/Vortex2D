@@ -24,16 +24,13 @@ public:
     void Solve(LinearSolver::Data & data) override;
 
 //private:
-    void GaussSeidel(int depth, bool up);
-    void Residual(int depth);
-    void Restrict(int depth);
-    void Prolongate(int depth);
-    void Correct(int depth);
-
     int mDepths;
 
     std::vector<SuccessiveOverRelaxation> mXs;
     std::vector<LinearSolver::Data> mDatas;
+
+    LinearSolver::Data * mDataPtr;
+    LinearSolver::Data & GetData(int depth);
 
     Operator mCorrect;
     Operator mProlongate;

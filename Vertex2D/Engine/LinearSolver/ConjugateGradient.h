@@ -10,6 +10,7 @@
 #define __Vertex2D__ConjugateGradient__
 
 #include "LinearSolver.h"
+#include "Multigrid.h"
 #include "Reduce.h"
 
 namespace Fluid
@@ -26,9 +27,11 @@ public:
     void NormalSolve(LinearSolver::Data & data);
 
 private:
-    Buffer r, p, z, alpha, beta, rho, rho_new, sigma;
-    Operator matrixMultiply, scalarDivision, multiplyAdd, multiplySub, residual, identity;
+    Buffer r, s, alpha, beta, rho, rho_new, sigma;
+    Operator matrixMultiply, scalarDivision, multiplyAdd, multiplySub, residual, identity, swizzle;
     Reduce reduce;
+    Multigrid preconditioner;
+    LinearSolver::Data z;
 };
 
 }
