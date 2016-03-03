@@ -31,7 +31,7 @@ public:
         multiply.Use().Set("u_texture", 0).Set("u_other", 1).Unuse();
     }
 
-    auto operator()(Buffer &a, Buffer &b) -> decltype(std::declval<Operator>()(std::declval<Buffer&>()))
+    auto operator()(Buffer &a, Buffer &b)
     {
         s[0] = multiply(a, b);
 

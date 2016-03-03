@@ -24,7 +24,7 @@ public:
     void Render(const std::vector<Renderer::Drawable*> & objects);
     void RenderVelocities(const std::vector<Renderer::Drawable*> & objects);
     void RenderMask(Buffer & mask);
-    auto GetWeights() -> decltype(std::declval<Operator>()(std::declval<Buffer&>()))
+    auto GetWeights()
     {
         return mWeights(mBoundaries);
     }

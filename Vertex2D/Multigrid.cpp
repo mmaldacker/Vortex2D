@@ -24,10 +24,10 @@ Multigrid::Multigrid(const glm::vec2 & s, int iterations)
 
     do
     {
-        mXs.emplace_back(size, iterations, 1.0f);
+        mXs.emplace_back(size, iterations, 0.66f);
         mDatas.emplace_back(size);
         mDatas.back().Pressure.linear();
-        size = glm::ceil(size/glm::vec2(2.0f));
+        size = glm::ceil(glm::vec2(1.0)+size/glm::vec2(2.0f));
         mDepths++;
     }while(size.x > min_size && size.y > min_size);
 
@@ -73,6 +73,8 @@ void Multigrid::Solve(LinearSolver::Data & data)
         auto & x = GetData(i);
 
         mXs[i].Solve(x, true);
+        // FIXME Solve should restore stencilFunc
+        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 
         x.Pressure.swap();
         x.Pressure = mResidual(Back(x.Pressure), x.Weights);
@@ -82,6 +84,8 @@ void Multigrid::Solve(LinearSolver::Data & data)
     }
 
     mXs[mDepths - 1].Solve(GetData(mDepths - 1), true);
+    // FIXME Solve should restore stencilFunc
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 
     for(int i = mDepths - 2 ; i >= 0 ; --i)
     {
@@ -93,6 +97,8 @@ void Multigrid::Solve(LinearSolver::Data & data)
         x.Pressure = mCorrect(Back(x.Pressure));
 
         mXs[i].Solve(x, false);
+        // FIXME Solve should restore stencilFunc
+        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
     }
 }
 

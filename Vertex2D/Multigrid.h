@@ -18,7 +18,7 @@ namespace Fluid
 class Multigrid : public LinearSolver
 {
 public:
-    Multigrid(const glm::vec2 & size, int iterations = 5);
+    Multigrid(const glm::vec2 & size, int iterations = 10);
 
     void Init(LinearSolver::Data & data, Boundaries & boundaries) override;
     void Solve(LinearSolver::Data & data) override;

@@ -45,7 +45,11 @@ void ConjugateGradient::Init(LinearSolver::Data & data, Boundaries & boundaries)
     z.Pressure.clear();
     r.clear();
     s.clear();
-    // FIXME needed above?
+    alpha.clear();
+    beta.clear();
+    rho.clear();
+    rho_new.clear();
+    sigma.clear();
 
     boundaries.RenderMask(data.Pressure);
     data.Pressure.swap();
@@ -76,7 +80,7 @@ void ConjugateGradient::Solve(LinearSolver::Data & data)
     // rho = zTr
     rho = reduce(z.Pressure,r);
 
-    for(int i = 0 ; i < 10; ++i)
+    for(int i = 0 ; i < 5; ++i)
     {
         // z = Ap
         z.Pressure = matrixMultiply(s, data.Weights);

@@ -60,7 +60,7 @@ class Buffer
 {
 public:
     Buffer(const glm::vec2 & size, unsigned components, bool doubled = false, bool depth = false)
-    : mQuad(size)
+    : Quad(size)
     {
         add(size, components, depth);
         if(doubled) add(size, components, depth);
@@ -71,9 +71,9 @@ public:
     template<typename T>
     Buffer & operator=(Context<Expr<T>> expr)
     {
-        mTextures.front().begin();
-        expr.render(mQuad, Orth);
-        mTextures.front().end();
+        begin();
+        expr.render(Quad, Orth);
+        end();
         return *this;
     }
 
@@ -84,7 +84,7 @@ public:
 
     const glm::vec2 & size() const
     {
-        return mQuad.Size();
+        return Quad.Size();
     }
 
     void linear()
@@ -102,6 +102,7 @@ public:
     Renderer::Texture & texture() { return mTextures.front(); }
     
     glm::mat4 Orth;
+    Renderer::Quad Quad;
 
     friend struct Back;
     friend struct Front;
@@ -117,7 +118,6 @@ private:
 
     // of size 1 or 2
     std::vector<Renderer::RenderTexture> mTextures;
-    Renderer::Quad mQuad;
 };
 
 struct Front

@@ -62,7 +62,7 @@ struct Main
         Fluid::Multigrid multigrid(size);
         Fluid::ConjugateGradient cg(size);
 
-        Fluid::Engine engine(dimensions, boundaries, advection, &sor);
+        Fluid::Engine engine(dimensions, boundaries, advection, &multigrid);
 
         Renderer::Sprite sprite{advection.mDensity.texture()};
 
@@ -75,7 +75,6 @@ struct Main
 
         engine.Div();
 
-        //advection.mVelocity.get().Read().Print();
         //engine.mData.Pressure.get().Read().Print();
 
         engine.LinearSolve();
