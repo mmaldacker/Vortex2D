@@ -21,7 +21,7 @@ struct Main
 {
     Main()
     {
-        glm::vec2 size = glm::vec2(20);
+        glm::vec2 size = glm::vec2(500);
         int scale = 1;
 
         auto realSize = size * glm::vec2{scale};
@@ -42,6 +42,18 @@ struct Main
 
         std::vector<Renderer::Drawable*> neumanns = {&rect2};
 
+        Renderer::Rectangle source({60.0f, 60.0f});
+        source.Position = {400.0f, 400.0f};
+        source.Colour = {-80.0f, -100.0f, 0.0f, 0.0f};
+
+        std::vector<Renderer::Drawable*> sources = {&source};
+
+        Renderer::Rectangle density({60.0f, 60.0f});
+        density.Position = (glm::vec2)source.Position;
+        density.Colour = glm::vec4{182.0f,172.0f,164.0f, 255.0f}/glm::vec4(255.0f);
+
+        std::vector<Renderer::Drawable*> densities = {&density};
+
         // -------------------
 
         Renderer::Disable d(GL_BLEND);
@@ -54,42 +66,26 @@ struct Main
         Fluid::SuccessiveOverRelaxation sor(size);
         Fluid::ConjugateGradient cg(size);
 
-        Fluid::Engine engine(dimensions, boundaries, advection, &sor);
+        Fluid::Engine engine(dimensions, boundaries, advection, &cg);
 
         Renderer::Sprite sprite{advection.mDensity.texture()};
 
-        boundaries.RenderNeumann(neumanns);
         boundaries.RenderBorders();
-        boundaries.RenderDirichlet(dirichlets);
+        //boundaries.RenderNeumann(neumanns);
+        //boundaries.RenderDirichlet(dirichlets);
 
-        boundaries.mDirichletBoundaries.get().Read().Print();
-        boundaries.mNeumannBoundaries.get().Read().Print();
-
-        Fluid::LinearSolver::Data data(size);
-
-        data.Weights = boundaries.GetWeights();
-        data.Weights.get().Read().Print();
-
-        data.Diagonal = boundaries.GetDiagonals();
-        data.Diagonal.get().Read().Print();
-
-        boundaries.RenderMask(data.Pressure);
-        data.Pressure.get().Read().PrintStencil();
-
-
-/*
         advection.RenderMask(boundaries);
         advection.RenderVelocity(sources);
 
         engine.LinearInit(boundaries);
 
+/*
+        advection.RenderVelocity(sources);
         engine.Div();
-
-        //engine.mData.Pressure.get().Read().Print();
-
         engine.LinearSolve();
+        engine.mData.Pressure.get().Read().Print();
+*/
 
-        //engine.mData.Pressure.get().Read().Print();
 
         while (!window.ShouldClose())
         {
@@ -111,7 +107,6 @@ struct Main
             window.Render({&sprite});
             window.Swap();
         }
- */
     }
 };
 

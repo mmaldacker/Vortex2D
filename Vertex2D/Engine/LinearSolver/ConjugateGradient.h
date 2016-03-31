@@ -26,10 +26,9 @@ public:
     void NormalSolve(LinearSolver::Data & data);
 
 private:
-    Buffer r, s, alpha, beta, rho, rho_new, sigma;
-    Operator matrixMultiply, scalarDivision, multiplyAdd, multiplySub, residual, identity, swizzle;
+    Buffer r, s, z, alpha, beta, rho, rho_new, sigma;
+    Operator matrixMultiply, scalarDivision, multiplyAdd, multiplySub, residual, identity, preconditioner;
     Reduce reduce;
-    LinearSolver::Data z;
 };
 
 }

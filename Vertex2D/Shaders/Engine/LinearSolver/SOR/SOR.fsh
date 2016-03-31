@@ -22,7 +22,6 @@ void main()
     p.z = textureOffset(u_texture, v_texCoord, ivec2(0,1)).x;
     p.w = textureOffset(u_texture, v_texCoord, ivec2(0,-1)).x;
 
-
     vec4 c = texture(u_weights, v_texCoord);
     float d = texture(u_diagonals, v_texCoord).x;
 
