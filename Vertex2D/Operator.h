@@ -69,10 +69,10 @@ public:
     }
 
     template<typename T>
-    Buffer & operator=(Context<Expr<T>> expr)
+    Buffer & operator=(Context<T> context)
     {
         begin();
-        expr.render(Quad, Orth);
+        context.render(Quad, Orth);
         end();
         return *this;
     }

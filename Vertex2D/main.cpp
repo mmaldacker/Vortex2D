@@ -4,7 +4,6 @@
 #include "Engine.h"
 #include "SuccessiveOverRelaxation.h"
 #include "Disable.h"
-#include "Multigrid.h"
 #include "Reduce.h"
 #include "Sprite.h"
 #include "ConjugateGradient.h"
@@ -22,7 +21,7 @@ struct Main
 {
     Main()
     {
-        glm::vec2 size = glm::vec2(500);
+        glm::vec2 size = glm::vec2(20);
         int scale = 1;
 
         auto realSize = size * glm::vec2{scale};
@@ -31,23 +30,17 @@ struct Main
 
         // -------------------
 
-        Renderer::Rectangle source({60.0f, 60.0f});
-        source.Position = {400.0f, 400.0f};
-        source.Colour = {-80.0f, -100.0f, 0.0f, 0.0f};
+        Renderer::Rectangle rect1({6.0f, 6.0f});
+        rect1.Position = {4.0f, 4.0f};
+        rect1.Colour = {1.0f, 1.0f, 1.0f, 1.0f};
 
-        std::vector<Renderer::Drawable*> sources = {&source};
+        std::vector<Renderer::Drawable*> dirichlets = {&rect1};
 
-        Renderer::Rectangle rect({90.0f, 90.0f});
-        rect.Position = {120.0f, 120.0f};
-        rect.Colour = {1.0f, 1.0f, 1.0f, 1.0f};
+        Renderer::Rectangle rect2({6.0f, 6.0f});
+        rect2.Position = {12.0f, 12.0f};
+        rect2.Colour = {1.0f, 1.0f, 1.0f, 1.0f};
 
-        std::vector<Renderer::Drawable*> borders;// = {&rect};
-
-        Renderer::Rectangle density({60.0f, 60.0f});
-        density.Position = (glm::vec2)source.Position;
-        density.Colour = glm::vec4{182.0f,172.0f,164.0f, 255.0f}/glm::vec4(255.0f);
-
-        std::vector<Renderer::Drawable*> densities = {&density};
+        std::vector<Renderer::Drawable*> neumanns = {&rect2};
 
         // -------------------
 
@@ -59,15 +52,32 @@ struct Main
         Fluid::Boundaries boundaries(dimensions, 2);
 
         Fluid::SuccessiveOverRelaxation sor(size);
-        Fluid::Multigrid multigrid(size);
         Fluid::ConjugateGradient cg(size);
 
-        Fluid::Engine engine(dimensions, boundaries, advection, &multigrid);
+        Fluid::Engine engine(dimensions, boundaries, advection, &sor);
 
         Renderer::Sprite sprite{advection.mDensity.texture()};
 
-        boundaries.Render(borders);
+        boundaries.RenderNeumann(neumanns);
+        boundaries.RenderBorders();
+        boundaries.RenderDirichlet(dirichlets);
 
+        boundaries.mDirichletBoundaries.get().Read().Print();
+        boundaries.mNeumannBoundaries.get().Read().Print();
+
+        Fluid::LinearSolver::Data data(size);
+
+        data.Weights = boundaries.GetWeights();
+        data.Weights.get().Read().Print();
+
+        data.Diagonal = boundaries.GetDiagonals();
+        data.Diagonal.get().Read().Print();
+
+        boundaries.RenderMask(data.Pressure);
+        data.Pressure.get().Read().PrintStencil();
+
+
+/*
         advection.RenderMask(boundaries);
         advection.RenderVelocity(sources);
 
@@ -101,6 +111,7 @@ struct Main
             window.Render({&sprite});
             window.Swap();
         }
+ */
     }
 };
 

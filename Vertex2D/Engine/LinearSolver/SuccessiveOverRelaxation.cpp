@@ -21,7 +21,7 @@ SuccessiveOverRelaxation::SuccessiveOverRelaxation(const glm::vec2 & size, int i
 {
     float w = 2.0f/(1.0f+std::sin(4.0f*std::atan(1.0f)/std::sqrt(size.x*size.y)));
 
-    mSor.Use().Set("u_texture", 0).Set("u_weights", 1).Set("w", w).Unuse();
+    mSor.Use().Set("u_texture", 0).Set("u_weights", 1).Set("u_diagonals", 2).Set("w", w).Unuse();
 }
 
 SuccessiveOverRelaxation::SuccessiveOverRelaxation(const glm::vec2 & size, int iterations, float w)
@@ -37,6 +37,7 @@ void SuccessiveOverRelaxation::Init(LinearSolver::Data & data, Boundaries & boun
     data.Pressure.swap();
     boundaries.RenderMask(data.Pressure);
     data.Weights = boundaries.GetWeights();
+    data.Diagonal = boundaries.GetDiagonals();
 
     Renderer::Enable e(GL_STENCIL_TEST);
     Renderer::DisableColorMask c;
@@ -74,10 +75,10 @@ void SuccessiveOverRelaxation::Step(LinearSolver::Data & data, bool isRed)
     data.Pressure.swap();
 
     glStencilFunc(GL_EQUAL, isRed ? 2 : 0, 0xFF);
-    data.Pressure = mSor(Back(data.Pressure), data.Weights);
+    data.Pressure = mSor(Back(data.Pressure), data.Weights, data.Diagonal);
 
     glStencilFunc(GL_EQUAL, isRed ? 0 : 2, 0xFF);
-    data.Pressure = mIdentity(Back(data.Pressure), data.Weights);
+    data.Pressure = mIdentity(Back(data.Pressure), data.Weights, data.Diagonal);
 }
 
 }

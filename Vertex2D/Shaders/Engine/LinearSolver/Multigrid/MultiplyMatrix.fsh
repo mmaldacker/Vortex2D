@@ -6,10 +6,9 @@ in vec2 v_texCoord;
 
 uniform sampler2D u_texture;
 uniform sampler2D u_weights;
+uniform sampler2D u_diagonals;
 
 out vec4 colour_out;
-
-const vec4 q = vec4(1.0);
 
 void main()
 {
@@ -22,7 +21,8 @@ void main()
     p.w = textureOffset(u_texture, v_texCoord, ivec2(0,-1)).x;
 
     vec4 c = texture(u_weights, v_texCoord);
+    float d = texture(u_diagonals, v_texCoord).x;
 
-    float multiply = dot(q,c) * x - dot(p,c);
+    float multiply = d * x - dot(p,c);
     colour_out = vec4(multiply, 0.0, 0.0, 0.0);
 }

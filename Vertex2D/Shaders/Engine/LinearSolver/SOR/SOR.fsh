@@ -6,9 +6,8 @@ in vec2 v_texCoord;
 
 uniform sampler2D u_texture; // this is the pressure 
 uniform sampler2D u_weights;
+uniform sampler2D u_diagonals;
 uniform float w;
-
-const vec4 q = vec4(1.0);
 
 out vec4 out_color;
 
@@ -25,8 +24,9 @@ void main()
 
 
     vec4 c = texture(u_weights, v_texCoord);
+    float d = texture(u_diagonals, v_texCoord).x;
 
-    float pressure = mix(cell.x, (dot(p,c) + cell.y) / dot(q,c), w);
+    float pressure = mix(cell.x, (dot(p,c) + cell.y) / d, w);
 
     out_color = vec4(pressure, cell.y, 0.0, 0.0);
 }

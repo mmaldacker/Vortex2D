@@ -28,12 +28,11 @@ ConjugateGradient::ConjugateGradient(const glm::vec2 & size)
     , identity("TexturePosition.vsh", "TexturePosition.fsh")
     , swizzle("TexturePosition.vsh", "Swizzle.fsh")
     , reduce(size)
-    , preconditioner(size)
     , z(size)
 {
-    residual.Use().Set("u_texture", 0).Set("u_weights", 1).Unuse();
+    residual.Use().Set("u_texture", 0).Set("u_weights", 1).Set("u_diagonals", 2).Unuse();
     identity.Use().Set("u_texture", 0).Unuse();
-    matrixMultiply.Use().Set("u_texture", 0).Set("u_weights", 1).Unuse();
+    matrixMultiply.Use().Set("u_texture", 0).Set("u_weights", 1).Set("u_diagonals", 2).Unuse();
     scalarDivision.Use().Set("u_texture", 0).Set("u_other", 1).Unuse();
     multiplyAdd.Use().Set("u_texture", 0).Set("u_other", 1).Set("u_scalar", 2).Unuse();
     multiplySub.Use().Set("u_texture", 0).Set("u_other", 1).Set("u_scalar", 2).Unuse();
@@ -55,8 +54,7 @@ void ConjugateGradient::Init(LinearSolver::Data & data, Boundaries & boundaries)
     data.Pressure.swap();
     boundaries.RenderMask(data.Pressure);
     data.Weights = boundaries.GetWeights();
-
-    preconditioner.Init(z, boundaries);
+    data.Diagonal = boundaries.GetDiagonals();
 }
 
 void ConjugateGradient::Solve(LinearSolver::Data & data)
@@ -66,13 +64,11 @@ void ConjugateGradient::Solve(LinearSolver::Data & data)
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 
     // r = b - Ax
-    r = residual(data.Pressure, data.Weights);
+    r = residual(data.Pressure, data.Weights, data.Diagonal);
 
     // p = 0
 
-    // z is result from multigrid from r
-    z.Pressure = swizzle(r);
-    preconditioner.Solve(z);
+    // z is result from preconditioner from r
 
     // s = z
     s = identity(z.Pressure);
@@ -83,7 +79,7 @@ void ConjugateGradient::Solve(LinearSolver::Data & data)
     for(int i = 0 ; i < 5; ++i)
     {
         // z = Ap
-        z.Pressure = matrixMultiply(s, data.Weights);
+        z.Pressure = matrixMultiply(s, data.Weights, data.Diagonal);
 
         // alpha = rho / zTs
         sigma = reduce(z.Pressure,s);
@@ -97,9 +93,7 @@ void ConjugateGradient::Solve(LinearSolver::Data & data)
         r.swap();
         r = multiplySub(Back(r), z.Pressure, alpha);
 
-        // z is result from multigrid from r
-        z.Pressure = swizzle(r);
-        preconditioner.Solve(z);
+        // z is result from preconditioner from r
 
         // rho_new = zTr
         rho_new = reduce(z.Pressure,r);

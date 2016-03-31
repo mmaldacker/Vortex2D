@@ -21,10 +21,12 @@ struct LinearSolver
     {
         Data(const glm::vec2 & size)
         : Weights(size, 4)
+        , Diagonal(size, 1)
         , Pressure(size, 2, true, true)
         {}
 
         Buffer Weights;
+        Buffer Diagonal;
         Buffer Pressure;
     };
 

@@ -21,32 +21,42 @@ class Boundaries
 public:
     Boundaries(Dimensions dimensions, int antialias);
 
-    void Render(const std::vector<Renderer::Drawable*> & objects);
+    void RenderDirichlet(const std::vector<Renderer::Drawable*> & objects);
+    void RenderNeumann(const std::vector<Renderer::Drawable*> & objects);
+    void RenderBorders();
     void RenderVelocities(const std::vector<Renderer::Drawable*> & objects);
     void RenderMask(Buffer & mask);
     auto GetWeights()
     {
-        return mWeights(mBoundaries);
+        return mWeights(mNeumannBoundaries, mDirichletBoundaries);
+    }
+    auto GetDiagonals()
+    {
+        return mDiagonals(mNeumannBoundaries);
     }
 
     void Clear();
 
     friend class Engine;
 //private:
-    void Render(const glm::mat4 & orth, int thickness = 1, float scale = 1.0f);
-    
+    void Render(const std::vector<Renderer::Drawable*> & objects, const glm::mat4 & orth);
+
     Dimensions mDimensions;
     int mAntialias;
     
-    Buffer mBoundaries;
+    Buffer mDirichletBoundaries;
+    Buffer mNeumannBoundaries;
     Buffer mBoundariesVelocity;
 
     Operator mWeights;
+    Operator mDiagonals;
+    Operator mBoundaryMask;
 
     Renderer::Rectangle mHorizontal;
     Renderer::Rectangle mVertical;
 
-    std::vector<Renderer::Drawable*> mObjects;
+    std::vector<Renderer::Drawable*> mDirichletObjects;
+    std::vector<Renderer::Drawable*> mNeumannObjects;
 };
 
 }
