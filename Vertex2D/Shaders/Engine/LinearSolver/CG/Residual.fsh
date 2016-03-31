@@ -13,7 +13,7 @@ out vec4 colour_out;
 void main()
 {
     // cell.x is pressure and cell.y is div
-    vec2 cell = texture(u_texture, v_texCoord).xy;
+    vec2 cell = texture(u_texture, v_texCoord).x;
 
     vec4 p;
     p.x = textureOffset(u_texture, v_texCoord, ivec2(1,0)).x;
@@ -25,5 +25,5 @@ void main()
     float d = texture(u_diagonals, v_texCoord).x;
 
     float residual = dot(p,c) - d * cell.x + cell.y;
-    colour_out = vec4(residual, cell.y, 0.0, 0.0);
+    colour_out = vec4(residual, 0.0, 0.0, 0.0);
 }
