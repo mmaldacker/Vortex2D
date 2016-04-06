@@ -23,8 +23,7 @@ class Advection
 public:
     Advection(Dimensions dimensions, float dt);
 
-    void RenderVelocity(const std::vector<Renderer::Drawable*> & objects);
-    void RenderDensity(const std::vector<Renderer::Drawable*> & objects);
+    void Render(const std::vector<Renderer::Drawable*> & objects);
     void RenderMask(Boundaries & boundaries);
 
     void Advect();
@@ -34,10 +33,8 @@ public:
 //private:
     Dimensions mDimensions;
     Buffer mVelocity;
-    Buffer mDensity;
 
     Operator mAdvect;
-    Operator mAdvectDensity;
 };
 
 

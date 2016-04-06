@@ -49,7 +49,8 @@ void Density::RenderMask(Boundaries & boundaries)
 
 void Density::Advect(Advection & advection)
 {
-    advection.Advect(mDensity);
+    mDensity.swap();
+    mDensity = mAdvectDensity(Back(mDensity), Back(advection.mVelocity));
 }
 
 Renderer::Sprite Density::Sprite()

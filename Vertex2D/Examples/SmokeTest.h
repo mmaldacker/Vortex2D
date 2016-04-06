@@ -19,12 +19,12 @@ class SmokeExample : public Runner
 public:
     SmokeExample()
         : Runner({glm::vec2{500}, 1.0}, 0.033)
-        , source({6.0f, 6.0f})
-        , force({6.0f, 6.0f})
+        , source({20.0f, 20.0f})
+        , force({30.0f, 30.0f})
         , density(dimensions, 0.033)
         , smoke(density.Sprite())
     {
-        force.Position = {4.0f, 4.0f};
+        force.Position = {400.0f, 400.0f};
         force.Colour = {-80.0f, -100.0f, 0.0f, 0.0f};
 
         source.Position = (glm::vec2)force.Position;
