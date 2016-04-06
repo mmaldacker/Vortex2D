@@ -51,6 +51,9 @@ public:
     void SetAliasTexParameters();
     void SetAntiAliasTexParameters();
 
+    void SetClampToEdgeTexParameters();
+    void SetClampToBorderTexParameters();
+
     PixelFormat GetFormat() const;
 
 protected:

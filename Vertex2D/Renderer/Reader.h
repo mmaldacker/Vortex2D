@@ -12,7 +12,6 @@
 #include "Common.h"
 #include "Quad.h"
 #include "RenderTexture.h"
-#include "hfloat.h"
 
 namespace Renderer
 {

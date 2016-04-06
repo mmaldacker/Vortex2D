@@ -7,6 +7,7 @@
 #include "Reduce.h"
 #include "Sprite.h"
 #include "ConjugateGradient.h"
+#include "Density.h"
 
 #include <string>
 #include <chrono>
@@ -30,23 +31,9 @@ struct Main
 
         // -------------------
 
-        Renderer::Rectangle rect1({6.0f, 6.0f});
-        rect1.Position = {4.0f, 4.0f};
-        rect1.Colour = {1.0f, 1.0f, 1.0f, 1.0f};
-
-        std::vector<Renderer::Drawable*> dirichlets = {&rect1};
-
-        Renderer::Rectangle rect2({6.0f, 6.0f});
-        rect2.Position = {12.0f, 12.0f};
-        rect2.Colour = {1.0f, 1.0f, 1.0f, 1.0f};
-
-        std::vector<Renderer::Drawable*> neumanns = {&rect2};
-
         Renderer::Rectangle source({60.0f, 60.0f});
         source.Position = {400.0f, 400.0f};
         source.Colour = {-80.0f, -100.0f, 0.0f, 0.0f};
-
-        std::vector<Renderer::Drawable*> sources = {&source};
 
         Renderer::Rectangle density({60.0f, 60.0f});
         density.Position = (glm::vec2)source.Position;
@@ -63,44 +50,32 @@ struct Main
         Fluid::Advection advection(dimensions, 0.033);
         Fluid::Boundaries boundaries(dimensions, 2);
 
-        Fluid::SuccessiveOverRelaxation sor(size);
         Fluid::ConjugateGradient cg(size);
 
         Fluid::Engine engine(dimensions, boundaries, advection, &cg);
 
+        Fluid::Density fluidDensity(dimensions, 0.033);
+
+        //Renderer::Sprite sprite{fluidDensity.Sprite()};
         Renderer::Sprite sprite{advection.mDensity.texture()};
-
-        boundaries.RenderBorders();
-        //boundaries.RenderNeumann(neumanns);
-        //boundaries.RenderDirichlet(dirichlets);
-
-        advection.RenderMask(boundaries);
-        advection.RenderVelocity(sources);
-
-        engine.LinearInit(boundaries);
-
-/*
-        advection.RenderVelocity(sources);
-        engine.Div();
-        engine.LinearSolve();
-        engine.mData.Pressure.get().Read().Print();
-*/
-
 
         while (!window.ShouldClose())
         {
             glfwPollEvents();
 
-            advection.RenderVelocity(sources);
-            advection.RenderDensity(densities);
+            boundaries.RenderBorders();
 
-            engine.Div();
+            advection.RenderMask(boundaries);
+            fluidDensity.RenderMask(boundaries);
 
-            engine.LinearSolve();
+            advection.RenderVelocity({&source});
+            advection.RenderDensity({&density});
+            fluidDensity.Render({&density});
 
-            engine.Project();
+            engine.Solve();
 
             advection.Advect();
+            fluidDensity.Advect(advection);
 
             Renderer::Enable d(GL_BLEND);
             window.Clear();

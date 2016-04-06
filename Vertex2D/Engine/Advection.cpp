@@ -69,6 +69,11 @@ void Advection::RenderMask(Boundaries & boundaries)
     mDensity.swap();
 }
 
+void Advection::Advect(Fluid::Buffer & buffer)
+{
+
+}
+
 void Advection::Advect()
 {
     Renderer::Enable e(GL_STENCIL_TEST);

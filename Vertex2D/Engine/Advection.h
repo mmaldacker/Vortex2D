@@ -28,6 +28,7 @@ public:
     void RenderMask(Boundaries & boundaries);
 
     void Advect();
+    void Advect(Buffer & buffer);
 
     friend class Engine;
 //private:

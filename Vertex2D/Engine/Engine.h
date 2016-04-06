@@ -27,13 +27,7 @@ public:
     
     void Solve();
 
-//private:
-    void Div();
-    void Project();
-
-    void LinearInit(Boundaries & boundaries);
-    void LinearSolve();
-
+private:
     Dimensions mDimensions;
 
     LinearSolver::Data mData;

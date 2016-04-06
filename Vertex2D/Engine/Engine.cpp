@@ -28,35 +28,15 @@ Engine::Engine(Dimensions dimensions, Boundaries & boundaries, Advection & advec
     mDiv.Use().Set("u_texture", 0).Set("u_weights", 1).Set("u_obstacles_velocity", 2).Unuse();
 }
 
-void Engine::Project()
-{
-    mAdvection.mVelocity.swap();
-    mAdvection.mVelocity = mProject(Back(mAdvection.mVelocity), mData.Pressure, mData.Weights, mBoundaries.mBoundariesVelocity);
-}
-
-void Engine::Div()
-{
-    mData.Pressure = mDiv(mAdvection.mVelocity, mData.Weights, mBoundaries.mBoundariesVelocity);
-}
-
-void Engine::LinearInit(Boundaries & boundaries)
-{
-    mLinearSolver->Init(mData, boundaries);
-}
-
-void Engine::LinearSolve()
-{
-    mLinearSolver->Solve(mData);
-}
-
 void Engine::Solve()
 {
     Renderer::Disable d(GL_BLEND);
 
-    Div();
     mLinearSolver->Init(mData, mBoundaries);
+    mData.Pressure = mDiv(mAdvection.mVelocity, mData.Weights, mBoundaries.mBoundariesVelocity);
     mLinearSolver->Solve(mData);
-    Project();
+    mAdvection.mVelocity.swap();
+    mAdvection.mVelocity = mProject(Back(mAdvection.mVelocity), mData.Pressure, mData.Weights, mBoundaries.mBoundariesVelocity);
 }
 
 }

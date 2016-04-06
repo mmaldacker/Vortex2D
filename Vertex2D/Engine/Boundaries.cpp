@@ -42,7 +42,6 @@ Boundaries::Boundaries(Dimensions dimensions, int antialias)
 
 void Boundaries::RenderDirichlet(const std::vector<Renderer::Drawable*> & objects)
 {
-    mDirichletObjects = objects;
     mDirichletBoundaries.begin();
     Render(objects, mDirichletBoundaries.Orth);
     mDirichletBoundaries.end();
@@ -50,7 +49,6 @@ void Boundaries::RenderDirichlet(const std::vector<Renderer::Drawable*> & object
 
 void Boundaries::RenderNeumann(const std::vector<Renderer::Drawable*> & objects)
 {
-    mNeumannObjects = objects;
     mNeumannBoundaries.begin();
     Render(objects, mNeumannBoundaries.Orth);
     mNeumannBoundaries.end();
@@ -121,8 +119,6 @@ void Boundaries::Clear()
     mDirichletBoundaries.clear();
     mNeumannBoundaries.clear();
     mBoundariesVelocity.clear();
-    mDirichletObjects.clear();
-    mNeumannObjects.clear();
 }
 
 }

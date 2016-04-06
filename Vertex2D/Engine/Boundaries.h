@@ -38,7 +38,7 @@ public:
     void Clear();
 
     friend class Engine;
-//private:
+private:
     void Render(const std::vector<Renderer::Drawable*> & objects, const glm::mat4 & orth);
 
     Dimensions mDimensions;
@@ -54,9 +54,6 @@ public:
 
     Renderer::Rectangle mHorizontal;
     Renderer::Rectangle mVertical;
-
-    std::vector<Renderer::Drawable*> mDirichletObjects;
-    std::vector<Renderer::Drawable*> mNeumannObjects;
 };
 
 }
