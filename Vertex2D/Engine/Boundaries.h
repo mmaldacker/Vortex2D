@@ -26,10 +26,12 @@ public:
     void RenderBorders();
     void RenderVelocities(const std::vector<Renderer::Drawable*> & objects);
     void RenderMask(Buffer & mask);
+
     auto GetWeights()
     {
         return mWeights(mNeumannBoundaries, mDirichletBoundaries);
     }
+    
     auto GetDiagonals()
     {
         return mDiagonals(mNeumannBoundaries);

@@ -30,7 +30,7 @@ public:
 
     Renderer::Sprite Sprite();
 
-//private:
+private:
     Dimensions mDimensions;
     Buffer mDensity;
     Operator mAdvectDensity;

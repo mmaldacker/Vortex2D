@@ -60,7 +60,7 @@ class Buffer
 {
 public:
     Buffer(const glm::vec2 & size, unsigned components, bool doubled = false, bool depth = false)
-    : Quad(size)
+        : Quad(size)
     {
         add(size, components, depth);
         if(doubled) add(size, components, depth);
@@ -92,14 +92,36 @@ public:
         for(auto && t : mTextures) t.SetAntiAliasTexParameters();
     }
 
-    // FIXME hide those or remove those?
-    void begin() { mTextures.front().begin(); }
-    void begin(const glm::vec4 & c) { mTextures.front().begin(c); }
-    void end() { mTextures.front().end(); }
+    void begin()
+    {
+        mTextures.front().begin();
+    }
+
+    void begin(const glm::vec4 & c)
+    {
+        mTextures.front().begin(c);
+    }
+
+    void end()
+    {
+        mTextures.front().end();
+    }
     
-    void clear() { for(auto && t : mTextures) t.Clear(); }
-    void swap() { assert(mTextures.size() == 2); std::swap(mTextures.front(), mTextures.back()); }
-    Renderer::Texture & texture() { return mTextures.front(); }
+    void clear()
+    {
+        for(auto && t : mTextures) t.Clear();
+    }
+
+    void swap()
+    {
+        assert(mTextures.size() == 2);
+        std::swap(mTextures.front(), mTextures.back());
+    }
+
+    Renderer::Texture & texture()
+    {
+        return mTextures.front();
+    }
     
     glm::mat4 Orth;
     Renderer::Quad Quad;

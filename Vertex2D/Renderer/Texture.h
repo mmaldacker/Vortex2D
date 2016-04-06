@@ -25,13 +25,13 @@ public:
         RGB888,
         // 16-bit texture without Alpha channel
         RGB565,
-        // 16-bit float texture
+        // 32-bit float texture
         RGBAF,
-        // 16-bit float texture
+        // 32-bit float texture
         RGBF,
-        // 16-bit float texture
+        // 32-bit float texture
         RGF,
-        // 16-bit float texture
+        // 32-bit float texture
         RF,
     };
 

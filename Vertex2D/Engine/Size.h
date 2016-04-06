@@ -16,16 +16,16 @@ namespace Fluid
 
 struct Dimensions
 {
-    Dimensions(const glm::vec2 & size, float scale)
+    Dimensions(const glm::vec2 & size, const float scale)
         : Scale(scale)
         , Size(glm::floor(size/scale))
         , InvScale(glm::scale(glm::vec3{1.0f/scale, 1.0f/scale, 1.0f}))
     {
     }
     
-    float Scale;
-    glm::vec2 Size;
-    glm::mat4x4 InvScale;
+    const float Scale;
+    const glm::vec2 Size;
+    const glm::mat4x4 InvScale;
 };
 
 }

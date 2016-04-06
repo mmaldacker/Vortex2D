@@ -56,6 +56,14 @@ struct Rectangle : Shape
     void SetRectangle(const glm::vec2 & size);
 };
 
+struct Circle : Shape
+{
+    Circle() = default;
+    Circle(float size);
+
+    void SetCircle(float size);
+};
+
 }
 
 #endif /* defined(__Vortex__Shapes__) */
