@@ -3,6 +3,7 @@
 
 #include "SmokeTest.h"
 #include "ObstacleSmokeTest.h"
+#include "WaterTest.h"
 
 void error_callback(int error, const char* description)
 {
@@ -22,8 +23,9 @@ int main(int argc, const char * argv[])
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    //SmokeExample().run();
-    ObstacleSmokeExample().run();
+    SmokeExample().run();
+    //ObstacleSmokeExample().run();
+    //WaterExample().run();
 
     CHECK_GL_ERROR_DEBUG();
 

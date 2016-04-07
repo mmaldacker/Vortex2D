@@ -35,6 +35,10 @@
 		CE9899981CB51AFE00CACC6D /* LevelSet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE9899961CB51AFE00CACC6D /* LevelSet.cpp */; };
 		CE9899991CB51AFE00CACC6D /* Density.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE9899971CB51AFE00CACC6D /* Density.cpp */; };
 		CE98999F1CB5232B00CACC6D /* Water.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE98999D1CB5232B00CACC6D /* Water.cpp */; };
+		CE9899A21CB52CD200CACC6D /* Redistance.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE9899A01CB52CD200CACC6D /* Redistance.fsh */; };
+		CE9899A31CB52CD200CACC6D /* LevelSetMask.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE9899A11CB52CD200CACC6D /* LevelSetMask.fsh */; };
+		CE9899A71CB5AAFA00CACC6D /* Water.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE9899A61CB5AAFA00CACC6D /* Water.fsh */; };
+		CE9899A91CB5BAEC00CACC6D /* Extrapolate.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE9899A81CB5BAEC00CACC6D /* Extrapolate.fsh */; };
 		CECA49AE1BB7F38800067D3B /* Sprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CECA49AC1BB7F38800067D3B /* Sprite.cpp */; };
 		CEDA98161CAD6A7600794680 /* BoundaryMask.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CEDA98151CAD6A7600794680 /* BoundaryMask.fsh */; };
 		CEDA98181CAD6A9B00794680 /* Diagonals.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CEDA98171CAD6A9B00794680 /* Diagonals.fsh */; };
@@ -109,6 +113,11 @@
 		CE98999C1CB51B0A00CACC6D /* WaterTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WaterTest.h; path = Examples/WaterTest.h; sourceTree = "<group>"; };
 		CE98999D1CB5232B00CACC6D /* Water.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Water.cpp; path = Visualiser/Water.cpp; sourceTree = "<group>"; };
 		CE98999E1CB5232B00CACC6D /* Water.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Water.h; path = Visualiser/Water.h; sourceTree = "<group>"; };
+		CE9899A01CB52CD200CACC6D /* Redistance.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Redistance.fsh; path = Shaders/Engine/Redistance.fsh; sourceTree = "<group>"; };
+		CE9899A11CB52CD200CACC6D /* LevelSetMask.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = LevelSetMask.fsh; path = Shaders/Engine/LevelSetMask.fsh; sourceTree = "<group>"; };
+		CE9899A41CB52E6600CACC6D /* VelocitySmokeTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = VelocitySmokeTest.h; path = Examples/VelocitySmokeTest.h; sourceTree = "<group>"; };
+		CE9899A61CB5AAFA00CACC6D /* Water.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Water.fsh; path = Shaders/Visualiser/Water.fsh; sourceTree = "<group>"; };
+		CE9899A81CB5BAEC00CACC6D /* Extrapolate.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Extrapolate.fsh; sourceTree = "<group>"; };
 		CECA49AC1BB7F38800067D3B /* Sprite.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Sprite.cpp; path = Renderer/Sprite.cpp; sourceTree = "<group>"; };
 		CECA49AD1BB7F38800067D3B /* Sprite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sprite.h; path = Renderer/Sprite.h; sourceTree = "<group>"; };
 		CEDA98151CAD6A7600794680 /* BoundaryMask.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = BoundaryMask.fsh; path = Shaders/Engine/BoundaryMask.fsh; sourceTree = "<group>"; };
@@ -257,6 +266,7 @@
 		CE6D63371B84F18F006729F0 /* Shaders */ = {
 			isa = PBXGroup;
 			children = (
+				CE9899A51CB5AAEB00CACC6D /* Visualiser */,
 				CE9F2C641B88C63C00EDDF5A /* Engine */,
 				CE9F2C631B88C62B00EDDF5A /* Renderer */,
 			);
@@ -298,8 +308,17 @@
 				CE98999B1CB51B0A00CACC6D /* ObstacleSmokeTest.h */,
 				CE98999C1CB51B0A00CACC6D /* WaterTest.h */,
 				CE9899921CB51AD300CACC6D /* SmokeTest.h */,
+				CE9899A41CB52E6600CACC6D /* VelocitySmokeTest.h */,
 			);
 			name = Examples;
+			sourceTree = "<group>";
+		};
+		CE9899A51CB5AAEB00CACC6D /* Visualiser */ = {
+			isa = PBXGroup;
+			children = (
+				CE9899A61CB5AAFA00CACC6D /* Water.fsh */,
+			);
+			name = Visualiser;
 			sourceTree = "<group>";
 		};
 		CE9F2C631B88C62B00EDDF5A /* Renderer */ = {
@@ -317,6 +336,8 @@
 			isa = PBXGroup;
 			children = (
 				CE2ED5241B96295B007343DA /* LinearSolver */,
+				CE9899A01CB52CD200CACC6D /* Redistance.fsh */,
+				CE9899A11CB52CD200CACC6D /* LevelSetMask.fsh */,
 				CE2ED5201B96295B007343DA /* Advect.fsh */,
 				CE2ED5211B96295B007343DA /* AdvectDensity.fsh */,
 				CE2ED5231B96295B007343DA /* Div.fsh */,
@@ -324,6 +345,7 @@
 				CE2ED5321B96295B007343DA /* Weights.fsh */,
 				CEDA98171CAD6A9B00794680 /* Diagonals.fsh */,
 				CEDA98151CAD6A7600794680 /* BoundaryMask.fsh */,
+				CE9899A81CB5BAEC00CACC6D /* Extrapolate.fsh */,
 			);
 			name = Engine;
 			sourceTree = "<group>";
@@ -390,18 +412,22 @@
 				CE2ED53D1B96295B007343DA /* Stencil.fsh in Resources */,
 				CE2ED5421B96295B007343DA /* Weights.fsh in Resources */,
 				CE2ED4E81B962942007343DA /* TexturePosition.fsh in Resources */,
+				CE9899A91CB5BAEC00CACC6D /* Extrapolate.fsh in Resources */,
 				CE2ED53F1B96295B007343DA /* Project.fsh in Resources */,
 				CEDA98251CADD28000794680 /* JacobiPreconditioner.fsh in Resources */,
 				CE2ED5361B96295B007343DA /* Div.fsh in Resources */,
+				CE9899A21CB52CD200CACC6D /* Redistance.fsh in Resources */,
 				CE2ED4E61B962942007343DA /* Position.fsh in Resources */,
 				CEDA98271CADD28000794680 /* MultiplyAdd.fsh in Resources */,
 				CE2ED4E91B962942007343DA /* TexturePosition.vsh in Resources */,
 				CE2ED5341B96295B007343DA /* AdvectDensity.fsh in Resources */,
 				CEDA98261CADD28000794680 /* Multiply.fsh in Resources */,
 				CEDA982B1CADD28000794680 /* Reduce.vsh in Resources */,
+				CE9899A31CB52CD200CACC6D /* LevelSetMask.fsh in Resources */,
 				CEDA982A1CADD28000794680 /* Reduce.fsh in Resources */,
 				CEDA98241CADD28000794680 /* Divide.fsh in Resources */,
 				CEDA982C1CADD28000794680 /* Residual.fsh in Resources */,
+				CE9899A71CB5AAFA00CACC6D /* Water.fsh in Resources */,
 				CEDA98281CADD28000794680 /* MultiplyMatrix.fsh in Resources */,
 				CE2ED4E71B962942007343DA /* Position.vsh in Resources */,
 				CEDA98291CADD28000794680 /* MultiplySub.fsh in Resources */,

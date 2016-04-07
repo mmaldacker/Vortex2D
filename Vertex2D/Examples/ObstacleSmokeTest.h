@@ -27,7 +27,7 @@ public:
     {
         source.Position = force.Position = {200.0f, 400.0f};
 
-        force.Colour = {0.0f, -100.0f, 0.0f, 0.0f};
+        force.Colour = {0.0f, -5.0f, 0.0f, 0.0f};
 
         source.Colour = glm::vec4{182.0f,172.0f,164.0f, 255.0f}/glm::vec4(255.0f);
 

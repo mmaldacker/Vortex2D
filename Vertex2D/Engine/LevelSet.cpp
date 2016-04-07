@@ -18,8 +18,9 @@ LevelSet::LevelSet(Dimensions dimensions, float dt)
     , mLevelSet(dimensions.Size, 1, true)
     , mRedistance("TexturePosition.vsh", "Redistance.fsh")
 {
+    mLevelSet.clear();
     mLevelSet.clamp_to_edge();
-    mLevelSet.linear();
+    //mLevelSet.linear();
     mRedistance.Use().Set("delta", dt).Set("u_texture", 0).Set("h", dimensions.Size).Unuse();
 }
 

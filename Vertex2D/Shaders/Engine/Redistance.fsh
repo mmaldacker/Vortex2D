@@ -9,7 +9,7 @@ uniform sampler2D u_texture;
 uniform float delta;
 uniform vec2 h; //FIXME use textureSize
 
-const vec2 off = vec2(.5, .5);
+const vec2 off = vec2(0.5);
 
 out vec4 out_color;
 
@@ -45,5 +45,5 @@ void main()
 
     vec2 stepBackCoords = real_coord - delta * s * w;
 
-    out_color = vec4(bilerp(u_texture, stepBackCoords) + delta * s, 0.0, 0.0);
+    out_color = vec4(bilerp(u_texture, stepBackCoords).x + delta * s, 0.0, 0.0, 0.0);
 }

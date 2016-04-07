@@ -14,6 +14,7 @@
 #include "Advection.h"
 #include "Size.h"
 #include "Operator.h"
+#include "LevelSet.h"
 
 #include <vector>
 
@@ -26,6 +27,7 @@ public:
     Engine(Dimensions dimensions, Boundaries & boundaries, Advection & advection, LinearSolver * linearSolver);
     
     void Solve();
+    void Extrapolate(LevelSet & levelSet);
 
 private:
     Dimensions mDimensions;
@@ -37,6 +39,8 @@ private:
 
     Operator mDiv;
     Operator mProject;
+    Operator mExtrapolate;
+    Operator mIdentity;
 };
 
 }

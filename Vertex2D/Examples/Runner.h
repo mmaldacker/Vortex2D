@@ -14,7 +14,6 @@
 #include "Engine.h"
 #include "Advection.h"
 #include "Boundaries.h"
-#include "SuccessiveOverRelaxation.h"
 #include "ConjugateGradient.h"
 #include "Disable.h"
 
@@ -57,7 +56,7 @@ protected:
     WindowRenderer renderer;
 
     Fluid::Dimensions dimensions;
-    Fluid::SuccessiveOverRelaxation solver;
+    Fluid::ConjugateGradient solver;
     Fluid::Advection velocity;
     Fluid::Boundaries boundaries;
     Fluid::Engine engine;

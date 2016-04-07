@@ -92,6 +92,11 @@ public:
         for(auto && t : mTextures) t.SetAntiAliasTexParameters();
     }
 
+    void clamp_to_edge()
+    {
+        for(auto && t : mTextures) t.SetClampToEdgeTexParameters();
+    }
+
     void begin()
     {
         mTextures.front().begin();

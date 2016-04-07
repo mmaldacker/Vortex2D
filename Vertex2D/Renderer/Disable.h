@@ -61,6 +61,29 @@ struct Enable
     GLint enabled;
 };
 
+struct BlendState
+{
+    BlendState(GLint eq, GLint src, GLint dst)
+    {
+        // save blend state
+        glGetIntegerv(GL_BLEND_EQUATION, &blendEquation);
+        glGetIntegerv(GL_BLEND_SRC_RGB, &blendSrc);
+        glGetIntegerv(GL_BLEND_DST_RGB, &blendDst);
+
+        glBlendFunc(src, dst);
+        glBlendEquation(eq);
+    }
+
+    ~BlendState()
+    {
+        // restore blend state
+        glBlendFunc(blendSrc, blendDst);
+        glBlendEquation(blendEquation);
+    }
+
+    GLint blendEquation, blendSrc, blendDst;
+};
+
 }
 
 #endif

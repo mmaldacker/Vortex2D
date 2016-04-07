@@ -21,6 +21,7 @@ Boundaries::Boundaries(Dimensions dimensions, int antialias)
     , mWeights("TexturePosition.vsh", "Weights.fsh")
     , mDiagonals("TexturePosition.vsh", "Diagonals.fsh")
     , mBoundaryMask("TexturePosition.vsh", "BoundaryMask.fsh")
+    , mLevelSetMask("TexturePosition.vsh", "LevelSetMask.fsh")
     , mHorizontal({dimensions.Size.x, 1.0f})
     , mVertical({1.0f, dimensions.Size.y})
 {
@@ -112,6 +113,11 @@ void Boundaries::RenderVelocities(const std::vector<Renderer::Drawable*> & objec
         object->Render(mBoundariesVelocity.Orth*mDimensions.InvScale);
     }
     mBoundariesVelocity.end();
+}
+
+void Boundaries::RenderLevelSet(Fluid::LevelSet &levelSet)
+{
+    mDirichletBoundaries = mLevelSetMask(levelSet.mLevelSet);
 }
 
 void Boundaries::Clear()

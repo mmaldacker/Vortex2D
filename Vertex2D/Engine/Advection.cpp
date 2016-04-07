@@ -28,6 +28,9 @@ void Advection::Render(const std::vector<Renderer::Drawable*> & objects)
     glStencilFunc(GL_EQUAL, 0, 0xFF);
     glStencilMask(0x00);
 
+    Renderer::Enable b(GL_BLEND);
+    Renderer::BlendState s(GL_FUNC_ADD, GL_ONE, GL_ONE);
+
     mVelocity.begin();
     for(auto object : objects)
     {

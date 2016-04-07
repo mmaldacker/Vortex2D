@@ -12,6 +12,7 @@
 #include "Shapes.h"
 #include "Size.h"
 #include "Operator.h"
+#include "LevelSet.h"
 
 namespace Fluid
 {
@@ -25,6 +26,7 @@ public:
     void RenderNeumann(const std::vector<Renderer::Drawable*> & objects);
     void RenderBorders();
     void RenderVelocities(const std::vector<Renderer::Drawable*> & objects);
+    void RenderLevelSet(LevelSet & levelSet);
     void RenderMask(Buffer & mask);
 
     auto GetWeights()
@@ -40,7 +42,7 @@ public:
     void Clear();
 
     friend class Engine;
-private:
+//private:
     void Render(const std::vector<Renderer::Drawable*> & objects, const glm::mat4 & orth);
 
     Dimensions mDimensions;
@@ -53,6 +55,7 @@ private:
     Operator mWeights;
     Operator mDiagonals;
     Operator mBoundaryMask;
+    Operator mLevelSetMask;
 
     Renderer::Rectangle mHorizontal;
     Renderer::Rectangle mVertical;
