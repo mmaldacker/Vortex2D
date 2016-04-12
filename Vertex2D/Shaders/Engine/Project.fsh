@@ -21,10 +21,10 @@ void main()
     float pyp = textureOffset(u_pressure, v_texCoord, ivec2(0,1)).x;
     float pyn = textureOffset(u_pressure, v_texCoord, ivec2(0,-1)).x;
 
-    float cxp = textureOffset(u_obstacles, v_texCoord, ivec2(1,0)).x;
-    float cxn = textureOffset(u_obstacles, v_texCoord, ivec2(-1,0)).x;
-    float cyp = textureOffset(u_obstacles, v_texCoord, ivec2(0,1)).x;
-    float cyn = textureOffset(u_obstacles, v_texCoord, ivec2(0,-1)).x;
+    float cxp = textureOffset(u_obstacles, v_texCoord, ivec2(2,0)).x;
+    float cxn = textureOffset(u_obstacles, v_texCoord, ivec2(-2,0)).x;
+    float cyp = textureOffset(u_obstacles, v_texCoord, ivec2(0,2)).x;
+    float cyn = textureOffset(u_obstacles, v_texCoord, ivec2(0,-2)).x;
     
 	vec2 pGrad = vec2(pxp-pxn, pyp-pyn);
     

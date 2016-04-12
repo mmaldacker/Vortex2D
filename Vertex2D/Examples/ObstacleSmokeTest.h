@@ -25,6 +25,7 @@ public:
     , density(dimensions, 0.033)
     , smoke(density.Sprite())
     {
+        Renderer::Disable d(GL_BLEND);
         source.Position = force.Position = {200.0f, 400.0f};
 
         force.Colour = {0.0f, -5.0f, 0.0f, 0.0f};
@@ -34,7 +35,6 @@ public:
         obstacle.Position = {200.0f, 200.0f};
         obstacle.Rotation = 45.0f;
         obstacle.Colour = {1.0f, 0.0f, 0.0f, 1.0f};
-
     }
 
     void frame() override

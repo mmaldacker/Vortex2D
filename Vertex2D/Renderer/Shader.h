@@ -73,6 +73,7 @@ public:
     Program & operator=(Program &&);
     
     Program & AttachShader(const Shader & shader);
+    Program & AttachFeedback(const std::vector<const GLchar*> & varyings);
     Program & Link();
     Program & Use();
     static void Unuse();

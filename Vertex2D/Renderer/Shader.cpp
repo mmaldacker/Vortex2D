@@ -79,9 +79,11 @@ Program::Program(const std::string & vertexSource, const std::string & fragmentS
     AttachShader(vertex);
     AttachShader(fragment);
     Link();
+
+    mMVP.SetLocation(*this, "u_Projection");
 }
 
-Program::Program() : mProgram(0)
+Program::Program() : mProgram(glCreateProgram())
 {
 }
 
@@ -119,6 +121,12 @@ Program & Program::AttachShader(const Shader &shader)
     return *this;
 }
 
+Program & Program::AttachFeedback(const std::vector<const GLchar*> & varyings)
+{
+    glTransformFeedbackVaryings(mProgram, varyings.size(), varyings.data(), GL_INTERLEAVED_ATTRIBS);
+    return *this;
+}
+
 Program & Program::Link()
 {
 	glBindAttribLocation(mProgram, Shader::Position, Shader::PositionName);
@@ -137,9 +145,7 @@ Program & Program::Link()
 		glGetProgramInfoLog(mProgram, length, NULL, src);
 		throw std::runtime_error("Error linking program: " + std::string(src));
     }
-
-    mMVP.SetLocation(*this, "u_Projection");
-
+    
     return *this;
 }
 
@@ -168,24 +174,16 @@ Program & Program::SetMVP(const glm::mat4 &mvp)
 
 Program & Program::TexturePositionProgram()
 {
-    static Program program;
-    if(!program.mProgram)
-    {
-        program = Program("TexturePosition.vsh", "TexturePosition.fsh");
-        program.Use().Set("u_texture", 0).Unuse();
-    }
+    static Program program("TexturePosition.vsh", "TexturePosition.fsh");
+    //FIXME only set once
+    program.Use().Set("u_texture", 0).Unuse();
 
     return program;
 }
 
 Program & Program::PositionProgram()
 {
-    static Program program;
-    if(!program.mProgram)
-    {
-        program = Program("Position.vsh", "Position.fsh");
-    }
-
+    static Program program("Position.vsh", "Position.fsh");
     return program;
 }
 

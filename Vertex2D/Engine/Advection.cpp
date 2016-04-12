@@ -7,6 +7,7 @@
 //
 
 #include "Advection.h"
+#include "Boundaries.h"
 #include "Disable.h"
 
 namespace Fluid

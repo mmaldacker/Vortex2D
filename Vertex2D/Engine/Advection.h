@@ -11,12 +11,13 @@
 
 #include "Size.h"
 #include "Operator.h"
-#include "Boundaries.h"
+#include "Drawable.h"
 
 namespace Fluid
 {
 
 class Engine;
+class Boundaries;
 
 class Advection
 {

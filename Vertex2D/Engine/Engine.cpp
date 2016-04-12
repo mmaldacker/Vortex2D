@@ -27,7 +27,7 @@ Engine::Engine(Dimensions dimensions, Boundaries & boundaries, Advection & advec
     , mIdentity("TexturePosition.vsh", "TexturePosition.fsh")
 {
     mProject.Use().Set("u_texture", 0).Set("u_pressure", 1).Set("u_obstacles", 2).Set("u_obstacles_velocity", 3).Unuse();
-    mDiv.Use().Set("u_texture", 0).Set("u_weights", 1).Set("u_obstacles_velocity", 2).Unuse();
+    mDiv.Use().Set("u_texture", 0).Set("u_obstacles", 1).Set("u_obstacles_velocity", 2).Unuse();
     mExtrapolate.Use().Set("u_texture", 0).Set("u_velocity", 1).Unuse();
 }
 
@@ -37,14 +37,14 @@ void Engine::Solve()
     glStencilFunc(GL_EQUAL, 0, 0xFF);
     glStencilMask(0x00);
 
+    mData.Pressure = mDiv(mAdvection.mVelocity, mBoundaries.mNeumannBoundaries, mBoundaries.mBoundariesVelocity);
     mLinearSolver->Init(mData, mBoundaries);
-    mData.Pressure = mDiv(mAdvection.mVelocity, mData.Weights, mBoundaries.mBoundariesVelocity);
     mLinearSolver->Solve(mData);
     mAdvection.mVelocity.swap();
     mAdvection.mVelocity = mProject(Back(mAdvection.mVelocity), mData.Pressure, mBoundaries.mNeumannBoundaries, mBoundaries.mBoundariesVelocity);
 }
 
-void Engine::Extrapolate(Fluid::LevelSet &levelSet)
+void Engine::Extrapolate()
 {
     Renderer::Enable e(GL_STENCIL_TEST);
     glStencilMask(0x00);
@@ -54,10 +54,10 @@ void Engine::Extrapolate(Fluid::LevelSet &levelSet)
     mAdvection.mVelocity = mIdentity(Back(mAdvection.mVelocity));
 
     glStencilFunc(GL_EQUAL, 1, 0xFF);
-    for(int i = 0 ; i < 10 ; i++)
+    for(int i = 0 ; i < 100 ; i++)
     {
         mAdvection.mVelocity.swap();
-        mAdvection.mVelocity = mExtrapolate(levelSet.mLevelSet, Back(mAdvection.mVelocity));
+        mAdvection.mVelocity = mExtrapolate(Back(mAdvection.mVelocity));
     }
 }
 

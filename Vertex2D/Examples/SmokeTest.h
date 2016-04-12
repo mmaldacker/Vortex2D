@@ -34,6 +34,7 @@ public:
 
     void frame() override
     {
+    
         boundaries.RenderBorders();
 
         velocity.RenderMask(boundaries);
@@ -46,6 +47,7 @@ public:
         
         velocity.Advect();
         density.Advect(velocity);
+
     }
 
     std::vector<Renderer::Drawable*> render() override
