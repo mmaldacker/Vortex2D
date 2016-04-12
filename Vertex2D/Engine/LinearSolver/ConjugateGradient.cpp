@@ -41,7 +41,6 @@ ConjugateGradient::ConjugateGradient(const glm::vec2 & size)
 
 void ConjugateGradient::Init(LinearSolver::Data & data, Boundaries & boundaries)
 {
-    data.Pressure.clear();
     z.clear();
     r.clear();
     s.clear();
@@ -51,9 +50,6 @@ void ConjugateGradient::Init(LinearSolver::Data & data, Boundaries & boundaries)
     rho_new.clear();
     sigma.clear();
 
-    boundaries.RenderMask(data.Pressure);
-    data.Pressure.swap();
-    boundaries.RenderMask(data.Pressure);
     data.Weights = boundaries.GetWeights();
     data.Diagonal = boundaries.GetDiagonals();
 }

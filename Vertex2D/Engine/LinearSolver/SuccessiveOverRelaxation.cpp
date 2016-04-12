@@ -32,10 +32,6 @@ SuccessiveOverRelaxation::SuccessiveOverRelaxation(const glm::vec2 & size, int i
 
 void SuccessiveOverRelaxation::Init(LinearSolver::Data & data, Boundaries & boundaries)
 {
-    data.Pressure.clear();
-    boundaries.RenderMask(data.Pressure);
-    data.Pressure.swap();
-    boundaries.RenderMask(data.Pressure);
     data.Weights = boundaries.GetWeights();
     data.Diagonal = boundaries.GetDiagonals();
 

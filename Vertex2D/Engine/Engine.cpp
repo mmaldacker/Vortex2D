@@ -33,13 +33,21 @@ Engine::Engine(Dimensions dimensions, Boundaries & boundaries, Advection & advec
 
 void Engine::Solve()
 {
+    mData.Pressure.clear();
+
+    mBoundaries.RenderMask(mData.Pressure);
+    mData.Pressure.swap();
+    mBoundaries.RenderMask(mData.Pressure);
+
     Renderer::Enable e(GL_STENCIL_TEST);
     glStencilFunc(GL_EQUAL, 0, 0xFF);
     glStencilMask(0x00);
 
     mData.Pressure = mDiv(mAdvection.mVelocity, mBoundaries.mNeumannBoundaries, mBoundaries.mBoundariesVelocity);
+
     mLinearSolver->Init(mData, mBoundaries);
     mLinearSolver->Solve(mData);
+    
     mAdvection.mVelocity.swap();
     mAdvection.mVelocity = mProject(Back(mAdvection.mVelocity), mData.Pressure, mBoundaries.mNeumannBoundaries, mBoundaries.mBoundariesVelocity);
 }
