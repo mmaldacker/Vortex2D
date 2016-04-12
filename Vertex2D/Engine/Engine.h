@@ -40,6 +40,8 @@ private:
     Operator mProject;
     Operator mExtrapolate;
     Operator mIdentity;
+
+    Renderer::Rectangle mSurface;
 };
 
 }

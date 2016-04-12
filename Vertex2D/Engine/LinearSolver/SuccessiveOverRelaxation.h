@@ -20,9 +20,8 @@ public:
     SuccessiveOverRelaxation(const glm::vec2 & size, int iterations = 40);
     SuccessiveOverRelaxation(const glm::vec2 & size, int iterations, float w);
 
-    void Init(LinearSolver::Data & data, Boundaries & boundaries) override;
+    void Init(LinearSolver::Data & data) override;
     void Solve(LinearSolver::Data & data) override;
-    void Solve(LinearSolver::Data & data, bool up);
 
 private:
     void Step(LinearSolver::Data & data, bool isRed);

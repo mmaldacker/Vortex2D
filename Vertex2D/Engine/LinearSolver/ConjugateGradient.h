@@ -20,7 +20,7 @@ class ConjugateGradient : public LinearSolver
 public:
     ConjugateGradient(const glm::vec2 & size);
 
-    void Init(LinearSolver::Data & data, Boundaries & boundaries) override;
+    void Init(LinearSolver::Data & data) override;
     void Solve(LinearSolver::Data & data) override;
 
     void NormalSolve(LinearSolver::Data & data);

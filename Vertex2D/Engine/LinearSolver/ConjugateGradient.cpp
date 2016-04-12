@@ -39,7 +39,7 @@ ConjugateGradient::ConjugateGradient(const glm::vec2 & size)
     preconditioner.Use().Set("u_texture", 0).Set("u_diagonals", 1).Unuse();
 }
 
-void ConjugateGradient::Init(LinearSolver::Data & data, Boundaries & boundaries)
+void ConjugateGradient::Init(LinearSolver::Data & data)
 {
     z.clear();
     r.clear();
@@ -49,9 +49,6 @@ void ConjugateGradient::Init(LinearSolver::Data & data, Boundaries & boundaries)
     rho.clear();
     rho_new.clear();
     sigma.clear();
-
-    data.Weights = boundaries.GetWeights();
-    data.Diagonal = boundaries.GetDiagonals();
 }
 
 void ConjugateGradient::Solve(LinearSolver::Data & data)

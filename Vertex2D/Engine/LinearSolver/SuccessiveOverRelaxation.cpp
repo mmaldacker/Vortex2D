@@ -30,11 +30,8 @@ SuccessiveOverRelaxation::SuccessiveOverRelaxation(const glm::vec2 & size, int i
     mSor.Use().Set("w", w).Unuse();
 }
 
-void SuccessiveOverRelaxation::Init(LinearSolver::Data & data, Boundaries & boundaries)
+void SuccessiveOverRelaxation::Init(LinearSolver::Data & data)
 {
-    data.Weights = boundaries.GetWeights();
-    data.Diagonal = boundaries.GetDiagonals();
-
     Renderer::Enable e(GL_STENCIL_TEST);
     Renderer::DisableColorMask c;
 
@@ -51,15 +48,10 @@ void SuccessiveOverRelaxation::Init(LinearSolver::Data & data, Boundaries & boun
 
 void SuccessiveOverRelaxation::Solve(LinearSolver::Data & data)
 {
-    Solve(data, true);
-}
-
-void SuccessiveOverRelaxation::Solve(LinearSolver::Data & data, bool up)
-{
     for (int i  = 0; i < mIterations; ++i)
     {
-        Step(data, up);
-        Step(data, !up);
+        Step(data, true);
+        Step(data, false);
     }
 }
 
