@@ -15,18 +15,16 @@ namespace Fluid
 Boundaries::Boundaries(Dimensions dimensions, int antialias)
     : mDimensions(dimensions)
     , mAntialias(antialias)
-    , mDirichletBoundaries(glm::vec2(antialias)*dimensions.Size, 1)
+    , mDirichletBoundaries(dimensions.Size, 1)
     , mNeumannBoundaries(glm::vec2(antialias)*dimensions.Size, 1)
     , mBoundariesVelocity(dimensions.Size, 2)
     , mWeights("TexturePosition.vsh", "Weights.fsh")
     , mDiagonals("TexturePosition.vsh", "Diagonals.fsh")
     , mBoundaryMask("TexturePosition.vsh", "BoundaryMask.fsh")
-    , mLevelSetMask("TexturePosition.vsh", "LevelSetMask.fsh")
     , mHorizontal({dimensions.Size.x, 1.0f})
     , mVertical({1.0f, dimensions.Size.y})
 {
     mDirichletBoundaries.clear();
-    mDirichletBoundaries.linear();
 
     mNeumannBoundaries.clear();
     mNeumannBoundaries.linear();
@@ -44,14 +42,21 @@ Boundaries::Boundaries(Dimensions dimensions, int antialias)
 void Boundaries::RenderDirichlet(const std::vector<Renderer::Drawable*> & objects)
 {
     mDirichletBoundaries.begin();
-    Render(objects, mDirichletBoundaries.Orth);
+    for(auto object : objects)
+    {
+        object->Render(mNeumannBoundaries.Orth*mDimensions.InvScale);
+    }
     mDirichletBoundaries.end();
 }
 
 void Boundaries::RenderNeumann(const std::vector<Renderer::Drawable*> & objects)
 {
     mNeumannBoundaries.begin();
-    Render(objects, mNeumannBoundaries.Orth);
+    auto scaled = glm::scale(mNeumannBoundaries.Orth, glm::vec3(mAntialias, mAntialias, 1.0f));
+    for(auto object : objects)
+    {
+        object->Render(scaled*mDimensions.InvScale);
+    }
     mNeumannBoundaries.end();
 }
 
@@ -96,15 +101,6 @@ void Boundaries::RenderBorders()
     mNeumannBoundaries.end();
 }
 
-void Boundaries::Render(const std::vector<Renderer::Drawable*> & objects, const glm::mat4 & orth)
-{
-    auto scaled = glm::scale(orth, glm::vec3(mAntialias, mAntialias, 1.0f));
-    for(auto object : objects)
-    {
-        object->Render(scaled*mDimensions.InvScale);
-    }
-}
-
 void Boundaries::RenderVelocities(const std::vector<Renderer::Drawable*> & objects)
 {
     mBoundariesVelocity.begin({0.0f, 0.0f, 0.0f, 0.0f});
@@ -114,10 +110,15 @@ void Boundaries::RenderVelocities(const std::vector<Renderer::Drawable*> & objec
     }
     mBoundariesVelocity.end();
 }
-
-void Boundaries::RenderLevelSet(Fluid::LevelSet &levelSet)
+    
+void Boundaries::RenderFluid(Fluid::MarkerParticles &markerParticles)
 {
-    mDirichletBoundaries = mLevelSetMask(levelSet.mLevelSet);
+    auto colour = markerParticles.Colour;
+    mDirichletBoundaries.begin({1.0f, 0.0f, 0.0f, 0.0f});
+    markerParticles.Colour = glm::vec4{0.0f};
+    markerParticles.Render(mDirichletBoundaries.Orth*mDimensions.InvScale);
+    mDirichletBoundaries.end();
+    markerParticles.Colour = colour;
 }
 
 void Boundaries::Clear()

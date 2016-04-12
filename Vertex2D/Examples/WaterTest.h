@@ -10,58 +10,56 @@
 #define Vertex2D_Water_h
 
 #include "Runner.h"
-#include "LevelSet.h"
-#include "Shapes.h"
-#include "Water.h"
+#include "MarkerParticles.h"
 
 class WaterExample : public Runner
 {
 public:
     WaterExample()
-        : Runner({glm::vec2{500}, 1.0f}, 0.033)
-        , source({50.0f, 50.0f})
-        , gravity(dimensions.Size)
-        , levelSet(dimensions, 0.033)
-        , water(levelSet)
+        : Runner({glm::vec2{500}, 2.0f}, 0.033)
+        , gravity(glm::vec2{500})
+        , markerParticles(0.033)
     {
         Renderer::Disable d(GL_BLEND);
 
-        source.Position = {100.0f, 400.0f};
-        source.Colour = {1.0f, 1.0f, 1.0f, 1.0f};
-
         gravity.Colour = {0.0f, 0.1f, 0.0f, 0.0f};
 
-        levelSet.Render({&source});
-        levelSet.Redistance();
+        glm::vec2 pos{100.0f, 100.0f};
+        Renderer::Path p;
+        for(int i = 0 ; i < 60 ; i++)
+            for(int j = 0 ; j < 60 ; j++)
+                p.emplace_back(i+pos.x,j+pos.y);
+
+        markerParticles.Set(p);
     }
 
     void frame() override
     {
+        boundaries.Clear();
         boundaries.RenderBorders();
-        boundaries.RenderLevelSet(levelSet);
-
-        levelSet.Redistance();
-
-        engine.Extrapolate(levelSet);
+        boundaries.RenderFluid(markerParticles);
 
         velocity.RenderMask(boundaries);
         velocity.Render({&gravity});
 
-        velocity.Advect();
-        levelSet.Advect(velocity);
-
         engine.Solve();
+        engine.Extrapolate();
+
+        velocity.Advect();
+        markerParticles.Advect(velocity);
+
+        //velocity.mVelocity.get().Read().Print().PrintStencil();
     }
 
     std::vector<Renderer::Drawable*> render() override
     {
-        return {&water};
+        markerParticles.Colour = glm::vec4{182.0f,172.0f,164.0f, 255.0f}/glm::vec4(255.0f);
+        return {&markerParticles};
     }
 
 private:
-    Renderer::Rectangle source, gravity;
-    Fluid::LevelSet levelSet;
-    Water water;
+    Renderer::Rectangle gravity;
+    Fluid::MarkerParticles markerParticles;
 };
 
 #endif

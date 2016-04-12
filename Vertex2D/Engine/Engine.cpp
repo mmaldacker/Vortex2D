@@ -62,15 +62,7 @@ void Engine::Extrapolate()
     glStencilMask(0x00);
     glStencilFunc(GL_EQUAL, 0, 0xFF);
 
-    //mAdvection.mVelocity.begin();
-    //mSurface.Render(mAdvection.mVelocity.Orth);
-    //mAdvection.mVelocity.end();
-
     mAdvection.mVelocity.swap();
-    //mAdvection.mVelocity.begin();
-    //mSurface.Render(mAdvection.mVelocity.Orth);
-    //mAdvection.mVelocity.end();
-
     mAdvection.mVelocity = mIdentity(Back(mAdvection.mVelocity));
 
     glStencilFunc(GL_EQUAL, 1, 0xFF);

@@ -12,7 +12,7 @@
 #include "Shapes.h"
 #include "Size.h"
 #include "Operator.h"
-#include "LevelSet.h"
+#include "MarkerParticles.h"
 
 namespace Fluid
 {
@@ -24,9 +24,9 @@ public:
 
     void RenderDirichlet(const std::vector<Renderer::Drawable*> & objects);
     void RenderNeumann(const std::vector<Renderer::Drawable*> & objects);
+    void RenderFluid(MarkerParticles & markerParticles);
     void RenderBorders();
     void RenderVelocities(const std::vector<Renderer::Drawable*> & objects);
-    void RenderLevelSet(LevelSet & levelSet);
     void RenderMask(Buffer & mask);
 
     auto GetWeights()
@@ -43,8 +43,6 @@ public:
 
     friend class Engine;
 //private:
-    void Render(const std::vector<Renderer::Drawable*> & objects, const glm::mat4 & orth);
-
     Dimensions mDimensions;
     int mAntialias;
     
@@ -55,7 +53,6 @@ public:
     Operator mWeights;
     Operator mDiagonals;
     Operator mBoundaryMask;
-    Operator mLevelSetMask;
 
     Renderer::Rectangle mHorizontal;
     Renderer::Rectangle mVertical;
