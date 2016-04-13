@@ -23,7 +23,7 @@ Advection::Advection(Dimensions dimensions, float dt)
 {
     mVelocity.clear();
 
-    mAdvect.Use().Set("delta", dt).Set("u_texture", 0).Set("u_velocity", 1).Set("h", dimensions.Size).Unuse();
+    mAdvect.Use().Set("delta", dt).Set("u_texture", 0).Set("u_velocity", 1).Unuse();
     mExtrapolate.Use().Set("u_texture", 0).Unuse();
     mIdentity.Use().Set("u_texture", 0).Unuse();
 }
@@ -47,7 +47,6 @@ void Advection::Render(const std::vector<Renderer::Drawable*> & objects)
 
 void Advection::RenderMask(Boundaries & boundaries)
 {
-    // FIXME is this necessary?
     boundaries.RenderMask(mVelocity.swap());
     boundaries.RenderMask(mVelocity.swap());
 }

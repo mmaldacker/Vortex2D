@@ -1,7 +1,5 @@
 #version 150
 
-precision highp float;
-
 in vec2 a_Position;
 
 uniform sampler2D u_velocity;

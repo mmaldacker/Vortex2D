@@ -4,6 +4,7 @@
 #include "SmokeTest.h"
 #include "ObstacleSmokeTest.h"
 #include "WaterTest.h"
+#include "VelocitySmokeTest.h"
 
 void error_callback(int error, const char* description)
 {
@@ -26,6 +27,7 @@ int main(int argc, const char * argv[])
     //SmokeExample().run();
     //ObstacleSmokeExample().run();
     WaterExample().run();
+    //VelocitySmokeExample().run();
 
     CHECK_GL_ERROR_DEBUG();
 
