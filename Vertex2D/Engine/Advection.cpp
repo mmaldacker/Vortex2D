@@ -17,10 +17,15 @@ Advection::Advection(Dimensions dimensions, float dt)
     : mDimensions(dimensions)
     , mVelocity(dimensions.Size, 2, true, true)
     , mAdvect("TexturePosition.vsh", "Advect.fsh")
+    , mExtrapolate("TexturePosition.vsh", "Extrapolate.fsh")
+    , mIdentity("TexturePosition.vsh", "TexturePosition.fsh")
+
 {
     mVelocity.clear();
 
     mAdvect.Use().Set("delta", dt).Set("u_texture", 0).Set("u_velocity", 1).Set("h", dimensions.Size).Unuse();
+    mExtrapolate.Use().Set("u_texture", 0).Unuse();
+    mIdentity.Use().Set("u_texture", 0).Unuse();
 }
 
 void Advection::Render(const std::vector<Renderer::Drawable*> & objects)
@@ -59,6 +64,19 @@ void Advection::Advect(Fluid::Buffer & buffer)
 void Advection::Advect()
 {
     Advect(mVelocity);
+}
+
+void Advection::Extrapolate()
+{
+    mVelocity.swap() = mIdentity(Back(mVelocity));
+
+    Renderer::Enable e(GL_STENCIL_TEST);
+    glStencilMask(0x00);
+    glStencilFunc(GL_EQUAL, 1, 0xFF);
+    for(int i = 0 ; i < 100 ; i++)
+    {
+        mVelocity.swap() = mExtrapolate(Back(mVelocity));
+    }
 }
 
 }

@@ -30,12 +30,17 @@ public:
     void Advect();
     void Advect(Buffer & buffer);
 
+    void Extrapolate();
+
     friend class Engine;
 //private:
     Dimensions mDimensions;
     Buffer mVelocity;
 
     Operator mAdvect;
+    Operator mExtrapolate;
+    Operator mIdentity;
+
 };
 
 

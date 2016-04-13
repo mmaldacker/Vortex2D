@@ -26,7 +26,6 @@ public:
     Engine(Dimensions dimensions, Boundaries & boundaries, Advection & advection, LinearSolver * linearSolver);
     
     void Solve();
-    void Extrapolate();
 
 private:
     Dimensions mDimensions;
@@ -38,8 +37,6 @@ private:
 
     Operator mDiv;
     Operator mProject;
-    Operator mExtrapolate;
-    Operator mIdentity;
 
     Renderer::Rectangle mSurface;
 };

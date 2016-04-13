@@ -23,13 +23,10 @@ Engine::Engine(Dimensions dimensions, Boundaries & boundaries, Advection & advec
     , mLinearSolver(linearSolver)
     , mDiv("TexturePosition.vsh", "Div.fsh")
     , mProject("TexturePosition.vsh", "Project.fsh")
-    , mExtrapolate("TexturePosition.vsh", "Extrapolate.fsh")
-    , mIdentity("TexturePosition.vsh", "TexturePosition.fsh")
     , mSurface(dimensions.Size)
 {
     mProject.Use().Set("u_texture", 0).Set("u_pressure", 1).Set("u_obstacles", 2).Set("u_obstacles_velocity", 3).Unuse();
     mDiv.Use().Set("u_texture", 0).Set("u_obstacles", 1).Set("u_obstacles_velocity", 2).Unuse();
-    mExtrapolate.Use().Set("u_texture", 0).Unuse();
     mSurface.Colour = glm::vec4{0.0f};
 }
 
@@ -57,19 +54,6 @@ void Engine::Solve()
     mAdvection.mVelocity.begin();
     mSurface.Render(mAdvection.mVelocity.Orth);
     mAdvection.mVelocity.end();
-}
-
-void Engine::Extrapolate()
-{
-    mAdvection.mVelocity.swap() = mIdentity(Back(mAdvection.mVelocity));
-
-    Renderer::Enable e(GL_STENCIL_TEST);
-    glStencilMask(0x00);
-    glStencilFunc(GL_EQUAL, 1, 0xFF);
-    for(int i = 0 ; i < 100 ; i++)
-    {
-        mAdvection.mVelocity.swap() = mExtrapolate(Back(mAdvection.mVelocity));
-    }
 }
 
 }
