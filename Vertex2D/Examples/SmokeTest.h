@@ -21,9 +21,18 @@ public:
         : Runner({glm::vec2{500}, 1.0}, 0.033)
         , source1(20.0f), source2(20.0f)
         , force1(20.0f), force2(20.0f)
+        , top({500,1}), bottom({500,1})
+        , left({1,500}), right({1,500})
         , density(dimensions, 0.033)
         , smoke(density.Sprite())
     {
+        top.Colour = bottom.Colour = left.Colour = right.Colour = glm::vec4{1.0f};
+
+        top.Position = {0.0f, 0.0f};
+        bottom.Position = {0.0f, 499.0f};
+        left.Position = {0.0f, 0.0f};
+        right.Position = {499.0f, 0.0f};
+
         source1.Position = force1.Position = {300.0f, 400.0f};
         source2.Position = force2.Position = {100.0f, 400.0f};
 
@@ -34,8 +43,7 @@ public:
 
     void frame() override
     {
-    
-        boundaries.RenderBorders();
+        boundaries.RenderDirichlet({&top, &bottom, &left, &right});
 
         velocity.RenderMask(boundaries);
         velocity.Render({&force1, &force2});
@@ -58,6 +66,7 @@ public:
 private:
     Renderer::Circle source1, source2;
     Renderer::Circle force1, force2;
+    Renderer::Rectangle top, bottom, left, right;
     Fluid::Density density;
     Renderer::Sprite smoke;
 };

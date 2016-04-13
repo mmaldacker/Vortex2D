@@ -9,7 +9,6 @@
 #ifndef __Vertex2D__Boundaries__
 #define __Vertex2D__Boundaries__
 
-#include "Shapes.h"
 #include "Size.h"
 #include "Operator.h"
 #include "MarkerParticles.h"
@@ -25,7 +24,6 @@ public:
     void RenderDirichlet(const std::vector<Renderer::Drawable*> & objects);
     void RenderNeumann(const std::vector<Renderer::Drawable*> & objects);
     void RenderFluid(MarkerParticles & markerParticles);
-    void RenderBorders();
     void RenderVelocities(const std::vector<Renderer::Drawable*> & objects);
     void RenderMask(Buffer & mask);
 
@@ -53,9 +51,6 @@ public:
     Operator mWeights;
     Operator mDiagonals;
     Operator mBoundaryMask;
-
-    Renderer::Rectangle mHorizontal;
-    Renderer::Rectangle mVertical;
 };
 
 }

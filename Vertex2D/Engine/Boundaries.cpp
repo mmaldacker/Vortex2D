@@ -21,8 +21,6 @@ Boundaries::Boundaries(Dimensions dimensions, int antialias)
     , mWeights("TexturePosition.vsh", "Weights.fsh")
     , mDiagonals("TexturePosition.vsh", "Diagonals.fsh")
     , mBoundaryMask("TexturePosition.vsh", "BoundaryMask.fsh")
-    , mHorizontal({dimensions.Size.x, 1.0f})
-    , mVertical({1.0f, dimensions.Size.y})
 {
     mDirichletBoundaries.clear();
 
@@ -30,9 +28,6 @@ Boundaries::Boundaries(Dimensions dimensions, int antialias)
     mNeumannBoundaries.linear();
 
     mBoundariesVelocity.clear();
-
-    mVertical.Colour = {1.0f,1.0f,1.0f,1.0f};
-    mHorizontal.Colour = {1.0f,1.0f,1.0f,1.0f};
 
     mWeights.Use().Set("u_dirichlet", 0).Set("u_neumann", 1).Unuse();
     mDiagonals.Use().Set("u_texture", 0).Unuse();
@@ -44,7 +39,7 @@ void Boundaries::RenderDirichlet(const std::vector<Renderer::Drawable*> & object
     mDirichletBoundaries.begin();
     for(auto object : objects)
     {
-        object->Render(mNeumannBoundaries.Orth*mDimensions.InvScale);
+        object->Render(mDirichletBoundaries.Orth*mDimensions.InvScale);
     }
     mDirichletBoundaries.end();
 }
@@ -78,27 +73,6 @@ void Boundaries::RenderMask(Buffer & mask)
     mask = mBoundaryMask(mDirichletBoundaries, mNeumannBoundaries);
 
     glStencilMask(0x00); // disable stencil writing
-}
-
-void Boundaries::RenderBorders()
-{
-    mNeumannBoundaries.begin();
-
-    mHorizontal.Position = {0.0f, 0.0f};
-    mHorizontal.Scale = {mAntialias, mAntialias};
-    mHorizontal.Render(mNeumannBoundaries.Orth);
-
-    mHorizontal.Position = {0.0f, mAntialias*mDimensions.Size.y-mAntialias};
-    mHorizontal.Render(mNeumannBoundaries.Orth);
-
-    mVertical.Position = {0.0f, 0.0f};
-    mVertical.Scale = {mAntialias, mAntialias};
-    mVertical.Render(mNeumannBoundaries.Orth);
-
-    mVertical.Position = {mAntialias*mDimensions.Size.x-mAntialias, 0.0f};
-    mVertical.Render(mNeumannBoundaries.Orth);
-
-    mNeumannBoundaries.end();
 }
 
 void Boundaries::RenderVelocities(const std::vector<Renderer::Drawable*> & objects)
