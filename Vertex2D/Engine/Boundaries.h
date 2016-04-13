@@ -19,7 +19,7 @@ namespace Fluid
 class Boundaries
 {
 public:
-    Boundaries(Dimensions dimensions, int antialias);
+    Boundaries(Dimensions dimensions);
 
     void RenderDirichlet(const std::vector<Renderer::Drawable*> & objects);
     void RenderNeumann(const std::vector<Renderer::Drawable*> & objects);
@@ -42,7 +42,6 @@ public:
     friend class Engine;
 //private:
     Dimensions mDimensions;
-    int mAntialias;
     
     Buffer mDirichletBoundaries;
     Buffer mNeumannBoundaries;

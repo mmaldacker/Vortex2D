@@ -12,11 +12,10 @@
 namespace Fluid
 {
 
-Boundaries::Boundaries(Dimensions dimensions, int antialias)
+Boundaries::Boundaries(Dimensions dimensions)
     : mDimensions(dimensions)
-    , mAntialias(antialias)
     , mDirichletBoundaries(dimensions.Size, 1)
-    , mNeumannBoundaries(glm::vec2(antialias)*dimensions.Size, 1)
+    , mNeumannBoundaries(glm::vec2(2.0f)*dimensions.Size, 1)
     , mBoundariesVelocity(dimensions.Size, 2)
     , mWeights("TexturePosition.vsh", "Weights.fsh")
     , mDiagonals("TexturePosition.vsh", "Diagonals.fsh")
@@ -47,7 +46,7 @@ void Boundaries::RenderDirichlet(const std::vector<Renderer::Drawable*> & object
 void Boundaries::RenderNeumann(const std::vector<Renderer::Drawable*> & objects)
 {
     mNeumannBoundaries.begin();
-    auto scaled = glm::scale(mNeumannBoundaries.Orth, glm::vec3(mAntialias, mAntialias, 1.0f));
+    auto scaled = glm::scale(mNeumannBoundaries.Orth, glm::vec3(2.0f, 2.0f, 1.0f));
     for(auto object : objects)
     {
         object->Render(scaled*mDimensions.InvScale);

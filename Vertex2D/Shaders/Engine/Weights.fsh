@@ -12,10 +12,10 @@ out vec4 out_color;
 void main()
 {
     vec4 p;
-    p.x = textureOffset(u_dirichlet, v_texCoord, ivec2(2,0)).x;
-    p.y = textureOffset(u_dirichlet, v_texCoord, ivec2(-2,0)).x;
-    p.z = textureOffset(u_dirichlet, v_texCoord, ivec2(0,2)).x;
-    p.w = textureOffset(u_dirichlet, v_texCoord, ivec2(0,-2)).x;
+    p.x = textureOffset(u_dirichlet, v_texCoord, ivec2(1,0)).x;
+    p.y = textureOffset(u_dirichlet, v_texCoord, ivec2(-1,0)).x;
+    p.z = textureOffset(u_dirichlet, v_texCoord, ivec2(0,1)).x;
+    p.w = textureOffset(u_dirichlet, v_texCoord, ivec2(0,-1)).x;
 
     vec4 q;
     q.x = textureOffset(u_neumann, v_texCoord, ivec2(2,0)).x;
