@@ -8,6 +8,7 @@ uniform sampler2D u_texture; // this is the velocity texture
 uniform sampler2D u_pressure; 
 uniform sampler2D u_obstacles;
 uniform sampler2D u_obstacles_velocity;
+uniform float delta;
 
 out vec4 out_color;
 
@@ -51,8 +52,8 @@ void main()
         mask.y = 0.0; 
         obsV.y = textureOffset(u_obstacles_velocity, v_texCoord, ivec2(0,-1)).y;
     }
-    
-    // Enforce the free-slip boundary condition:
-    vec2 new_cell = cell - (0.5 * textureSize(u_texture,0).x) * pGrad;
+
+    float dx = 1.0;
+    vec2 new_cell = cell - delta * pGrad / dx;
     out_color = vec4(mask * new_cell + obsV, 0.0, 0.0);
 }

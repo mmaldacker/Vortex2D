@@ -26,7 +26,7 @@ void main()
     float solid_vyp = textureOffset(u_obstacles_velocity, v_texCoord, ivec2(0,1)).y;
     float solid_vyn = textureOffset(u_obstacles_velocity, v_texCoord, ivec2(0,-1)).y;
 
-    float dx = textureSize(u_texture,0).x;
+    float dx = 1.0;
     float div = -(cxp * uxp - cxn * uxn + cyp * vyp - cyn * vyn) / dx;
           div += ((cxp-c)*solid_uxp - (cxn-c)*solid_uxn + (cyp-c)*solid_vyp - (cyn-c)*solid_vyn) / dx;
 

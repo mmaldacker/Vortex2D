@@ -25,8 +25,8 @@ public:
         , dimensions(dimensions)
         , solver(dimensions.Size)
         , velocity(dimensions, dt)
-        , boundaries(dimensions)
-        , engine(dimensions, boundaries, velocity, &solver)
+        , boundaries(dimensions, dt)
+        , engine(dimensions, boundaries, velocity, &solver, dt)
     {
         renderer.SetBackgroundColour(glm::vec4{99.0f,96.0f,93.0f,255.0f}/glm::vec4(255.0f));
     }

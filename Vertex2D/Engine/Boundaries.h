@@ -19,7 +19,7 @@ namespace Fluid
 class Boundaries
 {
 public:
-    Boundaries(Dimensions dimensions);
+    Boundaries(Dimensions dimensions, float dt);
 
     void RenderDirichlet(const std::vector<Renderer::Drawable*> & objects);
     void RenderNeumann(const std::vector<Renderer::Drawable*> & objects);

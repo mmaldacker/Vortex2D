@@ -15,7 +15,7 @@
 namespace Fluid
 {
 
-Engine::Engine(Dimensions dimensions, Boundaries & boundaries, Advection & advection, LinearSolver * linearSolver)
+Engine::Engine(Dimensions dimensions, Boundaries & boundaries, Advection & advection, LinearSolver * linearSolver, float dt)
     : mDimensions(dimensions)
     , mData(dimensions.Size)
     , mBoundaries(boundaries)
@@ -25,7 +25,7 @@ Engine::Engine(Dimensions dimensions, Boundaries & boundaries, Advection & advec
     , mProject("TexturePosition.vsh", "Project.fsh")
     , mSurface(dimensions.Size)
 {
-    mProject.Use().Set("u_texture", 0).Set("u_pressure", 1).Set("u_obstacles", 2).Set("u_obstacles_velocity", 3).Unuse();
+    mProject.Use().Set("u_texture", 0).Set("u_pressure", 1).Set("u_obstacles", 2).Set("u_obstacles_velocity", 3).Set("delta", dt).Unuse();
     mDiv.Use().Set("u_texture", 0).Set("u_obstacles", 1).Set("u_obstacles_velocity", 2).Unuse();
     mSurface.Colour = glm::vec4{0.0f};
 }

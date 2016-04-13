@@ -23,7 +23,7 @@ namespace Fluid
 class Engine
 {
 public:
-    Engine(Dimensions dimensions, Boundaries & boundaries, Advection & advection, LinearSolver * linearSolver);
+    Engine(Dimensions dimensions, Boundaries & boundaries, Advection & advection, LinearSolver * linearSolver, float dt);
     
     void Solve();
 

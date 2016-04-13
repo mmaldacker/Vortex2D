@@ -12,7 +12,7 @@
 namespace Fluid
 {
 
-Boundaries::Boundaries(Dimensions dimensions)
+Boundaries::Boundaries(Dimensions dimensions, float dt)
     : mDimensions(dimensions)
     , mDirichletBoundaries(dimensions.Size, 1)
     , mNeumannBoundaries(glm::vec2(2.0f)*dimensions.Size, 1)
@@ -28,8 +28,8 @@ Boundaries::Boundaries(Dimensions dimensions)
 
     mBoundariesVelocity.clear();
 
-    mWeights.Use().Set("u_dirichlet", 0).Set("u_neumann", 1).Unuse();
-    mDiagonals.Use().Set("u_texture", 0).Unuse();
+    mWeights.Use().Set("u_dirichlet", 0).Set("u_neumann", 1).Set("delta", dt).Unuse();
+    mDiagonals.Use().Set("u_texture", 0).Set("delta", dt).Unuse();
     mBoundaryMask.Use().Set("u_dirichlet", 0).Set("u_neumann", 1).Unuse();
 }
 
