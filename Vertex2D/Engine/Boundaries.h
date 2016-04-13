@@ -29,7 +29,7 @@ public:
 
     auto GetWeights()
     {
-        return mWeights(mNeumannBoundaries, mDirichletBoundaries);
+        return mWeights(mDirichletBoundaries, mNeumannBoundaries);
     }
     
     auto GetDiagonals()
