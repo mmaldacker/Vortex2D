@@ -41,16 +41,13 @@ void Density::Render(const std::vector<Renderer::Drawable*> & objects)
 void Density::RenderMask(Boundaries & boundaries)
 {
     // FIXME is this necessary?
-    boundaries.RenderMask(mDensity);
-    mDensity.swap();
-    boundaries.RenderMask(mDensity);
-    mDensity.swap();
+    boundaries.RenderMask(mDensity.swap());
+    boundaries.RenderMask(mDensity.swap());
 }
 
 void Density::Advect(Advection & advection)
 {
-    mDensity.swap();
-    mDensity = mAdvectDensity(Back(mDensity), Back(advection.mVelocity));
+    mDensity.swap() = mAdvectDensity(Back(mDensity), Back(advection.mVelocity));
 }
 
 Renderer::Sprite Density::Sprite()

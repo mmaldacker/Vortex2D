@@ -40,8 +40,7 @@ void SuccessiveOverRelaxation::Init(LinearSolver::Data & data)
     glStencilMask(0x02); // write in second place
 
     data.Pressure = mStencil();
-    data.Pressure.swap();
-    data.Pressure = mStencil();
+    data.Pressure.swap() = mStencil();
 
     glStencilMask(0x00); // disable stencil writing
 }

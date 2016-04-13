@@ -82,12 +82,10 @@ void ConjugateGradient::Solve(LinearSolver::Data & data)
         alpha = scalarDivision(rho, sigma);
 
         // p = p + alpha * s
-        data.Pressure.swap();
-        data.Pressure = multiplyAdd(Back(data.Pressure), s, alpha);
+        data.Pressure.swap() = multiplyAdd(Back(data.Pressure), s, alpha);
 
         // r = r - alpha * z
-        r.swap();
-        r = multiplySub(Back(r), z, alpha);
+        r.swap() = multiplySub(Back(r), z, alpha);
 
         // z = M^-1 r
         z = preconditioner(r, data.Diagonal);
@@ -99,8 +97,7 @@ void ConjugateGradient::Solve(LinearSolver::Data & data)
         beta = scalarDivision(rho_new, rho);
 
         // s = z + beta * s
-        s.swap();
-        s = multiplyAdd(z,Back(s),beta);
+        s.swap() = multiplyAdd(z,Back(s),beta);
 
         // rho = rho_new
         rho = identity(rho_new);

@@ -38,8 +38,7 @@ void Engine::Solve()
     mData.Pressure.clear();
 
     mBoundaries.RenderMask(mData.Pressure);
-    mData.Pressure.swap();
-    mBoundaries.RenderMask(mData.Pressure);
+    mBoundaries.RenderMask(mData.Pressure.swap());
 
     Renderer::Enable e(GL_STENCIL_TEST);
     glStencilFunc(GL_EQUAL, 0, 0xFF);
@@ -52,8 +51,7 @@ void Engine::Solve()
     mLinearSolver->Init(mData);
     mLinearSolver->Solve(mData);
 
-    mAdvection.mVelocity.swap();
-    mAdvection.mVelocity = mProject(Back(mAdvection.mVelocity), mData.Pressure, mBoundaries.mNeumannBoundaries, mBoundaries.mBoundariesVelocity);
+    mAdvection.mVelocity.swap() = mProject(Back(mAdvection.mVelocity), mData.Pressure, mBoundaries.mNeumannBoundaries, mBoundaries.mBoundariesVelocity);
 
     glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
     mAdvection.mVelocity.begin();
@@ -63,16 +61,14 @@ void Engine::Solve()
 
 void Engine::Extrapolate()
 {
-    mAdvection.mVelocity.swap();
-    mAdvection.mVelocity = mIdentity(Back(mAdvection.mVelocity));
+    mAdvection.mVelocity.swap() = mIdentity(Back(mAdvection.mVelocity));
 
     Renderer::Enable e(GL_STENCIL_TEST);
     glStencilMask(0x00);
     glStencilFunc(GL_EQUAL, 1, 0xFF);
     for(int i = 0 ; i < 100 ; i++)
     {
-        mAdvection.mVelocity.swap();
-        mAdvection.mVelocity = mExtrapolate(Back(mAdvection.mVelocity));
+        mAdvection.mVelocity.swap() = mExtrapolate(Back(mAdvection.mVelocity));
     }
 }
 

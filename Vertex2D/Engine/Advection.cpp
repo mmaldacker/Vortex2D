@@ -43,10 +43,8 @@ void Advection::Render(const std::vector<Renderer::Drawable*> & objects)
 void Advection::RenderMask(Boundaries & boundaries)
 {
     // FIXME is this necessary?
-    boundaries.RenderMask(mVelocity);
-    mVelocity.swap();
-    boundaries.RenderMask(mVelocity);
-    mVelocity.swap();
+    boundaries.RenderMask(mVelocity.swap());
+    boundaries.RenderMask(mVelocity.swap());
 }
 
 void Advection::Advect(Fluid::Buffer & buffer)
@@ -55,8 +53,7 @@ void Advection::Advect(Fluid::Buffer & buffer)
     glStencilFunc(GL_EQUAL, 0, 0xFF);
     glStencilMask(0x00);
 
-    buffer.swap();
-    buffer = mAdvect(Back(buffer), Back(mVelocity));
+    buffer.swap() = mAdvect(Back(buffer), Back(mVelocity));
 }
 
 void Advection::Advect()

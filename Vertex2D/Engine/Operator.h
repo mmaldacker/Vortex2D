@@ -117,10 +117,11 @@ public:
         for(auto && t : mTextures) t.Clear();
     }
 
-    void swap()
+    Buffer & swap()
     {
         assert(mTextures.size() == 2);
         std::swap(mTextures.front(), mTextures.back());
+        return *this;
     }
 
     Renderer::Texture & texture()
