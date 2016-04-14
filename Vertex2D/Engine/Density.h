@@ -25,7 +25,6 @@ public:
     Density(Dimensions dimensions, float dt);
 
     void Render(const std::vector<Renderer::Drawable*> & objects);
-    void RenderMask(Boundaries & boundaries);
     void Advect(Advection & advection);
 
     Renderer::Sprite Sprite();

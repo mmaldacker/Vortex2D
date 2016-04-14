@@ -17,19 +17,7 @@ namespace Fluid
 class Reduce
 {
 public:
-    Reduce(glm::vec2 size)
-        : reduce("Reduce.vsh", "Reduce.fsh")
-        , multiply("TexturePosition.vsh", "Multiply.fsh")
-    {
-        while(size.x > 1.0f && size.y > 1.0f)
-        {
-            s.emplace_back(size, 1);
-            size = glm::ceil(size/glm::vec2(2.0f));
-        }
-
-        reduce.Use().Set("u_texture", 0).Unuse();
-        multiply.Use().Set("u_texture", 0).Set("u_other", 1).Unuse();
-    }
+    Reduce(glm::vec2 size);
 
     auto operator()(Buffer &a, Buffer &b)
     {

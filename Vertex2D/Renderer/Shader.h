@@ -21,7 +21,7 @@ class Program;
 class Shader
 {
 public:
-    Shader & Source(const std::string & source);
+    Shader & Source(const char * source);
     Shader & Compile();
     virtual ~Shader();
 
@@ -29,6 +29,11 @@ public:
 
     static const GLuint TexCoords = 1;
     static const GLuint Position = 2;
+
+    static const char * PositionVert;
+    static const char * PositionFrag;
+    static const char * TexturePositionVert;
+    static const char * TexturePositionFrag;
 protected:
     Shader(GLuint shader);
     GLuint mShader;
@@ -66,7 +71,7 @@ class Program
 {
 public:
     Program();
-    Program(const std::string & vertex, const std::string & fragment);
+    Program(const char * vertex, const char * fragment);
     ~Program();
 
     Program(Program &&);

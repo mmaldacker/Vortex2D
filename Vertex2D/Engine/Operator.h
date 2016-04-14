@@ -206,7 +206,7 @@ struct bind_type<Back, P...>
 class Operator
 {
 public:
-    Operator(const std::string & vertex, const std::string & fragment) : mProgram(vertex, fragment)
+    Operator(const char * vertex, const char * fragment) : mProgram(vertex, fragment)
     {}
 
     Renderer::Program & Use()

@@ -12,15 +12,103 @@
 namespace Fluid
 {
 
+const char * LevelSetMaskFrag = GLSL(
+     in vec2 v_texCoord;
+     out vec4 out_color;
+
+     uniform sampler2D u_texture;
+
+     void main()
+     {
+         float x = texture(u_texture, v_texCoord).x;
+         
+         if(x < 0.0)
+         {
+             out_color = vec4(1.0, 0.0, 0.0, 0.0);
+         }
+         else
+         {
+             out_color = vec4(0.0);
+         }
+     }
+);
+
+const char * BoundaryMaskFrag = GLSL(
+    in vec2 v_texCoord;
+
+    uniform sampler2D u_dirichlet;
+    uniform sampler2D u_neumann;
+
+    void main()
+    {
+        float x = texture(u_dirichlet, v_texCoord).x;
+        float y = texture(u_neumann, v_texCoord).x;
+
+        if(x < 1.0 && y < 1.0)
+        {
+            discard;
+        }
+    }
+);
+
+const char * WeightsFrag = GLSL(
+    in vec2 v_texCoord;
+    out vec4 out_color;
+
+    uniform sampler2D u_dirichlet;
+    uniform sampler2D u_neumann;
+    uniform float delta;
+
+    void main()
+    {
+        vec4 p;
+        p.x = textureOffset(u_dirichlet, v_texCoord, ivec2(1,0)).x;
+        p.y = textureOffset(u_dirichlet, v_texCoord, ivec2(-1,0)).x;
+        p.z = textureOffset(u_dirichlet, v_texCoord, ivec2(0,1)).x;
+        p.w = textureOffset(u_dirichlet, v_texCoord, ivec2(0,-1)).x;
+
+        vec4 q;
+        q.x = textureOffset(u_neumann, v_texCoord, ivec2(2,0)).x;
+        q.y = textureOffset(u_neumann, v_texCoord, ivec2(-2,0)).x;
+        q.z = textureOffset(u_neumann, v_texCoord, ivec2(0,2)).x;
+        q.w = textureOffset(u_neumann, v_texCoord, ivec2(0,-2)).x;
+        
+        float dx = 1.0;
+        out_color = delta * (1.0 - max(p,q)) / (dx*dx);
+    }
+);
+
+const char * DiagonalsFrag = GLSL(
+    in vec2 v_texCoord;
+    out vec4 out_color;
+
+    uniform sampler2D u_texture; // this is the obstacles
+    uniform float delta;
+
+    const vec4 q = vec4(1.0);
+
+    void main()
+    {
+        vec4 p;
+        p.x = 1.0 - textureOffset(u_texture, v_texCoord, ivec2(2,0)).x;
+        p.y = 1.0 - textureOffset(u_texture, v_texCoord, ivec2(-2,0)).x;
+        p.z = 1.0 - textureOffset(u_texture, v_texCoord, ivec2(0,2)).x;
+        p.w = 1.0 - textureOffset(u_texture, v_texCoord, ivec2(0,-2)).x;
+
+        float dx = 1.0;
+        out_color = vec4(delta * dot(p,q) / (dx*dx),0.0, 0.0, 0.0);
+    }
+);
+
 Boundaries::Boundaries(Dimensions dimensions, float dt)
     : mDimensions(dimensions)
     , mDirichletBoundaries(dimensions.Size, 1)
     , mNeumannBoundaries(glm::vec2(2.0f)*dimensions.Size, 1)
     , mBoundariesVelocity(dimensions.Size, 2)
-    , mWeights("TexturePosition.vsh", "Weights.fsh")
-    , mDiagonals("TexturePosition.vsh", "Diagonals.fsh")
-    , mBoundaryMask("TexturePosition.vsh", "BoundaryMask.fsh")
-    , mLevelSetMask("TexturePosition.vsh", "LevelSetMask.fsh")
+    , mWeights(Renderer::Shader::TexturePositionVert, WeightsFrag)
+    , mDiagonals(Renderer::Shader::TexturePositionVert, DiagonalsFrag)
+    , mBoundaryMask(Renderer::Shader::TexturePositionVert, BoundaryMaskFrag)
+    , mLevelSetMask(Renderer::Shader::TexturePositionVert, LevelSetMaskFrag)
 {
     mDirichletBoundaries.clear();
 
@@ -83,16 +171,6 @@ void Boundaries::RenderVelocities(const std::vector<Renderer::Drawable*> & objec
         object->Render(mBoundariesVelocity.Orth*mDimensions.InvScale);
     }
     mBoundariesVelocity.end();
-}
-    
-void Boundaries::RenderFluid(Fluid::MarkerParticles &markerParticles)
-{
-    auto colour = markerParticles.Colour;
-    mDirichletBoundaries.begin({1.0f, 0.0f, 0.0f, 0.0f});
-    markerParticles.Colour = glm::vec4{0.0f};
-    markerParticles.Render(mDirichletBoundaries.Orth*mDimensions.InvScale);
-    mDirichletBoundaries.end();
-    markerParticles.Colour = colour;
 }
 
 void Boundaries::RenderFluid(Fluid::LevelSet &levelSet)

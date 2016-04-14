@@ -7,14 +7,59 @@
 //
 
 #include "Shader.h"
-#include "ResourcePath.h"
-#include <fstream>
 
 namespace Renderer
 {
 
 const char * Shader::PositionName = "a_Position";
 const char * Shader::TexCoordsName = "a_TexCoords";
+
+const char * Shader::PositionVert = GLSL(
+    in vec2 a_Position;
+    uniform mat4 u_Projection;
+
+    void main()
+    {
+        gl_Position = u_Projection * vec4(a_Position, 0.0, 1.0);
+    }
+);
+
+const char * Shader::PositionFrag = GLSL(
+    uniform vec4 u_Colour;
+    out vec4 out_color;
+
+    void main()
+    {
+     out_color = u_Colour;
+    }
+);
+
+const char * Shader::TexturePositionVert = GLSL(
+    in vec2 a_Position;
+    in vec2 a_TexCoords;
+
+    out vec2 v_texCoord;
+
+    uniform mat4 u_Projection;
+
+    void main()
+    {
+        gl_Position = u_Projection * vec4(a_Position, 0.0, 1.0);
+        v_texCoord = a_TexCoords;
+    }
+);
+
+const char * Shader::TexturePositionFrag = GLSL(
+    in vec2 v_texCoord;
+    uniform sampler2D u_texture;
+
+    out vec4 out_color;
+
+    void main()
+    {
+        out_color = texture(u_texture, v_texCoord);
+    }
+);
 
 Shader::Shader(GLuint shader) : mShader(shader)
 {
@@ -28,13 +73,9 @@ Shader::~Shader()
     }
 }
 
-Shader & Shader::Source(const std::string & source)
+Shader & Shader::Source(const char * source)
 {
-    std::ifstream sourceFile(getResourcePath() + source);
-    std::string sourceFileContent((std::istreambuf_iterator<char>(sourceFile)), std::istreambuf_iterator<char>());
-
-    auto c_str = sourceFileContent.c_str();
-    glShaderSource(mShader, 1, &c_str, NULL);
+    glShaderSource(mShader, 1, &source, NULL);
     return *this;
 }
 
@@ -68,7 +109,7 @@ FragmentShader::FragmentShader() : Shader(glCreateShader(GL_FRAGMENT_SHADER))
 
 int Program::CurrentProgram = 0;
 
-Program::Program(const std::string & vertexSource, const std::string & fragmentSource) : mProgram(glCreateProgram())
+Program::Program(const char * vertexSource, const char * fragmentSource) : mProgram(glCreateProgram())
 {
     VertexShader vertex;
     vertex.Source(vertexSource).Compile();
@@ -174,7 +215,7 @@ Program & Program::SetMVP(const glm::mat4 &mvp)
 
 Program & Program::TexturePositionProgram()
 {
-    static Program program("TexturePosition.vsh", "TexturePosition.fsh");
+    static Program program(Shader::TexturePositionVert, Shader::TexturePositionFrag);
     //FIXME only set once
     program.Use().Set("u_texture", 0).Unuse();
 
@@ -183,7 +224,7 @@ Program & Program::TexturePositionProgram()
 
 Program & Program::PositionProgram()
 {
-    static Program program("Position.vsh", "Position.fsh");
+    static Program program(Shader::PositionVert, Shader::PositionFrag);
     return program;
 }
 

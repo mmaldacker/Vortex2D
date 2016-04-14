@@ -14,6 +14,7 @@
 #include "Advection.h"
 #include "Size.h"
 #include "Operator.h"
+#include "Shapes.h"
 
 #include <vector>
 

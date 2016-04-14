@@ -13,11 +13,51 @@
 namespace Fluid
 {
 
+const char * SorFrag = GLSL(
+    in vec2 v_texCoord;
+    out vec4 out_color;
+
+    uniform sampler2D u_texture; // this is the pressure
+    uniform sampler2D u_weights;
+    uniform sampler2D u_diagonals;
+    uniform float w;
+
+
+    void main()
+    {
+        // cell.x is pressure and cell.y is div
+        vec2 cell = texture(u_texture, v_texCoord).xy;
+
+        vec4 p;
+        p.x = textureOffset(u_texture, v_texCoord, ivec2(1,0)).x;
+        p.y = textureOffset(u_texture, v_texCoord, ivec2(-1,0)).x;
+        p.z = textureOffset(u_texture, v_texCoord, ivec2(0,1)).x;
+        p.w = textureOffset(u_texture, v_texCoord, ivec2(0,-1)).x;
+
+        vec4 c = texture(u_weights, v_texCoord);
+        float d = texture(u_diagonals, v_texCoord).x;
+
+        float pressure = mix(cell.x, (dot(p,c) + cell.y) / d, w);
+        
+        out_color = vec4(pressure, cell.y, 0.0, 0.0);
+    }
+);
+
+const char * CheckerMask = GLSL(
+    void main()
+    {
+        if(mod(gl_FragCoord.x + gl_FragCoord.y,2.0) == 1.0)
+        {
+            discard;
+        }
+    }
+);
+
 SuccessiveOverRelaxation::SuccessiveOverRelaxation(const glm::vec2 & size, int iterations)
     : mIterations(iterations)
-    , mSor("TexturePosition.vsh", "SOR.fsh")
-    , mStencil("TexturePosition.vsh", "Stencil.fsh")
-    , mIdentity("TexturePosition.vsh", "TexturePosition.fsh")
+    , mSor(Renderer::Shader::TexturePositionVert, SorFrag)
+    , mStencil(Renderer::Shader::TexturePositionVert, CheckerMask)
+    , mIdentity(Renderer::Shader::TexturePositionVert, Renderer::Shader::TexturePositionFrag)
 {
     float w = 2.0f/(1.0f+std::sin(4.0f*std::atan(1.0f)/std::sqrt(size.x*size.y)));
 

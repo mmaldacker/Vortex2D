@@ -12,6 +12,128 @@
 namespace Fluid
 {
 
+const char * DivideFrag = GLSL(
+    in vec2 v_texCoord;
+    out vec4 colour_out;
+
+    uniform sampler2D u_texture;
+    uniform sampler2D u_other;
+
+    void main()
+    {
+        float x = texture(u_texture, v_texCoord).x;
+        float y = texture(u_other, v_texCoord).x;
+
+        colour_out = vec4(x/y, 0.0, 0.0, 0.0);
+    }
+);
+
+const char * JacobiPreFrag = GLSL(
+    in vec2 v_texCoord;
+    out vec4 colour_out;
+
+    uniform sampler2D u_texture;
+    uniform sampler2D u_diagonals;
+
+    void main()
+    {
+        float x = texture(u_texture, v_texCoord).x;
+        float diag = texture(u_diagonals, v_texCoord).x;
+
+        colour_out = vec4(x/diag, 0.0, 0.0, 0.0);
+    }
+);
+
+const char * MultiplyAddFrag = GLSL(
+    in vec2 v_texCoord;
+    out vec4 colour_out;
+
+    uniform sampler2D u_texture;
+    uniform sampler2D u_other;
+    uniform sampler2D u_scalar;
+
+
+    void main()
+    {
+        float x = texture(u_texture, v_texCoord).x;
+        float y = texture(u_other, v_texCoord).x;
+        float alpha = texture(u_scalar, vec2(0.5)).x;
+        
+        colour_out = vec4(x+alpha*y, 0.0, 0.0, 0.0);
+    }
+);
+
+const char * MultiplyMatrixFrag = GLSL(
+    in vec2 v_texCoord;
+    out vec4 colour_out;
+
+    uniform sampler2D u_texture;
+    uniform sampler2D u_weights;
+    uniform sampler2D u_diagonals;
+
+    void main()
+    {
+        float x = texture(u_texture, v_texCoord).x;
+
+        vec4 p;
+        p.x = textureOffset(u_texture, v_texCoord, ivec2(1,0)).x;
+        p.y = textureOffset(u_texture, v_texCoord, ivec2(-1,0)).x;
+        p.z = textureOffset(u_texture, v_texCoord, ivec2(0,1)).x;
+        p.w = textureOffset(u_texture, v_texCoord, ivec2(0,-1)).x;
+
+        vec4 c = texture(u_weights, v_texCoord);
+        float d = texture(u_diagonals, v_texCoord).x;
+
+        float multiply = d * x - dot(p,c);
+        colour_out = vec4(multiply, 0.0, 0.0, 0.0);
+    }
+);
+
+const char * MultiplySubFrag = GLSL(
+    in vec2 v_texCoord;
+    out vec4 colour_out;
+
+    uniform sampler2D u_texture;
+    uniform sampler2D u_other;
+    uniform sampler2D u_scalar;
+
+    void main()
+    {
+        float x = texture(u_texture, v_texCoord).x;
+        float y = texture(u_other, v_texCoord).x;
+        float alpha = texture(u_scalar, vec2(0.5)).x;
+
+        colour_out = vec4(x-alpha*y, 0.0, 0.0, 0.0);
+    }
+);
+
+const char * ResidualFrag = GLSL(
+    in vec2 v_texCoord;
+    out vec4 colour_out;
+
+    uniform sampler2D u_texture;
+    uniform sampler2D u_weights;
+    uniform sampler2D u_diagonals;
+
+    void main()
+    {
+        // cell.x is pressure and cell.y is div
+        vec2 cell = texture(u_texture, v_texCoord).xy;
+
+        vec4 p;
+        p.x = textureOffset(u_texture, v_texCoord, ivec2(1,0)).x;
+        p.y = textureOffset(u_texture, v_texCoord, ivec2(-1,0)).x;
+        p.z = textureOffset(u_texture, v_texCoord, ivec2(0,1)).x;
+        p.w = textureOffset(u_texture, v_texCoord, ivec2(0,-1)).x;
+
+        vec4 c = texture(u_weights, v_texCoord);
+        float d = texture(u_diagonals, v_texCoord).x;
+
+        float residual = dot(p,c) - d * cell.x + cell.y;
+        colour_out = vec4(residual, 0.0, 0.0, 0.0);
+    }
+);
+
 ConjugateGradient::ConjugateGradient(const glm::vec2 & size)
     : r(size, 1, true)
     , s(size, 1, true)
@@ -21,13 +143,13 @@ ConjugateGradient::ConjugateGradient(const glm::vec2 & size)
     , rho({1,1}, 1)
     , rho_new({1,1}, 1)
     , sigma({1,1}, 1)
-    , matrixMultiply("TexturePosition.vsh", "MultiplyMatrix.fsh")
-    , scalarDivision("TexturePosition.vsh", "Divide.fsh")
-    , multiplyAdd("TexturePosition.vsh", "MultiplyAdd.fsh")
-    , multiplySub("TexturePosition.vsh", "MultiplySub.fsh")
-    , residual("TexturePosition.vsh", "Residual.fsh")
-    , identity("TexturePosition.vsh", "TexturePosition.fsh")
-    , preconditioner("TexturePosition.vsh", "JacobiPreconditioner.fsh")
+    , matrixMultiply(Renderer::Shader::TexturePositionVert, MultiplyMatrixFrag)
+    , scalarDivision(Renderer::Shader::TexturePositionVert, DivideFrag)
+    , multiplyAdd(Renderer::Shader::TexturePositionVert, MultiplyAddFrag)
+    , multiplySub(Renderer::Shader::TexturePositionVert, MultiplySubFrag)
+    , residual(Renderer::Shader::TexturePositionVert, ResidualFrag)
+    , identity(Renderer::Shader::TexturePositionVert, Renderer::Shader::TexturePositionFrag)
+    , preconditioner(Renderer::Shader::TexturePositionVert, JacobiPreFrag)
     , reduce(size)
 {
     residual.Use().Set("u_texture", 0).Set("u_weights", 1).Set("u_diagonals", 2).Unuse();
