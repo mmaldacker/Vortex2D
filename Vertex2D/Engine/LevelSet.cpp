@@ -78,11 +78,12 @@ void LevelSet::Render(const std::vector<Renderer::Drawable*> & objects)
 
 void LevelSet::Redistance()
 {
+    // FIXME need to set mask
     Renderer::Enable e(GL_STENCIL_TEST);
     glStencilFunc(GL_EQUAL, 0, 0xFF);
     glStencilMask(0x00);
     
-    for(int i = 0 ; i < 10 ; i++)
+    for(int i = 0 ; i < 20 ; i++)
     {
         mLevelSet.swap();
         mLevelSet = mRedistance(Back(mLevelSet));
