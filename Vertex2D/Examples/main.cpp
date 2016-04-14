@@ -9,7 +9,7 @@
 
 #include <iostream>
 
-std::unique_ptr<BaseExample> runner;
+std::unique_ptr<BaseExample> example;
 
 void error_callback(int error, const char* description)
 {
@@ -23,16 +23,16 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     switch(key)
     {
         case GLFW_KEY_1:
-            runner.reset(new ObstacleSmokeExample());
+            example.reset(new ObstacleSmokeExample());
             break;
         case GLFW_KEY_2:
-            runner.reset(new WaterExample());
+            example.reset(new WaterExample());
             break;
         case GLFW_KEY_3:
-            runner.reset(new SmokeExample());
+            example.reset(new SmokeExample());
             break;
         case GLFW_KEY_4:
-            runner.reset(new VelocitySmokeExample());
+            example.reset(new VelocitySmokeExample());
             break;
         default:
             break;
@@ -72,18 +72,18 @@ int main(int argc, const char * argv[])
     Renderer::Disable d(GL_BLEND);
     glDisable(GL_DEPTH_TEST);
 
-    runner.reset(new SmokeExample());
+    example.reset(new SmokeExample());
 
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
 
-        runner->frame();
+        example->frame();
 
         Renderer::Enable d(GL_BLEND);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-        for(auto object : runner->render())
+        for(auto object : example->render())
         {
             object->Render(ortho);
         }

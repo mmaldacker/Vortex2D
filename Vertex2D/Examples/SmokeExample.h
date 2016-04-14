@@ -37,8 +37,6 @@ public:
         force1.Colour = force2.Colour = {0.0f, -5.0f, 0.0f, 0.0f};
 
         source1.Colour = source2.Colour = glm::vec4{182.0f,172.0f,164.0f, 255.0f}/glm::vec4(255.0f);
-
-        //density.Scale = glm::vec2(dimensions.Scale);
     }
 
     void frame() override
