@@ -18,42 +18,17 @@
 namespace Fluid
 {
 
-template<typename T>
-struct Expr : T
-{
-    template<typename... Args>
-    Expr(Args&& ... args) : T(std::forward<Args>(args)...) {}
-};
-
-struct Empty{ void operator()() {} };
-using EmptyExpr = Expr<Empty>;
-
-template<typename T, typename U>
-struct And
-{
-    And(Expr<T> l, Expr<U> r) : left(l), right(r) {}
-
-    void operator()(){ left(); right(); }
-
-    Expr<T> left; Expr<U> right;
-};
-template<typename T, typename U>
-using AndExpr = Expr<And<T,U>>;
-
-template<typename T>
 struct Context
 {
-    Context(Renderer::Program & p, Expr<T> bind) : program(p), bind(bind) {}
+    Context(Renderer::Program & p) : program(p) {}
 
     void render(Renderer::Quad & quad, const glm::mat4 & ortho)
     {
-        bind();
         program.Use().SetMVP(ortho);
         quad.Render();
     }
 
     Renderer::Program & program;
-    Expr<T> bind;
 };
 
 class Buffer
@@ -68,8 +43,7 @@ public:
         Orth = mTextures.front().Orth;
     }
 
-    template<typename T>
-    Buffer & operator=(Context<T> context)
+    Buffer & operator=(Context context)
     {
         begin();
         context.render(Quad, Orth);
@@ -139,8 +113,10 @@ private:
     {
         mTextures.emplace_back(size.x, size.y,
                                components == 1 ? Renderer::Texture::PixelFormat::RF :
-                               components == 2 ? Renderer::Texture::PixelFormat::RGF : Renderer::Texture::PixelFormat::RGBAF,
-                               depth ? Renderer::RenderTexture::DepthFormat::DEPTH24_STENCIL8 : Renderer::RenderTexture::DepthFormat::NONE);
+                               components == 2 ? Renderer::Texture::PixelFormat::RGF :
+                                                 Renderer::Texture::PixelFormat::RGBAF,
+                               depth ? Renderer::RenderTexture::DepthFormat::DEPTH24_STENCIL8 :
+                                       Renderer::RenderTexture::DepthFormat::NONE);
         mTextures.back().SetAliasTexParameters();
     }
 
@@ -166,41 +142,6 @@ struct Back
     Buffer & buffer;
 };
 
-template<typename T>
-struct Bind
-{
-    Bind(T && b, int n = 0) : n(n), buffer(std::move(b)) {}
-
-    void operator()() { buffer.bind(n); }
-
-    int n;
-    T buffer;
-};
-
-template<typename T>
-using BindExpr = Expr<Bind<T>>;
-
-template<typename...P>
-struct bind_type;
-
-template<>
-struct bind_type<>
-{
-    typedef EmptyExpr type;
-};
-
-template<typename...P>
-struct bind_type<Buffer&, P...>
-{
-    typedef AndExpr<typename bind_type<P...>::type, BindExpr<Front>> type;
-};
-
-template<typename...P>
-struct bind_type<Back, P...>
-{
-    typedef AndExpr<typename bind_type<P...>::type, BindExpr<Back>> type;
-};
-
 #define REQUIRES(...) typename std::enable_if<(__VA_ARGS__), int>::type = 0
 
 class Operator
@@ -215,27 +156,29 @@ public:
     }
 
     template<typename... Args>
-    Context<typename bind_type<Args...>::type> operator()(Args&& ... args)
+    Context operator()(Args && ... args)
     {
-        return {mProgram, bind(0, std::forward<Args>(args)...)};
+        bind_helper(0, std::forward<Args>(args)...);
+        return {mProgram};
     }
 
 private:
     template<typename T, typename ... Args, REQUIRES(std::is_same<T, Buffer&>())>
-    typename bind_type<T, Args...>::type bind(int unit, T && input, Args && ... args)
+    void bind_helper(int unit, T && input, Args && ... args)
     {
-        return {bind(unit+1, std::forward<Args>(args)...), BindExpr<Front>(Front(input), unit)};
+        Front(input).bind(unit);
+        bind_helper(unit+1, std::forward<Args>(args)...);
     }
 
     template<typename T, typename ... Args, REQUIRES(std::is_same<T, Back>())>
-    typename bind_type<T, Args...>::type bind(int unit, T && input, Args && ... args)
+    void bind_helper(int unit, T && input, Args && ... args)
     {
-        return {bind(unit+1, std::forward<Args>(args)...), BindExpr<Back>(std::move(input), unit)};
+        input.bind(unit);
+        bind_helper(unit+1, std::forward<Args>(args)...);
     }
 
-    EmptyExpr bind(int unit)
+    void bind_helper(int unit)
     {
-        return {};
     }
 
     Renderer::Program mProgram;

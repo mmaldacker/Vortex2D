@@ -178,6 +178,16 @@ void Boundaries::RenderFluid(Fluid::LevelSet &levelSet)
     mDirichletBoundaries = mLevelSetMask(levelSet.mLevelSet);
 }
 
+Context Boundaries::GetWeights()
+{
+    return mWeights(mDirichletBoundaries, mNeumannBoundaries);
+}
+
+Context Boundaries::GetDiagonals()
+{
+    return mDiagonals(mNeumannBoundaries);
+}
+
 void Boundaries::Clear()
 {
     mDirichletBoundaries.clear();

@@ -40,8 +40,8 @@ public:
         obstacle1.Rotation = 45.0f;
         obstacle1.Colour = {1.0f, 0.0f, 0.0f, 1.0f};
 
-        obstacle2.Position = {300.0f, 300.0f};
-        obstacle2.Rotation = 22.0f;
+        obstacle2.Position = {300.0f, 400.0f};
+        obstacle2.Rotation = 30.0f;
         obstacle2.Colour = {1.0f, 0.0f, 0.0f, 1.0f};
 
         Renderer::Rectangle source({300,100});

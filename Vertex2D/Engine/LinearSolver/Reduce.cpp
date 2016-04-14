@@ -60,4 +60,16 @@ Reduce::Reduce(glm::vec2 size)
     multiply.Use().Set("u_texture", 0).Set("u_other", 1).Unuse();
 }
 
+Context Reduce::operator()(Buffer &a, Buffer &b)
+{
+    s[0] = multiply(a, b);
+
+    for(int i = 1 ; i < s.size() ; i++)
+    {
+        s[i] = reduce(s[i-1]);
+    }
+
+    return reduce(s.back());
+}
+
 }

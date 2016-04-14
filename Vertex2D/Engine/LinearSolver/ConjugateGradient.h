@@ -23,11 +23,9 @@ public:
     void Init(LinearSolver::Data & data) override;
     void Solve(LinearSolver::Data & data) override;
 
-    void NormalSolve(LinearSolver::Data & data);
-
 private:
     Buffer r, s, z, alpha, beta, rho, rho_new, sigma;
-    Operator matrixMultiply, scalarDivision, multiplyAdd, multiplySub, residual, identity, preconditioner;
+    Operator matrixMultiply, scalarDivision, multiplyAdd, multiplySub, residual, identity;
     Reduce reduce;
 };
 

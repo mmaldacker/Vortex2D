@@ -27,15 +27,8 @@ public:
     void RenderVelocities(const std::vector<Renderer::Drawable*> & objects);
     void RenderMask(Buffer & mask);
 
-    auto GetWeights()
-    {
-        return mWeights(mDirichletBoundaries, mNeumannBoundaries);
-    }
-    
-    auto GetDiagonals()
-    {
-        return mDiagonals(mNeumannBoundaries);
-    }
+    Context GetWeights();
+    Context GetDiagonals();
 
     void Clear();
 

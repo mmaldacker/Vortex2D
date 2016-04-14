@@ -28,22 +28,6 @@ const char * DivideFrag = GLSL(
     }
 );
 
-const char * JacobiPreFrag = GLSL(
-    in vec2 v_texCoord;
-    out vec4 colour_out;
-
-    uniform sampler2D u_texture;
-    uniform sampler2D u_diagonals;
-
-    void main()
-    {
-        float x = texture(u_texture, v_texCoord).x;
-        float diag = texture(u_diagonals, v_texCoord).x;
-
-        colour_out = vec4(x/diag, 0.0, 0.0, 0.0);
-    }
-);
-
 const char * MultiplyAddFrag = GLSL(
     in vec2 v_texCoord;
     out vec4 colour_out;
@@ -149,7 +133,6 @@ ConjugateGradient::ConjugateGradient(const glm::vec2 & size)
     , multiplySub(Renderer::Shader::TexturePositionVert, MultiplySubFrag)
     , residual(Renderer::Shader::TexturePositionVert, ResidualFrag)
     , identity(Renderer::Shader::TexturePositionVert, Renderer::Shader::TexturePositionFrag)
-    , preconditioner(Renderer::Shader::TexturePositionVert, JacobiPreFrag)
     , reduce(size)
 {
     residual.Use().Set("u_texture", 0).Set("u_weights", 1).Set("u_diagonals", 2).Unuse();
@@ -158,7 +141,6 @@ ConjugateGradient::ConjugateGradient(const glm::vec2 & size)
     scalarDivision.Use().Set("u_texture", 0).Set("u_other", 1).Unuse();
     multiplyAdd.Use().Set("u_texture", 0).Set("u_other", 1).Set("u_scalar", 2).Unuse();
     multiplySub.Use().Set("u_texture", 0).Set("u_other", 1).Set("u_scalar", 2).Unuse();
-    preconditioner.Use().Set("u_texture", 0).Set("u_diagonals", 1).Unuse();
 }
 
 void ConjugateGradient::Init(LinearSolver::Data & data)
@@ -186,7 +168,7 @@ void ConjugateGradient::Solve(LinearSolver::Data & data)
     data.Pressure.clear();
 
     // z = M^-1 r
-    z = preconditioner(r, data.Diagonal);
+    z = scalarDivision(r, data.Diagonal);
 
     // s = z
     s = identity(z);
@@ -210,7 +192,7 @@ void ConjugateGradient::Solve(LinearSolver::Data & data)
         r.swap() = multiplySub(Back(r), z, alpha);
 
         // z = M^-1 r
-        z = preconditioner(r, data.Diagonal);
+        z = scalarDivision(r, data.Diagonal);
 
         // rho_new = zTr
         rho_new = reduce(z,r);
