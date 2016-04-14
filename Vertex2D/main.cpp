@@ -22,8 +22,8 @@ int main(int argc, const char * argv[])
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     //SmokeExample().run();
-    //ObstacleSmokeExample().run();
-    WaterExample().run();
+    ObstacleSmokeExample().run();
+    //WaterExample().run();
     //VelocitySmokeExample().run();
 
     CHECK_GL_ERROR_DEBUG();

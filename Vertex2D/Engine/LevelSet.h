@@ -12,7 +12,6 @@
 #include "Size.h"
 #include "Operator.h"
 #include "Drawable.h"
-#include "Sprite.h"
 
 namespace Fluid
 {
@@ -28,9 +27,9 @@ public:
     void Advect(Advection & advection);
     void Redistance();
 
-    Renderer::Texture & Texture();
-
-//private:
+    friend class Advection;
+    friend class Water;
+private:
     Dimensions mDimensions;
     Buffer mLevelSet;
     Operator mRedistance;

@@ -34,7 +34,8 @@ public:
     void Extrapolate(LevelSet & levelSet);
 
     friend class Engine;
-//private:
+    friend class Density;
+private:
     Dimensions mDimensions;
     Buffer mVelocity;
 

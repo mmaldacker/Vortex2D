@@ -13,6 +13,9 @@
 #include "Transformable.h"
 #include "LevelSet.h"
 
+namespace Fluid
+{
+
 class Water : public Renderer::Drawable, public Renderer::Transformable
 {
 public:
@@ -25,5 +28,7 @@ private:
     Renderer::Texture & mWaterTexture;
     Renderer::Quad mQuad;
 };
+
+}
 
 #endif /* defined(__Vertex2D__Water__) */

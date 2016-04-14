@@ -94,9 +94,4 @@ void LevelSet::Advect(Advection & advection)
     advection.Advect(mLevelSet);
 }
 
-Renderer::Texture & LevelSet::Texture()
-{
-    return mLevelSet.texture();
-}
-    
 }

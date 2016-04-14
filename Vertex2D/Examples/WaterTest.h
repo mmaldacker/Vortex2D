@@ -77,7 +77,7 @@ private:
     Renderer::Rectangle top, bottom, left, right;
     Renderer::Rectangle obstacle;
     Fluid::LevelSet levelSet;
-    Water water;
+    Fluid::Water water;
 };
 
 #endif

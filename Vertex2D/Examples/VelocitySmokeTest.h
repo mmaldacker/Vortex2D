@@ -12,7 +12,6 @@
 
 #include "Runner.h"
 #include "Shapes.h"
-#include "Sprite.h"
 #include "Density.h"
 
 
@@ -25,7 +24,6 @@ public:
     , top({500,1}), bottom({500,1})
     , left({1,500}), right({1,500})
     , density(dimensions, 0.033)
-    , smoke(density.Sprite())
     {
         Renderer::Rectangle source({400.0f, 50.0f});
         source.Position = {50.0f, 200.0f};
@@ -70,14 +68,13 @@ public:
     std::vector<Renderer::Drawable*> render() override
     {
         obstacle.Colour = {1.0f, 0.0f, 0.0f, 1.0f};
-        return {&smoke, &obstacle};
+        return {&density, &obstacle};
     }
 
 private:
     Renderer::Rectangle obstacle;
     Renderer::Rectangle top, bottom, left, right;
     Fluid::Density density;
-    Renderer::Sprite smoke;
 };
 
 

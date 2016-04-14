@@ -37,6 +37,7 @@ Density::Density(Dimensions dimensions, float dt)
     : mDimensions(dimensions)
     , mDensity(dimensions.Size, 4, true, true)
     , mAdvectDensity(Renderer::Shader::TexturePositionVert, AdvectShader)
+    , mQuad(dimensions.Size*dimensions.Scale)
 {
     mDensity.linear();
     mDensity.clear();
@@ -58,9 +59,13 @@ void Density::Advect(Advection & advection)
     mDensity.swap() = mAdvectDensity(Back(mDensity), Back(advection.mVelocity));
 }
 
-Renderer::Sprite Density::Sprite()
+void Density::Render(const glm::mat4 &orth)
 {
-    return {mDensity.texture()};
+    Renderer::Program::TexturePositionProgram().Use().SetMVP(GetTransform(orth));
+    mDensity.texture().Bind();
+    mQuad.Render();
+    Renderer::Texture::Unbind();
+    Renderer::Program::TexturePositionProgram().Unuse();
 }
 
 }

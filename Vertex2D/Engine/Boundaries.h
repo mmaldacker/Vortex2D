@@ -40,7 +40,7 @@ public:
     void Clear();
 
     friend class Engine;
-//private:
+private:
     Dimensions mDimensions;
     
     Buffer mDirichletBoundaries;

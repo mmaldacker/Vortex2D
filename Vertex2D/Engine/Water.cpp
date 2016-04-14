@@ -8,6 +8,9 @@
 
 #include "Water.h"
 
+namespace Fluid
+{
+
 const char * WaterFrag = GLSL(
     in vec2 v_texCoord;
     uniform sampler2D u_texture;
@@ -29,9 +32,9 @@ const char * WaterFrag = GLSL(
 );
 
 Water::Water(Fluid::LevelSet & levelSet)
-: mProgram(Renderer::Shader::TexturePositionVert, WaterFrag)
-, mWaterTexture(levelSet.Texture())
-, mQuad({mWaterTexture.Width(), mWaterTexture.Height()})
+    : mProgram(Renderer::Shader::TexturePositionVert, WaterFrag)
+    , mWaterTexture(levelSet.mLevelSet.texture())
+    , mQuad({mWaterTexture.Width(), mWaterTexture.Height()})
 {
 }
 
@@ -42,4 +45,6 @@ void Water::Render(const glm::mat4 & ortho)
     mQuad.Render();
     mWaterTexture.Unbind();
     mProgram.Unuse();
+}
+
 }

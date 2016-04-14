@@ -11,7 +11,6 @@
 
 #include "Runner.h"
 #include "Shapes.h"
-#include "Sprite.h"
 #include "Density.h"
 
 class SmokeExample : public Runner
@@ -24,7 +23,6 @@ public:
         , top({500,1}), bottom({500,1})
         , left({1,500}), right({1,500})
         , density(dimensions, 0.033)
-        , smoke(density.Sprite())
     {
         top.Colour = bottom.Colour = left.Colour = right.Colour = glm::vec4{1.0f};
 
@@ -40,7 +38,7 @@ public:
 
         source1.Colour = source2.Colour = glm::vec4{182.0f,172.0f,164.0f, 255.0f}/glm::vec4(255.0f);
 
-        smoke.Scale = glm::vec2(dimensions.Scale);
+        //density.Scale = glm::vec2(dimensions.Scale);
     }
 
     void frame() override
@@ -60,7 +58,7 @@ public:
 
     std::vector<Renderer::Drawable*> render() override
     {
-        return {&smoke};
+        return {&density};
     }
 
 private:
@@ -68,7 +66,6 @@ private:
     Renderer::Circle force1, force2;
     Renderer::Rectangle top, bottom, left, right;
     Fluid::Density density;
-    Renderer::Sprite smoke;
 };
 
 #endif
