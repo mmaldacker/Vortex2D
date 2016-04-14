@@ -7,6 +7,7 @@
 //
 
 #include "Reader.h"
+#include <iostream>
 
 namespace Renderer
 {

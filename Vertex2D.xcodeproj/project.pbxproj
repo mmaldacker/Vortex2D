@@ -8,9 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		CE2ED54B1B9633DA007343DA /* Boundaries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE2ED5491B9633DA007343DA /* Boundaries.cpp */; };
-		CE50E2511B862F0700548C19 /* WindowRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE50E24F1B862F0700548C19 /* WindowRenderer.cpp */; };
 		CE50E2531B863B0600548C19 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE6D63131B84E5E3006729F0 /* OpenGL.framework */; };
-		CE6D62EE1B84E001006729F0 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D62ED1B84E001006729F0 /* main.cpp */; };
 		CE6D63091B84E20D006729F0 /* RenderTexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D62F31B84E20D006729F0 /* RenderTexture.cpp */; };
 		CE6D630E1B84E20D006729F0 /* Shapes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D62FE1B84E20D006729F0 /* Shapes.cpp */; };
 		CE6D63101B84E20D006729F0 /* Shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6D63011B84E20D006729F0 /* Shader.cpp */; };
@@ -25,17 +23,15 @@
 		CEFA5FF31CBF896F005B3A11 /* LevelSet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEFA5FF11CBF896F005B3A11 /* LevelSet.cpp */; };
 		CEFA5FF81CBF8D12005B3A11 /* Water.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEFA5FF61CBF8D12005B3A11 /* Water.cpp */; };
 		CEFA5FFC1CBFA01F005B3A11 /* Reduce.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEFA5FFB1CBFA01F005B3A11 /* Reduce.cpp */; };
+		CEFA60001CC01113005B3A11 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEFA5FFD1CC01113005B3A11 /* main.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		CE2ED5491B9633DA007343DA /* Boundaries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Boundaries.cpp; path = Engine/Boundaries.cpp; sourceTree = "<group>"; };
 		CE2ED54A1B9633DA007343DA /* Boundaries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Boundaries.h; path = Engine/Boundaries.h; sourceTree = "<group>"; };
 		CE2ED54C1B96363B007343DA /* Size.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Size.h; path = Engine/Size.h; sourceTree = "<group>"; };
-		CE50E24F1B862F0700548C19 /* WindowRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WindowRenderer.cpp; path = Visualiser/WindowRenderer.cpp; sourceTree = "<group>"; };
-		CE50E2501B862F0700548C19 /* WindowRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WindowRenderer.h; path = Visualiser/WindowRenderer.h; sourceTree = "<group>"; };
 		CE6D62CA1B84DF98006729F0 /* Vertex2D.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Vertex2D.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE6D62CE1B84DF98006729F0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		CE6D62ED1B84E001006729F0 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		CE6D62F21B84E20D006729F0 /* Texture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Texture.h; path = Renderer/Texture.h; sourceTree = "<group>"; };
 		CE6D62F31B84E20D006729F0 /* RenderTexture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RenderTexture.cpp; path = Renderer/RenderTexture.cpp; sourceTree = "<group>"; };
 		CE6D62F51B84E20D006729F0 /* RenderTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RenderTexture.h; path = Renderer/RenderTexture.h; sourceTree = "<group>"; };
@@ -64,19 +60,20 @@
 		CE92420F1BA88656003E0869 /* ConjugateGradient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ConjugateGradient.cpp; path = Engine/LinearSolver/ConjugateGradient.cpp; sourceTree = "<group>"; };
 		CE9242101BA88656003E0869 /* ConjugateGradient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ConjugateGradient.h; path = Engine/LinearSolver/ConjugateGradient.h; sourceTree = "<group>"; };
 		CE9242131BA893BB003E0869 /* Reduce.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Reduce.h; path = Engine/LinearSolver/Reduce.h; sourceTree = "<group>"; };
-		CE9899921CB51AD300CACC6D /* SmokeTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SmokeTest.h; path = Examples/SmokeTest.h; sourceTree = "<group>"; };
+		CE9899921CB51AD300CACC6D /* SmokeExample.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SmokeExample.h; path = Examples/SmokeExample.h; sourceTree = "<group>"; };
 		CE9899931CB51AFE00CACC6D /* Operator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Operator.h; path = Engine/Operator.h; sourceTree = "<group>"; };
 		CE9899941CB51AFE00CACC6D /* Density.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Density.h; path = Engine/Density.h; sourceTree = "<group>"; };
 		CE9899971CB51AFE00CACC6D /* Density.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Density.cpp; path = Engine/Density.cpp; sourceTree = "<group>"; };
-		CE98999A1CB51B0A00CACC6D /* Runner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Runner.h; path = Examples/Runner.h; sourceTree = "<group>"; };
-		CE98999B1CB51B0A00CACC6D /* ObstacleSmokeTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ObstacleSmokeTest.h; path = Examples/ObstacleSmokeTest.h; sourceTree = "<group>"; };
-		CE98999C1CB51B0A00CACC6D /* WaterTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WaterTest.h; path = Examples/WaterTest.h; sourceTree = "<group>"; };
-		CE9899A41CB52E6600CACC6D /* VelocitySmokeTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = VelocitySmokeTest.h; path = Examples/VelocitySmokeTest.h; sourceTree = "<group>"; };
+		CE98999A1CB51B0A00CACC6D /* BaseExample.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BaseExample.h; path = Examples/BaseExample.h; sourceTree = "<group>"; };
+		CE98999B1CB51B0A00CACC6D /* ObstacleSmokeExample.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ObstacleSmokeExample.h; path = Examples/ObstacleSmokeExample.h; sourceTree = "<group>"; };
+		CE98999C1CB51B0A00CACC6D /* WaterExample.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WaterExample.h; path = Examples/WaterExample.h; sourceTree = "<group>"; };
+		CE9899A41CB52E6600CACC6D /* VelocitySmokeExample.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = VelocitySmokeExample.h; path = Examples/VelocitySmokeExample.h; sourceTree = "<group>"; };
 		CEFA5FF11CBF896F005B3A11 /* LevelSet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LevelSet.cpp; path = Engine/LevelSet.cpp; sourceTree = "<group>"; };
 		CEFA5FF21CBF896F005B3A11 /* LevelSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LevelSet.h; path = Engine/LevelSet.h; sourceTree = "<group>"; };
 		CEFA5FF61CBF8D12005B3A11 /* Water.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Water.cpp; path = Engine/Water.cpp; sourceTree = "<group>"; };
 		CEFA5FF71CBF8D12005B3A11 /* Water.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Water.h; path = Engine/Water.h; sourceTree = "<group>"; };
 		CEFA5FFB1CBFA01F005B3A11 /* Reduce.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Reduce.cpp; path = Engine/LinearSolver/Reduce.cpp; sourceTree = "<group>"; };
+		CEFA5FFD1CC01113005B3A11 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = Examples/main.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -112,11 +109,9 @@
 			isa = PBXGroup;
 			children = (
 				CE9899911CB51AC800CACC6D /* Examples */,
-				CE6D636F1B84FE01006729F0 /* Visualiser */,
 				CE6D63191B84E7AC006729F0 /* Engine */,
 				CE6D62F11B84E201006729F0 /* Renderer */,
 				CE6D62CD1B84DF98006729F0 /* Supporting Files */,
-				CE6D62ED1B84E001006729F0 /* main.cpp */,
 			);
 			path = Vertex2D;
 			sourceTree = "<group>";
@@ -189,23 +184,15 @@
 			name = LinearSolver;
 			sourceTree = "<group>";
 		};
-		CE6D636F1B84FE01006729F0 /* Visualiser */ = {
-			isa = PBXGroup;
-			children = (
-				CE50E24F1B862F0700548C19 /* WindowRenderer.cpp */,
-				CE50E2501B862F0700548C19 /* WindowRenderer.h */,
-			);
-			name = Visualiser;
-			sourceTree = "<group>";
-		};
 		CE9899911CB51AC800CACC6D /* Examples */ = {
 			isa = PBXGroup;
 			children = (
-				CE98999A1CB51B0A00CACC6D /* Runner.h */,
-				CE98999B1CB51B0A00CACC6D /* ObstacleSmokeTest.h */,
-				CE98999C1CB51B0A00CACC6D /* WaterTest.h */,
-				CE9899921CB51AD300CACC6D /* SmokeTest.h */,
-				CE9899A41CB52E6600CACC6D /* VelocitySmokeTest.h */,
+				CEFA5FFD1CC01113005B3A11 /* main.cpp */,
+				CE98999A1CB51B0A00CACC6D /* BaseExample.h */,
+				CE98999B1CB51B0A00CACC6D /* ObstacleSmokeExample.h */,
+				CE98999C1CB51B0A00CACC6D /* WaterExample.h */,
+				CE9899921CB51AD300CACC6D /* SmokeExample.h */,
+				CE9899A41CB52E6600CACC6D /* VelocitySmokeExample.h */,
 			);
 			name = Examples;
 			sourceTree = "<group>";
@@ -279,7 +266,6 @@
 			files = (
 				CE6D632D1B84EAEA006729F0 /* Quad.cpp in Sources */,
 				CE6D63101B84E20D006729F0 /* Shader.cpp in Sources */,
-				CE50E2511B862F0700548C19 /* WindowRenderer.cpp in Sources */,
 				CE9242111BA88656003E0869 /* ConjugateGradient.cpp in Sources */,
 				CE6D63231B84E7B6006729F0 /* Engine.cpp in Sources */,
 				CE6E0F691B9F4DF800D77927 /* Advection.cpp in Sources */,
@@ -287,12 +273,12 @@
 				CE6D63361B84ED96006729F0 /* SuccessiveOverRelaxation.cpp in Sources */,
 				CEFA5FF81CBF8D12005B3A11 /* Water.cpp in Sources */,
 				CEFA5FFC1CBFA01F005B3A11 /* Reduce.cpp in Sources */,
-				CE6D62EE1B84E001006729F0 /* main.cpp in Sources */,
 				CE6D63091B84E20D006729F0 /* RenderTexture.cpp in Sources */,
 				CE9899991CB51AFE00CACC6D /* Density.cpp in Sources */,
 				CEFA5FF31CBF896F005B3A11 /* LevelSet.cpp in Sources */,
 				CE6D636E1B84F4DB006729F0 /* Reader.cpp in Sources */,
 				CE2ED54B1B9633DA007343DA /* Boundaries.cpp in Sources */,
+				CEFA60001CC01113005B3A11 /* main.cpp in Sources */,
 				CE6D63121B84E20D006729F0 /* Texture.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

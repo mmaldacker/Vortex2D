@@ -9,15 +9,15 @@
 #ifndef Vertex2D_Smoke_h
 #define Vertex2D_Smoke_h
 
-#include "Runner.h"
+#include "BaseExample.h"
 #include "Shapes.h"
 #include "Density.h"
 
-class SmokeExample : public Runner
+class SmokeExample : public BaseExample
 {
 public:
     SmokeExample()
-        : Runner({glm::vec2{500}, 1.0}, 0.033)
+        : BaseExample({glm::vec2{500}, 1.0}, 0.033)
         , source1(20.0f), source2(20.0f)
         , force1(20.0f), force2(20.0f)
         , top({500,1}), bottom({500,1})

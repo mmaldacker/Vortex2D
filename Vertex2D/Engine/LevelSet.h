@@ -29,6 +29,7 @@ public:
 
     friend class Advection;
     friend class Water;
+    friend class Boundaries;
 private:
     Dimensions mDimensions;
     Buffer mLevelSet;

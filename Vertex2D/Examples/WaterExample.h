@@ -9,21 +9,19 @@
 #ifndef Vertex2D_Water_h
 #define Vertex2D_Water_h
 
-#include "Runner.h"
+#include "BaseExample.h"
 #include "LevelSet.h"
 #include "Water.h"
 
-const int size = 200;
-
-class WaterExample : public Runner
+class WaterExample : public BaseExample
 {
 public:
     WaterExample()
-        : Runner({glm::vec2{size}, 1.0f}, 0.033)
-        , gravity(glm::vec2{size})
-        , top({size,1}), bottom({size,1})
-        , left({1,size}), right({1,size})
-        , obstacle({50,50})
+    : BaseExample({glm::vec2{500}, 1.0f}, 0.033)
+        , gravity(glm::vec2{500})
+        , top({500,1}), bottom({500,1})
+        , left({1,500}), right({1,500})
+        , obstacle1({100,100}), obstacle2({100,100})
         , levelSet(dimensions, 0.033)
         , water(levelSet)
     {
@@ -34,16 +32,20 @@ public:
         top.Colour = bottom.Colour = left.Colour = right.Colour = glm::vec4{1.0f};
 
         top.Position = {0.0f, 0.0f};
-        bottom.Position = {0.0f, size-1.0f};
+        bottom.Position = {0.0f, 499.0f};
         left.Position = {0.0f, 0.0f};
-        right.Position = {size-1.0f, 0.0f};
+        right.Position = {499.0f, 0.0f};
 
-        obstacle.Position = {60.0f, 120.0f};
-        obstacle.Rotation = 45.0f;
-        obstacle.Colour = {1.0f, 0.0f, 0.0f, 1.0f};
+        obstacle1.Position = {150.0f, 200.0f};
+        obstacle1.Rotation = 45.0f;
+        obstacle1.Colour = {1.0f, 0.0f, 0.0f, 1.0f};
 
-        Renderer::Rectangle source({70,70});
-        source.Position = {20,10};
+        obstacle2.Position = {300.0f, 300.0f};
+        obstacle2.Rotation = 22.0f;
+        obstacle2.Colour = {1.0f, 0.0f, 0.0f, 1.0f};
+
+        Renderer::Rectangle source({300,100});
+        source.Position = {100,50};
         source.Colour = glm::vec4{1.0};
         levelSet.Render({&source});
         levelSet.Redistance();
@@ -52,7 +54,7 @@ public:
     void frame() override
     {
         boundaries.Clear();
-        boundaries.RenderNeumann({&top, &bottom, &left, &right, &obstacle});
+        boundaries.RenderNeumann({&top, &bottom, &left, &right, &obstacle1, &obstacle2});
         boundaries.RenderFluid(levelSet);
         velocity.RenderMask(boundaries);
 
@@ -69,13 +71,13 @@ public:
 
     std::vector<Renderer::Drawable*> render() override
     {
-        return {&water, &obstacle};
+        return {&water, &obstacle1, &obstacle2};
     }
 
 private:
     Renderer::Rectangle gravity;
     Renderer::Rectangle top, bottom, left, right;
-    Renderer::Rectangle obstacle;
+    Renderer::Rectangle obstacle1, obstacle2;
     Fluid::LevelSet levelSet;
     Fluid::Water water;
 };
