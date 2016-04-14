@@ -11,18 +11,22 @@
 
 #include "Runner.h"
 #include "MarkerParticles.h"
+#include "LevelSet.h"
+#include "Water.h"
 
-const int size = 20;
+const int size = 200;
 
 class WaterExample : public Runner
 {
 public:
     WaterExample()
-        : Runner({glm::vec2{size}, 2.0f}, 0.033)
+        : Runner({glm::vec2{size}, 1.0f}, 0.033)
         , gravity(glm::vec2{size})
         , top({size,1}), bottom({size,1})
         , left({1,size}), right({1,size})
-        , markerParticles(0.033)
+        , obstacle({50,50})
+        , levelSet(dimensions, 0.033)
+        , water(levelSet)
     {
         Renderer::Disable d(GL_BLEND);
 
@@ -35,44 +39,46 @@ public:
         left.Position = {0.0f, 0.0f};
         right.Position = {size-1.0f, 0.0f};
 
-        glm::vec2 pos{10.0f, 10.0f};
-        Renderer::Path p;
-        for(int i = 0 ; i < 6 ; i++)
-            for(int j = 0 ; j < 6 ; j++)
-                p.emplace_back(i+pos.x,j+pos.y);
+        obstacle.Position = {60.0f, 120.0f};
+        obstacle.Rotation = 45.0f;
+        obstacle.Colour = {1.0f, 0.0f, 0.0f, 1.0f};
 
-        markerParticles.Set(p);
-        
+        Renderer::Rectangle source({70,70});
+        source.Position = {20,10};
+        source.Colour = glm::vec4{1.0};
+        levelSet.Render({&source});
+        levelSet.Redistance();
     }
 
     void frame() override
     {
         boundaries.Clear();
-        boundaries.RenderNeumann({&top, &bottom, &left, &right});
-        boundaries.RenderFluid(markerParticles);
-
+        boundaries.RenderNeumann({&top, &bottom, &left, &right, &obstacle});
+        boundaries.RenderFluid(levelSet);
         velocity.RenderMask(boundaries);
+
         velocity.Render({&gravity});
 
         engine.Solve();
-        engine.Extrapolate();
+
+        velocity.Extrapolate(levelSet);
 
         velocity.Advect();
-        markerParticles.Advect(velocity);
-
-        velocity.mVelocity.get().Read().Print().PrintStencil();
+        levelSet.Advect(velocity);
+        levelSet.Redistance();
     }
 
     std::vector<Renderer::Drawable*> render() override
     {
-        markerParticles.Colour = glm::vec4{182.0f,172.0f,164.0f, 255.0f}/glm::vec4(255.0f);
-        return {&markerParticles};
+        return {&water, &obstacle};
     }
 
 private:
     Renderer::Rectangle gravity;
     Renderer::Rectangle top, bottom, left, right;
-    Fluid::MarkerParticles markerParticles;
+    Renderer::Rectangle obstacle;
+    Fluid::LevelSet levelSet;
+    Water water;
 };
 
 #endif

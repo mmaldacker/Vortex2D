@@ -1,43 +1,30 @@
 #version 150
 
-uniform sampler2D u_texture;
+precision highp float;
 
 in vec2 v_texCoord;
+
+uniform sampler2D u_texture;
+uniform sampler2D u_velocity;
+
 out vec4 out_color;
 
 void main()
 {
-    vec2 wxp = textureOffset(u_texture, v_texCoord, ivec2(1,0)).xy;
-    vec2 wxn = textureOffset(u_texture, v_texCoord, ivec2(-1,0)).xy;
-    vec2 wyp = textureOffset(u_texture, v_texCoord, ivec2(0,1)).xy;
-    vec2 wyn = textureOffset(u_texture, v_texCoord, ivec2(0,-1)).xy;
+    float s = sign(texture(u_texture, v_texCoord).x);
 
-    vec2 total = vec2(0.0);
-    float count = 0.0;
+    float wxp = textureOffset(u_texture, v_texCoord, ivec2(1,0)).x;
+    float wxn = textureOffset(u_texture, v_texCoord, ivec2(-1,0)).x;
+    float wyp = textureOffset(u_texture, v_texCoord, ivec2(0,1)).x;
+    float wyn = textureOffset(u_texture, v_texCoord, ivec2(0,-1)).x;
 
-    if(wxp.x*wxp.x + wxp.y*wxp.y > 0.0)
-    {
-        total += wxp;
-        count += 1.0;
-    }
+    vec2 w = normalize(vec2(wxp-wxn, wyp-wyn));
 
-    if(wxn.x*wxn.x + wxn.y*wxn.y > 0.0)
-    {
-        total += wxn;
-        count += 1.0;
-    }
+    float dx = 1.0 / textureSize(u_texture, 0).x;
 
-    if(wyp.x*wyp.x + wyp.y*wyp.y > 0.0)
-    {
-        total += wyp;
-        count += 1.0;
-    }
+    vec2 coords = gl_FragCoord.xy - 0.5 - s * w;
 
-    if(wyn.x*wyn.x + wyn.y*wyn.y > 0.0)
-    {
-        total += wyn;
-        count += 1.0;
-    }
+    vec2 stepBackwardsCoords = (coords + 0.5) * dx;
 
-    out_color = vec4(total/count, 0.0, 0.0);
+    out_color = vec4(texture(u_velocity, stepBackwardsCoords).xy, 0.0, 0.0);
 }

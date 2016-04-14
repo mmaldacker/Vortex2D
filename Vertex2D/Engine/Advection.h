@@ -12,6 +12,7 @@
 #include "Size.h"
 #include "Operator.h"
 #include "Drawable.h"
+#include "LevelSet.h"
 
 namespace Fluid
 {
@@ -30,7 +31,7 @@ public:
     void Advect();
     void Advect(Buffer & buffer);
 
-    void Extrapolate();
+    void Extrapolate(LevelSet & levelSet);
 
     friend class Engine;
 //private:

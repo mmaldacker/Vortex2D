@@ -24,7 +24,7 @@ Advection::Advection(Dimensions dimensions, float dt)
     mVelocity.clear();
 
     mAdvect.Use().Set("delta", dt).Set("u_texture", 0).Set("u_velocity", 1).Unuse();
-    mExtrapolate.Use().Set("u_texture", 0).Unuse();
+    mExtrapolate.Use().Set("u_texture", 0).Set("u_velocity", 1).Unuse();
     mIdentity.Use().Set("u_texture", 0).Unuse();
 }
 
@@ -65,7 +65,7 @@ void Advection::Advect()
     Advect(mVelocity);
 }
 
-void Advection::Extrapolate()
+void Advection::Extrapolate(LevelSet & levelSet)
 {
     mVelocity.swap() = mIdentity(Back(mVelocity));
 
@@ -74,7 +74,7 @@ void Advection::Extrapolate()
     glStencilFunc(GL_EQUAL, 1, 0xFF);
     for(int i = 0 ; i < 100 ; i++)
     {
-        mVelocity.swap() = mExtrapolate(Back(mVelocity));
+        mVelocity.swap() = mExtrapolate(levelSet.mLevelSet, Back(mVelocity));
     }
 }
 

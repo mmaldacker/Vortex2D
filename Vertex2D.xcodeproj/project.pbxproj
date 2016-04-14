@@ -33,9 +33,7 @@
 		CE6E0F691B9F4DF800D77927 /* Advection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6E0F671B9F4DF800D77927 /* Advection.cpp */; };
 		CE9242111BA88656003E0869 /* ConjugateGradient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE92420F1BA88656003E0869 /* ConjugateGradient.cpp */; };
 		CE9899991CB51AFE00CACC6D /* Density.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE9899971CB51AFE00CACC6D /* Density.cpp */; };
-		CE9899AC1CB7DA8500CACC6D /* MarkerParticles.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE9899AA1CB7DA8500CACC6D /* MarkerParticles.cpp */; };
 		CE9899AE1CB7DAC700CACC6D /* Extrapolate.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CE9899AD1CB7DAC700CACC6D /* Extrapolate.fsh */; };
-		CE9899B01CB7E4F300CACC6D /* ParticleAdvection.vsh in Resources */ = {isa = PBXBuildFile; fileRef = CE9899AF1CB7E4F300CACC6D /* ParticleAdvection.vsh */; };
 		CECA49AE1BB7F38800067D3B /* Sprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CECA49AC1BB7F38800067D3B /* Sprite.cpp */; };
 		CEDA98161CAD6A7600794680 /* BoundaryMask.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CEDA98151CAD6A7600794680 /* BoundaryMask.fsh */; };
 		CEDA98181CAD6A9B00794680 /* Diagonals.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CEDA98171CAD6A9B00794680 /* Diagonals.fsh */; };
@@ -48,6 +46,11 @@
 		CEDA982A1CADD28000794680 /* Reduce.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CEDA98211CADD28000794680 /* Reduce.fsh */; };
 		CEDA982B1CADD28000794680 /* Reduce.vsh in Resources */ = {isa = PBXBuildFile; fileRef = CEDA98221CADD28000794680 /* Reduce.vsh */; };
 		CEDA982C1CADD28000794680 /* Residual.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CEDA98231CADD28000794680 /* Residual.fsh */; };
+		CEFA5FF01CBF8938005B3A11 /* Redistance.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CEFA5FEF1CBF8938005B3A11 /* Redistance.fsh */; };
+		CEFA5FF31CBF896F005B3A11 /* LevelSet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEFA5FF11CBF896F005B3A11 /* LevelSet.cpp */; };
+		CEFA5FF51CBF8B3E005B3A11 /* LevelSetMask.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CEFA5FF41CBF8B3E005B3A11 /* LevelSetMask.fsh */; };
+		CEFA5FF81CBF8D12005B3A11 /* Water.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEFA5FF61CBF8D12005B3A11 /* Water.cpp */; };
+		CEFA5FFA1CBF8D22005B3A11 /* Water.fsh in Resources */ = {isa = PBXBuildFile; fileRef = CEFA5FF91CBF8D22005B3A11 /* Water.fsh */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -107,10 +110,7 @@
 		CE98999B1CB51B0A00CACC6D /* ObstacleSmokeTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ObstacleSmokeTest.h; path = Examples/ObstacleSmokeTest.h; sourceTree = "<group>"; };
 		CE98999C1CB51B0A00CACC6D /* WaterTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WaterTest.h; path = Examples/WaterTest.h; sourceTree = "<group>"; };
 		CE9899A41CB52E6600CACC6D /* VelocitySmokeTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = VelocitySmokeTest.h; path = Examples/VelocitySmokeTest.h; sourceTree = "<group>"; };
-		CE9899AA1CB7DA8500CACC6D /* MarkerParticles.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MarkerParticles.cpp; path = Engine/MarkerParticles.cpp; sourceTree = "<group>"; };
-		CE9899AB1CB7DA8500CACC6D /* MarkerParticles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MarkerParticles.h; path = Engine/MarkerParticles.h; sourceTree = "<group>"; };
 		CE9899AD1CB7DAC700CACC6D /* Extrapolate.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Extrapolate.fsh; path = Shaders/Engine/Extrapolate.fsh; sourceTree = "<group>"; };
-		CE9899AF1CB7E4F300CACC6D /* ParticleAdvection.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = ParticleAdvection.vsh; path = Shaders/Engine/ParticleAdvection.vsh; sourceTree = "<group>"; };
 		CECA49AC1BB7F38800067D3B /* Sprite.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Sprite.cpp; path = Renderer/Sprite.cpp; sourceTree = "<group>"; };
 		CECA49AD1BB7F38800067D3B /* Sprite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sprite.h; path = Renderer/Sprite.h; sourceTree = "<group>"; };
 		CEDA98151CAD6A7600794680 /* BoundaryMask.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = BoundaryMask.fsh; path = Shaders/Engine/BoundaryMask.fsh; sourceTree = "<group>"; };
@@ -124,6 +124,13 @@
 		CEDA98211CADD28000794680 /* Reduce.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Reduce.fsh; path = Vertex2D/Shaders/Engine/LinearSolver/CG/Reduce.fsh; sourceTree = SOURCE_ROOT; };
 		CEDA98221CADD28000794680 /* Reduce.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Reduce.vsh; path = Vertex2D/Shaders/Engine/LinearSolver/CG/Reduce.vsh; sourceTree = SOURCE_ROOT; };
 		CEDA98231CADD28000794680 /* Residual.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Residual.fsh; path = Vertex2D/Shaders/Engine/LinearSolver/CG/Residual.fsh; sourceTree = SOURCE_ROOT; };
+		CEFA5FEF1CBF8938005B3A11 /* Redistance.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Redistance.fsh; path = Shaders/Engine/Redistance.fsh; sourceTree = "<group>"; };
+		CEFA5FF11CBF896F005B3A11 /* LevelSet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LevelSet.cpp; path = Engine/LevelSet.cpp; sourceTree = "<group>"; };
+		CEFA5FF21CBF896F005B3A11 /* LevelSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LevelSet.h; path = Engine/LevelSet.h; sourceTree = "<group>"; };
+		CEFA5FF41CBF8B3E005B3A11 /* LevelSetMask.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = LevelSetMask.fsh; path = Shaders/Engine/LevelSetMask.fsh; sourceTree = "<group>"; };
+		CEFA5FF61CBF8D12005B3A11 /* Water.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Water.cpp; path = Engine/Water.cpp; sourceTree = "<group>"; };
+		CEFA5FF71CBF8D12005B3A11 /* Water.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Water.h; path = Engine/Water.h; sourceTree = "<group>"; };
+		CEFA5FF91CBF8D22005B3A11 /* Water.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Water.fsh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -237,8 +244,10 @@
 				CE2ED54C1B96363B007343DA /* Size.h */,
 				CE6E0F671B9F4DF800D77927 /* Advection.cpp */,
 				CE6E0F681B9F4DF800D77927 /* Advection.h */,
-				CE9899AA1CB7DA8500CACC6D /* MarkerParticles.cpp */,
-				CE9899AB1CB7DA8500CACC6D /* MarkerParticles.h */,
+				CEFA5FF11CBF896F005B3A11 /* LevelSet.cpp */,
+				CEFA5FF21CBF896F005B3A11 /* LevelSet.h */,
+				CEFA5FF61CBF8D12005B3A11 /* Water.cpp */,
+				CEFA5FF71CBF8D12005B3A11 /* Water.h */,
 			);
 			name = Engine;
 			sourceTree = "<group>";
@@ -326,7 +335,9 @@
 				CE2ED5321B96295B007343DA /* Weights.fsh */,
 				CEDA98171CAD6A9B00794680 /* Diagonals.fsh */,
 				CEDA98151CAD6A7600794680 /* BoundaryMask.fsh */,
-				CE9899AF1CB7E4F300CACC6D /* ParticleAdvection.vsh */,
+				CEFA5FEF1CBF8938005B3A11 /* Redistance.fsh */,
+				CEFA5FF41CBF8B3E005B3A11 /* LevelSetMask.fsh */,
+				CEFA5FF91CBF8D22005B3A11 /* Water.fsh */,
 			);
 			name = Engine;
 			sourceTree = "<group>";
@@ -397,15 +408,17 @@
 				CE2ED53F1B96295B007343DA /* Project.fsh in Resources */,
 				CEDA98251CADD28000794680 /* JacobiPreconditioner.fsh in Resources */,
 				CE2ED5361B96295B007343DA /* Div.fsh in Resources */,
-				CE9899B01CB7E4F300CACC6D /* ParticleAdvection.vsh in Resources */,
 				CE2ED4E61B962942007343DA /* Position.fsh in Resources */,
 				CEDA98271CADD28000794680 /* MultiplyAdd.fsh in Resources */,
 				CE2ED4E91B962942007343DA /* TexturePosition.vsh in Resources */,
+				CEFA5FF51CBF8B3E005B3A11 /* LevelSetMask.fsh in Resources */,
 				CE2ED5341B96295B007343DA /* AdvectDensity.fsh in Resources */,
 				CEDA98261CADD28000794680 /* Multiply.fsh in Resources */,
 				CEDA982B1CADD28000794680 /* Reduce.vsh in Resources */,
 				CEDA982A1CADD28000794680 /* Reduce.fsh in Resources */,
+				CEFA5FFA1CBF8D22005B3A11 /* Water.fsh in Resources */,
 				CEDA98241CADD28000794680 /* Divide.fsh in Resources */,
+				CEFA5FF01CBF8938005B3A11 /* Redistance.fsh in Resources */,
 				CEDA982C1CADD28000794680 /* Residual.fsh in Resources */,
 				CEDA98281CADD28000794680 /* MultiplyMatrix.fsh in Resources */,
 				CE2ED4E71B962942007343DA /* Position.vsh in Resources */,
@@ -424,17 +437,18 @@
 			files = (
 				CE6D632D1B84EAEA006729F0 /* Quad.cpp in Sources */,
 				CE6D63101B84E20D006729F0 /* Shader.cpp in Sources */,
-				CE9899AC1CB7DA8500CACC6D /* MarkerParticles.cpp in Sources */,
 				CE50E2511B862F0700548C19 /* WindowRenderer.cpp in Sources */,
 				CE9242111BA88656003E0869 /* ConjugateGradient.cpp in Sources */,
 				CE6D63231B84E7B6006729F0 /* Engine.cpp in Sources */,
 				CE6E0F691B9F4DF800D77927 /* Advection.cpp in Sources */,
 				CE6D630E1B84E20D006729F0 /* Shapes.cpp in Sources */,
 				CE6D63361B84ED96006729F0 /* SuccessiveOverRelaxation.cpp in Sources */,
+				CEFA5FF81CBF8D12005B3A11 /* Water.cpp in Sources */,
 				CE6D62EE1B84E001006729F0 /* main.cpp in Sources */,
 				CE6D63091B84E20D006729F0 /* RenderTexture.cpp in Sources */,
 				CECA49AE1BB7F38800067D3B /* Sprite.cpp in Sources */,
 				CE9899991CB51AFE00CACC6D /* Density.cpp in Sources */,
+				CEFA5FF31CBF896F005B3A11 /* LevelSet.cpp in Sources */,
 				CE6D636E1B84F4DB006729F0 /* Reader.cpp in Sources */,
 				CE2ED54B1B9633DA007343DA /* Boundaries.cpp in Sources */,
 				CE6D63121B84E20D006729F0 /* Texture.cpp in Sources */,

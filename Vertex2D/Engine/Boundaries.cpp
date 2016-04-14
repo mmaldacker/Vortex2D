@@ -20,6 +20,7 @@ Boundaries::Boundaries(Dimensions dimensions, float dt)
     , mWeights("TexturePosition.vsh", "Weights.fsh")
     , mDiagonals("TexturePosition.vsh", "Diagonals.fsh")
     , mBoundaryMask("TexturePosition.vsh", "BoundaryMask.fsh")
+    , mLevelSetMask("TexturePosition.vsh", "LevelSetMask.fsh")
 {
     mDirichletBoundaries.clear();
 
@@ -92,6 +93,11 @@ void Boundaries::RenderFluid(Fluid::MarkerParticles &markerParticles)
     markerParticles.Render(mDirichletBoundaries.Orth*mDimensions.InvScale);
     mDirichletBoundaries.end();
     markerParticles.Colour = colour;
+}
+
+void Boundaries::RenderFluid(Fluid::LevelSet &levelSet)
+{
+    mDirichletBoundaries = mLevelSetMask(levelSet.mLevelSet);
 }
 
 void Boundaries::Clear()
