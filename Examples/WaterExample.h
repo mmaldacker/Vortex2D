@@ -36,13 +36,17 @@ public:
         left.Position = {0.0f, 0.0f};
         right.Position = {499.0f, 0.0f};
 
+        glm::vec4 c = glm::vec4{35.0f, 163.0f, 143.0f, 255.0f} / glm::vec4{255.0f};
+
         obstacle1.Position = {150.0f, 200.0f};
         obstacle1.Rotation = 45.0f;
-        obstacle1.Colour = {1.0f, 0.0f, 0.0f, 1.0f};
+        obstacle1.Colour = c;
 
         obstacle2.Position = {300.0f, 400.0f};
         obstacle2.Rotation = 30.0f;
-        obstacle2.Colour = {1.0f, 0.0f, 0.0f, 1.0f};
+        obstacle2.Colour = c;
+
+        water.Colour = glm::vec4{99.0f, 155.0f, 188.0f, 255.0f}/glm::vec4(255.0f);
 
         Renderer::Rectangle source({300,100});
         source.Position = {100,50};
@@ -54,7 +58,12 @@ public:
     void frame() override
     {
         boundaries.Clear();
-        boundaries.RenderNeumann({&top, &bottom, &left, &right, &obstacle1, &obstacle2});
+        boundaries.RenderNeumann({&top, &bottom, &left, &right});
+        RenderObstacle([&](Renderer::Rectangle & o)
+        {
+            boundaries.RenderNeumann({&o});
+        }, obstacle1, obstacle2);
+
         boundaries.RenderFluid(levelSet);
         velocity.RenderMask(boundaries);
 

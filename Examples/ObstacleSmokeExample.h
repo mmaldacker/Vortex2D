@@ -25,15 +25,15 @@ public:
     , left({1,500}), right({1,500})
     , density(dimensions, 0.033)
     {
-        source.Position = force.Position = {200.0f, 400.0f};
-
-        force.Colour = {0.0f, -5.0f, 0.0f, 0.0f};
-
+        source.Position = {200.0f, 400.0f};
         source.Colour = glm::vec4{182.0f,172.0f,164.0f, 255.0f}/glm::vec4(255.0f);
+
+        force.Position = (glm::vec2)source.Position;
+        force.Colour = {0.0f, -5.0f, 0.0f, 0.0f};
 
         obstacle.Position = {200.0f, 200.0f};
         obstacle.Rotation = 45.0f;
-        obstacle.Colour = {1.0f, 0.0f, 0.0f, 1.0f};
+        obstacle.Colour = glm::vec4{35.0f, 163.0f, 143.0f, 255.0f}/glm::vec4{255.0f};
 
         top.Colour = bottom.Colour = left.Colour = right.Colour = glm::vec4{1.0f};
 
@@ -46,7 +46,13 @@ public:
     void frame() override
     {
         boundaries.Clear();
-        boundaries.RenderNeumann({&top, &bottom, &left, &right, &obstacle});
+
+        boundaries.RenderNeumann({&top, &bottom, &left, &right});
+        RenderObstacle([&](Renderer::Rectangle & o)
+        {
+            boundaries.RenderNeumann({&o});
+        }, obstacle);
+
         velocity.RenderMask(boundaries);
 
         velocity.Render({&force});
