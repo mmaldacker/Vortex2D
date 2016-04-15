@@ -130,6 +130,9 @@ void Engine::Solve()
     mBoundaries.RenderMask(mData.Pressure);
     mBoundaries.RenderMask(mData.Pressure.swap());
 
+    mBoundaries.RenderMask(mAdvection.mVelocity.swap());
+    mBoundaries.RenderMask(mAdvection.mVelocity.swap());
+
     Renderer::Enable e(GL_STENCIL_TEST);
     glStencilFunc(GL_EQUAL, 0, 0xFF);
     glStencilMask(0x00);

@@ -42,7 +42,6 @@ public:
     void frame() override
     {
         boundaries.RenderDirichlet({&top, &bottom, &left, &right});
-        velocity.RenderMask(boundaries);
 
         velocity.Render({&force1, &force2});
         density.Render({&source1, &source2});

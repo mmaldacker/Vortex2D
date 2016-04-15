@@ -14,6 +14,8 @@
 #include "Shapes.h"
 #include "Density.h"
 
+const float speed = 2.0f;
+
 class VelocitySmokeExample : public BaseExample
 {
 public:
@@ -28,7 +30,7 @@ public:
         obstacle.Colour = glm::vec4{35.0f, 163.0f, 143.0f, 255.0f}/glm::vec4{255.0f};
 
         force.Position = (glm::vec2)obstacle.Position;
-        force.Colour = {0.0f, 60.0f, 0.0f, 0.0f};
+        force.Colour = {0.0f, speed/0.033f, 0.0f, 0.0f};
 
         top.Colour = bottom.Colour = left.Colour = right.Colour = glm::vec4{1.0f};
 
@@ -57,11 +59,9 @@ public:
         glm::vec2 pos = obstacle.Position;
         if(pos.y < 400.0f)
         {
-            obstacle.Position = force.Position = pos + glm::vec2{0.0f,2.0f};
+            obstacle.Position = force.Position = pos + glm::vec2{0.0f,speed};
             boundaries.RenderVelocities({&force});
         }
-
-        velocity.RenderMask(boundaries);
 
         engine.Solve();
 

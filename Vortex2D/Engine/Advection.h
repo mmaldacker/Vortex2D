@@ -26,7 +26,6 @@ public:
     Advection(Dimensions dimensions, float dt);
 
     void Render(const std::vector<Renderer::Drawable*> & objects);
-    void RenderMask(Boundaries & boundaries);
 
     void Advect();
     void Advect(Buffer & buffer);

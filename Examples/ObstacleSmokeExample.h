@@ -45,15 +45,11 @@ public:
 
     void frame() override
     {
-        boundaries.Clear();
-
         boundaries.RenderNeumann({&top, &bottom, &left, &right});
         RenderObstacle([&](Renderer::Rectangle & o)
         {
             boundaries.RenderNeumann({&o});
         }, obstacle);
-
-        velocity.RenderMask(boundaries);
 
         velocity.Render({&force});
         density.Render({&source});

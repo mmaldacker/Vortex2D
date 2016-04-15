@@ -29,7 +29,7 @@ const char * AdvectFrag = GLSL(
         return f1*(-0.5*xd + xd2 - 0.5*xd3) + f2*(1.0 - 2.5*xd2 + 1.5*xd3) + f3*(0.5*xd + 2.0*xd2 - 1.5*xd3) + f4*(-0.5*xd2 + 0.5*xd3);
     }
 
-   vec2 catmullrom(sampler2D u_texture, vec2 xy)
+   vec2 bilerp(sampler2D u_texture, vec2 xy)
    {
        vec2 ij0 = floor(xy) - 1.0;
        vec2 ij1 = ij0 + 1.0;
@@ -69,24 +69,6 @@ const char * AdvectFrag = GLSL(
                     f.x
                     );
    }
-
-    vec2 bilerp(sampler2D u_texture, vec2 xy)
-    {
-        vec4 ij;
-        ij.xy = floor(xy);
-        ij.zw = ij.xy + 1.0;
-        vec2 f = xy - ij.xy;
-
-        vec2 h = textureSize(u_texture, 0);
-        vec4 st = (ij + vec4(0.5)) / vec4(h,h);
-
-        vec2 t11 = texture(u_texture, st.xy).xy;
-        vec2 t21 = texture(u_texture, st.xw).xy;
-        vec2 t12 = texture(u_texture, st.zy).xy;
-        vec2 t22 = texture(u_texture, st.zw).xy;
-
-        return mix(mix(t11,t21,f.y),mix(t12,t22,f.y),f.x);
-    }
 
     void main(void)
     {
@@ -157,12 +139,6 @@ void Advection::Render(const std::vector<Renderer::Drawable*> & objects)
         object->Render(mVelocity.Orth*mDimensions.InvScale);
     }
     mVelocity.end();
-}
-
-void Advection::RenderMask(Boundaries & boundaries)
-{
-    boundaries.RenderMask(mVelocity.swap());
-    boundaries.RenderMask(mVelocity.swap());
 }
 
 void Advection::Advect(Fluid::Buffer & buffer)

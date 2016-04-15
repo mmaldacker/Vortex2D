@@ -65,7 +65,6 @@ public:
         }, obstacle1, obstacle2);
 
         boundaries.RenderFluid(levelSet);
-        velocity.RenderMask(boundaries);
 
         velocity.Render({&gravity});
 
