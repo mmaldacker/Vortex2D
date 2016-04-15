@@ -5,7 +5,6 @@ file(GLOB LIB_SOURCES "Engine/*.cpp"
 					  "Engine/LinearSolver/*.cpp"
 					  "Renderer/*.cpp" 
 					  "Renderer/*.h")
-file(GLOB EXAMPLES_SOURCES "Examples/*.h" "Examples/*.cpp")
 
 find_package(GLM REQUIRED)
 include_directories(${GLM_INCLUDE_DIRS})
