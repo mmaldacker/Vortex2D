@@ -16,3 +16,7 @@ All computing is done on the GPU using simple vertex/fragment shaders and thus r
 * Neumann and Dirichlet boundaries
 * Level set 
 * Solid velocities
+
+# Examples
+
+[![Demo](http://img.youtube.com/vi/c8Idjf03bI8/0.jpg)](http://www.youtube.com/watch?v=c8Idjf03bI8)
