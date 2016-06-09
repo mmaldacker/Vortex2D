@@ -15,3 +15,5 @@ if(APPLE)
 
 	target_link_libraries(vortex2d_examples ${COCOA_FRAMEWORK} ${IOKIT_FRAMEWORK} ${CORE_VIDEO_FRAMEWORK})
 endif()
+
+source_group(Examples REGULAR_EXPRESSION ".*(h|cpp)")
