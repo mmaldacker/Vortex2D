@@ -30,7 +30,7 @@ const char * Shader::PositionFrag = GLSL(
 
     void main()
     {
-     out_color = u_Colour;
+        out_color = u_Colour;
     }
 );
 
