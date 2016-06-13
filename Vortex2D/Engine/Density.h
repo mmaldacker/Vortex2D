@@ -17,8 +17,7 @@
 namespace Fluid
 {
 
-class Advection;
-class Boundaries;
+class Engine;
 
 class Density : public Renderer::Drawable, public Renderer::Transformable
 {
@@ -26,14 +25,13 @@ public:
     Density(Dimensions dimensions, float dt);
 
     void Render(const std::vector<Renderer::Drawable*> & objects);
-    void Advect(Advection & advection);
+    void Advect(Engine & engine);
 
     void Render(const glm::mat4 & orth) override;
 
 private:
     Dimensions mDimensions;
     Buffer mDensity;
-    Operator mAdvectDensity;
     Renderer::Quad mQuad;
 };
 

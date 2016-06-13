@@ -45,19 +45,18 @@ public:
 
     void frame() override
     {
-        boundaries.RenderNeumann({&top, &bottom, &left, &right});
+        engine.RenderNeumann({&top, &bottom, &left, &right});
         RenderObstacle([&](Renderer::Rectangle & o)
         {
-            boundaries.RenderNeumann({&o});
+            engine.RenderNeumann({&o});
         }, obstacle);
 
-        velocity.Render({&force});
+        engine.RenderForce({&force});
         density.Render({&source});
 
         engine.Solve();
 
-        velocity.Advect();
-        density.Advect(velocity);
+        density.Advect(engine);
     }
 
     std::vector<Renderer::Drawable*> render() override

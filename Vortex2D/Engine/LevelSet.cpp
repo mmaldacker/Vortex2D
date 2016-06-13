@@ -8,7 +8,7 @@
 
 #include "LevelSet.h"
 #include "Disable.h"
-#include "Advection.h"
+#include "Engine.h"
 
 namespace Fluid
 {
@@ -55,11 +55,32 @@ const char * RedistanceFrag = GLSL(
     }
 );
 
+const char * LevelSetMaskFrag = GLSL(
+    in vec2 v_texCoord;
+    out vec4 out_color;
+
+    uniform sampler2D u_texture;
+
+    void main()
+    {
+        float x = texture(u_texture, v_texCoord).x;
+
+        if(x < 0.0)
+        {
+            out_color = vec4(1.0, 0.0, 0.0, 0.0);
+        }
+        else
+        {
+            out_color = vec4(0.0);
+        }
+    }
+);
 
 LevelSet::LevelSet(Dimensions dimensions, float dt)
     : mDimensions(dimensions)
     , mLevelSet(dimensions.Size, 1, true)
     , mRedistance(Renderer::Shader::TexturePositionVert, RedistanceFrag)
+    , mLevelSetMask(Renderer::Shader::TexturePositionVert, LevelSetMaskFrag)
 {
     mLevelSet.clear();
     mLevelSet.clamp_to_edge();
@@ -90,9 +111,14 @@ void LevelSet::Redistance()
     }
 }
 
-void LevelSet::Advect(Advection & advection)
+Context LevelSet::GetBoundaries()
 {
-    advection.Advect(mLevelSet);
+    return mLevelSetMask(mLevelSet);
+}
+
+void LevelSet::Advect(Fluid::Engine &engine)
+{
+    engine.Advect(mLevelSet);
 }
 
 }

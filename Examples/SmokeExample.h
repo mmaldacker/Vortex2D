@@ -41,16 +41,13 @@ public:
 
     void frame() override
     {
-        boundaries.RenderDirichlet({&top, &bottom, &left, &right});
+        engine.RenderDirichlet({&top, &bottom, &left, &right});
 
-        velocity.Render({&force1, &force2});
+        engine.RenderForce({&force1, &force2});
         density.Render({&source1, &source2});
 
         engine.Solve();
-        
-        velocity.Advect();
-        density.Advect(velocity);
-
+        density.Advect(engine);
     }
 
     std::vector<Renderer::Drawable*> render() override

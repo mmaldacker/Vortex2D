@@ -11,8 +11,6 @@
 
 #include "Size.h"
 #include "Engine.h"
-#include "Advection.h"
-#include "Boundaries.h"
 #include "ConjugateGradient.h"
 #include "Disable.h"
 
@@ -22,9 +20,7 @@ public:
     BaseExample(Fluid::Dimensions dimensions, float dt)
         : dimensions(dimensions)
         , solver(dimensions.Size)
-        , velocity(dimensions, dt)
-        , boundaries(dimensions, dt)
-        , engine(dimensions, boundaries, velocity, &solver, dt)
+        , engine(dimensions, &solver, dt)
     {
     }
 
@@ -34,8 +30,6 @@ public:
 protected:
     Fluid::Dimensions dimensions;
     Fluid::ConjugateGradient solver;
-    Fluid::Advection velocity;
-    Fluid::Boundaries boundaries;
     Fluid::Engine engine;
 };
 

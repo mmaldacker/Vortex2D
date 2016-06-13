@@ -10,8 +10,6 @@
 #define __Vortex__Engine__
 
 #include "LinearSolver.h"
-#include "Boundaries.h"
-#include "Advection.h"
 #include "Size.h"
 #include "Operator.h"
 #include "Shapes.h"
@@ -21,23 +19,48 @@
 namespace Fluid
 {
 
+class LevelSet;
+
 class Engine
 {
 public:
-    Engine(Dimensions dimensions, Boundaries & boundaries, Advection & advection, LinearSolver * linearSolver, float dt);
-    
+    Engine(Dimensions dimensions, LinearSolver * linearSolver, float dt);
+
+    void RenderDirichlet(const std::vector<Renderer::Drawable*> & objects);
+    void RenderNeumann(const std::vector<Renderer::Drawable*> & objects);
+    void RenderVelocities(const std::vector<Renderer::Drawable*> & objects);
+    void RenderForce(const std::vector<Renderer::Drawable*> & objects);
+    void RenderFluid(LevelSet &levelSet);
+
+    void Clear();
+
     void Solve();
 
+    void Advect(Fluid::Buffer & buffer);
+
 private:
+    void RenderMask(Buffer & mask);
+    void Extrapolate();
+
     Dimensions mDimensions;
 
     LinearSolver::Data mData;
-    Boundaries & mBoundaries;
-    Advection & mAdvection;
     LinearSolver * mLinearSolver;
+
+    Buffer mVelocity;
+    Buffer mDirichletBoundaries;
+    Buffer mNeumannBoundaries;
+    Buffer mBoundariesVelocity;
+    Buffer mExtrapolateMask;
 
     Operator mDiv;
     Operator mProject;
+    Operator mAdvect;
+    Operator mExtrapolate;
+    Operator mIdentity;
+    Operator mWeights;
+    Operator mDiagonals;
+    Operator mBoundaryMask;
 
     Renderer::Rectangle mSurface;
 };

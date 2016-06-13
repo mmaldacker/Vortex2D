@@ -16,7 +16,7 @@
 namespace Fluid
 {
 
-class Advection;
+class Engine;
 
 class LevelSet
 {
@@ -24,8 +24,9 @@ public:
     LevelSet(Dimensions dimensions, float dt);
 
     void Render(const std::vector<Renderer::Drawable*> & objects);
-    void Advect(Advection & advection);
     void Redistance();
+    Context GetBoundaries();
+    void Advect(Engine & engine);
 
     friend class Advection;
     friend class Water;
@@ -34,6 +35,7 @@ private:
     Dimensions mDimensions;
     Buffer mLevelSet;
     Operator mRedistance;
+    Operator mLevelSetMask;
 };
     
 }

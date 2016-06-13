@@ -49,24 +49,22 @@ public:
 
     void frame() override
     {
-        boundaries.Clear();
-        boundaries.RenderNeumann({&top, &bottom, &left, &right});
+        engine.Clear();
+        engine.RenderNeumann({&top, &bottom, &left, &right});
         RenderObstacle([&](Renderer::Rectangle & o)
         {
-            boundaries.RenderNeumann({&o});
+            engine.RenderNeumann({&o});
         }, obstacle);
 
         glm::vec2 pos = obstacle.Position;
         if(pos.y < 400.0f)
         {
             obstacle.Position = force.Position = pos + glm::vec2{0.0f,speed};
-            boundaries.RenderVelocities({&force});
+            engine.RenderVelocities({&force});
         }
 
         engine.Solve();
-
-        velocity.Advect();
-        density.Advect(velocity);
+        density.Advect(engine);
     }
 
     std::vector<Renderer::Drawable*> render() override
