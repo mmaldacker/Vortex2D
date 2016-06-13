@@ -38,6 +38,7 @@ public:
 
     void Advect(Fluid::Buffer & buffer);
 
+    friend class Density;
 private:
     void RenderMask(Buffer & mask);
     void Extrapolate();
@@ -51,12 +52,13 @@ private:
     Buffer mDirichletBoundaries;
     Buffer mNeumannBoundaries;
     Buffer mBoundariesVelocity;
-    Buffer mExtrapolateMask;
+    Buffer mExtrapolateValid;
 
     Operator mDiv;
     Operator mProject;
     Operator mAdvect;
     Operator mExtrapolate;
+    Operator mExtrapolateMask;
     Operator mIdentity;
     Operator mWeights;
     Operator mDiagonals;
