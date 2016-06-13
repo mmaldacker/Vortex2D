@@ -23,16 +23,16 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     switch(key)
     {
         case GLFW_KEY_1:
-            example.reset(new ObstacleSmokeExample());
-            break;
-        case GLFW_KEY_2:
-            example.reset(new WaterExample());
-            break;
-        case GLFW_KEY_3:
             example.reset(new SmokeExample());
             break;
-        case GLFW_KEY_4:
+        case GLFW_KEY_2:
+            example.reset(new ObstacleSmokeExample());
+            break;
+        case GLFW_KEY_3:
             example.reset(new VelocitySmokeExample());
+            break;
+        case GLFW_KEY_4:
+            example.reset(new WaterExample());
             break;
         default:
             break;
