@@ -32,6 +32,7 @@ public:
 private:
     Dimensions mDimensions;
     Buffer mDensity;
+    Operator mAdvectDensity;
     Renderer::Quad mQuad;
 };
 
