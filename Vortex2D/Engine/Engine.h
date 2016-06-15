@@ -36,11 +36,11 @@ public:
 
     void Solve();
 
+    void RenderMask(Buffer & mask);
     void Advect(Fluid::Buffer & buffer);
 
     friend class Density;
 private:
-    void RenderMask(Buffer & mask);
     void Extrapolate();
 
     Dimensions mDimensions;
