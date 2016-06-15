@@ -192,7 +192,7 @@ const char * AdvectFrag = GLSL(
         return f1*(-0.5*xd + xd2 - 0.5*xd3) + f2*(1.0 - 2.5*xd2 + 1.5*xd3) + f3*(0.5*xd + 2.0*xd2 - 1.5*xd3) + f4*(-0.5*xd2 + 0.5*xd3);
     }
 
-    vec4 bilerp(sampler2D u_texture, vec2 xy)
+    vec4 bicubic(sampler2D u_texture, vec2 xy)
     {
         vec2 ij0 = floor(xy) - 1.0;
         vec2 ij1 = ij0 + 1.0;
@@ -233,15 +233,19 @@ const char * AdvectFrag = GLSL(
                 );
     }
 
+    const float a = 2.0/9.0;
+    const float b = 3.0/9.0;
+    const float c = 4.0/9.0;
+
     void main(void)
     {
         vec2 pos = gl_FragCoord.xy - 0.5;
 
-        vec2 stepBackCoords = pos - delta * texture(u_velocity, v_texCoord).xy;
-        vec2 stepForwardCoords = stepBackCoords + delta * bilerp(u_velocity, stepBackCoords).xy;
-        stepBackCoords = stepBackCoords + (stepBackCoords - stepForwardCoords) * 0.5;
+        vec2 k1 = texture(u_velocity, v_texCoord).xy;
+        vec2 k2 = bicubic(u_velocity, pos - 0.5*delta*k1).xy;
+        vec2 k3 = bicubic(u_velocity, pos - 0.75*delta*k2).xy;
 
-        out_color = bilerp(u_texture, stepBackCoords);
+        out_color = bicubic(u_texture, pos - a*delta*k1 - b*delta*k2 - c*delta*k3);
     }
 );
 
