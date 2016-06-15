@@ -45,11 +45,7 @@ public:
 
     void frame() override
     {
-        engine.RenderNeumann({&top, &bottom, &left, &right});
-        RenderObstacle([&](Renderer::Rectangle & o)
-        {
-            engine.RenderNeumann({&o});
-        }, obstacle);
+        engine.RenderNeumann(top, bottom, left, right, obstacle);
 
         engine.RenderForce({&force});
         density.Render({&source});

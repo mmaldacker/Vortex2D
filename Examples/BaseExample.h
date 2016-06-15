@@ -33,21 +33,4 @@ protected:
     Fluid::Engine engine;
 };
 
-template<typename F>
-void RenderObstacle(F f)
-{
-    
-}
-
-template<typename T, typename...Rest, typename F>
-void RenderObstacle(F f, T & o, Rest &... rest)
-{
-    auto colour = o.Colour;
-    o.Colour = glm::vec4{1.0f};
-    f(o);
-    o.Colour = colour;
-
-    RenderObstacle(f, rest...);
-}
-
 #endif

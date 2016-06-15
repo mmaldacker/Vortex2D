@@ -20,6 +20,8 @@ struct Drawable
     virtual void Render(const glm::mat4 & ortho) = 0;
 };
 
+using DrawablesVector = std::vector<Drawable*>;
+
 }
 
 #endif

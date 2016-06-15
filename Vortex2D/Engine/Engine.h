@@ -26,8 +26,28 @@ class Engine
 public:
     Engine(Dimensions dimensions, LinearSolver * linearSolver, float dt);
 
-    void RenderDirichlet(const std::vector<Renderer::Drawable*> & objects);
+    void RenderDirichlet(const Renderer::DrawablesVector & objects);
+
+    template<typename ... Objects>
+    void RenderDirichlet(Objects &... objects)
+    {
+        RenderObstacle([&](const Renderer::DrawablesVector & objects)
+        {
+            RenderDirichlet(objects);
+        }, objects...);
+    }
+
     void RenderNeumann(const std::vector<Renderer::Drawable*> & objects);
+
+    template<typename ... Objects>
+    void RenderNeumann(Objects &... objects)
+    {
+        RenderObstacle([&](const Renderer::DrawablesVector & objects)
+        {
+            RenderNeumann(objects);
+        }, objects...);
+    }
+
     void RenderVelocities(const std::vector<Renderer::Drawable*> & objects);
     void RenderForce(const std::vector<Renderer::Drawable*> & objects);
     void RenderFluid(LevelSet &levelSet);
@@ -38,10 +58,24 @@ public:
 
     void RenderMask(Buffer & mask);
     void Advect(Fluid::Buffer & buffer);
-
-    friend class Density;
 private:
     void Extrapolate();
+
+    template<typename F>
+    void RenderObstacle(F f)
+    {
+    }
+
+    template<typename F, typename Head, typename...Rest>
+    void RenderObstacle(F f, Head & o, Rest &... rest)
+    {
+        auto colour = o.Colour;
+        o.Colour = glm::vec4{1.0f};
+        f({&o});
+        o.Colour = colour;
+
+        RenderObstacle(f, rest...);
+    }
 
     Dimensions mDimensions;
 

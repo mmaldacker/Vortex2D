@@ -50,11 +50,7 @@ public:
     void frame() override
     {
         engine.Clear();
-        engine.RenderNeumann({&top, &bottom, &left, &right});
-        RenderObstacle([&](Renderer::Rectangle & o)
-        {
-            engine.RenderNeumann({&o});
-        }, obstacle);
+        engine.RenderNeumann(top, bottom, left, right, obstacle);
 
         glm::vec2 pos = obstacle.Position;
         if(pos.y < 400.0f)

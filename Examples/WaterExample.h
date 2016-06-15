@@ -58,11 +58,7 @@ public:
     void frame() override
     {
         engine.Clear();
-        engine.RenderNeumann({&top, &bottom, &left, &right});
-        RenderObstacle([&](Renderer::Rectangle & o)
-        {
-            engine.RenderNeumann({&o});
-        }, obstacle1, obstacle2);
+        engine.RenderNeumann(top, bottom, left, right, obstacle1, obstacle2);
 
         engine.RenderFluid(levelSet);
         engine.RenderForce({&gravity});

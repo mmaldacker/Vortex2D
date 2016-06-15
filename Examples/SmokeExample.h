@@ -41,7 +41,7 @@ public:
 
     void frame() override
     {
-        engine.RenderDirichlet({&top, &bottom, &left, &right});
+        engine.RenderDirichlet(top, bottom, left, right);
 
         engine.RenderForce({&force1, &force2});
         density.Render({&source1, &source2});
