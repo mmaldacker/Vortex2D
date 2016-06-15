@@ -9,7 +9,12 @@
 #ifndef Vortex_Common_h
 #define Vortex_Common_h
  
+#ifndef __APPLE__
+#include <GL/gl.h>
+#else
 #include <OpenGL/gl3.h>
+#endif
+
 #include <vector>
 
 #define GLM_SWIZZLE
