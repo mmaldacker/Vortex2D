@@ -44,28 +44,33 @@ public:
         Renderer::Rectangle source({400.0f, 50.0f});
         source.Position = {50.0f, 200.0f};
         source.Colour = glm::vec4{182.0f,172.0f,164.0f, 255.0f}/glm::vec4(255.0f);
-        density.Render({&source});
+        density.Render(source);
     }
 
-    void frame() override
+    void Frame() override
     {
-        engine.Clear();
-        engine.RenderNeumann(top, bottom, left, right, obstacle);
+        engine.ClearBoundaries();
+        engine.RenderNeumann(top);
+        engine.RenderNeumann(bottom);
+        engine.RenderNeumann(left);
+        engine.RenderNeumann(right);
+        engine.RenderNeumann(obstacle);
 
         glm::vec2 pos = obstacle.Position;
         if(pos.y < 400.0f)
         {
             obstacle.Position = force.Position = pos + glm::vec2{0.0f,speed};
-            engine.RenderVelocities({&force});
+            engine.RenderVelocities(force);
         }
 
         engine.Solve();
         density.Advect(engine);
     }
 
-    std::vector<Renderer::Drawable*> render() override
+    void Render(Renderer::RenderTarget & target) override
     {
-        return {&density, &obstacle};
+        target.Render(density);
+        target.Render(obstacle);
     }
 
 private:

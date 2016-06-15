@@ -49,16 +49,21 @@ public:
         Renderer::Rectangle source({300,100});
         source.Position = {100,50};
         source.Colour = glm::vec4{1.0f};
-        water.Render({&source});
+        water.Render(source);
         water.Redistance();
     }
 
-    void frame() override
+    void Frame() override
     {
-        engine.Clear();
-        engine.RenderNeumann(top, bottom, left, right, obstacle1, obstacle2);
-        engine.RenderDirichlet({&water.GetBoundaries()});
-        engine.RenderForce({&gravity});
+        engine.ClearBoundaries();
+        engine.RenderNeumann(top);
+        engine.RenderNeumann(bottom);
+        engine.RenderNeumann(left);
+        engine.RenderNeumann(right);
+        engine.RenderNeumann(obstacle1);
+        engine.RenderNeumann(obstacle2);
+        engine.RenderDirichlet(water.GetBoundaries());
+        engine.RenderForce(gravity);
 
         engine.Solve();
 
@@ -66,9 +71,11 @@ public:
         water.Redistance();
     }
 
-    std::vector<Renderer::Drawable*> render() override
+    void Render(Renderer::RenderTarget & target) override
     {
-        return {&water, &obstacle1, &obstacle2};
+        target.Render(water);
+        target.Render(obstacle1);
+        target.Render(obstacle2);
     }
 
 private:

@@ -26,7 +26,7 @@ class Water : public Renderer::Drawable, public Renderer::Transformable
 public:
     Water(Dimensions dimensions, float dt);
 
-    void Render(const Renderer::DrawablesVector & objects);
+    void Render(Renderer::Drawable & object);
     void Render(Renderer::RenderTarget & target, const glm::mat4 & transform) override;
     void Redistance();
     Renderer::Sprite & GetBoundaries();

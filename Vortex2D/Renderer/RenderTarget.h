@@ -22,7 +22,7 @@ struct RenderTarget
     {}
 
     virtual void Clear(const glm::vec4 & colour) = 0;
-    virtual void Render(const DrawablesVector & objects, const glm::mat4 & transform) = 0;
+    virtual void Render(Drawable & object, const glm::mat4 & transform = glm::mat4()) = 0;
 
     glm::mat4 Orth;
 };

@@ -33,7 +33,7 @@ public:
     RenderTexture & operator=(RenderTexture && other);
 
     void Clear(const glm::vec4 & colour) override;
-    void Render(const DrawablesVector & objects, const glm::mat4 & transform) override;
+    void Render(Drawable & object, const glm::mat4 & transform = glm::mat4()) override;
 
     void ClearStencil();
 

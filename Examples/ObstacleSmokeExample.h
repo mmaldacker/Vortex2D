@@ -43,21 +43,26 @@ public:
         right.Position = {499.0f, 0.0f};
     }
 
-    void frame() override
+    void Frame() override
     {
-        engine.RenderNeumann(top, bottom, left, right, obstacle);
+        engine.RenderNeumann(top);
+        engine.RenderNeumann(bottom);
+        engine.RenderNeumann(left);
+        engine.RenderNeumann(right);
+        engine.RenderNeumann(obstacle);
 
-        engine.RenderForce({&force});
-        density.Render({&source});
+        engine.RenderForce(force);
+        density.Render(source);
 
         engine.Solve();
 
         density.Advect(engine);
     }
 
-    std::vector<Renderer::Drawable*> render() override
+    void Render(Renderer::RenderTarget & target) override
     {
-        return {&density, &obstacle};
+        target.Render(density);
+        target.Render(obstacle);
     }
 
 private:

@@ -20,9 +20,9 @@ Density::Density(Dimensions dimensions, float dt)
     mDensity.Clear(glm::vec4(0.0));
 }
 
-void Density::Render(const Renderer::DrawablesVector & objects)
+void Density::Render(Renderer::Drawable & object)
 {
-    mDensity.Render(objects, mDimensions.InvScale);
+    mDensity.Render(object, mDimensions.InvScale);
 }
 
 void Density::Advect(Engine & engine)

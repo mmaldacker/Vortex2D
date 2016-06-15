@@ -24,8 +24,8 @@ public:
     {
     }
 
-    virtual void frame() = 0;
-    virtual std::vector<Renderer::Drawable*> render() = 0;
+    virtual void Frame() = 0;
+    virtual void Render(Renderer::RenderTarget & target) = 0;
 
 protected:
     Fluid::Dimensions dimensions;

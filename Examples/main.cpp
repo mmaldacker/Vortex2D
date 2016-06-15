@@ -21,12 +21,9 @@ struct RenderWindow : Renderer::RenderTarget
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     }
 
-    void Render(const Renderer::DrawablesVector & objects, const glm::mat4 & transform)
+    void Render(Renderer::Drawable & object, const glm::mat4 & transform)
     {
-        for(auto object : objects)
-        {
-            object->Render(*this, glm::mat4());
-        }
+        object.Render(*this, glm::mat4());
     }
 };
 
@@ -100,12 +97,12 @@ int main(int argc, const char * argv[])
     {
         glfwPollEvents();
 
-        example->frame();
+        example->Frame();
 
         Renderer::Enable d(GL_BLEND);
 
         renderWindow.Clear(colour);
-        renderWindow.Render(example->render(), glm::mat4());
+        example->Render(renderWindow);
 
         glfwSwapBuffers(window);
     }

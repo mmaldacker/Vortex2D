@@ -145,10 +145,10 @@ void Water::Render(Renderer::RenderTarget & target, const glm::mat4 & transform)
     levelSetSprite.Render(target, transform);
 }
 
-void Water::Render(const Renderer::DrawablesVector & objects)
+void Water::Render(Renderer::Drawable & object)
 {
     mLevelSet.Clear({-1.0f, 0.0f, 0.0f, 0.0f});
-    mLevelSet.Render(objects, mDimensions.InvScale);
+    mLevelSet.Render(object, mDimensions.InvScale);
 }
 
 void Water::Redistance()

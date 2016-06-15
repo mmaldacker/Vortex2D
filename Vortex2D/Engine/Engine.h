@@ -26,32 +26,13 @@ class Engine
 public:
     Engine(Dimensions dimensions, LinearSolver * linearSolver, float dt);
 
-    void RenderDirichlet(const Renderer::DrawablesVector & objects);
+    void RenderDirichlet(Renderer::Drawable & object);
+    void RenderNeumann(Renderer::Drawable & object);
+    void RenderVelocities(Renderer::Drawable & object);
+    void RenderForce(Renderer::Drawable & object);
 
-    template<typename ... Objects>
-    void RenderDirichlet(Objects &... objects)
-    {
-        RenderObstacle([&](const Renderer::DrawablesVector & objects)
-        {
-            RenderDirichlet(objects);
-        }, objects...);
-    }
-
-    void RenderNeumann(const std::vector<Renderer::Drawable*> & objects);
-
-    template<typename ... Objects>
-    void RenderNeumann(Objects &... objects)
-    {
-        RenderObstacle([&](const Renderer::DrawablesVector & objects)
-        {
-            RenderNeumann(objects);
-        }, objects...);
-    }
-
-    void RenderVelocities(const Renderer::DrawablesVector & objects);
-    void RenderForce(const Renderer::DrawablesVector & objects);
-
-    void Clear();
+    void ClearBoundaries();
+    void ClearVelocities();
 
     void Solve();
 
@@ -59,22 +40,6 @@ public:
     void Advect(Fluid::Buffer & buffer);
 private:
     void Extrapolate();
-
-    template<typename F>
-    void RenderObstacle(F f)
-    {
-    }
-
-    template<typename F, typename Head, typename...Rest>
-    void RenderObstacle(F f, Head & o, Rest &... rest)
-    {
-        auto colour = o.Colour;
-        o.Colour = glm::vec4{1.0f};
-        f({&o});
-        o.Colour = colour;
-
-        RenderObstacle(f, rest...);
-    }
 
     Dimensions mDimensions;
 

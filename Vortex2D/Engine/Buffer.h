@@ -31,7 +31,7 @@ public:
     void ClampToEdge();
 
     void Clear(const glm::vec4 & colour) override;
-    void Render(const Renderer::DrawablesVector & objects, const glm::mat4 & transform) override;
+    void Render(Renderer::Drawable & object, const glm::mat4 & transform = glm::mat4()) override;
     void ClearStencil();
 
     Buffer & Swap();

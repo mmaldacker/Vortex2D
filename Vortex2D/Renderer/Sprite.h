@@ -27,7 +27,7 @@ public:
     void NoTexture();
     void SetProgram(Program & program);
 
-    void Render(RenderTarget & target, const glm::mat4 & transform) override;
+    void Render(RenderTarget & target, const glm::mat4 & transform = glm::mat4()) override;
 
 private:
     GLuint mVertexArray;

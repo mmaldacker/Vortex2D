@@ -390,20 +390,37 @@ void Engine::Solve()
     glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
 
     mSurface.Colour = glm::vec4{0.0f};
-    mVelocity.Render({&mSurface}, glm::mat4());
+    mVelocity.Render(mSurface);
 
     Extrapolate();
     Advect(mVelocity);
 }
 
-void Engine::RenderDirichlet(const Renderer::DrawablesVector & objects)
+void Engine::RenderDirichlet(Renderer::Drawable & object)
 {
-    mDirichletBoundaries.Render(objects, mDimensions.InvScale);
+    mDirichletBoundaries.Render(object, mDimensions.InvScale);
 }
 
-void Engine::RenderNeumann(const Renderer::DrawablesVector & objects)
+void Engine::RenderNeumann(Renderer::Drawable & object)
 {
-    mNeumannBoundaries.Render(objects, glm::scale(glm::vec3(2.0f, 2.0f, 1.0f))*mDimensions.InvScale);
+    mNeumannBoundaries.Render(object, glm::scale(glm::vec3(2.0f, 2.0f, 1.0f))*mDimensions.InvScale);
+}
+
+void Engine::RenderVelocities(Renderer::Drawable & object)
+{
+    mBoundariesVelocity.Render(object, mDimensions.InvScale);
+}
+
+void Engine::RenderForce(Renderer::Drawable & object)
+{
+    Renderer::Enable e(GL_STENCIL_TEST);
+    glStencilFunc(GL_EQUAL, 0, 0xFF);
+    glStencilMask(0x00);
+
+    Renderer::Enable b(GL_BLEND);
+    Renderer::BlendState s(GL_FUNC_ADD, GL_ONE, GL_ONE);
+
+    mVelocity.Render(object, mDimensions.InvScale);
 }
 
 void Engine::RenderMask(Buffer & mask)
@@ -423,29 +440,16 @@ void Engine::RenderMask(Buffer & mask)
     glStencilMask(0x00); // disable stencil writing
 }
 
-void Engine::RenderVelocities(const std::vector<Renderer::Drawable*> & objects)
-{
-    mBoundariesVelocity.Clear(glm::vec4(0.0f));
-    mBoundariesVelocity.Render(objects, mDimensions.InvScale);
-}
-
-void Engine::Clear()
+void Engine::ClearBoundaries()
 {
     mDirichletBoundaries.Clear(glm::vec4(0.0f));
     mNeumannBoundaries.Clear(glm::vec4(0.0f));
     mBoundariesVelocity.Clear(glm::vec4(0.0f));
 }
 
-void Engine::RenderForce(const Renderer::DrawablesVector & objects)
+void Engine::ClearVelocities()
 {
-    Renderer::Enable e(GL_STENCIL_TEST);
-    glStencilFunc(GL_EQUAL, 0, 0xFF);
-    glStencilMask(0x00);
-
-    Renderer::Enable b(GL_BLEND);
-    Renderer::BlendState s(GL_FUNC_ADD, GL_ONE, GL_ONE);
-
-    mVelocity.Render(objects, mDimensions.InvScale);
+    mBoundariesVelocity.Clear(glm::vec4(0.0f));
 }
 
 void Engine::Advect(Fluid::Buffer & buffer)
@@ -467,7 +471,7 @@ void Engine::Extrapolate()
     glStencilFunc(GL_EQUAL, 0, 0xFF);
 
     mSurface.Colour = glm::vec4{1.0f};
-    mExtrapolateValid.Render({&mSurface}, glm::mat4());
+    mExtrapolateValid.Render(mSurface);
 
     glStencilMask(0x00);
     glStencilFunc(GL_NOTEQUAL, 0, 0xFF);

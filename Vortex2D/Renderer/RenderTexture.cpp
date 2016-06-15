@@ -107,13 +107,10 @@ void RenderTexture::ClearStencil()
     End();
 }
 
-void RenderTexture::Render(const DrawablesVector & objects, const glm::mat4 & transform)
+void RenderTexture::Render(Drawable & object, const glm::mat4 & transform)
 {
     Begin();
-    for(auto object : objects)
-    {
-        object->Render(*this, transform);
-    }
+    object.Render(*this, transform);
     End();
 }
 

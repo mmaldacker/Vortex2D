@@ -39,20 +39,26 @@ public:
         source1.Colour = source2.Colour = glm::vec4{182.0f,172.0f,164.0f, 255.0f}/glm::vec4(255.0f);
     }
 
-    void frame() override
+    void Frame() override
     {
-        engine.RenderDirichlet(top, bottom, left, right);
+        engine.RenderDirichlet(top);
+        engine.RenderDirichlet(bottom);
+        engine.RenderDirichlet(left);
+        engine.RenderDirichlet(right);
 
-        engine.RenderForce({&force1, &force2});
-        density.Render({&source1, &source2});
+        engine.RenderForce(force1);
+        engine.RenderForce(force2);
+
+        density.Render(source1);
+        density.Render(source2);
 
         engine.Solve();
         density.Advect(engine);
     }
 
-    std::vector<Renderer::Drawable*> render() override
+    void Render(Renderer::RenderTarget & target) override
     {
-        return {&density};
+        target.Render(density);
     }
 
 private:
