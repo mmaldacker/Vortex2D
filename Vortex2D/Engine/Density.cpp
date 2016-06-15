@@ -33,11 +33,9 @@ void Density::Advect(Engine & engine)
 
 void Density::Render(Renderer::RenderTarget & target, const glm::mat4 & transform)
 {
-    Renderer::Program::TexturePositionProgram().Use().SetMVP(target.Orth*transform*GetTransform());
-    mDensity.Texture().Bind();
-    mDensity.Render();
-    Renderer::Texture::Unbind();
-    Renderer::Program::TexturePositionProgram().Unuse();
+    auto & densitySprite = mDensity.Sprite();
+    densitySprite.SetProgram(Renderer::Program::TexturePositionProgram());
+    densitySprite.Render(target, transform);
 }
 
 }

@@ -29,7 +29,7 @@ public:
     void Render(const Renderer::DrawablesVector & objects);
     void Render(Renderer::RenderTarget & target, const glm::mat4 & transform) override;
     void Redistance();
-    Context GetBoundaries();
+    Renderer::Sprite & GetBoundaries();
     void Advect(Engine & engine);
 
     glm::vec4 Colour;
@@ -38,8 +38,8 @@ private:
     Dimensions mDimensions;
     Buffer mLevelSet;
     Operator mRedistance;
-    Operator mLevelSetMask;
-
+    
+    Renderer::Program mLevelSetMask;
     Renderer::Program mProgram;
 
     Renderer::Uniform<glm::vec4> mColourUniform;

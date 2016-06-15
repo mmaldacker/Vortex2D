@@ -50,7 +50,6 @@ public:
 
     void RenderVelocities(const Renderer::DrawablesVector & objects);
     void RenderForce(const Renderer::DrawablesVector & objects);
-    void RenderFluid(Context context);
 
     void Clear();
 

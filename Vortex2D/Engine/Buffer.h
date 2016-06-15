@@ -11,32 +11,19 @@
 
 #include "RenderTarget.h"
 #include "Reader.h"
+#include "Sprite.h"
 
 namespace Fluid
 {
 
-class Quad
-{
-public:
-    Quad(const glm::vec2 & size);
-    Quad(Quad &&);
-    ~Quad();
-
-    void Render();
-
-private:
-    GLuint mVertexArray;
-    GLuint mVertexBuffer;
-};
-
-struct Context;
+struct OperatorContext;
 
 class Buffer : public Renderer::RenderTarget
 {
 public:
     Buffer(const glm::vec2 & size, unsigned components, bool doubled = false, bool depth = false);
 
-    Buffer & operator=(Context context);
+    Buffer & operator=(OperatorContext context);
 
     Renderer::Reader Get();
 
@@ -49,8 +36,7 @@ public:
 
     Buffer & Swap();
 
-    Renderer::Texture & Texture();
-    void Render();
+    Renderer::Sprite & Sprite();
 
     friend struct Back;
     friend struct Front;
@@ -59,7 +45,7 @@ private:
     
     // of size 1 or 2
     std::vector<Renderer::RenderTexture> mTextures;
-    Quad mQuad;
+    Renderer::Sprite mSprite;
 };
 
 struct Front

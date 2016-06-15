@@ -139,12 +139,10 @@ Water::Water(Dimensions dimensions, float dt)
 
 void Water::Render(Renderer::RenderTarget & target, const glm::mat4 & transform)
 {
-    mProgram.Use().SetMVP(target.Orth*transform*GetTransform());
+    auto & levelSetSprite = mLevelSet.Sprite();
+    levelSetSprite.SetProgram(mProgram);
     mColourUniform.Set(Colour);
-    mLevelSet.Texture().Bind();
-    mLevelSet.Render();
-    mLevelSet.Texture().Unbind();
-    mProgram.Unuse();
+    levelSetSprite.Render(target, transform);
 }
 
 void Water::Render(const Renderer::DrawablesVector & objects)
@@ -166,9 +164,11 @@ void Water::Redistance()
     }
 }
 
-Context Water::GetBoundaries()
+Renderer::Sprite & Water::GetBoundaries()
 {
-    return mLevelSetMask(mLevelSet);
+    auto & levelSetSprite = mLevelSet.Sprite();
+    levelSetSprite.SetProgram(mLevelSetMask);
+    return levelSetSprite;
 }
 
 void Water::Advect(Fluid::Engine &engine)

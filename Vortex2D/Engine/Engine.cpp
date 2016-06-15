@@ -429,11 +429,6 @@ void Engine::RenderVelocities(const std::vector<Renderer::Drawable*> & objects)
     mBoundariesVelocity.Render(objects, mDimensions.InvScale);
 }
 
-void Engine::RenderFluid(Context context)
-{
-    mDirichletBoundaries = context;
-}
-
 void Engine::Clear()
 {
     mDirichletBoundaries.Clear(glm::vec4(0.0f));

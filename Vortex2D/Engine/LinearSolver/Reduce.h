@@ -19,7 +19,7 @@ class Reduce
 public:
     Reduce(glm::vec2 size);
 
-    Context operator()(Buffer &a, Buffer &b);
+    OperatorContext operator()(Buffer &a, Buffer &b);
 
 private:
     std::vector<Buffer> s;

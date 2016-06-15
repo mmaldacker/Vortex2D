@@ -17,19 +17,10 @@
 namespace Fluid
 {
 
-struct Context : Renderer::Drawable
+struct OperatorContext
 {
-    Context(Renderer::Program & p) : Program(p) {}
-
-    void Render(Renderer::RenderTarget & target, const glm::mat4 & transform) override
-    {
-        Program.Use().SetMVP(target.Orth);
-        assert(Surface);
-        Surface->Render();
-    }
-
+    OperatorContext(Renderer::Program & p) : Program(p) {}
     Renderer::Program & Program;
-    Quad * Surface = nullptr;
 };
 
 #define REQUIRES(...) typename std::enable_if<(__VA_ARGS__), int>::type = 0
@@ -46,7 +37,7 @@ public:
     }
 
     template<typename... Args>
-    Context operator()(Args && ... args)
+    OperatorContext operator()(Args && ... args)
     {
         BindHelper(0, std::forward<Args>(args)...);
         return {mProgram};

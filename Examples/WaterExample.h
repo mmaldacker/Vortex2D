@@ -57,8 +57,7 @@ public:
     {
         engine.Clear();
         engine.RenderNeumann(top, bottom, left, right, obstacle1, obstacle2);
-
-        engine.RenderFluid(water.GetBoundaries());
+        engine.RenderDirichlet({&water.GetBoundaries()});
         engine.RenderForce({&gravity});
 
         engine.Solve();
