@@ -189,7 +189,10 @@ const char * AdvectFrag = GLSL(
         float xd2 = xd * xd;
         float xd3 = xd2 * xd;
 
-        return f1*(-0.5*xd + xd2 - 0.5*xd3) + f2*(1.0 - 2.5*xd2 + 1.5*xd3) + f3*(0.5*xd + 2.0*xd2 - 1.5*xd3) + f4*(-0.5*xd2 + 0.5*xd3);
+        return f1*(-0.5*xd  +      xd2 - 0.5*xd3) +
+               f2*( 1.0     - 2.5 *xd2 + 1.5*xd3) +
+               f3*( 0.5 *xd + 2.0 *xd2 - 1.5*xd3) +
+               f4*(-0.5*xd2 + 0.5 *xd3);
     }
 
     vec4 bicubic(sampler2D u_texture, vec2 xy)
