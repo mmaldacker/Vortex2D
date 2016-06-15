@@ -145,14 +145,6 @@ ConjugateGradient::ConjugateGradient(const glm::vec2 & size)
 
 void ConjugateGradient::Init(LinearSolver::Data & data)
 {
-    z.clear();
-    r.clear();
-    s.clear();
-    alpha.clear();
-    beta.clear();
-    rho.clear();
-    rho_new.clear();
-    sigma.clear();
 }
 
 void ConjugateGradient::Solve(LinearSolver::Data & data)
@@ -165,7 +157,7 @@ void ConjugateGradient::Solve(LinearSolver::Data & data)
     r = residual(data.Pressure, data.Weights, data.Diagonal);
 
     // p = 0
-    data.Pressure.clear();
+    data.Pressure.Clear(glm::vec4(0.0f));
 
     // z = M^-1 r
     z = scalarDivision(r, data.Diagonal);
@@ -186,10 +178,10 @@ void ConjugateGradient::Solve(LinearSolver::Data & data)
         alpha = scalarDivision(rho, sigma);
 
         // p = p + alpha * s
-        data.Pressure.swap() = multiplyAdd(Back(data.Pressure), s, alpha);
+        data.Pressure.Swap() = multiplyAdd(Back(data.Pressure), s, alpha);
 
         // r = r - alpha * z
-        r.swap() = multiplySub(Back(r), z, alpha);
+        r.Swap() = multiplySub(Back(r), z, alpha);
 
         // z = M^-1 r
         z = scalarDivision(r, data.Diagonal);
@@ -201,7 +193,7 @@ void ConjugateGradient::Solve(LinearSolver::Data & data)
         beta = scalarDivision(rho_new, rho);
 
         // s = z + beta * s
-        s.swap() = multiplyAdd(z,Back(s),beta);
+        s.Swap() = multiplyAdd(z,Back(s),beta);
 
         // rho = rho_new
         rho = identity(rho_new);

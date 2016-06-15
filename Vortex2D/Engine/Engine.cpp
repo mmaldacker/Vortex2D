@@ -8,7 +8,6 @@
 
 #include "Engine.h"
 #include "Disable.h"
-#include "LevelSet.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
 #include <iostream>
@@ -346,15 +345,13 @@ Engine::Engine(Dimensions dimensions, LinearSolver * linearSolver, float dt)
     , mBoundaryMask(Renderer::Shader::TexturePositionVert, BoundaryMaskFrag)
     , mSurface(dimensions.Size)
 {
-    mVelocity.clear();
-    mDirichletBoundaries.clear();
+    mVelocity.Clear(glm::vec4(0.0));
+    mDirichletBoundaries.Clear(glm::vec4(0.0));
 
-    mNeumannBoundaries.clear();
-    mNeumannBoundaries.linear();
-
-    mBoundariesVelocity.clear();
-
-    mExtrapolateValid.clear();
+    mNeumannBoundaries.Clear(glm::vec4(0.0));
+    mNeumannBoundaries.Linear();
+    mBoundariesVelocity.Clear(glm::vec4(0.0));
+    mExtrapolateValid.Clear(glm::vec4(0.0));
 
     mProject.Use().Set("u_texture", 0).Set("u_pressure", 1).Set("u_obstacles", 2).Set("u_obstacles_velocity", 3).Set("delta", dt).Unuse();
     mDiv.Use().Set("u_texture", 0).Set("u_obstacles", 1).Set("u_obstacles_velocity", 2).Unuse();
@@ -369,13 +366,13 @@ Engine::Engine(Dimensions dimensions, LinearSolver * linearSolver, float dt)
 
 void Engine::Solve()
 {
-    mData.Pressure.clear();
+    mData.Pressure.Clear(glm::vec4(0.0));
 
     RenderMask(mData.Pressure);
-    RenderMask(mData.Pressure.swap());
+    RenderMask(mData.Pressure.Swap());
 
-    RenderMask(mVelocity.swap());
-    RenderMask(mVelocity.swap());
+    RenderMask(mVelocity.Swap());
+    RenderMask(mVelocity.Swap());
 
     Renderer::Enable e(GL_STENCIL_TEST);
     glStencilFunc(GL_EQUAL, 0, 0xFF);
@@ -388,37 +385,25 @@ void Engine::Solve()
     mLinearSolver->Init(mData);
     mLinearSolver->Solve(mData);
 
-    mVelocity.swap() = mProject(Back(mVelocity), mData.Pressure, mNeumannBoundaries, mBoundariesVelocity);
+    mVelocity.Swap() = mProject(Back(mVelocity), mData.Pressure, mNeumannBoundaries, mBoundariesVelocity);
 
     glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
-    mVelocity.begin();
+
     mSurface.Colour = glm::vec4{0.0f};
-    mSurface.Render(mVelocity.Orth);
-    mVelocity.end();
+    mVelocity.Render({&mSurface}, glm::mat4());
 
     Extrapolate();
     Advect(mVelocity);
 }
 
-void Engine::RenderDirichlet(const std::vector<Renderer::Drawable*> & objects)
+void Engine::RenderDirichlet(const Renderer::DrawablesVector & objects)
 {
-    mDirichletBoundaries.begin();
-    for(auto object : objects)
-    {
-        object->Render(mDirichletBoundaries.Orth*mDimensions.InvScale);
-    }
-    mDirichletBoundaries.end();
+    mDirichletBoundaries.Render(objects, mDimensions.InvScale);
 }
 
-void Engine::RenderNeumann(const std::vector<Renderer::Drawable*> & objects)
+void Engine::RenderNeumann(const Renderer::DrawablesVector & objects)
 {
-    mNeumannBoundaries.begin();
-    auto scaled = glm::scale(mNeumannBoundaries.Orth, glm::vec3(2.0f, 2.0f, 1.0f));
-    for(auto object : objects)
-    {
-        object->Render(scaled*mDimensions.InvScale);
-    }
-    mNeumannBoundaries.end();
+    mNeumannBoundaries.Render(objects, glm::scale(glm::vec3(2.0f, 2.0f, 1.0f))*mDimensions.InvScale);
 }
 
 void Engine::RenderMask(Buffer & mask)
@@ -431,10 +416,7 @@ void Engine::RenderMask(Buffer & mask)
     glStencilMask(0xFF); // enable stencil writing
 
     // clear stencil buffer
-    mask.begin();
-    glClearStencil(0);
-    glClear(GL_STENCIL_BUFFER_BIT);
-    mask.end();
+    mask.ClearStencil();
 
     mask = mBoundaryMask(mDirichletBoundaries, mNeumannBoundaries);
 
@@ -443,27 +425,23 @@ void Engine::RenderMask(Buffer & mask)
 
 void Engine::RenderVelocities(const std::vector<Renderer::Drawable*> & objects)
 {
-    mBoundariesVelocity.begin({0.0f, 0.0f, 0.0f, 0.0f});
-    for(auto object : objects)
-    {
-        object->Render(mBoundariesVelocity.Orth*mDimensions.InvScale);
-    }
-    mBoundariesVelocity.end();
+    mBoundariesVelocity.Clear(glm::vec4(0.0f));
+    mBoundariesVelocity.Render(objects, mDimensions.InvScale);
 }
 
-void Engine::RenderFluid(Fluid::LevelSet &levelSet)
+void Engine::RenderFluid(Context context)
 {
-    mDirichletBoundaries = levelSet.GetBoundaries();
+    mDirichletBoundaries = context;
 }
 
 void Engine::Clear()
 {
-    mDirichletBoundaries.clear();
-    mNeumannBoundaries.clear();
-    mBoundariesVelocity.clear();
+    mDirichletBoundaries.Clear(glm::vec4(0.0f));
+    mNeumannBoundaries.Clear(glm::vec4(0.0f));
+    mBoundariesVelocity.Clear(glm::vec4(0.0f));
 }
 
-void Engine::RenderForce(const std::vector<Renderer::Drawable*> & objects)
+void Engine::RenderForce(const Renderer::DrawablesVector & objects)
 {
     Renderer::Enable e(GL_STENCIL_TEST);
     glStencilFunc(GL_EQUAL, 0, 0xFF);
@@ -472,12 +450,7 @@ void Engine::RenderForce(const std::vector<Renderer::Drawable*> & objects)
     Renderer::Enable b(GL_BLEND);
     Renderer::BlendState s(GL_FUNC_ADD, GL_ONE, GL_ONE);
 
-    mVelocity.begin();
-    for(auto object : objects)
-    {
-        object->Render(mVelocity.Orth*mDimensions.InvScale);
-    }
-    mVelocity.end();
+    mVelocity.Render(objects, mDimensions.InvScale);
 }
 
 void Engine::Advect(Fluid::Buffer & buffer)
@@ -486,30 +459,28 @@ void Engine::Advect(Fluid::Buffer & buffer)
     glStencilFunc(GL_EQUAL, 0, 0xFF);
     glStencilMask(0x00);
 
-    buffer.swap() = mAdvect(Back(buffer), Back(mVelocity));
+    buffer.Swap() = mAdvect(Back(buffer), Back(mVelocity));
 }
 
 void Engine::Extrapolate()
 {
     RenderMask(mExtrapolateValid);
-    RenderMask(mExtrapolateValid.swap());
+    RenderMask(mExtrapolateValid.Swap());
 
     Renderer::Enable e(GL_STENCIL_TEST);
     glStencilMask(0x00);
     glStencilFunc(GL_EQUAL, 0, 0xFF);
 
-    mExtrapolateValid.begin();
     mSurface.Colour = glm::vec4{1.0f};
-    mSurface.Render(mExtrapolateValid.Orth);
-    mExtrapolateValid.end();
+    mExtrapolateValid.Render({&mSurface}, glm::mat4());
 
     glStencilMask(0x00);
     glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
 
     for(int i = 0 ; i < 20 ; i++)
     {
-        mVelocity.swap() = mExtrapolate(mExtrapolateValid, Back(mVelocity));
-        mExtrapolateValid.swap() = mExtrapolateMask(Back(mExtrapolateValid));
+        mVelocity.Swap() = mExtrapolate(mExtrapolateValid, Back(mVelocity));
+        mExtrapolateValid.Swap() = mExtrapolateMask(Back(mExtrapolateValid));
     }
 }
 

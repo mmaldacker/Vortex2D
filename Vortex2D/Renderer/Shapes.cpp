@@ -7,6 +7,7 @@
 //
 
 #include "Shapes.h"
+#include "RenderTarget.h"
 #include <limits>
 
 namespace Renderer
@@ -75,11 +76,11 @@ void Shape::Set(const Path & path)
     }
 }
 
-void Shape::Render(const glm::mat4 & ortho)
+void Shape::Render(RenderTarget & target, const glm::mat4 & transform)
 {
     if(mNumVertices > 0)
     {
-        mProgram->Use().SetMVP(GetTransform(ortho));
+        mProgram->Use().SetMVP(target.Orth*transform*GetTransform());
 
         mColourUniform.Set(Colour);
 

@@ -53,12 +53,12 @@ struct Transformable
 
     virtual ~Transformable(){}
 
-    glm::mat4 GetTransform(const glm::mat4 & m = glm::mat4())
+    const glm::mat4 & GetTransform() const
     {
-        return m*mTransform;
+        return mTransform;
     }
 
-    const glm::mat4 & GetInverseTransform()
+    const glm::mat4 & GetInverseTransform() const
     {
         return mInverseTransform;
     }

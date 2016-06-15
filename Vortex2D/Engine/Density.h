@@ -24,15 +24,14 @@ class Density : public Renderer::Drawable, public Renderer::Transformable
 public:
     Density(Dimensions dimensions, float dt);
 
-    void Render(const std::vector<Renderer::Drawable*> & objects);
+    void Render(const Renderer::DrawablesVector & objects);
     void Advect(Engine & engine);
 
-    void Render(const glm::mat4 & orth) override;
+    void Render(Renderer::RenderTarget & target, const glm::mat4 & transform) override;
 
 private:
     Dimensions mDimensions;
     Buffer mDensity;
-    Renderer::Quad mQuad;
 };
 
 }

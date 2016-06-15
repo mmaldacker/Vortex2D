@@ -48,9 +48,9 @@ public:
         }, objects...);
     }
 
-    void RenderVelocities(const std::vector<Renderer::Drawable*> & objects);
-    void RenderForce(const std::vector<Renderer::Drawable*> & objects);
-    void RenderFluid(LevelSet &levelSet);
+    void RenderVelocities(const Renderer::DrawablesVector & objects);
+    void RenderForce(const Renderer::DrawablesVector & objects);
+    void RenderFluid(Context context);
 
     void Clear();
 

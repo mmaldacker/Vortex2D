@@ -15,6 +15,7 @@ namespace Renderer
 
 RenderTexture::RenderTexture(int width, int height, Texture::PixelFormat pixelFormat, DepthFormat depthFormat)
     : Texture(width, height, pixelFormat, nullptr)
+    , RenderTarget(width, height)
     , mDepthRenderBuffer(0)
 {
     GLint oldRenderBuffer;
@@ -46,8 +47,6 @@ RenderTexture::RenderTexture(int width, int height, Texture::PixelFormat pixelFo
 
     glBindRenderbuffer(GL_RENDERBUFFER, oldRenderBuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, mOldFrameBuffer);
-
-    Orth = glm::ortho(0.0f, (float)Width(), 0.0f, (float)Height());
 }
 
 RenderTexture::~RenderTexture()
@@ -62,7 +61,9 @@ RenderTexture::~RenderTexture()
     }
 }
 
-RenderTexture::RenderTexture(RenderTexture && other) : Texture(std::move(other))
+RenderTexture::RenderTexture(RenderTexture && other)
+    : Texture(std::move(other))
+    , RenderTarget(std::move(other))
 {
     mFrameBuffer = other.mFrameBuffer;
     mDepthRenderBuffer = other.mDepthRenderBuffer;
@@ -82,17 +83,41 @@ RenderTexture & RenderTexture::operator=(RenderTexture && other)
     other.mDepthRenderBuffer = 0;
 
     Texture::operator=(std::move(other));
+    RenderTarget::operator=(std::move(other));
 
     return *this;
 }
 
-void RenderTexture::Clear()
+void RenderTexture::Clear(const glm::vec4 & colour)
 {
-    begin({0,0,0,0});
-    end();
+    Begin();
+    GLfloat clearColour[4];
+    glGetFloatv(GL_COLOR_CLEAR_VALUE,clearColour);
+    glClearColor(colour.r, colour.g, colour.b, colour.a);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glClearColor(clearColour[0], clearColour[1], clearColour[2], clearColour[3]);
+    End();
 }
 
-void RenderTexture::begin()
+void RenderTexture::ClearStencil()
+{
+    Begin();
+    glClearStencil(0);
+    glClear(GL_STENCIL_BUFFER_BIT);
+    End();
+}
+
+void RenderTexture::Render(const DrawablesVector & objects, const glm::mat4 & transform)
+{
+    Begin();
+    for(auto object : objects)
+    {
+        object->Render(*this, transform);
+    }
+    End();
+}
+
+void RenderTexture::Begin()
 {
     glGetIntegerv(GL_VIEWPORT, mOldViewPort);
 
@@ -102,18 +127,7 @@ void RenderTexture::begin()
 	glBindFramebuffer(GL_FRAMEBUFFER, mFrameBuffer);
 }
 
-void RenderTexture::begin(const glm::vec4 &colour)
-{
-    begin();
-
-    GLfloat clearColour[4];
-    glGetFloatv(GL_COLOR_CLEAR_VALUE,clearColour);
-    glClearColor(colour.r, colour.g, colour.b, colour.a);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glClearColor(clearColour[0], clearColour[1], clearColour[2], clearColour[3]);
-}
-
-void RenderTexture::end()
+void RenderTexture::End()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, mOldFrameBuffer);
     glViewport(mOldViewPort[0], mOldViewPort[1], mOldViewPort[2], mOldViewPort[3]);

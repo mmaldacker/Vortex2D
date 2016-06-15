@@ -16,19 +16,13 @@ namespace Fluid
 Density::Density(Dimensions dimensions, float dt)
     : mDimensions(dimensions)
     , mDensity(dimensions.Size, 4, true, true)
-    , mQuad(dimensions.Size*dimensions.Scale)
 {
-    mDensity.clear();
+    mDensity.Clear(glm::vec4(0.0));
 }
 
-void Density::Render(const std::vector<Renderer::Drawable*> & objects)
+void Density::Render(const Renderer::DrawablesVector & objects)
 {
-    mDensity.begin();
-    for(auto object : objects)
-    {
-        object->Render(mDensity.Orth*mDimensions.InvScale);
-    }
-    mDensity.end();
+    mDensity.Render(objects, mDimensions.InvScale);
 }
 
 void Density::Advect(Engine & engine)
@@ -37,11 +31,11 @@ void Density::Advect(Engine & engine)
     engine.Advect(mDensity);
 }
 
-void Density::Render(const glm::mat4 &orth)
+void Density::Render(Renderer::RenderTarget & target, const glm::mat4 & transform)
 {
-    Renderer::Program::TexturePositionProgram().Use().SetMVP(GetTransform(orth));
-    mDensity.texture().Bind();
-    mQuad.Render();
+    Renderer::Program::TexturePositionProgram().Use().SetMVP(target.Orth*transform*GetTransform());
+    mDensity.Texture().Bind();
+    mDensity.Render();
     Renderer::Texture::Unbind();
     Renderer::Program::TexturePositionProgram().Unuse();
 }

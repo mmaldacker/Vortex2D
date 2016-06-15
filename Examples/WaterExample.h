@@ -10,7 +10,6 @@
 #define Vertex2D_Water_h
 
 #include "BaseExample.h"
-#include "LevelSet.h"
 #include "Water.h"
 
 class WaterExample : public BaseExample
@@ -22,8 +21,7 @@ public:
         , top({500,1}), bottom({500,1})
         , left({1,500}), right({1,500})
         , obstacle1({100,100}), obstacle2({100,100})
-        , levelSet(dimensions, 0.033)
-        , water(levelSet)
+        , water(dimensions, 0.033)
     {
         Renderer::Disable d(GL_BLEND);
 
@@ -51,8 +49,8 @@ public:
         Renderer::Rectangle source({300,100});
         source.Position = {100,50};
         source.Colour = glm::vec4{1.0f};
-        levelSet.Render({&source});
-        levelSet.Redistance();
+        water.Render({&source});
+        water.Redistance();
     }
 
     void frame() override
@@ -60,13 +58,13 @@ public:
         engine.Clear();
         engine.RenderNeumann(top, bottom, left, right, obstacle1, obstacle2);
 
-        engine.RenderFluid(levelSet);
+        engine.RenderFluid(water.GetBoundaries());
         engine.RenderForce({&gravity});
 
         engine.Solve();
 
-        levelSet.Advect(engine);
-        levelSet.Redistance();
+        water.Advect(engine);
+        water.Redistance();
     }
 
     std::vector<Renderer::Drawable*> render() override
@@ -78,7 +76,6 @@ private:
     Renderer::Rectangle gravity;
     Renderer::Rectangle top, bottom, left, right;
     Renderer::Rectangle obstacle1, obstacle2;
-    Fluid::LevelSet levelSet;
     Fluid::Water water;
 };
 

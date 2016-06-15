@@ -80,7 +80,7 @@ void SuccessiveOverRelaxation::Init(LinearSolver::Data & data)
     glStencilMask(0x02); // write in second place
 
     data.Pressure = mStencil();
-    data.Pressure.swap() = mStencil();
+    data.Pressure.Swap() = mStencil();
 
     glStencilMask(0x00); // disable stencil writing
 }
@@ -99,7 +99,7 @@ void SuccessiveOverRelaxation::Step(LinearSolver::Data & data, bool isRed)
     Renderer::Enable e(GL_STENCIL_TEST);
     glStencilMask(0x00);
 
-    data.Pressure.swap();
+    data.Pressure.Swap();
 
     glStencilFunc(GL_EQUAL, isRed ? 2 : 0, 0xFF);
     data.Pressure = mSor(Back(data.Pressure), data.Weights, data.Diagonal);

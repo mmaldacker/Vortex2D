@@ -14,10 +14,12 @@
 namespace Renderer
 {
 
+struct RenderTarget;
+
 struct Drawable
 {
     virtual ~Drawable(){}
-    virtual void Render(const glm::mat4 & ortho) = 0;
+    virtual void Render(RenderTarget & target, const glm::mat4 & transform) = 0;
 };
 
 using DrawablesVector = std::vector<Drawable*>;

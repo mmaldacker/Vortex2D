@@ -1,13 +1,34 @@
 #include <GLFW/glfw3.h>
 
 #include "Common.h"
-
+#include "RenderTarget.h"
 #include "SmokeExample.h"
 #include "ObstacleSmokeExample.h"
 #include "WaterExample.h"
 #include "VelocitySmokeExample.h"
 
 #include <iostream>
+
+struct RenderWindow : Renderer::RenderTarget
+{
+    RenderWindow(int width, int height) : Renderer::RenderTarget(width, height)
+    {
+    }
+
+    void Clear(const glm::vec4 & colour)
+    {
+        glClearColor(colour.r, colour.g, colour.b, colour.a);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    }
+
+    void Render(const Renderer::DrawablesVector & objects, const glm::mat4 & transform)
+    {
+        for(auto object : objects)
+        {
+            object->Render(*this, glm::mat4());
+        }
+    }
+};
 
 std::unique_ptr<BaseExample> example;
 
@@ -67,12 +88,13 @@ int main(int argc, const char * argv[])
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     auto colour = glm::vec4{99.0f,96.0f,93.0f,255.0f}/glm::vec4(255.0f);
-    glClearColor(colour.r, colour.g, colour.b, colour.a);
 
     Renderer::Disable d(GL_BLEND);
     glDisable(GL_DEPTH_TEST);
 
     example.reset(new SmokeExample());
+
+    RenderWindow renderWindow(size.x, size.y);
 
     while (!glfwWindowShouldClose(window))
     {
@@ -81,12 +103,9 @@ int main(int argc, const char * argv[])
         example->frame();
 
         Renderer::Enable d(GL_BLEND);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-        for(auto object : example->render())
-        {
-            object->Render(ortho);
-        }
+        renderWindow.Clear(colour);
+        renderWindow.Render(example->render(), glm::mat4());
 
         glfwSwapBuffers(window);
     }

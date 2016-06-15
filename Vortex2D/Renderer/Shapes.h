@@ -33,7 +33,7 @@ public:
     void Set(const Path & path);
     void SetProgram(Program & program);
 
-    void Render(const glm::mat4 & ortho);
+    void Render(RenderTarget & target, const glm::mat4 & transform) override;
 
     glm::vec4 Colour;
 

@@ -25,7 +25,7 @@ struct Dimensions
     
     const float Scale;
     const glm::vec2 Size;
-    const glm::mat4x4 InvScale;
+    const glm::mat4 InvScale;
 };
 
 }

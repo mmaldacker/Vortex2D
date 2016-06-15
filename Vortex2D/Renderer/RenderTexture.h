@@ -11,11 +11,12 @@
 
 #include "Common.h"
 #include "Texture.h"
+#include "RenderTarget.h"
 
 namespace Renderer
 {
 
-class RenderTexture : public Texture
+class RenderTexture : public Texture, public RenderTarget
 {
 public:
     enum class DepthFormat
@@ -31,15 +32,16 @@ public:
     RenderTexture(RenderTexture && other);
     RenderTexture & operator=(RenderTexture && other);
 
-    glm::mat4 Orth;
+    void Clear(const glm::vec4 & colour) override;
+    void Render(const DrawablesVector & objects, const glm::mat4 & transform) override;
 
-    void Clear();
+    void ClearStencil();
 
-    void begin();
-    void begin(const glm::vec4 & colour);
-    void end();
-
+    friend class Reader;
 private:
+    void Begin();
+    void End();
+
     GLuint mFrameBuffer;
     GLuint mDepthRenderBuffer;
 

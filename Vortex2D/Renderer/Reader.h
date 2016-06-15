@@ -10,7 +10,6 @@
 #define __Vertex2D__Reader__
 
 #include "Common.h"
-#include "Quad.h"
 #include "RenderTexture.h"
 
 namespace Renderer

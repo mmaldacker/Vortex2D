@@ -75,10 +75,10 @@ Reader & Reader::Read()
             break;
     }
 
-    mTexture.begin();
+    mTexture.Begin();
     glReadPixels(0, 0, mTexture.Width(), mTexture.Height(), format, GL_FLOAT, mPixels);
     glReadPixels(0, 0, mTexture.Width(), mTexture.Height(), GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, mStencil);
-    mTexture.end();
+    mTexture.End();
 
     glFlush();
 

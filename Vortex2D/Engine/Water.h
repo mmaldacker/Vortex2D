@@ -11,24 +11,36 @@
 
 #include "Drawable.h"
 #include "Transformable.h"
-#include "LevelSet.h"
+#include "Size.h"
+#include "Operator.h"
+#include "Buffer.h"
+
 
 namespace Fluid
 {
 
+class Engine;
+
 class Water : public Renderer::Drawable, public Renderer::Transformable
 {
 public:
-    Water(Fluid::LevelSet & levelSet);
+    Water(Dimensions dimensions, float dt);
 
-    void Render(const glm::mat4 & ortho) override;
+    void Render(const Renderer::DrawablesVector & objects);
+    void Render(Renderer::RenderTarget & target, const glm::mat4 & transform) override;
+    void Redistance();
+    Context GetBoundaries();
+    void Advect(Engine & engine);
 
     glm::vec4 Colour;
 
 private:
+    Dimensions mDimensions;
+    Buffer mLevelSet;
+    Operator mRedistance;
+    Operator mLevelSetMask;
+
     Renderer::Program mProgram;
-    Renderer::Texture & mWaterTexture;
-    Renderer::Quad mQuad;
 
     Renderer::Uniform<glm::vec4> mColourUniform;
 };
