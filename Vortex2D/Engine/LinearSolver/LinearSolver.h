@@ -14,8 +14,18 @@
 namespace Fluid
 {
 
+/**
+ * @brief An interface to represent a linear solver.
+ */
 struct LinearSolver
 {
+    /**
+     * @brief The data of the linear solver.
+     * In Ax = b,
+     * x is first component of Pressure,
+     * A is Weights + Diagonals,
+     * b is second component of Pressure.
+     */
     struct Data
     {
         Data(const glm::vec2 & size)

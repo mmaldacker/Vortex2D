@@ -14,6 +14,9 @@
 namespace Fluid
 {
 
+/**
+ * @brief An iterative black and red successive over relaxation linear solver.
+ */
 class SuccessiveOverRelaxation : public LinearSolver
 {
 public:

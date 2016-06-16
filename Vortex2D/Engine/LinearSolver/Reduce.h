@@ -14,6 +14,9 @@
 namespace Fluid
 {
 
+/**
+ * @brief An Operator class that implements the inner dot product between two buffers.
+ */
 class Reduce
 {
 public:

@@ -18,24 +18,65 @@ namespace Fluid
 
 struct OperatorContext;
 
+/**
+ * @brief Represents the grid used to hold the velocity field, boundaries, density, etc.
+ * This holds one or two RenderTexture which allows the use of ping-pong rendering: one RenderTexture
+ * is used as input while the other is used as output, when we're done we swap the two. This is used
+ * for iterative algorithms such as the LinearSolvers.
+ * The equal operator is overloaded and works with the Operator class and makes for succint code when
+ * running a shader with multiple inputs.
+ */
 class Buffer : public Renderer::RenderTarget
 {
 public:
+    /**
+     * @brief Constructor that creates the underlying RenderTexture(s)
+     * @param size can be square or rectangular
+     * @param components number of elements per grid point: 1,2 or 4
+     * @param doubled if true, create two underlying RenderTexture
+     * @param depth if true, add a depth and stencil buffer
+     */
     Buffer(const glm::vec2 & size, unsigned components, bool doubled = false, bool depth = false);
 
     Buffer & operator=(OperatorContext context);
 
+    /**
+     * @brief Returns a Reader to poke the content of the Texture of the front RenderTexture
+     */
     Renderer::Reader Get();
 
+    /**
+     * @brief Make the texture linear.
+     */
     void Linear();
+
+    /**
+     * @brief When sampling from outside the texture, a value of 0 is returned.
+     */
     void ClampToEdge();
 
+    /**
+     * @brief Clears the Buffer
+     */
     void Clear(const glm::vec4 & colour) override;
+
+    /**
+     * @brief Renders an object on the front RenderTexture only
+     * @param object the object to use
+     * @param transform an optional transform to apply
+     */
     void Render(Renderer::Drawable & object, const glm::mat4 & transform = glm::mat4()) override;
     void ClearStencil();
 
+    /**
+     * @brief Swap the front and back RenderTexture
+     * @return returns *this
+     */
     Buffer & Swap();
 
+    /**
+     * @brief Returns a Sprite backed by the Texture of the front RenderTexture
+     */
     Renderer::Sprite & Sprite();
 
     friend struct Back;
@@ -48,6 +89,9 @@ private:
     Renderer::Sprite mSprite;
 };
 
+/**
+ * @brief Helper class to Bind the Texture of the front RenderTexture of Buffer
+ */
 struct Front
 {
     Front(Buffer & b) : buffer(b) {}
@@ -57,6 +101,9 @@ struct Front
     Buffer & buffer;
 };
 
+/**
+ * @brief Helper class to Bind the Texture of the back RenderTexture of Buffer
+ */
 struct Back
 {
     explicit Back(Buffer & b) : buffer(b) {}

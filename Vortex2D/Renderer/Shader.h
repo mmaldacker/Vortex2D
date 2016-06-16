@@ -18,10 +18,22 @@ namespace Renderer
 
 class Program;
 
+/**
+ * @brief Represents a Vertex or Fragment shader
+ */
 class Shader
 {
 public:
+    /**
+     * @brief Source loads the source of the shader
+     * @param source must be a string of the source (and not a filename)
+     * @return returns *this
+     */
     Shader & Source(const char * source);
+
+    /**
+     * @brief Compile compiles the shader
+     */
     Shader & Compile();
     virtual ~Shader();
 
@@ -43,16 +55,26 @@ private:
     static const char * TexCoordsName;
 };
 
+/**
+ * @brief Vertex Shader
+ */
 struct VertexShader : Shader
 {
     VertexShader();
 };
 
+/**
+ * @brief Fragment Shader
+ */
 struct FragmentShader : Shader
 {
     FragmentShader();
 };
 
+/**
+ * @brief Uniform that hols the location of a uniform in a shader
+ * and allows for fast update of it. It is templated on the type of the uniform.
+ */
 template<typename T>
 class Uniform
 {
@@ -67,6 +89,9 @@ private:
     GLuint mLocation;
 };
 
+/**
+ * @brief A program which is defined from a Vertex and Fragment shader
+ */
 class Program
 {
 public:

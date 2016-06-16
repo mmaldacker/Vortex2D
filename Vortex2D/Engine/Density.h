@@ -19,6 +19,9 @@ namespace Fluid
 
 class Engine;
 
+/**
+ * @brief Used to move and render colour with the velocity field of the Engine
+ */
 class Density : public Renderer::Drawable, public Renderer::Transformable
 {
 public:

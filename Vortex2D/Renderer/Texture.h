@@ -14,6 +14,9 @@
 namespace Renderer
 {
 
+/**
+ * @brief Create and manage a texture
+ */
 class Texture
 {
 public:

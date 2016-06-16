@@ -21,6 +21,9 @@ namespace Renderer
 
 typedef std::vector<glm::vec2> Path;
 
+/**
+ * @brief Generic class to render a solid coloured shape using the basic OpenGL primitives
+ */
 class Shape : public Drawable, public Transformable
 {
 public:
@@ -29,8 +32,20 @@ public:
 
     Shape(Shape &&);
 
+    /**
+     * @brief SetType sets the primitive type of this shape
+     * @param type must be GL_POINTS, GL_TRIANGLES, etc
+     */
     void SetType(GLuint type);
+
+    /**
+     * @brief Set sets a list of points (e.g. triangles)
+     */
     void Set(const Path & path);
+
+    /**
+     * @brief SetProgram the program to be used when rendering
+     */
     void SetProgram(Program & program);
 
     void Render(RenderTarget & target, const glm::mat4 & transform = glm::mat4()) override;
@@ -48,6 +63,9 @@ private:
     Program * mProgram;
 };
 
+/**
+ * @brief A solid colour rectangle defined by two triangles. Implements the Drawable interface and Transformable interface.
+ */
 struct Rectangle : Shape
 {
     Rectangle() = default;
@@ -56,6 +74,9 @@ struct Rectangle : Shape
     void SetRectangle(const glm::vec2 & size);
 };
 
+/**
+ * @brief A solid colour rectangle defined by a triangle fan. Implements the Drawable interface and Transformable interface.
+ */
 struct Circle : Shape
 {
     Circle() = default;

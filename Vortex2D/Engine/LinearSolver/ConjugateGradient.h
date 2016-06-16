@@ -15,6 +15,10 @@
 namespace Fluid
 {
 
+/**
+ * @brief An iterative preconditioned conjugate linear solver.
+ * The preconditioning operator is a simple diagonal preconditioner.
+ */
 class ConjugateGradient : public LinearSolver
 {
 public:

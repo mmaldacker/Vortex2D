@@ -16,6 +16,9 @@
 namespace Renderer
 {
 
+/**
+ * @brief Enables to draw a texture with a given program
+ */
 class Sprite : public Drawable
 {
 public:

@@ -16,6 +16,9 @@ namespace Renderer
 
 struct Transformable;
 
+/**
+ * @brief Simple class to simulate properties like in C#
+ */
 template<typename T, typename Transformable = Transformable>
 class property
 {
@@ -37,6 +40,9 @@ public:
     }
 };
 
+/**
+ * @brief Class to represent the transformation of an object: position, scale, rotation and anchor.
+ */
 struct Transformable
 {
     Transformable()

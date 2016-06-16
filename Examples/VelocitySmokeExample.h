@@ -50,6 +50,8 @@ public:
     void Frame() override
     {
         engine.ClearBoundaries();
+        engine.ClearVelocities();
+        
         engine.RenderNeumann(top);
         engine.RenderNeumann(bottom);
         engine.RenderNeumann(left);

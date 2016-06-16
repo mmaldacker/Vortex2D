@@ -21,22 +21,72 @@ namespace Fluid
 
 class LevelSet;
 
+/**
+ * @brief The main class of the framework. Each instance manages a grid and this class
+ * is used to set forces, define boundaries, solve the incompressbility equations and do the
+ * advection.
+ */
 class Engine
 {
 public:
+    /**
+     * @brief Construct an Engine with a size, linear solver and time step.
+     * @param dimensions
+     * @param linearSolver
+     * @param dt
+     */
     Engine(Dimensions dimensions, LinearSolver * linearSolver, float dt);
 
+    /**
+     * @brief Render an object as a dirichlet boundary. Those are boundaries where the pressure is 0.
+     * @param object
+     */
     void RenderDirichlet(Renderer::Drawable & object);
+
+    /**
+     * @brief Render an object as a neumann boudary. Those are boundaries where the pressure is the opposite of the fluid.
+     * @param object
+     */
     void RenderNeumann(Renderer::Drawable & object);
+
+    /**
+     * @brief Render velocity for neumann boundary (the user has to make sure it's aligned with the neumann boundary).
+     * This is used for moving objects in the fluid.
+     * @param object
+     */
     void RenderVelocities(Renderer::Drawable & object);
+
+    /**
+     * @brief Render a force in the fluid. For example heat pushing the fluid up or gravity pushing the water down.
+     * @param object
+     */
     void RenderForce(Renderer::Drawable & object);
 
+    /**
+     * @brief Clear the dirichlet and neumann boundaries
+     */
     void ClearBoundaries();
+
+    /**
+     * @brief Clear the boundary velocities
+     */
     void ClearVelocities();
 
+    /**
+     * @brief Advances by one time step. This solver the incompressible equation and does the advection.
+     */
     void Solve();
 
+    /**
+     * @brief Sets the stencil mask of a buffer. The stencil represents the boundary. Used by Density and Water classes.
+     * @param mask
+     */
     void RenderMask(Buffer & mask);
+
+    /**
+     * @brief Advect a buffer forward. Used by Density and Water classes.
+     * @param buffer
+     */
     void Advect(Fluid::Buffer & buffer);
 private:
     void Extrapolate();
