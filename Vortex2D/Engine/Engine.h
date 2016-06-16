@@ -39,26 +39,22 @@ public:
 
     /**
      * @brief Render an object as a dirichlet boundary. Those are boundaries where the pressure is 0.
-     * @param object
      */
     void RenderDirichlet(Renderer::Drawable & object);
 
     /**
      * @brief Render an object as a neumann boudary. Those are boundaries where the pressure is the opposite of the fluid.
-     * @param object
      */
     void RenderNeumann(Renderer::Drawable & object);
 
     /**
      * @brief Render velocity for neumann boundary (the user has to make sure it's aligned with the neumann boundary).
      * This is used for moving objects in the fluid.
-     * @param object
      */
     void RenderVelocities(Renderer::Drawable & object);
 
     /**
      * @brief Render a force in the fluid. For example heat pushing the fluid up or gravity pushing the water down.
-     * @param object
      */
     void RenderForce(Renderer::Drawable & object);
 

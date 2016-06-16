@@ -1,31 +1,13 @@
 #include <GLFW/glfw3.h>
 
 #include "Common.h"
-#include "RenderTarget.h"
+#include "RenderWindow.h"
 #include "SmokeExample.h"
 #include "ObstacleSmokeExample.h"
 #include "WaterExample.h"
 #include "VelocitySmokeExample.h"
 
 #include <iostream>
-
-struct RenderWindow : Renderer::RenderTarget
-{
-    RenderWindow(int width, int height) : Renderer::RenderTarget(width, height)
-    {
-    }
-
-    void Clear(const glm::vec4 & colour)
-    {
-        glClearColor(colour.r, colour.g, colour.b, colour.a);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    }
-
-    void Render(Renderer::Drawable & object, const glm::mat4 & transform)
-    {
-        object.Render(*this, glm::mat4());
-    }
-};
 
 std::unique_ptr<BaseExample> example;
 

@@ -39,7 +39,14 @@ struct LinearSolver
         Buffer Pressure;
     };
 
+    /**
+     * @brief Any initialisation steps to be done before solving the linear equations
+     */
     virtual void Init(Data & data) = 0;
+
+    /**
+     * @brief Solves the linear equations
+     */
     virtual void Solve(Data & data) = 0;
 };
 

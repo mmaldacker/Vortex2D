@@ -17,7 +17,7 @@ namespace Renderer
 {
 
 /**
- * @brief Enables to draw a texture with a given program
+ * @brief Drawable to draw a texture with a given program
  */
 class Sprite : public Drawable
 {
@@ -26,8 +26,19 @@ public:
     Sprite(Sprite &&);
     ~Sprite();
 
+    /**
+     * @brief Set the texture to be bound when rendering.
+     */
     void SetTexture(Texture & texture);
+
+    /**
+     * @brief Don't bind any texture when rendering, useful when we bind the texture seperately.
+     */
     void NoTexture();
+
+    /**
+     * @brief The program to use when rendering.
+     */
     void SetProgram(Program & program);
 
     void Render(RenderTarget & target, const glm::mat4 & transform = glm::mat4()) override;
