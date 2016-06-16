@@ -14,9 +14,9 @@ All computing is done on the GPU using simple vertex/fragment shaders and thus r
 ## Introduction
 
 This engine is a work in progress and there might be many changes to its API in the future. The fundamental piece of the engine is a grid which represents the velocity field of the fluid. Evolving this field is divided in three steps:
-* Advection: moving the velocity field (or any other field) using the velocity field using an integrator (currently back & fort error correction & compensation)
+* Advection: moving the velocity field (or any other field) using the velocity field using an integrator (currently Runge-Kutta 3)
 * Adding external forces: gravity, forces applied by bodies in the fluid, etc
-* Projection: calculating and applying a pressure field and applying it to the velocity to make divergence free and ensuring boundary conditions. This done by solver a system of linear equations, using either the successive-over-relaxation iterative solver or the preconditioned conjugate gradient solver. 
+* Projection: calculating a pressure field, ensuring it is incompressible and applying it to the velocity to make it divergence free and ensuring boundary conditions. This done by solving a system of linear equations, using either the successive-over-relaxation iterative solver or the preconditioned conjugate gradient solver. 
 
 ### Code structure
 
@@ -66,33 +66,43 @@ In addition, there are classes to help to common cases we want to simulate:
 
 ### Engine
 
-This is the main class that handles the core of the simulation. It is constructed with a size, time step and linear solver. There are currently two available linear solvers: an iterative preconditioned conjugate gradient solver and an iterative red-black successive over relaxation solver.
+This is the main class that handles the core of the simulation. It is constructed with a size, time-step and linear solver. There are currently two available linear solvers: an iterative preconditioned conjugate gradient solver and an iterative red-black successive over relaxation solver.
 
-It is simply a matter then a of setting your boundaries, either once at the beginning or each time the boundary changes (e.g. with a moving object). Note that the boundaries need to cleared before hand. Then forces can be applied to the fluid (e.g. rising smoke) and the Solve method is called to apply one step to the simulation.
+It is simply a matter then of setting your boundaries, either once at the beginning or each time the boundary changes (e.g. with a moving object). Note that the boundaries need to cleared before hand. Then forces can be applied to the fluid (e.g. rising smoke) and the *Solve* method is called to apply one step to the simulation.
 
-Visualisation of the fluid with either the Density or Water classes need to be updated after the Solver method by advecting their fluid. This is done with the advect method.
+Visualisation of the fluid with either the *Density* or *Water* classes need to be updated after the *Solve* method by advecting their fluid. This is done with the *Advect* method.
 
 #### Boundaries
 
 There are two types of boundaries possible which require some explanation. When solving the incompressible equations, we need to know what pressure to use at the boundaries and we support two types:
 
-##### Dirichlet 
+ * Dirichlet 
 
 Dirichlet boundaries simply set the pressure at boundaries to 0. This means that any movement towards a dirichlet boundary will be unchanged. This is useful for simulating water/air interaction or to simulate a continuation of the fluid without showing it (e.g. smoke disapearing from the side of the screen).
 
-##### Neumann 
+ * Neumann 
 
-Neumann boundaries set the pressure to be the negate of the fluid pressure. This represents solid objects and the fluid will respond by moving away from it. It is then used for solid objects immersed in the fluid.
+Neumann boundaries set the pressure to be the negative of the fluid pressure. This represents solid objects and the fluid will respond by moving away from it. It is used for solid objects immersed in the fluid.
 
 ### Density
 
-This class is used to represent dye or smoke in the fluid. The object is initialised with the same size as the Engine and some section can then be marked to contain values to be advected. The Advect method has to be called after calling Solve on the engine. The whole Density class can then be rendered.
+This class is used to represent dye or smoke in the fluid. The object is initialised with the same size as the *Engine* and some section can then be marked to contain values to be advected (by rendering a shape to it). The *Advect* method has to be called after calling *Solve* on the engine so the dye/smoke can be evolved. The whole *Density* class can then be rendered.
 
 ### Water
 
-This class is used to simulate water. This is more complex than the Density class as the interesting part of simulating water, is simulating the boundary between water and air. For simplicity, the air is simulated as having pressure 0 (i.e. dirichlet boundaries). This boundary needs to be updated with the movement of the water. The LevelSet method is used here to achieve this. The LevelSet represents the boundary of the water, it's a grid where each cell gives the distance to the water/air boundary. This needs to be advected after each Solve like for Density. In addition, the values need to be renormalised after each advection using the Redistance method as advection doesn't preserve the distance values correctly. Finally, the engine must know of the new boundaries after each advection, this is done by setting dirichlet boundaries with the GetBoundaries method. 
+This class is used to simulate water. This is more complex than the *Density* class as the interesting part of simulating water, is simulating the boundary between water and air. 
+
+For simplicity, the air is simulated as having pressure 0 (i.e. dirichlet boundaries). The difficulty here is to update this boundary, so that our water can splash around. We use the level set method to achieve this. 
+
+A level set is a grid where each grid cell has the signed distance to the nearest water/air boundary. The *Water* class has a level set grid the size of the *Engine*, we can then mark (i.e. render) some sections as beeing water. Calling the method *Redistance* will then ensure the level set grid contains (approximately) good signed distance values at each grid cell.
+
+We can then evolve the level set by simply advecting it with the velocity field. Note that this doesn't necessarily preserve the signed distance values, so a call to *Redistance* needs to be done afterwards. In addition, once the level set is changed, the engine needs to have its dirichlet boundaries updated, which is available via the *GetBoundaries* method.
+
+Finally, the level set can be rendered as water.
 
 ## Example
+
+A simple example for a smoke simulation:
 
 ```cpp
 Dimensions dimensions(glm::vec2(500));
