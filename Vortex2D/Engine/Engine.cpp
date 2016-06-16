@@ -369,18 +369,20 @@ void Engine::Solve()
     RenderMask(mVelocity.Swap());
     RenderMask(mVelocity.Swap());
 
-    Renderer::Enable e(GL_STENCIL_TEST);
-    glStencilFunc(GL_EQUAL, 0, 0xFF);
-    glStencilMask(0x00);
+    {
+        Renderer::Enable e(GL_STENCIL_TEST);
+        glStencilFunc(GL_EQUAL, 0, 0xFF);
+        glStencilMask(0x00);
 
-    mData.Pressure = mDiv(mVelocity, mNeumannBoundaries, mBoundariesVelocity);
-    mData.Weights = mWeights(mDirichletBoundaries, mNeumannBoundaries);
-    mData.Diagonal = mDiagonals(mNeumannBoundaries);
+        mData.Pressure = mDiv(mVelocity, mNeumannBoundaries, mBoundariesVelocity);
+        mData.Weights = mWeights(mDirichletBoundaries, mNeumannBoundaries);
+        mData.Diagonal = mDiagonals(mNeumannBoundaries);
 
-    mLinearSolver->Init(mData);
-    mLinearSolver->Solve(mData);
+        mLinearSolver->Init(mData);
+        mLinearSolver->Solve(mData);
 
-    mVelocity.Swap() = mProject(Back(mVelocity), mData.Pressure, mNeumannBoundaries, mBoundariesVelocity);
+        mVelocity.Swap() = mProject(Back(mVelocity), mData.Pressure, mNeumannBoundaries, mBoundariesVelocity);
+    }
 
     Extrapolate();
     Advect(mVelocity);
@@ -437,33 +439,23 @@ void Engine::ClearVelocities()
 
 void Engine::Advect(Fluid::Buffer & buffer)
 {
-    Renderer::Enable e(GL_STENCIL_TEST);
-    glStencilFunc(GL_EQUAL, 0, 0xFF);
-    glStencilMask(0x00);
-
     buffer.Swap() = mAdvect(Back(buffer), Back(mVelocity));
 }
 
 void Engine::Extrapolate()
 {
+    mExtrapolateValid.Clear(glm::vec4(0.0));
     mExtrapolateValid.ClearStencil();
     RenderMask(mExtrapolateValid);
     RenderMask(mExtrapolateValid.Swap());
 
-    Renderer::Enable e(GL_STENCIL_TEST);
-    glStencilMask(0x00);
-    glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
-
-    mSurface.Colour = glm::vec4{0.0f};
-    mVelocity.Render(mSurface);
-
-    glStencilFunc(GL_ALWAYS, 0, 0xFF);
-
     mVelocity.Swap() = mIdentity(Back(mVelocity));
 
+    Renderer::Enable e(GL_STENCIL_TEST);
+    glStencilMask(0x00);
     glStencilFunc(GL_EQUAL, 0, 0xFF);
 
-    mSurface.Colour = glm::vec4{1.0f};
+    mSurface.Colour = glm::vec4(1.0f);
     mExtrapolateValid.Render(mSurface);
     mExtrapolateValid.Swap().Render(mSurface);
 
