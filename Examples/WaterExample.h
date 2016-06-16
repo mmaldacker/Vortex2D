@@ -16,7 +16,7 @@ class WaterExample : public BaseExample
 {
 public:
     WaterExample()
-    : BaseExample({glm::vec2{500}, 1.0f}, 0.033)
+    : BaseExample({glm::vec2{250}, 2.0f}, 0.033)
         , gravity(glm::vec2{500})
         , top({500,1}), bottom({500,1})
         , left({1,500}), right({1,500})
@@ -25,30 +25,26 @@ public:
     {
         Renderer::Disable d(GL_BLEND);
 
-        gravity.Colour = {0.0f, 0.1f, 0.0f, 0.0f};
+        gravity.Colour = {0.0f, -0.1f, 0.0f, 0.0f};
 
-        top.Colour = bottom.Colour = left.Colour = right.Colour = glm::vec4{1.0f};
+        top.Colour = bottom.Colour = left.Colour = right.Colour = glm::vec4(1.0f);
 
         top.Position = {0.0f, 0.0f};
         bottom.Position = {0.0f, 499.0f};
         left.Position = {0.0f, 0.0f};
         right.Position = {499.0f, 0.0f};
 
-        glm::vec4 c = glm::vec4{35.0f, 163.0f, 143.0f, 255.0f} / glm::vec4{255.0f};
-
         obstacle1.Position = {150.0f, 200.0f};
         obstacle1.Rotation = 45.0f;
-        obstacle1.Colour = c;
 
-        obstacle2.Position = {250.0f, 400.0f};
+        obstacle2.Position = {250.0f, 200.0f};
         obstacle2.Rotation = 30.0f;
-        obstacle2.Colour = c;
 
-        water.Colour = glm::vec4{99.0f, 155.0f, 188.0f, 255.0f}/glm::vec4(255.0f);
+        water.Colour = blue;
 
         Renderer::Rectangle source({300,100});
-        source.Position = {100,50};
-        source.Colour = glm::vec4{1.0f};
+        source.Position = {100,350};
+        source.Colour = glm::vec4(1.0f);
         water.Render(source);
         water.Redistance();
     }
@@ -60,20 +56,26 @@ public:
         engine.RenderNeumann(bottom);
         engine.RenderNeumann(left);
         engine.RenderNeumann(right);
+
+        obstacle1.Colour = obstacle2.Colour = glm::vec4(1.0);
         engine.RenderNeumann(obstacle1);
         engine.RenderNeumann(obstacle2);
+
         engine.RenderDirichlet(water.GetBoundaries());
+
         engine.RenderForce(gravity);
 
         engine.Solve();
 
         water.Advect(engine);
         water.Redistance();
+
     }
 
     void Render(Renderer::RenderTarget & target) override
     {
         target.Render(water);
+        obstacle1.Colour = obstacle2.Colour = green;
         target.Render(obstacle1);
         target.Render(obstacle2);
     }

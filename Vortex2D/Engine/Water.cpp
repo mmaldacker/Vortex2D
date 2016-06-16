@@ -123,7 +123,6 @@ const char * LevelSetMaskFrag = GLSL(
      }
 );
 
-
 Water::Water(Dimensions dimensions, float dt)
     : mDimensions(dimensions)
     , mLevelSet(dimensions.Size, 1, true)
@@ -135,14 +134,16 @@ Water::Water(Dimensions dimensions, float dt)
     mLevelSet.Clear(glm::vec4(0.0));
     mLevelSet.ClampToEdge();
     mRedistance.Use().Set("delta", dt).Set("u_texture", 0).Unuse();
+    mProgram.Use().Set("u_texture", 0).Unuse();
 }
 
 void Water::Render(Renderer::RenderTarget & target, const glm::mat4 & transform)
 {
     auto & levelSetSprite = mLevelSet.Sprite();
     levelSetSprite.SetProgram(mProgram);
+    mProgram.Use();
     mColourUniform.Set(Colour);
-    levelSetSprite.Render(target, transform);
+    levelSetSprite.Render(target, transform*glm::scale(glm::vec3(mDimensions.Scale, mDimensions.Scale, 1.0)));
 }
 
 void Water::Render(Renderer::Drawable & object)
@@ -173,6 +174,7 @@ Renderer::Sprite & Water::GetBoundaries()
 
 void Water::Advect(Fluid::Engine &engine)
 {
+    // FIXME need to set mask
     engine.Advect(mLevelSet);
 }
 

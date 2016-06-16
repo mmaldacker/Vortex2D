@@ -27,6 +27,7 @@ void Density::Render(Renderer::Drawable & object)
 
 void Density::Advect(Engine & engine)
 {
+    mDensity.ClearStencil();
     engine.RenderMask(mDensity);
     engine.Advect(mDensity);
 }

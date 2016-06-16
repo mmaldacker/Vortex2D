@@ -70,18 +70,11 @@ public:
      */
     void Solve();
 
-    /**
-     * @brief Sets the stencil mask of a buffer. The stencil represents the boundary. Used by Density and Water classes.
-     * @param mask
-     */
-    void RenderMask(Buffer & mask);
-
-    /**
-     * @brief Advect a buffer forward. Used by Density and Water classes.
-     * @param buffer
-     */
-    void Advect(Fluid::Buffer & buffer);
+    friend class Water;
+    friend class Density;
 private:
+    void RenderMask(Buffer & mask);
+    void Advect(Fluid::Buffer & buffer);
     void Extrapolate();
 
     Dimensions mDimensions;

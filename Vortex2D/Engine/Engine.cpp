@@ -188,43 +188,37 @@ const char * AdvectFrag = GLSL(
         float xd2 = xd * xd;
         float xd3 = xd2 * xd;
 
-        return f1*(-0.5*xd  +     xd2 - 0.5*xd3) +
-               f2*( 1.0     - 2.5*xd2 + 1.5*xd3) +
-               f3*( 0.5*xd  + 2.0*xd2 - 1.5*xd3) +
-               f4*(-0.5*xd2 + 0.5*xd3);
+        return f1*(     - 0.5*xd  +     xd2 - 0.5*xd3) +
+               f2*( 1.0           - 2.5*xd2 + 1.5*xd3) +
+               f3*(       0.5*xd  + 2.0*xd2 - 1.5*xd3) +
+               f4*(               - 0.5*xd2 + 0.5*xd3);
     }
 
     vec4 bicubic(sampler2D u_texture, vec2 xy)
     {
-        vec2 ij0 = floor(xy) - 1.0;
-        vec2 ij1 = ij0 + 1.0;
-        vec2 ij2 = ij1 + 1.0;
-        vec2 ij3 = ij2 + 1.0;
+        ivec2 ij0 = ivec2(floor(xy)) - ivec2(1);
+        ivec2 ij1 = ij0 + ivec2(1);
+        ivec2 ij2 = ij1 + ivec2(1);
+        ivec2 ij3 = ij2 + ivec2(1);
 
         vec2 f = xy - ij1.xy;
 
-        vec2 h = textureSize(u_texture, 0);
-        vec2 s0 = (ij0 + 0.5) / h;
-        vec2 s1 = (ij1 + 0.5) / h;
-        vec2 s2 = (ij2 + 0.5) / h;
-        vec2 s3 = (ij3 + 0.5) / h;
-
-        vec4 t00 = texture(u_texture, vec2(s0.x, s0.y));
-        vec4 t10 = texture(u_texture, vec2(s1.x, s0.y));
-        vec4 t20 = texture(u_texture, vec2(s2.x, s0.y));
-        vec4 t30 = texture(u_texture, vec2(s3.x, s0.y));
-        vec4 t01 = texture(u_texture, vec2(s0.x, s1.y));
-        vec4 t11 = texture(u_texture, vec2(s1.x, s1.y));
-        vec4 t21 = texture(u_texture, vec2(s2.x, s1.y));
-        vec4 t31 = texture(u_texture, vec2(s3.x, s1.y));
-        vec4 t02 = texture(u_texture, vec2(s0.x, s2.y));
-        vec4 t12 = texture(u_texture, vec2(s1.x, s2.y));
-        vec4 t22 = texture(u_texture, vec2(s2.x, s2.y));
-        vec4 t32 = texture(u_texture, vec2(s3.x, s2.y));
-        vec4 t03 = texture(u_texture, vec2(s0.x, s3.y));
-        vec4 t13 = texture(u_texture, vec2(s1.x, s3.y));
-        vec4 t23 = texture(u_texture, vec2(s2.x, s3.y));
-        vec4 t33 = texture(u_texture, vec2(s3.x, s3.y));
+        vec4 t00 = texelFetch(u_texture, ivec2(ij0.x, ij0.y), 0);
+        vec4 t10 = texelFetch(u_texture, ivec2(ij1.x, ij0.y), 0);
+        vec4 t20 = texelFetch(u_texture, ivec2(ij2.x, ij0.y), 0);
+        vec4 t30 = texelFetch(u_texture, ivec2(ij3.x, ij0.y), 0);
+        vec4 t01 = texelFetch(u_texture, ivec2(ij0.x, ij1.y), 0);
+        vec4 t11 = texelFetch(u_texture, ivec2(ij1.x, ij1.y), 0);
+        vec4 t21 = texelFetch(u_texture, ivec2(ij2.x, ij1.y), 0);
+        vec4 t31 = texelFetch(u_texture, ivec2(ij3.x, ij1.y), 0);
+        vec4 t02 = texelFetch(u_texture, ivec2(ij0.x, ij2.y), 0);
+        vec4 t12 = texelFetch(u_texture, ivec2(ij1.x, ij2.y), 0);
+        vec4 t22 = texelFetch(u_texture, ivec2(ij2.x, ij2.y), 0);
+        vec4 t32 = texelFetch(u_texture, ivec2(ij3.x, ij2.y), 0);
+        vec4 t03 = texelFetch(u_texture, ivec2(ij0.x, ij3.y), 0);
+        vec4 t13 = texelFetch(u_texture, ivec2(ij1.x, ij3.y), 0);
+        vec4 t23 = texelFetch(u_texture, ivec2(ij2.x, ij3.y), 0);
+        vec4 t33 = texelFetch(u_texture, ivec2(ij3.x, ij3.y), 0);
 
         return cubic(
                     cubic(t00, t01, t02, t03, f.y),
@@ -367,10 +361,11 @@ Engine::Engine(Dimensions dimensions, LinearSolver * linearSolver, float dt)
 void Engine::Solve()
 {
     mData.Pressure.Clear(glm::vec4(0.0));
-
+    mData.Pressure.ClearStencil();
     RenderMask(mData.Pressure);
     RenderMask(mData.Pressure.Swap());
 
+    mVelocity.ClearStencil();
     RenderMask(mVelocity.Swap());
     RenderMask(mVelocity.Swap());
 
@@ -386,11 +381,6 @@ void Engine::Solve()
     mLinearSolver->Solve(mData);
 
     mVelocity.Swap() = mProject(Back(mVelocity), mData.Pressure, mNeumannBoundaries, mBoundariesVelocity);
-
-    glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
-
-    mSurface.Colour = glm::vec4{0.0f};
-    mVelocity.Render(mSurface);
 
     Extrapolate();
     Advect(mVelocity);
@@ -413,10 +403,6 @@ void Engine::RenderVelocities(Renderer::Drawable & object)
 
 void Engine::RenderForce(Renderer::Drawable & object)
 {
-    Renderer::Enable e(GL_STENCIL_TEST);
-    glStencilFunc(GL_EQUAL, 0, 0xFF);
-    glStencilMask(0x00);
-
     Renderer::Enable b(GL_BLEND);
     Renderer::BlendState s(GL_FUNC_ADD, GL_ONE, GL_ONE);
 
@@ -431,9 +417,6 @@ void Engine::RenderMask(Buffer & mask)
     glStencilFunc(GL_ALWAYS, 1, 0xFF); // write 1 in stencil buffer
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); // replace value with above
     glStencilMask(0xFF); // enable stencil writing
-
-    // clear stencil buffer
-    mask.ClearStencil();
 
     mask = mBoundaryMask(mDirichletBoundaries, mNeumannBoundaries);
 
@@ -463,17 +446,27 @@ void Engine::Advect(Fluid::Buffer & buffer)
 
 void Engine::Extrapolate()
 {
+    mExtrapolateValid.ClearStencil();
     RenderMask(mExtrapolateValid);
     RenderMask(mExtrapolateValid.Swap());
 
     Renderer::Enable e(GL_STENCIL_TEST);
     glStencilMask(0x00);
+    glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
+
+    mSurface.Colour = glm::vec4{0.0f};
+    mVelocity.Render(mSurface);
+
+    glStencilFunc(GL_ALWAYS, 0, 0xFF);
+
+    mVelocity.Swap() = mIdentity(Back(mVelocity));
+
     glStencilFunc(GL_EQUAL, 0, 0xFF);
 
     mSurface.Colour = glm::vec4{1.0f};
     mExtrapolateValid.Render(mSurface);
+    mExtrapolateValid.Swap().Render(mSurface);
 
-    glStencilMask(0x00);
     glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
 
     for(int i = 0 ; i < 20 ; i++)

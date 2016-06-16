@@ -14,8 +14,6 @@
 #include "Shapes.h"
 #include "Density.h"
 
-const float speed = 2.0f;
-
 class VelocitySmokeExample : public BaseExample
 {
 public:
@@ -27,7 +25,6 @@ public:
     , density(dimensions, 0.033)
     {
         obstacle.Position = {200.0f, 50.0f};
-        obstacle.Colour = glm::vec4{35.0f, 163.0f, 143.0f, 255.0f}/glm::vec4{255.0f};
 
         force.Position = (glm::vec2)obstacle.Position;
         force.Colour = {0.0f, speed/0.033f, 0.0f, 0.0f};
@@ -35,15 +32,15 @@ public:
         top.Colour = bottom.Colour = left.Colour = right.Colour = glm::vec4{1.0f};
 
         top.Position = {0.0f, 0.0f};
-        bottom.Position = {0.0f, 500-1.0f};
+        bottom.Position = {0.0f, 499.0f};
         left.Position = {0.0f, 0.0f};
-        right.Position = {500-1.0f, 0.0f};
+        right.Position = {499.0f, 0.0f};
 
         Renderer::Disable d(GL_BLEND);
 
         Renderer::Rectangle source({400.0f, 50.0f});
         source.Position = {50.0f, 200.0f};
-        source.Colour = glm::vec4{182.0f,172.0f,164.0f, 255.0f}/glm::vec4(255.0f);
+        source.Colour = gray;
         density.Render(source);
     }
 
@@ -56,6 +53,8 @@ public:
         engine.RenderNeumann(bottom);
         engine.RenderNeumann(left);
         engine.RenderNeumann(right);
+
+        obstacle.Colour = glm::vec4(1.0);
         engine.RenderNeumann(obstacle);
 
         glm::vec2 pos = obstacle.Position;
@@ -72,6 +71,7 @@ public:
     void Render(Renderer::RenderTarget & target) override
     {
         target.Render(density);
+        obstacle.Colour = green;
         target.Render(obstacle);
     }
 
@@ -79,6 +79,8 @@ private:
     Renderer::Rectangle obstacle, force;
     Renderer::Rectangle top, bottom, left, right;
     Fluid::Density density;
+
+    const float speed = 2.0f;
 };
 
 

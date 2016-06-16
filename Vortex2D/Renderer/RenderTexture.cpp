@@ -103,7 +103,9 @@ void RenderTexture::ClearStencil()
 {
     Begin();
     glClearStencil(0);
+    glStencilMask(0xFF);
     glClear(GL_STENCIL_BUFFER_BIT);
+    glStencilMask(0);
     End();
 }
 

@@ -31,21 +31,21 @@ public:
         left.Position = {0.0f, 0.0f};
         right.Position = {499.0f, 0.0f};
 
-        source1.Position = force1.Position = {300.0f, 400.0f};
-        source2.Position = force2.Position = {100.0f, 400.0f};
+        source1.Position = force1.Position = {166.0f, 100.0f};
+        source2.Position = force2.Position = {332.0f, 100.0f};
 
-        force1.Colour = force2.Colour = {0.0f, -5.0f, 0.0f, 0.0f};
+        force1.Colour = force2.Colour = {0.0f, 5.0f, 0.0f, 0.0f};
 
-        source1.Colour = source2.Colour = glm::vec4{182.0f,172.0f,164.0f, 255.0f}/glm::vec4(255.0f);
-    }
+        source1.Colour = source2.Colour = gray;
 
-    void Frame() override
-    {
         engine.RenderDirichlet(top);
         engine.RenderDirichlet(bottom);
         engine.RenderDirichlet(left);
         engine.RenderDirichlet(right);
+    }
 
+    void Frame() override
+    {
         engine.RenderForce(force1);
         engine.RenderForce(force2);
 
