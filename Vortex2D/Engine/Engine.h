@@ -31,9 +31,6 @@ class Engine
 public:
     /**
      * @brief Construct an Engine with a size, linear solver and time step.
-     * @param dimensions
-     * @param linearSolver
-     * @param dt
      */
     Engine(Dimensions dimensions, LinearSolver * linearSolver, float dt);
 

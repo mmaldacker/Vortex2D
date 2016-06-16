@@ -34,8 +34,19 @@ struct LinearSolver
         , Pressure(size, 2, true, true)
         {}
 
+        /**
+         * @brief Buffer with 4 components holding the weights of the 4 neighbouring grid cells
+         */
         Buffer Weights;
+
+        /**
+         * @brief Buffer with 1 component holding the diagonal value of the matrix
+         */
         Buffer Diagonal;
+
+        /**
+         * @brief Buffer with 2 components, first one is unknowns and second is the right hand side of the linear equations.
+         */
         Buffer Pressure;
     };
 

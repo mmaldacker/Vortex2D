@@ -71,6 +71,9 @@ struct Rectangle : Shape
     Rectangle() = default;
     Rectangle(const glm::vec2 & size);
 
+    /**
+     * @brief Sets the rectangle size
+     */
     void SetRectangle(const glm::vec2 & size);
 };
 
@@ -82,6 +85,9 @@ struct Circle : Shape
     Circle() = default;
     Circle(float size);
 
+    /**
+     * @brief Sets the circle radius
+     */
     void SetCircle(float size);
 };
 

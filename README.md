@@ -49,9 +49,9 @@ There are two classes that simplify and make this clearer: *Buffer* and *Operato
 
 ```cpp
 Buffer output, input;
-Operator operator;
+Operator op;
 
-output = operator(input);
+output = op(input);
 ```
 
 Writting information to a Buffer is a matter of rendering a shape to the Buffer. For examples to add gravity, we can draw a rectangle covering the whole texture with the colour being the gravity force. 

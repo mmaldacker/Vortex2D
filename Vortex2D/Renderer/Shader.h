@@ -39,13 +39,36 @@ public:
 
     friend class Program;
 
+    /**
+     * @brief Attribute location of the texture coordinates variable in the shaders
+     */
     static const GLuint TexCoords = 1;
+
+    /**
+     * @brief Attribute location of the position variable in the shaders
+     */
     static const GLuint Position = 2;
 
+    /**
+     * @brief Source for the position vertex shader (@see Program)
+     */
     static const char * PositionVert;
+
+    /**
+     * @brief Source for the position fragment shader (@see Program)
+     */
     static const char * PositionFrag;
+
+    /**
+     * @brief Source for the texture/position vertex shader (@see Program)
+     */
     static const char * TexturePositionVert;
+
+    /**
+     * @brief Source for the texture/position fragment shader (@see Program)
+     */
     static const char * TexturePositionFrag;
+
 protected:
     Shader(GLuint shader);
     GLuint mShader;
@@ -102,12 +125,35 @@ public:
     Program(Program &&);
     Program & operator=(Program &&);
     
+    /**
+     * @brief Attach a Fragment or Vertex shader
+     * @return returns *this
+     */
     Program & AttachShader(const Shader & shader);
+
+    /**
+     * @brief Used for setting the variables used in the feedback shader
+     */
     Program & AttachFeedback(const std::vector<const GLchar*> & varyings);
+
+    /**
+     * @brief Link the shaders to the Program
+     */
     Program & Link();
+
+    /**
+     * @brief Use this Program
+     */
     Program & Use();
+
+    /**
+     * @brief Set the current Program to 0
+     */
     static void Unuse();
 
+    /**
+     * @brief Set a uniform by name
+     */
     template<typename T>
     Program & Set(const std::string & name, T value)
     {
@@ -118,9 +164,20 @@ public:
         return *this;
     }
 
+    /**
+     * @brief Set the model-view-projection matrix
+     * @return returns *this
+     */
     Program & SetMVP(const glm::mat4 & mvp);
 
+    /**
+     * @brief Identity shader with a position & texture component (e.g. used in Sprite)
+     */
     static Program & TexturePositionProgram();
+
+    /**
+     * @brief Identity shader with a position component and a colour uniform (e.g. used in Shapes)
+     */
     static Program & PositionProgram();
 
     template<typename T>

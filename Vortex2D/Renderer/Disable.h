@@ -35,6 +35,7 @@ struct Disable
         if(enabled) glEnable(e);
     }
 
+private:
     GLenum e;
     GLint enabled;
 };
@@ -76,6 +77,7 @@ struct Enable
         if(!enabled) glDisable(e);
     }
     
+private:
     GLenum e;
     GLint enabled;
 };
@@ -109,6 +111,7 @@ struct BlendState
         glBlendEquation(blendEquation);
     }
 
+private:
     GLint blendEquation, blendSrc, blendDst;
 };
 

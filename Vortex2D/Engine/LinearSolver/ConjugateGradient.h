@@ -24,7 +24,14 @@ class ConjugateGradient : public LinearSolver
 public:
     ConjugateGradient(const glm::vec2 & size);
 
+    /**
+     * @brief Empty implementation as there are no initialisation for CG
+     */
     void Init(LinearSolver::Data & data) override;
+
+    /**
+     * @brief Solve iteratively solve the linear equations in data
+     */
     void Solve(LinearSolver::Data & data) override;
 
 private:

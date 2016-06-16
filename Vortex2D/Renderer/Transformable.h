@@ -59,21 +59,45 @@ struct Transformable
 
     virtual ~Transformable(){}
 
+    /**
+     * @brief Returns the transform matrix
+     */
     const glm::mat4 & GetTransform() const
     {
         return mTransform;
     }
 
+    /**
+     * @brief Returns the inverse transform matrix
+     */
     const glm::mat4 & GetInverseTransform() const
     {
         return mInverseTransform;
     }
 
+    /**
+     * @brief absolute position
+     */
     property<glm::vec2> Position;
+
+    /**
+     * @brief scale for the x and y components
+     */
     property<glm::vec2> Scale;
+
+    /**
+     * @brief Rotation in radians
+     */
     property<float> Rotation;
+
+    /**
+     * @brief An offset to the position (used for centering a shape)
+     */
     property<glm::vec2> Anchor;
 
+    /**
+     * @brief Update the transform matrix with the position, scale, rotation and anchor.
+     */
     void Update()
     {
         mTransform = glm::translate(glm::vec3{(glm::vec2)Position, 0.0f});

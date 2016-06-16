@@ -22,6 +22,9 @@ class Reduce
 public:
     Reduce(glm::vec2 size);
 
+    /**
+     * @brief Runs the reduce operation
+     */
     OperatorContext operator()(Buffer &a, Buffer &b);
 
 private:

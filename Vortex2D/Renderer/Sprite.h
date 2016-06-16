@@ -41,6 +41,9 @@ public:
      */
     void SetProgram(Program & program);
 
+    /**
+     * @brief Renders the Sprite to a RenderTarget
+     */
     void Render(RenderTarget & target, const glm::mat4 & transform = glm::mat4()) override;
 
 private:

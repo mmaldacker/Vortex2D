@@ -23,7 +23,14 @@ public:
     SuccessiveOverRelaxation(const glm::vec2 & size, int iterations = 40);
     SuccessiveOverRelaxation(const glm::vec2 & size, int iterations, float w);
 
+    /**
+     * @brief Sets up the stencil mask to enable red-black solving
+     */
     void Init(LinearSolver::Data & data) override;
+
+    /**
+     * @brief Iterative solving of the linear equations in data
+     */
     void Solve(LinearSolver::Data & data) override;
 
 private:

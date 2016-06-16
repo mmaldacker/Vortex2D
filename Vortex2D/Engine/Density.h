@@ -27,9 +27,19 @@ class Density : public Renderer::Drawable, public Renderer::Transformable
 public:
     Density(Dimensions dimensions, float dt);
 
+    /**
+     * @brief Renders some colours on the density grid
+     */
     void Render(Renderer::Drawable & object);
+
+    /**
+     * @brief Advect the colours rendered with Render using the velocity field in Engine
+     */
     void Advect(Engine & engine);
 
+    /**
+     * @brief Renders the colours to a RenderTarget
+     */
     void Render(Renderer::RenderTarget & target, const glm::mat4 & transform) override;
 
 private:

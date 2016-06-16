@@ -37,6 +37,9 @@ struct RenderTarget
      */
     virtual void Render(Drawable & object, const glm::mat4 & transform = glm::mat4()) = 0;
 
+    /**
+     * @brief Matrix holding an orthographic projection
+     */
     glm::mat4 Orth;
 };
 

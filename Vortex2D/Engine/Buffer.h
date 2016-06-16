@@ -66,6 +66,10 @@ public:
      * @param transform an optional transform to apply
      */
     void Render(Renderer::Drawable & object, const glm::mat4 & transform = glm::mat4()) override;
+
+    /**
+     * @brief Clears the stencil on both RenderTexture
+     */
     void ClearStencil();
 
     /**
