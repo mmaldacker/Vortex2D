@@ -196,35 +196,23 @@ const char * AdvectFrag = GLSL(
 
     vec4 bicubic(sampler2D u_texture, vec2 xy)
     {
-        ivec2 ij0 = ivec2(floor(xy)) - ivec2(1);
-        ivec2 ij1 = ij0 + ivec2(1);
-        ivec2 ij2 = ij1 + ivec2(1);
-        ivec2 ij3 = ij2 + ivec2(1);
+        ivec2 ij = ivec2(floor(xy)) - 1;
+        vec2 f = xy - (ij + 1);
 
-        vec2 f = xy - ij1.xy;
-
-        vec4 t00 = texelFetch(u_texture, ivec2(ij0.x, ij0.y), 0);
-        vec4 t10 = texelFetch(u_texture, ivec2(ij1.x, ij0.y), 0);
-        vec4 t20 = texelFetch(u_texture, ivec2(ij2.x, ij0.y), 0);
-        vec4 t30 = texelFetch(u_texture, ivec2(ij3.x, ij0.y), 0);
-        vec4 t01 = texelFetch(u_texture, ivec2(ij0.x, ij1.y), 0);
-        vec4 t11 = texelFetch(u_texture, ivec2(ij1.x, ij1.y), 0);
-        vec4 t21 = texelFetch(u_texture, ivec2(ij2.x, ij1.y), 0);
-        vec4 t31 = texelFetch(u_texture, ivec2(ij3.x, ij1.y), 0);
-        vec4 t02 = texelFetch(u_texture, ivec2(ij0.x, ij2.y), 0);
-        vec4 t12 = texelFetch(u_texture, ivec2(ij1.x, ij2.y), 0);
-        vec4 t22 = texelFetch(u_texture, ivec2(ij2.x, ij2.y), 0);
-        vec4 t32 = texelFetch(u_texture, ivec2(ij3.x, ij2.y), 0);
-        vec4 t03 = texelFetch(u_texture, ivec2(ij0.x, ij3.y), 0);
-        vec4 t13 = texelFetch(u_texture, ivec2(ij1.x, ij3.y), 0);
-        vec4 t23 = texelFetch(u_texture, ivec2(ij2.x, ij3.y), 0);
-        vec4 t33 = texelFetch(u_texture, ivec2(ij3.x, ij3.y), 0);
+        vec4 t[16];
+        for(int j = 0 ; j < 4 ; ++j)
+        {
+            for(int i = 0 ; i < 4 ; ++i)
+            {
+                t[i + 4*j] = texelFetch(u_texture, ij + ivec2(i,j), 0);
+            }
+        }
 
         return cubic(
-                    cubic(t00, t01, t02, t03, f.y),
-                    cubic(t10, t11, t12, t13, f.y),
-                    cubic(t20, t21, t22, t23, f.y),
-                    cubic(t30, t31, t32, t33, f.y),
+                    cubic(t[0], t[4], t[8], t[12], f.y),
+                    cubic(t[1], t[5], t[9], t[13], f.y),
+                    cubic(t[2], t[6], t[10], t[14], f.y),
+                    cubic(t[3], t[7], t[11], t[15], f.y),
                     f.x
                 );
     }
