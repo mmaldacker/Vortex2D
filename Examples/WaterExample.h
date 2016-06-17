@@ -21,7 +21,7 @@ public:
         , top({500,1}), bottom({500,1})
         , left({1,500}), right({1,500})
         , obstacle1({100,100}), obstacle2({100,100})
-        , water(dimensions, 0.033)
+        , water(dimensions)
     {
         Renderer::Disable d(GL_BLEND);
 
@@ -46,7 +46,6 @@ public:
         source.Position = {100,350};
         source.Colour = glm::vec4(1.0f);
         water.Render(source);
-        water.Redistance();
     }
 
     void Frame() override
@@ -68,8 +67,6 @@ public:
         engine.Solve();
 
         water.Advect(engine);
-        water.Redistance();
-
     }
 
     void Render(Renderer::RenderTarget & target) override

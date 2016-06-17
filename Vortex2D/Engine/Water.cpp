@@ -40,66 +40,64 @@ const char * RedistanceFrag = GLSL(
    out vec4 out_color;
 
    uniform sampler2D u_texture;
+   uniform sampler2D u_sign;
    uniform float delta;
 
-   float maxmod(float a, float b)
+   float g(float s, float wxy, float wxp, float wxn, float wyp, float wyn)
    {
-       if(abs(a) > abs(b))
+       float a = wxy - wxn;
+       float b = wxp - wxy;
+       float c = wxy - wyn;
+       float d = wyp - wxy;
+
+       if(s > 0)
        {
-           return a;
+           float ap = max(a,0);
+           float bn = min(b,0);
+           float cp = max(c,0);
+           float dn = min(d,0);
+
+           return sqrt(max(ap*ap, bn*bn) + max(cp*cp, dn*dn)) - 1.0;
        }
        else
        {
-           return b;
+           float an = min(a,0);
+           float bp = max(b,0);
+           float cn = min(c,0);
+           float dp = max(d,0);
+
+           return sqrt(max(an*an, bp*bp) + max(cn*cn, dp*dp)) - 1.0;
        }
-   }
 
-   float difference(float w, float p, float n)
-   {
-       if(sign(p - w) == sign(w - n))
-       {
-           return 0.5*(p-n);
-       }
-       else
-       {
-           return maxmod(p - w, w - n);
-       }
-   }
-
-   vec2 bilerp(sampler2D u_texture, vec2 xy)
-   {
-       vec4 ij;
-       ij.xy = floor(xy);
-       ij.zw = ij.xy + 1.0;
-       vec2 f = xy - ij.xy;
-
-       vec2 h = textureSize(u_texture, 0);
-       vec4 st = (ij + 0.5) / vec4(h,h);
-
-       vec2 t11 = texture(u_texture, st.xy).xy;
-       vec2 t21 = texture(u_texture, st.xw).xy;
-       vec2 t12 = texture(u_texture, st.zy).xy;
-       vec2 t22 = texture(u_texture, st.zw).xy;
-
-       return mix(mix(t11,t21,f.y),mix(t12,t22,f.y),f.x);
-   }
+    }
 
    void main()
    {
-       float s = sign(texture(u_texture, v_texCoord).x);
+       float s = texture(u_sign, v_texCoord).x;
 
        float wxy = texture(u_texture, v_texCoord).x;
        float wxp = textureOffset(u_texture, v_texCoord, ivec2(1,0)).x;
        float wxn = textureOffset(u_texture, v_texCoord, ivec2(-1,0)).x;
        float wyp = textureOffset(u_texture, v_texCoord, ivec2(0,1)).x;
        float wyn = textureOffset(u_texture, v_texCoord, ivec2(0,-1)).x;
-       
-       vec2 w = normalize(vec2(difference(wxy, wxp, wxn), difference(wxy, wyp, wyn)));
-       
-       vec2 stepBackCoords = gl_FragCoord.xy - 0.5 - delta * s * w;
-       
-       out_color = vec4(bilerp(u_texture, stepBackCoords).x + delta * s, 0.0, 0.0, 0.0);
+
+       out_color = vec4(wxy - delta * s * g(s, wxy, wxp, wxn, wyp, wyn), 0.0, 0.0, 0.0);
+
    }
+);
+
+const char * SignLevelSetMaskFrag = GLSL(
+    in vec2 v_texCoord;
+    out vec4 out_color;
+
+    uniform sampler2D u_texture;
+
+    void main()
+    {
+        float x = texture(u_texture, v_texCoord).x;
+        float s = x / sqrt(x*x + 1);
+        out_color = vec4(s, 0.0, 0.0, 0.0);
+    }
 );
     
 const char * LevelSetMaskFrag = GLSL(
@@ -123,45 +121,51 @@ const char * LevelSetMaskFrag = GLSL(
      }
 );
 
-Water::Water(Dimensions dimensions, float dt)
+Water::Water(Dimensions dimensions)
     : mDimensions(dimensions)
     , mLevelSet(dimensions.Size, 1, true)
+    , mSignLevelSet(dimensions.Size, 1)
     , mRedistance(Renderer::Shader::TexturePositionVert, RedistanceFrag)
+    , mSign(Renderer::Shader::TexturePositionVert, SignLevelSetMaskFrag)
     , mLevelSetMask(Renderer::Shader::TexturePositionVert, LevelSetMaskFrag)
-    , mProgram(Renderer::Shader::TexturePositionVert, WaterFrag)
-    , mColourUniform(mProgram, "u_Colour")
+    , mRenderProgram(Renderer::Shader::TexturePositionVert, WaterFrag)
+    , mColourUniform(mRenderProgram, "u_Colour")
 {
-    mLevelSet.Clear(glm::vec4(0.0));
     mLevelSet.ClampToEdge();
-    mRedistance.Use().Set("delta", dt).Set("u_texture", 0).Unuse();
-    mProgram.Use().Set("u_texture", 0).Unuse();
+    Clear();
+    mRedistance.Use().Set("delta", 0.1f).Set("u_texture", 0).Set("u_sign", 1).Unuse();
+    mSign.Use().Set("u_texture", 0).Unuse();
+    mRenderProgram.Use().Set("u_texture", 0).Unuse();
 }
 
 void Water::Render(Renderer::RenderTarget & target, const glm::mat4 & transform)
 {
     auto & levelSetSprite = mLevelSet.Sprite();
-    levelSetSprite.SetProgram(mProgram);
-    mProgram.Use();
+    levelSetSprite.SetProgram(mRenderProgram);
+    mRenderProgram.Use();
     mColourUniform.Set(Colour);
     levelSetSprite.Render(target, transform*glm::scale(glm::vec3(mDimensions.Scale, mDimensions.Scale, 1.0)));
 }
 
 void Water::Render(Renderer::Drawable & object)
 {
-    mLevelSet.Clear({-1.0f, 0.0f, 0.0f, 0.0f});
     mLevelSet.Render(object, mDimensions.InvScale);
+    Redistance(true);
 }
 
-void Water::Redistance()
+void Water::Clear()
 {
-    // FIXME need to set mask
-    Renderer::Enable e(GL_STENCIL_TEST);
-    glStencilFunc(GL_EQUAL, 0, 0xFF);
-    glStencilMask(0x00);
+    mLevelSet.Clear({-1.0f, 0.0f, 0.0f, 0.0f});
+}
 
-    for(int i = 0 ; i < 20 ; i++)
+void Water::Redistance(bool reinitialize)
+{
+    mSignLevelSet = mSign(mLevelSet);
+
+    int num_iterations = reinitialize ? 20 : 2;
+    for(int i = 0 ; i < num_iterations ; i++)
     {
-        mLevelSet.Swap() = mRedistance(Back(mLevelSet));
+        mLevelSet.Swap() = mRedistance(Back(mLevelSet), mSignLevelSet);
     }
 }
 
@@ -174,8 +178,8 @@ Renderer::Sprite & Water::GetBoundaries()
 
 void Water::Advect(Fluid::Engine &engine)
 {
-    // FIXME need to set mask
     engine.Advect(mLevelSet);
+    Redistance();
 }
 
 

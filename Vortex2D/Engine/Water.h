@@ -28,11 +28,11 @@ class Engine;
 class Water : public Renderer::Drawable, public Renderer::Transformable
 {
 public:
-    Water(Dimensions dimensions, float dt);
+    Water(Dimensions dimensions);
 
     /**
      * @brief Renders water section.
-     * @param object
+     * @param object needs to draw with colour (1, 0, 0, 0)
      */
     void Render(Renderer::Drawable & object);
 
@@ -44,9 +44,9 @@ public:
     void Render(Renderer::RenderTarget & target, const glm::mat4 & transform) override;
 
     /**
-     * @brief Updates the LevelSet to more accurately represent distance to water sections.
+     * @brief Clears the LevelSet
      */
-    void Redistance();
+    void Clear();
 
     /**
      * @brief Gets the air section of the water. Has to be used to mark dirichlet boundaries in the engine.
@@ -66,12 +66,16 @@ public:
     glm::vec4 Colour;
 
 private:
+    void Redistance(bool reinitialize = false);
+
     Dimensions mDimensions;
     Buffer mLevelSet;
+    Buffer mSignLevelSet;
     Operator mRedistance;
+    Operator mSign;
     
     Renderer::Program mLevelSetMask;
-    Renderer::Program mProgram;
+    Renderer::Program mRenderProgram;
 
     Renderer::Uniform<glm::vec4> mColourUniform;
 };
