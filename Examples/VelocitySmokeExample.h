@@ -36,8 +36,6 @@ public:
         left.Position = {0.0f, 0.0f};
         right.Position = {499.0f, 0.0f};
 
-        Renderer::Disable d(GL_BLEND);
-
         Renderer::Rectangle source({400.0f, 50.0f});
         source.Position = {50.0f, 200.0f};
         source.Colour = gray;

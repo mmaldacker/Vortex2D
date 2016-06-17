@@ -23,6 +23,7 @@ Density::Density(Dimensions dimensions)
 
 void Density::Render(Renderer::Drawable & object)
 {
+    Renderer::Disable d(GL_BLEND);
     mDensity.Render(object, mDimensions.InvScale);
 }
 

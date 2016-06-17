@@ -63,15 +63,14 @@ int main(int argc, const char * argv[])
     glfwSetKeyCallback(window, key_callback);
 
     glViewport(0, 0, size.x, size.y);
-    glm::mat4 ortho = glm::ortho(0.0f, size.x, size.y, 0.0f);
 
     glfwSwapInterval(1);
 
+    glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     auto colour = glm::vec4{99.0f,96.0f,93.0f,255.0f}/glm::vec4(255.0f);
 
-    Renderer::Disable d(GL_BLEND);
     glDisable(GL_DEPTH_TEST);
 
     example.reset(new SmokeExample());
@@ -83,8 +82,6 @@ int main(int argc, const char * argv[])
         glfwPollEvents();
 
         example->Frame();
-
-        Renderer::Enable d(GL_BLEND);
 
         renderWindow.Clear(colour);
         example->Render(renderWindow);

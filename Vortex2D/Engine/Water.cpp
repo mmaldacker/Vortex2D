@@ -150,6 +150,7 @@ void Water::Render(Renderer::RenderTarget & target, const glm::mat4 & transform)
 
 void Water::Render(Renderer::Drawable & object)
 {
+    Renderer::Disable d(GL_BLEND);
     mLevelSet.Render(object, mDimensions.InvScale);
     Redistance(true);
 }

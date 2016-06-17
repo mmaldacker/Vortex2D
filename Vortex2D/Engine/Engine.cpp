@@ -348,6 +348,8 @@ Engine::Engine(Dimensions dimensions, LinearSolver * linearSolver, float dt)
 
 void Engine::Solve()
 {
+    Renderer::Disable d(GL_BLEND);
+
     mData.Pressure.Clear(glm::vec4(0.0));
     mData.Pressure.ClearStencil();
     RenderMask(mData.Pressure);
@@ -378,16 +380,19 @@ void Engine::Solve()
 
 void Engine::RenderDirichlet(Renderer::Drawable & object)
 {
+    Renderer::Disable d(GL_BLEND);
     mDirichletBoundaries.Render(object, mDimensions.InvScale);
 }
 
 void Engine::RenderNeumann(Renderer::Drawable & object)
 {
+    Renderer::Disable d(GL_BLEND);
     mNeumannBoundaries.Render(object, glm::scale(glm::vec3(2.0f, 2.0f, 1.0f))*mDimensions.InvScale);
 }
 
 void Engine::RenderVelocities(Renderer::Drawable & object)
 {
+    Renderer::Disable d(GL_BLEND);
     mBoundariesVelocity.Render(object, mDimensions.InvScale);
 }
 
@@ -427,6 +432,7 @@ void Engine::ClearVelocities()
 
 void Engine::Advect(Fluid::Buffer & buffer)
 {
+    Renderer::Disable d(GL_BLEND);
     buffer.Swap() = mAdvect(Back(buffer), Back(mVelocity));
 }
 

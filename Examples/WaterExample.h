@@ -23,8 +23,6 @@ public:
         , obstacle1({100,100}), obstacle2({100,100})
         , water(dimensions)
     {
-        Renderer::Disable d(GL_BLEND);
-
         gravity.Colour = {0.0f, -0.1f, 0.0f, 0.0f};
 
         top.Colour = bottom.Colour = left.Colour = right.Colour = glm::vec4(1.0f);
