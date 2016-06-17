@@ -16,7 +16,7 @@ class WaterExample : public BaseExample
 {
 public:
     WaterExample()
-    : BaseExample({glm::vec2{500}, 1.0f}, 0.033)
+    : BaseExample({glm::vec2(500), 2.0f}, 0.033)
         , gravity(glm::vec2{500})
         , top({500,1}), bottom({500,1})
         , left({1,500}), right({1,500})

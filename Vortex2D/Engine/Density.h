@@ -25,7 +25,7 @@ class Engine;
 class Density : public Renderer::Drawable, public Renderer::Transformable
 {
 public:
-    Density(Dimensions dimensions, float dt);
+    Density(Dimensions dimensions);
 
     /**
      * @brief Renders some colours on the density grid

@@ -18,11 +18,11 @@ class VelocitySmokeExample : public BaseExample
 {
 public:
     VelocitySmokeExample()
-    : BaseExample({glm::vec2{500}, 1.0}, 0.033)
+    : BaseExample({glm::vec2(500), 1.0}, 0.033)
     , obstacle({50.0f, 50.0f}), force({50.0f, 50.0f})
     , top({500,1}), bottom({500,1})
     , left({1,500}), right({1,500})
-    , density(dimensions, 0.033)
+    , density(dimensions)
     {
         obstacle.Position = {200.0f, 50.0f};
 

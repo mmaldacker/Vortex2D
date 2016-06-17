@@ -17,13 +17,13 @@ class ObstacleSmokeExample : public BaseExample
 {
 public:
     ObstacleSmokeExample()
-    : BaseExample({glm::vec2{500}, 1.0}, 0.033)
+    : BaseExample({glm::vec2(500), 1.0}, 0.033)
     , source(20.0f)
     , force(20.0f)
     , obstacle({100.0f, 50.0f})
     , top({500,1}), bottom({500,1})
     , left({1,500}), right({1,500})
-    , density(dimensions, 0.033)
+    , density(dimensions)
     {
         source.Position = {200.0f, 100.0f};
         source.Colour = gray;

@@ -13,10 +13,11 @@
 namespace Fluid
 {
 
-Density::Density(Dimensions dimensions, float dt)
+Density::Density(Dimensions dimensions)
     : mDimensions(dimensions)
     , mDensity(dimensions.Size, 4, true, true)
 {
+    mDensity.Linear();
     mDensity.Clear(glm::vec4(0.0));
 }
 
@@ -34,7 +35,7 @@ void Density::Render(Renderer::RenderTarget & target, const glm::mat4 & transfor
 {
     auto & densitySprite = mDensity.Sprite();
     densitySprite.SetProgram(Renderer::Program::TexturePositionProgram());
-    densitySprite.Render(target, transform);
+    densitySprite.Render(target, glm::scale(glm::vec3(mDimensions.Scale, mDimensions.Scale, 1.0))*transform);
 }
 
 }

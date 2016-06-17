@@ -17,12 +17,12 @@ class SmokeExample : public BaseExample
 {
 public:
     SmokeExample()
-        : BaseExample({glm::vec2{500}, 1.0}, 0.033)
+        : BaseExample({glm::vec2(500), 1.0}, 0.033)
         , source1(20.0f), source2(20.0f)
         , force1(20.0f), force2(20.0f)
         , top({500,1}), bottom({500,1})
         , left({1,500}), right({1,500})
-        , density(dimensions, 0.033)
+        , density(dimensions)
     {
         top.Colour = bottom.Colour = left.Colour = right.Colour = glm::vec4{1.0f};
 

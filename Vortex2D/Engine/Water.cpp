@@ -132,6 +132,7 @@ Water::Water(Dimensions dimensions)
     , mColourUniform(mRenderProgram, "u_Colour")
 {
     mLevelSet.ClampToEdge();
+    mLevelSet.Linear();
     Clear();
     mRedistance.Use().Set("delta", 0.1f).Set("u_texture", 0).Set("u_sign", 1).Unuse();
     mSign.Use().Set("u_texture", 0).Unuse();
@@ -144,7 +145,7 @@ void Water::Render(Renderer::RenderTarget & target, const glm::mat4 & transform)
     levelSetSprite.SetProgram(mRenderProgram);
     mRenderProgram.Use();
     mColourUniform.Set(Colour);
-    levelSetSprite.Render(target, transform*glm::scale(glm::vec3(mDimensions.Scale, mDimensions.Scale, 1.0)));
+    levelSetSprite.Render(target, glm::scale(glm::vec3(mDimensions.Scale, mDimensions.Scale, 1.0))*transform);
 }
 
 void Water::Render(Renderer::Drawable & object)
