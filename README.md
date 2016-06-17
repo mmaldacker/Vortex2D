@@ -2,7 +2,7 @@
 
 A real time fluid simulation engine based on the incompressible Navier-Stokes equation. 
 This implementation is grid based as opposed to particle based (such as the smoothed-particle hyddrodynamics a.k.a. SPH implementations). 
-All computing is done on the GPU using simple vertex/fragment shaders and thus requires only OpenGL 3.2+ support. 
+All computing is done on the GPU with OpenGL using simple vertex/fragment shaders and thus requires only OpenGL 3.2+ support. 
 
 ## Dependencies
 
@@ -13,8 +13,8 @@ All computing is done on the GPU using simple vertex/fragment shaders and thus r
 
 ## Introduction
 
-This engine is a work in progress and there might be many changes to its API in the future. The fundamental piece of the engine is a grid which represents the velocity field of the fluid. Evolving this field is divided in three steps:
-* Advection: moving the velocity field (or any other field) using the velocity field using an integrator (currently Runge-Kutta 3)
+This engine is a work in progress and there might be changes to its API in the future. The fundamental piece of the engine is a texture which represents the velocity field of the fluid. This means we cannot simulate an inifinitely size world, but a world exactly the size of said texture. Boundaries, boundary velocities and forces can be applied to the field. The field is then evolved using the incompressible Navier-Stokes equations. Evolving this field is divided in three steps:
+* Advection: moving the velocity field (or any other field) using the velocity field with an integrator (currently Runge-Kutta 3)
 * Adding external forces: gravity, forces applied by bodies in the fluid, etc
 * Projection: calculating a pressure field, ensuring it is incompressible and applying it to the velocity to make it divergence free and ensuring boundary conditions. This done by solving a system of linear equations, using either the successive-over-relaxation iterative solver or the preconditioned conjugate gradient solver. 
 
@@ -24,7 +24,7 @@ The code is divided in two sections: Renderer and Engine.
 
 The renderer section provides some simple wrapping around OpenGL functionality that makes coding the engine easier. This includes loading/compiling shaders, setting up textures and render textures, basic shape drawing, transformations and debugging content of textures. 
 
-The engine builds on the tools provided by creating functionality to treat OpenGL as a generic computing platform. This is then used to build the linear solvers, the projection, advection and facilities to simulate smoke or water.
+The engine builds on the tools provided by creating functionality to treat OpenGL as a generic computing platform. This is then used to build the linear solvers, the projection, advection and other facilities to simulate smoke or water.
 
 ### General programming on the GPU
 
@@ -58,9 +58,9 @@ Writting information to a Buffer is a matter of rendering a shape to the Buffer.
  
 ## Fluid engine
 
-The class Engine is the core of the simulation and handles the boundaries, forces, velocity field, solving the incompressible equations and advections.
+The class *Engine* is the core of the simulation and handles the boundaries, forces, velocity field, solving the incompressible equations and advections.
 
-In addition, there are classes to help to common cases we want to simulate:
+In addition, there are classes to help two common cases we want to simulate:
 * *Density*: handles drawing a smoke
 * *Water*: handles drawing water
 
@@ -68,7 +68,7 @@ In addition, there are classes to help to common cases we want to simulate:
 
 This is the main class that handles the core of the simulation. It is constructed with a size, time-step and linear solver. There are currently two available linear solvers: an iterative preconditioned conjugate gradient solver and an iterative red-black successive over relaxation solver.
 
-It is simply a matter then of setting your boundaries, either once at the beginning or each time the boundary changes (e.g. with a moving object). Note that the boundaries need to cleared before hand. Then forces can be applied to the fluid (e.g. rising smoke) and the *Solve* method is called to apply one step to the simulation.
+The class has methods to draw boundaries, either once at the beginning or each time the boundary changes (e.g. with a moving object). Note that the boundaries need to cleared before hand. Boundary velocities can be drawn as well (e.g. with a moving object). Then forces can be applied to the fluid (e.g. rising smoke) and the *Solve* method is called to apply one step to the simulation. This will solve the incompressible equations and do the advection.
 
 Visualisation of the fluid with either the *Density* or *Water* classes need to be updated after the *Solve* method by advecting their fluid. This is done with the *Advect* method.
 
@@ -86,19 +86,19 @@ Neumann boundaries set the pressure to be the negative of the fluid pressure. Th
 
 ### Density
 
-This class is used to represent dye or smoke in the fluid. The object is initialised with the same size as the *Engine* and some section can then be marked to contain values to be advected (by rendering a shape to it). The *Advect* method has to be called after calling *Solve* on the engine so the dye/smoke can be evolved. The whole *Density* class can then be rendered.
+This class is used to represent dye or smoke in the fluid. The object is initialised with the same size as the *Engine* and some section can then be marked to contain values to be advected (by drawing a shape in it). The *Advect* method has to be called after calling *Solve* on the engine so the dye/smoke can be evolved. The whole *Density* class can then be rendered (it is after all, simply a texture).
 
 ### Water
 
-This class is used to simulate water. This is more complex than the *Density* class as the interesting part of simulating water, is simulating the boundary between water and air. 
+This class is used to simulate water. This is more complex than the *Density* class as the interesting part of simulating water, is simulating the boundary between water and air. The velocity field is then seperated in two section: the water and air section.
 
-For simplicity, the air is simulated as having pressure 0 (i.e. dirichlet boundaries). The difficulty here is to update this boundary, so that our water can splash around. We use the level set method to achieve this. 
+For simplicity, the air is simulated as having pressure 0 (i.e. dirichlet boundaries). For the simulation to be interesting, the interface air/water needs to be evolved, so that our water can splash around. We use the level set method to achieve this. 
 
-A level set is a grid where each grid cell has the signed distance to the nearest water/air boundary. The *Water* class has a level set grid the size of the *Engine*, we can then mark (i.e. render) some sections as beeing water. Calling the method *Redistance* will then ensure the level set grid contains (approximately) good signed distance values at each grid cell.
+A level set is a grid where each grid cell has the signed distance to the nearest water/air boundary. The distance is positive in the water and negative in the air. The *Water* class has a level set grid the size of the *Engine*, we can then mark (i.e. draw) some sections as beeing water. The class will internally maintain the level set to contain an approximate distance field.
 
-We can then evolve the level set by simply advecting it with the velocity field. Note that this doesn't necessarily preserve the signed distance values, so a call to *Redistance* needs to be done afterwards. In addition, once the level set is changed, the engine needs to have its dirichlet boundaries updated, which is available via the *GetBoundaries* method.
+We can then evolve the level set by simply advecting it with the velocity field. Again, the class will ensure the distance field is preserved. After each advection, the engine's boundaries need to be updated, in other words we need to set a dirichlet boundaries wherever the distance is negative. The *GetBoundaries* method is used to update the dirichlet boundaries.
 
-Finally, the level set can be rendered as water.
+Finally, the level set can be rendered as water (again, it is simply a texture).
 
 ## Example
 
@@ -159,3 +159,8 @@ Doxygen generated documentation can be found [here](http://mmaldacker.github.io/
 ## Demo
 
 [![Demo](http://img.youtube.com/vi/c8Idjf03bI8/0.jpg)](http://www.youtube.com/watch?v=c8Idjf03bI8)
+
+## Todo
+
+* The velocity field is extrapolated in the boundaries so the level set can be properly advectated. However for Neumann boundaries, only the normal velocity on the surface should be set.
+* Neumann boundaries can move the flui, it'd be interesting to have this work the other way around, e.g. objects moved by water 
