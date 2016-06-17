@@ -2,9 +2,6 @@
 //  Engine.h
 //  Vortex
 //
-//  Created by Maximilian Maldacker on 08/04/2014.
-//
-//
 
 #ifndef __Vortex__Engine__
 #define __Vortex__Engine__
@@ -16,8 +13,7 @@
 
 #include <vector>
 
-namespace Fluid
-{
+namespace Vortex2D { namespace Fluid {
 
 class LevelSet;
 
@@ -105,6 +101,6 @@ private:
     Renderer::Rectangle mSurface;
 };
 
-}
+}}
 
 #endif /* defined(__Vortex__Engine__) */

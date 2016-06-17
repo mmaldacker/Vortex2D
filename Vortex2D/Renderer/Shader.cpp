@@ -8,8 +8,7 @@
 
 #include "Shader.h"
 
-namespace Renderer
-{
+namespace Vortex2D { namespace Renderer {
 
 const char * Shader::PositionName = "a_Position";
 const char * Shader::TexCoordsName = "a_TexCoords";
@@ -228,4 +227,4 @@ Program & Program::PositionProgram()
     return program;
 }
 
-}
+}}

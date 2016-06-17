@@ -2,9 +2,6 @@
 //  VelocitySmokeTest.h
 //  Vertex2D
 //
-//  Created by Maximilian Maldacker on 06/04/2016.
-//  Copyright (c) 2016 Maximilian Maldacker. All rights reserved.
-//
 
 #ifndef Vertex2D_VelocitySmokeTest_h
 #define Vertex2D_VelocitySmokeTest_h
@@ -36,7 +33,7 @@ public:
         left.Position = {0.0f, 0.0f};
         right.Position = {499.0f, 0.0f};
 
-        Renderer::Rectangle source({400.0f, 50.0f});
+        Vortex2D::Renderer::Rectangle source({400.0f, 50.0f});
         source.Position = {50.0f, 200.0f};
         source.Colour = gray;
         density.Render(source);
@@ -66,7 +63,7 @@ public:
         density.Advect(engine);
     }
 
-    void Render(Renderer::RenderTarget & target) override
+    void Render(Vortex2D::Renderer::RenderTarget & target) override
     {
         target.Render(density);
         obstacle.Colour = green;
@@ -74,9 +71,9 @@ public:
     }
 
 private:
-    Renderer::Rectangle obstacle, force;
-    Renderer::Rectangle top, bottom, left, right;
-    Fluid::Density density;
+    Vortex2D::Renderer::Rectangle obstacle, force;
+    Vortex2D::Renderer::Rectangle top, bottom, left, right;
+    Vortex2D::Fluid::Density density;
 
     const float speed = 2.0f;
 };

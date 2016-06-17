@@ -2,17 +2,13 @@
 //  Reduce.h
 //  Vertex2D
 //
-//  Created by Maximilian Maldacker on 15/09/2015.
-//  Copyright (c) 2015 Maximilian Maldacker. All rights reserved.
-//
 
 #ifndef __Vertex2D__Reduce__
 #define __Vertex2D__Reduce__
 
 #include "Operator.h"
 
-namespace Fluid
-{
+namespace Vortex2D { namespace Fluid {
 
 /**
  * @brief An Operator class that implements the inner dot product between two buffers.
@@ -33,5 +29,6 @@ private:
     Operator multiply;
 };
 
-}
+}}
+
 #endif /* defined(__Vertex2D__Reduce__) */

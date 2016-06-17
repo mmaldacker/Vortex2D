@@ -13,8 +13,7 @@
 #include "Common.h"
 #include "Uniform.h"
 
-namespace Renderer
-{
+namespace Vortex2D { namespace Renderer {
 
 class Program;
 
@@ -210,6 +209,6 @@ void Uniform<T>::Set(T value)
     glUniform(mLocation, value);
 }
 
-}
+}}
 
 #endif /* defined(__Vortex__Shader__) */

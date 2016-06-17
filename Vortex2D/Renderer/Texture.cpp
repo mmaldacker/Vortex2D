@@ -8,8 +8,7 @@
 
 #include "Texture.h"
 
-namespace Renderer
-{
+namespace Vortex2D { namespace Renderer {
 
 #include <cassert>
 #include <stdexcept>
@@ -151,4 +150,4 @@ Texture::PixelFormat Texture::GetFormat() const
     return mFormat;
 }
 
-}
+}}

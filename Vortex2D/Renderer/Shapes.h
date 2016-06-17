@@ -16,8 +16,7 @@
 
 #include <vector>
 
-namespace Renderer
-{
+namespace Vortex2D { namespace Renderer {
 
 typedef std::vector<glm::vec2> Path;
 
@@ -91,6 +90,6 @@ struct Circle : Shape
     void SetCircle(float size);
 };
 
-}
+}}
 
 #endif /* defined(__Vortex__Shapes__) */

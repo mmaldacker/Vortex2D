@@ -2,9 +2,6 @@
 //  ObstacleSmoke.h
 //  Vertex2D
 //
-//  Created by Maximilian Maldacker on 05/04/2016.
-//  Copyright (c) 2016 Maximilian Maldacker. All rights reserved.
-//
 
 #ifndef Vertex2D_ObstacleSmoke_h
 #define Vertex2D_ObstacleSmoke_h
@@ -60,7 +57,7 @@ public:
         density.Advect(engine);
     }
 
-    void Render(Renderer::RenderTarget & target) override
+    void Render(Vortex2D::Renderer::RenderTarget & target) override
     {
         target.Render(density);
         obstacle.Colour = green;
@@ -68,10 +65,10 @@ public:
     }
 
 private:
-    Renderer::Circle source, force;
-    Renderer::Rectangle obstacle;
-    Renderer::Rectangle top, bottom, left, right;
-    Fluid::Density density;
+    Vortex2D::Renderer::Circle source, force;
+    Vortex2D::Renderer::Rectangle obstacle;
+    Vortex2D::Renderer::Rectangle top, bottom, left, right;
+    Vortex2D::Fluid::Density density;
 
 };
 

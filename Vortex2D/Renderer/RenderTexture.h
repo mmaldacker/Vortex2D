@@ -13,8 +13,7 @@
 #include "Texture.h"
 #include "RenderTarget.h"
 
-namespace Renderer
-{
+namespace Vortex2D { namespace Renderer {
 
 /**
  * @brief Use to draw objects off-screen on a texture.
@@ -71,6 +70,6 @@ private:
     GLint mOldFrameBuffer;
 };
 
-}
+}}
 
 #endif /* defined(__Vortex__RenderTexture__) */

@@ -12,8 +12,7 @@
 #include "Common.h"
 #include "Drawable.h"
 
-namespace Renderer
-{
+namespace Vortex2D { namespace Renderer {
 
 /**
  * @brief And interface to represent a target that can be rendered to.
@@ -43,6 +42,6 @@ struct RenderTarget
     glm::mat4 Orth;
 };
 
-}
+}}
 
 #endif /* RenderTarget_h */

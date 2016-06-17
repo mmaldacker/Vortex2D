@@ -11,8 +11,7 @@
 
 #include "Common.h"
 
-namespace Renderer
-{
+namespace Vortex2D { namespace Renderer {
 
 /**
  * @brief Create and manage a texture
@@ -71,6 +70,6 @@ private:
     static int ActiveUnit;
 };
 
-}
+}}
 
 #endif /* defined(__Vortex__Texture__) */

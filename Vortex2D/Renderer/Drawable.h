@@ -11,8 +11,7 @@
 
 #include "Common.h"
 
-namespace Renderer
-{
+namespace Vortex2D { namespace Renderer {
 
 struct RenderTarget;
 
@@ -31,6 +30,6 @@ struct Drawable
     virtual void Render(RenderTarget & target, const glm::mat4 & transform = glm::mat4()) = 0;
 };
 
-}
+}}
 
 #endif

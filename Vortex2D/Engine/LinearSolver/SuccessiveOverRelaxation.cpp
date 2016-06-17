@@ -10,8 +10,7 @@
 #include "Common.h"
 #include "Disable.h"
 
-namespace Fluid
-{
+namespace Vortex2D { namespace Fluid {
 
 const char * SorFrag = GLSL(
     in vec2 v_texCoord;
@@ -108,4 +107,4 @@ void SuccessiveOverRelaxation::Step(LinearSolver::Data & data, bool isRed)
     data.Pressure = mIdentity(Back(data.Pressure), data.Weights, data.Diagonal);
 }
 
-}
+}}

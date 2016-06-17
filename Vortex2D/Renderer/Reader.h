@@ -12,8 +12,7 @@
 #include "Common.h"
 #include "RenderTexture.h"
 
-namespace Renderer
-{
+namespace Vortex2D { namespace Renderer {
 
 /**
  * @brief Helper class to read & print (to stdout) the content of a RenderTexture
@@ -73,6 +72,6 @@ private:
     uint8_t * mStencil;
 };
 
-}
+}}
 
 #endif /* defined(__Vertex2D__Reader__) */

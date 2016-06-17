@@ -2,9 +2,6 @@
 //  Buffer.h
 //  Vortex2D
 //
-//  Created by Maximilian Maldacker on 15/06/2016.
-//
-//
 
 #ifndef Buffer_h
 #define Buffer_h
@@ -13,8 +10,7 @@
 #include "Reader.h"
 #include "Sprite.h"
 
-namespace Fluid
-{
+namespace Vortex2D { namespace Fluid {
 
 struct OperatorContext;
 
@@ -117,6 +113,6 @@ struct Back
     Buffer & buffer;
 };
 
-}
+}}
 
 #endif /* Buffer_h */

@@ -13,8 +13,7 @@
 #include "Texture.h"
 #include "Shader.h"
 
-namespace Renderer
-{
+namespace Vortex2D { namespace Renderer {
 
 /**
  * @brief Drawable to draw a texture with a given program
@@ -54,6 +53,6 @@ private:
     Program * mProgram;
 };
 
-}
+}}
 
 #endif /* Sprite_hpp */

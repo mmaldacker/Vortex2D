@@ -2,9 +2,6 @@
 //  ConjugateGradient.h
 //  Vertex2D
 //
-//  Created by Maximilian Maldacker on 15/09/2015.
-//  Copyright (c) 2015 Maximilian Maldacker. All rights reserved.
-//
 
 #ifndef __Vertex2D__ConjugateGradient__
 #define __Vertex2D__ConjugateGradient__
@@ -12,8 +9,7 @@
 #include "LinearSolver.h"
 #include "Reduce.h"
 
-namespace Fluid
-{
+namespace Vortex2D { namespace Fluid {
 
 /**
  * @brief An iterative preconditioned conjugate linear solver.
@@ -40,6 +36,6 @@ private:
     Reduce reduce;
 };
 
-}
+}}
 
 #endif /* defined(__Vertex2D__ConjugateGradient__) */

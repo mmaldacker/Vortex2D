@@ -9,8 +9,7 @@
 #include "ConjugateGradient.h"
 #include "Disable.h"
 
-namespace Fluid
-{
+namespace Vortex2D { namespace Fluid {
 
 const char * DivideFrag = GLSL(
     in vec2 v_texCoord;
@@ -200,4 +199,4 @@ void ConjugateGradient::Solve(LinearSolver::Data & data)
     }
 }
 
-}
+}}

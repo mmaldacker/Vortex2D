@@ -10,8 +10,7 @@
 #include "RenderTarget.h"
 #include <limits>
 
-namespace Renderer
-{
+namespace Vortex2D { namespace Renderer {
 
 Shape::Shape()
     : mNumVertices(0)
@@ -138,4 +137,4 @@ void Circle::SetCircle(float size)
     Set(MakeCircle(size));
 }
 
-}
+}}

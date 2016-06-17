@@ -11,8 +11,7 @@
 
 #include "Common.h"
 
-namespace Renderer
-{
+namespace Vortex2D { namespace Renderer {
 
 struct Transformable;
 
@@ -113,6 +112,6 @@ private:
     glm::mat4 mInverseTransform;
 };
 
-}
+}}
 
 #endif

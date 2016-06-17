@@ -12,8 +12,7 @@
 #include <glm/gtx/transform.hpp>
 #include <iostream>
 
-namespace Fluid
-{
+namespace Vortex2D { namespace Fluid {
 
 const char * DivFrag = GLSL(
     uniform sampler2D u_texture; // this is the velocity texture
@@ -462,4 +461,4 @@ void Engine::Extrapolate()
     }
 }
 
-}
+}}

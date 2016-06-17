@@ -9,8 +9,7 @@
 #include "Reader.h"
 #include <iostream>
 
-namespace Renderer
-{
+namespace Vortex2D { namespace Renderer {
 
 Reader::Reader(Renderer::RenderTexture & texture)
     : mTexture(texture)
@@ -148,4 +147,4 @@ float Reader::Get(int x, int y, int size, int offset)
     return mPixels[(x+y*width)*size+offset];
 }
 
-}
+}}

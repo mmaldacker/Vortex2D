@@ -9,8 +9,7 @@
 #include "Sprite.h"
 #include "RenderTarget.h"
 
-namespace Renderer
-{
+namespace Vortex2D { namespace Renderer {
 
 Sprite::Sprite(const glm::vec2 & size) : mTexture(nullptr), mProgram(nullptr)
 {
@@ -90,4 +89,4 @@ void Sprite::Render(RenderTarget & target, const glm::mat4 & transform)
     mProgram->Unuse();
 }
 
-}
+}}

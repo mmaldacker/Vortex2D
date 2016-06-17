@@ -10,8 +10,7 @@
 #include "Disable.h"
 #include "Engine.h"
 
-namespace Fluid
-{
+namespace Vortex2D { namespace Fluid {
 
 Density::Density(Dimensions dimensions)
     : mDimensions(dimensions)
@@ -39,4 +38,4 @@ void Density::Render(Renderer::RenderTarget & target, const glm::mat4 & transfor
     densitySprite.Render(target, glm::scale(glm::vec3(mDimensions.Scale, mDimensions.Scale, 1.0))*transform);
 }
 
-}
+}}

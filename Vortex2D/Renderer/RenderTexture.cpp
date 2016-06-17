@@ -10,8 +10,7 @@
 #include <algorithm>
 #include <glm/gtc/matrix_transform.hpp>
 
-namespace Renderer
-{
+namespace Vortex2D { namespace Renderer {
 
 RenderTexture::RenderTexture(int width, int height, Texture::PixelFormat pixelFormat, DepthFormat depthFormat)
     : Texture(width, height, pixelFormat, nullptr)
@@ -132,4 +131,4 @@ void RenderTexture::End()
     glViewport(mOldViewPort[0], mOldViewPort[1], mOldViewPort[2], mOldViewPort[3]);
 }
 
-}
+}}

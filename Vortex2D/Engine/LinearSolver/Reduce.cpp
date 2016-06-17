@@ -8,8 +8,7 @@
 
 #include "Reduce.h"
 
-namespace Fluid
-{
+namespace Vortex2D { namespace Fluid {
 
 const char * ReduceFrag = GLSL(
    out vec4 colour_out;
@@ -72,4 +71,4 @@ OperatorContext Reduce::operator()(Buffer &a, Buffer &b)
     return reduce(s.back());
 }
 
-}
+}}

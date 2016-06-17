@@ -2,9 +2,6 @@
 //  Water.h
 //  Vertex2D
 //
-//  Created by Maximilian Maldacker on 05/04/2016.
-//  Copyright (c) 2016 Maximilian Maldacker. All rights reserved.
-//
 
 #ifndef Vertex2D_Water_h
 #define Vertex2D_Water_h
@@ -40,7 +37,7 @@ public:
 
         water.Colour = blue;
 
-        Renderer::Rectangle source({300,100});
+        Vortex2D::Renderer::Rectangle source({300,100});
         source.Position = {100,350};
         source.Colour = glm::vec4(1.0f);
         water.Render(source);
@@ -67,7 +64,7 @@ public:
         water.Advect(engine);
     }
 
-    void Render(Renderer::RenderTarget & target) override
+    void Render(Vortex2D::Renderer::RenderTarget & target) override
     {
         target.Render(water);
         obstacle1.Colour = obstacle2.Colour = green;
@@ -76,10 +73,10 @@ public:
     }
 
 private:
-    Renderer::Rectangle gravity;
-    Renderer::Rectangle top, bottom, left, right;
-    Renderer::Rectangle obstacle1, obstacle2;
-    Fluid::Water water;
+    Vortex2D::Renderer::Rectangle gravity;
+    Vortex2D::Renderer::Rectangle top, bottom, left, right;
+    Vortex2D::Renderer::Rectangle obstacle1, obstacle2;
+    Vortex2D::Fluid::Water water;
 };
 
 #endif

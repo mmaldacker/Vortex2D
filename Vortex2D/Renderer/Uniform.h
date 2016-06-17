@@ -11,8 +11,7 @@
 
 #include "Common.h"
 
-namespace Renderer
-{
+namespace Vortex2D { namespace Renderer {
 
 inline void glUniform(GLint loc, const glm::mat4 & value)
 {
@@ -39,6 +38,6 @@ inline void glUniform(GLint loc, const glm::vec2 & value)
     glUniform2fv(loc, 1, &value[0]);
 }
 
-}
+}}
 
 #endif

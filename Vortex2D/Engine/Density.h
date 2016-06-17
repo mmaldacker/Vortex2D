@@ -2,9 +2,6 @@
 //  Density.h
 //  Vertex2D
 //
-//  Created by Maximilian Maldacker on 05/04/2016.
-//  Copyright (c) 2016 Maximilian Maldacker. All rights reserved.
-//
 
 #ifndef __Vertex2D__Density__
 #define __Vertex2D__Density__
@@ -14,8 +11,7 @@
 #include "Drawable.h"
 #include "Transformable.h"
 
-namespace Fluid
-{
+namespace Vortex2D { namespace Fluid {
 
 class Engine;
 
@@ -47,6 +43,6 @@ private:
     Buffer mDensity;
 };
 
-}
+}}
 
 #endif /* defined(__Vertex2D__Density__) */

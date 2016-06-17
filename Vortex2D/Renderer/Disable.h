@@ -11,8 +11,7 @@
 
 #include "Common.h"
 
-namespace Renderer
-{
+namespace Vortex2D { namespace Renderer {
 
 /**
  * @brief a RAII class to disable an OpenGL state (GL_BLEND, GL_STENCIL) and re-enable it
@@ -115,6 +114,6 @@ private:
     GLint blendEquation, blendSrc, blendDst;
 };
 
-}
+}}
 
 #endif

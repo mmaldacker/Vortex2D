@@ -2,9 +2,6 @@
 //  Operator.h
 //  Vertex2D
 //
-//  Created by Maximilian Maldacker on 16/09/2015.
-//  Copyright (c) 2015 Maximilian Maldacker. All rights reserved.
-//
 
 #ifndef Vertex2D_Operator_h
 #define Vertex2D_Operator_h
@@ -14,8 +11,7 @@
 #include <utility>
 #include <cassert>
 
-namespace Fluid
-{
+namespace Vortex2D { namespace Fluid {
 
 /**
  * @brief Helper class returned from the call operator of Operator.
@@ -93,6 +89,6 @@ private:
     Renderer::Program mProgram;
 };
 
-}
+}}
 
 #endif

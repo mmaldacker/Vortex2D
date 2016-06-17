@@ -2,17 +2,13 @@
 //  SuccessiveOverRelaxation.h
 //  Vertex2D
 //
-//  Created by Maximilian Maldacker on 19/08/2015.
-//  Copyright (c) 2015 Maximilian Maldacker. All rights reserved.
-//
 
 #ifndef __Vertex2D__SuccessiveOverRelaxation__
 #define __Vertex2D__SuccessiveOverRelaxation__
 
 #include "LinearSolver.h"
 
-namespace Fluid
-{
+namespace Vortex2D { namespace Fluid {
 
 /**
  * @brief An iterative black and red successive over relaxation linear solver.
@@ -43,6 +39,6 @@ private:
     Operator mIdentity;
 };
 
-}
+}}
 
 #endif /* defined(__Vertex2D__SuccessiveOverRelaxation__) */

@@ -11,8 +11,7 @@
 #include "Disable.h"
 #include "Engine.h"
 
-namespace Fluid
-{
+namespace Vortex2D { namespace Fluid {
 
 const char * WaterFrag = GLSL(
     in vec2 v_texCoord;
@@ -185,4 +184,4 @@ void Water::Advect(Fluid::Engine &engine)
 }
 
 
-}
+}}

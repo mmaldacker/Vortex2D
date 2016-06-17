@@ -10,8 +10,7 @@
 #include "Shader.h"
 #include "Operator.h"
 
-namespace Fluid
-{
+namespace Vortex2D { namespace Fluid {
 
 Buffer::Buffer(const glm::vec2 & size, unsigned components, bool doubled, bool depth)
     : RenderTarget(size.x, size.y)
@@ -83,4 +82,4 @@ void Buffer::Add(const glm::vec2 & size, unsigned components, bool depth)
     mTextures.back().SetAliasTexParameters();
 }
 
-}
+}}
