@@ -10,6 +10,8 @@ All computing is done on the GPU with OpenGL using simple vertex/fragment shader
  * GLM 
  * GLFW3
  * CMake
+ * GLEW
+ * C++11
 
 ## Introduction
 

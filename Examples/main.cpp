@@ -1,5 +1,3 @@
-#include <GLFW/glfw3.h>
-
 #include "Common.h"
 #include "RenderWindow.h"
 #include "SmokeExample.h"
@@ -8,6 +6,7 @@
 #include "VelocitySmokeExample.h"
 
 #include <iostream>
+#include <GLFW/glfw3.h>
 
 std::unique_ptr<BaseExample> example;
 
@@ -56,6 +55,10 @@ int main(int argc, const char * argv[])
     GLFWwindow * window = glfwCreateWindow(size.x, size.y, "Vortex2D Examples", NULL, NULL);
 
     glfwMakeContextCurrent(window);
+
+    glewExperimental = GL_TRUE; //stops glew crashing on OSX :-/
+    if(glewInit() != GLEW_OK)
+        throw std::runtime_error("glewInit failed");
 
     glfwSetKeyCallback(window, key_callback);
 

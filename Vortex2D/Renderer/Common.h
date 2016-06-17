@@ -9,14 +9,7 @@
 #ifndef Vortex_Common_h
 #define Vortex_Common_h
 
-#ifdef __APPLE__
-#include <OpenGL/gl3.h>
-#else
-#ifdef _WIN32
-#include <windows.h>
-#endif
-#include <GL/gl.h>
-#endif
+#include <GL/glew.h>
 
 #include <vector>
 
