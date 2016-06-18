@@ -65,9 +65,9 @@ private:
 
     Dimensions mDimensions;
     Buffer mLevelSet;
-    Buffer mSignLevelSet;
+    Buffer mLevelSet0;
     Operator mRedistance;
-    Operator mSign;
+    Operator mIdentity;
     
     Renderer::Program mLevelSetMask;
     Renderer::Program mRenderProgram;
