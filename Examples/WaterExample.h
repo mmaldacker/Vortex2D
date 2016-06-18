@@ -20,10 +20,10 @@ public:
     {
         gravity.Colour = {0.0f, -0.1f, 0.0f, 0.0f};
 
-        obstacle1.Position = {150.0f, 200.0f};
+        obstacle1.Position = {150.0f, 100.0f};
         obstacle1.Rotation = 45.0f;
 
-        obstacle2.Position = {250.0f, 200.0f};
+        obstacle2.Position = {350.0f, 100.0f};
         obstacle2.Rotation = 30.0f;
 
         water.Colour = blue;
