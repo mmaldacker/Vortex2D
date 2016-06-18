@@ -207,13 +207,18 @@ const char * AdvectFrag = GLSL(
             }
         }
 
-        return cubic(
+        vec4 x = cubic(
                     cubic(t[0], t[4], t[8], t[12], f.y),
                     cubic(t[1], t[5], t[9], t[13], f.y),
                     cubic(t[2], t[6], t[10], t[14], f.y),
                     cubic(t[3], t[7], t[11], t[15], f.y),
                     f.x
                 );
+
+        vec4 maxValue = max(max(t[5], t[6]), max(t[9], t[10]));
+        vec4 minValue = min(min(t[5], t[6]), min(t[9], t[10]));
+
+        return clamp(x, minValue, maxValue);
     }
 
     const float a = 2.0/9.0;

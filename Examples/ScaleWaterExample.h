@@ -2,9 +2,6 @@
 //  ScaleWaterExample.h
 //  Vortex2D
 //
-//  Created by Maximilian Maldacker on 18/06/2016.
-//
-//
 
 #ifndef ScaleWaterExample_h
 #define ScaleWaterExample_h

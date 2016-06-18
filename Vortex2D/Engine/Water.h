@@ -34,8 +34,6 @@ public:
 
     /**
      * @brief Renders the water on a RenderTarget
-     * @param target
-     * @param transform
      */
     void Render(Renderer::RenderTarget & target, const glm::mat4 & transform) override;
 
