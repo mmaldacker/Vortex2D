@@ -1,13 +1,13 @@
 //
-//  Sprite.hpp
+//  Sprite.h
 //  Vortex2D
 //
 //  Created by Maximilian Maldacker on 15/06/2016.
 //
 //
 
-#ifndef Sprite_hpp
-#define Sprite_hpp
+#ifndef Sprite_h
+#define Sprite_h
 
 #include "Drawable.h"
 #include "Texture.h"
@@ -55,4 +55,4 @@ private:
 
 }}
 
-#endif /* Sprite_hpp */
+#endif /* Sprite_h */

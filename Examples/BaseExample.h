@@ -17,7 +17,7 @@ public:
     BaseExample(Vortex2D::Fluid::Dimensions dimensions, float dt)
         : dimensions(dimensions)
         , solver(dimensions.Size)
-        , engine(dimensions, &solver, dt)
+        , engine(dimensions, solver, dt)
     {
     }
 

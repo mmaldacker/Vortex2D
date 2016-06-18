@@ -2,9 +2,6 @@
 //  Water.cpp
 //  Vertex2D
 //
-//  Created by Maximilian Maldacker on 05/04/2016.
-//  Copyright (c) 2016 Maximilian Maldacker. All rights reserved.
-//
 
 #include "Water.h"
 #include "Shader.h"
@@ -117,7 +114,7 @@ const char * LevelSetMaskFrag = GLSL(
          }
          else
          {
-             out_color = vec4(0.0);
+             discard;
          }
      }
 );

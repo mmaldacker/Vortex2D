@@ -62,7 +62,6 @@ const char * ProjectFrag = GLSL(
 
     void main()
     {
-
         vec2 cell = texture(u_texture, v_texCoord).xy;
 
         float pxp = textureOffset(u_pressure, v_texCoord, ivec2(1,0)).x;
@@ -104,24 +103,6 @@ const char * ProjectFrag = GLSL(
         float dx = 1.0;
         vec2 new_cell = cell - delta * pGrad / dx;
         out_color = vec4(mask * new_cell + obsV, 0.0, 0.0);
-    }
-);
-
-const char * BoundaryMaskFrag = GLSL(
-    in vec2 v_texCoord;
-
-    uniform sampler2D u_dirichlet;
-    uniform sampler2D u_neumann;
-
-    void main()
-    {
-        float x = texture(u_dirichlet, v_texCoord).x;
-        float y = texture(u_neumann, v_texCoord).x;
-
-        if(x < 1.0 && y < 1.0)
-        {
-            discard;
-        }
     }
 );
 
@@ -237,81 +218,7 @@ const char * AdvectFrag = GLSL(
     }
 );
 
-const char * ExtrapolateFrag = GLSL(
-    in vec2 v_texCoord;
-    out vec4 out_color;
-
-    uniform sampler2D u_mask;
-    uniform sampler2D u_velocity;
-
-    void main()
-    {
-        vec2 sum = vec2(0.0);
-        float count = 0.0;
-
-        if(texture(u_mask, v_texCoord).x == 0.0)
-        {
-            if(textureOffset(u_mask, v_texCoord, ivec2(1,0)).x == 1.0)
-            {
-                sum += textureOffset(u_velocity, v_texCoord, ivec2(1,0)).xy;
-                count += 1.0;
-            }
-            if(textureOffset(u_mask, v_texCoord, ivec2(0,1)).x == 1.0)
-            {
-                sum += textureOffset(u_velocity, v_texCoord, ivec2(0,1)).xy;
-                count += 1.0;
-            }
-            if(textureOffset(u_mask, v_texCoord, ivec2(-1,0)).x == 1.0)
-            {
-                sum += textureOffset(u_velocity, v_texCoord, ivec2(-1,0)).xy;
-                count += 1.0;
-            }
-            if(textureOffset(u_mask, v_texCoord, ivec2(0,-1)).x == 1.0)
-            {
-                sum += textureOffset(u_velocity, v_texCoord, ivec2(0,-1)).xy;
-                count += 1.0;
-            }
-
-            if(count > 0)
-            {
-                out_color = vec4(sum/count, 0.0, 0.0);
-            }
-            else
-            {
-                out_color = vec4(texture(u_velocity, v_texCoord).xy, 0.0, 0.0);
-            }
-        }
-        else
-        {
-            out_color = vec4(texture(u_velocity, v_texCoord).xy, 0.0, 0.0);
-        }
-    }
-);
-
-const char * ExtrapolateMaskFrag = GLSL(
-    in vec2 v_texCoord;
-    out vec4 out_color;
-
-    uniform sampler2D u_mask;
-
-    void main()
-    {
-        if(texture(u_mask, v_texCoord).x == 1.0 ||
-           textureOffset(u_mask, v_texCoord, ivec2(1,0)).x == 1.0 ||
-           textureOffset(u_mask, v_texCoord, ivec2(0,1)).x == 1.0 ||
-           textureOffset(u_mask, v_texCoord, ivec2(-1,0)).x == 1.0 ||
-           textureOffset(u_mask, v_texCoord, ivec2(0,-1)).x == 1.0)
-        {
-            out_color = vec4(1.0, 0.0, 0.0, 0.0);
-        }
-        else
-        {
-            out_color = vec4(0.0);
-        }
-    }
-);
-
-Engine::Engine(Dimensions dimensions, LinearSolver * linearSolver, float dt)
+Engine::Engine(Dimensions dimensions, LinearSolver & linearSolver, float dt)
     : TopBoundary(dimensions.Scale*glm::vec2(dimensions.Size.x, 1.0f))
     , BottomBoundary(dimensions.Scale*glm::vec2(dimensions.Size.x, 1.0f))
     , LeftBoundary(dimensions.Scale*glm::vec2(1.0f, dimensions.Size.y))
@@ -319,21 +226,16 @@ Engine::Engine(Dimensions dimensions, LinearSolver * linearSolver, float dt)
     , mDimensions(dimensions)
     , mData(dimensions.Size)
     , mLinearSolver(linearSolver)
+    , mExtrapolation(dimensions)
     , mVelocity(dimensions.Size, 2, true, true)
     , mDirichletBoundaries(dimensions.Size, 1)
     , mNeumannBoundaries(glm::vec2(2.0f)*dimensions.Size, 1)
     , mBoundariesVelocity(dimensions.Size, 2)
-    , mExtrapolateValid(dimensions.Size, 1, true, true)
     , mDiv(Renderer::Shader::TexturePositionVert, DivFrag)
     , mProject(Renderer::Shader::TexturePositionVert, ProjectFrag)
     , mAdvect(Renderer::Shader::TexturePositionVert, AdvectFrag)
-    , mExtrapolate(Renderer::Shader::TexturePositionVert, ExtrapolateFrag)
-    , mExtrapolateMask(Renderer::Shader::TexturePositionVert, ExtrapolateMaskFrag)
-    , mIdentity(Renderer::Shader::TexturePositionVert, Renderer::Shader::TexturePositionFrag)
     , mWeights(Renderer::Shader::TexturePositionVert, WeightsFrag)
     , mDiagonals(Renderer::Shader::TexturePositionVert, DiagonalsFrag)
-    , mBoundaryMask(Renderer::Shader::TexturePositionVert, BoundaryMaskFrag)
-    , mSurface(dimensions.Size)
 {
     mVelocity.Clear(glm::vec4(0.0));
     mDirichletBoundaries.Clear(glm::vec4(0.0));
@@ -341,17 +243,12 @@ Engine::Engine(Dimensions dimensions, LinearSolver * linearSolver, float dt)
     mNeumannBoundaries.Clear(glm::vec4(0.0));
     mNeumannBoundaries.Linear();
     mBoundariesVelocity.Clear(glm::vec4(0.0));
-    mExtrapolateValid.Clear(glm::vec4(0.0));
 
     mProject.Use().Set("u_texture", 0).Set("u_pressure", 1).Set("u_obstacles", 2).Set("u_obstacles_velocity", 3).Set("delta", dt).Unuse();
     mDiv.Use().Set("u_texture", 0).Set("u_obstacles", 1).Set("u_obstacles_velocity", 2).Unuse();
     mAdvect.Use().Set("delta", dt).Set("u_texture", 0).Set("u_velocity", 1).Unuse();
-    mExtrapolate.Use().Set("u_mask", 0).Set("u_velocity", 1).Unuse();
-    mExtrapolateMask.Use().Set("u_mask", 0).Unuse();
-    mIdentity.Use().Set("u_texture", 0).Unuse();
     mWeights.Use().Set("u_dirichlet", 0).Set("u_neumann", 1).Set("delta", dt).Unuse();
     mDiagonals.Use().Set("u_texture", 0).Set("delta", dt).Unuse();
-    mBoundaryMask.Use().Set("u_dirichlet", 0).Set("u_neumann", 1).Unuse();
 
     TopBoundary.Colour = BottomBoundary.Colour = LeftBoundary.Colour = RightBoundary.Colour = glm::vec4(1.0f);
 
@@ -383,14 +280,19 @@ void Engine::Solve()
         mData.Weights = mWeights(mDirichletBoundaries, mNeumannBoundaries);
         mData.Diagonal = mDiagonals(mNeumannBoundaries);
 
-        mLinearSolver->Init(mData);
-        mLinearSolver->Solve(mData);
+        mLinearSolver.Init(mData);
+        mLinearSolver.Solve(mData);
 
         mVelocity.Swap() = mProject(Back(mVelocity), mData.Pressure, mNeumannBoundaries, mBoundariesVelocity);
     }
 
-    Extrapolate();
+    mExtrapolation.Extrapolate(mVelocity, mDirichletBoundaries, mNeumannBoundaries);
     Advect(mVelocity);
+}
+
+void Engine::RenderMask(Vortex2D::Fluid::Buffer &mask)
+{
+    mExtrapolation.RenderMask(mask, mDirichletBoundaries, mNeumannBoundaries);
 }
 
 void Engine::RenderDirichlet(Renderer::Drawable & object)
@@ -419,20 +321,6 @@ void Engine::RenderForce(Renderer::Drawable & object)
     mVelocity.Render(object, mDimensions.InvScale);
 }
 
-void Engine::RenderMask(Buffer & mask)
-{
-    Renderer::Enable e(GL_STENCIL_TEST);
-    Renderer::DisableColorMask c;
-
-    glStencilFunc(GL_ALWAYS, 1, 0xFF); // write 1 in stencil buffer
-    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); // replace value with above
-    glStencilMask(0xFF); // enable stencil writing
-
-    mask = mBoundaryMask(mDirichletBoundaries, mNeumannBoundaries);
-
-    glStencilMask(0x00); // disable stencil writing
-}
-
 void Engine::ClearBoundaries()
 {
     mDirichletBoundaries.Clear(glm::vec4(0.0f));
@@ -449,32 +337,6 @@ void Engine::Advect(Fluid::Buffer & buffer)
 {
     Renderer::Disable d(GL_BLEND);
     buffer.Swap() = mAdvect(Back(buffer), Back(mVelocity));
-}
-
-void Engine::Extrapolate()
-{
-    mExtrapolateValid.Clear(glm::vec4(0.0));
-    mExtrapolateValid.ClearStencil();
-    RenderMask(mExtrapolateValid);
-    RenderMask(mExtrapolateValid.Swap());
-
-    mVelocity.Swap() = mIdentity(Back(mVelocity));
-
-    Renderer::Enable e(GL_STENCIL_TEST);
-    glStencilMask(0x00);
-    glStencilFunc(GL_EQUAL, 0, 0xFF);
-
-    mSurface.Colour = glm::vec4(1.0f);
-    mExtrapolateValid.Render(mSurface);
-    mExtrapolateValid.Swap().Render(mSurface);
-
-    glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
-
-    for(int i = 0 ; i < 20 ; i++)
-    {
-        mVelocity.Swap() = mExtrapolate(mExtrapolateValid, Back(mVelocity));
-        mExtrapolateValid.Swap() = mExtrapolateMask(Back(mExtrapolateValid));
-    }
 }
 
 }}

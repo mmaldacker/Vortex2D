@@ -10,6 +10,7 @@
 #include "Size.h"
 #include "Operator.h"
 #include "Shapes.h"
+#include "Extrapolation.h"
 
 #include <vector>
 
@@ -28,7 +29,7 @@ public:
     /**
      * @brief Construct an Engine with a size, linear solver and time step.
      */
-    Engine(Dimensions dimensions, LinearSolver * linearSolver, float dt);
+    Engine(Dimensions dimensions, LinearSolver & linearSolver, float dt);
 
     /**
      * @brief Render an object as a dirichlet boundary. Those are boundaries where the pressure is 0.
@@ -85,25 +86,21 @@ private:
     Dimensions mDimensions;
 
     LinearSolver::Data mData;
-    LinearSolver * mLinearSolver;
+    LinearSolver & mLinearSolver;
+
+    Extrapolation mExtrapolation;
 
     Buffer mVelocity;
     Buffer mDirichletBoundaries;
     Buffer mNeumannBoundaries;
     Buffer mBoundariesVelocity;
-    Buffer mExtrapolateValid;
 
     Operator mDiv;
     Operator mProject;
     Operator mAdvect;
-    Operator mExtrapolate;
-    Operator mExtrapolateMask;
-    Operator mIdentity;
+
     Operator mWeights;
     Operator mDiagonals;
-    Operator mBoundaryMask;
-
-    Renderer::Rectangle mSurface;
 };
 
 }}

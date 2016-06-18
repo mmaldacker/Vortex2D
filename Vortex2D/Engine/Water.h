@@ -12,7 +12,6 @@
 #include "Operator.h"
 #include "Buffer.h"
 
-
 namespace Vortex2D { namespace Fluid {
 
 class Engine;
@@ -43,7 +42,7 @@ public:
     void Clear();
 
     /**
-     * @brief Renders the boundaries of the water in the engine (as dirichlet boundaries)
+     * @brief Renders the boundaries of the water in the engine (as dirichlet boundaries).
      */
     void RenderBoundaries(Engine & engine);
 
@@ -66,7 +65,7 @@ private:
     Buffer mLevelSet0;
     Operator mRedistance;
     Operator mIdentity;
-    
+
     Renderer::Program mLevelSetMask;
     Renderer::Program mRenderProgram;
 
