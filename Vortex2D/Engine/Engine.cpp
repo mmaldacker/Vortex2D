@@ -307,10 +307,10 @@ const char * ExtrapolateMaskFrag = GLSL(
 );
 
 Engine::Engine(Dimensions dimensions, LinearSolver * linearSolver, float dt)
-    : TopBoundary({dimensions.Scale*dimensions.Size.x, 2.0f})
-    , BottomBoundary({dimensions.Scale*dimensions.Size.x, 2.0f})
-    , LeftBoundary({2.0f, dimensions.Scale*dimensions.Size.y})
-    , RightBoundary({2.0f, dimensions.Scale*dimensions.Size.y})
+    : TopBoundary(dimensions.Scale*glm::vec2(dimensions.Size.x, 1.0f))
+    , BottomBoundary(dimensions.Scale*glm::vec2(dimensions.Size.x, 1.0f))
+    , LeftBoundary(dimensions.Scale*glm::vec2(1.0f, dimensions.Size.y))
+    , RightBoundary(dimensions.Scale*glm::vec2(1.0f, dimensions.Size.y))
     , mDimensions(dimensions)
     , mData(dimensions.Size)
     , mLinearSolver(linearSolver)
@@ -351,9 +351,9 @@ Engine::Engine(Dimensions dimensions, LinearSolver * linearSolver, float dt)
     TopBoundary.Colour = BottomBoundary.Colour = LeftBoundary.Colour = RightBoundary.Colour = glm::vec4(1.0f);
 
     TopBoundary.Position = {0.0f, 0.0f};
-    BottomBoundary.Position = {0.0f, dimensions.Scale*dimensions.Size.y - 2.0f};
+    BottomBoundary.Position = dimensions.Scale*glm::vec2(0.0f, dimensions.Size.y - 1.0f);
     LeftBoundary.Position = {0.0f, 0.0f};
-    RightBoundary.Position = {dimensions.Scale*dimensions.Size.x - 2.0f, 0.0f};
+    RightBoundary.Position = dimensions.Scale*glm::vec2(dimensions.Size.x - 1.0f, 0.0f);
 }
 
 void Engine::Solve()
