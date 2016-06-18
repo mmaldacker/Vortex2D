@@ -23,9 +23,7 @@ const char * DivFrag = GLSL(
     {
         vec2  uv  = texture(u_texture, v_texCoord).xy;
         float uxp = textureOffset(u_texture, v_texCoord, ivec2(1,0)).x;
-        float uxn = uv.x;
         float vyp = textureOffset(u_texture, v_texCoord, ivec2(0,1)).y;
-        float vyn = uv.y;
 
         float c   = 1.0 - texture(u_obstacles, v_texCoord).x;
         float cxp = 1.0 - textureOffset(u_obstacles, v_texCoord, ivec2(2,0)).x;
@@ -39,7 +37,7 @@ const char * DivFrag = GLSL(
         float solid_vyn = textureOffset(u_obstacles_velocity, v_texCoord, ivec2(0,-1)).y;
 
         float dx = 1.0;
-        float div = -(cxp * uxp - cxn * uxn + cyp * vyp - cyn * vyn) / dx;
+        float div = -(cxp * uxp - cxn * uv.x + cyp * vyp - cyn * uv.y) / dx;
         div += ((cxp-c)*solid_uxp - (cxn-c)*solid_uxn + (cyp-c)*solid_vyp - (cyn-c)*solid_vyn) / dx;
         
         //pressure, div, 0, 0
