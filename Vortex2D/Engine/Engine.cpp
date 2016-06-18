@@ -2,9 +2,6 @@
 //  Engine.cpp
 //  Vortex
 //
-//  Created by Maximilian Maldacker on 08/04/2014.
-//
-//
 
 #include "Engine.h"
 #include "Disable.h"

@@ -1,10 +1,10 @@
 //
 //  VelocitySmokeTest.h
-//  Vertex2D
+//  Vortex2D
 //
 
-#ifndef Vertex2D_VelocitySmokeTest_h
-#define Vertex2D_VelocitySmokeTest_h
+#ifndef Vortex2D_VelocitySmokeTest_h
+#define Vortex2D_VelocitySmokeTest_h
 
 
 #include "BaseExample.h"

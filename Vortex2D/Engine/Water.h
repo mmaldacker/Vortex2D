@@ -1,10 +1,10 @@
 //
 //  Water.h
-//  Vertex2D
+//  Vortex2D
 //
 
-#ifndef __Vertex2D__Water__
-#define __Vertex2D__Water__
+#ifndef __Vortex2D__Water__
+#define __Vortex2D__Water__
 
 #include "Drawable.h"
 #include "Transformable.h"
@@ -74,4 +74,4 @@ private:
 
 }}
 
-#endif /* defined(__Vertex2D__Water__) */
+#endif /* defined(__Vortex2D__Water__) */

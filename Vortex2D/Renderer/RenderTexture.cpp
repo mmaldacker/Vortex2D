@@ -2,9 +2,6 @@
 //  RenderTexture.cpp
 //  Vortex
 //
-//  Created by Maximilian Maldacker on 06/04/2014.
-//
-//
 
 #include "RenderTexture.h"
 #include <algorithm>

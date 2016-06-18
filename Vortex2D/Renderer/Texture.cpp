@@ -1,9 +1,6 @@
 //
 //  Texture.cpp
-//  Vortex
-//
-//  Created by Maximilian Maldacker on 06/04/2014.
-//
+//  Vortex2D
 //
 
 #include "Texture.h"

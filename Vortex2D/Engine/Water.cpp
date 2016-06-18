@@ -1,6 +1,6 @@
 //
 //  Water.cpp
-//  Vertex2D
+//  Vortex2D
 //
 
 #include "Water.h"

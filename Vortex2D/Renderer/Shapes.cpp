@@ -1,9 +1,6 @@
 //
 //  Shapes.cpp
-//  Vortex
-//
-//  Created by Maximilian Maldacker on 07/04/2014.
-//
+//  Vortex2D
 //
 
 #include "Shapes.h"

@@ -1,9 +1,6 @@
 //
 //  SuccessiveOverRelaxation.cpp
-//  Vertex2D
-//
-//  Created by Maximilian Maldacker on 19/08/2015.
-//  Copyright (c) 2015 Maximilian Maldacker. All rights reserved.
+//  Vortex2D
 //
 
 #include "SuccessiveOverRelaxation.h"

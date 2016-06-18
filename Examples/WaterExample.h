@@ -1,10 +1,10 @@
 //
 //  Water.h
-//  Vertex2D
+//  Vortex2D
 //
 
-#ifndef Vertex2D_Water_h
-#define Vertex2D_Water_h
+#ifndef Vortex2D_Water_h
+#define Vortex2D_Water_h
 
 #include "BaseExample.h"
 #include "Water.h"

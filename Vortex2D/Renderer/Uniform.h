@@ -1,9 +1,6 @@
 //
 //  Uniform.h
-//  Vortex
-//
-//  Created by Maximilian Maldacker on 07/04/2014.
-//
+//  Vortex2D
 //
 
 #ifndef Vortex_Uniform_h

@@ -1,10 +1,10 @@
 //
 //  ObstacleSmoke.h
-//  Vertex2D
+//  Vortex2D
 //
 
-#ifndef Vertex2D_ObstacleSmoke_h
-#define Vertex2D_ObstacleSmoke_h
+#ifndef Vortex2D_ObstacleSmoke_h
+#define Vortex2D_ObstacleSmoke_h
 
 #include "BaseExample.h"
 #include "Shapes.h"

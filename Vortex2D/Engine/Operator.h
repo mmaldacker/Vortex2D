@@ -1,10 +1,10 @@
 //
 //  Operator.h
-//  Vertex2D
+//  Vortex2D
 //
 
-#ifndef Vertex2D_Operator_h
-#define Vertex2D_Operator_h
+#ifndef Vortex2D_Operator_h
+#define Vortex2D_Operator_h
 
 #include "Buffer.h"
 #include "Shader.h"

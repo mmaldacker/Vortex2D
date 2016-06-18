@@ -1,10 +1,10 @@
 //
 //  Size.h
-//  Vertex2D
+//  Vortex2D
 //
 
-#ifndef Vertex2D_Size_h
-#define Vertex2D_Size_h
+#ifndef Vortex2D_Size_h
+#define Vortex2D_Size_h
 
 #include "Common.h"
 

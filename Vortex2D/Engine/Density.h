@@ -1,10 +1,10 @@
 //
 //  Density.h
-//  Vertex2D
+//  Vortex2D
 //
 
-#ifndef __Vertex2D__Density__
-#define __Vertex2D__Density__
+#ifndef __Vortex2D__Density__
+#define __Vortex2D__Density__
 
 #include "Size.h"
 #include "Operator.h"
@@ -45,4 +45,4 @@ private:
 
 }}
 
-#endif /* defined(__Vertex2D__Density__) */
+#endif /* defined(__Vortex2D__Density__) */

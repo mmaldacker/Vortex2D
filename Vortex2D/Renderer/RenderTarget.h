@@ -2,9 +2,6 @@
 //  RenderTarget.h
 //  Vortex2D
 //
-//  Created by Maximilian Maldacker on 15/06/2016.
-//
-//
 
 #ifndef RenderTarget_h
 #define RenderTarget_h

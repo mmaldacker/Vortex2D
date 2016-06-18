@@ -1,9 +1,6 @@
 //
 //  Transformable.h
-//  Vortex
-//
-//  Created by Maximilian Maldacker on 01/05/2014.
-//
+//  Vortex2D
 //
 
 #ifndef Vortex_Transformable_h

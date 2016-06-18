@@ -1,10 +1,10 @@
 //
 //  BaseExample.h
-//  Vertex2D
+//  Vortex2D
 //
 
-#ifndef Vertex2D_BaseExample_h
-#define Vertex2D_BaseExample_h
+#ifndef Vortex2D_BaseExample_h
+#define Vortex2D_BaseExample_h
 
 #include "Size.h"
 #include "Engine.h"

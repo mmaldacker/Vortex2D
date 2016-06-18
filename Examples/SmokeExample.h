@@ -1,10 +1,10 @@
 //
 //  Smoke.h
-//  Vertex2D
+//  Vortex2D
 //
 
-#ifndef Vertex2D_Smoke_h
-#define Vertex2D_Smoke_h
+#ifndef Vortex2D_Smoke_h
+#define Vortex2D_Smoke_h
 
 #include "BaseExample.h"
 #include "Shapes.h"

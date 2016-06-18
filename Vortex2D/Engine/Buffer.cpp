@@ -2,9 +2,6 @@
 //  Buffer.cpp
 //  Vortex2D
 //
-//  Created by Maximilian Maldacker on 15/06/2016.
-//
-//
 
 #include "Buffer.h"
 #include "Shader.h"

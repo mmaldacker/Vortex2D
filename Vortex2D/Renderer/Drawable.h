@@ -2,9 +2,6 @@
 //  Drawable.h
 //  Vortex
 //
-//  Created by Maximilian Maldacker on 29/04/2014.
-//
-//
 
 #ifndef Vortex_Drawable_h
 #define Vortex_Drawable_h

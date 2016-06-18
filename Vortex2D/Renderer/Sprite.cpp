@@ -2,9 +2,6 @@
 //  Sprite.cpp
 //  Vortex2D
 //
-//  Created by Maximilian Maldacker on 15/06/2016.
-//
-//
 
 #include "Sprite.h"
 #include "RenderTarget.h"

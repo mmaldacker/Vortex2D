@@ -1,9 +1,6 @@
 //
 //  Density.cpp
-//  Vertex2D
-//
-//  Created by Maximilian Maldacker on 05/04/2016.
-//  Copyright (c) 2016 Maximilian Maldacker. All rights reserved.
+//  Vortex2D
 //
 
 #include "Density.h"

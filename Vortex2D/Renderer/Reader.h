@@ -1,13 +1,10 @@
 //
 //  Reader.h
-//  Vertex2D
-//
-//  Created by Maximilian Maldacker on 19/08/2015.
-//  Copyright (c) 2015 Maximilian Maldacker. All rights reserved.
+//  Vortex2D
 //
 
-#ifndef __Vertex2D__Reader__
-#define __Vertex2D__Reader__
+#ifndef __Vortex2D__Reader__
+#define __Vortex2D__Reader__
 
 #include "Common.h"
 #include "RenderTexture.h"
@@ -74,4 +71,4 @@ private:
 
 }}
 
-#endif /* defined(__Vertex2D__Reader__) */
+#endif /* defined(__Vortex2D__Reader__) */

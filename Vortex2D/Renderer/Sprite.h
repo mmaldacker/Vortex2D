@@ -2,9 +2,6 @@
 //  Sprite.h
 //  Vortex2D
 //
-//  Created by Maximilian Maldacker on 15/06/2016.
-//
-//
 
 #ifndef Sprite_h
 #define Sprite_h

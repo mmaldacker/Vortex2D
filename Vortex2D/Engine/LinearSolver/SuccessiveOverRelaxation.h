@@ -1,10 +1,10 @@
 //
 //  SuccessiveOverRelaxation.h
-//  Vertex2D
+//  Vortex2D
 //
 
-#ifndef __Vertex2D__SuccessiveOverRelaxation__
-#define __Vertex2D__SuccessiveOverRelaxation__
+#ifndef __Vortex2D__SuccessiveOverRelaxation__
+#define __Vortex2D__SuccessiveOverRelaxation__
 
 #include "LinearSolver.h"
 
@@ -41,4 +41,4 @@ private:
 
 }}
 
-#endif /* defined(__Vertex2D__SuccessiveOverRelaxation__) */
+#endif /* defined(__Vortex2D__SuccessiveOverRelaxation__) */

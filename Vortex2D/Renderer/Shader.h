@@ -1,9 +1,6 @@
 //
 //  Shader.h
-//  Vortex
-//
-//  Created by Maximilian Maldacker on 06/04/2014.
-//
+//  Vortex2D
 //
 
 #ifndef __Vortex__Shader__

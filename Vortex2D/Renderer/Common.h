@@ -2,9 +2,6 @@
 //  Common.h
 //  Vortex
 //
-//  Created by Maximilian Maldacker on 07/04/2014.
-//
-//
 
 #ifndef Vortex_Common_h
 #define Vortex_Common_h

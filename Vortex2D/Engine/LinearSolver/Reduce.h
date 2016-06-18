@@ -1,10 +1,10 @@
 //
 //  Reduce.h
-//  Vertex2D
+//  Vortex2D
 //
 
-#ifndef __Vertex2D__Reduce__
-#define __Vertex2D__Reduce__
+#ifndef __Vortex2D__Reduce__
+#define __Vortex2D__Reduce__
 
 #include "Operator.h"
 
@@ -31,4 +31,4 @@ private:
 
 }}
 
-#endif /* defined(__Vertex2D__Reduce__) */
+#endif /* defined(__Vortex2D__Reduce__) */

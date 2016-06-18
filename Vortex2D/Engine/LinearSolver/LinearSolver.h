@@ -1,10 +1,10 @@
 //
 //  LinearSolver.h
-//  Vertex2D
+//  Vortex2D
 //
 
-#ifndef Vertex2D_LinearSolver_h
-#define Vertex2D_LinearSolver_h
+#ifndef Vortex2D_LinearSolver_h
+#define Vortex2D_LinearSolver_h
 
 #include "Operator.h"
 

@@ -1,13 +1,10 @@
 //
 //  Disable.h
-//  Vertex2D
-//
-//  Created by Maximilian Maldacker on 19/08/2015.
-//  Copyright (c) 2015 Maximilian Maldacker. All rights reserved.
+//  Vortex2D
 //
 
-#ifndef Vertex2D_Disable_h
-#define Vertex2D_Disable_h
+#ifndef Vortex2D_Disable_h
+#define Vortex2D_Disable_h
 
 #include "Common.h"
 
