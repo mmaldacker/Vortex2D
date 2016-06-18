@@ -4,6 +4,7 @@
 #include "ObstacleSmokeExample.h"
 #include "WaterExample.h"
 #include "VelocitySmokeExample.h"
+#include "ScaleWaterExample.h"
 
 #include <iostream>
 #include <GLFW/glfw3.h>
@@ -32,6 +33,9 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             break;
         case GLFW_KEY_4:
             example.reset(new WaterExample());
+            break;
+        case GLFW_KEY_5:
+            example.reset(new ScaleWaterExample());
             break;
         default:
             break;
