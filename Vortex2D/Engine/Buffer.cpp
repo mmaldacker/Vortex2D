@@ -80,6 +80,7 @@ void Buffer::Add(const glm::vec2 & size, unsigned components, bool depth)
                            depth ? Renderer::RenderTexture::DepthFormat::DEPTH24_STENCIL8 :
                            Renderer::RenderTexture::DepthFormat::NONE);
     mTextures.back().SetAliasTexParameters();
+    mTextures.back().SetClampToBorderTexParameters();
 }
 
 }}
