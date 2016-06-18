@@ -98,7 +98,7 @@ For simplicity, the air is simulated as having pressure 0 (i.e. dirichlet bounda
 
 A level set is a grid where each grid cell has the signed distance to the nearest water/air boundary. The distance is positive in the water and negative in the air. The *Water* class has a level set grid the size of the *Engine*, we can then mark (i.e. draw) some sections as beeing water. The class will internally maintain the level set to contain an approximate distance field.
 
-We can then evolve the level set by simply advecting it with the velocity field. Again, the class will ensure the distance field is preserved. After each advection, the engine's boundaries need to be updated, in other words we need to set a dirichlet boundaries wherever the distance is negative. The *GetBoundaries* method is used to update the dirichlet boundaries.
+We can then evolve the level set by simply advecting it with the velocity field. Again, the class will ensure the distance field is preserved. After each advection, the engine's boundaries need to be updated, in other words we need to set a dirichlet boundaries wherever the distance is negative. The *RenderBoundaries* method is used to update the dirichlet boundaries.
 
 Finally, the level set can be rendered as water (again, it is simply a texture).
 
@@ -107,15 +107,14 @@ Finally, the level set can be rendered as water (again, it is simply a texture).
 A simple example for a smoke simulation:
 
 ```cpp
-Dimensions dimensions(glm::vec2(500));
+Dimensions dimensions(glm::vec2(500), 1.0);
 ConjugateGradient solver(dimensions.Size);
 Engine engine(dimensions, &solver, 0.033);
-Density density(dimensions, 0.033);
+Density density(dimensions);
 
 Rectangle source(20.0)
 Rectangle force(20.0)
 Rectangle obstacle({100.0, 50.0})
-Rectangle top({500,1}), bottom({500,1}), left({1,500}), right({1,500});
 
 source.Position = {200.0, 400.0};
 source.Colour = glm::vec4(1.0);
@@ -127,19 +126,12 @@ obstacle.Position = {200.0, 200.0};
 obstacle.Rotation = 45.0;
 obstacle.Colour = glm::vec4(1.0);
 
-top.Colour = bottom.Colour = left.Colour = right.Colour = glm::vec4(1.0);
-
-top.Position = {0.0, 0.0};
-bottom.Position = {0.0, 499.0};
-left.Position = {0.0, 0.0};
-right.Position = {499.0, 0.0};
-
 void Update(Renderer::RenderTarget & target)
 {
-    engine.RenderDirichlet(top);
-    engine.RenderDirichlet(bottom);
-    engine.RenderDirichlet(left);
-    engine.RenderDirichlet(right);
+    engine.RenderDirichlet(engine.TopBoundary);
+    engine.RenderDirichlet(engine.BottomBoundary);
+    engine.RenderDirichlet(engine.LeftBoundary);
+    engine.RenderDirichlet(engine.RightBoundary);
 
     engine.RenderNeumann(obstacle);
 

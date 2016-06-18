@@ -170,11 +170,11 @@ void Water::Redistance(bool reinitialize)
     }
 }
 
-Renderer::Sprite & Water::GetBoundaries()
+void Water::RenderBoundaries(Vortex2D::Fluid::Engine &engine)
 {
     auto & levelSetSprite = mLevelSet.Sprite();
     levelSetSprite.SetProgram(mLevelSetMask);
-    return levelSetSprite;
+    engine.mDirichletBoundaries.Render(levelSetSprite);
 }
 
 void Water::Advect(Fluid::Engine &engine)

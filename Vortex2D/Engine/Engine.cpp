@@ -307,7 +307,11 @@ const char * ExtrapolateMaskFrag = GLSL(
 );
 
 Engine::Engine(Dimensions dimensions, LinearSolver * linearSolver, float dt)
-    : mDimensions(dimensions)
+    : TopBoundary({dimensions.Scale*dimensions.Size.x, 2.0f})
+    , BottomBoundary({dimensions.Scale*dimensions.Size.x, 2.0f})
+    , LeftBoundary({2.0f, dimensions.Scale*dimensions.Size.y})
+    , RightBoundary({2.0f, dimensions.Scale*dimensions.Size.y})
+    , mDimensions(dimensions)
     , mData(dimensions.Size)
     , mLinearSolver(linearSolver)
     , mVelocity(dimensions.Size, 2, true, true)
@@ -343,6 +347,13 @@ Engine::Engine(Dimensions dimensions, LinearSolver * linearSolver, float dt)
     mWeights.Use().Set("u_dirichlet", 0).Set("u_neumann", 1).Set("delta", dt).Unuse();
     mDiagonals.Use().Set("u_texture", 0).Set("delta", dt).Unuse();
     mBoundaryMask.Use().Set("u_dirichlet", 0).Set("u_neumann", 1).Unuse();
+
+    TopBoundary.Colour = BottomBoundary.Colour = LeftBoundary.Colour = RightBoundary.Colour = glm::vec4(1.0f);
+
+    TopBoundary.Position = {0.0f, 0.0f};
+    BottomBoundary.Position = {0.0f, dimensions.Scale*dimensions.Size.y - 2.0f};
+    LeftBoundary.Position = {0.0f, 0.0f};
+    RightBoundary.Position = {dimensions.Scale*dimensions.Size.x - 2.0f, 0.0f};
 }
 
 void Engine::Solve()

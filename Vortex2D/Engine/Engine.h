@@ -70,6 +70,11 @@ public:
      */
     void Solve();
 
+    Renderer::Rectangle TopBoundary;
+    Renderer::Rectangle BottomBoundary;
+    Renderer::Rectangle LeftBoundary;
+    Renderer::Rectangle RightBoundary;
+
     friend class Water;
     friend class Density;
 private:

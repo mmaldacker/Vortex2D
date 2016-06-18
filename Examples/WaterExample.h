@@ -14,20 +14,11 @@ class WaterExample : public BaseExample
 public:
     WaterExample()
     : BaseExample({glm::vec2(500), 1.0f}, 0.033)
-        , gravity(glm::vec2{500})
-        , top({500,1}), bottom({500,1})
-        , left({1,500}), right({1,500})
+        , gravity(glm::vec2(500))
         , obstacle1({100,100}), obstacle2({100,100})
         , water(dimensions)
     {
         gravity.Colour = {0.0f, -0.1f, 0.0f, 0.0f};
-
-        top.Colour = bottom.Colour = left.Colour = right.Colour = glm::vec4(1.0f);
-
-        top.Position = {0.0f, 0.0f};
-        bottom.Position = {0.0f, 499.0f};
-        left.Position = {0.0f, 0.0f};
-        right.Position = {499.0f, 0.0f};
 
         obstacle1.Position = {150.0f, 200.0f};
         obstacle1.Rotation = 45.0f;
@@ -46,16 +37,16 @@ public:
     void Frame() override
     {
         engine.ClearBoundaries();
-        engine.RenderNeumann(top);
-        engine.RenderNeumann(bottom);
-        engine.RenderNeumann(left);
-        engine.RenderNeumann(right);
+        engine.RenderNeumann(engine.TopBoundary);
+        engine.RenderNeumann(engine.BottomBoundary);
+        engine.RenderNeumann(engine.LeftBoundary);
+        engine.RenderNeumann(engine.RightBoundary);
 
         obstacle1.Colour = obstacle2.Colour = glm::vec4(1.0);
         engine.RenderNeumann(obstacle1);
         engine.RenderNeumann(obstacle2);
 
-        engine.RenderDirichlet(water.GetBoundaries());
+        water.RenderBoundaries(engine);
 
         engine.RenderForce(gravity);
 
@@ -74,7 +65,6 @@ public:
 
 private:
     Vortex2D::Renderer::Rectangle gravity;
-    Vortex2D::Renderer::Rectangle top, bottom, left, right;
     Vortex2D::Renderer::Rectangle obstacle1, obstacle2;
     Vortex2D::Fluid::Water water;
 };

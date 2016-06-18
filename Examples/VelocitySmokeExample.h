@@ -17,21 +17,12 @@ public:
     VelocitySmokeExample()
     : BaseExample({glm::vec2(500), 1.0}, 0.033)
     , obstacle({50.0f, 50.0f}), force({50.0f, 50.0f})
-    , top({500,1}), bottom({500,1})
-    , left({1,500}), right({1,500})
     , density(dimensions)
     {
         obstacle.Position = {200.0f, 50.0f};
 
         force.Position = (glm::vec2)obstacle.Position;
         force.Colour = {0.0f, speed/0.033f, 0.0f, 0.0f};
-
-        top.Colour = bottom.Colour = left.Colour = right.Colour = glm::vec4{1.0f};
-
-        top.Position = {0.0f, 0.0f};
-        bottom.Position = {0.0f, 499.0f};
-        left.Position = {0.0f, 0.0f};
-        right.Position = {499.0f, 0.0f};
 
         Vortex2D::Renderer::Rectangle source({400.0f, 50.0f});
         source.Position = {50.0f, 200.0f};
@@ -44,10 +35,10 @@ public:
         engine.ClearBoundaries();
         engine.ClearVelocities();
         
-        engine.RenderNeumann(top);
-        engine.RenderNeumann(bottom);
-        engine.RenderNeumann(left);
-        engine.RenderNeumann(right);
+        engine.RenderNeumann(engine.TopBoundary);
+        engine.RenderNeumann(engine.BottomBoundary);
+        engine.RenderNeumann(engine.LeftBoundary);
+        engine.RenderNeumann(engine.RightBoundary);
 
         obstacle.Colour = glm::vec4(1.0);
         engine.RenderNeumann(obstacle);
@@ -72,7 +63,6 @@ public:
 
 private:
     Vortex2D::Renderer::Rectangle obstacle, force;
-    Vortex2D::Renderer::Rectangle top, bottom, left, right;
     Vortex2D::Fluid::Density density;
 
     const float speed = 2.0f;

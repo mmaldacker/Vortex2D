@@ -45,10 +45,9 @@ public:
     void Clear();
 
     /**
-     * @brief Gets the air section of the water. Has to be used to mark dirichlet boundaries in the engine.
-     * @return returns a Sprite used to draw the dirichlet boundaries.
+     * @brief Renders the boundaries of the water in the engine (as dirichlet boundaries)
      */
-    Renderer::Sprite & GetBoundaries();
+    void RenderBoundaries(Engine & engine);
 
     /**
      * @brief Advects the LevelSet
