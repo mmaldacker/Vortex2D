@@ -19,26 +19,35 @@ const char * DivFrag = GLSL(
     in vec2 v_texCoord;
     out vec4 out_color;
 
+    float mid_point(float a, float b)
+    {
+        return (a+b)/2.0;
+    }
+
     void main()
     {
         vec2  uv  = texture(u_texture, v_texCoord).xy;
         float uxp = textureOffset(u_texture, v_texCoord, ivec2(1,0)).x;
         float vyp = textureOffset(u_texture, v_texCoord, ivec2(0,1)).y;
 
-        float c   = 1.0 - texture(u_obstacles, v_texCoord).x;
-        float cxp = 1.0 - textureOffset(u_obstacles, v_texCoord, ivec2(2,0)).x;
-        float cxn = 1.0 - textureOffset(u_obstacles, v_texCoord, ivec2(-2,0)).x;
-        float cyp = 1.0 - textureOffset(u_obstacles, v_texCoord, ivec2(0,2)).x;
-        float cyn = 1.0 - textureOffset(u_obstacles, v_texCoord, ivec2(0,-2)).x;
+        float c   = texture(u_obstacles, v_texCoord).x;
+        float cxp = textureOffset(u_obstacles, v_texCoord, ivec2(2,0)).x;
+        float cxn = textureOffset(u_obstacles, v_texCoord, ivec2(-2,0)).x;
+        float cyp = textureOffset(u_obstacles, v_texCoord, ivec2(0,2)).x;
+        float cyn = textureOffset(u_obstacles, v_texCoord, ivec2(0,-2)).x;
 
+        float h_cxn = 1.0 - mid_point(c, cxn);
+        float h_cyn = 1.0 - mid_point(c, cyn);
+        float h_cxp = 1.0 - mid_point(cxp, c);
+        float h_cyp = 1.0 - mid_point(cyp, c);
+
+        vec2 solid_uv = texture(u_obstacles_velocity, v_texCoord).xy;
         float solid_uxp = textureOffset(u_obstacles_velocity, v_texCoord, ivec2(1,0)).x;
-        float solid_uxn = textureOffset(u_obstacles_velocity, v_texCoord, ivec2(-1,0)).x;
         float solid_vyp = textureOffset(u_obstacles_velocity, v_texCoord, ivec2(0,1)).y;
-        float solid_vyn = textureOffset(u_obstacles_velocity, v_texCoord, ivec2(0,-1)).y;
 
         float dx = 1.0;
-        float div = -(cxp * uxp - cxn * uv.x + cyp * vyp - cyn * uv.y) / dx;
-        div += ((cxp-c)*solid_uxp - (cxn-c)*solid_uxn + (cyp-c)*solid_vyp - (cyn-c)*solid_vyn) / dx;
+        float div = -(h_cxp * uxp - h_cxn * uv.x + h_cyp * vyp - h_cyn * uv.y) / dx;
+        div += ((h_cxp+c-1.0)*solid_uxp - (h_cxn+c-1.0)*solid_uv.x + (h_cyp+c-1.0)*solid_vyp - (h_cyn+c-1.0)*solid_uv.y) / dx;
         
         //pressure, div, 0, 0
         out_color = vec4(0.0, div, 0.0, 0.0);
@@ -64,7 +73,7 @@ const char * ProjectFrag = GLSL(
         float pyn = textureOffset(u_pressure, v_texCoord, ivec2(0,-1)).x;
 
         vec2 pGrad = vec2(p-pxn, p-pyn);
-
+        
         vec2 mask = vec2(1.0);
         vec2 obsV = vec2(0.0);
 
@@ -103,22 +112,39 @@ const char * WeightsFrag = GLSL(
     uniform sampler2D u_neumann;
     uniform float delta;
 
+    float mid_point(float a, float b)
+    {
+        return (a+b)/2.0;
+    }
+
     void main()
     {
-        vec4 p;
-        p.x = textureOffset(u_dirichlet, v_texCoord, ivec2(1,0)).x;
-        p.y = textureOffset(u_dirichlet, v_texCoord, ivec2(-1,0)).x;
-        p.z = textureOffset(u_dirichlet, v_texCoord, ivec2(0,1)).x;
-        p.w = textureOffset(u_dirichlet, v_texCoord, ivec2(0,-1)).x;
+        vec4 dirichlet;
+        dirichlet.x = textureOffset(u_dirichlet, v_texCoord, ivec2(1,0)).x;
+        dirichlet.y = textureOffset(u_dirichlet, v_texCoord, ivec2(-1,0)).x;
+        dirichlet.z = textureOffset(u_dirichlet, v_texCoord, ivec2(0,1)).x;
+        dirichlet.w = textureOffset(u_dirichlet, v_texCoord, ivec2(0,-1)).x;
 
-        vec4 q;
-        q.x = textureOffset(u_neumann, v_texCoord, ivec2(2,0)).x;
-        q.y = textureOffset(u_neumann, v_texCoord, ivec2(-2,0)).x;
-        q.z = textureOffset(u_neumann, v_texCoord, ivec2(0,2)).x;
-        q.w = textureOffset(u_neumann, v_texCoord, ivec2(0,-2)).x;
+        float c   = texture(u_neumann, v_texCoord).x;
+        float cxp = textureOffset(u_neumann, v_texCoord, ivec2(2,0)).x;
+        float cxn = textureOffset(u_neumann, v_texCoord, ivec2(-2,0)).x;
+        float cyp = textureOffset(u_neumann, v_texCoord, ivec2(0,2)).x;
+        float cyn = textureOffset(u_neumann, v_texCoord, ivec2(0,-2)).x;
+
+        vec4 neumann;
+        neumann.x = mid_point(cxp, c);
+        neumann.y = mid_point(c, cxn);
+        neumann.z = mid_point(cyp, c);
+        neumann.w = mid_point(c, cyn);
+
+        vec4 weights;
+        weights.x = neumann.x > 0.0 ? neumann.x : dirichlet.x;
+        weights.y = neumann.y > 0.0 ? neumann.y : dirichlet.y;
+        weights.z = neumann.z > 0.0 ? neumann.z : dirichlet.z;
+        weights.w = neumann.w > 0.0 ? neumann.w : dirichlet.w;
 
         float dx = 1.0;
-        out_color = delta * (1.0 - max(p,q)) / (dx*dx);
+        out_color = delta * (1.0 - weights) / (dx*dx);
     }
 );
 
@@ -131,13 +157,24 @@ const char * DiagonalsFrag = GLSL(
 
     const vec4 q = vec4(1.0);
 
+    float mid_point(float a, float b)
+    {
+        return (a+b)/2.0;
+    }
+
     void main()
     {
+        float c   = texture(u_texture, v_texCoord).x;
+        float cxp = textureOffset(u_texture, v_texCoord, ivec2(2,0)).x;
+        float cxn = textureOffset(u_texture, v_texCoord, ivec2(-2,0)).x;
+        float cyp = textureOffset(u_texture, v_texCoord, ivec2(0,2)).x;
+        float cyn = textureOffset(u_texture, v_texCoord, ivec2(0,-2)).x;
+
         vec4 p;
-        p.x = 1.0 - textureOffset(u_texture, v_texCoord, ivec2(2,0)).x;
-        p.y = 1.0 - textureOffset(u_texture, v_texCoord, ivec2(-2,0)).x;
-        p.z = 1.0 - textureOffset(u_texture, v_texCoord, ivec2(0,2)).x;
-        p.w = 1.0 - textureOffset(u_texture, v_texCoord, ivec2(0,-2)).x;
+        p.x = 1.0 - mid_point(cxp, c);
+        p.y = 1.0 - mid_point(c, cxn);
+        p.z = 1.0 - mid_point(cyp, c);
+        p.w = 1.0 - mid_point(c, cyn);
 
         float dx = 1.0;
         out_color = vec4(delta * dot(p,q) / (dx*dx),0.0, 0.0, 0.0);
