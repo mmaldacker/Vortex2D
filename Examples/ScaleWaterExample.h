@@ -7,8 +7,6 @@
 #define ScaleWaterExample_h
 
 #include "BaseExample.h"
-#include "Water.h"
-
 
 class ScaleWaterExample : public BaseExample
 {
@@ -17,19 +15,19 @@ public:
     : BaseExample({glm::vec2(500), 5.0f}, 0.033)
     , gravity(glm::vec2(500))
     , obstacle(glm::vec2(100))
-    , water(dimensions)
     {
-        gravity.Colour = {0.0f, -0.1f, 0.0f, 0.0f};
+        gravity.Colour = {0.0f, -0.5f, 0.0f, 0.0f};
 
         obstacle.Colour = glm::vec4(1);
         obstacle.Position = {200, 50};
 
-        water.Colour = blue;
+        engine.Colour = blue;
 
         Vortex2D::Renderer::Rectangle source({300,100});
-        source.Position = {100,200};
+        source.Position = {100,300};
         source.Colour = glm::vec4(1.0f);
-        water.Render(source);
+        engine.RenderFluid(source);
+        engine.ReinitialiseDirichlet();
     }
 
     void Frame() override
@@ -43,18 +41,17 @@ public:
         obstacle.Colour = glm::vec4(1.0);
         engine.RenderNeumann(obstacle);
 
-        water.RenderBoundaries(engine);
+        engine.ReinitialiseNeumann();
 
         engine.RenderForce(gravity);
 
         engine.Solve();
-
-        water.Advect(engine);
+        engine.Advect();
     }
 
     void Render(Vortex2D::Renderer::RenderTarget & target) override
     {
-        target.Render(water);
+        target.Render(engine);
         obstacle.Colour = green;
         target.Render(obstacle);
     }
@@ -62,7 +59,6 @@ public:
 private:
     Vortex2D::Renderer::Rectangle gravity;
     Vortex2D::Renderer::Rectangle obstacle;
-    Vortex2D::Fluid::Water water;
 };
 
 #endif /* ScaleWaterExample_h */

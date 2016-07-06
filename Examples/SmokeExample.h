@@ -30,6 +30,7 @@ public:
         engine.RenderDirichlet(engine.BottomBoundary);
         engine.RenderDirichlet(engine.LeftBoundary);
         engine.RenderDirichlet(engine.RightBoundary);
+        engine.ReinitialiseDirichlet();
     }
 
     void Frame() override
