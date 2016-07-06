@@ -230,6 +230,68 @@ const char * DiagonalsFrag = GLSL(
     }
 );
 
+const char * AdvectVelocityFrag = GLSL(
+    uniform sampler2D u_velocity;
+    uniform float delta;
+
+    in vec2 v_texCoord;
+    out vec4 out_color;
+
+    vec2 cubic(vec2 f1, vec2 f2, vec2 f3, vec2 f4, float xd)
+    {
+        float xd2 = xd * xd;
+        float xd3 = xd2 * xd;
+
+        return f1*(     - 0.5*xd  +     xd2 - 0.5*xd3) +
+               f2*( 1.0           - 2.5*xd2 + 1.5*xd3) +
+               f3*(       0.5*xd  + 2.0*xd2 - 1.5*xd3) +
+               f4*(               - 0.5*xd2 + 0.5*xd3);
+    }
+
+    vec2 bicubic(vec2 xy)
+    {
+        ivec2 ij = ivec2(floor(xy)) - 1;
+        vec2 f = xy - (ij + 1);
+
+        vec2 t[16];
+        for(int j = 0 ; j < 4 ; ++j)
+        {
+            for(int i = 0 ; i < 4 ; ++i)
+            {
+                t[i + 4*j] = texelFetch(u_velocity, ij + ivec2(i,j), 0).xy;
+            }
+        }
+
+        vec2 x = cubic(
+                    cubic(t[0], t[4], t[8], t[12], f.y),
+                    cubic(t[1], t[5], t[9], t[13], f.y),
+                    cubic(t[2], t[6], t[10], t[14], f.y),
+                    cubic(t[3], t[7], t[11], t[15], f.y),
+                    f.x
+                );
+
+        vec2 maxValue = max(max(t[5], t[6]), max(t[9], t[10]));
+        vec2 minValue = min(min(t[5], t[6]), min(t[9], t[10]));
+
+        return clamp(x, minValue, maxValue);
+    }
+
+    const float a = 2.0/9.0;
+    const float b = 3.0/9.0;
+    const float c = 4.0/9.0;
+
+    void main(void)
+    {
+        vec2 pos = gl_FragCoord.xy - 0.5;
+
+        vec2 k1 = texture(u_velocity, v_texCoord).xy;
+        vec2 k2 = bicubic(pos - 0.5*delta*k1);
+        vec2 k3 = bicubic(pos - 0.75*delta*k2);
+
+        out_color = vec4(bicubic(pos - a*delta*k1 - b*delta*k2 - c*delta*k3), 0.0, 0.0);
+    }
+);
+
 const char * AdvectFrag = GLSL(
     uniform sampler2D u_texture;
     uniform sampler2D u_velocity;
