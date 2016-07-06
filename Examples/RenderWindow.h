@@ -22,7 +22,7 @@ struct RenderWindow : Vortex2D::Renderer::RenderTarget
 
     void Render(Vortex2D::Renderer::Drawable & object, const glm::mat4 & transform)
     {
-        object.Render(*this, glm::mat4());
+        object.Render(*this, transform);
     }
 };
 

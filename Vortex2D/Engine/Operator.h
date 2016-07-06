@@ -24,6 +24,9 @@ struct OperatorContext
 
 #define REQUIRES(...) typename std::enable_if<(__VA_ARGS__), int>::type = 0
 
+template<typename T>
+using remove_reference_t = typename std::remove_reference<T>::type;
+
 /**
  * @brief This is a helper class to write succint code when running a shader
  * with multiple Texture inputs on a Buffer
@@ -68,7 +71,7 @@ public:
     }
 
 private:
-    template<typename T, typename ... Args, REQUIRES(std::is_same<T, Buffer&>())>
+    template<typename T, typename ... Args, REQUIRES(std::is_base_of<Buffer, remove_reference_t<T>>())>
     void BindHelper(int unit, T && input, Args && ... args)
     {
         Front(input).Bind(unit);

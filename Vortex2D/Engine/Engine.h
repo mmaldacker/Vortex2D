@@ -11,19 +11,19 @@
 #include "Operator.h"
 #include "Shapes.h"
 #include "Extrapolation.h"
+#include "LevelSet.h"
+#include "Drawable.h"
 
 #include <vector>
 
 namespace Vortex2D { namespace Fluid {
-
-class LevelSet;
 
 /**
  * @brief The main class of the framework. Each instance manages a grid and this class
  * is used to set forces, define boundaries, solve the incompressbility equations and do the
  * advection.
  */
-class Engine
+class Engine : public Renderer::Drawable
 {
 public:
     /**
@@ -42,6 +42,11 @@ public:
      * @param object Drawable needs to draw with colour (1,0,0,0)
      */
     void RenderNeumann(Renderer::Drawable & object);
+
+    // FIXME add documentation
+    void RenderFluid(Renderer::Drawable & object);
+    void ReinitialiseDirichlet();
+    void ReinitialiseNeumann();
 
     /**
      * @brief Render velocity for neumann boundary (the user has to make sure it's aligned with the neumann boundary).
@@ -71,29 +76,46 @@ public:
      */
     void Solve();
 
+    /**
+     * @brief Renders the fluid region
+     */
+    void Render(Renderer::RenderTarget & target, const glm::mat4 & transform = glm::mat4()) override;
+
+    /**
+     * @brief Advect the fluid region, this is used to simulate water.
+     */
+    void Advect();
+
     Renderer::Rectangle TopBoundary;
     Renderer::Rectangle BottomBoundary;
     Renderer::Rectangle LeftBoundary;
     Renderer::Rectangle RightBoundary;
 
+    /**
+     * @brief the Colour to render the fluid region in
+     */
+    glm::vec4 Colour;
+
     friend class Water;
     friend class Density;
-private:
-    void RenderMask(Buffer & mask);
+//private:
     void Advect(Fluid::Buffer & buffer);
-    void Extrapolate();
+    void ExtrapolateFluid();
+    void ConstrainVelocity();
 
     Dimensions mDimensions;
 
     LinearSolver::Data mData;
     LinearSolver & mLinearSolver;
-
+ 
     Extrapolation mExtrapolation;
+    Operator mExtrapolateFluid;
+    Operator mConstrainVelocity;
 
     Buffer mVelocity;
-    Buffer mDirichletBoundaries;
-    Buffer mNeumannBoundaries;
     Buffer mBoundariesVelocity;
+    LevelSet mFluidLevelSet;
+    LevelSet mObstacleLevelSet;
 
     Operator mDiv;
     Operator mProject;
@@ -101,6 +123,9 @@ private:
 
     Operator mWeights;
     Operator mDiagonals;
+
+    Renderer::Program mFluidProgram;
+    Renderer::Uniform<glm::vec4> mColourUniform;
 };
 
 }}
