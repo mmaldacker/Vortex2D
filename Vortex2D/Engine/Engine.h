@@ -119,6 +119,7 @@ public:
 
     Operator mDiv;
     Operator mProject;
+    Operator mVelocityAdvect;
     Operator mAdvect;
 
     Operator mWeights;

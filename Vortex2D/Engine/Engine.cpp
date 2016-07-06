@@ -99,8 +99,8 @@ const char * ProjectFrag = GLSL(
         vec2 pGrad = vec2(p-pxn, p-pyn);
 
         float phi = texture(u_fluid, v_texCoord).x;
-        float phixn = textureOffset(u_fluid, v_texCoord, ivec2(-1, 0)).x;
-        float phiyn = textureOffset(u_fluid, v_texCoord, ivec2(0, -1)).x;
+        float phixn = textureOffset(u_fluid, v_texCoord, ivec2(-1,0)).x;
+        float phiyn = textureOffset(u_fluid, v_texCoord, ivec2(0,-1)).x;
 
         vec2 theta = vec2(fraction_inside(phi, phixn), fraction_inside(phi, phiyn));
         pGrad /= max(theta, 0.01);
@@ -163,9 +163,9 @@ const char * WeightsFrag = GLSL(
         float cyn = textureOffset(u_obstacles, v_texCoord, ivec2(0,-2)).x;
 
         float pxp = textureOffset(u_fluid, v_texCoord, ivec2(1,0)).x;
-        float pxn = textureOffset(u_fluid, v_texCoord, ivec2(-1, 0)).x;
-        float pyp = textureOffset(u_fluid, v_texCoord, ivec2(0, 1)).x;
-        float pyn = textureOffset(u_fluid, v_texCoord, ivec2(0, -1)).x;
+        float pxn = textureOffset(u_fluid, v_texCoord, ivec2(-1,0)).x;
+        float pyp = textureOffset(u_fluid, v_texCoord, ivec2(0,1)).x;
+        float pyn = textureOffset(u_fluid, v_texCoord, ivec2(0,-1)).x;
 
         vec4 weights;
         weights.x = pxp >= 0.0 ? 0.0 : fraction_inside(c, cxp);
@@ -213,9 +213,9 @@ const char * DiagonalsFrag = GLSL(
 
         float p = texture(u_fluid, v_texCoord).x;
         float pxp = textureOffset(u_fluid, v_texCoord, ivec2(1,0)).x;
-        float pxn = textureOffset(u_fluid, v_texCoord, ivec2(-1, 0)).x;
-        float pyp = textureOffset(u_fluid, v_texCoord, ivec2(0, 1)).x;
-        float pyn = textureOffset(u_fluid, v_texCoord, ivec2(0, -1)).x;
+        float pxn = textureOffset(u_fluid, v_texCoord, ivec2(-1,0)).x;
+        float pyp = textureOffset(u_fluid, v_texCoord, ivec2(0,1)).x;
+        float pyn = textureOffset(u_fluid, v_texCoord, ivec2(0,-1)).x;
 
         vec4 theta;
         theta.x = fraction_inside(p, pxp);
@@ -300,6 +300,40 @@ const char * AdvectFrag = GLSL(
     in vec2 v_texCoord;
     out vec4 out_color;
 
+    vec2 get_velocity(ivec2 pos)
+    {
+       vec2 uv = texelFetch(u_velocity, pos, 0).xy;
+       float up = texelFetch(u_velocity, pos + ivec2(1,0), 0).x;
+       float vp = texelFetch(u_velocity, pos + ivec2(0,1), 0).y;
+
+       return vec2(uv.x + up, uv.y + vp) * 0.5;
+    }
+
+    vec4[16] get_velocity_samples(ivec2 ij)
+    {
+       vec4 t[16];
+       for(int j = 0 ; j < 4 ; ++j)
+       {
+           for(int i = 0 ; i < 4 ; ++i)
+           {
+               t[i + 4*j] = vec4(get_velocity(ij + ivec2(i,j)), 0.0, 0.0);
+           }
+       }
+       return t;
+    }
+
+    vec4[16] get_samples(ivec2 ij)
+    {
+       vec4 t[16];
+       for(int j = 0 ; j < 4 ; ++j)
+       {
+           for(int i = 0 ; i < 4 ; ++i)
+           {
+               t[i + 4*j] = texelFetch(u_texture, ij + ivec2(i,j), 0);
+           }
+       }
+       return t;
+    }
 
     vec4 cubic(vec4 f1, vec4 f2, vec4 f3, vec4 f4, float xd)
     {
@@ -312,19 +346,8 @@ const char * AdvectFrag = GLSL(
        f4*(               - 0.5*xd2 + 0.5*xd3);
     }
 
-    vec4 bicubic(sampler2D u_texture, vec2 xy)
+    vec4 bicubic(vec4 t[16], vec2 f)
     {
-       ivec2 ij = ivec2(floor(xy)) - 1;
-       vec2 f = xy - (ij + 1);
-
-       vec4 t[16];
-       for(int j = 0 ; j < 4 ; ++j)
-       {
-           for(int i = 0 ; i < 4 ; ++i)
-           {
-               t[i + 4*j] = texelFetch(u_texture, ij + ivec2(i,j), 0);
-           }
-       }
        
        vec4 x = cubic(
                       cubic(t[0], t[4], t[8], t[12], f.y),
@@ -340,6 +363,22 @@ const char * AdvectFrag = GLSL(
        return clamp(x, minValue, maxValue);
     }
 
+    vec2 interpolate_velocity(vec2 xy)
+    {
+       ivec2 ij = ivec2(floor(xy)) - 1;
+       vec2 f = xy - (ij + 1);
+
+       return bicubic(get_velocity_samples(ij), f).xy;
+    }
+
+    vec4 interpolate(vec2 xy)
+    {
+       ivec2 ij = ivec2(floor(xy)) - 1;
+       vec2 f = xy - (ij + 1);
+
+       return bicubic(get_samples(ij), f);
+    }
+
     const float a = 2.0/9.0;
     const float b = 3.0/9.0;
     const float c = 4.0/9.0;
@@ -348,14 +387,13 @@ const char * AdvectFrag = GLSL(
     {
        vec2 pos = gl_FragCoord.xy - 0.5;
        
-       vec2 k1 = texture(u_velocity, v_texCoord).xy;
-       vec2 k2 = bicubic(u_velocity, pos - 0.5*delta*k1).xy;
-       vec2 k3 = bicubic(u_velocity, pos - 0.75*delta*k2).xy;
+       vec2 k1 = get_velocity(ivec2(pos));
+       vec2 k2 = interpolate_velocity(pos - 0.5*delta*k1);
+       vec2 k3 = interpolate_velocity(pos - 0.75*delta*k2);
        
-       out_color = bicubic(u_texture, pos - a*delta*k1 - b*delta*k2 - c*delta*k3);
+       out_color = interpolate(pos - a*delta*k1 - b*delta*k2 - c*delta*k3);
     }
-    );
-
+);
 
 const char * ExtrapolateFluidFrag = GLSL(
      uniform sampler2D u_fluid;
@@ -368,7 +406,7 @@ const char * ExtrapolateFluidFrag = GLSL(
      {
          float f = texture(u_fluid, v_texCoord).x;
          float o = texture(u_obstacles, v_texCoord).x;
-         if(f <= 1.0 && f >= 0.0 && o >= 0.0)
+         if(f <= 1.0 && f > 0.0 && o >= 0.0)
          {
             out_color = vec4(-1.0, 0.0, 0.0, 0.0);
          }
@@ -441,6 +479,7 @@ Engine::Engine(Dimensions dimensions, LinearSolver & linearSolver, float dt)
     , mObstacleLevelSet(glm::vec2(2.0f)*dimensions.Size)
     , mDiv(Renderer::Shader::TexturePositionVert, DivFrag)
     , mProject(Renderer::Shader::TexturePositionVert, ProjectFrag)
+    , mVelocityAdvect(Renderer::Shader::TexturePositionVert, AdvectVelocityFrag)
     , mAdvect(Renderer::Shader::TexturePositionVert, AdvectFrag)
     , mWeights(Renderer::Shader::TexturePositionVert, WeightsFrag)
     , mDiagonals(Renderer::Shader::TexturePositionVert, DiagonalsFrag)
@@ -456,6 +495,7 @@ Engine::Engine(Dimensions dimensions, LinearSolver & linearSolver, float dt)
     mProject.Use().Set("u_velocity", 0).Set("u_pressure", 1).Set("u_fluid", 2).Set("u_obstacles", 3).Set("u_obstacles_velocity", 4).Set("delta", dt).Unuse();
     mWeights.Use().Set("u_obstacles", 0).Set("u_fluid", 1).Set("delta", dt).Unuse();
     mDiagonals.Use().Set("u_obstacles", 0).Set("u_fluid", 1).Set("delta", dt).Unuse();
+    mVelocityAdvect.Use().Set("delta", dt).Set("u_velocity", 0).Unuse();
     mAdvect.Use().Set("delta", dt).Set("u_texture", 0).Set("u_velocity", 1).Unuse();
     mFluidProgram.Use().Set("u_texture", 0).Unuse();
 
@@ -504,7 +544,7 @@ void Engine::Solve()
 
     //ConstrainVelocity();
 
-    Advect(mVelocity);
+    mVelocity.Swap() = mVelocityAdvect(Back(mVelocity));
 }
 
 void Engine::RenderDirichlet(Renderer::Drawable & object)
@@ -566,7 +606,7 @@ void Engine::ReinitialiseNeumann()
 void Engine::Advect(Fluid::Buffer & buffer)
 {
     Renderer::Disable d(GL_BLEND);
-    buffer.Swap() = mAdvect(Back(buffer), Back(mVelocity));
+    buffer.Swap() = mAdvect(Back(buffer), mVelocity);
 }
 
 void Engine::Render(Renderer::RenderTarget & target, const glm::mat4 & transform)
