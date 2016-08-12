@@ -86,10 +86,10 @@ Shader & Shader::Compile()
     {
 		GLsizei length;
 		glGetShaderiv(mShader, GL_INFO_LOG_LENGTH, &length);
-		GLchar src[length];
+		std::vector<GLchar> src(length);
 
-		glGetShaderInfoLog(mShader, length, NULL, src);
-		throw std::runtime_error("Error compiling shader: \n" + std::string(src));
+		glGetShaderInfoLog(mShader, length, NULL, src.data());
+		throw std::runtime_error("Error compiling shader: \n" + std::string(src.data()));
 	}
 
     return *this;
@@ -177,10 +177,10 @@ Program & Program::Link()
     {
 		GLsizei length;
 		glGetProgramiv(mProgram, GL_INFO_LOG_LENGTH, &length);
-		GLchar src[length];
+		std::vector<GLchar> src(length);
 
-		glGetProgramInfoLog(mProgram, length, NULL, src);
-		throw std::runtime_error("Error linking program: " + std::string(src));
+		glGetProgramInfoLog(mProgram, length, NULL, src.data());
+		throw std::runtime_error("Error linking program: " + std::string(src.data()));
     }
     
     return *this;

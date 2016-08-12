@@ -6,6 +6,9 @@
 #ifndef Vortex_Common_h
 #define Vortex_Common_h
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include <GL/glew.h>
 
 #include <vector>

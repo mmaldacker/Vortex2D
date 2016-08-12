@@ -1,12 +1,9 @@
 file(GLOB EXAMPLES_SOURCES "*.h" "*.cpp")
 
-find_package(PkgConfig REQUIRED)
-pkg_search_module(GLFW REQUIRED glfw3)
-include_directories(${GLFW_INCLUDE_DIRS})
-link_directories(${GLFW_LIBRARY_DIRS})
+find_package(glfw3 REQUIRED)
 
 add_executable(vortex2d_examples ${EXAMPLES_SOURCES})
-target_link_libraries(vortex2d_examples vortex2d ${GLFW_LIBRARIES})
+target_link_libraries(vortex2d_examples vortex2d glfw)
 
 if(APPLE)
 	find_library(COCOA_FRAMEWORK Cocoa)

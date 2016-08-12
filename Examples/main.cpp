@@ -7,6 +7,7 @@
 #include "ScaleWaterExample.h"
 
 #include <iostream>
+#include <memory>
 #include <GLFW/glfw3.h>
 
 std::unique_ptr<BaseExample> example;

@@ -6,7 +6,7 @@ file(GLOB LIB_SOURCES "Engine/*.cpp"
 					  "Renderer/*.cpp" 
 					  "Renderer/*.h")
 
-find_package(GLM REQUIRED)
+find_package(glm REQUIRED)
 include_directories(${GLM_INCLUDE_DIRS})
 
 find_package(OpenGL REQUIRED)

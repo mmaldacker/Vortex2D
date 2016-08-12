@@ -68,14 +68,14 @@ public:
     }
 
 private:
-    template<typename T, typename ... Args, REQUIRES(std::is_same<T, Buffer&>())>
+	template<typename T, typename ... Args, REQUIRES(std::is_same<T, Buffer&>::value) >
     void BindHelper(int unit, T && input, Args && ... args)
     {
         Front(input).Bind(unit);
         BindHelper(unit+1, std::forward<Args>(args)...);
     }
 
-    template<typename T, typename ... Args, REQUIRES(std::is_same<T, Back>())>
+	template<typename T, typename ... Args, REQUIRES(std::is_same<T, Back>::value) >
     void BindHelper(int unit, T && input, Args && ... args)
     {
         input.Bind(unit);
