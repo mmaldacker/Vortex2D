@@ -82,58 +82,25 @@ const char * ExtrapolateMaskFrag = GLSL(
     }
 );
 
-const char * BoundaryMaskFrag = GLSL(
-     in vec2 v_texCoord;
-
-     uniform sampler2D u_dirichlet;
-     uniform sampler2D u_neumann;
-
-     void main()
-     {
-         float x = texture(u_dirichlet, v_texCoord).x;
-         float y = texture(u_neumann, v_texCoord).x;
-         
-         if(x < 1.0 && y < 1.0)
-         {
-             discard;
-         }
-     }
-);
-
 Extrapolation::Extrapolation(Dimensions dimensions)
     : mExtrapolateValid(dimensions.Size, 1, true, true)
     , mIdentity(Renderer::Shader::TexturePositionVert, Renderer::Shader::TexturePositionFrag)
     , mExtrapolate(Renderer::Shader::TexturePositionVert, ExtrapolateFrag)
     , mExtrapolateMask(Renderer::Shader::TexturePositionVert, ExtrapolateMaskFrag)
-    , mBoundaryMask(Renderer::Shader::TexturePositionVert, BoundaryMaskFrag)
     , mSurface(dimensions.Size)
 {
     mIdentity.Use().Set("u_texture", 0).Unuse();
     mExtrapolate.Use().Set("u_mask", 0).Set("u_texture", 1).Unuse();
     mExtrapolateMask.Use().Set("u_mask", 0).Unuse();
-    mBoundaryMask.Use().Set("u_dirichlet", 0).Set("u_neumann", 1).Unuse();
 }
 
-void Extrapolation::RenderMask(Buffer & buffer, Buffer & dirichlet, Buffer & neumann)
-{
-    Renderer::Enable e(GL_STENCIL_TEST);
-    Renderer::DisableColorMask c;
-
-    glStencilFunc(GL_ALWAYS, 1, 0xFF); // write 1 in stencil buffer
-    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); // replace value with above
-    glStencilMask(0xFF); // enable stencil writing
-
-    buffer = mBoundaryMask(dirichlet, neumann);
-
-    glStencilMask(0x00); // disable stencil writing
-}
-
-void Extrapolation::Extrapolate(Buffer & buffer, Buffer & dirichlet, Buffer & neumann)
+void Extrapolation::Extrapolate(Buffer & buffer, LevelSet & neumann, LevelSet & dirichlet)
 {
     mExtrapolateValid.Clear(glm::vec4(0.0));
     mExtrapolateValid.ClearStencil();
-    RenderMask(mExtrapolateValid, dirichlet, neumann);
-    RenderMask(mExtrapolateValid.Swap(), dirichlet, neumann);
+
+    neumann.RenderMask(mExtrapolateValid);
+    dirichlet.RenderMask(mExtrapolateValid);
 
     buffer.Swap() = mIdentity(Back(buffer));
 

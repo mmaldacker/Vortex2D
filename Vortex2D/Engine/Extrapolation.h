@@ -9,6 +9,7 @@
 #include "Operator.h"
 #include "Buffer.h"
 #include "Shapes.h"
+#include "LevelSet.h"
 
 namespace Vortex2D { namespace Fluid {
 
@@ -24,13 +25,7 @@ public:
      * @brief Will extrapolate values from buffer into the dirichlet and neumann boundaries
      * @param buffer needs to be double-buffered and with stencil buffer
      */
-    void Extrapolate(Buffer & buffer, Buffer & dirichlet, Buffer & neumann);
-
-    /**
-     * @brief Will set the stencil mask of buffer to the dirichlet and neumann boundaries
-     * @param buffer needs have stencil buffer
-     */
-    void RenderMask(Buffer & buffer, Buffer & dirichlet, Buffer & neumann);
+    void Extrapolate(Buffer & buffer, LevelSet & neumann, LevelSet & dirichlet);
 
 private:
     Buffer mExtrapolateValid;
@@ -38,7 +33,6 @@ private:
     Operator mIdentity;
     Operator mExtrapolate;
     Operator mExtrapolateMask;
-    Operator mBoundaryMask;
 
     Renderer::Rectangle mSurface;
 };

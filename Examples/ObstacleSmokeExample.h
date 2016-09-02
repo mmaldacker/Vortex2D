@@ -36,6 +36,7 @@ public:
 
         obstacle.Colour = glm::vec4(1.0);
         engine.RenderNeumann(obstacle);
+        engine.ReinitialiseNeumann();
     }
 
     void Frame() override

@@ -34,7 +34,7 @@ public:
     {
         engine.ClearBoundaries();
         engine.ClearVelocities();
-        
+
         engine.RenderNeumann(engine.TopBoundary);
         engine.RenderNeumann(engine.BottomBoundary);
         engine.RenderNeumann(engine.LeftBoundary);
@@ -42,11 +42,12 @@ public:
 
         obstacle.Colour = glm::vec4(1.0);
         engine.RenderNeumann(obstacle);
+        engine.ReinitialiseNeumann();
 
         glm::vec2 pos = obstacle.Position;
         if(pos.y < 400.0f)
         {
-            obstacle.Position = force.Position = pos + glm::vec2{0.0f,speed};
+            obstacle.Position = force.Position = pos + glm::vec2(0.0f,speed);
             engine.RenderVelocities(force);
         }
 
