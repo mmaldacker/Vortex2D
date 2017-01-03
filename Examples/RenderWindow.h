@@ -7,23 +7,24 @@
 #define RenderWindow_h
 
 #include "RenderTarget.h"
+#include <GLFW/glfw3.h>
 
-struct RenderWindow : Vortex2D::Renderer::RenderTarget
+class RenderWindow : public Vortex2D::Renderer::RenderTarget
 {
-    RenderWindow(int width, int height) : Vortex2D::Renderer::RenderTarget(width, height)
-    {
-    }
+public:
+    RenderWindow(int width, int height, const std::string & name = "Window", RenderWindow * share = nullptr);
 
-    void Clear(const glm::vec4 & colour)
-    {
-        glClearColor(colour.r, colour.g, colour.b, colour.a);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    }
+    virtual ~RenderWindow();
 
-    void Render(Vortex2D::Renderer::Drawable & object, const glm::mat4 & transform)
-    {
-        object.Render(*this, transform);
-    }
+    void MakeCurrent();
+    void Clear(const glm::vec4 & colour);
+    void Render(Vortex2D::Renderer::Drawable & object, const glm::mat4 & transform);
+    void Display();
+    bool ShouldClose();
+    void SetKeyCallback(GLFWkeyfun cbfun);
+
+private:
+	GLFWwindow * mWindow;
 };
 
 #endif /* RenderWindow_h */

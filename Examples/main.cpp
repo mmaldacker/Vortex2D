@@ -5,6 +5,7 @@
 #include "WaterExample.h"
 #include "VelocitySmokeExample.h"
 #include "ScaleWaterExample.h"
+#include "LineIntegralConvolution.h"
 
 #include <iostream>
 #include <memory>
@@ -54,47 +55,33 @@ int main(int argc, const char * argv[])
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
+	auto colour = glm::vec4{ 99.0f,96.0f,93.0f,255.0f } / glm::vec4(255.0f);
     glm::vec2 size = {500,500};
-
-    GLFWwindow * window = glfwCreateWindow(size.x, size.y, "Vortex2D Examples", NULL, NULL);
-
-    glfwMakeContextCurrent(window);
-
-    glewExperimental = GL_TRUE; //stops glew crashing on OSX :-/
-    if(glewInit() != GLEW_OK)
-        throw std::runtime_error("glewInit failed");
-
-    glfwSetKeyCallback(window, key_callback);
-
-    glViewport(0, 0, size.x, size.y);
-
-    glfwSwapInterval(1);
-
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    auto colour = glm::vec4{99.0f,96.0f,93.0f,255.0f}/glm::vec4(255.0f);
-
-    glDisable(GL_DEPTH_TEST);
-
+	
+	RenderWindow mainWindow(size.x, size.y, "Vortex2D Examples");
+	mainWindow.SetKeyCallback(key_callback);
     example.reset(new SmokeExample());
 
-    RenderWindow renderWindow(size.x, size.y);
+	RenderWindow debugWindow(size.x, size.y, "Debug Window", &mainWindow);
+    Vortex2D::Fluid::LineIntegralConvolution lic(size);
 
-    while (!glfwWindowShouldClose(window))
+    while (!mainWindow.ShouldClose() && !debugWindow.ShouldClose())
     {
         glfwPollEvents();
 
-        example->Frame();
+		mainWindow.MakeCurrent();
+		example->Frame();
+		mainWindow.Clear(colour);
+		example->Render(mainWindow);
+		mainWindow.Display();
 
-        renderWindow.Clear(colour);
-        example->Render(renderWindow);
-
-        glfwSwapBuffers(window);
+		debugWindow.MakeCurrent();
+		debugWindow.Clear(colour);
+        lic.Render(debugWindow);
+		debugWindow.Display();
     }
-
-    glfwDestroyWindow(window);
 
     glfwTerminate();
 }

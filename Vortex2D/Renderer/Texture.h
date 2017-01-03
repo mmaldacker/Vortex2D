@@ -18,12 +18,10 @@ class Texture
 public:
     enum class PixelFormat
     {
-        // 32-bit texture: RGBA8888
+        // 8-bit texture: RGBA8888
         RGBA8888,
-        // 32-bit texture: RGB888
+        // 8-bit texture: RGB888
         RGB888,
-        // 16-bit texture without Alpha channel
-        RGB565,
         // 32-bit float texture
         RGBAF,
         // 32-bit float texture

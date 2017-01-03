@@ -82,15 +82,15 @@ Shader & Shader::Compile()
     GLint status;
     glGetShaderiv(mShader, GL_COMPILE_STATUS, &status);
 
-	if(!status)
+    if(!status)
     {
-		GLsizei length;
-		glGetShaderiv(mShader, GL_INFO_LOG_LENGTH, &length);
-		std::vector<GLchar> src(length);
+        GLsizei length;
+        glGetShaderiv(mShader, GL_INFO_LOG_LENGTH, &length);
+        std::vector<GLchar> src(length);
 
-		glGetShaderInfoLog(mShader, length, NULL, src.data());
-		throw std::runtime_error("Error compiling shader: \n" + std::string(src.data()));
-	}
+        glGetShaderInfoLog(mShader, length, NULL, src.data());
+        throw std::runtime_error("Error compiling shader: \n" + std::string(src.data()));
+    }
 
     return *this;
 }
@@ -105,7 +105,8 @@ FragmentShader::FragmentShader() : Shader(glCreateShader(GL_FRAGMENT_SHADER))
 
 int Program::CurrentProgram = 0;
 
-Program::Program(const char * vertexSource, const char * fragmentSource) : mProgram(glCreateProgram())
+Program::Program(const char * vertexSource, const char * fragmentSource)
+    : mProgram(glCreateProgram())
 {
     VertexShader vertex;
     vertex.Source(vertexSource).Compile();
@@ -166,7 +167,7 @@ Program & Program::AttachFeedback(const std::vector<const GLchar*> & varyings)
 
 Program & Program::Link()
 {
-	glBindAttribLocation(mProgram, Shader::Position, Shader::PositionName);
+    glBindAttribLocation(mProgram, Shader::Position, Shader::PositionName);
     glBindAttribLocation(mProgram, Shader::TexCoords, Shader::TexCoordsName);
 
     glLinkProgram(mProgram);
@@ -175,14 +176,14 @@ Program & Program::Link()
     glGetProgramiv(mProgram, GL_LINK_STATUS, &status);
     if(!status)
     {
-		GLsizei length;
-		glGetProgramiv(mProgram, GL_INFO_LOG_LENGTH, &length);
-		std::vector<GLchar> src(length);
+        GLsizei length;
+        glGetProgramiv(mProgram, GL_INFO_LOG_LENGTH, &length);
+        std::vector<GLchar> src(length);
 
-		glGetProgramInfoLog(mProgram, length, NULL, src.data());
-		throw std::runtime_error("Error linking program: " + std::string(src.data()));
+        glGetProgramInfoLog(mProgram, length, NULL, src.data());
+        throw std::runtime_error("Error linking program: " + std::string(src.data()));
     }
-    
+
     return *this;
 }
 
@@ -193,7 +194,7 @@ Program & Program::Use()
         CurrentProgram = mProgram;
         glUseProgram(mProgram);
     }
-    
+
     return *this;
 }
 

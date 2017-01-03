@@ -75,15 +75,22 @@ private:
     void BindHelper(int unit, T && input, Args && ... args)
     {
         Front(input).Bind(unit);
-        BindHelper(unit+1, std::forward<Args>(args)...);
+        BindHelper(unit + 1, std::forward<Args>(args)...);
     }
 
 	template<typename T, typename ... Args, REQUIRES(std::is_same<T, Back>::value)>
     void BindHelper(int unit, T && input, Args && ... args)
     {
         input.Bind(unit);
-        BindHelper(unit+1, std::forward<Args>(args)...);
+        BindHelper(unit + 1, std::forward<Args>(args)...);
     }
+
+	template<typename T, typename ... Args, REQUIRES(std::is_same<T,Renderer::Texture&>::value)>
+	void BindHelper(int unit, T && input, Args && ... args)
+	{
+		input.Bind(unit);
+		BindHelper(unit + 1, std::forward<Args>(args)...);
+	}
 
     void BindHelper(int unit)
     {

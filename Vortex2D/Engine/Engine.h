@@ -96,7 +96,6 @@ public:
      */
     glm::vec4 Colour;
 
-    friend class Water;
     friend class Density;
 //private:
     void Advect(Fluid::Buffer & buffer);

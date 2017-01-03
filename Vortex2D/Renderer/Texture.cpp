@@ -38,9 +38,6 @@ Texture::Texture(int width, int height, PixelFormat pixelFormat, const void * da
         case PixelFormat::RGB888:
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (GLsizei) width, (GLsizei) height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
             break;
-        case PixelFormat::RGB565:
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (GLsizei) width, (GLsizei) height, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, data);
-            break;
         case PixelFormat::RGBAF:
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei) width, (GLsizei) height, 0, GL_RGBA, GL_FLOAT, data);
             break;
