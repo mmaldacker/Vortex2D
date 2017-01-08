@@ -39,19 +39,17 @@ Texture::Texture(int width, int height, PixelFormat pixelFormat, const void * da
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (GLsizei) width, (GLsizei) height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
             break;
         case PixelFormat::RGBAF:
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei) width, (GLsizei) height, 0, GL_RGBA, GL_FLOAT, data);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, (GLsizei) width, (GLsizei) height, 0, GL_RGBA, GL_FLOAT, data);
             break;
         case PixelFormat::RGBF:
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (GLsizei) width, (GLsizei) height, 0, GL_RGB, GL_FLOAT, data);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, (GLsizei) width, (GLsizei) height, 0, GL_RGB, GL_FLOAT, data);
             break;
         case PixelFormat::RGF:
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RG, (GLsizei) width, (GLsizei) height, 0, GL_RG, GL_FLOAT, data);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, (GLsizei) width, (GLsizei) height, 0, GL_RG, GL_FLOAT, data);
             break;
         case PixelFormat::RF:
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, (GLsizei) width, (GLsizei) height, 0, GL_RED, GL_FLOAT, data);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, (GLsizei) width, (GLsizei) height, 0, GL_RED, GL_FLOAT, data);
             break;
-        default:
-            throw std::runtime_error("Unkown pixel format");
     }
 
     Unbind();

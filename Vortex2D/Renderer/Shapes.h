@@ -53,7 +53,7 @@ private:
     GLuint mVertexBuffer;
     GLuint mVertexArray;
 
-    uint32_t mNumVertices;
+    GLsizei mNumVertices;
 
     Uniform<glm::vec4> mColourUniform;
     Program * mProgram;
@@ -76,8 +76,9 @@ struct Rectangle : Shape
 /**
  * @brief A solid colour rectangle defined by a triangle fan. Implements the Drawable interface and Transformable interface.
  */
-struct Circle : Shape
+class Circle : public Shape
 {
+public:
     Circle() = default;
     Circle(float size);
 
@@ -85,6 +86,11 @@ struct Circle : Shape
      * @brief Sets the circle radius
      */
     void SetCircle(float size);
+
+    void Render(RenderTarget& target, const glm::mat4& transform = glm::mat4()) override;
+
+private:
+    Program mProgram;
 };
 
 }}

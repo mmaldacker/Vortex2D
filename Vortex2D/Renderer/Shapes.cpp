@@ -5,9 +5,42 @@
 
 #include "Shapes.h"
 #include "RenderTarget.h"
+#include "Disable.h"
 #include <limits>
 
 namespace Vortex2D { namespace Renderer {
+
+namespace
+{
+
+const char * CircleVert = GLSL(
+    in vec2 a_Position;
+
+    uniform mat4 u_Projection;
+    uniform float u_radius;
+
+    void main()
+    {
+        gl_PointSize = u_radius;
+        gl_Position = u_Projection * vec4(a_Position, 0.0, 1.0);
+    }
+);
+
+const char * CircleFrag = GLSL(
+    out vec4 out_color;
+
+    uniform vec4 u_Colour;
+
+    void main()
+    {
+        vec2 pos = 2.0 * (gl_PointCoord - 0.5);
+        float distance = dot(pos, pos);
+        float factor = 1.0 - step(1.0, distance);
+        out_color = u_Colour * factor;
+    }
+);
+
+}
 
 Shape::Shape()
     : mNumVertices(0)
@@ -62,12 +95,12 @@ void Shape::SetProgram(Program & program)
 
 void Shape::Set(const Path & path)
 {
-    mNumVertices = (uint32_t)path.size();
+    mNumVertices = (GLsizei)path.size();
 
     if(mNumVertices > 0)
     {
         glBindBuffer(GL_ARRAY_BUFFER, mVertexBuffer);
-        glBufferData(GL_ARRAY_BUFFER, 2*mNumVertices*sizeof(path[0][0]), &path[0][0], GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, 2u*mNumVertices*sizeof(path[0][0]), &path[0][0], GL_DYNAMIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 }
@@ -99,39 +132,24 @@ void Rectangle::SetRectangle(const glm::vec2 &size)
     Set({{0.0f, 0.0f}, {size.x, 0.0f}, {0.0f, size.y}, {size.x, 0.0f,}, {size.x, size.y}, {0.0f, size.y}});
 }
 
-int GetNumSegments(float size)
-{
-    return 6.0f * std::sqrt(size);
-}
-
-Path MakeCircle(float radius)
-{
-    int segs = GetNumSegments(radius);
-
-    Path circle;
-    const float coef = 2.0f * (float)M_PI/segs;
-
-    circle.emplace_back(radius, radius);
-    for(int i = 0;i <= segs; i++)
-    {
-        float rads = i*coef;
-        int j = radius * cosf(rads);
-        int k = radius * sinf(rads);
-        circle.emplace_back(j+radius,k+radius);
-    }
-    
-    return circle;
-}
-
 Circle::Circle(float size)
+    : mProgram(CircleVert, CircleFrag)
 {
+    SetProgram(mProgram);
     SetCircle(size);
 }
 
 void Circle::SetCircle(float size)
 {
-    SetType(GL_TRIANGLE_FAN);
-    Set(MakeCircle(size));
+    SetType(GL_POINTS);
+    Set({{size,size}});
+    mProgram.Use().Set("u_radius", size).Unuse();
+}
+
+void Circle::Render(RenderTarget& target, const glm::mat4& transform)
+{
+    Enable e(GL_PROGRAM_POINT_SIZE);
+    Shape::Render(target, transform);
 }
 
 }}
