@@ -15,7 +15,7 @@ class VelocitySmokeExample : public BaseExample
 {
 public:
     VelocitySmokeExample()
-    : BaseExample({glm::vec2(500), 1.0}, 0.033)
+    : BaseExample({glm::vec2(500), 1.0}, 0.033f)
     , obstacle({50.0f, 50.0f}), force({50.0f, 50.0f})
     , density(dimensions)
     {

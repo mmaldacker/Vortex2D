@@ -14,9 +14,9 @@ class ObstacleSmokeExample : public BaseExample
 {
 public:
     ObstacleSmokeExample()
-    : BaseExample({glm::vec2(500), 1.0}, 0.033)
-    , source(20.0f)
-    , force(20.0f)
+    : BaseExample({glm::vec2(500), 1.0}, 0.033f)
+    , source(glm::vec2(20.0f))
+    , force(glm::vec2(20.0f))
     , obstacle({100.0f, 50.0f})
     , density(dimensions)
     {
@@ -57,7 +57,7 @@ public:
     }
 
 private:
-    Vortex2D::Renderer::Circle source, force;
+    Vortex2D::Renderer::Ellipse source, force;
     Vortex2D::Renderer::Rectangle obstacle;
     Vortex2D::Fluid::Density density;
 

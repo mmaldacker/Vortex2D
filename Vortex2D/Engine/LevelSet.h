@@ -12,7 +12,11 @@
 
 namespace Vortex2D { namespace Fluid {
 
-// FIXME documentation
+/**
+ * @brief A LevelSet class, which extends the Buffer class, with one dimension
+ * The additional functionality ensures that the buffer represents a distance set.
+ * This set can be reinitialised (or improved).
+ */
 class LevelSet : public Buffer
 {
 public:
@@ -20,7 +24,14 @@ public:
 
     using Buffer::operator=;
 
-    void Redistance(bool reinitialise = false);
+    /**
+     * @brief Iterative improvements to transform buffer into distance function
+     * @param iterations number of iterations (1-3 after advection, 100 for reinitialisation)
+     */
+    void Redistance(int iterations);
+
+    void Render(Renderer::Drawable & object, const glm::mat4 & transform = glm::mat4()) override;
+
     void RenderMask(Buffer & buffer);
 
 private:

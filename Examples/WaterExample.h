@@ -12,7 +12,7 @@ class WaterExample : public BaseExample
 {
 public:
     WaterExample()
-    : BaseExample({glm::vec2(500), 1.0f}, 0.033)
+    : BaseExample({glm::vec2(500), 1.0f}, 0.033f)
         , gravity(glm::vec2(500))
         , obstacle1({100,100}), obstacle2({100,100})
     {

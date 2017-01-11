@@ -83,7 +83,7 @@ public:
     friend struct Front;
 private:
     void Add(const glm::vec2 & size, unsigned components, bool depth);
-    
+
     // of size 1 or 2
     std::vector<Renderer::RenderTexture> mTextures;
     Renderer::Sprite mSprite;
@@ -109,7 +109,7 @@ struct Back
     explicit Back(Buffer & b) : buffer(b) {}
 
     void Bind(int n) { buffer.mTextures.back().Bind(n); }
-    
+
     Buffer & buffer;
 };
 

@@ -11,6 +11,8 @@
 
 namespace Vortex2D { namespace Fluid {
 
+namespace {
+
 const char * DivFrag = GLSL(
     uniform sampler2D u_velocity;
     uniform sampler2D u_obstacles;
@@ -60,7 +62,7 @@ const char * DivFrag = GLSL(
 
         div += ((h_cxp+c-1.0)*solid_uxp - (h_cxn+c-1.0)*solid_uv.x + (h_cyp+c-1.0)*solid_vyp - (h_cyn+c-1.0)*solid_uv.y) / dx;
         */
-        
+
         //pressure, div, 0, 0
         out_color = vec4(0.0, div, 0.0, 0.0);
     }
@@ -128,7 +130,7 @@ const char * ProjectFrag = GLSL(
             mask.y = 0.0;
             obsV.y = textureOffset(u_obstacles_velocity, v_texCoord, ivec2(0,-1)).y;
         }
-        
+
         float dx = 1.0;
         vec2 new_cell = cell - delta * pGrad / dx;
         out_color = vec4(mask * new_cell + obsV, 0.0, 0.0);
@@ -348,7 +350,7 @@ const char * AdvectFrag = GLSL(
 
     vec4 bicubic(vec4 t[16], vec2 f)
     {
-       
+
        vec4 x = cubic(
                       cubic(t[0], t[4], t[8], t[12], f.y),
                       cubic(t[1], t[5], t[9], t[13], f.y),
@@ -356,10 +358,10 @@ const char * AdvectFrag = GLSL(
                       cubic(t[3], t[7], t[11], t[15], f.y),
                       f.x
                       );
-       
+
        vec4 maxValue = max(max(t[5], t[6]), max(t[9], t[10]));
        vec4 minValue = min(min(t[5], t[6]), min(t[9], t[10]));
-       
+
        return clamp(x, minValue, maxValue);
     }
 
@@ -386,11 +388,11 @@ const char * AdvectFrag = GLSL(
     void main(void)
     {
        vec2 pos = gl_FragCoord.xy - 0.5;
-       
+
        vec2 k1 = get_velocity(ivec2(pos));
        vec2 k2 = interpolate_velocity(pos - 0.5*delta*k1);
        vec2 k3 = interpolate_velocity(pos - 0.75*delta*k2);
-       
+
        out_color = interpolate(pos - a*delta*k1 - b*delta*k2 - c*delta*k3);
     }
 );
@@ -462,11 +464,13 @@ const char * FluidFrag = GLSL(
     }
 );
 
+}
+
 Engine::Engine(Dimensions dimensions, LinearSolver & linearSolver, float dt)
-    : TopBoundary(glm::vec2(dimensions.Size.x, 1.0f))
-    , BottomBoundary(glm::vec2(dimensions.Size.x, 1.0f))
-    , LeftBoundary(glm::vec2(1.0f, dimensions.Size.y))
-    , RightBoundary(glm::vec2(1.0f, dimensions.Size.y))
+    : TopBoundary(glm::vec2(dimensions.Scale)*glm::vec2(dimensions.Size.x, 1.0f))
+    , BottomBoundary(glm::vec2(dimensions.Scale)*glm::vec2(dimensions.Size.x, 1.0f))
+    , LeftBoundary(glm::vec2(dimensions.Scale)*glm::vec2(1.0f, dimensions.Size.y))
+    , RightBoundary(glm::vec2(dimensions.Scale)*glm::vec2(1.0f, dimensions.Size.y))
     , mDimensions(dimensions)
     , mData(dimensions.Size)
     , mLinearSolver(linearSolver)
@@ -505,9 +509,9 @@ Engine::Engine(Dimensions dimensions, LinearSolver & linearSolver, float dt)
     TopBoundary.Colour = BottomBoundary.Colour = LeftBoundary.Colour = RightBoundary.Colour = glm::vec4(1.0f);
 
     TopBoundary.Position = {0.0f, 0.0f};
-    BottomBoundary.Position = glm::vec2(0.0f, dimensions.Size.y - 1.0f);
+    BottomBoundary.Position = glm::vec2(dimensions.Scale)*glm::vec2(0.0f, dimensions.Size.y - 1.0f);
     LeftBoundary.Position = {0.0f, 0.0f};
-    RightBoundary.Position = glm::vec2(dimensions.Size.x - 1.0f, 0.0f);
+    RightBoundary.Position = glm::vec2(dimensions.Scale)*glm::vec2(dimensions.Size.x - 1.0f, 0.0f);
 }
 
 void Engine::Solve()
@@ -537,7 +541,11 @@ void Engine::Solve()
         mLinearSolver.Init(mData);
         mLinearSolver.Solve(mData);
 
-        mVelocity.Swap() = mProject(Back(mVelocity), mData.Pressure, mFluidLevelSet, mObstacleLevelSet, mBoundariesVelocity);
+        mVelocity.Swap() = mProject(Back(mVelocity),
+                                    mData.Pressure,
+                                    mFluidLevelSet,
+                                    mObstacleLevelSet,
+                                    mBoundariesVelocity);
     }
 
     mExtrapolation.Extrapolate(mVelocity, mObstacleLevelSet, mFluidLevelSet);
@@ -595,12 +603,12 @@ void Engine::ClearVelocities()
 
 void Engine::ReinitialiseDirichlet()
 {
-    mFluidLevelSet.Redistance(true);
+    mFluidLevelSet.Redistance(100);
 }
 
 void Engine::ReinitialiseNeumann()
 {
-    mObstacleLevelSet.Redistance(true);
+    mObstacleLevelSet.Redistance(100);
 }
 
 void Engine::Advect(Fluid::Buffer & buffer)
@@ -621,7 +629,7 @@ void Engine::Render(Renderer::RenderTarget & target, const glm::mat4 & transform
 void Engine::Advect()
 {
     Advect(mFluidLevelSet);
-    mFluidLevelSet.Redistance();
+    mFluidLevelSet.Redistance(2);
 }
 
 void Engine::ExtrapolateFluid()
@@ -638,7 +646,7 @@ void Engine::ExtrapolateFluid()
     mFluidLevelSet.Swap() = mExtrapolateFluid(Back(mFluidLevelSet), mObstacleLevelSet);
     // FIXME if the obstacles moves, is this correct?
 
-    mFluidLevelSet.Redistance();
+    mFluidLevelSet.Redistance(2);
 }
 
 void Engine::ConstrainVelocity()

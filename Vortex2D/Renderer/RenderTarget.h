@@ -21,6 +21,8 @@ struct RenderTarget
         : Orth(glm::ortho(0.0f, width, 0.0f, height))
     {}
 
+    virtual ~RenderTarget(){}
+
     /**
      * @brief Clear clears the whole target with the colour
      */

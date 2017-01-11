@@ -73,26 +73,25 @@ struct Rectangle : Shape
     void SetRectangle(const glm::vec2 & size);
 };
 
+
 /**
- * @brief A solid colour rectangle defined by a triangle fan. Implements the Drawable interface and Transformable interface.
+ * @brief A solid colour ellipse. Implements the Drawable interface and Transformable interface.
  */
-class Circle : public Shape
+class Ellipse : public Shape
 {
 public:
-    Circle() = default;
-    Circle(float size);
+    Ellipse() = default;
+    Ellipse(const glm::vec2& radius);
 
-    /**
-     * @brief Sets the circle radius
-     */
-    void SetCircle(float size);
+    void SetEllipse(const glm::vec2& radius);
 
     void Render(RenderTarget& target, const glm::mat4& transform = glm::mat4()) override;
 
 private:
     Program mProgram;
+    glm::vec2 mRadius;
 };
 
 }}
 
-#endif /* defined(__Vortex__Shapes__) */
+#endif

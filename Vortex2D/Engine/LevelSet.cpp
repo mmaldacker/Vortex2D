@@ -8,6 +8,9 @@
 
 namespace Vortex2D { namespace  Fluid {
 
+namespace
+{
+
 const char * RedistanceFrag = GLSL(
     in vec2 v_texCoord;
     out vec4 out_color;
@@ -25,7 +28,7 @@ const char * RedistanceFrag = GLSL(
        float c = (w - wyn)/dx;
        float d = (wyp - w)/dx;
 
-       if(s > 0)
+       if (s > 0)
        {
            float ap = max(a,0);
            float bn = min(b,0);
@@ -53,28 +56,29 @@ const char * RedistanceFrag = GLSL(
        float wxn0 = textureOffset(u_levelSet0, v_texCoord, ivec2(-1,0)).x;
        float wyp0 = textureOffset(u_levelSet0, v_texCoord, ivec2(0,1)).x;
        float wyn0 = textureOffset(u_levelSet0, v_texCoord, ivec2(0,-1)).x;
-       
+
        float w = texture(u_levelSet, v_texCoord).x;
        float wxp = textureOffset(u_levelSet, v_texCoord, ivec2(1,0)).x;
        float wxn = textureOffset(u_levelSet, v_texCoord, ivec2(-1,0)).x;
        float wyp = textureOffset(u_levelSet, v_texCoord, ivec2(0,1)).x;
        float wyn = textureOffset(u_levelSet, v_texCoord, ivec2(0,-1)).x;
-       
+
        float s = sign(w0);
-       
-       if(w0*wxp0 < 0.0 || w0*wxn0 < 0.0 || w0*wyp0 < 0.0 || w0*wyn0 < 0.0)
+
+       if (w0*wxp0 < 0.0 || w0*wxn0 < 0.0 || w0*wyp0 < 0.0 || w0*wyn0 < 0.0)
        {
-           float wx0 = wxp0 - wxn0;
-           float wy0 = wyp0 - wyn0;
-           // FIXME this is bad if length if close to 0
-           float d = 2*dx*w0 / sqrt(wx0*wx0 + wy0*wy0);
+           float wx0 = max(max(abs(0.5 * (wxp0 - wxn0)), abs(wxp0 - w0)),
+                           max(abs(w0 - wxn0), 0.001));
+           float wy0 = max(max(abs(0.5 * (wyp0 - wyn0)), abs(wyp0 - w0)),
+                           max(abs(w0 - wyn0), 0.001));
+           float d = dx*w0 / sqrt(wx0*wx0 + wy0*wy0);
            out_color = vec4(w - delta * (s * abs(w) - d) / dx, 0.0, 0.0, 0.0);
        }
        else
        {
            out_color = vec4(w - delta * s * g(s, w, wxp, wxn, wyp, wyn), 0.0, 0.0, 0.0);
        }
-       
+
     }
 );
 
@@ -88,7 +92,7 @@ const char * LevelSetMaskFrag = GLSL(
     {
         float x = texture(u_texture, v_texCoord).x;
 
-        if(x >= 0.0)
+        if (x >= 0.0)
         {
             out_color = vec4(1.0, 0.0, 0.0, 0.0);
         }
@@ -99,9 +103,11 @@ const char * LevelSetMaskFrag = GLSL(
     }
 );
 
+}
+
 LevelSet::LevelSet(const glm::vec2 & size)
-    : Buffer(size, 1, true, true)
-    , mLevelSet0(size, 1)
+    : Buffer(size * glm::vec2(2.0f), 1, true, true)
+    , mLevelSet0(size * glm::vec2(2.0f), 1)
     , mRedistance(Renderer::Shader::TexturePositionVert, RedistanceFrag)
     , mIdentity(Renderer::Shader::TexturePositionVert, Renderer::Shader::TexturePositionFrag)
     , mMask(Renderer::Shader::TexturePositionVert, LevelSetMaskFrag)
@@ -115,17 +121,21 @@ LevelSet::LevelSet(const glm::vec2 & size)
     mMask.Use().Set("u_texture", 0).Unuse();
 }
 
-void LevelSet::Redistance(bool reinitialize)
+void LevelSet::Redistance(int iterations)
 {
     Renderer::Disable d(GL_BLEND);
 
     mLevelSet0 = mIdentity(*this);
 
-    int num_iterations = reinitialize ? 100 : 1;
-    for(int i = 0 ; i < num_iterations ; i++)
+    for (int i = 0; i < iterations; i++)
     {
         Swap() = mRedistance(Back(*this), mLevelSet0);
     }
+}
+
+void LevelSet::Render(Renderer::Drawable & object, const glm::mat4 & transform)
+{
+    Buffer::Render(object, glm::scale(glm::vec3(2.0f, 2.0f, 1.0f)) * transform);
 }
 
 void LevelSet::RenderMask(Vortex2D::Fluid::Buffer & buffer)
@@ -141,7 +151,6 @@ void LevelSet::RenderMask(Vortex2D::Fluid::Buffer & buffer)
     buffer.Swap() = mMask(Back(*this));
 
     glStencilMask(0x00); // disable stencil writing
-
 }
 
 }}

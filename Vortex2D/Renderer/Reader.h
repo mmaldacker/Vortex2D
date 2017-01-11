@@ -44,25 +44,25 @@ public:
      * @param x must be between 0 and texture width
      * @param y must be between 0 and texture height
      */
-    float GetFloat(int x, int y);
+    float GetFloat(int x, int y) const;
 
     /**
      * @brief Returns the rg value of the render texture
      * @param x must be between 0 and texture width
      * @param y must be between 0 and texture height
      */
-    glm::vec2 GetVec2(int x, int y);
+    glm::vec2 GetVec2(int x, int y) const;
 
     /**
      * @brief Returns the rgba value of the render texture
      * @param x must be between 0 and texture width
      * @param y must be between 0 and texture height
      */
-    glm::vec4 GetVec4(int x, int y);
+    glm::vec4 GetVec4(int x, int y) const;
 
 private:
     int GetSize() const;
-    float Get(int x, int y, int size, int offset);
+    float Get(int x, int y, int size, int offset) const;
 
     Renderer::RenderTexture & mTexture;
     float * mPixels;

@@ -12,7 +12,10 @@
 class RenderWindow : public Vortex2D::Renderer::RenderTarget
 {
 public:
-    RenderWindow(int width, int height, const std::string & name = "Window", RenderWindow * share = nullptr);
+    RenderWindow(int width,
+                 int height,
+                 const std::string & name = "Window",
+                 RenderWindow * share = nullptr);
 
     virtual ~RenderWindow();
 
@@ -24,7 +27,7 @@ public:
     void SetKeyCallback(GLFWkeyfun cbfun);
 
 private:
-	GLFWwindow * mWindow;
+    GLFWwindow * mWindow;
 };
 
 #endif /* RenderWindow_h */

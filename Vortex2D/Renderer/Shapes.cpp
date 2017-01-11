@@ -7,36 +7,44 @@
 #include "RenderTarget.h"
 #include "Disable.h"
 #include <limits>
+#include <algorithm>
 
 namespace Vortex2D { namespace Renderer {
 
 namespace
 {
 
-const char * CircleVert = GLSL(
+const char * EllipseVert = GLSL(
     in vec2 a_Position;
 
     uniform mat4 u_Projection;
-    uniform float u_radius;
+    uniform vec2 u_radius;
 
     void main()
     {
-        gl_PointSize = u_radius;
+        gl_PointSize = 2 * max(u_radius.x, u_radius.y);
         gl_Position = u_Projection * vec4(a_Position, 0.0, 1.0);
     }
 );
 
-const char * CircleFrag = GLSL(
+const char * EllipseFrag = GLSL(
     out vec4 out_color;
 
     uniform vec4 u_Colour;
+    uniform vec2 u_radius;
 
     void main()
     {
-        vec2 pos = 2.0 * (gl_PointCoord - 0.5);
+        vec2 pos = 2 * (gl_PointCoord - 0.5);
         float distance = dot(pos, pos);
-        float factor = 1.0 - step(1.0, distance);
-        out_color = u_Colour * factor;
+        if (distance <= 1.0)
+        {
+            out_color = u_Colour;
+        }
+        else
+        {
+            discard;
+        }
     }
 );
 
@@ -132,23 +140,24 @@ void Rectangle::SetRectangle(const glm::vec2 &size)
     Set({{0.0f, 0.0f}, {size.x, 0.0f}, {0.0f, size.y}, {size.x, 0.0f,}, {size.x, size.y}, {0.0f, size.y}});
 }
 
-Circle::Circle(float size)
-    : mProgram(CircleVert, CircleFrag)
+Ellipse::Ellipse(const glm::vec2& radius)
+    : mProgram(EllipseVert, EllipseFrag)
 {
     SetProgram(mProgram);
-    SetCircle(size);
+    SetEllipse(radius);
 }
 
-void Circle::SetCircle(float size)
+void Ellipse::SetEllipse(const glm::vec2& radius)
 {
     SetType(GL_POINTS);
-    Set({{size,size}});
-    mProgram.Use().Set("u_radius", size).Unuse();
+    Set({{0.0f,0.0f}});
+    mRadius = radius;
 }
 
-void Circle::Render(RenderTarget& target, const glm::mat4& transform)
+void Ellipse::Render(RenderTarget& target, const glm::mat4& transform)
 {
     Enable e(GL_PROGRAM_POINT_SIZE);
+    mProgram.Use().Set("u_radius", mRadius * (glm::vec2)Scale);
     Shape::Render(target, transform);
 }
 

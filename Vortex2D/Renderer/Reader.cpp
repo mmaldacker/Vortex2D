@@ -13,13 +13,13 @@ Reader::Reader(Renderer::RenderTexture & texture)
 {
     int size = GetSize();
 
-    mPixels = new float[texture.Height()*texture.Width()*size];
-    mStencil = new uint8_t[texture.Height()*texture.Width()];
+    mPixels = new float[texture.Height() * texture.Width() * size];
+    mStencil = new uint8_t[texture.Height() * texture.Width()];
 }
 
 Reader::~Reader()
 {
-    if(mPixels)
+    if (mPixels)
     {
         delete [] mPixels;
         delete [] mStencil;
@@ -29,32 +29,29 @@ Reader::~Reader()
 Reader::Reader(Reader && other) : mTexture(other.mTexture), mPixels(other.mPixels), mStencil(other.mStencil)
 {
     other.mPixels = nullptr;
+    other.mStencil = nullptr;
 }
 
 int Reader::GetSize() const
 {
-    switch(mTexture.GetFormat())
+    switch (mTexture.GetFormat())
     {
         case Texture::PixelFormat::RF:
             return 1;
-            break;
         case Texture::PixelFormat::RGF:
             return 2;
-            break;
         case Texture::PixelFormat::RGBA8888:
         case Texture::PixelFormat::RGBAF:
             return 4;
-            break;
         default:
             throw std::runtime_error("unsupported read format");
-            break;
     }
 }
 
 Reader & Reader::Read()
 {
     GLenum format;
-    switch(mTexture.GetFormat())
+    switch (mTexture.GetFormat())
     {
         case Texture::PixelFormat::RF:
             format = GL_RED;
@@ -68,7 +65,6 @@ Reader & Reader::Read()
             break;
         default:
             throw std::runtime_error("unsupported read format");
-            break;
     }
 
     mTexture.Begin();
@@ -83,17 +79,19 @@ Reader & Reader::Read()
 
 Reader & Reader::Print()
 {
+    assert(mPixels);
+
     int size = GetSize();
-    for(int i = 0 ; i < mTexture.Width() ; ++i)
+    for (int i = 0 ; i < mTexture.Width() ; ++i)
     {
-        for(int j = 0 ; j < mTexture.Height() ; ++j)
+        for (int j = 0 ; j < mTexture.Height() ; ++j)
         {
             std::cout << "(";
             int width = mTexture.Width();
-            for(int k = 0 ; k < size ; k++)
+            for (int k = 0 ; k < size ; k++)
             {
                 std::cout << mPixels[i*width*size + j*size + k];
-                if(k < size-1) std::cout << ",";
+                if (k < size-1) std::cout << ",";
             }
             std::cout << ")";
         }
@@ -106,12 +104,14 @@ Reader & Reader::Print()
 
 Reader & Reader::PrintStencil()
 {
-    for(int i = 0 ; i < mTexture.Width() ; ++i)
+    assert(mStencil);
+
+    for (int i = 0 ; i < mTexture.Width() ; ++i)
     {
-        for(int j = 0 ; j < mTexture.Height() ; ++j)
+        for (int j = 0 ; j < mTexture.Height() ; ++j)
         {
             int width = mTexture.Width();
-            std::cout << "(" << (int)mStencil[i*width + j] << ")";
+            std::cout << "(" << (int)mStencil[i * width + j] << ")";
         }
         std::cout << std::endl;
     }
@@ -120,28 +120,29 @@ Reader & Reader::PrintStencil()
     return *this;
 }
 
-float Reader::GetFloat(int x, int y)
+float Reader::GetFloat(int x, int y) const
 {
-    return Get(x,y,1,0);
+    return Get(x, y, 1, 0);
 }
 
-glm::vec2 Reader::GetVec2(int x, int y)
+glm::vec2 Reader::GetVec2(int x, int y) const
 {
-    return {Get(x,y,2,0), Get(x,y,2,1)};
+    return {Get(x, y, 2, 0), Get(x, y, 2, 1)};
 }
 
-glm::vec4 Reader::GetVec4(int x, int y)
+glm::vec4 Reader::GetVec4(int x, int y) const
 {
-    return {Get(x,y,4,0), Get(x,y,4,1), Get(x,y,4,2), Get(x,y,4,3)};
+    return {Get(x, y, 4, 0), Get(x, y, 4, 1), Get(x, y, 4, 2), Get(x, y, 4, 3)};
 }
 
-float Reader::Get(int x, int y, int size, int offset)
+float Reader::Get(int x, int y, int size, int offset) const
 {
-    assert(x >=0 && x < mTexture.Width());
-    assert(y >=0 && y < mTexture.Height());
+    assert(x >= 0 && x < mTexture.Width());
+    assert(y >= 0 && y < mTexture.Height());
+    assert(mPixels);
 
     int width = mTexture.Width();
-    return mPixels[(x+y*width)*size+offset];
+    return mPixels[(x + y * width) * size + offset];
 }
 
 }}
