@@ -18,26 +18,26 @@ class Reader
 {
 public:
     Reader(Renderer::RenderTexture & texture);
-    Reader(Reader &&);
+    Reader(Reader&&);
     ~Reader();
 
     /**
      * @brief Reads the content of the render texture (necessary before calling the print/get methods)
      * @return returns *this
      */
-    Reader & Read();
+    Reader& Read();
 
     /**
      * @brief Prints the colour part of the render texture to stdout
      * @return returns *this
      */
-    Reader & Print();
+    Reader& Print();
 
     /**
      * @brief Prints the stencil part of the render texture to stdout
      * @return returns *this
      */
-    Reader & PrintStencil();
+    Reader& PrintStencil();
 
     /**
      * @brief Returns the r value of the render texture
@@ -64,11 +64,11 @@ private:
     int GetSize() const;
     float Get(int x, int y, int size, int offset) const;
 
-    Renderer::RenderTexture & mTexture;
-    float * mPixels;
-    uint8_t * mStencil;
+    Renderer::RenderTexture& mTexture;
+    float* mPixels;
+    uint8_t* mStencil;
 };
 
 }}
 
-#endif /* defined(__Vortex2D__Reader__) */
+#endif

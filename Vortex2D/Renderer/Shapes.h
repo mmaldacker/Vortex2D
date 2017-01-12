@@ -26,7 +26,7 @@ public:
     Shape();
     ~Shape();
 
-    Shape(Shape &&);
+    Shape(Shape&&);
 
     /**
      * @brief SetType sets the primitive type of this shape
@@ -37,14 +37,14 @@ public:
     /**
      * @brief Set sets a list of points (e.g. triangles)
      */
-    void Set(const Path & path);
+    void Set(const Path& path);
 
     /**
      * @brief SetProgram the program to be used when rendering
      */
-    void SetProgram(Program & program);
+    void SetProgram(Program& program);
 
-    void Render(RenderTarget & target, const glm::mat4 & transform = glm::mat4()) override;
+    void Render(RenderTarget& target, const glm::mat4& transform = glm::mat4()) override;
 
     glm::vec4 Colour;
 
@@ -56,7 +56,7 @@ private:
     GLsizei mNumVertices;
 
     Uniform<glm::vec4> mColourUniform;
-    Program * mProgram;
+    Program* mProgram;
 };
 
 /**
@@ -65,14 +65,13 @@ private:
 struct Rectangle : Shape
 {
     Rectangle() = default;
-    Rectangle(const glm::vec2 & size);
+    Rectangle(const glm::vec2& size);
 
     /**
      * @brief Sets the rectangle size
      */
-    void SetRectangle(const glm::vec2 & size);
+    void SetRectangle(const glm::vec2& size);
 };
-
 
 /**
  * @brief A solid colour ellipse. Implements the Drawable interface and Transformable interface.

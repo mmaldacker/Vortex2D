@@ -82,16 +82,16 @@ Reader & Reader::Print()
     assert(mPixels);
 
     int size = GetSize();
-    for (int i = 0 ; i < mTexture.Width() ; ++i)
+    for (int j = 0 ; j < mTexture.Height() ; ++j)
     {
-        for (int j = 0 ; j < mTexture.Height() ; ++j)
+        for (int i = 0 ; i < mTexture.Width() ; ++i)
         {
             std::cout << "(";
             int width = mTexture.Width();
             for (int k = 0 ; k < size ; k++)
             {
-                std::cout << mPixels[i*width*size + j*size + k];
-                if (k < size-1) std::cout << ",";
+                std::cout << mPixels[i * size + j * width * size + k];
+                if (k < size - 1) std::cout << ",";
             }
             std::cout << ")";
         }
@@ -106,12 +106,12 @@ Reader & Reader::PrintStencil()
 {
     assert(mStencil);
 
-    for (int i = 0 ; i < mTexture.Width() ; ++i)
+    for (int j = 0 ; j < mTexture.Height() ; ++j)
     {
-        for (int j = 0 ; j < mTexture.Height() ; ++j)
+        for (int i = 0 ; i < mTexture.Width() ; ++i)
         {
             int width = mTexture.Width();
-            std::cout << "(" << (int)mStencil[i * width + j] << ")";
+            std::cout << "(" << (int)mStencil[i + j * width] << ")";
         }
         std::cout << std::endl;
     }
