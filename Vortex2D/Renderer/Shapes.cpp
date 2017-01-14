@@ -160,8 +160,11 @@ void Ellipse::SetEllipse(const glm::vec2& radius)
 void Ellipse::Render(RenderTarget& target, const glm::mat4& transform)
 {
     Enable e(GL_PROGRAM_POINT_SIZE);
-    glPointParameteri(GL_POINT_SPRITE_COORD_ORIGIN, GL_LOWER_LEFT);
-    glm::vec2 radius = mRadius * (glm::vec2)Scale;
+    EnablePointParameter ep(GL_POINT_SPRITE_COORD_ORIGIN, GL_LOWER_LEFT);
+
+    // FIXME rotation is not handled
+    glm::vec2 transformScale(glm::length(transform[0]), glm::length(transform[1]));
+    glm::vec2 radius = mRadius * (glm::vec2)Scale * transformScale;
     mProgram.Use()
             .Set("u_radius", radius)
             .Set("u_size", std::max(radius.x, radius.y));

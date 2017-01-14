@@ -3,10 +3,14 @@
 //  Vortex2D
 //
 
+#include "gtest/gtest.h"
 #include "LevelSet.h"
+#include "Reader.h"
 #include "Shapes.h"
 #include "Disable.h"
-#include <iostream>
+
+using namespace Vortex2D::Renderer;
+using namespace Vortex2D::Fluid;
 
 const glm::vec2 c0(0.5,0.5), c1(0.7,0.5), c2(0.3,0.35), c3(0.5,0.7);
 const float rad0 = 0.4,  rad1 = 0.1,  rad2 = 0.1,   rad3 = 0.1;
@@ -31,60 +35,89 @@ float boundary_phi_complex(const glm::vec2& position)
    return glm::min(glm::min(phi0,phi1),glm::min(phi2,phi3));
 }
 
-void PrintLevelSet(const int size)
+void PrintLevelSet(int size, float (*phi)(const glm::vec2&))
 {
     for (int i = 0; i < size; i++)
     {
         for (int j = 0; j < size; j++)
         {
-            glm::vec2 pos{(float)i/size,(float)j/size};
-            std::cout << "(" << size * boundary_phi_simple(pos) << ")";
+            glm::vec2 pos(i,j);
+            pos += glm::vec2(1.0f);
+            pos /= glm::vec2(size);
+            std::cout << "(" << size * phi(pos) << ")";
         }
         std::cout << std::endl;
     }
     std::cout << std::endl;
 }
 
-void PrintDifference(const Vortex2D::Renderer::Reader& reader, const int size)
+void CheckDifference(int size, Reader& reader, float (*phi)(const glm::vec2&))
 {
     for (int i = 0; i < size; i++)
     {
         for (int j = 0; j < size; j++)
         {
-            glm::vec2 pos{(float)i/size,(float)j/size};
-            float value = size * boundary_phi_simple(pos);
+            glm::vec2 pos(i,j);
+            pos += glm::vec2(1.0f);
+            pos /= glm::vec2(size);
+            float value = size * phi(pos);
             float diff = std::abs(reader.GetFloat(i, j) - value);
 
-            if (diff > std::sqrt(2.0))
-            {
-                std::cout << "ERROR" << std::endl;
-            }
-
-            std::cout << "(" << diff << ")";
+            EXPECT_LT(diff, std::sqrt(2.0f));
         }
-        std::cout << std::endl;
     }
-    std::cout << std::endl;
 }
 
-void LevelSetTest(const float size)
+TEST(LevelSetTests, SimpleCircle)
 {
-    //PrintLevelSet(size);
-
     Vortex2D::Renderer::Disable e(GL_BLEND);
 
-    Vortex2D::Fluid::LevelSet levelSet(glm::vec2{size});
+    glm::vec2 size(50.0f);
 
-    Vortex2D::Renderer::Ellipse circle(glm::vec2{rad0});
-    circle.Colour = glm::vec4(1.0);
-    circle.Position = glm::vec2(c0[0], c0[1]);
-    circle.Scale = glm::vec2(size);
+    Vortex2D::Fluid::LevelSet levelSet(size);
+
+    Vortex2D::Renderer::Ellipse circle(glm::vec2{rad0} * size);
+    circle.Colour = glm::vec4(1.0f);
+    circle.Position = glm::vec2(c0[0], c0[1]) * size;
+
+
+    levelSet.Clear(glm::vec4(-1.0f));
+    levelSet.Render(circle);
+    levelSet.Redistance(500);
+
+    CheckDifference(size.x, levelSet.Get().Read(), boundary_phi_simple);
+}
+
+TEST(LevelSetTests, ComplexCircles)
+{
+    Vortex2D::Renderer::Disable e(GL_BLEND);
+
+    glm::vec2 size(50.0f);
+
+    Vortex2D::Fluid::LevelSet levelSet(size);
+
+    Vortex2D::Renderer::Ellipse circle0(glm::vec2{rad0} * size);
+    Vortex2D::Renderer::Ellipse circle1(glm::vec2{rad1} * size);
+    Vortex2D::Renderer::Ellipse circle2(glm::vec2{rad2} * size);
+    Vortex2D::Renderer::Ellipse circle3(glm::vec2{rad3} * size);
+
+    circle0.Colour = glm::vec4(1.0);
+    circle1.Colour = circle2.Colour = circle3.Colour = glm::vec4(-1.0f);
+
+    circle0.Position = glm::vec2(c0[0], c0[1]) * size;
+    circle1.Position = glm::vec2(c1[0], c1[1]) * size;
+    circle2.Position = glm::vec2(c2[0], c2[1]) * size;
+    circle3.Position = glm::vec2(c3[0], c3[1]) * size;
 
     levelSet.Clear(glm::vec4(-1.0));
-    levelSet.Render(circle);
-    //levelSet.Redistance(1000);
-    auto reader = levelSet.Get();
-    reader.Read().Print();
+    levelSet.Render(circle0);
+    levelSet.Render(circle1);
+    levelSet.Render(circle2);
+    levelSet.Render(circle3);
+    levelSet.Redistance(500);
 
-    //PrintDifference(reader, size);
+    CheckDifference(size.x, levelSet.Get().Read(), boundary_phi_complex);
 }
+
+
+

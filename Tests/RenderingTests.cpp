@@ -6,7 +6,6 @@
 
 using namespace Vortex2D::Renderer;
 
-
 void PrintData(int width, int height, const std::vector<float>& data)
 {
     for (int j = 0; j < height; j++)
@@ -176,6 +175,30 @@ TEST(RenderingTest, ScaledEllipse)
     radius *= (glm::vec2)ellipse.Scale;
     std::vector<float> data(50*50, 0.0f);
     DrawEllipse(50, 50, data, ellipse.Position, radius);
+
+    CheckTexture(50, 50, data, texture);
+}
+
+TEST(RenderingTest, RenderScaledEllipse)
+{
+    Disable d(GL_BLEND);
+
+    glm::vec2 pos(10.0f, 10.0f);
+    glm::vec2 radius(5.0f, 8.0f);
+
+    Ellipse ellipse(radius);
+    ellipse.Position = pos;
+    ellipse.Colour = glm::vec4(1.0f);
+
+    RenderTexture texture(50, 50, Texture::PixelFormat::RF);
+
+    texture.Clear(glm::vec4(0.0));
+    texture.Render(ellipse, glm::scale(glm::vec3(2.0f, 2.0f, 1.0f)));
+
+    radius *= glm::vec2(2.0f);
+    pos *= glm::vec2(2.0f);
+    std::vector<float> data(50*50, 0.0f);
+    DrawEllipse(50, 50, data, pos, radius);
 
     CheckTexture(50, 50, data, texture);
 }

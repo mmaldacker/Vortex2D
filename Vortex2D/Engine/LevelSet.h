@@ -30,8 +30,6 @@ public:
      */
     void Redistance(int iterations);
 
-    void Render(Renderer::Drawable & object, const glm::mat4 & transform = glm::mat4()) override;
-
     void RenderMask(Buffer & buffer);
 
 private:

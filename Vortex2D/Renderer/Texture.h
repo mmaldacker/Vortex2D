@@ -33,11 +33,11 @@ public:
     };
 
     Texture() = default;
-    Texture(int width, int height, PixelFormat pixelFormat, const void * data = nullptr);
+    Texture(int width, int height, PixelFormat pixelFormat, const void* data = nullptr);
     virtual ~Texture();
 
-    Texture(Texture &&);
-    Texture & operator=(Texture &&);
+    Texture(Texture&&);
+    Texture & operator=(Texture&&);
 
     int Width() const { return mWidth; }
     int Height() const { return mHeight; }
@@ -61,7 +61,7 @@ private:
     int mHeight;
     PixelFormat mFormat;
 
-    static int BoundId[4];
+    static GLuint BoundId[4];
     static int ActiveUnit;
 };
 

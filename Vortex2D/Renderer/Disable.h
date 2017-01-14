@@ -72,10 +72,33 @@ struct Enable
     {
         if(!enabled) glDisable(e);
     }
-    
+
 private:
     GLenum e;
     GLint enabled;
+};
+
+/**
+ * @brief An RAII class to set a new point parameter (and restore on desctruction)
+ */
+struct EnablePointParameter
+{
+    EnablePointParameter(GLenum e, GLint value)
+        : pointParamName(e)
+    {
+        glGetIntegerv(pointParamName, &pointValue);
+        glPointParameteri(pointParamName, value);
+    }
+
+    ~EnablePointParameter()
+    {
+        glPointParameteri(pointParamName, pointValue);
+    }
+
+
+private:
+    GLenum pointParamName;
+    GLint pointValue;
 };
 
 /**

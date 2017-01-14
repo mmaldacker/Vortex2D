@@ -3,8 +3,8 @@
 //  Vortex2D
 //
 
-#ifndef __Vortex__RenderTexture__
-#define __Vortex__RenderTexture__
+#ifndef RenderTexture_h
+#define RenderTexture_h
 
 #include "Common.h"
 #include "Texture.h"
@@ -35,20 +35,20 @@ public:
     RenderTexture(int width, int height, Texture::PixelFormat pixelFormat, DepthFormat depthFormat = DepthFormat::NONE);
     ~RenderTexture();
 
-    RenderTexture(RenderTexture && other);
-    RenderTexture & operator=(RenderTexture && other);
+    RenderTexture(RenderTexture&& other);
+    RenderTexture& operator=(RenderTexture&& other);
 
     /**
      * @brief Clears the render texture
      */
-    void Clear(const glm::vec4 & colour) override;
+    void Clear(const glm::vec4& colour) override;
 
     /**
      * @brief Render the object to the target
      * @param object An object whose class implements Drawable
      * @param transform An optional aditional transformation matrix to be applied before rendering
      */
-    void Render(Drawable & object, const glm::mat4 & transform = glm::mat4()) override;
+    void Render(Drawable& object, const glm::mat4& transform = glm::mat4()) override;
 
     /**
      * @brief Clears the stencil buffer to 0
@@ -69,4 +69,4 @@ private:
 
 }}
 
-#endif /* defined(__Vortex__RenderTexture__) */
+#endif

@@ -10,11 +10,11 @@ namespace Vortex2D { namespace Renderer {
 #include <cassert>
 #include <stdexcept>
 
-int Texture::BoundId[4] = {0};
+GLuint Texture::BoundId[4] = {0};
 int Texture::ActiveUnit = -1;
 
-Texture::Texture(int width, int height, PixelFormat pixelFormat, const void * data)
-: mWidth(width), mHeight(height), mFormat(pixelFormat)
+Texture::Texture(int width, int height, PixelFormat pixelFormat, const void* data)
+    : mWidth(width), mHeight(height), mFormat(pixelFormat)
 {
     assert(mWidth > 0);
     assert(mHeight > 0);
@@ -59,11 +59,21 @@ Texture::~Texture()
 {
     if (mId)
     {
+        // make sure we clear the cache for this texture id
+        // because OpenGL can re-use texture ids and it won't be correctly bound
+        for (auto& id : BoundId)
+        {
+            if (id == mId)
+            {
+                id = 0;
+            }
+        }
+
         glDeleteTextures(1, &mId);
     }
 }
 
-Texture::Texture(Texture && other)
+Texture::Texture(Texture&& other)
     : mId(other.mId)
     , mWidth(other.mWidth)
     , mHeight(other.mHeight)
@@ -72,7 +82,7 @@ Texture::Texture(Texture && other)
     other.mId = 0;
 }
 
-Texture & Texture::operator=(Texture && other)
+Texture& Texture::operator=(Texture&& other)
 {
     mId = other.mId;
     mWidth = other.mWidth;
@@ -118,12 +128,12 @@ void Texture::SetClampToBorderTexParameters()
 
 void Texture::Bind(int textureUnit) const
 {
-    if(ActiveUnit != textureUnit)
+    if (ActiveUnit != textureUnit)
     {
         ActiveUnit = textureUnit;
         glActiveTexture(GL_TEXTURE0+textureUnit);
     }
-    if(BoundId[textureUnit] != mId)
+    if (BoundId[textureUnit] != mId)
     {
         BoundId[textureUnit] = mId;
         glBindTexture(GL_TEXTURE_2D, mId);
