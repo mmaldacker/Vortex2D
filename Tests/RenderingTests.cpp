@@ -1,8 +1,15 @@
+//
+//  RenderingTests.cpp
+//  Vortex2D
+//
+
 #include "gtest/gtest.h"
 #include "Shapes.h"
 #include "RenderTexture.h"
 #include "Reader.h"
+#include "Writer.h"
 #include "Disable.h"
+#include <glm/gtx/rotate_vector.hpp>
 
 using namespace Vortex2D::Renderer;
 
@@ -47,37 +54,25 @@ void DrawSquare(int width, int height, std::vector<float>& data, const glm::vec2
     }
 }
 
-void DrawCircle(int width, int height, std::vector<float>& data, const glm::vec2& centre, float radius)
+void DrawEllipse(int width, int height, std::vector<float>& data, const glm::vec2& centre, const glm::vec2& radius, float rotation = 0.0f)
 {
     for (int i = 0; i < width; i++)
     {
         for (int j = 0; j < height; j++)
         {
             glm::vec2 pos(i, j);
-            pos = pos - centre + glm::vec2(1.0f);
-            if (dot(pos, pos) <= (radius * radius))
-            {
-                data[i + j * width] = 1.0f;
-            }
-        }
-    }
-
-}
-
-void DrawEllipse(int width, int height, std::vector<float>& data, const glm::vec2& centre, const glm::vec2& radius)
-{
-    for (int i = 0; i < width; i++)
-    {
-        for (int j = 0; j < height; j++)
-        {
-            glm::vec2 pos(i, j);
-            pos = pos - centre + glm::vec2(1.0f);
+            pos = glm::rotate(pos - centre + glm::vec2(1.0f), glm::radians(rotation));
             if (glm::dot(pos / radius, pos / radius) <= 1.0f)
             {
                 data[i + j * width] = 1.0f;
             }
         }
     }
+}
+
+void DrawCircle(int width, int height, std::vector<float>& data, const glm::vec2& centre, float radius)
+{
+    DrawEllipse(width, height, data, centre, glm::vec2(radius));
 }
 
 TEST(RenderingTest, RenderTexture)
@@ -88,6 +83,21 @@ TEST(RenderingTest, RenderTexture)
 
     std::vector<float> data(50*50, 3.5f);
     texture.Clear(glm::vec4(3.5f));
+
+    CheckTexture(50, 50, data, texture);
+}
+
+TEST(RenderingTest, WriteTexture)
+{
+    Disable d(GL_BLEND);
+
+    RenderTexture texture(50, 50, Texture::PixelFormat::RF);
+
+    std::vector<float> data(50*50, 0.0f);
+    DrawSquare(50, 50, data, glm::vec2(10.0f, 15.0f), glm::vec2(5.0f, 8.0f));
+
+    Writer writer(texture);
+    writer.Write(data.data());
 
     CheckTexture(50, 50, data, texture);
 }
@@ -177,6 +187,31 @@ TEST(RenderingTest, ScaledEllipse)
     DrawEllipse(50, 50, data, ellipse.Position, radius);
 
     CheckTexture(50, 50, data, texture);
+}
+
+TEST(RenderingTest, RotatedEllipse)
+{
+    Disable d(GL_BLEND);
+
+    glm::vec2 radius(4.0f, 7.0f);
+
+    Ellipse ellipse(radius);
+    ellipse.Position = glm::vec2(20.0f, 15.0f);
+    ellipse.Colour = glm::vec4(1.0f);
+    ellipse.Rotation = 33.0f;
+
+    RenderTexture texture(50, 50, Texture::PixelFormat::RF);
+
+    texture.Clear(glm::vec4(0.0));
+    texture.Render(ellipse);
+
+    std::vector<float> data(50*50, 0.0f);
+    DrawEllipse(50, 50, data, ellipse.Position, radius, ellipse.Rotation);
+
+    CheckTexture(50, 50, data, texture);
+
+    PrintData(50, 50, data);
+    Reader(texture).Read().Print();
 }
 
 TEST(RenderingTest, RenderScaledEllipse)

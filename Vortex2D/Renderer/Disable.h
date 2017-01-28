@@ -79,26 +79,28 @@ private:
 };
 
 /**
- * @brief An RAII class to set a new point parameter (and restore on desctruction)
+ * @brief An RAII class to set a new opengl parameter (and restore on desctruction)
  */
-struct EnablePointParameter
+struct EnableParameter
 {
-    EnablePointParameter(GLenum e, GLint value)
-        : pointParamName(e)
+    EnableParameter(void (*fun)(GLenum, GLint), GLenum e, GLint value)
+        : glFunction(fun)
+        , paramName(e)
     {
-        glGetIntegerv(pointParamName, &pointValue);
-        glPointParameteri(pointParamName, value);
+        glGetIntegerv(paramName, &paramValue);
+        glFunction(paramName, value);
     }
 
-    ~EnablePointParameter()
+    ~EnableParameter()
     {
-        glPointParameteri(pointParamName, pointValue);
+        glFunction(paramName, paramValue);
     }
 
 
 private:
-    GLenum pointParamName;
-    GLint pointValue;
+    void (*glFunction)(GLenum, GLint);
+    GLenum paramName;
+    GLint paramValue;
 };
 
 /**

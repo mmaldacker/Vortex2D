@@ -3,8 +3,8 @@
 //  Vortex2D
 //
 
-#ifndef __Vortex__Texture__
-#define __Vortex__Texture__
+#ifndef Vortex_Texture_h
+#define Vortex_Texture_h
 
 #include "Common.h"
 
@@ -33,7 +33,7 @@ public:
     };
 
     Texture() = default;
-    Texture(int width, int height, PixelFormat pixelFormat, const void* data = nullptr);
+    Texture(int width, int height, PixelFormat pixelFormat);
     virtual ~Texture();
 
     Texture(Texture&&);
@@ -51,9 +51,12 @@ public:
     void SetClampToEdgeTexParameters();
     void SetClampToBorderTexParameters();
 
-    PixelFormat GetFormat() const;
-
+    friend class Writer;
 protected:
+    GLint GetInternalFormat() const;
+    GLenum GetFormat() const;
+    GLenum GetType() const;
+
     GLuint mId = 0;
 
 private:
@@ -67,4 +70,4 @@ private:
 
 }}
 
-#endif /* defined(__Vortex__Texture__) */
+#endif

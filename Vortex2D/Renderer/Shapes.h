@@ -3,8 +3,8 @@
 //  Vortex2D
 //
 
-#ifndef __Vortex__Shapes__
-#define __Vortex__Shapes__
+#ifndef Vortex_Shapes_h
+#define Vortex_Shapes_h
 
 #include "Common.h"
 #include "Shader.h"

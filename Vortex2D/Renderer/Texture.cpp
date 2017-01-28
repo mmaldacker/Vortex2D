@@ -13,7 +13,7 @@ namespace Vortex2D { namespace Renderer {
 GLuint Texture::BoundId[4] = {0};
 int Texture::ActiveUnit = -1;
 
-Texture::Texture(int width, int height, PixelFormat pixelFormat, const void* data)
+Texture::Texture(int width, int height, PixelFormat pixelFormat)
     : mWidth(width), mHeight(height), mFormat(pixelFormat)
 {
     assert(mWidth > 0);
@@ -26,31 +26,15 @@ Texture::Texture(int width, int height, PixelFormat pixelFormat, const void* dat
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    // FIXME temporary, real solution is handle alignemnt in reader (don't think anywhere else)
-    glPixelStorei(GL_PACK_ALIGNMENT, 1);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-    switch(pixelFormat)
-    {
-        case PixelFormat::RGBA8888:
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei) width, (GLsizei) height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-            break;
-        case PixelFormat::RGB888:
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (GLsizei) width, (GLsizei) height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-            break;
-        case PixelFormat::RGBAF:
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, (GLsizei) width, (GLsizei) height, 0, GL_RGBA, GL_FLOAT, data);
-            break;
-        case PixelFormat::RGBF:
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, (GLsizei) width, (GLsizei) height, 0, GL_RGB, GL_FLOAT, data);
-            break;
-        case PixelFormat::RGF:
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, (GLsizei) width, (GLsizei) height, 0, GL_RG, GL_FLOAT, data);
-            break;
-        case PixelFormat::RF:
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, (GLsizei) width, (GLsizei) height, 0, GL_RED, GL_FLOAT, data);
-            break;
-    }
+    glTexImage2D(GL_TEXTURE_2D,
+                 0,
+                 GetInternalFormat(),
+                 (GLsizei) width,
+                 (GLsizei) height,
+                 0,
+                 GetFormat(),
+                 GetType(),
+                 NULL);
 
     Unbind();
 }
@@ -147,9 +131,56 @@ void Texture::Unbind()
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-Texture::PixelFormat Texture::GetFormat() const
+GLint Texture::GetInternalFormat() const
 {
-    return mFormat;
+    switch (mFormat)
+    {
+        case PixelFormat::RGBA8888:
+            return GL_RGBA;
+        case PixelFormat::RGB888:
+            return GL_RGB;
+        case PixelFormat::RGBAF:
+            return GL_RGBA32F;
+        case PixelFormat::RGBF:
+            return GL_RGB32F;
+        case PixelFormat::RGF:
+            return GL_RG32F;
+        case PixelFormat::RF:
+            return GL_R32F;
+    }
 }
+
+GLenum Texture::GetFormat() const
+{
+    switch (mFormat)
+    {
+        case PixelFormat::RGBA8888:
+        case PixelFormat::RGBAF:
+            return GL_RGBA;
+        case PixelFormat::RGB888:
+        case PixelFormat::RGBF:
+            return GL_RGB;
+        case PixelFormat::RGF:
+            return GL_RG;
+        case PixelFormat::RF:
+            return GL_RED;
+    }
+}
+
+GLenum Texture::GetType() const
+{
+    switch (mFormat)
+    {
+        case PixelFormat::RGBA8888:
+        case PixelFormat::RGB888:
+            return GL_UNSIGNED_BYTE;
+        case PixelFormat::RGBAF:
+        case PixelFormat::RGBF:
+        case PixelFormat::RGF:
+        case PixelFormat::RF:
+            return GL_FLOAT;
+    }
+}
+
 
 }}

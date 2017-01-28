@@ -12,7 +12,7 @@
 namespace Vortex2D { namespace Renderer {
 
 RenderTexture::RenderTexture(int width, int height, Texture::PixelFormat pixelFormat, DepthFormat depthFormat)
-    : Texture(width, height, pixelFormat, nullptr)
+    : Texture(width, height, pixelFormat)
     , RenderTarget(width, height)
     , mDepthRenderBuffer(0)
 {

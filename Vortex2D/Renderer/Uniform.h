@@ -10,27 +10,32 @@
 
 namespace Vortex2D { namespace Renderer {
 
-inline void glUniform(GLint loc, const glm::mat4 & value)
+inline void glUniform(GLint loc, const glm::mat4& value)
 {
     glUniformMatrix4fv(loc, 1, GL_FALSE, &value[0][0]);
 }
 
-inline void glUniform(GLint loc, const GLint & value)
+inline void glUniform(GLint loc, const glm::mat2& value)
+{
+    glUniformMatrix2fv(loc, 1, GL_FALSE, &value[0][0]);
+}
+
+inline void glUniform(GLint loc, const GLint& value)
 {
     glUniform1i(loc, value);
 }
 
-inline void glUniform(GLint loc, const float & value)
+inline void glUniform(GLint loc, const float& value)
 {
     glUniform1f(loc, value);
 }
 
-inline void glUniform(GLint loc, const glm::vec4 & value)
+inline void glUniform(GLint loc, const glm::vec4& value)
 {
     glUniform4fv(loc, 1, &value[0]);
 }
 
-inline void glUniform(GLint loc, const glm::vec2 & value)
+inline void glUniform(GLint loc, const glm::vec2& value)
 {
     glUniform2fv(loc, 1, &value[0]);
 }

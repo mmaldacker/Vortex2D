@@ -34,11 +34,13 @@ const char* EllipseFrag = GLSL(
     uniform vec4 u_Colour;
     uniform float u_size;
     uniform vec2 u_radius;
+    uniform mat2 u_rotation;
 
     void main()
     {
         float size = 2 * u_size + 1;
         vec2 pos = (gl_PointCoord * size) - u_size;
+        pos = u_rotation * pos;
         float distance = dot(pos / u_radius, pos / u_radius);
         if (distance - 1.0 <= 1e-6)
         {
@@ -160,14 +162,16 @@ void Ellipse::SetEllipse(const glm::vec2& radius)
 void Ellipse::Render(RenderTarget& target, const glm::mat4& transform)
 {
     Enable e(GL_PROGRAM_POINT_SIZE);
-    EnablePointParameter ep(GL_POINT_SPRITE_COORD_ORIGIN, GL_LOWER_LEFT);
+    EnableParameter ep(glPointParameteri, GL_POINT_SPRITE_COORD_ORIGIN, GL_LOWER_LEFT);
 
-    // FIXME rotation is not handled
     glm::vec2 transformScale(glm::length(transform[0]), glm::length(transform[1]));
     glm::vec2 radius = mRadius * (glm::vec2)Scale * transformScale;
+    glm::mat4 rotation4 = glm::rotate(glm::radians((float)Rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+    glm::mat2 rotation(rotation4[0].xy, rotation4[1].xy);
     mProgram.Use()
             .Set("u_radius", radius)
-            .Set("u_size", std::max(radius.x, radius.y));
+            .Set("u_size", std::max(radius.x, radius.y))
+            .Set("u_rotation", rotation);
     Shape::Render(target, transform);
 }
 

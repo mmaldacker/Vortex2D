@@ -4,6 +4,7 @@
 //
 
 #include "Reader.h"
+#include "Disable.h"
 #include <iostream>
 
 namespace Vortex2D { namespace Renderer {
@@ -36,12 +37,11 @@ int Reader::GetSize() const
 {
     switch (mTexture.GetFormat())
     {
-        case Texture::PixelFormat::RF:
+        case GL_RED:
             return 1;
-        case Texture::PixelFormat::RGF:
+        case GL_RG:
             return 2;
-        case Texture::PixelFormat::RGBA8888:
-        case Texture::PixelFormat::RGBAF:
+        case GL_RGBA:
             return 4;
         default:
             throw std::runtime_error("unsupported read format");
@@ -50,25 +50,10 @@ int Reader::GetSize() const
 
 Reader & Reader::Read()
 {
-    GLenum format;
-    switch (mTexture.GetFormat())
-    {
-        case Texture::PixelFormat::RF:
-            format = GL_RED;
-            break;
-        case Texture::PixelFormat::RGF:
-            format = GL_RG;
-            break;
-        case Texture::PixelFormat::RGBA8888:
-        case Texture::PixelFormat::RGBAF:
-            format = GL_RGBA;
-            break;
-        default:
-            throw std::runtime_error("unsupported read format");
-    }
+    EnableParameter p(glPixelStorei, GL_PACK_ALIGNMENT, 1);
 
     mTexture.Begin();
-    glReadPixels(0, 0, mTexture.Width(), mTexture.Height(), format, GL_FLOAT, mPixels);
+    glReadPixels(0, 0, mTexture.Width(), mTexture.Height(), mTexture.GetFormat(), GL_FLOAT, mPixels);
     glReadPixels(0, 0, mTexture.Width(), mTexture.Height(), GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, mStencil);
     mTexture.End();
 

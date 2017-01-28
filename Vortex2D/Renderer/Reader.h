@@ -3,8 +3,8 @@
 //  Vortex2D
 //
 
-#ifndef __Vortex2D__Reader__
-#define __Vortex2D__Reader__
+#ifndef Vortex2D_Reader_h
+#define Vortex2D_Reader_h
 
 #include "Common.h"
 #include "RenderTexture.h"
@@ -17,7 +17,7 @@ namespace Vortex2D { namespace Renderer {
 class Reader
 {
 public:
-    Reader(Renderer::RenderTexture & texture);
+    Reader(RenderTexture & texture);
     Reader(Reader&&);
     ~Reader();
 
