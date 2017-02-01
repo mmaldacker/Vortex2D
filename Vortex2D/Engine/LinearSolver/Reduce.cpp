@@ -7,11 +7,14 @@
 
 namespace Vortex2D { namespace Fluid {
 
+namespace
+{
+
 const char * ReduceFrag = GLSL(
    out vec4 colour_out;
-   
+
    uniform sampler2D u_texture;
-   
+
    void main()
    {
        ivec2 pos = 2 * ivec2(gl_FragCoord.xy - 0.5);
@@ -37,10 +40,12 @@ const char * MultiplyFrag = GLSL(
      {
          float x = texture(u_texture, v_texCoord).x;
          float y = texture(u_other, v_texCoord).x;
-         
+
          colour_out = vec4(x*y, 0.0, 0.0, 0.0);
      }
 );
+
+}
 
 Reduce::Reduce(glm::vec2 size)
     : reduce(Renderer::Shader::PositionVert, ReduceFrag)
@@ -56,7 +61,7 @@ Reduce::Reduce(glm::vec2 size)
     multiply.Use().Set("u_texture", 0).Set("u_other", 1).Unuse();
 }
 
-OperatorContext Reduce::operator()(Buffer &a, Buffer &b)
+Renderer::OperatorContext Reduce::operator()(Renderer::Buffer& a, Renderer::Buffer& b)
 {
     s[0] = multiply(a, b);
 

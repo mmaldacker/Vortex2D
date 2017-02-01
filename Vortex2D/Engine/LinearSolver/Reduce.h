@@ -21,12 +21,12 @@ public:
     /**
      * @brief Runs the reduce operation
      */
-    OperatorContext operator()(Buffer &a, Buffer &b);
+    Renderer::OperatorContext operator()(Renderer::Buffer& a, Renderer::Buffer& b);
 
 private:
-    std::vector<Buffer> s;
-    Operator reduce;
-    Operator multiply;
+    std::vector<Renderer::Buffer> s;
+    Renderer::Operator reduce;
+    Renderer::Operator multiply;
 };
 
 }}

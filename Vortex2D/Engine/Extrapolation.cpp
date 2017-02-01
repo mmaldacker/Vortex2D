@@ -8,6 +8,9 @@
 
 namespace Vortex2D { namespace Fluid {
 
+namespace
+{
+
 const char * ExtrapolateFrag = GLSL(
     in vec2 v_texCoord;
     out vec4 out_color;
@@ -42,7 +45,7 @@ const char * ExtrapolateFrag = GLSL(
                 sum += textureOffset(u_texture, v_texCoord, ivec2(0,-1)).xy;
                 count += 1.0;
             }
-            
+
             if(count > 0)
             {
                 out_color = vec4(sum/count, 0.0, 0.0);
@@ -62,9 +65,9 @@ const char * ExtrapolateFrag = GLSL(
 const char * ExtrapolateMaskFrag = GLSL(
     in vec2 v_texCoord;
     out vec4 out_color;
-    
+
     uniform sampler2D u_mask;
-    
+
     void main()
     {
         if(texture(u_mask, v_texCoord).x == 1.0 ||
@@ -82,6 +85,10 @@ const char * ExtrapolateMaskFrag = GLSL(
     }
 );
 
+}
+
+using Renderer::Back;
+
 Extrapolation::Extrapolation(Dimensions dimensions)
     : mExtrapolateValid(dimensions.Size, 1, true, true)
     , mIdentity(Renderer::Shader::TexturePositionVert, Renderer::Shader::TexturePositionFrag)
@@ -94,7 +101,7 @@ Extrapolation::Extrapolation(Dimensions dimensions)
     mExtrapolateMask.Use().Set("u_mask", 0).Unuse();
 }
 
-void Extrapolation::Extrapolate(Buffer & buffer, LevelSet & neumann, LevelSet & dirichlet)
+void Extrapolation::Extrapolate(Renderer::Buffer& buffer, LevelSet& neumann, LevelSet& dirichlet)
 {
     mExtrapolateValid.Clear(glm::vec4(0.0));
     mExtrapolateValid.ClearStencil();

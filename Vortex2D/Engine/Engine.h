@@ -98,7 +98,7 @@ public:
 
     friend class Density;
 //private:
-    void Advect(Fluid::Buffer & buffer);
+    void Advect(Renderer::Buffer& buffer);
     void ExtrapolateFluid();
     void ConstrainVelocity();
 
@@ -106,23 +106,23 @@ public:
 
     LinearSolver::Data mData;
     LinearSolver & mLinearSolver;
- 
-    Extrapolation mExtrapolation;
-    Operator mExtrapolateFluid;
-    Operator mConstrainVelocity;
 
-    Buffer mVelocity;
-    Buffer mBoundariesVelocity;
+    Extrapolation mExtrapolation;
+    Renderer::Operator mExtrapolateFluid;
+    Renderer::Operator mConstrainVelocity;
+
+    Renderer::Buffer mVelocity;
+    Renderer::Buffer mBoundariesVelocity;
     LevelSet mFluidLevelSet;
     LevelSet mObstacleLevelSet;
 
-    Operator mDiv;
-    Operator mProject;
-    Operator mVelocityAdvect;
-    Operator mAdvect;
+    Renderer::Operator mDiv;
+    Renderer::Operator mProject;
+    Renderer::Operator mVelocityAdvect;
+    Renderer::Operator mAdvect;
 
-    Operator mWeights;
-    Operator mDiagonals;
+    Renderer::Operator mWeights;
+    Renderer::Operator mDiagonals;
 
     Renderer::Program mFluidProgram;
     Renderer::Uniform<glm::vec4> mColourUniform;

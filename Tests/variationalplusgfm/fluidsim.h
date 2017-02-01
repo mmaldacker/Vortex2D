@@ -18,21 +18,21 @@ public:
    //Grid dimensions
    int ni,nj;
    float dx;
-   
+
    //Fluid velocity
    Array2f u, v;
    Array2f temp_u, temp_v;
-   
+
    //Static geometry representation
    Array2f nodal_solid_phi;
    Array2f u_weights, v_weights;
    Array2c u_valid, v_valid;
 
    Array2f liquid_phi;
-   
+
    std::vector<Vec2f> particles; //For marker particle simulation
    float particle_radius;
-   
+
    //Data arrays for extrapolation
    Array2c valid, old_valid;
 
@@ -41,11 +41,9 @@ public:
    SparseMatrixd matrix;
    std::vector<double> rhs;
    std::vector<double> pressure;
-   
+
    Vec2f get_velocity(const Vec2f& position);
    void add_particle(const Vec2f& position);
-
-private:
 
    Vec2f trace_rk2(const Vec2f& position, float dt);
 
@@ -62,7 +60,7 @@ private:
    void project(float dt);
    void compute_weights();
    void solve_pressure(float dt);
-   
+
    void constrain_velocity();
 
 };

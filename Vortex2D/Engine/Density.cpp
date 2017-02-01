@@ -17,6 +17,11 @@ Density::Density(Dimensions dimensions)
     mDensity.Clear(glm::vec4(0.0));
 }
 
+Density::~Density()
+{
+
+}
+
 void Density::Render(Renderer::Drawable & object)
 {
     Renderer::Disable d(GL_BLEND);

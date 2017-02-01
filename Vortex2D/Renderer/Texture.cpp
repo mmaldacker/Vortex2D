@@ -182,5 +182,21 @@ GLenum Texture::GetType() const
     }
 }
 
+unsigned Texture::GetNumberComponents() const
+{
+    switch (mFormat)
+    {
+        case PixelFormat::RGBA8888:
+        case PixelFormat::RGBAF:
+            return 4;
+        case PixelFormat::RGB888:
+        case PixelFormat::RGBF:
+            return 3;
+        case PixelFormat::RGF:
+            return 2;
+        case PixelFormat::RF:
+            return 1;
+    }
+}
 
 }}

@@ -51,8 +51,11 @@ void PrintLevelSet(int size, float (*phi)(const glm::vec2&))
     std::cout << std::endl;
 }
 
-void CheckDifference(int size, Reader& reader, float (*phi)(const glm::vec2&))
+void CheckDifference(int size, Buffer& buffer, float (*phi)(const glm::vec2&))
 {
+    Reader reader(buffer);
+    reader.Read();
+
     for (int i = 0; i < size; i++)
     {
         for (int j = 0; j < size; j++)
@@ -85,7 +88,7 @@ TEST(LevelSetTests, SimpleCircle)
     levelSet.Render(circle);
     levelSet.Redistance(500);
 
-    CheckDifference(size.x, levelSet.Get().Read(), boundary_phi_simple);
+    CheckDifference(size.x, levelSet, boundary_phi_simple);
 }
 
 TEST(LevelSetTests, ComplexCircles)
@@ -116,7 +119,7 @@ TEST(LevelSetTests, ComplexCircles)
     levelSet.Render(circle3);
     levelSet.Redistance(500);
 
-    CheckDifference(size.x, levelSet.Get().Read(), boundary_phi_complex);
+    CheckDifference(size.x, levelSet, boundary_phi_complex);
 }
 
 

@@ -3,8 +3,8 @@
 //  Vortex2D
 //
 
-#ifndef __Vortex2D__Density__
-#define __Vortex2D__Density__
+#ifndef Vortex2D_Density_h
+#define Vortex2D_Density_h
 
 #include "Size.h"
 #include "Operator.h"
@@ -22,6 +22,7 @@ class Density : public Renderer::Drawable, public Renderer::Transformable
 {
 public:
     Density(Dimensions dimensions);
+    virtual ~Density();
 
     /**
      * @brief Renders some colours on the density grid
@@ -40,7 +41,7 @@ public:
 
 private:
     Dimensions mDimensions;
-    Buffer mDensity;
+    Renderer::Buffer mDensity;
 };
 
 }}

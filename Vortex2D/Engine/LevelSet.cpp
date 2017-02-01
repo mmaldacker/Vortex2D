@@ -116,8 +116,10 @@ const char* LevelSetMaskFrag = GLSL(
 
 }
 
+using Renderer::Back;
+
 LevelSet::LevelSet(const glm::vec2& size)
-    : Buffer(size, 1, true, true)
+    : Renderer::Buffer(size, 1, true, true)
     , mLevelSet0(size, 1)
     , mRedistance(Renderer::Shader::TexturePositionVert, RedistanceFrag)
     , mIdentity(Renderer::Shader::TexturePositionVert, Renderer::Shader::TexturePositionFrag)
@@ -144,7 +146,7 @@ void LevelSet::Redistance(int iterations)
     }
 }
 
-void LevelSet::RenderMask(Vortex2D::Fluid::Buffer & buffer)
+void LevelSet::RenderMask(Renderer::Buffer& buffer)
 {
     Renderer::Enable e(GL_STENCIL_TEST);
     Renderer::DisableColorMask c;

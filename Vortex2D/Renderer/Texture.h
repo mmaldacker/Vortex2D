@@ -42,6 +42,8 @@ public:
     int Width() const { return mWidth; }
     int Height() const { return mHeight; }
 
+    unsigned GetNumberComponents() const;
+
     void Bind(int n = 0) const;
     static void Unbind();
 

@@ -7,10 +7,10 @@
 #define Buffer_h
 
 #include "RenderTarget.h"
-#include "Reader.h"
+#include "RenderTexture.h"
 #include "Sprite.h"
 
-namespace Vortex2D { namespace Fluid {
+namespace Vortex2D { namespace Renderer {
 
 struct OperatorContext;
 
@@ -32,14 +32,14 @@ public:
      * @param doubled if true, create two underlying RenderTexture
      * @param depth if true, add a depth and stencil buffer
      */
-    Buffer(const glm::vec2 & size, unsigned components, bool doubled = false, bool depth = false);
-
-    Buffer & operator=(OperatorContext context);
+    Buffer(const glm::vec2& size, unsigned components, bool doubled = false, bool depth = false);
 
     /**
-     * @brief Returns a Reader to poke the content of the Texture of the front RenderTexture
+     * @brief Run a shader on the buffer with several textures bound.
+     * @param the return value of the Operator parenthesis operator
+     * @return *this
      */
-    Renderer::Reader Get();
+    Buffer& operator=(OperatorContext context);
 
     /**
      * @brief Make the texture linear.
@@ -54,14 +54,14 @@ public:
     /**
      * @brief Clears the Buffer
      */
-    void Clear(const glm::vec4 & colour) override;
+    void Clear(const glm::vec4& colour) override;
 
     /**
      * @brief Renders an object on the front RenderTexture only
      * @param object the object to use
      * @param transform an optional transform to apply
      */
-    void Render(Renderer::Drawable & object, const glm::mat4 & transform = glm::mat4()) override;
+    void Render(Renderer::Drawable& object, const glm::mat4& transform = glm::mat4()) override;
 
     /**
      * @brief Clears the stencil on both RenderTexture
@@ -72,17 +72,20 @@ public:
      * @brief Swap the front and back RenderTexture
      * @return returns *this
      */
-    Buffer & Swap();
+    Buffer& Swap();
 
     /**
      * @brief Returns a Sprite backed by the Texture of the front RenderTexture
      */
-    Renderer::Sprite & Sprite();
+    Renderer::Sprite& Sprite();
 
     friend struct Back;
     friend struct Front;
+
+    friend class Reader;
+    friend class Writer;
 private:
-    void Add(const glm::vec2 & size, unsigned components, bool depth);
+    void Add(const glm::vec2& size, unsigned components, bool depth);
 
     // of size 1 or 2
     std::vector<Renderer::RenderTexture> mTextures;
@@ -94,11 +97,11 @@ private:
  */
 struct Front
 {
-    Front(Buffer & b) : buffer(b) {}
+    Front(Buffer& b) : buffer(b) {}
 
     void Bind(int n) { buffer.mTextures.front().Bind(n); }
 
-    Buffer & buffer;
+    Buffer& buffer;
 };
 
 /**
@@ -106,11 +109,11 @@ struct Front
  */
 struct Back
 {
-    explicit Back(Buffer & b) : buffer(b) {}
+    explicit Back(Buffer& b) : buffer(b) {}
 
     void Bind(int n) { buffer.mTextures.back().Bind(n); }
 
-    Buffer & buffer;
+    Buffer& buffer;
 };
 
 }}

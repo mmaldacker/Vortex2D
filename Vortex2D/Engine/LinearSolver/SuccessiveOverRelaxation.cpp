@@ -9,6 +9,9 @@
 
 namespace Vortex2D { namespace Fluid {
 
+namespace
+{
+
 const char * SorFrag = GLSL(
     in vec2 v_texCoord;
     out vec4 out_color;
@@ -34,7 +37,7 @@ const char * SorFrag = GLSL(
         float d = texture(u_diagonals, v_texCoord).x;
 
         float pressure = mix(cell.x, (dot(p,c) + cell.y) / d, w);
-        
+
         out_color = vec4(pressure, cell.y, 0.0, 0.0);
     }
 );
@@ -49,7 +52,11 @@ const char * CheckerMask = GLSL(
     }
 );
 
-SuccessiveOverRelaxation::SuccessiveOverRelaxation(const glm::vec2 & size, int iterations)
+}
+
+using Renderer::Back;
+
+SuccessiveOverRelaxation::SuccessiveOverRelaxation(const glm::vec2& size, int iterations)
     : mIterations(iterations)
     , mSor(Renderer::Shader::TexturePositionVert, SorFrag)
     , mStencil(Renderer::Shader::TexturePositionVert, CheckerMask)
@@ -60,13 +67,13 @@ SuccessiveOverRelaxation::SuccessiveOverRelaxation(const glm::vec2 & size, int i
     mSor.Use().Set("u_texture", 0).Set("u_weights", 1).Set("u_diagonals", 2).Set("w", w).Unuse();
 }
 
-SuccessiveOverRelaxation::SuccessiveOverRelaxation(const glm::vec2 & size, int iterations, float w)
+SuccessiveOverRelaxation::SuccessiveOverRelaxation(const glm::vec2& size, int iterations, float w)
     : SuccessiveOverRelaxation(size, iterations)
 {
     mSor.Use().Set("w", w).Unuse();
 }
 
-void SuccessiveOverRelaxation::Init(LinearSolver::Data & data)
+void SuccessiveOverRelaxation::Init(LinearSolver::Data& data)
 {
     Renderer::Enable e(GL_STENCIL_TEST);
     Renderer::DisableColorMask c;
@@ -81,7 +88,7 @@ void SuccessiveOverRelaxation::Init(LinearSolver::Data & data)
     glStencilMask(0x00); // disable stencil writing
 }
 
-void SuccessiveOverRelaxation::Solve(LinearSolver::Data & data)
+void SuccessiveOverRelaxation::Solve(LinearSolver::Data& data)
 {
     for (int i  = 0; i < mIterations; ++i)
     {
@@ -90,7 +97,7 @@ void SuccessiveOverRelaxation::Solve(LinearSolver::Data & data)
     }
 }
 
-void SuccessiveOverRelaxation::Step(LinearSolver::Data & data, bool isRed)
+void SuccessiveOverRelaxation::Step(LinearSolver::Data& data, bool isRed)
 {
     Renderer::Enable e(GL_STENCIL_TEST);
     glStencilMask(0x00);

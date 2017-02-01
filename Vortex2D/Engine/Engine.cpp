@@ -466,7 +466,9 @@ const char * FluidFrag = GLSL(
 
 }
 
-Engine::Engine(Dimensions dimensions, LinearSolver & linearSolver, float dt)
+using Renderer::Back;
+
+Engine::Engine(Dimensions dimensions, LinearSolver& linearSolver, float dt)
     : TopBoundary(glm::vec2(dimensions.Scale)*glm::vec2(dimensions.Size.x, 1.0f))
     , BottomBoundary(glm::vec2(dimensions.Scale)*glm::vec2(dimensions.Size.x, 1.0f))
     , LeftBoundary(glm::vec2(dimensions.Scale)*glm::vec2(1.0f, dimensions.Size.y))
@@ -555,13 +557,13 @@ void Engine::Solve()
     mVelocity.Swap() = mVelocityAdvect(Back(mVelocity));
 }
 
-void Engine::RenderDirichlet(Renderer::Drawable & object)
+void Engine::RenderDirichlet(Renderer::Drawable& object)
 {
     Renderer::Disable d(GL_BLEND);
     mFluidLevelSet.Render(object, mDimensions.InvScale);
 }
 
-void Engine::RenderNeumann(Renderer::Drawable & object)
+void Engine::RenderNeumann(Renderer::Drawable& object)
 {
     Renderer::Disable d(GL_BLEND);
     mObstacleLevelSet.Render(object, glm::scale(glm::vec3(2.0f, 2.0f, 1.0f))*mDimensions.InvScale);
@@ -576,13 +578,13 @@ void Engine::RenderFluid(Renderer::Drawable &object)
     mFluidLevelSet.Render(object, mDimensions.InvScale);
 }
 
-void Engine::RenderVelocities(Renderer::Drawable & object)
+void Engine::RenderVelocities(Renderer::Drawable& object)
 {
     Renderer::Disable d(GL_BLEND);
     mBoundariesVelocity.Render(object, mDimensions.InvScale);
 }
 
-void Engine::RenderForce(Renderer::Drawable & object)
+void Engine::RenderForce(Renderer::Drawable& object)
 {
     Renderer::Enable b(GL_BLEND);
     Renderer::BlendState s(GL_FUNC_ADD, GL_ONE, GL_ONE);
@@ -611,13 +613,13 @@ void Engine::ReinitialiseNeumann()
     mObstacleLevelSet.Redistance(100);
 }
 
-void Engine::Advect(Fluid::Buffer & buffer)
+void Engine::Advect(Renderer::Buffer& buffer)
 {
     Renderer::Disable d(GL_BLEND);
     buffer.Swap() = mAdvect(Back(buffer), mVelocity);
 }
 
-void Engine::Render(Renderer::RenderTarget & target, const glm::mat4 & transform)
+void Engine::Render(Renderer::RenderTarget& target, const glm::mat4& transform)
 {
     auto & sprite = mFluidLevelSet.Sprite();
     sprite.SetProgram(mFluidProgram);

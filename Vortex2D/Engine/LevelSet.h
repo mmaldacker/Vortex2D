@@ -17,10 +17,10 @@ namespace Vortex2D { namespace Fluid {
  * The additional functionality ensures that the buffer represents a distance set.
  * This set can be reinitialised (or improved).
  */
-class LevelSet : public Buffer
+class LevelSet : public Renderer::Buffer
 {
 public:
-    LevelSet(const glm::vec2 & size);
+    LevelSet(const glm::vec2& size);
 
     using Buffer::operator=;
 
@@ -30,13 +30,13 @@ public:
      */
     void Redistance(int iterations);
 
-    void RenderMask(Buffer & buffer);
+    void RenderMask(Renderer::Buffer& buffer);
 
 private:
-    Buffer mLevelSet0;
-    Operator mRedistance;
-    Operator mIdentity;
-    Operator mMask;
+    Renderer::Buffer mLevelSet0;
+    Renderer::Operator mRedistance;
+    Renderer::Operator mIdentity;
+    Renderer::Operator mMask;
 };
 
 }}

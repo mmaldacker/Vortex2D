@@ -3,74 +3,84 @@
 
 namespace Vortex2D { namespace Fluid {
 
+namespace
+{
+
 const char * LICFrag = GLSL(
-	uniform sampler2D u_velocity;
-	uniform sampler2D u_noise;
+    uniform sampler2D u_velocity;
+    uniform sampler2D u_noise;
 
-	in vec2 v_texCoord;
-	out vec4 out_color;
+    in vec2 v_texCoord;
+    out vec4 out_color;
 
-	void advection(float kernelLen, out float t_accum, out float w_accum)
-	{
-		int advections = 0, max_advections = int(3.0 * kernelLen);
-		float curLen = 0.0, prevLen = 0.0;
+    void advection(float kernelLen, out float t_accum, out float w_accum)
+    {
+        int advections = 0, max_advections = int(3.0 * kernelLen);
+        float curLen = 0.0, prevLen = 0.0;
 
-		vec2  uv = texture(u_velocity, v_texCoord).xy;
+        vec2  uv = texture(u_velocity, v_texCoord).xy;
 
-		vec2 clp0 = gl_FragCoord.xy, clp1;
+        vec2 clp0 = gl_FragCoord.xy, clp1;
 
-		while (curLen < kernelLen && advections < max_advections)
-		{
-			if (uv.x == 0.0 && uv.y == 0.0)
-			{
-				break;
-			}
-		}
-	}
+        while (curLen < kernelLen && advections < max_advections)
+        {
+            if (uv.x == 0.0 && uv.y == 0.0)
+            {
+                break;
+            }
+        }
+    }
 
-	void main()
-	{
-		float t_accum[2];
-		float w_accum[2];
+    void main()
+    {
+        float t_accum[2];
+        float w_accum[2];
 
-		advection(10.0, t_accum[0], w_accum[0]);
-		advection(10.0, t_accum[1], w_accum[1]);
+        advection(10.0, t_accum[0], w_accum[0]);
+        advection(10.0, t_accum[1], w_accum[1]);
 
-		out_color = vec4(vec3((t_accum[0] + t_accum[1]) / (w_accum[0] + w_accum[1])), 1.0);
-	}
+        out_color = vec4(vec3((t_accum[0] + t_accum[1]) / (w_accum[0] + w_accum[1])), 1.0);
+    }
 );
+
+}
 
 LineIntegralConvolution::LineIntegralConvolution(const glm::vec2 & size) : mLic(Renderer::Shader::TexturePositionVert, LICFrag), mOutput(size, 4)
 {
-	std::random_device rd;
-	std::mt19937 gen(rd());
-	std::uniform_int_distribution<> dis(0, 255);
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, 255);
 
-	uint8_t * pixels = new uint8_t[3 * size.x * size.y];
-	int width = size.x;
+    uint8_t * pixels = new uint8_t[3 * size.x * size.y];
+    int width = size.x;
 
-	for (int j = 0; j < size.y; j++)
-	{
-		for (int i = 0; i < size.x; i++)
-		{
-			auto colour = dis(gen);
-			pixels[3 * (j * width + i)] = colour;
-			pixels[3 * (j * width + i) + 1] = colour;
-			pixels[3 * (j * width + i) + 2] = colour;
-		}
-	}
+    for (int j = 0; j < size.y; j++)
+    {
+        for (int i = 0; i < size.x; i++)
+        {
+            auto colour = dis(gen);
+            pixels[3 * (j * width + i)] = colour;
+            pixels[3 * (j * width + i) + 1] = colour;
+            pixels[3 * (j * width + i) + 2] = colour;
+        }
+    }
 
-	mWhiteNoise = Renderer::Texture(size.x, size.y, Renderer::Texture::PixelFormat::RGB888, pixels);
+    //mWhiteNoise = Renderer::Texture(size.x, size.y, Renderer::Texture::PixelFormat::RGB888, pixels);
 
-	delete[] pixels;
+    delete[] pixels;
 }
 
-void LineIntegralConvolution::Calculate(Buffer & velocity)
+LineIntegralConvolution::~LineIntegralConvolution()
 {
-	mOutput = mLic(velocity, mWhiteNoise);
+
 }
 
-void LineIntegralConvolution::Render(Renderer::RenderTarget & target, const glm::mat4 & transform)
+void LineIntegralConvolution::Calculate(Renderer::Buffer& velocity)
+{
+    mOutput = mLic(velocity, mWhiteNoise);
+}
+
+void LineIntegralConvolution::Render(Renderer::RenderTarget& target, const glm::mat4& transform)
 {
 }
 

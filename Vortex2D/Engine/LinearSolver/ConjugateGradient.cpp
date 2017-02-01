@@ -11,6 +11,9 @@
 
 namespace Vortex2D { namespace Fluid {
 
+namespace
+{
+
 const char * DivideFrag = GLSL(
     in vec2 v_texCoord;
     out vec4 colour_out;
@@ -41,7 +44,7 @@ const char * MultiplyAddFrag = GLSL(
         float x = texture(u_texture, v_texCoord).x;
         float y = texture(u_other, v_texCoord).x;
         float alpha = texture(u_scalar, vec2(0.5)).x;
-        
+
         colour_out = vec4(x+alpha*y, 0.0, 0.0, 0.0);
     }
 );
@@ -117,7 +120,11 @@ const char * ResidualFrag = GLSL(
     }
 );
 
-ConjugateGradient::ConjugateGradient(const glm::vec2 & size)
+}
+
+using Renderer::Back;
+
+ConjugateGradient::ConjugateGradient(const glm::vec2& size)
     : r(size, 1, true)
     , s(size, 1, true)
     , z(size, 1)
@@ -142,11 +149,15 @@ ConjugateGradient::ConjugateGradient(const glm::vec2 & size)
     multiplySub.Use().Set("u_texture", 0).Set("u_other", 1).Set("u_scalar", 2).Unuse();
 }
 
-void ConjugateGradient::Init(LinearSolver::Data & data)
+ConjugateGradient::~ConjugateGradient()
 {
 }
 
-void ConjugateGradient::Solve(LinearSolver::Data & data)
+void ConjugateGradient::Init(LinearSolver::Data& data)
+{
+}
+
+void ConjugateGradient::Solve(LinearSolver::Data& data)
 {
     Renderer::Enable e(GL_STENCIL_TEST);
     glStencilMask(0x00);

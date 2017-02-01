@@ -8,7 +8,14 @@
 
 namespace Vortex2D { namespace Renderer {
 
-Writer::Writer(RenderTexture& texture) : mTexture(texture)
+Writer::Writer(RenderTexture& texture)
+    : mTexture(texture)
+{
+
+}
+
+Writer::Writer(Buffer& buffer)
+    : Writer(buffer.mTextures.front())
 {
 
 }

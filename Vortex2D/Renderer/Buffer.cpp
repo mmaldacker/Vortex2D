@@ -7,7 +7,7 @@
 #include "Shader.h"
 #include "Operator.h"
 
-namespace Vortex2D { namespace Fluid {
+namespace Vortex2D { namespace Renderer {
 
 Buffer::Buffer(const glm::vec2 & size, unsigned components, bool doubled, bool depth)
     : RenderTarget(size.x, size.y)
@@ -17,17 +17,12 @@ Buffer::Buffer(const glm::vec2 & size, unsigned components, bool doubled, bool d
     if (doubled) Add(size, components, depth);
 }
 
-Buffer & Buffer::operator=(OperatorContext context)
+Buffer& Buffer::operator=(OperatorContext context)
 {
     mSprite.NoTexture();
     mSprite.SetProgram(context.Program);
     Render(mSprite);
     return *this;
-}
-
-Renderer::Reader Buffer::Get()
-{
-    return {mTextures.front()};
 }
 
 void Buffer::ClearStencil()
@@ -50,7 +45,7 @@ void Buffer::Clear(const glm::vec4& colour)
     for (auto&& t : mTextures) t.Clear(colour);
 }
 
-void Buffer::Render(Renderer::Drawable& object, const glm::mat4 & transform)
+void Buffer::Render(Renderer::Drawable& object, const glm::mat4& transform)
 {
     mTextures.front().Render(object, transform);
 }

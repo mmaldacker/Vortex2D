@@ -9,13 +9,19 @@
 
 namespace Vortex2D { namespace Renderer {
 
-Reader::Reader(Renderer::RenderTexture & texture)
+Reader::Reader(RenderTexture& texture)
     : mTexture(texture)
 {
-    int size = GetSize();
+    int size = texture.GetNumberComponents();
 
     mPixels = new float[texture.Height() * texture.Width() * size];
     mStencil = new uint8_t[texture.Height() * texture.Width()];
+}
+
+Reader::Reader(Buffer& buffer)
+    : Reader(buffer.mTextures.front())
+{
+
 }
 
 Reader::~Reader()
@@ -27,28 +33,13 @@ Reader::~Reader()
     }
 }
 
-Reader::Reader(Reader && other) : mTexture(other.mTexture), mPixels(other.mPixels), mStencil(other.mStencil)
+Reader::Reader(Reader&& other) : mTexture(other.mTexture), mPixels(other.mPixels), mStencil(other.mStencil)
 {
     other.mPixels = nullptr;
     other.mStencil = nullptr;
 }
 
-int Reader::GetSize() const
-{
-    switch (mTexture.GetFormat())
-    {
-        case GL_RED:
-            return 1;
-        case GL_RG:
-            return 2;
-        case GL_RGBA:
-            return 4;
-        default:
-            throw std::runtime_error("unsupported read format");
-    }
-}
-
-Reader & Reader::Read()
+Reader& Reader::Read()
 {
     EnableParameter p(glPixelStorei, GL_PACK_ALIGNMENT, 1);
 
@@ -62,11 +53,11 @@ Reader & Reader::Read()
     return *this;
 }
 
-Reader & Reader::Print()
+Reader& Reader::Print()
 {
     assert(mPixels);
 
-    int size = GetSize();
+    int size = mTexture.GetNumberComponents();
     for (int j = 0 ; j < mTexture.Height() ; ++j)
     {
         for (int i = 0 ; i < mTexture.Width() ; ++i)
@@ -87,7 +78,7 @@ Reader & Reader::Print()
     return *this;
 }
 
-Reader & Reader::PrintStencil()
+Reader& Reader::PrintStencil()
 {
     assert(mStencil);
 

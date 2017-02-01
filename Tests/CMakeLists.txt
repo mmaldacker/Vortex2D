@@ -1,5 +1,6 @@
 file(GLOB TEST_SOURCES "LevelSetTests.cpp"
                        "RenderingTests.cpp"
+                       "LinearSolverTests.cpp"
                        "main.cpp"
                        "variationalplusgfm/*.h"
                        "variationalplusgfm/*.cpp"

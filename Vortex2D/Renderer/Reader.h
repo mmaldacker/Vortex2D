@@ -8,6 +8,7 @@
 
 #include "Common.h"
 #include "RenderTexture.h"
+#include "Buffer.h"
 
 namespace Vortex2D { namespace Renderer {
 
@@ -17,7 +18,8 @@ namespace Vortex2D { namespace Renderer {
 class Reader
 {
 public:
-    Reader(RenderTexture & texture);
+    Reader(RenderTexture& texture);
+    Reader(Buffer& buffer);
     Reader(Reader&&);
     ~Reader();
 
@@ -61,7 +63,6 @@ public:
     glm::vec4 GetVec4(int x, int y) const;
 
 private:
-    int GetSize() const;
     float Get(int x, int y, int size, int offset) const;
 
     Renderer::RenderTexture& mTexture;

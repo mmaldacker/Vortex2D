@@ -10,6 +10,7 @@
 #include "Writer.h"
 #include "Disable.h"
 #include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 using namespace Vortex2D::Renderer;
 
@@ -100,6 +101,33 @@ TEST(RenderingTest, WriteTexture)
     writer.Write(data.data());
 
     CheckTexture(50, 50, data, texture);
+}
+
+TEST(RenderingTest, WriteVector)
+{
+    Disable d(GL_BLEND);
+
+    RenderTexture texture(50, 50, Texture::PixelFormat::RGF);
+
+    std::vector<glm::vec2> data(50*50, glm::vec2(3.0f, -2.0f));
+    data[20 + 50 * 2].x = 8.0f;
+    data[12 + 50 * 4].y = 12.0f;
+
+    Writer writer(texture);
+    writer.Write(glm::value_ptr(data[0]));
+
+    Reader reader(texture);
+    reader.Read();
+
+    for (int i = 0; i < 50; i++)
+    {
+        for (int j = 0; j < 50; j++)
+        {
+            glm::vec2 value = data[i + j * 50];
+            EXPECT_FLOAT_EQ(value.x, reader.GetVec2(i, j).x) << "Value not equal at " << i << ", " << j;
+            EXPECT_FLOAT_EQ(value.y, reader.GetVec2(i, j).y) << "Value not equal at " << i << ", " << j;
+        }
+    }
 }
 
 TEST(RenderingTest, Square)

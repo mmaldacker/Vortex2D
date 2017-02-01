@@ -24,7 +24,7 @@ struct LinearSolver
      */
     struct Data
     {
-        Data(const glm::vec2 & size)
+        Data(const glm::vec2& size)
         : Weights(size, 4)
         , Diagonal(size, 1)
         , Pressure(size, 2, true, true)
@@ -33,28 +33,30 @@ struct LinearSolver
         /**
          * @brief Buffer with 4 components holding the weights of the 4 neighbouring grid cells
          */
-        Buffer Weights;
+        Renderer::Buffer Weights;
 
         /**
          * @brief Buffer with 1 component holding the diagonal value of the matrix
          */
-        Buffer Diagonal;
+        Renderer::Buffer Diagonal;
 
         /**
          * @brief Buffer with 2 components, first one is unknowns and second is the right hand side of the linear equations.
          */
-        Buffer Pressure;
+        Renderer::Buffer Pressure;
     };
+
+    virtual ~LinearSolver() {}
 
     /**
      * @brief Any initialisation steps to be done before solving the linear equations
      */
-    virtual void Init(Data & data) = 0;
+    virtual void Init(Data& data) = 0;
 
     /**
      * @brief Solves the linear equations
      */
-    virtual void Solve(Data & data) = 0;
+    virtual void Solve(Data& data) = 0;
 };
 
 }}

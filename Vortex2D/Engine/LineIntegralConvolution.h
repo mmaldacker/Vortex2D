@@ -19,16 +19,17 @@ namespace Vortex2D { namespace Fluid {
 class LineIntegralConvolution : public Renderer::Drawable
 {
 public:
-	LineIntegralConvolution(const glm::vec2 & size);
+    LineIntegralConvolution(const glm::vec2& size);
+    virtual ~LineIntegralConvolution();
 
-	void Calculate(Buffer & velocity);
+    void Calculate(Renderer::Buffer & velocity);
 
-	void Render(Renderer::RenderTarget & target, const glm::mat4 & transform = glm::mat4()) override;
+    void Render(Renderer::RenderTarget& target, const glm::mat4& transform = glm::mat4()) override;
 
 private:
-	Renderer::Texture mWhiteNoise;
-	Operator mLic;
-	Buffer mOutput;
+    Renderer::Texture mWhiteNoise;
+    Renderer::Operator mLic;
+    Renderer::Buffer mOutput;
 };
 
 }}

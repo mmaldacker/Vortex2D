@@ -25,14 +25,14 @@ public:
      * @brief Will extrapolate values from buffer into the dirichlet and neumann boundaries
      * @param buffer needs to be double-buffered and with stencil buffer
      */
-    void Extrapolate(Buffer & buffer, LevelSet & neumann, LevelSet & dirichlet);
+    void Extrapolate(Renderer::Buffer& buffer, LevelSet& neumann, LevelSet& dirichlet);
 
 private:
-    Buffer mExtrapolateValid;
+    Renderer::Buffer mExtrapolateValid;
 
-    Operator mIdentity;
-    Operator mExtrapolate;
-    Operator mExtrapolateMask;
+    Renderer::Operator mIdentity;
+    Renderer::Operator mExtrapolate;
+    Renderer::Operator mExtrapolateMask;
 
     Renderer::Rectangle mSurface;
 };

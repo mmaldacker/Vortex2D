@@ -11,7 +11,7 @@
 #include <utility>
 #include <cassert>
 
-namespace Vortex2D { namespace Fluid {
+namespace Vortex2D { namespace Renderer {
 
 /**
  * @brief Helper class returned from the call operator of Operator.
@@ -71,26 +71,26 @@ public:
     }
 
 private:
-	template<typename T, typename ... Args, REQUIRES(std::is_base_of<Buffer, remove_reference_t<T>>::value)>
+    template<typename T, typename ... Args, REQUIRES(std::is_base_of<Buffer, remove_reference_t<T>>::value)>
     void BindHelper(int unit, T && input, Args && ... args)
     {
         Front(input).Bind(unit);
         BindHelper(unit + 1, std::forward<Args>(args)...);
     }
 
-	template<typename T, typename ... Args, REQUIRES(std::is_same<T, Back>::value)>
+    template<typename T, typename ... Args, REQUIRES(std::is_same<T, Back>::value)>
     void BindHelper(int unit, T && input, Args && ... args)
     {
         input.Bind(unit);
         BindHelper(unit + 1, std::forward<Args>(args)...);
     }
 
-	template<typename T, typename ... Args, REQUIRES(std::is_same<T,Renderer::Texture&>::value)>
-	void BindHelper(int unit, T && input, Args && ... args)
-	{
-		input.Bind(unit);
-		BindHelper(unit + 1, std::forward<Args>(args)...);
-	}
+    template<typename T, typename ... Args, REQUIRES(std::is_same<T,Renderer::Texture&>::value)>
+    void BindHelper(int unit, T && input, Args && ... args)
+    {
+        input.Bind(unit);
+        BindHelper(unit + 1, std::forward<Args>(args)...);
+    }
 
     void BindHelper(int unit)
     {
