@@ -18,8 +18,8 @@ namespace Vortex2D { namespace Renderer {
  */
 struct OperatorContext
 {
-    OperatorContext(Renderer::Program & p) : Program(p) {}
-    Renderer::Program & Program;
+    OperatorContext(Renderer::Program& p) : Program(p) {}
+    Renderer::Program& Program;
 };
 
 #define REQUIRES(...) typename std::enable_if<(__VA_ARGS__), int>::type = 0

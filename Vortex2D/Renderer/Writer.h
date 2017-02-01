@@ -7,15 +7,18 @@
 #define Vortex2D_Writer_h
 
 #include "Common.h"
-#include "RenderTexture.h"
+#include "Texture.h"
 #include "Buffer.h"
 
 namespace Vortex2D { namespace Renderer {
 
+/**
+ * @brief Helper class to write data to a texture
+ */
 class Writer
 {
 public:
-    Writer(RenderTexture& texture);
+    Writer(Texture& texture);
     Writer(Buffer& buffer);
 
     void Write(uint8_t* data);
@@ -24,7 +27,7 @@ public:
 private:
     void Write(void* data);
 
-    RenderTexture& mTexture;
+    Texture& mTexture;
 };
 
 }}
