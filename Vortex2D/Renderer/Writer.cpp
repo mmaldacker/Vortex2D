@@ -5,6 +5,7 @@
 
 #include "Writer.h"
 #include "Disable.h"
+#include <glm/gtc/type_ptr.hpp>
 
 namespace Vortex2D { namespace Renderer {
 
@@ -20,17 +21,35 @@ Writer::Writer(Buffer& buffer)
 
 }
 
-void Writer::Write(uint8_t* data)
+void Writer::Write(const std::vector<float>& data)
+{
+    assert(!data.empty());
+    Write(data.data());
+}
+
+void Writer::Write(const std::vector<glm::vec2>& data)
+{
+    assert(!data.empty());
+    Write(glm::value_ptr(data[0]));
+}
+
+void Writer::Write(const std::vector<glm::vec4>& data)
+{
+    assert(!data.empty());
+    Write(glm::value_ptr(data[0]));
+}
+
+void Writer::Write(const uint8_t* data)
 {
     if (mTexture.GetType() != GL_UNSIGNED_BYTE)
     {
         throw std::runtime_error("Cannot write texture");
     }
 
-    Write((void*)data);
+    Write((const void*)data);
 }
 
-void Writer::Write(float* data)
+void Writer::Write(const float* data)
 {
     if (mTexture.GetType() != GL_FLOAT)
     {
@@ -40,7 +59,7 @@ void Writer::Write(float* data)
     Write((void*)data);
 }
 
-void Writer::Write(void* data)
+void Writer::Write(const void* data)
 {
     EnableParameter p(glPixelStorei, GL_UNPACK_ALIGNMENT, 1);
 

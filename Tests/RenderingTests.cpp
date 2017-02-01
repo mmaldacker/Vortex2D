@@ -10,7 +10,6 @@
 #include "Writer.h"
 #include "Disable.h"
 #include <glm/gtx/rotate_vector.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 using namespace Vortex2D::Renderer;
 
@@ -98,7 +97,7 @@ TEST(RenderingTest, WriteTexture)
     DrawSquare(50, 50, data, glm::vec2(10.0f, 15.0f), glm::vec2(5.0f, 8.0f));
 
     Writer writer(texture);
-    writer.Write(data.data());
+    writer.Write(data);
 
     CheckTexture(50, 50, data, texture);
 }
@@ -114,7 +113,7 @@ TEST(RenderingTest, WriteVector)
     data[12 + 50 * 4].y = 12.0f;
 
     Writer writer(texture);
-    writer.Write(glm::value_ptr(data[0]));
+    writer.Write(data);
 
     Reader reader(texture);
     reader.Read();

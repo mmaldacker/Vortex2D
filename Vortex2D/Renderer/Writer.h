@@ -9,6 +9,7 @@
 #include "Common.h"
 #include "Texture.h"
 #include "Buffer.h"
+#include <vector>
 
 namespace Vortex2D { namespace Renderer {
 
@@ -21,11 +22,14 @@ public:
     Writer(Texture& texture);
     Writer(Buffer& buffer);
 
-    void Write(uint8_t* data);
-    void Write(float* data);
+    void Write(const uint8_t* data);
+    void Write(const std::vector<glm::vec4>& data);
+    void Write(const std::vector<glm::vec2>& data);
+    void Write(const std::vector<float>& data);
+    void Write(const float* data);
 
 private:
-    void Write(void* data);
+    void Write(const void* data);
 
     Texture& mTexture;
 };

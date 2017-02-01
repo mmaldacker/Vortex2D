@@ -54,7 +54,9 @@ TEST(LinearSolverTests, Simple)
 
     LinearSolver::Data data(glm::vec2(50.0f));
 
-    Writer pressureWriter(data.Pressure);
     std::vector<glm::vec4> pressureData;
-    Writer diagonalWriter(data.Diagonal);
+    std::vector<float> diagonalData;
+
+    Writer(data.Pressure).Write(pressureData);
+    Writer(data.Diagonal).Write(diagonalData);
 }
