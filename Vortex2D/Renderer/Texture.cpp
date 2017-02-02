@@ -10,8 +10,8 @@ namespace Vortex2D { namespace Renderer {
 #include <cassert>
 #include <stdexcept>
 
-GLuint Texture::BoundId[4] = {0};
-int Texture::ActiveUnit = -1;
+thread_local GLuint Texture::BoundId[4] = {0};
+thread_local int Texture::ActiveUnit = -1;
 
 Texture::Texture(int width, int height, PixelFormat pixelFormat)
     : mWidth(width), mHeight(height), mFormat(pixelFormat)

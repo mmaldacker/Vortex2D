@@ -120,7 +120,7 @@ public:
 
     Program(Program &&);
     Program & operator=(Program &&);
-    
+
     /**
      * @brief Attach a Fragment or Vertex shader
      * @return returns *this
@@ -182,7 +182,7 @@ private:
     GLuint mProgram;
     Uniform<glm::mat4> mMVP;
 
-    static int CurrentProgram;
+    static thread_local GLuint CurrentProgram;
 };
 
 template<typename T>

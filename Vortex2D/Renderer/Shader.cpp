@@ -103,7 +103,7 @@ FragmentShader::FragmentShader() : Shader(glCreateShader(GL_FRAGMENT_SHADER))
 {
 }
 
-int Program::CurrentProgram = 0;
+thread_local GLuint Program::CurrentProgram = 0;
 
 Program::Program(const char * vertexSource, const char * fragmentSource)
     : mProgram(glCreateProgram())
@@ -127,8 +127,13 @@ Program::Program() : mProgram(glCreateProgram())
 
 Program::~Program()
 {
-    if(mProgram)
+    if (mProgram)
     {
+        if (CurrentProgram == mProgram)
+        {
+            CurrentProgram = 0;
+        }
+
         glDeleteProgram(mProgram);
     }
 }

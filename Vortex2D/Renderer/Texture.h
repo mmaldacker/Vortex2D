@@ -66,8 +66,8 @@ private:
     int mHeight;
     PixelFormat mFormat;
 
-    static GLuint BoundId[4];
-    static int ActiveUnit;
+    static thread_local GLuint BoundId[4];
+    static thread_local int ActiveUnit;
 };
 
 }}
