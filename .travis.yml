@@ -1,0 +1,15 @@
+sudo: required
+dist: trusty
+language: cpp
+
+compiler:
+ - clang
+
+before_install:
+  - sudo apt-get update -qq
+
+script:
+  - mkdir build
+  - cd build
+  - cmake .. && make
+  - ctest
