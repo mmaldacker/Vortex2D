@@ -4,42 +4,13 @@
 //
 
 #include "gtest/gtest.h"
+#include "Common.h"
 #include "Shapes.h"
-#include "RenderTexture.h"
-#include "Reader.h"
 #include "Writer.h"
 #include "Disable.h"
 #include <glm/gtx/rotate_vector.hpp>
 
 using namespace Vortex2D::Renderer;
-
-void PrintData(int width, int height, const std::vector<float>& data)
-{
-    for (int j = 0; j < height; j++)
-    {
-        for (int i = 0; i < width; i++)
-        {
-            std::cout << "(" << data[i + j * width] << ")";
-        }
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
-}
-
-void CheckTexture(int width, int height, const std::vector<float>& data, RenderTexture& texture)
-{
-    Reader reader(texture);
-    reader.Read();
-
-    for (int i = 0; i < width; i++)
-    {
-        for (int j = 0; j < height; j++)
-        {
-            float value = data[i + j * width];
-            EXPECT_FLOAT_EQ(value, reader.GetFloat(i, j)) << "Value not equal at " << i << ", " << j;
-        }
-    }
-}
 
 void DrawSquare(int width, int height, std::vector<float>& data, const glm::vec2& centre, const glm::vec2& size)
 {

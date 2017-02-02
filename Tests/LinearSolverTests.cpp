@@ -3,13 +3,42 @@
 //  Vortex2D
 //
 
+#include <algorithm>
 #include "gtest/gtest.h"
+#include "Texture.h"
+#include "Disable.h"
+#include "Reader.h"
 #include "Writer.h"
 #include "ConjugateGradient.h"
 #include "variationalplusgfm/fluidsim.h"
 
 using namespace Vortex2D::Renderer;
 using namespace Vortex2D::Fluid;
+
+TEST(LinearSolverTests, Reduce)
+{
+    Disable d(GL_BLEND);
+
+    Reduce reduce(glm::vec2(10, 15));
+
+    Buffer a(glm::vec2(10, 15), 1);
+    Buffer b(glm::vec2(10, 15), 1);
+
+    std::vector<float> aData(10*15, 1.0f);
+    Writer(a).Write(aData);
+
+    std::vector<float> bData(10*15);
+    float n = 1.0f;
+    std::generate(bData.begin(), bData.end(), [&n]{ return n++; });
+    Writer(b).Write(bData);
+
+    Buffer buffer(glm::vec2(1), 1);
+    buffer = reduce(a, b);
+
+    float total = Reader(buffer).Read().GetFloat(0, 0);
+
+    ASSERT_EQ(0.5f*150.0f*151.0f, total);
+}
 
 //Boundary definition - several circles in a circular domain.
 
@@ -33,6 +62,8 @@ float boundary_phi(const Vec2f& position)
 
 TEST(LinearSolverTests, Simple)
 {
+    Disable d(GL_BLEND);
+
     ConjugateGradient solver(glm::vec2(50));
 
     FluidSim sim;
@@ -57,6 +88,6 @@ TEST(LinearSolverTests, Simple)
     std::vector<glm::vec4> pressureData;
     std::vector<float> diagonalData;
 
-    Writer(data.Pressure).Write(pressureData);
-    Writer(data.Diagonal).Write(diagonalData);
+    //Writer(data.Pressure).Write(pressureData);
+    //Writer(data.Diagonal).Write(diagonalData);
 }

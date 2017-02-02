@@ -57,26 +57,10 @@ const char * Shader::TexturePositionFrag = GLSL(
     }
 );
 
-Shader::Shader(GLuint shader) : mShader(shader)
-{
-}
-
-Shader::~Shader()
-{
-    if(mShader)
-    {
-        glDeleteShader(mShader);
-    }
-}
-
-Shader & Shader::Source(const char * source)
+Shader::Shader(GLuint shader, const char* source) : mShader(shader)
 {
     glShaderSource(mShader, 1, &source, NULL);
-    return *this;
-}
 
-Shader & Shader::Compile()
-{
     glCompileShader(mShader);
 
     GLint status;
@@ -92,14 +76,21 @@ Shader & Shader::Compile()
         throw std::runtime_error("Error compiling shader: \n" + std::string(src.data()));
     }
 
-    return *this;
 }
 
-VertexShader::VertexShader() : Shader(glCreateShader(GL_VERTEX_SHADER))
+Shader::~Shader()
+{
+    assert(mShader);
+    glDeleteShader(mShader);
+}
+
+VertexShader::VertexShader(const char* source)
+    : Shader(glCreateShader(GL_VERTEX_SHADER), source)
 {
 }
 
-FragmentShader::FragmentShader() : Shader(glCreateShader(GL_FRAGMENT_SHADER))
+FragmentShader::FragmentShader(const char* source)
+    : Shader(glCreateShader(GL_FRAGMENT_SHADER), source)
 {
 }
 
@@ -108,17 +99,12 @@ thread_local GLuint Program::CurrentProgram = 0;
 Program::Program(const char * vertexSource, const char * fragmentSource)
     : mProgram(glCreateProgram())
 {
-    VertexShader vertex;
-    vertex.Source(vertexSource).Compile();
-
-    FragmentShader fragment;
-    fragment.Source(fragmentSource).Compile();
+    VertexShader vertex(vertexSource);
+    FragmentShader fragment(fragmentSource);
 
     AttachShader(vertex);
     AttachShader(fragment);
     Link();
-
-    mMVP.SetLocation(*this, "u_Projection");
 }
 
 Program::Program() : mProgram(glCreateProgram())
@@ -188,6 +174,8 @@ Program & Program::Link()
         glGetProgramInfoLog(mProgram, length, NULL, src.data());
         throw std::runtime_error("Error linking program: " + std::string(src.data()));
     }
+
+    mMVP.SetLocation(*this, "u_Projection");
 
     return *this;
 }

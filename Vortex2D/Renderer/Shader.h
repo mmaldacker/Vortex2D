@@ -3,8 +3,8 @@
 //  Vortex2D
 //
 
-#ifndef __Vortex__Shader__
-#define __Vortex__Shader__
+#ifndef Vortex_Shader_h
+#define Vortex_Shader_h
 
 #include <string>
 #include "Common.h"
@@ -20,17 +20,6 @@ class Program;
 class Shader
 {
 public:
-    /**
-     * @brief Source loads the source of the shader
-     * @param source must be a string of the source (and not a filename)
-     * @return returns *this
-     */
-    Shader & Source(const char * source);
-
-    /**
-     * @brief Compile compiles the shader
-     */
-    Shader & Compile();
     virtual ~Shader();
 
     friend class Program;
@@ -66,10 +55,11 @@ public:
     static const char * TexturePositionFrag;
 
 protected:
-    Shader(GLuint shader);
-    GLuint mShader;
+    Shader(GLuint shader, const char* source);
 
 private:
+    GLuint mShader;
+
     static const char * PositionName;
     static const char * TexCoordsName;
 };
@@ -79,7 +69,7 @@ private:
  */
 struct VertexShader : Shader
 {
-    VertexShader();
+    VertexShader(const char* source);
 };
 
 /**
@@ -87,7 +77,7 @@ struct VertexShader : Shader
  */
 struct FragmentShader : Shader
 {
-    FragmentShader();
+    FragmentShader(const char* source);
 };
 
 /**
@@ -208,4 +198,4 @@ void Uniform<T>::Set(T value)
 
 }}
 
-#endif /* defined(__Vortex__Shader__) */
+#endif

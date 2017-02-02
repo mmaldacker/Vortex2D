@@ -41,7 +41,7 @@ const char * MultiplyFrag = GLSL(
          float x = texture(u_texture, v_texCoord).x;
          float y = texture(u_other, v_texCoord).x;
 
-         colour_out = vec4(x*y, 0.0, 0.0, 0.0);
+         colour_out = vec4(x * y, 0.0, 0.0, 0.0);
      }
 );
 
@@ -65,7 +65,7 @@ Renderer::OperatorContext Reduce::operator()(Renderer::Buffer& a, Renderer::Buff
 {
     s[0] = multiply(a, b);
 
-    for(int i = 1 ; i < s.size() ; i++)
+    for (std::size_t i = 1; i < s.size(); i++)
     {
         s[i] = reduce(s[i-1]);
     }

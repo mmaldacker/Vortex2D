@@ -31,7 +31,7 @@ using remove_reference_t = typename std::remove_reference<T>::type;
  * @brief This is a helper class to write succint code when running a shader
  * with multiple Texture inputs on a Buffer
  */
-class Operator
+class Operator : public Program
 {
 public:
     /**
@@ -39,16 +39,16 @@ public:
      * @param vertex the source of the vertex shader (not a filename)
      * @param fragment the source of the fragment shader (not a filename)
      */
-    Operator(const char * vertex, const char * fragment) : mProgram(vertex, fragment)
-    {}
-
-    /**
-     * @brief Use the Program behind the Operator, allows us to set uniforms
-     * @return
-     */
-    Renderer::Program & Use()
+    template<typename ... Shaders>
+    Operator(const char* vertexSource, const char* fragmentSource, Shaders&& ... shaderSources)
     {
-        return mProgram.Use();
+        VertexShader vertex(vertexSource);
+        FragmentShader fragment(fragmentSource);
+
+        AttachShader(vertex);
+        AttachShader(fragment);
+        AttachShaders(std::forward<Shaders>(shaderSources)...);
+        Link();
     }
 
     /**
@@ -63,40 +63,52 @@ public:
      * output = op(input1, intpu2);
      * @endcode
      */
-    template<typename... Args>
-    OperatorContext operator()(Args && ... args)
+    template<typename ... Args>
+    OperatorContext operator()(Args&& ... args)
     {
         BindHelper(0, std::forward<Args>(args)...);
-        return {mProgram};
+        return {*this};
     }
 
 private:
+    template<typename ... Shaders>
+    void AttachShaders(const char* shaderSource, Shaders&& ... shaderSources)
+    {
+        FragmentShader shader(shaderSource);
+
+        AttachShader(shader);
+        AttachShaders(std::forward<Shaders>(shaderSources)...);
+    }
+
+    void AttachShaders()
+    {
+
+    }
+
     template<typename T, typename ... Args, REQUIRES(std::is_base_of<Buffer, remove_reference_t<T>>::value)>
-    void BindHelper(int unit, T && input, Args && ... args)
+    void BindHelper(int unit, T&& input, Args&& ... args)
     {
         Front(input).Bind(unit);
         BindHelper(unit + 1, std::forward<Args>(args)...);
     }
 
     template<typename T, typename ... Args, REQUIRES(std::is_same<T, Back>::value)>
-    void BindHelper(int unit, T && input, Args && ... args)
+    void BindHelper(int unit, T&& input, Args&& ... args)
     {
         input.Bind(unit);
         BindHelper(unit + 1, std::forward<Args>(args)...);
     }
 
-    template<typename T, typename ... Args, REQUIRES(std::is_same<T,Renderer::Texture&>::value)>
-    void BindHelper(int unit, T && input, Args && ... args)
+    template<typename T, typename ... Args, REQUIRES(std::is_base_of<Texture, remove_reference_t<T>>::value)>
+    void BindHelper(int unit, T&& input, Args&& ... args)
     {
         input.Bind(unit);
         BindHelper(unit + 1, std::forward<Args>(args)...);
     }
 
-    void BindHelper(int unit)
+    void BindHelper(int)
     {
     }
-
-    Renderer::Program mProgram;
 };
 
 }}

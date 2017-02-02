@@ -3,8 +3,8 @@
 //  Vortex2D
 //
 
-#ifndef __Vortex2D__Reduce__
-#define __Vortex2D__Reduce__
+#ifndef Vortex2D_Reduce_h
+#define Vortex2D_Reduce_h
 
 #include "Operator.h"
 
@@ -31,4 +31,4 @@ private:
 
 }}
 
-#endif /* defined(__Vortex2D__Reduce__) */
+#endif
