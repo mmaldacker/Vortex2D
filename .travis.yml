@@ -8,7 +8,7 @@ compiler:
 addons:
   apt:
     sources:
-      - sourceline: 'deb http://archive.ubuntu.com/ubuntu/dist/zesty main'
+      - sourceline: 'deb http://archive.ubuntu.com/ubuntu zesty main'
 
 before_install:
   - sudo apt-get update -qq
