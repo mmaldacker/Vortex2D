@@ -76,4 +76,5 @@ before_script:
   - cd build
   - cmake .. && make -j 4
 script:
+  - cd build
   - ctest
