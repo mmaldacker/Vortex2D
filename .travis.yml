@@ -17,11 +17,7 @@ addons:
     sources:
       - ubuntu-toolchain-r-test     # For gcc 4.9
     packages:
-      - cmake
       - g++-4.9
-      - clang-3.6
-      - ninja-build
-      - lcov
 
 before_install:
 # For headless rendering
