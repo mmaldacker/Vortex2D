@@ -48,9 +48,9 @@ void FluidSim::set_boundary(float (*phi)(const Vec2f&)) {
 float FluidSim::cfl() {
    float maxvel = 0;
    for(int i = 0; i < u.a.size(); ++i)
-      maxvel = max(maxvel, fabs(u.a[i]));
+      maxvel = max(maxvel, std::fabs(u.a[i]));
    for(int i = 0; i < v.a.size(); ++i)
-      maxvel = max(maxvel, fabs(v.a[i]));
+      maxvel = max(maxvel, std::fabs(v.a[i]));
    return dx / maxvel;
 }
 
