@@ -28,7 +28,7 @@ before_install:
   - if [ "$CC" = "clang" ]; then export CC=clang-3.6 CXX=clang++-3.6; fi # Make sure that clang-3.6 is selected.
 # Dependencies for headless rendering
   - sudo apt-get update -qq
-  - sudo apt-get install -y mesa-utils libosmesa6 xvfb build-essential libxmu-dev libxi-dev libglapi-mesa-lts-xenial libgl1-mesa-glx-lts-xenial libgl1-mesa-dev-lts-xenial 
+  - sudo apt-get install -y mesa-utils libosmesa6 libxi-dev libglapi-mesa-lts-xenial libgl1-mesa-glx-lts-xenial libgl1-mesa-dev-lts-xenial 
 # Vortex2D dependencies
   - sudo apt-get install -y libgtest-dev
 # GLFW3 dependencies
@@ -71,10 +71,9 @@ install:
   - sudo mv libg* /usr/lib/
   - cd -
 
-before_script:
+script:
   - mkdir build
   - cd build
-  - cmake .. && make -j 4
-script:
-  - cd build
-  - ctest
+  - cmake .. 
+  - make -j 4
+  - make test
