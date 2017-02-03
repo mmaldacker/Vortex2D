@@ -82,7 +82,7 @@ install:
   - sudo mv libg* /usr/lib/
   - cd -
 
-before_script;
+before_script:
 # For headless rendering
   - export DISPLAY=:99
   - export LIBGL_ALWAYS_SOFTWARE=1
