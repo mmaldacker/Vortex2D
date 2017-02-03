@@ -8,6 +8,7 @@
 
 #include "RenderTarget.h"
 #include <GLFW/glfw3.h>
+#include <string>
 
 class RenderWindow : public Vortex2D::Renderer::RenderTarget
 {
@@ -30,4 +31,4 @@ private:
     GLFWwindow * mWindow;
 };
 
-#endif /* RenderWindow_h */
+#endif 

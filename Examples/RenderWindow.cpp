@@ -1,4 +1,5 @@
 #include "RenderWindow.h"
+#include <stdexcept>
 
 RenderWindow::RenderWindow(int width, int height, const std::string & name, RenderWindow * share)
     : Vortex2D::Renderer::RenderTarget(width, height)
