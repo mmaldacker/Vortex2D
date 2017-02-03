@@ -4,11 +4,10 @@
 //
 
 #include "Texture.h"
-
-namespace Vortex2D { namespace Renderer {
-
 #include <cassert>
 #include <stdexcept>
+
+namespace Vortex2D { namespace Renderer {
 
 thread_local GLuint Texture::BoundId[4] = {0};
 thread_local int Texture::ActiveUnit = -1;
