@@ -9,7 +9,7 @@ before_install:
   - export DISPLAY=:99
   - export LIBGL_ALWAYS_SOFTWARE=1
   - sudo apt-get update -qq
-  - sudo apt-get install -y libglm-dev libgtest-dev mesa-utils libosmesa6 libosmes6-dev xvfb build-essential libxmu-dev libxi-dev libgl-dev libxrandr-dev
+  - sudo apt-get install -y libglm-dev libgtest-dev mesa-utils libosmesa6 xvfb build-essential libxmu-dev libxi-dev libgl1-mesa-dev-lts-xenia libxrandr-dev
   - /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 1400x900x24 -ac +extension GLX +render
 # GLFW 3.1.1 install
   - wget -O glfw-3.2.1.zip https://github.com/glfw/glfw/archive/3.2.1.zip
