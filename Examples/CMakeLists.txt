@@ -19,6 +19,7 @@ target_link_libraries(vortex2d_window PRIVATE vortex2d glfw)
 target_include_directories(vortex2d_window PUBLIC .)
 
 add_executable(vortex2d_examples ${EXAMPLES_SOURCES})
+target_compile_features(vortex2d_examples PRIVATE cxx_nullptr)
 target_link_libraries(vortex2d_examples vortex2d glfw vortex2d_window)
 
 if(APPLE)
