@@ -5,9 +5,32 @@ language: cpp
 compiler:
   - gcc
 
+branches:
+  only:
+    - master
+
+# Travis CI is powered with Ubuntu 12.04, whose toolchain is outdated.
+addons:
+  apt:
+    # Travis white list of ppa.
+    # https://github.com/travis-ci/apt-source-whitelist/blob/master/ubuntu.json
+    sources:
+      - ubuntu-toolchain-r-test     # For gcc 4.9
+    packages:
+      - cmake
+      - g++-4.9
+      - clang-3.6
+      - ninja-build
+      - lcov
+
 before_install:
+# For headless rendering
   - export DISPLAY=:99
   - export LIBGL_ALWAYS_SOFTWARE=1
+# Modern GCC/Clang versions
+  - if [ "$CC" = "gcc"   ]; then export CC=gcc-4.9 CXX=g++-4.9; fi       # Make sure that gcc-4.9 is selected.
+  - if [ "$CC" = "clang" ]; then export CC=clang-3.6 CXX=clang++-3.6; fi # Make sure that clang-3.6 is selected.
+# Dependencies for headless rendering
   - sudo apt-get update -qq
   - sudo apt-get install -y mesa-utils libosmesa6 xvfb build-essential libxmu-dev libxi-dev libglapi-mesa-lts-xenial libgl1-mesa-glx-lts-xenial libgl1-mesa-dev-lts-xenial 
 # Vortex2D dependencies
@@ -55,6 +78,6 @@ install:
 before_script:
   - mkdir build
   - cd build
-  - cmake .. && make
+  - cmake .. && make -j 4
 script:
   - ctest
