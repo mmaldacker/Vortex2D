@@ -21,13 +21,16 @@ before_install:
   - cd ..
 #GLEW 2.0.0 install
   - git clone https://github.com/nigels-com/glew.git
-  - cd glew
-  - make GLEW_DEST=/usr
-  - sudo make install GLEW_DEST=/usr
+  - cd glew/auto
+  - make
+  - cd ..
+  - make
+  - sudo make install
   - cd ..
 
-script:
+before_script:
   - mkdir build
   - cd build
   - cmake .. && make
+script:
   - ctest
