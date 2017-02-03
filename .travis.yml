@@ -54,6 +54,7 @@ install:
   - make
   - sudo make install
   - cd ..
+  - sudo ln -s /usr/lib64/libGLEW.so.2.0 /usr/lib/libGLEW.so.2.0
 #GLM install
   - git clone https://github.com/g-truc/glm.git
   - cd glm
@@ -76,4 +77,5 @@ script:
   - cd build
   - cmake .. 
   - make -j 4
-  - make test
+  - cd Tests
+  - ctest --verbose
