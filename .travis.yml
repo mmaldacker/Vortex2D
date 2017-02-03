@@ -27,8 +27,9 @@ install:
   - cd ..
 #GLEW 2.0.0 install
   - git clone https://github.com/nigels-com/glew.git
+  - cd glew
   - git checkout tags/glew-2.0.0
-  - cd glew/auto
+  - cd auto
   - make
   - cd ..
   - make
@@ -36,8 +37,8 @@ install:
   - cd ..
 #GLM install
   - git clone https://github.com/g-truc/glm.git
-  - git checkout tags/0.9.8.4
   - cd glm
+  - git checkout tags/0.9.8.4
   - mkdir build
   - cd build
   - cmake ..
