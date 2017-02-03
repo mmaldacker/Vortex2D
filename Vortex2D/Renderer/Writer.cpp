@@ -6,6 +6,8 @@
 #include "Writer.h"
 #include "Disable.h"
 #include <glm/gtc/type_ptr.hpp>
+#include <stdexcept>
+#include <cassert>
 
 namespace Vortex2D { namespace Renderer {
 

@@ -4,6 +4,8 @@
 //
 
 #include "Shader.h"
+#include <stdexcept>
+#include <cassert>
 
 namespace Vortex2D { namespace Renderer {
 
