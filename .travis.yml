@@ -25,9 +25,9 @@ addons:
       - libxinerama-dev
       - libxcursor-dev
       # For headless rendering
-      # - libxi-dev
-      # - libxmu-dev
-      # - libxv-dev
+      - libxi-dev
+      - libxmu-dev
+      - libxv-dev
       - xserver-xorg-video-dummy
       - xpra
       - xorg-dev
