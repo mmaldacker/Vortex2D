@@ -15,12 +15,15 @@ const char * LICFrag = GLSL(
 
     void advection(float kernelLen, out float t_accum, out float w_accum)
     {
-        int advections = 0, max_advections = int(3.0 * kernelLen);
-        float curLen = 0.0, prevLen = 0.0;
+        int advections = 0;
+        int max_advections = int(3.0 * kernelLen);
+        float curLen = 0.0;
+        float prevLen = 0.0;
 
         vec2  uv = texture(u_velocity, v_texCoord).xy;
 
-        vec2 clp0 = gl_FragCoord.xy, clp1;
+        vec2 clp0 = gl_FragCoord.xy;
+        vec2 clp1;
 
         while (curLen < kernelLen && advections < max_advections)
         {
