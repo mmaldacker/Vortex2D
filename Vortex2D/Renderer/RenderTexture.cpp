@@ -7,7 +7,6 @@
 #include <algorithm>
 #include <string>
 #include <stdexcept>
-#include <glm/gtc/matrix_transform.hpp>
 
 namespace Vortex2D { namespace Renderer {
 

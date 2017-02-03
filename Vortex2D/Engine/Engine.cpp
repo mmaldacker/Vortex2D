@@ -5,9 +5,6 @@
 
 #include "Engine.h"
 #include "Disable.h"
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/transform.hpp>
-#include <iostream>
 
 namespace Vortex2D { namespace Fluid {
 
