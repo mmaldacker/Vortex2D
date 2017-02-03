@@ -20,9 +20,8 @@ before_install:
   - sudo make install
   - cd ..
 #GLEW 2.0.0 install
-  - wget -O glew-2.0.0.tgz https://downloads.sourceforge.net/project/glew/glew/2.0.0/glew-2.0.0.tgz?r=&ts=1486106371&use_mirror=vorboss
-  - tar zxvf glew-2.0.0.tgz
-  - cd glew-2.0.0
+  - git clone https://github.com/nigels-com/glew.git
+  - cd glew
   - make GLEW_DEST=/usr
   - sudo make install GLEW_DEST=/usr
   - cd ..
