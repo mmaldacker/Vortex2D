@@ -51,7 +51,8 @@ LineIntegralConvolution::LineIntegralConvolution(const glm::vec2 & size) : mLic(
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(0, 255);
 
-    uint8_t * pixels = new uint8_t[3 * size.x * size.y];
+    std::size_t index = 3 * size.x * size.y;
+    uint8_t * pixels = new uint8_t[index];
     int width = size.x;
 
     for (int j = 0; j < size.y; j++)
