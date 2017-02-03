@@ -27,6 +27,15 @@ before_install:
   - make
   - sudo make install
   - cd ..
+#GLM install
+  - git clone https://github.com/g-truc/glm.git
+  - cd glm
+  - mkdir build
+  - cd build
+  - cmake ..
+  - make
+  - sudo make install
+  - cd ../..
 
 before_script:
   - mkdir build
