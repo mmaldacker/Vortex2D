@@ -36,6 +36,12 @@ before_install:
   - make
   - sudo make install
   - cd ../..
+#Gtest install
+  - cd /usr/src/gtest
+  - sudo cmake .
+  - sudo make
+  - sudo mv libg* /usr/lib/
+  - cd -
 
 before_script:
   - mkdir build
