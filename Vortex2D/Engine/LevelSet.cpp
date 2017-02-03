@@ -93,26 +93,7 @@ const char* RedistanceFrag = GLSL(
     }
 );
 
-const char* LevelSetMaskFrag = GLSL(
-    in vec2 v_texCoord;
-    out vec4 out_color;
 
-    uniform sampler2D u_texture;
-
-    void main()
-    {
-        float x = texture(u_texture, v_texCoord).x;
-
-        if (x >= 0.0)
-        {
-            out_color = vec4(1.0, 0.0, 0.0, 0.0);
-        }
-        else
-        {
-            discard;
-        }
-    }
-);
 
 }
 
@@ -123,7 +104,6 @@ LevelSet::LevelSet(const glm::vec2& size)
     , mLevelSet0(size, 1)
     , mRedistance(Renderer::Shader::TexturePositionVert, RedistanceFrag)
     , mIdentity(Renderer::Shader::TexturePositionVert, Renderer::Shader::TexturePositionFrag)
-    , mMask(Renderer::Shader::TexturePositionVert, LevelSetMaskFrag)
 {
     ClampToEdge();
     Linear();
@@ -131,7 +111,6 @@ LevelSet::LevelSet(const glm::vec2& size)
     mLevelSet0.ClampToEdge();
     mRedistance.Use().Set("delta", 0.1f).Set("u_levelSet", 0).Set("u_levelSet0", 1).Unuse();
     mIdentity.Use().Set("u_texture", 0).Unuse();
-    mMask.Use().Set("u_texture", 0).Unuse();
 }
 
 void LevelSet::Redistance(int iterations)
@@ -144,21 +123,6 @@ void LevelSet::Redistance(int iterations)
     {
         Swap() = mRedistance(Back(*this), mLevelSet0);
     }
-}
-
-void LevelSet::RenderMask(Renderer::Buffer& buffer)
-{
-    Renderer::Enable e(GL_STENCIL_TEST);
-    Renderer::DisableColorMask c;
-
-    glStencilFunc(GL_ALWAYS, 1, 0xFF); // write 1 in stencil buffer
-    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); // replace value with above
-    glStencilMask(0xFF); // enable stencil writing
-
-    buffer.Swap() = mMask(Back(*this));
-    buffer.Swap() = mMask(Back(*this));
-
-    glStencilMask(0x00); // disable stencil writing
 }
 
 }}

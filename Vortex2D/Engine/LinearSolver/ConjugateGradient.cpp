@@ -2,12 +2,10 @@
 //  ConjugateGradient.cpp
 //  Vertex2D
 //
-//  Created by Maximilian Maldacker on 15/09/2015.
-//  Copyright (c) 2015 Maximilian Maldacker. All rights reserved.
-//
 
 #include "ConjugateGradient.h"
 #include "Disable.h"
+#include "Reader.h"
 
 namespace Vortex2D { namespace Fluid {
 
@@ -26,7 +24,7 @@ const char * DivideFrag = GLSL(
         float x = texture(u_texture, v_texCoord).x;
         float y = texture(u_other, v_texCoord).x;
 
-        colour_out = vec4(x/y, 0.0, 0.0, 0.0);
+        colour_out = vec4(x / y, 0.0, 0.0, 0.0);
     }
 );
 
@@ -45,7 +43,7 @@ const char * MultiplyAddFrag = GLSL(
         float y = texture(u_other, v_texCoord).x;
         float alpha = texture(u_scalar, vec2(0.5)).x;
 
-        colour_out = vec4(x+alpha*y, 0.0, 0.0, 0.0);
+        colour_out = vec4(x + alpha * y, 0.0, 0.0, 0.0);
     }
 );
 
@@ -89,7 +87,7 @@ const char * MultiplySubFrag = GLSL(
         float y = texture(u_other, v_texCoord).x;
         float alpha = texture(u_scalar, vec2(0.5)).x;
 
-        colour_out = vec4(x-alpha*y, 0.0, 0.0, 0.0);
+        colour_out = vec4(x - alpha * y, 0.0, 0.0, 0.0);
     }
 );
 
@@ -124,7 +122,7 @@ const char * ResidualFrag = GLSL(
 
 using Renderer::Back;
 
-ConjugateGradient::ConjugateGradient(const glm::vec2& size)
+ConjugateGradient::ConjugateGradient(const glm::vec2& size, unsigned iterations)
     : r(size, 1, true)
     , s(size, 1, true)
     , z(size, 1)
@@ -140,6 +138,7 @@ ConjugateGradient::ConjugateGradient(const glm::vec2& size)
     , residual(Renderer::Shader::TexturePositionVert, ResidualFrag)
     , identity(Renderer::Shader::TexturePositionVert, Renderer::Shader::TexturePositionFrag)
     , reduce(size)
+    , mIterations(iterations)
 {
     residual.Use().Set("u_texture", 0).Set("u_weights", 1).Set("u_diagonals", 2).Unuse();
     identity.Use().Set("u_texture", 0).Unuse();
@@ -178,7 +177,9 @@ void ConjugateGradient::Solve(LinearSolver::Data& data)
     // rho = zTr
     rho = reduce(z,r);
 
-    for(int i = 0 ; i < 40; ++i)
+    Renderer::Reader(rho).Read().Print();
+
+    for(unsigned i = 0 ; i < mIterations; ++i)
     {
         // z = Ap
         z = matrixMultiply(s, data.Weights, data.Diagonal);
@@ -203,7 +204,7 @@ void ConjugateGradient::Solve(LinearSolver::Data& data)
         beta = scalarDivision(rho_new, rho);
 
         // s = z + beta * s
-        s.Swap() = multiplyAdd(z,Back(s),beta);
+        s.Swap() = multiplyAdd(z, Back(s), beta);
 
         // rho = rho_new
         rho = identity(rho_new);

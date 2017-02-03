@@ -106,8 +106,8 @@ void Extrapolation::Extrapolate(Renderer::Buffer& buffer, LevelSet& neumann, Lev
     mExtrapolateValid.Clear(glm::vec4(0.0));
     mExtrapolateValid.ClearStencil();
 
-    neumann.RenderMask(mExtrapolateValid);
-    dirichlet.RenderMask(mExtrapolateValid);
+    //neumann.RenderMask(mExtrapolateValid);
+    //dirichlet.RenderMask(mExtrapolateValid);
 
     buffer.Swap() = mIdentity(Back(buffer));
 

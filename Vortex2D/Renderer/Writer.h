@@ -22,6 +22,7 @@ public:
     Writer(Texture& texture);
     Writer(Buffer& buffer);
 
+    void Write(const std::vector<uint8_t>& data);
     void Write(const uint8_t* data);
     void Write(const std::vector<glm::vec4>& data);
     void Write(const std::vector<glm::vec2>& data);

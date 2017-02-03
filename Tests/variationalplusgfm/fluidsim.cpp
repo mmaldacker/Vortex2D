@@ -8,16 +8,6 @@
 float fraction_inside(float phi_left, float phi_right);
 void extrapolate(Array2f& grid, Array2c& valid);
 
-float circle_phi(const Vec2f& pos) {
-   Vec2f centre(0.5f,0.75f);
-   float rad = 0.1f;
-   Vec2f centre1(0.4f, 0.3f);
-   float rad1 = 0.15f;
-   float phi0 = dist(centre, pos) - rad;
-   float phi1 = dist(centre1, pos) - rad1;
-   return min(phi0,phi1);
-}
-
 void FluidSim::initialize(float width, int ni_, int nj_) {
    ni = ni_;
    nj = nj_;
@@ -31,8 +21,6 @@ void FluidSim::initialize(float width, int ni_, int nj_) {
    old_valid.resize(ni+1, nj+1);
    liquid_phi.resize(ni,nj);
    particle_radius = dx/sqrt(2.0f);
-
-   //surface.reset_phi(circle_phi, dx, Vec2f(0.5*dx,0.5*dx), ni, nj);
 }
 
 //Initialize the grid-based signed distance field that dictates the position of the solid boundary

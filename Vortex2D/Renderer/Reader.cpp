@@ -96,6 +96,16 @@ Reader& Reader::PrintStencil()
     return *this;
 }
 
+uint8_t Reader::GetStencil(int x, int y) const
+{
+    assert(x >= 0 && x < mTexture.Width());
+    assert(y >= 0 && y < mTexture.Height());
+    assert(mStencil);
+
+    int width = mTexture.Width();
+    return mStencil[x + y * width];
+}
+
 float Reader::GetFloat(int x, int y) const
 {
     return Get(x, y, 1, 0);

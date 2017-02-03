@@ -46,6 +46,8 @@ struct LinearSolver
         Renderer::Buffer Pressure;
     };
 
+    LinearSolver();
+
     virtual ~LinearSolver() {}
 
     /**
@@ -57,6 +59,16 @@ struct LinearSolver
      * @brief Solves the linear equations
      */
     virtual void Solve(Data& data) = 0;
+
+    /**
+     * @brief Renders a stencil using the diagonal, to avoid division by 0 in the solvers
+     * @param Buffer to update the stencil
+     * @param Diagonal will be used for the mask
+     */
+    void RenderMask(Renderer::Buffer& destination, Data& data);
+
+private:
+    Renderer::Operator mMask;
 };
 
 }}

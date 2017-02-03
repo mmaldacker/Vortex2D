@@ -7,11 +7,12 @@
 #include <iostream>
 
 #include "gtest/gtest.h"
+#include "Disable.h"
 #include "RenderTexture.h"
+#include "Operator.h"
 #include "Reader.h"
 
 using namespace Vortex2D::Renderer;
-
 
 static void PrintData(int width, int height, const std::vector<float>& data)
 {

@@ -18,7 +18,7 @@ namespace Vortex2D { namespace Fluid {
 class ConjugateGradient : public LinearSolver
 {
 public:
-    ConjugateGradient(const glm::vec2& size);
+    ConjugateGradient(const glm::vec2& size, unsigned iterations = 40);
     virtual ~ConjugateGradient();
 
     /**
@@ -35,6 +35,7 @@ private:
     Renderer::Buffer r, s, z, alpha, beta, rho, rho_new, sigma;
     Renderer::Operator matrixMultiply, scalarDivision, multiplyAdd, multiplySub, residual, identity;
     Reduce reduce;
+    unsigned mIterations;
 };
 
 }}

@@ -30,15 +30,12 @@ public:
      */
     void Redistance(int iterations);
 
-    void RenderMask(Renderer::Buffer& buffer);
-
 private:
     Renderer::Buffer mLevelSet0;
     Renderer::Operator mRedistance;
     Renderer::Operator mIdentity;
-    Renderer::Operator mMask;
 };
 
 }}
 
-#endif /* LevelSet_h */
+#endif

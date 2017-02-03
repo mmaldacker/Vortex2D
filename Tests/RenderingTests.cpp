@@ -73,7 +73,7 @@ TEST(RenderingTest, WriteTexture)
     CheckTexture(50, 50, data, texture);
 }
 
-TEST(RenderingTest, WriteVector)
+TEST(RenderingTest, WriteVector2)
 {
     Disable d(GL_BLEND);
 
@@ -96,6 +96,37 @@ TEST(RenderingTest, WriteVector)
             glm::vec2 value = data[i + j * 50];
             EXPECT_FLOAT_EQ(value.x, reader.GetVec2(i, j).x) << "Value not equal at " << i << ", " << j;
             EXPECT_FLOAT_EQ(value.y, reader.GetVec2(i, j).y) << "Value not equal at " << i << ", " << j;
+        }
+    }
+}
+
+TEST(RenderingTest, WriteVector4)
+{
+    Disable d(GL_BLEND);
+
+    RenderTexture texture(50, 50, Texture::PixelFormat::RGBAF);
+
+    std::vector<glm::vec4> data(50*50, glm::vec4(3.0f, -2.0f, 0.5f, 4.6));
+    data[20 + 50 * 2].x = 8.0f;
+    data[12 + 50 * 4].y = 12.0f;
+    data[43 + 50 * 12].z = -2.0f;
+    data[32 + 50 * 38].w = -4.5f;
+
+    Writer writer(texture);
+    writer.Write(data);
+
+    Reader reader(texture);
+    reader.Read();
+
+    for (int i = 0; i < 50; i++)
+    {
+        for (int j = 0; j < 50; j++)
+        {
+            glm::vec4 value = data[i + j * 50];
+            EXPECT_FLOAT_EQ(value.x, reader.GetVec4(i, j).x) << "Value not equal at " << i << ", " << j;
+            EXPECT_FLOAT_EQ(value.y, reader.GetVec4(i, j).y) << "Value not equal at " << i << ", " << j;
+            EXPECT_FLOAT_EQ(value.z, reader.GetVec4(i, j).z) << "Value not equal at " << i << ", " << j;
+            EXPECT_FLOAT_EQ(value.w, reader.GetVec4(i, j).w) << "Value not equal at " << i << ", " << j;
         }
     }
 }
@@ -207,9 +238,6 @@ TEST(RenderingTest, RotatedEllipse)
     DrawEllipse(50, 50, data, ellipse.Position, radius, ellipse.Rotation);
 
     CheckTexture(50, 50, data, texture);
-
-    PrintData(50, 50, data);
-    Reader(texture).Read().Print();
 }
 
 TEST(RenderingTest, RenderScaledEllipse)

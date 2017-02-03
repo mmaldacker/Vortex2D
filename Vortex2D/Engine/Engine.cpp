@@ -521,12 +521,12 @@ void Engine::Solve()
 
     mData.Pressure.Clear(glm::vec4(0.0));
     mData.Pressure.ClearStencil();
-    mObstacleLevelSet.RenderMask(mData.Pressure);
-    mFluidLevelSet.RenderMask(mData.Pressure);
+    //mObstacleLevelSet.RenderMask(mData.Pressure);
+    //mFluidLevelSet.RenderMask(mData.Pressure);
 
     mVelocity.ClearStencil();
-    mObstacleLevelSet.RenderMask(mVelocity);
-    mFluidLevelSet.RenderMask(mVelocity);
+    //mObstacleLevelSet.RenderMask(mVelocity);
+    //mFluidLevelSet.RenderMask(mVelocity);
 
     {
         Renderer::Enable e(GL_STENCIL_TEST);
@@ -651,7 +651,7 @@ void Engine::ExtrapolateFluid()
 void Engine::ConstrainVelocity()
 {
      mVelocity.ClearStencil();
-     mObstacleLevelSet.RenderMask(mVelocity);
+     //mObstacleLevelSet.RenderMask(mVelocity);
 
      Renderer::Enable e(GL_STENCIL_TEST);
      glStencilFunc(GL_EQUAL, 1, 0xFF);

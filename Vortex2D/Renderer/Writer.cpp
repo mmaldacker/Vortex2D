@@ -23,6 +23,12 @@ Writer::Writer(Buffer& buffer)
 
 }
 
+void Writer::Write(const std::vector<uint8_t>& data)
+{
+    assert(!data.empty());
+    Write(data.data());
+}
+
 void Writer::Write(const std::vector<float>& data)
 {
     assert(!data.empty());

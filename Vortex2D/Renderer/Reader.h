@@ -62,6 +62,13 @@ public:
      */
     glm::vec4 GetVec4(int x, int y) const;
 
+    /**
+     * @brief Returns the stencil value of the render texture
+     * @param x must be between 0 and texture width
+     * @param y must be between 0 and texture height
+     */
+    uint8_t GetStencil(int x, int y) const;
+
 private:
     float Get(int x, int y, int size, int offset) const;
 
