@@ -1,9 +1,9 @@
-sudo: required
+sudo: false
 dist: trusty
 language: cpp
 
 compiler:
-  - clang
+  - gcc
 
 before_install:
   - export DISPLAY=:99
