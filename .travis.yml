@@ -18,22 +18,32 @@ addons:
       - ubuntu-toolchain-r-test     # For gcc 4.9
     packages:
       - g++-4.9
+      # Vortex2D dependencies
+      - libgtest-dev
+      # GLFW3 dependencies
+      - libxrandr-dev
+      - libxinerama-dev
+      - libxcursor-dev
+      # For headless rendering
+      # - libxi-dev
+      # - libxmu-dev
+      # - libxv-dev
+      - xserver-xorg-video-dummy
+      - xpra
+      - xorg-dev
+      - libgl1-mesa-dev
+      - mesa-utils
+      - libgl1-mesa-glx
 
 before_install:
-# For headless rendering
-  - export DISPLAY=:99
-  - export LIBGL_ALWAYS_SOFTWARE=1
 # Modern GCC/Clang versions
   - if [ "$CC" = "gcc"   ]; then export CC=gcc-4.9 CXX=g++-4.9; fi       # Make sure that gcc-4.9 is selected.
   - if [ "$CC" = "clang" ]; then export CC=clang-3.6 CXX=clang++-3.6; fi # Make sure that clang-3.6 is selected.
 # Dependencies for headless rendering
-  - sudo apt-get update -qq
-  - sudo apt-get install -y mesa-utils libosmesa6 libxi-dev libglapi-mesa-lts-xenial libgl1-mesa-glx-lts-xenial libgl1-mesa-dev-lts-xenial 
-# Vortex2D dependencies
-  - sudo apt-get install -y libgtest-dev
-# GLFW3 dependencies
-  - sudo apt-get install -y libxrandr-dev libxinerama-dev libxcursor-dev
-  - /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 1400x900x24 -ac +extension GLX +render
+  - sudo add-apt-repository -y ppa:oibaf/graphics-drivers",
+  - sudo apt-get update -qq -y
+  - export DEBIAN_FRONTEND=noninteractive
+  - sudo apt-get -yq --force-yes install libgl1-mesa-dev libgl1-mesa-glx mesa-common-dev libglapi-mesa libgbm1 libgl1-mesa-dri libxatracker-dev xvfb
 
 install:
 # GLFW 3.1.1 install
@@ -71,6 +81,14 @@ install:
   - sudo make
   - sudo mv libg* /usr/lib/
   - cd -
+
+before_script;
+# For headless rendering
+  - export DISPLAY=:99
+  - export LIBGL_ALWAYS_SOFTWARE=1
+  - xpra --xvfb=\"Xorg +extension GLX +extension RANDR +extension RENDER -config `pwd`/test/dummy.xorg.conf -logfile ${HOME}/.xpra/xorg.log\"  start :99
+  - /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 1400x900x24 -ac +extension GLX +render
+  - sleep 3
 
 script:
   - mkdir build
