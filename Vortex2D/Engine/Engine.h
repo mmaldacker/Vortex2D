@@ -116,13 +116,10 @@ public:
     LevelSet mFluidLevelSet;
     LevelSet mObstacleLevelSet;
 
-    Renderer::Operator mDiv;
-    Renderer::Operator mProject;
+
     Renderer::Operator mVelocityAdvect;
     Renderer::Operator mAdvect;
 
-    Renderer::Operator mWeights;
-    Renderer::Operator mDiagonals;
 
     Renderer::Program mFluidProgram;
     Renderer::Uniform<glm::vec4> mColourUniform;

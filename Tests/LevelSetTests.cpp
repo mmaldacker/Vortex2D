@@ -12,8 +12,13 @@
 using namespace Vortex2D::Renderer;
 using namespace Vortex2D::Fluid;
 
+namespace
+{
+
 const glm::vec2 c0(0.5,0.5), c1(0.7,0.5), c2(0.3,0.35), c3(0.5,0.7);
 const float rad0 = 0.4,  rad1 = 0.1,  rad2 = 0.1,   rad3 = 0.1;
+
+}
 
 float circle_phi(const glm::vec2& position, const glm::vec2& centre, float radius)
 {

@@ -5,14 +5,13 @@
 
 #include <algorithm>
 #include "gtest/gtest.h"
-#include "Common.h"
+#include "Helpers.h"
 #include "Texture.h"
 #include "Disable.h"
 #include "Reader.h"
 #include "Writer.h"
 #include "ConjugateGradient.h"
 #include "SuccessiveOverRelaxation.h"
-#include "variationalplusgfm/fluidsim.h"
 
 using namespace Vortex2D::Renderer;
 using namespace Vortex2D::Fluid;
@@ -59,20 +58,6 @@ TEST(LinearSolverTests, ReduceMax)
     ASSERT_EQ(150.0f, total);
 }
 
-class EmptyLinearSolver : public LinearSolver
-{
-public:
-    void Init(Data& data) override
-    {
-
-    }
-
-    void Solve(Data& data, Parameters& params) override
-    {
-
-    }
-};
-
 TEST(LinearSolverTests, RenderMask)
 {
     Disable d(GL_BLEND);
@@ -100,38 +85,6 @@ TEST(LinearSolverTests, RenderMask)
             EXPECT_EQ(value, reader.GetStencil(i, j)) << "Value not equal at " << i << ", " << j;
         }
     }
-}
-
-//Boundary definition - several circles in a circular domain.
-
-namespace
-{
-
-Vec2f c0(0.5f,0.5f), c1(0.7f,0.5f), c2(0.3f,0.35f), c3(0.5f,0.7f);
-float rad0 = 0.4f,  rad1 = 0.1f,  rad2 = 0.1f,   rad3 = 0.1f;
-
-}
-
-float circle_phi(const Vec2f& position, const Vec2f& centre, float radius)
-{
-    return (dist(position,centre) - radius);
-}
-
-float boundary_phi(const Vec2f& position)
-{
-    float phi0 = -circle_phi(position, c0, rad0);
-
-    return phi0;
-}
-
-float complex_boundary_phi(const Vec2f& position)
-{
-    float phi0 = -circle_phi(position, c0, rad0);
-    float phi1 = circle_phi(position, c1, rad1);
-    float phi2 = circle_phi(position, c2, rad2);
-    float phi3 = circle_phi(position, c3, rad3);
-
-    return min(min(phi0,phi1),min(phi2,phi3));
 }
 
 void BuildLinearEquation(const glm::vec2& size, LinearSolver::Data& data, FluidSim& sim)
@@ -164,20 +117,6 @@ void BuildLinearEquation(const glm::vec2& size, LinearSolver::Data& data, FluidS
     Writer(data.Pressure).Write(pressureData);
     Writer(data.Diagonal).Write(diagonalData);
     Writer(data.Weights).Write(weightsData);
-}
-
-void AddParticles(const glm::vec2& size, FluidSim& sim)
-{
-    for(int i = 0; i < 4*sqr(size.x); ++i)
-    {
-        float x = randhashf(i*2, 0,1);
-        float y = randhashf(i*2+1, 0,1);
-        Vec2f pt(x,y);
-        if (boundary_phi(pt) > 0 && pt[0] > 0.5)
-        {
-            sim.add_particle(pt);
-        }
-    }
 }
 
 void CheckPressure(const glm::vec2& size, const std::vector<double>& pressure, LinearSolver::Data& data, float error)
@@ -272,6 +211,7 @@ TEST(LinearSolverTests, Simple_CG)
     LinearSolver::Data data(size);
     BuildLinearEquation(size, data, sim);
 
+    // FIXME error tolerance doesn't work here
     LinearSolver::Parameters params(600);
     ConjugateGradient solver(size);
     solver.Init(data);
