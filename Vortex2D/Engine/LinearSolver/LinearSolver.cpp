@@ -23,11 +23,11 @@ const char* MaskFrag = GLSL(
 
         if (x != 0.0)
         {
-            out_color = vec4(1.0, 0.0, 0.0, 0.0);
+            discard;
         }
         else
         {
-            discard;
+            out_color = vec4(1.0, 0.0, 0.0, 0.0);
         }
     }
 );
@@ -51,8 +51,15 @@ void LinearSolver::RenderMask(Renderer::Buffer& destination, Data& data)
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); // replace value with above
     glStencilMask(0xFF); // enable stencil writing
 
-    destination.Swap() = mMask(Back(data.Diagonal));
-    destination.Swap() = mMask(Back(data.Diagonal));
+    if (destination.IsDoubleBuffer())
+    {
+        destination.Swap() = mMask(Back(data.Diagonal));
+        destination.Swap() = mMask(Back(data.Diagonal));
+    }
+    else
+    {
+        destination = mMask(data.Diagonal);
+    }
 
     glStencilMask(0x00); // disable stencil writing
 }

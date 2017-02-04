@@ -79,6 +79,11 @@ public:
      */
     Renderer::Sprite& Sprite();
 
+    /**
+     * @brief true if this is a double buffer (and Swap() can be used)
+     */
+    bool IsDoubleBuffer() const;
+
     friend struct Back;
     friend struct Front;
 

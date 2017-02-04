@@ -63,6 +63,11 @@ Renderer::Sprite& Buffer::Sprite()
     return mSprite;
 }
 
+bool Buffer::IsDoubleBuffer() const
+{
+    return mTextures.size() == 2;
+}
+
 void Buffer::Add(const glm::vec2& size, unsigned components, bool depth)
 {
     mTextures.emplace_back(size.x, size.y,

@@ -11,6 +11,7 @@
 #include "Reader.h"
 #include "Writer.h"
 #include "ConjugateGradient.h"
+#include "SuccessiveOverRelaxation.h"
 #include "variationalplusgfm/fluidsim.h"
 
 using namespace Vortex2D::Renderer;
@@ -72,14 +73,14 @@ TEST(LinearSolverTests, RenderMask)
     solver.RenderMask(buffer, data);
 
     Reader reader(buffer);
-    reader.Read().PrintStencil();
+    reader.Read();
 
     for (std::size_t i = 0; i < size.x; i++)
     {
         for (std::size_t j = 0; j < size.y; j++)
         {
-            uint8_t value = dataData[i + j * size.x];
-            EXPECT_FLOAT_EQ(value, reader.GetStencil(i, j)) << "Value not equal at " << i << ", " << j;
+            uint8_t value = 1 - dataData[i + j * size.x];
+            EXPECT_EQ(value, reader.GetStencil(i, j)) << "Value not equal at " << i << ", " << j;
         }
     }
 }
@@ -116,30 +117,8 @@ float complex_boundary_phi(const Vec2f& position)
     return min(min(phi0,phi1),min(phi2,phi3));
 }
 
-TEST(LinearSolverTests, Simple)
+void BuildLinearEquation(const glm::vec2& size, LinearSolver::Data& data, FluidSim& sim)
 {
-    Disable d(GL_BLEND);
-
-    glm::vec2 size(10);
-
-    FluidSim sim;
-    sim.initialize(1.0f, size.x, size.y);
-    sim.set_boundary(boundary_phi);
-
-    for(int i = 0; i < sqr(size.x); ++i)
-    {
-        float x = randhashf(i*2, 0,1);
-        float y = randhashf(i*2+1, 0,1);
-        Vec2f pt(x,y);
-        if (boundary_phi(pt) > 0 && pt[0] > 0.5)
-        {
-            sim.add_particle(pt);
-        }
-    }
-
-    sim.add_force(0.033f);
-    sim.project(0.033f);
-
     std::vector<glm::vec2> pressureData(size.x * size.y, glm::vec2(0.0f));
     for (std::size_t i = 0; i < pressureData.size(); i++)
     {
@@ -147,9 +126,9 @@ TEST(LinearSolverTests, Simple)
     }
 
     std::vector<float> diagonalData(size.x * size.y, 0.0f);
-    for (std::size_t i = 0; i < diagonalData.size(); i++)
+    for (std::size_t index = 0; index < diagonalData.size(); index++)
     {
-        diagonalData[i] = sim.matrix(i, i);
+        diagonalData[index] = sim.matrix(index, index);
     }
 
     std::vector<glm::vec4> weightsData(size.x * size.y, glm::vec4(0.0f));
@@ -165,23 +144,126 @@ TEST(LinearSolverTests, Simple)
         }
     }
 
-    LinearSolver::Data data(size);
     Writer(data.Pressure).Write(pressureData);
     Writer(data.Diagonal).Write(diagonalData);
     Writer(data.Weights).Write(weightsData);
+}
 
-    ConjugateGradient solver(size, 100);
+void AddParticles(const glm::vec2& size, FluidSim& sim)
+{
+    for(int i = 0; i < 4*sqr(size.x); ++i)
+    {
+        float x = randhashf(i*2, 0,1);
+        float y = randhashf(i*2+1, 0,1);
+        Vec2f pt(x,y);
+        if (boundary_phi(pt) > 0 && pt[0] > 0.5)
+        {
+            sim.add_particle(pt);
+        }
+    }
+}
+
+void CheckPressure(const glm::vec2& size, const std::vector<double>& pressure, LinearSolver::Data& data, float error)
+{
+    Reader reader(data.Pressure);
+    reader.Read();
+
+    for (int i = 0; i < size.x; i++)
+    {
+        for (int j = 0; j < size.y; j++)
+        {
+            std::size_t index = i + j * size.x;
+            float value = pressure[index];
+            ASSERT_NEAR(value, reader.GetVec2(i, j).x, error)
+                    << "Value not equal at " << i << ", " << j
+                    << " diff " << std::abs(value - reader.GetVec2(i, j).x);
+        }
+    }
+}
+
+TEST(LinearSolverTests, Simple_SOR)
+{
+    Disable d(GL_BLEND);
+
+    glm::vec2 size(50);
+
+    FluidSim sim;
+    sim.initialize(1.0f, size.x, size.y);
+    sim.set_boundary(boundary_phi);
+
+    AddParticles(size, sim);
+
+    sim.add_force(0.01f);
+    sim.project(0.01f);
+
+    LinearSolver::Data data(size);
+    BuildLinearEquation(size, data, sim);
+
+    SuccessiveOverRelaxation solver(size, 200);
+
     solver.Init(data);
+    solver.Solve(data);
+
+    CheckPressure(size, sim.pressure, data, 1e-5);
+}
+
+TEST(LinearSolverTests, Complex_SOR)
+{
+    Disable d(GL_BLEND);
+
+    glm::vec2 size(50);
+
+    FluidSim sim;
+    sim.initialize(1.0f, size.x, size.y);
+    sim.set_boundary(complex_boundary_phi);
+
+    AddParticles(size, sim);
+
+    sim.add_force(0.01f);
+    sim.project(0.01f);
+
+    LinearSolver::Data data(size);
+    BuildLinearEquation(size, data, sim);
+
+    SuccessiveOverRelaxation solver(size, 500);
+
+    solver.Init(data);
+    solver.Solve(data);
+
+    CheckPressure(size, sim.pressure, data, 1e-5);
+}
+
+TEST(LinearSolverTests, Simple)
+{
+/*
+    Disable d(GL_BLEND);
+
+    glm::vec2 size(10);
+
+    FluidSim sim;
+    sim.initialize(1.0f, size.x, size.y);
+    sim.set_boundary(boundary_phi);
+
+    AddParticles(size, sim);
+
+    sim.add_force(1.0f);
+    sim.project(1.0f);
+
+    LinearSolver::Data data(size);
+    BuildLinearEquation(size, data, sim);
 
     Reader(data.Diagonal).Read().Print();
     Reader(data.Weights).Read().Print();
-    Reader(data.Pressure).Read().Print().PrintStencil();
 
+    ConjugateGradient solver(size, 20);
+    solver.Init(data);
     solver.Solve(data);
 
     Reader reader(data.Pressure);
     reader.Read().Print();
 
+    PrintData(size.x, size.y, sim.pressure);
+*/
     /*
     for (std::size_t i = 0; i < size.x; i++)
     {

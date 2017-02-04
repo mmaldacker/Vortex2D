@@ -21,7 +21,6 @@ const char * SorFrag = GLSL(
     uniform sampler2D u_diagonals;
     uniform float w;
 
-
     void main()
     {
         // cell.x is pressure and cell.y is div
@@ -36,7 +35,7 @@ const char * SorFrag = GLSL(
         vec4 c = texture(u_weights, v_texCoord);
         float d = texture(u_diagonals, v_texCoord).x;
 
-        float pressure = mix(cell.x, (dot(p,c) + cell.y) / d, w);
+        float pressure = mix(cell.x, (cell.y - dot(p, c)) / d, w);
 
         out_color = vec4(pressure, cell.y, 0.0, 0.0);
     }
@@ -75,6 +74,8 @@ SuccessiveOverRelaxation::SuccessiveOverRelaxation(const glm::vec2& size, int it
 
 void SuccessiveOverRelaxation::Init(LinearSolver::Data& data)
 {
+    RenderMask(data.Pressure, data);
+
     Renderer::Enable e(GL_STENCIL_TEST);
     Renderer::DisableColorMask c;
 
@@ -82,7 +83,7 @@ void SuccessiveOverRelaxation::Init(LinearSolver::Data& data)
     glStencilOp(GL_KEEP, GL_KEEP, GL_INVERT); // invert value
     glStencilMask(0x02); // write in second place
 
-    data.Pressure = mStencil();
+    data.Pressure.Swap() = mStencil();
     data.Pressure.Swap() = mStencil();
 
     glStencilMask(0x00); // disable stencil writing

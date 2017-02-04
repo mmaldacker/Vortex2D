@@ -14,7 +14,8 @@
 
 using namespace Vortex2D::Renderer;
 
-static void PrintData(int width, int height, const std::vector<float>& data)
+template<typename T>
+static void PrintData(int width, int height, const std::vector<T>& data)
 {
     for (int j = 0; j < height; j++)
     {
