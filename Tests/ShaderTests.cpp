@@ -55,6 +55,24 @@ const char * CommonFrag = GLSL(
     }
 );
 
+const char * MultiplySubFrag = GLSL(
+    in vec2 v_texCoord;
+    out vec4 colour_out;
+
+    uniform sampler2D u_x;
+    uniform sampler2D u_y;
+    uniform sampler2D u_scalar;
+
+    void main()
+    {
+        float x = texture(u_x, v_texCoord).x;
+        float y = texture(u_y, v_texCoord).x;
+        float alpha = texture(u_scalar, vec2(0.5)).x;
+
+        colour_out = vec4(x - alpha * y, 0.0, 0.0, 0.0);
+    }
+);
+
 }
 
 TEST(ShaderTests, SingleShader)
@@ -100,4 +118,31 @@ TEST(ShaderTests, OperatorBind)
     buffer = op(texture);
 
     CheckTexture(50, 50, data, buffer);
+}
+
+TEST(ShaderTests, OperatorBack)
+{
+    Disable d(GL_BLEND);
+
+    Buffer x({1,1}, 1, true);
+    Buffer y({1,1}, 1);
+    Buffer z({1,1}, 1);
+    Operator op(Shader::TexturePositionVert, MultiplySubFrag);
+    op.Use().Use().Set("u_x", 0).Set("u_y", 1).Set("u_scalar", 2).Unuse();
+
+    float xValue = 1.0f;
+    float yValue = 0.5f;
+    float zValue = 3.0f;
+
+    Writer(x).Write(&xValue);
+    Writer(y).Write(&yValue);
+    Writer(z).Write(&zValue);
+
+    x.Swap();
+    x = op(Back(x), y, z);
+
+    Reader reader(x);
+    reader.Read();
+
+    ASSERT_FLOAT_EQ(xValue - yValue * zValue, reader.GetFloat(0, 0));
 }

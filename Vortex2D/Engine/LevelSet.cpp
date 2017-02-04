@@ -121,7 +121,8 @@ void LevelSet::Redistance(int iterations)
 
     for (int i = 0; i < iterations; i++)
     {
-        Swap() = mRedistance(Back(*this), mLevelSet0);
+        Swap();
+        *this = mRedistance(Back(*this), mLevelSet0);
     }
 }
 

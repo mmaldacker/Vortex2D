@@ -109,7 +109,8 @@ void Extrapolation::Extrapolate(Renderer::Buffer& buffer, LevelSet& neumann, Lev
     //neumann.RenderMask(mExtrapolateValid);
     //dirichlet.RenderMask(mExtrapolateValid);
 
-    buffer.Swap() = mIdentity(Back(buffer));
+    buffer.Swap();
+    buffer = mIdentity(Back(buffer));
 
     Renderer::Enable e(GL_STENCIL_TEST);
     glStencilMask(0x00);
@@ -117,14 +118,17 @@ void Extrapolation::Extrapolate(Renderer::Buffer& buffer, LevelSet& neumann, Lev
 
     mSurface.Colour = glm::vec4(1.0f);
     mExtrapolateValid.Render(mSurface);
-    mExtrapolateValid.Swap().Render(mSurface);
+    mExtrapolateValid.Swap();
+    mExtrapolateValid.Render(mSurface);
 
     glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
 
     for(int i = 0 ; i < 20 ; i++)
     {
-        buffer.Swap() = mExtrapolate(mExtrapolateValid, Back(buffer));
-        mExtrapolateValid.Swap() = mExtrapolateMask(Back(mExtrapolateValid));
+        buffer.Swap();
+        buffer = mExtrapolate(mExtrapolateValid, Back(buffer));
+        mExtrapolateValid.Swap();
+        mExtrapolateValid = mExtrapolateMask(Back(mExtrapolateValid));
     }
 }
 

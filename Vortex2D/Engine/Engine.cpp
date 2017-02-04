@@ -540,18 +540,20 @@ void Engine::Solve()
         mLinearSolver.Init(mData);
         mLinearSolver.Solve(mData);
 
-        mVelocity.Swap() = mProject(Back(mVelocity),
-                                    mData.Pressure,
-                                    mFluidLevelSet,
-                                    mObstacleLevelSet,
-                                    mBoundariesVelocity);
+        mVelocity.Swap();
+        mVelocity = mProject(Back(mVelocity),
+                             mData.Pressure,
+                             mFluidLevelSet,
+                             mObstacleLevelSet,
+                             mBoundariesVelocity);
     }
 
     mExtrapolation.Extrapolate(mVelocity, mObstacleLevelSet, mFluidLevelSet);
 
     //ConstrainVelocity();
 
-    mVelocity.Swap() = mVelocityAdvect(Back(mVelocity));
+    mVelocity.Swap();
+    mVelocity = mVelocityAdvect(Back(mVelocity));
 }
 
 void Engine::RenderDirichlet(Renderer::Drawable& object)
@@ -613,7 +615,8 @@ void Engine::ReinitialiseNeumann()
 void Engine::Advect(Renderer::Buffer& buffer)
 {
     Renderer::Disable d(GL_BLEND);
-    buffer.Swap() = mAdvect(Back(buffer), mVelocity);
+    buffer.Swap();
+    buffer = mAdvect(Back(buffer), mVelocity);
 }
 
 void Engine::Render(Renderer::RenderTarget& target, const glm::mat4& transform)
@@ -642,7 +645,8 @@ void Engine::ExtrapolateFluid()
     glStencilMask(0x00);
     */
 
-    mFluidLevelSet.Swap() = mExtrapolateFluid(Back(mFluidLevelSet), mObstacleLevelSet);
+    mFluidLevelSet.Swap();
+    mFluidLevelSet = mExtrapolateFluid(Back(mFluidLevelSet), mObstacleLevelSet);
     // FIXME if the obstacles moves, is this correct?
 
     mFluidLevelSet.Redistance(2);
@@ -657,7 +661,8 @@ void Engine::ConstrainVelocity()
      glStencilFunc(GL_EQUAL, 1, 0xFF);
      glStencilMask(0x00);
 
-     mVelocity.Swap() = mConstrainVelocity(Back(mVelocity), mObstacleLevelSet);
+     mVelocity.Swap();
+     mVelocity = mConstrainVelocity(Back(mVelocity), mObstacleLevelSet);
 }
 
 }}

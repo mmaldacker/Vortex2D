@@ -53,8 +53,10 @@ void LinearSolver::RenderMask(Renderer::Buffer& destination, Data& data)
 
     if (destination.IsDoubleBuffer())
     {
-        destination.Swap() = mMask(Back(data.Diagonal));
-        destination.Swap() = mMask(Back(data.Diagonal));
+        destination = mMask(Back(data.Diagonal));
+        destination.Swap();
+        destination = mMask(Back(data.Diagonal));
+        destination.Swap();
     }
     else
     {

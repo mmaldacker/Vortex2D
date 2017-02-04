@@ -50,11 +50,10 @@ void Buffer::Render(Renderer::Drawable& object, const glm::mat4& transform)
     mTextures.front().Render(object, transform);
 }
 
-Buffer& Buffer::Swap()
+void Buffer::Swap()
 {
     assert(mTextures.size() == 2);
     std::swap(mTextures.front(), mTextures.back());
-    return *this;
 }
 
 Renderer::Sprite& Buffer::Sprite()

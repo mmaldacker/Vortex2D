@@ -174,9 +174,7 @@ void CheckPressure(const glm::vec2& size, const std::vector<double>& pressure, L
         {
             std::size_t index = i + j * size.x;
             float value = pressure[index];
-            ASSERT_NEAR(value, reader.GetVec2(i, j).x, error)
-                    << "Value not equal at " << i << ", " << j
-                    << " diff " << std::abs(value - reader.GetVec2(i, j).x);
+            ASSERT_NEAR(value, reader.GetVec2(i, j).x, error);
         }
     }
 }
@@ -233,12 +231,39 @@ TEST(LinearSolverTests, Complex_SOR)
     CheckPressure(size, sim.pressure, data, 1e-5);
 }
 
-TEST(LinearSolverTests, Simple)
+TEST(LinearSolverTests, Simple_CG)
 {
-/*
     Disable d(GL_BLEND);
 
-    glm::vec2 size(10);
+    glm::vec2 size(50);
+
+    FluidSim sim;
+    sim.initialize(1.0f, size.x, size.y);
+    sim.set_boundary(boundary_phi);
+
+    AddParticles(size, sim);
+
+    sim.add_force(0.01f);
+    sim.project(0.01f);
+
+    LinearSolver::Data data(size);
+    BuildLinearEquation(size, data, sim);
+
+    ConjugateGradient solver(size, 1000);
+    solver.Init(data);
+    solver.NormalSolve(data);
+
+    Reader reader(data.Pressure);
+    reader.Read();
+
+    CheckPressure(size, sim.pressure, data, 1e-5);
+}
+
+TEST(LinearSolverTests, Simple_PCG)
+{
+    Disable d(GL_BLEND);
+
+    glm::vec2 size(50);
 
     FluidSim sim;
     sim.initialize(1.0f, size.x, size.y);
@@ -252,27 +277,40 @@ TEST(LinearSolverTests, Simple)
     LinearSolver::Data data(size);
     BuildLinearEquation(size, data, sim);
 
-    Reader(data.Diagonal).Read().Print();
-    Reader(data.Weights).Read().Print();
-
-    ConjugateGradient solver(size, 20);
+    ConjugateGradient solver(size, 100);
     solver.Init(data);
     solver.Solve(data);
 
     Reader reader(data.Pressure);
-    reader.Read().Print();
+    reader.Read();
 
-    PrintData(size.x, size.y, sim.pressure);
-*/
-    /*
-    for (std::size_t i = 0; i < size.x; i++)
-    {
-        for (std::size_t j = 0; j < size.y; j++)
-        {
-            std::size_t index = i + size.x * j;
-            float value = sim.pressure[index];
-            EXPECT_FLOAT_EQ(value, reader.GetVec2(i, j).x) << "Value not equal at " << i << ", " << j;
-        }
-    }
-    */
+    CheckPressure(size, sim.pressure, data, 1e-5);
+}
+
+TEST(LinearSolverTests, Complex_PCG)
+{
+    Disable d(GL_BLEND);
+
+    glm::vec2 size(50);
+
+    FluidSim sim;
+    sim.initialize(1.0f, size.x, size.y);
+    sim.set_boundary(complex_boundary_phi);
+
+    AddParticles(size, sim);
+
+    sim.add_force(0.01f);
+    sim.project(0.01f);
+
+    LinearSolver::Data data(size);
+    BuildLinearEquation(size, data, sim);
+
+    ConjugateGradient solver(size, 100);
+    solver.Init(data);
+    solver.Solve(data);
+
+    Reader reader(data.Pressure);
+    reader.Read();
+
+    CheckPressure(size, sim.pressure, data, 1e-5);
 }

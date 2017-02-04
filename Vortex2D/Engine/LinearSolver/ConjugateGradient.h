@@ -31,7 +31,11 @@ public:
      */
     void Solve(LinearSolver::Data& data) override;
 
+    void NormalSolve(LinearSolver::Data& data);
+
 private:
+    void ApplyPreconditioner(LinearSolver::Data& data);
+
     Renderer::Buffer r, s, z, alpha, beta, rho, rho_new, sigma;
     Renderer::Operator matrixMultiply, scalarDivision, multiplyAdd, multiplySub, residual, identity;
     Reduce reduce;

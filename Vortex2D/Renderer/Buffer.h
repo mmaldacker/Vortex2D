@@ -70,9 +70,8 @@ public:
 
     /**
      * @brief Swap the front and back RenderTexture
-     * @return returns *this
      */
-    Buffer& Swap();
+    void Swap();
 
     /**
      * @brief Returns a Sprite backed by the Texture of the front RenderTexture

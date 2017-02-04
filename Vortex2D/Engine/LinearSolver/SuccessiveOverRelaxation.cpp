@@ -83,8 +83,10 @@ void SuccessiveOverRelaxation::Init(LinearSolver::Data& data)
     glStencilOp(GL_KEEP, GL_KEEP, GL_INVERT); // invert value
     glStencilMask(0x02); // write in second place
 
-    data.Pressure.Swap() = mStencil();
-    data.Pressure.Swap() = mStencil();
+    data.Pressure = mStencil();
+    data.Pressure.Swap();
+    data.Pressure = mStencil();
+    data.Pressure.Swap();
 
     glStencilMask(0x00); // disable stencil writing
 }
