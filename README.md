@@ -1,13 +1,15 @@
+![Build Status](https://travis-ci.org/mmaldacker/Vortex2D.svg?branch=master)
+
 # Vortex2D
 
-A real time fluid simulation engine based on the incompressible Navier-Stokes equation. 
-This implementation is grid based as opposed to particle based (such as the smoothed-particle hyddrodynamics a.k.a. SPH implementations). 
-All computing is done on the GPU with OpenGL using simple vertex/fragment shaders and thus requires only OpenGL 3.2+ support. 
+A real time fluid simulation engine based on the incompressible Navier-Stokes equation.
+This implementation is grid based as opposed to particle based (such as the smoothed-particle hyddrodynamics a.k.a. SPH implementations).
+All computing is done on the GPU with OpenGL using simple vertex/fragment shaders and thus requires only OpenGL 3.2+ support.
 
 ## Dependencies
 
  * OpenGL 3.2+
- * GLM 
+ * GLM
  * GLFW3
  * CMake
  * GLEW
@@ -18,19 +20,19 @@ All computing is done on the GPU with OpenGL using simple vertex/fragment shader
 This engine is a work in progress and there might be changes to its API in the future. The fundamental piece of the engine is a texture which represents the velocity field of the fluid. This means we cannot simulate an inifinitely size world, but a world exactly the size of said texture. Boundaries, boundary velocities and forces can be applied to the field. The field is then evolved using the incompressible Navier-Stokes equations. Evolving this field is divided in three steps:
 * Advection: moving the velocity field (or any other field) using the velocity field with an integrator (currently Runge-Kutta 3)
 * Adding external forces: gravity, forces applied by bodies in the fluid, etc
-* Projection: calculating a pressure field, ensuring it is incompressible and applying it to the velocity to make it divergence free and ensuring boundary conditions. This done by solving a system of linear equations, using either the successive-over-relaxation iterative solver or the preconditioned conjugate gradient solver. 
+* Projection: calculating a pressure field, ensuring it is incompressible and applying it to the velocity to make it divergence free and ensuring boundary conditions. This done by solving a system of linear equations, using either the successive-over-relaxation iterative solver or the preconditioned conjugate gradient solver.
 
 ### Code structure
 
-The code is divided in two sections: Renderer and Engine. 
+The code is divided in two sections: Renderer and Engine.
 
-The renderer section provides some simple wrapping around OpenGL functionality that makes coding the engine easier. This includes loading/compiling shaders, setting up textures and render textures, basic shape drawing, transformations and debugging content of textures. 
+The renderer section provides some simple wrapping around OpenGL functionality that makes coding the engine easier. This includes loading/compiling shaders, setting up textures and render textures, basic shape drawing, transformations and debugging content of textures.
 
 The engine builds on the tools provided by creating functionality to treat OpenGL as a generic computing platform. This is then used to build the linear solvers, the projection, advection and other facilities to simulate smoke or water.
 
 ### General programming on the GPU
 
-Since the engine works on a grid and most of the algorithms are trivially parallelisable, using the GPU with OpenGL is quite straightforward. Floating textures are used to represent grids, computations are done with the fragment shader and rendered on another texture by drawing a rectangle that covers the whole texture. While we can't update textures in place, we can use two textures and ping pong between them to get the same effect. 
+Since the engine works on a grid and most of the algorithms are trivially parallelisable, using the GPU with OpenGL is quite straightforward. Floating textures are used to represent grids, computations are done with the fragment shader and rendered on another texture by drawing a rectangle that covers the whole texture. While we can't update textures in place, we can use two textures and ping pong between them to get the same effect.
 
 So an operation looks like this:
 
@@ -56,8 +58,8 @@ Operator op;
 output = op(input);
 ```
 
-Writting information to a Buffer is a matter of rendering a shape to the Buffer. For examples to add gravity, we can draw a rectangle covering the whole texture with the colour being the gravity force. 
- 
+Writting information to a Buffer is a matter of rendering a shape to the Buffer. For examples to add gravity, we can draw a rectangle covering the whole texture with the colour being the gravity force.
+
 ## Fluid engine
 
 The class *Engine* is the core of the simulation and handles the boundaries, forces, velocity field, solving the incompressible equations and advections.
@@ -78,11 +80,11 @@ Visualisation of the fluid with either the *Density* or *Water* classes need to 
 
 There are two types of boundaries possible which require some explanation. When solving the incompressible equations, we need to know what pressure to use at the boundaries and we support two types:
 
- * Dirichlet 
+ * Dirichlet
 
 Dirichlet boundaries simply set the pressure at boundaries to 0. This means that any movement towards a dirichlet boundary will be unchanged. This is useful for simulating water/air interaction or to simulate a continuation of the fluid without showing it (e.g. smoke disapearing from the side of the screen).
 
- * Neumann 
+ * Neumann
 
 Neumann boundaries set the pressure to be the negative of the fluid pressure. This represents solid objects and the fluid will respond by moving away from it. It is used for solid objects immersed in the fluid.
 
@@ -94,7 +96,7 @@ This class is used to represent dye or smoke in the fluid. The object is initial
 
 This class is used to simulate water. This is more complex than the *Density* class as the interesting part of simulating water, is simulating the boundary between water and air. The velocity field is then seperated in two section: the water and air section.
 
-For simplicity, the air is simulated as having pressure 0 (i.e. dirichlet boundaries). For the simulation to be interesting, the interface air/water needs to be evolved, so that our water can splash around. We use the level set method to achieve this. 
+For simplicity, the air is simulated as having pressure 0 (i.e. dirichlet boundaries). For the simulation to be interesting, the interface air/water needs to be evolved, so that our water can splash around. We use the level set method to achieve this.
 
 A level set is a grid where each grid cell has the signed distance to the nearest water/air boundary. The distance is positive in the water and negative in the air. The *Water* class has a level set grid the size of the *Engine*, we can then mark (i.e. draw) some sections as beeing water. The class will internally maintain the level set to contain an approximate distance field.
 
@@ -157,4 +159,4 @@ Doxygen generated documentation can be found [here](http://mmaldacker.github.io/
 ## Todo
 
 * The velocity field is extrapolated in the boundaries so the level set can be properly advectated. However for Neumann boundaries, only the normal velocity on the surface should be set.
-* Neumann boundaries can move the flui, it'd be interesting to have this work the other way around, e.g. objects moved by water 
+* Neumann boundaries can move the flui, it'd be interesting to have this work the other way around, e.g. objects moved by water
