@@ -16,23 +16,21 @@ namespace Vortex2D { namespace Fluid {
 class SuccessiveOverRelaxation : public LinearSolver
 {
 public:
-    SuccessiveOverRelaxation(const glm::vec2& size, int iterations = 40);
-    SuccessiveOverRelaxation(const glm::vec2& size, int iterations, float w);
+    SuccessiveOverRelaxation(const glm::vec2& size);
+    SuccessiveOverRelaxation(const glm::vec2& size, float w);
 
     /**
      * @brief Sets up the stencil mask to enable red-black solving
      */
-    void Init(LinearSolver::Data& data) override;
+    void Init(Data& data) override;
 
     /**
      * @brief Iterative solving of the linear equations in data
      */
-    void Solve(LinearSolver::Data& data) override;
+    void Solve(Data& data, Parameters& params) override;
 
 private:
-    void Step(LinearSolver::Data& data, bool isRed);
-
-    int mIterations;
+    void Step(Data& data, bool isRed);
 
     Renderer::Operator mSor;
     Renderer::Operator mStencil;

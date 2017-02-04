@@ -24,11 +24,7 @@ struct LinearSolver
      */
     struct Data
     {
-        Data(const glm::vec2& size)
-        : Weights(size, 4)
-        , Diagonal(size, 1)
-        , Pressure(size, 2, true, true)
-        {}
+        Data(const glm::vec2& size);
 
         /**
          * @brief Buffer with 4 components holding the weights of the 4 neighbouring grid cells
@@ -46,6 +42,19 @@ struct LinearSolver
         Renderer::Buffer Pressure;
     };
 
+    struct Parameters
+    {
+        Parameters(unsigned iterations, float errorTolerance = 0.0f);
+
+        bool IsFinished(unsigned iterations, float error = 0.0f) const;
+
+        unsigned Iterations;
+
+        float ErrorTolerance;
+
+        unsigned OutIterations;
+    };
+
     LinearSolver();
 
     virtual ~LinearSolver() {}
@@ -58,7 +67,7 @@ struct LinearSolver
     /**
      * @brief Solves the linear equations
      */
-    virtual void Solve(Data& data) = 0;
+    virtual void Solve(Data& data, Parameters& params) = 0;
 
     /**
      * @brief Renders a stencil using the diagonal, to avoid division by 0 in the solvers

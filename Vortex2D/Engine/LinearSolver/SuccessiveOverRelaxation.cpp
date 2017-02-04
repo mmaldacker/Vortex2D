@@ -55,9 +55,8 @@ const char * CheckerMask = GLSL(
 
 using Renderer::Back;
 
-SuccessiveOverRelaxation::SuccessiveOverRelaxation(const glm::vec2& size, int iterations)
-    : mIterations(iterations)
-    , mSor(Renderer::Shader::TexturePositionVert, SorFrag)
+SuccessiveOverRelaxation::SuccessiveOverRelaxation(const glm::vec2& size)
+    : mSor(Renderer::Shader::TexturePositionVert, SorFrag)
     , mStencil(Renderer::Shader::TexturePositionVert, CheckerMask)
     , mIdentity(Renderer::Shader::TexturePositionVert, Renderer::Shader::TexturePositionFrag)
 {
@@ -66,13 +65,13 @@ SuccessiveOverRelaxation::SuccessiveOverRelaxation(const glm::vec2& size, int it
     mSor.Use().Set("u_texture", 0).Set("u_weights", 1).Set("u_diagonals", 2).Set("w", w).Unuse();
 }
 
-SuccessiveOverRelaxation::SuccessiveOverRelaxation(const glm::vec2& size, int iterations, float w)
-    : SuccessiveOverRelaxation(size, iterations)
+SuccessiveOverRelaxation::SuccessiveOverRelaxation(const glm::vec2& size, float w)
+    : SuccessiveOverRelaxation(size)
 {
     mSor.Use().Set("w", w).Unuse();
 }
 
-void SuccessiveOverRelaxation::Init(LinearSolver::Data& data)
+void SuccessiveOverRelaxation::Init(Data& data)
 {
     RenderMask(data.Pressure, data);
 
@@ -91,16 +90,21 @@ void SuccessiveOverRelaxation::Init(LinearSolver::Data& data)
     glStencilMask(0x00); // disable stencil writing
 }
 
-void SuccessiveOverRelaxation::Solve(LinearSolver::Data& data)
+void SuccessiveOverRelaxation::Solve(Data& data, Parameters& params)
 {
-    for (int i  = 0; i < mIterations; ++i)
+    // FIXME implement solving within error tolerance
+    assert(params.Iterations > 0);
+
+    for (unsigned i  = 0; !params.IsFinished(i); ++i)
     {
         Step(data, true);
         Step(data, false);
+
+        params.OutIterations = i;
     }
 }
 
-void SuccessiveOverRelaxation::Step(LinearSolver::Data& data, bool isRed)
+void SuccessiveOverRelaxation::Step(Data& data, bool isRed)
 {
     Renderer::Enable e(GL_STENCIL_TEST);
     glStencilMask(0x00);

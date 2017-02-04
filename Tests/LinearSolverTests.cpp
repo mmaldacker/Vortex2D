@@ -17,40 +17,57 @@
 using namespace Vortex2D::Renderer;
 using namespace Vortex2D::Fluid;
 
-TEST(LinearSolverTests, Reduce)
+TEST(LinearSolverTests, ReduceSum)
 {
     Disable d(GL_BLEND);
 
-    Reduce reduce(glm::vec2(10, 15));
+    ReduceSum reduce(glm::vec2(10, 15));
 
-    Buffer a(glm::vec2(10, 15), 1);
-    Buffer b(glm::vec2(10, 15), 1);
-
-    std::vector<float> aData(10*15, 1.0f);
-    Writer(a).Write(aData);
+    Buffer input(glm::vec2(10, 15), 1);
 
     std::vector<float> bData(10*15);
     float n = 1.0f;
     std::generate(bData.begin(), bData.end(), [&n]{ return n++; });
-    Writer(b).Write(bData);
+    Writer(input).Write(bData);
 
-    Buffer buffer(glm::vec2(1), 1);
-    buffer = reduce(a, b);
+    Buffer output(glm::vec2(1), 1);
+    output = reduce(input);
 
-    float total = Reader(buffer).Read().GetFloat(0, 0);
+    float total = Reader(output).Read().GetFloat(0, 0);
 
     ASSERT_EQ(0.5f*150.0f*151.0f, total);
+}
+
+TEST(LinearSolverTests, ReduceMax)
+{
+    Disable d(GL_BLEND);
+
+    ReduceMax reduce(glm::vec2(10, 15));
+
+    Buffer input(glm::vec2(10, 15), 1);
+
+    std::vector<float> bData(10*15);
+    float n = -1.0f;
+    std::generate(bData.begin(), bData.end(), [&n]{ return n--; });
+    Writer(input).Write(bData);
+
+    Buffer output(glm::vec2(1), 1);
+    output = reduce(input);
+
+    float total = Reader(output).Read().GetFloat(0, 0);
+
+    ASSERT_EQ(150.0f, total);
 }
 
 class EmptyLinearSolver : public LinearSolver
 {
 public:
-    void Init(Data& data)
+    void Init(Data& data) override
     {
 
     }
 
-    void Solve(Data& data)
+    void Solve(Data& data, Parameters& params) override
     {
 
     }
@@ -197,12 +214,15 @@ TEST(LinearSolverTests, Simple_SOR)
     LinearSolver::Data data(size);
     BuildLinearEquation(size, data, sim);
 
-    SuccessiveOverRelaxation solver(size, 200);
+    LinearSolver::Parameters params(200);
+    SuccessiveOverRelaxation solver(size);
 
     solver.Init(data);
-    solver.Solve(data);
+    solver.Solve(data, params);
 
-    CheckPressure(size, sim.pressure, data, 1e-5);
+    CheckPressure(size, sim.pressure, data, 1e-5f);
+
+    std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
 }
 
 TEST(LinearSolverTests, Complex_SOR)
@@ -223,12 +243,15 @@ TEST(LinearSolverTests, Complex_SOR)
     LinearSolver::Data data(size);
     BuildLinearEquation(size, data, sim);
 
-    SuccessiveOverRelaxation solver(size, 500);
+    LinearSolver::Parameters params(200);
+    SuccessiveOverRelaxation solver(size);
 
     solver.Init(data);
-    solver.Solve(data);
+    solver.Solve(data, params);
 
-    CheckPressure(size, sim.pressure, data, 1e-5);
+    CheckPressure(size, sim.pressure, data, 1e-4f);
+
+    std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
 }
 
 TEST(LinearSolverTests, Simple_CG)
@@ -249,14 +272,17 @@ TEST(LinearSolverTests, Simple_CG)
     LinearSolver::Data data(size);
     BuildLinearEquation(size, data, sim);
 
-    ConjugateGradient solver(size, 1000);
+    LinearSolver::Parameters params(600);
+    ConjugateGradient solver(size);
     solver.Init(data);
-    solver.NormalSolve(data);
+    solver.NormalSolve(data, params);
 
     Reader reader(data.Pressure);
     reader.Read();
 
-    CheckPressure(size, sim.pressure, data, 1e-5);
+    CheckPressure(size, sim.pressure, data, 1e-4f);
+
+    std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
 }
 
 TEST(LinearSolverTests, Simple_PCG)
@@ -277,14 +303,17 @@ TEST(LinearSolverTests, Simple_PCG)
     LinearSolver::Data data(size);
     BuildLinearEquation(size, data, sim);
 
-    ConjugateGradient solver(size, 100);
+    LinearSolver::Parameters params(1000, 1e-5f);
+    ConjugateGradient solver(size);
     solver.Init(data);
-    solver.Solve(data);
+    solver.Solve(data, params);
 
     Reader reader(data.Pressure);
     reader.Read();
 
-    CheckPressure(size, sim.pressure, data, 1e-5);
+    CheckPressure(size, sim.pressure, data, params.ErrorTolerance);
+
+    std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
 }
 
 TEST(LinearSolverTests, Complex_PCG)
@@ -305,12 +334,15 @@ TEST(LinearSolverTests, Complex_PCG)
     LinearSolver::Data data(size);
     BuildLinearEquation(size, data, sim);
 
-    ConjugateGradient solver(size, 100);
+    LinearSolver::Parameters params(1000, 1e-5f);
+    ConjugateGradient solver(size);
     solver.Init(data);
-    solver.Solve(data);
+    solver.Solve(data, params);
 
     Reader reader(data.Pressure);
     reader.Read();
 
-    CheckPressure(size, sim.pressure, data, 1e-5);
+    CheckPressure(size, sim.pressure, data, params.ErrorTolerance);
+
+    std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
 }

@@ -11,22 +11,34 @@
 namespace Vortex2D { namespace Fluid {
 
 /**
- * @brief An Operator class that implements the inner dot product between two buffers.
+ * @brief An Operator class that reduces a Buffer with given operator
  */
 class Reduce
 {
 public:
-    Reduce(glm::vec2 size);
-
     /**
      * @brief Runs the reduce operation
      */
-    Renderer::OperatorContext operator()(Renderer::Buffer& a, Renderer::Buffer& b);
+    Renderer::OperatorContext operator()(Renderer::Buffer& buffer);
+
+protected:
+    Reduce(glm::vec2 size, const char* fragment);
 
 private:
     std::vector<Renderer::Buffer> s;
     Renderer::Operator reduce;
-    Renderer::Operator multiply;
+};
+
+class ReduceSum : public Reduce
+{
+public:
+    ReduceSum(const glm::vec2& size);
+};
+
+class ReduceMax : public Reduce
+{
+public:
+    ReduceMax(const glm::vec2& size);
 };
 
 }}

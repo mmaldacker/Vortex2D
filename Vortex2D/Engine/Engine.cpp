@@ -538,7 +538,9 @@ void Engine::Solve()
         mData.Diagonal = mDiagonals(mObstacleLevelSet, mFluidLevelSet);
 
         mLinearSolver.Init(mData);
-        mLinearSolver.Solve(mData);
+        // FIXME fix this
+        LinearSolver::Parameters params(40);
+        mLinearSolver.Solve(mData, params);
 
         mVelocity.Swap();
         mVelocity = mProject(Back(mVelocity),

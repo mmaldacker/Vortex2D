@@ -5,6 +5,7 @@
 
 #include "ConjugateGradient.h"
 #include "Disable.h"
+#include "Reader.h"
 
 namespace Vortex2D { namespace Fluid {
 
@@ -25,6 +26,22 @@ const char * DivideFrag = GLSL(
 
         colour_out = vec4(x / y, 0.0, 0.0, 0.0);
     }
+);
+
+const char * MultiplyFrag = GLSL(
+     in vec2 v_texCoord;
+     out vec4 colour_out;
+
+     uniform sampler2D u_x;
+     uniform sampler2D u_y;
+
+     void main()
+     {
+         float x = texture(u_x, v_texCoord).x;
+         float y = texture(u_y, v_texCoord).x;
+
+         colour_out = vec4(x * y, 0.0, 0.0, 0.0);
+     }
 );
 
 const char * MultiplyAddFrag = GLSL(
@@ -108,7 +125,7 @@ const char * ResidualFrag = GLSL(
 
 using Renderer::Back;
 
-ConjugateGradient::ConjugateGradient(const glm::vec2& size, unsigned iterations)
+ConjugateGradient::ConjugateGradient(const glm::vec2& size)
     : r(size, 1, true)
     , s(size, 1, true)
     , z(size, 1, false, true)
@@ -117,19 +134,23 @@ ConjugateGradient::ConjugateGradient(const glm::vec2& size, unsigned iterations)
     , rho({1,1}, 1)
     , rho_new({1,1}, 1)
     , sigma({1,1}, 1)
+    , reduce(size, 1)
+    , error({1,1}, 1)
     , matrixMultiply(Renderer::Shader::TexturePositionVert, MultiplyMatrixFrag)
     , scalarDivision(Renderer::Shader::TexturePositionVert, DivideFrag)
+    , scalarMultiply(Renderer::Shader::TexturePositionVert, MultiplyFrag)
     , multiplyAdd(Renderer::Shader::TexturePositionVert, MultiplyAddFrag)
     , multiplySub(Renderer::Shader::TexturePositionVert, MultiplySubFrag)
     , residual(Renderer::Shader::TexturePositionVert, ResidualFrag)
     , identity(Renderer::Shader::TexturePositionVert, Renderer::Shader::TexturePositionFrag)
-    , reduce(size)
-    , mIterations(iterations)
+    , reduceSum(size)
+    , reduceMax(size)
 {
     residual.Use().Set("u_texture", 0).Unuse();
     identity.Use().Set("u_texture", 0).Unuse();
     matrixMultiply.Use().Set("u_texture", 0).Set("u_weights", 1).Set("u_diagonals", 2).Unuse();
     scalarDivision.Use().Set("u_x", 0).Set("u_y", 1).Unuse();
+    scalarMultiply.Use().Set("u_x", 0).Set("u_y", 1).Unuse();
     multiplyAdd.Use().Set("u_x", 0).Set("u_y", 1).Set("u_scalar", 2).Unuse();
     multiplySub.Use().Set("u_x", 0).Set("u_y", 1).Set("u_scalar", 2).Unuse();
 }
@@ -138,12 +159,12 @@ ConjugateGradient::~ConjugateGradient()
 {
 }
 
-void ConjugateGradient::Init(LinearSolver::Data& data)
+void ConjugateGradient::Init(Data& data)
 {
     RenderMask(z, data);
 }
 
-void ConjugateGradient::Solve(LinearSolver::Data& data)
+void ConjugateGradient::Solve(Data& data, Parameters& params)
 {
     // r = b
     r = residual(data.Pressure);
@@ -158,15 +179,15 @@ void ConjugateGradient::Solve(LinearSolver::Data& data)
     s = identity(z);
 
     // rho = zTr
-    rho = reduce(z, r);
+    InnerProduct(rho, z, r);
 
-    for (unsigned i = 0 ; i < mIterations; ++i)
+    for (unsigned i = 0 ;; ++i)
     {
         // z = As
         z = matrixMultiply(s, data.Weights, data.Diagonal);
 
         // alpha = rho / zTs
-        sigma = reduce(z, s);
+        InnerProduct(sigma, z, s);
         alpha = scalarDivision(rho, sigma);
 
         // p = p + alpha * s
@@ -177,11 +198,18 @@ void ConjugateGradient::Solve(LinearSolver::Data& data)
         r.Swap();
         r = multiplySub(Back(r), z, alpha);
 
+        // exit condition
+        params.OutIterations = i;
+        if (params.IsFinished(i, GetError()))
+        {
+            return;
+        }
+
         // z = M^-1 r
         ApplyPreconditioner(data);
 
         // rho_new = zTr
-        rho_new = reduce(z, r);
+        InnerProduct(rho_new, z, r);
 
         // beta = rho_new / rho
         beta = scalarDivision(rho_new, rho);
@@ -195,7 +223,7 @@ void ConjugateGradient::Solve(LinearSolver::Data& data)
     }
 }
 
-void ConjugateGradient::NormalSolve(LinearSolver::Data& data)
+void ConjugateGradient::NormalSolve(Data& data, Parameters& params)
 {
     // r = b
     r = residual(data.Pressure);
@@ -207,15 +235,15 @@ void ConjugateGradient::NormalSolve(LinearSolver::Data& data)
     s = identity(r);
 
     // rho = rTr
-    rho = reduce(r, r);
+    InnerProduct(rho, r, r);
 
-    for (unsigned i = 0 ; i < mIterations; ++i)
+    for (unsigned i = 0 ;; ++i)
     {
         // z = As
         z = matrixMultiply(s, data.Weights, data.Diagonal);
 
         // alpha = rho / zTs
-        sigma = reduce(z, s);
+        InnerProduct(sigma, z, s);
         alpha = scalarDivision(rho, sigma);
 
         // p = p + alpha * s
@@ -226,8 +254,15 @@ void ConjugateGradient::NormalSolve(LinearSolver::Data& data)
         r.Swap();
         r = multiplySub(Back(r), z, alpha);
 
+        // exit condition
+        params.OutIterations = i;
+        if (params.IsFinished(i, GetError()))
+        {
+            return;
+        }
+
         // rho_new = rTr
-        rho_new = reduce(r, r);
+        InnerProduct(rho_new, r, r);
 
         // beta = rho_new / rho
         beta = scalarDivision(rho_new, rho);
@@ -241,7 +276,7 @@ void ConjugateGradient::NormalSolve(LinearSolver::Data& data)
     }
 }
 
-void ConjugateGradient::ApplyPreconditioner(LinearSolver::Data& data)
+void ConjugateGradient::ApplyPreconditioner(Data& data)
 {
     Renderer::Enable e(GL_STENCIL_TEST);
     glStencilMask(0x00);
@@ -249,5 +284,19 @@ void ConjugateGradient::ApplyPreconditioner(LinearSolver::Data& data)
 
     z = scalarDivision(r, data.Diagonal);
 }
+
+void ConjugateGradient::InnerProduct(Renderer::Buffer& output, Renderer::Buffer& input1, Renderer::Buffer& input2)
+{
+    reduce = scalarMultiply(input1, input2);
+    output = reduceSum(reduce);
+}
+
+float ConjugateGradient::GetError()
+{
+    // FIXME don't compute if we don't want to terminate based on error tolerance
+    error = reduceMax(r);
+    return Renderer::Reader(error).Read().GetFloat(0, 0);
+}
+
 
 }}

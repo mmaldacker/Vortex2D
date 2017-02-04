@@ -18,28 +18,30 @@ namespace Vortex2D { namespace Fluid {
 class ConjugateGradient : public LinearSolver
 {
 public:
-    ConjugateGradient(const glm::vec2& size, unsigned iterations = 40);
+    ConjugateGradient(const glm::vec2& size);
     virtual ~ConjugateGradient();
 
     /**
      * @brief Empty implementation as there are no initialisation for CG
      */
-    void Init(LinearSolver::Data& data) override;
+    void Init(Data& data) override;
 
     /**
      * @brief Solve iteratively solve the linear equations in data
      */
-    void Solve(LinearSolver::Data& data) override;
+    void Solve(Data& data, Parameters& params) override;
 
-    void NormalSolve(LinearSolver::Data& data);
+    void NormalSolve(Data& data, Parameters& params);
 
 private:
-    void ApplyPreconditioner(LinearSolver::Data& data);
+    void ApplyPreconditioner(Data& data);
+    float GetError();
+    void InnerProduct(Renderer::Buffer& output, Renderer::Buffer& intput1, Renderer::Buffer& input2);
 
-    Renderer::Buffer r, s, z, alpha, beta, rho, rho_new, sigma;
-    Renderer::Operator matrixMultiply, scalarDivision, multiplyAdd, multiplySub, residual, identity;
-    Reduce reduce;
-    unsigned mIterations;
+    Renderer::Buffer r, s, z, alpha, beta, rho, rho_new, sigma, reduce, error;
+    Renderer::Operator matrixMultiply, scalarDivision, scalarMultiply, multiplyAdd, multiplySub, residual, identity;
+    ReduceSum reduceSum;
+    ReduceMax reduceMax;
 };
 
 }}

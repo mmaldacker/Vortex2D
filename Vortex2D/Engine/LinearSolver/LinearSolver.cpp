@@ -36,6 +36,36 @@ const char* MaskFrag = GLSL(
 
 using Renderer::Back;
 
+LinearSolver::Data::Data(const glm::vec2& size)
+    : Weights(size, 4)
+    , Diagonal(size, 1)
+    , Pressure(size, 2, true, true)
+{
+
+}
+
+LinearSolver::Parameters::Parameters(unsigned iterations, float errorTolerance)
+    : Iterations(iterations)
+    , ErrorTolerance(errorTolerance)
+    , OutIterations(0)
+{
+
+}
+
+bool LinearSolver::Parameters::IsFinished(unsigned iterations, float error) const
+{
+
+    if (Iterations > 0)
+    {
+        return iterations > Iterations  || error < ErrorTolerance;
+    }
+    else
+    {
+        return error < ErrorTolerance;
+    }
+}
+
+
 LinearSolver::LinearSolver()
     : mMask(Renderer::Shader::TexturePositionVert, MaskFrag)
 {

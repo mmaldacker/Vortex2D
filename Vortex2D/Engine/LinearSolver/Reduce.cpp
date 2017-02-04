@@ -10,7 +10,7 @@ namespace Vortex2D { namespace Fluid {
 namespace
 {
 
-const char * ReduceFrag = GLSL(
+const char * SumFrag = GLSL(
    out vec4 colour_out;
 
    uniform sampler2D u_texture;
@@ -29,41 +29,42 @@ const char * ReduceFrag = GLSL(
    }
 );
 
-const char * MultiplyFrag = GLSL(
-     in vec2 v_texCoord;
-     out vec4 colour_out;
+const char * MaxFrag = GLSL(
+  out vec4 colour_out;
 
-     uniform sampler2D u_texture;
-     uniform sampler2D u_other;
+  uniform sampler2D u_texture;
 
-     void main()
-     {
-         float x = texture(u_texture, v_texCoord).x;
-         float y = texture(u_other, v_texCoord).x;
+  void main()
+  {
+      ivec2 pos = 2 * ivec2(gl_FragCoord.xy - 0.5);
 
-         colour_out = vec4(x * y, 0.0, 0.0, 0.0);
-     }
+      vec4 value;
+      value.x = abs(texelFetch(u_texture, pos + ivec2(0,0), 0).x);
+      value.y = abs(texelFetch(u_texture, pos + ivec2(1,0), 0).x);
+      value.z = abs(texelFetch(u_texture, pos + ivec2(0,1), 0).x);
+      value.w = abs(texelFetch(u_texture, pos + ivec2(1,1), 0).x);
+
+      colour_out = vec4(max(max(value.x, value.y), max(value.z, value.w)), 0.0, 0.0, 0.0);
+  }
 );
 
 }
 
-Reduce::Reduce(glm::vec2 size)
-    : reduce(Renderer::Shader::PositionVert, ReduceFrag)
-    , multiply(Renderer::Shader::TexturePositionVert, MultiplyFrag)
+Reduce::Reduce(glm::vec2 size, const char* fragment)
+    : reduce(Renderer::Shader::PositionVert, fragment)
 {
     while(size.x > 1.0f && size.y > 1.0f)
     {
-        s.emplace_back(size, 1);
         size = glm::ceil(size/glm::vec2(2.0f));
+        s.emplace_back(size, 1);
     }
 
     reduce.Use().Set("u_texture", 0).Unuse();
-    multiply.Use().Set("u_texture", 0).Set("u_other", 1).Unuse();
 }
 
-Renderer::OperatorContext Reduce::operator()(Renderer::Buffer& a, Renderer::Buffer& b)
+Renderer::OperatorContext Reduce::operator()(Renderer::Buffer& buffer)
 {
-    s[0] = multiply(a, b);
+    s[0] = reduce(buffer);
 
     for (std::size_t i = 1; i < s.size(); i++)
     {
@@ -71,6 +72,18 @@ Renderer::OperatorContext Reduce::operator()(Renderer::Buffer& a, Renderer::Buff
     }
 
     return reduce(s.back());
+}
+
+ReduceSum::ReduceSum(const glm::vec2& size)
+    : Reduce(size, SumFrag)
+{
+
+}
+
+ReduceMax::ReduceMax(const glm::vec2& size)
+    : Reduce(size, MaxFrag)
+{
+
 }
 
 }}
