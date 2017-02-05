@@ -13,7 +13,6 @@ addons:
   apt:
     packages:
       # Vortex2D dependencies
-      - libgtest-dev
       - google-mock
       # GLFW3 dependencies
       - libxrandr-dev
@@ -50,14 +49,13 @@ install:
   - make
   - sudo make install
   - cd ../..
-#Gtest install
-  - cd /usr/src/gtest
+#Gtest&Gmock install
+  - cd /usr/src/gmock/gtest
   - sudo cmake -Dgtest_disable_pthreads=ON .
   - sudo make
   - sudo mv libg* /usr/lib/
-  - cd -
-#Gmock install
-  - cd /usr/src/gmock
+  - cp -r ../include/gtest /usr/include/gtest/
+  - cd ..
   - sudo cmake -Dgtest_disable_pthreads=ON .
   - sudo make
   - sudo mv libg* /usr/lib/
