@@ -59,7 +59,7 @@ install:
   - sudo cmake -Dgtest_disable_pthreads=ON .
   - sudo make
   - sudo mv libg* /usr/lib/
-  - cd -
+  - cd $TRAVIS_BUILD_DIR
 
 script:
   - mkdir build
