@@ -56,6 +56,12 @@ install:
   - sudo make
   - sudo mv libg* /usr/lib/
   - cd -
+#Gmock install
+  - cd /usr/src/gmock
+  - sudo cmake -Dgtest_disable_pthreads=ON .
+  - sudo make
+  - sudo mv libg* /usr/lib/
+  - cd -
 
 script:
   - mkdir build
