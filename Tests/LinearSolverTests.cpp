@@ -15,6 +15,7 @@
 
 using namespace Vortex2D::Renderer;
 using namespace Vortex2D::Fluid;
+using ::testing::NiceMock;
 
 TEST(LinearSolverTests, ReduceSum)
 {
@@ -71,7 +72,7 @@ TEST(LinearSolverTests, RenderMask)
     dataData[15] = 1.0f;
     Writer(data.Diagonal).Write(dataData);
 
-    EmptyLinearSolver solver;
+    NiceMock<MockLinearSolver> solver;
     solver.RenderMask(buffer, data);
 
     Reader reader(buffer);
@@ -130,7 +131,7 @@ void CheckPressure(const glm::vec2& size, const std::vector<double>& pressure, L
         {
             std::size_t index = i + j * size.x;
             float value = pressure[index];
-            ASSERT_NEAR(value, reader.GetVec2(i, j).x, error);
+            ASSERT_NEAR(value, reader.GetVec2(i, j).x, error) << "Mismatch at " << i << ", " << j << "\n";
         }
     }
 }
@@ -139,13 +140,13 @@ TEST(LinearSolverTests, Simple_SOR)
 {
     Disable d(GL_BLEND);
 
-    glm::vec2 size(50);
+    glm::vec2 size(10);
 
     FluidSim sim;
     sim.initialize(1.0f, size.x, size.y);
     sim.set_boundary(boundary_phi);
 
-    AddParticles(size, sim);
+    AddParticles(size, sim, boundary_phi);
 
     sim.add_force(0.01f);
     sim.project(0.01f);
@@ -159,7 +160,7 @@ TEST(LinearSolverTests, Simple_SOR)
     solver.Init(data);
     solver.Solve(data, params);
 
-    CheckPressure(size, sim.pressure, data, 1e-5f);
+    CheckPressure(size, sim.pressure, data, 1e-4f);
 
     std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
 }
@@ -174,7 +175,7 @@ TEST(LinearSolverTests, Complex_SOR)
     sim.initialize(1.0f, size.x, size.y);
     sim.set_boundary(complex_boundary_phi);
 
-    AddParticles(size, sim);
+    AddParticles(size, sim, complex_boundary_phi);
 
     sim.add_force(0.01f);
     sim.project(0.01f);
@@ -203,7 +204,7 @@ TEST(LinearSolverTests, Simple_CG)
     sim.initialize(1.0f, size.x, size.y);
     sim.set_boundary(boundary_phi);
 
-    AddParticles(size, sim);
+    AddParticles(size, sim, boundary_phi);
 
     sim.add_force(0.01f);
     sim.project(0.01f);
@@ -235,7 +236,7 @@ TEST(LinearSolverTests, Simple_PCG)
     sim.initialize(1.0f, size.x, size.y);
     sim.set_boundary(boundary_phi);
 
-    AddParticles(size, sim);
+    AddParticles(size, sim, boundary_phi);
 
     sim.add_force(1.0f);
     sim.project(1.0f);
@@ -266,7 +267,7 @@ TEST(LinearSolverTests, Complex_PCG)
     sim.initialize(1.0f, size.x, size.y);
     sim.set_boundary(complex_boundary_phi);
 
-    AddParticles(size, sim);
+    AddParticles(size, sim, complex_boundary_phi);
 
     sim.add_force(0.01f);
     sim.project(0.01f);

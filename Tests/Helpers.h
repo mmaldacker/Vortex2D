@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "gtest/gtest.h"
+#include "gmock/gmock.h"
 #include "LinearSolver.h"
 #include "Disable.h"
 #include "RenderTexture.h"
@@ -85,32 +86,25 @@ static float complex_boundary_phi(const Vec2f& position)
     return min(min(phi0,phi1),min(phi2,phi3));
 }
 
-static void AddParticles(const glm::vec2& size, FluidSim& sim)
+static void AddParticles(const glm::vec2& size, FluidSim& sim, float (*phi)(const Vec2f&))
 {
     for(int i = 0; i < 4*sqr(size.x); ++i)
     {
         float x = randhashf(i*2, 0,1);
         float y = randhashf(i*2+1, 0,1);
         Vec2f pt(x,y);
-        if (boundary_phi(pt) > 0 && pt[0] > 0.5)
+        if (phi(pt) > 0 && pt[0] > 0.5)
         {
             sim.add_particle(pt);
         }
     }
 }
 
-class EmptyLinearSolver : public LinearSolver
+class MockLinearSolver : public LinearSolver
 {
 public:
-    void Init(Data& data) override
-    {
-
-    }
-
-    void Solve(Data& data, Parameters& params) override
-    {
-
-    }
+    MOCK_METHOD1(Init, void(Data&));
+    MOCK_METHOD2(Solve, void(Data&, Parameters&));
 };
 
 

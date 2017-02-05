@@ -14,6 +14,7 @@ class Pressure
 {
 public:
     Pressure(float dt,
+             const glm::vec2& size,
              LinearSolver& solver,
              LinearSolver::Data& data,
              Renderer::Buffer& velocity,

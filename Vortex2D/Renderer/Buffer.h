@@ -83,6 +83,9 @@ public:
      */
     bool IsDoubleBuffer() const;
 
+    int Width() const;
+    int Height() const;
+
     friend struct Back;
     friend struct Front;
 
