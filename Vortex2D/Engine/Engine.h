@@ -3,8 +3,8 @@
 //  Vortex
 //
 
-#ifndef __Vortex__Engine__
-#define __Vortex__Engine__
+#ifndef Vortex_Engine_h
+#define Vortex_Engine_h
 
 #include "LinearSolver.h"
 #include "Size.h"
@@ -98,9 +98,7 @@ public:
 
     friend class Density;
 //private:
-    void Advect(Renderer::Buffer& buffer);
     void ExtrapolateFluid();
-    void ConstrainVelocity();
 
     Dimensions mDimensions;
 
@@ -109,7 +107,6 @@ public:
 
     Extrapolation mExtrapolation;
     Renderer::Operator mExtrapolateFluid;
-    Renderer::Operator mConstrainVelocity;
 
     Renderer::Buffer mVelocity;
     Renderer::Buffer mBoundariesVelocity;
@@ -117,8 +114,7 @@ public:
     LevelSet mObstacleLevelSet;
 
 
-    Renderer::Operator mVelocityAdvect;
-    Renderer::Operator mAdvect;
+
 
 
     Renderer::Program mFluidProgram;

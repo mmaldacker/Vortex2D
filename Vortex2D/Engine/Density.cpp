@@ -30,7 +30,8 @@ void Density::Render(Renderer::Drawable & object)
 
 void Density::Advect(Engine & engine)
 {
-    engine.Advect(mDensity);
+    // FIXME
+    //engine.Advect(mDensity);
 }
 
 void Density::Render(Renderer::RenderTarget & target, const glm::mat4 & transform)

@@ -1,6 +1,7 @@
 //
 //  Extrapolation.h
 //  Vortex2D
+//
 
 #ifndef Extrapolation_h
 #define Extrapolation_h
@@ -33,6 +34,7 @@ private:
     Renderer::Operator mIdentity;
     Renderer::Operator mExtrapolate;
     Renderer::Operator mExtrapolateMask;
+    Renderer::Operator mConstrainVelocity;
 
     Renderer::Rectangle mSurface;
 };

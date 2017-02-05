@@ -85,6 +85,30 @@ const char * ExtrapolateMaskFrag = GLSL(
     }
 );
 
+const char * ConstrainVelocityFrag = GLSL(
+    uniform sampler2D u_velocity;
+    uniform sampler2D u_obstacles;
+
+    in vec2 v_texCoord;
+    out vec4 out_color;
+
+    void main(void)
+    {
+        vec2 uv = texture(u_velocity, v_texCoord).xy;
+
+        float cxp = textureOffset(u_obstacles, v_texCoord, ivec2(2,0)).x;
+        float cyp = textureOffset(u_obstacles, v_texCoord, ivec2(0,2)).x;
+        float cxn = textureOffset(u_obstacles, v_texCoord, ivec2(-2,0)).x;
+        float cyn = textureOffset(u_obstacles, v_texCoord, ivec2(0,-2)).x;
+
+        vec2 cGrad = normalize(vec2(cxp-cxn,cyp-cyn));
+        float perp_component = dot(uv, cGrad);
+
+        // FIXME need to set the obstacle velocity (means we don't have to set it in project?)
+        out_color = vec4(uv - perp_component*cGrad, 0.0, 0.0);
+    }
+);
+
 }
 
 using Renderer::Back;
@@ -94,11 +118,13 @@ Extrapolation::Extrapolation(Dimensions dimensions)
     , mIdentity(Renderer::Shader::TexturePositionVert, Renderer::Shader::TexturePositionFrag)
     , mExtrapolate(Renderer::Shader::TexturePositionVert, ExtrapolateFrag)
     , mExtrapolateMask(Renderer::Shader::TexturePositionVert, ExtrapolateMaskFrag)
+    , mConstrainVelocity(Renderer::Shader::TexturePositionVert, ConstrainVelocityFrag)
     , mSurface(dimensions.Size)
 {
     mIdentity.Use().Set("u_texture", 0).Unuse();
     mExtrapolate.Use().Set("u_mask", 0).Set("u_texture", 1).Unuse();
     mExtrapolateMask.Use().Set("u_mask", 0).Unuse();
+    mConstrainVelocity.Use().Set("u_velocity", 0).Set("u_obstacles", 1).Unuse();
 }
 
 void Extrapolation::Extrapolate(Renderer::Buffer& buffer, LevelSet& neumann, LevelSet& dirichlet)
@@ -130,6 +156,16 @@ void Extrapolation::Extrapolate(Renderer::Buffer& buffer, LevelSet& neumann, Lev
         mExtrapolateValid.Swap();
         mExtrapolateValid = mExtrapolateMask(Back(mExtrapolateValid));
     }
+
+     buffer.ClearStencil();
+     //mObstacleLevelSet.RenderMask(mVelocity);
+
+     glStencilFunc(GL_EQUAL, 1, 0xFF);
+     glStencilMask(0x00);
+
+     buffer.Swap();
+     //buffer = mConstrainVelocity(Back(buffer), mObstacleLevelSet);
 }
+
 
 }}

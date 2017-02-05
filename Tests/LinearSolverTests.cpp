@@ -140,7 +140,7 @@ TEST(LinearSolverTests, Simple_SOR)
 {
     Disable d(GL_BLEND);
 
-    glm::vec2 size(10);
+    glm::vec2 size(50);
 
     FluidSim sim;
     sim.initialize(1.0f, size.x, size.y);

@@ -13,6 +13,7 @@
 #include "RenderTexture.h"
 #include "Operator.h"
 #include "Reader.h"
+#include "Writer.h"
 #include "variationalplusgfm/fluidsim.h"
 
 using namespace Vortex2D::Renderer;
@@ -26,6 +27,19 @@ void PrintData(int width, int height, const std::vector<T>& data)
         for (int i = 0; i < width; i++)
         {
             std::cout << "(" << data[i + j * width] << ")";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+}
+
+static void PrintVelocity(const glm::vec2& size, FluidSim& sim)
+{
+    for (std::size_t j = 0; j < size.y; j++)
+    {
+        for (std::size_t i = 0; i < size.x; i++)
+        {
+            std::cout << "(" << sim.u(i, j) << "," << sim.v(i, j) << ")";
         }
         std::cout << std::endl;
     }
@@ -56,6 +70,22 @@ static void CheckTexture(int width, int height, const std::vector<float>& data, 
 {
     Reader reader(texture);
     CheckTexture(width, height, data, reader);
+}
+
+static void CheckVelocity(const glm::vec2& size, Buffer& buffer, FluidSim& sim, float error = 1e-6)
+{
+    Reader reader(buffer);
+    reader.Read();
+
+    for (std::size_t i = 1; i < size.x - 1; i++)
+    {
+        for (std::size_t j = 1; j < size.y - 1; j++)
+        {
+            std::size_t index = i + size.x * j;
+            ASSERT_NEAR(sim.u(i, j), reader.GetVec2(i, j).x, error) << "Mismatch at " << i << "," << j;
+            ASSERT_NEAR(sim.v(i, j), reader.GetVec2(i, j).y, error) << "Mismatch at " << i << "," << j;
+        }
+    }
 }
 
 //Boundary definition - several circles in a circular domain.
@@ -99,6 +129,23 @@ static void AddParticles(const glm::vec2& size, FluidSim& sim, float (*phi)(cons
         }
     }
 }
+
+static void SetVelocity(Buffer& buffer, FluidSim& sim)
+{
+    std::vector<glm::vec2> velocityData(buffer.Width() * buffer.Height(), glm::vec2(0.0f));
+    for (int i = 0; i < buffer.Width(); i++)
+    {
+        for (int j = 0; j < buffer.Height(); j++)
+        {
+            std::size_t index = i + buffer.Width() * j;
+            velocityData[index].x = sim.u(i, j);
+            velocityData[index].y = sim.v(i, j);
+        }
+    }
+
+    Writer(buffer).Write(velocityData);
+}
+
 
 class MockLinearSolver : public LinearSolver
 {
