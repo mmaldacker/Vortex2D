@@ -14,6 +14,7 @@ addons:
     packages:
       # Vortex2D dependencies
       - libgtest-dev
+      - google-mock
       # GLFW3 dependencies
       - libxrandr-dev
       - libxinerama-dev
