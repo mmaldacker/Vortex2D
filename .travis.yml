@@ -54,7 +54,7 @@ install:
   - sudo cmake -Dgtest_disable_pthreads=ON .
   - sudo make
   - sudo mv libg* /usr/lib/
-  - cp -r include/gtest /usr/include/gtest/
+  - sudo cp -r include/gtest /usr/include/gtest/
   - cd ..
   - sudo cmake -Dgtest_disable_pthreads=ON .
   - sudo make
