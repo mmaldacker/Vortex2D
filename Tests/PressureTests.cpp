@@ -43,6 +43,18 @@ void PrintDiagonal(const glm::vec2& size, FluidSim& sim)
     }
 }
 
+void PrintVelocity(const glm::vec2& size, FluidSim& sim)
+{
+    for (std::size_t j = 0; j < size.y; j++)
+    {
+        for (std::size_t i = 0; i < size.x; i++)
+        {
+            std::cout << "(" << sim.u(i, j) << "," << sim.v(i, j) << ")";
+        }
+        std::cout << std::endl;
+    }
+}
+
 void CheckDiagonal(const glm::vec2& size, Buffer& buffer, FluidSim& sim)
 {
     Reader reader(buffer);
@@ -91,7 +103,7 @@ void CheckDiv(const glm::vec2& size, Buffer& buffer, FluidSim& sim)
     }
 }
 
-void CheckPressure(const glm::vec2& size, Buffer& buffer, FluidSim& sim)
+void CheckVelocity(const glm::vec2& size, Buffer& buffer, FluidSim& sim)
 {
     Reader reader(buffer);
     reader.Read();
@@ -101,7 +113,8 @@ void CheckPressure(const glm::vec2& size, Buffer& buffer, FluidSim& sim)
         for (std::size_t j = 1; j < size.y - 1; j++)
         {
             std::size_t index = i + size.x * j;
-            EXPECT_FLOAT_EQ(sim.pressure[index], reader.GetVec2(i, j).x);
+            ASSERT_NEAR(sim.u(i, j), reader.GetVec2(i, j).x, 1e-6) << "Mismatch at " << i << "," << j;
+            ASSERT_NEAR(sim.v(i, j), reader.GetVec2(i, j).y, 1e-6) << "Mismatch at " << i << "," << j;
         }
     }
 }
@@ -273,7 +286,7 @@ TEST(PressureTest, Project_Simple)
     LinearSolver::Parameters params(0);
     pressure.Solve(params);
 
-    CheckPressure(size, data.Pressure, sim);
+    CheckVelocity(size, velocity, sim);
 }
 
 TEST(PressureTest, Project_Complex)
@@ -325,5 +338,5 @@ TEST(PressureTest, Project_Complex)
     LinearSolver::Parameters params(0);
     pressure.Solve(params);
 
-    CheckPressure(size, data.Pressure, sim);
+    CheckVelocity(size, velocity, sim);
 }

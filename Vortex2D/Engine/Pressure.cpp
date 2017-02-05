@@ -93,8 +93,10 @@ const char * ProjectFrag = GLSL(
     uniform sampler2D u_obstacles;
     uniform sampler2D u_obstacles_velocity;
     uniform float delta;
+    uniform float dx;
 
     float fraction_inside(float a, float b);
+    vec2 get_weight(vec2 texCoord, ivec2 offset, sampler2D solid_phi);
 
     void main()
     {
@@ -110,34 +112,24 @@ const char * ProjectFrag = GLSL(
         float phixn = textureOffset(u_fluid, v_texCoord, ivec2(-1,0)).x;
         float phiyn = textureOffset(u_fluid, v_texCoord, ivec2(0,-1)).x;
 
-        vec2 theta = vec2(fraction_inside(phi, phixn), fraction_inside(phi, phiyn));
+        vec2 theta = vec2(fraction_inside(phixn, phi), fraction_inside(phiyn, phi));
         pGrad /= max(theta, 0.01);
 
         vec2 mask = vec2(1.0);
         vec2 obsV = vec2(0.0);
 
-        if (textureOffset(u_obstacles, v_texCoord, ivec2(2,0)).x > 0.0)
+        vec2 wuv = get_weight(v_texCoord, ivec2(0,0), u_obstacles);
+        if (wuv.x <= 0.0 || (phi >= 0.0 && phixn >= 0.0))
         {
             mask.x = 0.0;
-            obsV.x = textureOffset(u_obstacles_velocity, v_texCoord, ivec2(1,0)).x;
+            obsV.x = texture(u_obstacles_velocity, v_texCoord).x;
         }
-        if (textureOffset(u_obstacles, v_texCoord, ivec2(-2,0)).x > 0.0)
-        {
-            mask.x = 0.0;
-            obsV.x = textureOffset(u_obstacles_velocity, v_texCoord, ivec2(-1,0)).x;
-        }
-        if (textureOffset(u_obstacles, v_texCoord, ivec2(0,2)).x > 0.0)
+        if (wuv.y <= 0.0|| (phi >= 0.0 && phiyn >= 0.0))
         {
             mask.y = 0.0;
-            obsV.y = textureOffset(u_obstacles_velocity, v_texCoord, ivec2(0,1)).y;
-        }
-        if (textureOffset(u_obstacles, v_texCoord, ivec2(0,-2)).x > 0.0)
-        {
-            mask.y = 0.0;
-            obsV.y = textureOffset(u_obstacles_velocity, v_texCoord, ivec2(0,-1)).y;
+            obsV.y = texture(u_obstacles_velocity, v_texCoord).y;
         }
 
-        float dx = 1.0;
         vec2 new_cell = cell - delta * pGrad / dx;
         out_color = vec4(mask * new_cell + obsV, 0.0, 0.0);
     }
@@ -204,11 +196,11 @@ const char * DiagonalsFrag = GLSL(
             float pyn = textureOffset(u_fluid, v_texCoord, ivec2(0,-1)).x;
 
             vec4 weights;
-            vec2 uv = get_weight(v_texCoord, ivec2(0,0), u_obstacles);
+            vec2 wuv = get_weight(v_texCoord, ivec2(0,0), u_obstacles);
             weights.x = get_weight(v_texCoord, ivec2(2,0), u_obstacles).x;
-            weights.y = uv.x;
+            weights.y = wuv.x;
             weights.z = get_weight(v_texCoord, ivec2(0,2), u_obstacles).y;
-            weights.w = uv.y;
+            weights.w = wuv.y;
 
             vec4 theta;
             theta.x = pxp < 0.0 ? 1.0 : fraction_inside(liquid_phi, pxp);
@@ -251,7 +243,7 @@ Pressure::Pressure(float dt,
     , mDiagonals(Renderer::Shader::TexturePositionVert, DiagonalsFrag, CommonFrag)
 {
     mDiv.Use().Set("u_velocity", 0).Set("u_obstacles", 1).Set("u_fluid", 2).Set("u_obstacles_velocity", 3).Set("dx", 1.0f / size.x).Unuse();
-    mProject.Use().Set("u_velocity", 0).Set("u_pressure", 1).Set("u_fluid", 2).Set("u_obstacles", 3).Set("u_obstacles_velocity", 4).Set("delta", dt).Unuse();
+    mProject.Use().Set("u_velocity", 0).Set("u_pressure", 1).Set("u_fluid", 2).Set("u_obstacles", 3).Set("u_obstacles_velocity", 4).Set("delta", dt).Set("dx", 1.0f / size.x).Unuse();
     mWeights.Use().Set("u_obstacles", 0).Set("u_fluid", 1).Set("delta", dt).Set("dx", 1.0f / size.x).Unuse();
     mDiagonals.Use().Set("u_obstacles", 0).Set("u_fluid", 1).Set("delta", dt).Set("dx", 1.0f /size.x).Unuse();
 }
