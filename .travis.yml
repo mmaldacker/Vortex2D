@@ -79,4 +79,4 @@ script:
   - cmake ..
   - make -j 4
   - cd Tests
-  - ./vortex2d_tests
+  - LIBGL_ALWAYS_SOFTWARE=1 ./vortex2d_tests
