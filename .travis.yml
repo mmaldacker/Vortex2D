@@ -79,4 +79,4 @@ script:
   - cmake ..
   - make -j 4
   - cd Tests
-  - ./vortex_tests
+  - ./vortex2d_tests
