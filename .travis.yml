@@ -19,15 +19,10 @@ addons:
       - libxinerama-dev
       - libxcursor-dev
       # Mesa dependencies
-      - xserver-xorg-video-dummy
-      - xpra
       - mesa-utils
 
 before_install:
-  - sudo add-apt-repository -y ppa:oibaf/graphics-drivers
-  - sudo apt-get update -qq -y
-  - export DEBIAN_FRONTEND=noninteractive
-  - sudo apt-get -yq --force-yes install libglapi-mesa libgbm1 libgl1-mesa-dri libxatracker2 xvfb
+  - sudo apt-get install --install-recommends linux-generic-lts-wily xserver-xorg-core-lts-wily xserver-xorg-lts-wily xserver-xorg-video-all-lts-wily xserver-xorg-input-all-lts-wily libwayland-egl1-mesa-lts-wily
 
 install:
 # GLFW 3.1.1 install
@@ -72,11 +67,9 @@ install:
   - cd ${TRAVIS_BUILD_DIR}
 
 before_script:
-  - export DISPLAY=:99
   - export LIBGL_ALWAYS_SOFTWARE=1
-  - xpra --xvfb="Xorg +extension GLX +extension RANDR +extension RENDER -config Tests/Config/dummy.xorg.conf -logfile ${HOME}/.xpra/xorg.log"  start :99
+  - /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1280x1024x24
   - sleep 3
-  - cat ${HOME}/.xpra/xorg.log
   - glxinfo
 
 script:
