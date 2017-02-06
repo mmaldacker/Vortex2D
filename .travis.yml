@@ -18,12 +18,7 @@ addons:
       - libxrandr-dev
       - libxinerama-dev
       - libxcursor-dev
-      # Mesa dependencies
-      #- mesa-utils
-
-#before_install:
-  #- sudo apt-get install --install-recommends linux-generic-lts-xenial xserver-xorg-core-lts-xenial xserver-xorg-lts-xenial xserver-xorg-video-all-lts-xenial xserver-xorg-input-all-lts-xenial libwayland-egl1-mesa-lts-xenial
-
+      
 install:
 # GLFW 3.1.1 install
   - wget -O glfw-3.2.1.zip https://github.com/glfw/glfw/archive/3.2.1.zip
@@ -66,17 +61,8 @@ install:
   - sudo mv libg* /usr/lib/
   - cd ${TRAVIS_BUILD_DIR}
 
-before_script:
-  - export LIBGL_ALWAYS_SOFTWARE=1
-  - export DISPLAY=:99.0
-  - sh -e /etc/init.d/xvfb start
-  - sleep 3
-  - glxinfo
-
 script:
   - mkdir build
   - cd build
   - cmake ..
   - make -j 4
-  #- cd Tests
-  #- LIBGL_ALWAYS_SOFTWARE=1 ./vortex2d_tests
