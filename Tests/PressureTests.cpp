@@ -91,34 +91,6 @@ void CheckDiv(const glm::vec2& size, Buffer& buffer, FluidSim& sim, float error 
     }
 }
 
-void SetSolidPhi(Buffer& buffer, FluidSim& sim)
-{
-    std::vector<float> phi(buffer.Width() * buffer.Height(), 0.0f);
-    for (int i = 0; i < buffer.Width(); i++)
-    {
-        for (int j = 0; j < buffer.Height(); j++)
-        {
-            phi[i + j * buffer.Width()] = sim.nodal_solid_phi(i/2, j/2);
-        }
-    }
-
-    Writer(buffer).Write(phi);
-}
-
-void SetLiquidPhi(Buffer& buffer, FluidSim& sim)
-{
-    std::vector<float> phi(buffer.Width() * buffer.Height(), 0.0f);
-    for (int i = 0; i < buffer.Width(); i++)
-    {
-        for (int j = 0; j < buffer.Height(); j++)
-        {
-            phi[i + j * buffer.Width()] = sim.liquid_phi(i, j);
-        }
-    }
-
-    Writer(buffer).Write(phi);
-}
-
 TEST(PressureTest, LinearEquationSetup_Simple)
 {
     Disable d(GL_BLEND);

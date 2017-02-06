@@ -238,8 +238,8 @@ TEST(LinearSolverTests, Simple_PCG)
 
     AddParticles(size, sim, boundary_phi);
 
-    sim.add_force(1.0f);
-    sim.project(1.0f);
+    sim.add_force(0.01f);
+    sim.project(0.01f);
 
     LinearSolver::Data data(size);
     BuildLinearEquation(size, data, sim);

@@ -8,47 +8,20 @@
 #include "Reader.h"
 #include "Shapes.h"
 #include "Disable.h"
+#include "Helpers.h"
 
 using namespace Vortex2D::Renderer;
 using namespace Vortex2D::Fluid;
 
-namespace
-{
-
-const glm::vec2 c0(0.5,0.5), c1(0.7,0.5), c2(0.3,0.35), c3(0.5,0.7);
-const float rad0 = 0.4,  rad1 = 0.1,  rad2 = 0.1,   rad3 = 0.1;
-
-}
-
-float circle_phi(const glm::vec2& position, const glm::vec2& centre, float radius)
-{
-   return glm::distance(position,centre) - radius;
-}
-
-float boundary_phi_simple(const glm::vec2& position)
-{
-   return -circle_phi(position, c0, rad0);
-}
-
-float boundary_phi_complex(const glm::vec2& position)
-{
-   float phi0 = -circle_phi(position, c0, rad0);
-   float phi1 = circle_phi(position, c1, rad1);
-   float phi2 = circle_phi(position, c2, rad2);
-   float phi3 = circle_phi(position, c3, rad3);
-
-   return glm::min(glm::min(phi0,phi1),glm::min(phi2,phi3));
-}
-
-void PrintLevelSet(int size, float (*phi)(const glm::vec2&))
+void PrintLevelSet(int size, float (*phi)(const Vec2f&))
 {
     for (int i = 0; i < size; i++)
     {
         for (int j = 0; j < size; j++)
         {
-            glm::vec2 pos(i,j);
-            pos += glm::vec2(1.0f);
-            pos /= glm::vec2(size);
+            Vec2f pos(i,j);
+            pos += Vec2f(1.0f);
+            pos /= (float)size;
             std::cout << "(" << size * phi(pos) << ")";
         }
         std::cout << std::endl;
@@ -56,22 +29,80 @@ void PrintLevelSet(int size, float (*phi)(const glm::vec2&))
     std::cout << std::endl;
 }
 
-void CheckDifference(int size, Buffer& buffer, float (*phi)(const glm::vec2&))
+void PrintLevelSet(Array2f& array)
+{
+    for (int j = 0; j < array.nj; j++)
+    {
+        for (int i = 0; i < array.ni; i++)
+        {
+            std::cout << "(" << array(i, j) << ")";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+}
+
+void PrintLevelSet(Buffer& buffer)
 {
     Reader reader(buffer);
     reader.Read();
 
-    for (int i = 0; i < size; i++)
+    for (int j = 0; j < buffer.Height() / 2; j++)
     {
-        for (int j = 0; j < size; j++)
+        for (int i = 0; i < buffer.Width() / 2; i++)
         {
-            glm::vec2 pos(i,j);
-            pos += glm::vec2(1.0f);
-            pos /= glm::vec2(size);
-            float value = size * phi(pos);
-            float diff = std::abs(reader.GetFloat(i, j) - value);
+            float value = 0.0f;
+            value += reader.GetFloat(i * 2, j * 2);
+            value += reader.GetFloat(i * 2 + 1, j * 2);
+            value += reader.GetFloat(i * 2, j * 2 + 1);
+            value += reader.GetFloat(i * 2 + 1, j * 2 + 1);
+            value *= 0.25f * 0.5f;
 
-            EXPECT_LT(diff, std::sqrt(2.0f));
+            std::cout << "(" << value << ")";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+}
+
+void CheckDifference(int size, Buffer& buffer, float (*phi)(const Vec2f&))
+{
+    Reader reader(buffer);
+    reader.Read();
+
+    for (int j = 0; j < buffer.Height() / 2; j++)
+    {
+        for (int i = 0; i < buffer.Width() / 2; i++)
+        {
+            Vec2f pos(i,j);
+            pos += Vec2f(1.0f);
+            pos /= (float)size;
+            float value = size * phi(pos);
+
+            float readerValue = 0.0f;
+            readerValue += reader.GetFloat(i * 2, j * 2);
+            readerValue += reader.GetFloat(i * 2 + 1, j * 2);
+            readerValue += reader.GetFloat(i * 2, j * 2 + 1);
+            readerValue += reader.GetFloat(i * 2 + 1, j * 2 + 1);
+            readerValue *= 0.25f * 0.5f;
+
+            float diff = std::abs(value - readerValue);
+
+            EXPECT_LT(diff, 0.8f); // almost sqrt(0.5)
+        }
+    }
+}
+
+void CheckLiquidPhi(Buffer& buffer, FluidSim& sim)
+{
+    Reader reader(buffer);
+    reader.Read();
+
+    for (int i = 0; i < buffer.Width(); i++)
+    {
+        for (int j = 0; j < buffer.Height(); j++)
+        {
+            EXPECT_FLOAT_EQ(sim.liquid_phi(i, j), reader.GetFloat(i, j));
         }
     }
 }
@@ -80,20 +111,20 @@ TEST(LevelSetTests, SimpleCircle)
 {
     Vortex2D::Renderer::Disable e(GL_BLEND);
 
-    glm::vec2 size(50.0f);
+    glm::vec2 size(20.0f);
+    glm::vec2 doubleSize(glm::vec2(2.0f) * size);
 
-    Vortex2D::Fluid::LevelSet levelSet(size);
+    Vortex2D::Fluid::LevelSet levelSet(doubleSize);
 
-    Vortex2D::Renderer::Ellipse circle(glm::vec2{rad0} * size);
-    circle.Colour = glm::vec4(1.0f);
-    circle.Position = glm::vec2(c0[0], c0[1]) * size;
+    Vortex2D::Renderer::Ellipse circle(glm::vec2{rad0} * doubleSize);
+    circle.Colour = glm::vec4(0.5f);
+    circle.Position = glm::vec2(c0[0], c0[1]) * doubleSize;
 
-
-    levelSet.Clear(glm::vec4(-1.0f));
+    levelSet.Clear(glm::vec4(-0.5f));
     levelSet.Render(circle);
     levelSet.Redistance(500);
 
-    CheckDifference(size.x, levelSet, boundary_phi_simple);
+    CheckDifference(size.x, levelSet, boundary_phi);
 }
 
 TEST(LevelSetTests, ComplexCircles)
@@ -101,21 +132,22 @@ TEST(LevelSetTests, ComplexCircles)
     Vortex2D::Renderer::Disable e(GL_BLEND);
 
     glm::vec2 size(50.0f);
+    glm::vec2 doubleSize(glm::vec2(2.0f) * size);
 
-    Vortex2D::Fluid::LevelSet levelSet(size);
+    Vortex2D::Fluid::LevelSet levelSet(doubleSize);
 
-    Vortex2D::Renderer::Ellipse circle0(glm::vec2{rad0} * size);
-    Vortex2D::Renderer::Ellipse circle1(glm::vec2{rad1} * size);
-    Vortex2D::Renderer::Ellipse circle2(glm::vec2{rad2} * size);
-    Vortex2D::Renderer::Ellipse circle3(glm::vec2{rad3} * size);
+    Vortex2D::Renderer::Ellipse circle0(glm::vec2{rad0} * doubleSize);
+    Vortex2D::Renderer::Ellipse circle1(glm::vec2{rad1} * doubleSize);
+    Vortex2D::Renderer::Ellipse circle2(glm::vec2{rad2} * doubleSize);
+    Vortex2D::Renderer::Ellipse circle3(glm::vec2{rad3} * doubleSize);
 
     circle0.Colour = glm::vec4(1.0);
     circle1.Colour = circle2.Colour = circle3.Colour = glm::vec4(-1.0f);
 
-    circle0.Position = glm::vec2(c0[0], c0[1]) * size;
-    circle1.Position = glm::vec2(c1[0], c1[1]) * size;
-    circle2.Position = glm::vec2(c2[0], c2[1]) * size;
-    circle3.Position = glm::vec2(c3[0], c3[1]) * size;
+    circle0.Position = glm::vec2(c0[0], c0[1]) * doubleSize;
+    circle1.Position = glm::vec2(c1[0], c1[1]) * doubleSize;
+    circle2.Position = glm::vec2(c2[0], c2[1]) * doubleSize;
+    circle3.Position = glm::vec2(c3[0], c3[1]) * doubleSize;
 
     levelSet.Clear(glm::vec4(-1.0));
     levelSet.Render(circle0);
@@ -124,8 +156,33 @@ TEST(LevelSetTests, ComplexCircles)
     levelSet.Render(circle3);
     levelSet.Redistance(500);
 
-    CheckDifference(size.x, levelSet, boundary_phi_complex);
+    CheckDifference(size.x, levelSet, complex_boundary_phi);
 }
 
+TEST(LevelSetTests, Extrapolate)
+{
+    Disable d(GL_BLEND);
 
+    glm::vec2 size(50);
 
+    FluidSim sim;
+    sim.initialize(1.0f, size.x, size.y);
+    sim.set_boundary(complex_boundary_phi);
+
+    AddParticles(size, sim, complex_boundary_phi);
+
+    sim.compute_phi();
+
+    Buffer solidPhi(glm::vec2(2)*size, 1);
+    solidPhi.ClampToEdge();
+    SetSolidPhi(solidPhi, sim);
+
+    LevelSet liquidPhi(size);
+    SetLiquidPhi(liquidPhi, sim);
+
+    sim.extrapolate_phi();
+
+    liquidPhi.Extrapolate(solidPhi);
+
+    CheckLiquidPhi(liquidPhi, sim);
+}

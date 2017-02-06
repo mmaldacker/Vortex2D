@@ -5,107 +5,175 @@
 #include "Extrapolation.h"
 #include "Shader.h"
 #include "Disable.h"
+#include "HelperFunctions.h"
 
 namespace Vortex2D { namespace Fluid {
 
 namespace
 {
 
-const char * ExtrapolateFrag = GLSL(
+const char* ExtrapolateFrag = GLSL(
     in vec2 v_texCoord;
     out vec4 out_color;
 
-    uniform sampler2D u_mask;
+    uniform sampler2D u_valid;
     uniform sampler2D u_texture;
 
-    void main()
+    float Extrapolate(int index)
     {
-        vec2 sum = vec2(0.0);
+        float sum = 0.0;
         float count = 0.0;
 
-        if(texture(u_mask, v_texCoord).x == 0.0)
+        if (textureOffset(u_valid, v_texCoord, ivec2(1,0))[index] == 1.0)
         {
-            if(textureOffset(u_mask, v_texCoord, ivec2(1,0)).x == 1.0)
-            {
-                sum += textureOffset(u_texture, v_texCoord, ivec2(1,0)).xy;
-                count += 1.0;
-            }
-            if(textureOffset(u_mask, v_texCoord, ivec2(0,1)).x == 1.0)
-            {
-                sum += textureOffset(u_texture, v_texCoord, ivec2(0,1)).xy;
-                count += 1.0;
-            }
-            if(textureOffset(u_mask, v_texCoord, ivec2(-1,0)).x == 1.0)
-            {
-                sum += textureOffset(u_texture, v_texCoord, ivec2(-1,0)).xy;
-                count += 1.0;
-            }
-            if(textureOffset(u_mask, v_texCoord, ivec2(0,-1)).x == 1.0)
-            {
-                sum += textureOffset(u_texture, v_texCoord, ivec2(0,-1)).xy;
-                count += 1.0;
-            }
+            sum += textureOffset(u_texture, v_texCoord, ivec2(1,0))[index];
+            count += 1.0;
+        }
+        if (textureOffset(u_valid, v_texCoord, ivec2(0,1))[index] == 1.0)
+        {
+            sum += textureOffset(u_texture, v_texCoord, ivec2(0,1))[index];
+            count += 1.0;
+        }
+        if (textureOffset(u_valid, v_texCoord, ivec2(-1,0))[index] == 1.0)
+        {
+            sum += textureOffset(u_texture, v_texCoord, ivec2(-1,0))[index];
+            count += 1.0;
+        }
+        if (textureOffset(u_valid, v_texCoord, ivec2(0,-1))[index] == 1.0)
+        {
+            sum += textureOffset(u_texture, v_texCoord, ivec2(0,-1))[index];
+            count += 1.0;
+        }
 
-            if(count > 0)
-            {
-                out_color = vec4(sum/count, 0.0, 0.0);
-            }
-            else
-            {
-                out_color = vec4(texture(u_texture, v_texCoord).xy, 0.0, 0.0);
-            }
+        if (count > 0.0)
+        {
+            return sum / count;
         }
         else
         {
-            out_color = vec4(texture(u_texture, v_texCoord).xy, 0.0, 0.0);
+            return texture(u_texture, v_texCoord)[index];
         }
+    }
+
+    void main()
+    {
+        vec2 extrapolated_velocity = texture(u_texture, v_texCoord).xy;
+
+        if (texture(u_valid, v_texCoord).x == 0.0)
+        {
+            extrapolated_velocity.x = Extrapolate(0);
+        }
+
+        if (texture(u_valid, v_texCoord).y == 0.0)
+        {
+            extrapolated_velocity.y = Extrapolate(1);
+        }
+
+        out_color = vec4(extrapolated_velocity, 0.0, 0.0);
     }
 );
 
-const char * ExtrapolateMaskFrag = GLSL(
+const char* ValidExtrapolateFrag = GLSL(
     in vec2 v_texCoord;
     out vec4 out_color;
 
-    uniform sampler2D u_mask;
+    uniform sampler2D u_valid;
 
     void main()
     {
-        if(texture(u_mask, v_texCoord).x == 1.0 ||
-           textureOffset(u_mask, v_texCoord, ivec2(1,0)).x == 1.0 ||
-           textureOffset(u_mask, v_texCoord, ivec2(0,1)).x == 1.0 ||
-           textureOffset(u_mask, v_texCoord, ivec2(-1,0)).x == 1.0 ||
-           textureOffset(u_mask, v_texCoord, ivec2(0,-1)).x == 1.0)
+        vec2 valid = vec2(0.0);
+
+        if (texture(u_valid, v_texCoord).x == 1.0 ||
+                textureOffset(u_valid, v_texCoord, ivec2(1,0)).x == 1.0 ||
+                textureOffset(u_valid, v_texCoord, ivec2(0,1)).x == 1.0 ||
+                textureOffset(u_valid, v_texCoord, ivec2(-1,0)).x == 1.0 ||
+                textureOffset(u_valid, v_texCoord, ivec2(0,-1)).x == 1.0)
         {
-            out_color = vec4(1.0, 0.0, 0.0, 0.0);
+            valid.x = 1.0;
         }
-        else
+
+        if (texture(u_valid, v_texCoord).y == 1.0 ||
+                textureOffset(u_valid, v_texCoord, ivec2(1,0)).y == 1.0 ||
+                textureOffset(u_valid, v_texCoord, ivec2(0,1)).y == 1.0 ||
+                textureOffset(u_valid, v_texCoord, ivec2(-1,0)).y == 1.0 ||
+                textureOffset(u_valid, v_texCoord, ivec2(0,-1)).y == 1.0)
         {
-            out_color = vec4(0.0);
+            valid.y = 1.0;
         }
+
+        out_color = vec4(valid, 0.0, 0.0);
     }
 );
 
-const char * ConstrainVelocityFrag = GLSL(
+const char* ValidVelocitiesFrag = GLSL(
+    uniform sampler2D u_velocity;
+
+    in vec2 v_texCoord;
+    out vec4 out_color;
+
+    void main()
+    {
+        vec2 valid = vec2(0.0);
+
+        if (texture(u_velocity, v_texCoord).x != 0.0)
+        {
+            valid.x = 1.0;
+        }
+
+        if (texture(u_velocity, v_texCoord).y != 0.0)
+        {
+            valid.y = 1.0;
+        }
+
+        out_color = vec4(valid, 0.0, 0.0);
+    }
+
+);
+
+const char* ConstrainVelocityFrag = GLSL(
     uniform sampler2D u_velocity;
     uniform sampler2D u_obstacles;
 
     in vec2 v_texCoord;
     out vec4 out_color;
 
-    void main(void)
+    vec2 get_weight(vec2 texCoord, ivec2 offset, sampler2D solid_phi);
+
+    void main()
     {
         vec2 uv = texture(u_velocity, v_texCoord).xy;
 
-        float cxp = textureOffset(u_obstacles, v_texCoord, ivec2(2,0)).x;
-        float cyp = textureOffset(u_obstacles, v_texCoord, ivec2(0,2)).x;
-        float cxn = textureOffset(u_obstacles, v_texCoord, ivec2(-2,0)).x;
-        float cyn = textureOffset(u_obstacles, v_texCoord, ivec2(0,-2)).x;
+        float v00 = texture(u_obstacles, v_texCoord).x;
+        float v10 = textureOffset(u_obstacles, v_texCoord, ivec2(2,0)).x;
+        float v01 = textureOffset(u_obstacles, v_texCoord, ivec2(0,2)).x;
+        float v11 = textureOffset(u_obstacles, v_texCoord, ivec2(2,2)).x;
 
-        vec2 cGrad = normalize(vec2(cxp-cxn,cyp-cyn));
-        float perp_component = dot(uv, cGrad);
+        vec2 constrained = vec2(0.0);
+        vec2 wuv = get_weight(v_texCoord, ivec2(0,0), u_obstacles);
+
+        vec2 grad = vec2(mix(v10 - v00, v11 - v01, 0.5), mix(v01 - v00, v11 - v10, 0.5));
+        if (wuv.x == 0.0)
+        {
+            //vec2 grad = vec2(mix(v10 - v00, v11 - v01, 0.5), v01 - v00);
+            //vec2 grad = vec2(v10-v00,v01-v00);
+
+            vec2 normal = normalize(grad);
+            float perp_component = dot(normal, uv);
+            constrained.x = perp_component * normal.x;
+        }
+
+        if (wuv.y == 0.0)
+        {
+            //vec2 grad = vec2(v10 - v00, mix(v01 - v00, v11 - v10, 0.5));
+            //vec2 grad = vec2(v10-v00,v01-v00);
+
+            vec2 normal = normalize(grad);
+            float perp_component = dot(normal, uv);
+            constrained.y = perp_component * normal.y;
+        }
 
         // FIXME need to set the obstacle velocity (means we don't have to set it in project?)
-        out_color = vec4(uv - perp_component*cGrad, 0.0, 0.0);
+        out_color = vec4(uv - constrained, 0.0, 0.0);
     }
 );
 
@@ -113,58 +181,44 @@ const char * ConstrainVelocityFrag = GLSL(
 
 using Renderer::Back;
 
-Extrapolation::Extrapolation(Dimensions dimensions)
-    : mExtrapolateValid(dimensions.Size, 1, true, true)
+Extrapolation::Extrapolation(const glm::vec2& size,
+                             Renderer::Buffer& velocity,
+                             Renderer::Buffer& solidPhi)
+    : mVelocity(velocity)
+    , mSolidPhi(solidPhi)
+    , mExtrapolateValid(size, 2, true)
     , mIdentity(Renderer::Shader::TexturePositionVert, Renderer::Shader::TexturePositionFrag)
     , mExtrapolate(Renderer::Shader::TexturePositionVert, ExtrapolateFrag)
-    , mExtrapolateMask(Renderer::Shader::TexturePositionVert, ExtrapolateMaskFrag)
-    , mConstrainVelocity(Renderer::Shader::TexturePositionVert, ConstrainVelocityFrag)
-    , mSurface(dimensions.Size)
+    , mValidExtrapolate(Renderer::Shader::TexturePositionVert, ValidExtrapolateFrag)
+    , mValidVelocities(Renderer::Shader::TexturePositionVert, ValidVelocitiesFrag)
+    , mConstrainVelocity(Renderer::Shader::TexturePositionVert, ConstrainVelocityFrag, WeightHelperFrag)
+    , mSurface(size)
 {
     mIdentity.Use().Set("u_texture", 0).Unuse();
-    mExtrapolate.Use().Set("u_mask", 0).Set("u_texture", 1).Unuse();
-    mExtrapolateMask.Use().Set("u_mask", 0).Unuse();
+    mExtrapolate.Use().Set("u_valid", 0).Set("u_texture", 1).Unuse();
+    mValidExtrapolate.Use().Set("u_valid", 0).Unuse();
+    mValidVelocities.Use().Set("u_velocity", 0).Unuse();
     mConstrainVelocity.Use().Set("u_velocity", 0).Set("u_obstacles", 1).Unuse();
 }
 
-void Extrapolation::Extrapolate(Renderer::Buffer& buffer, LevelSet& neumann, LevelSet& dirichlet)
+void Extrapolation::Extrapolate()
 {
-    mExtrapolateValid.Clear(glm::vec4(0.0));
-    mExtrapolateValid.ClearStencil();
+    mExtrapolateValid = mValidVelocities(mVelocity);
 
-    //neumann.RenderMask(mExtrapolateValid);
-    //dirichlet.RenderMask(mExtrapolateValid);
-
-    buffer.Swap();
-    buffer = mIdentity(Back(buffer));
-
-    Renderer::Enable e(GL_STENCIL_TEST);
-    glStencilMask(0x00);
-    glStencilFunc(GL_EQUAL, 0, 0xFF);
-
-    mSurface.Colour = glm::vec4(1.0f);
-    mExtrapolateValid.Render(mSurface);
-    mExtrapolateValid.Swap();
-    mExtrapolateValid.Render(mSurface);
-
-    glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
-
-    for(int i = 0 ; i < 20 ; i++)
+    const int layers = 10;
+    for (int i = 0; i < layers; i++)
     {
-        buffer.Swap();
-        buffer = mExtrapolate(mExtrapolateValid, Back(buffer));
+        mVelocity.Swap();
+        mVelocity = mExtrapolate(mExtrapolateValid, Back(mVelocity));
         mExtrapolateValid.Swap();
-        mExtrapolateValid = mExtrapolateMask(Back(mExtrapolateValid));
+        mExtrapolateValid = mValidExtrapolate(Back(mExtrapolateValid));
     }
+}
 
-     buffer.ClearStencil();
-     //mObstacleLevelSet.RenderMask(mVelocity);
-
-     glStencilFunc(GL_EQUAL, 1, 0xFF);
-     glStencilMask(0x00);
-
-     buffer.Swap();
-     //buffer = mConstrainVelocity(Back(buffer), mObstacleLevelSet);
+void Extrapolation::ConstrainVelocity()
+{
+    mVelocity.Swap();
+    mVelocity = mConstrainVelocity(Back(mVelocity), mSolidPhi);
 }
 
 

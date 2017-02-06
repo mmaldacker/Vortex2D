@@ -8,6 +8,8 @@
 
 #include <vector>
 
+void extrapolate(Array2f& grid, Array2c& valid);
+
 class FluidSim {
 
 public:
@@ -50,6 +52,7 @@ public:
    void advect_particles(float dt);
 
    void compute_phi();
+   void extrapolate_phi();
 
    float cfl();
 

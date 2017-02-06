@@ -6,7 +6,6 @@
 #include "pcgsolver/pcg_solver.h"
 
 float fraction_inside(float phi_left, float phi_right);
-void extrapolate(Array2f& grid, Array2c& valid);
 
 void FluidSim::initialize(float width, int ni_, int nj_) {
    ni = ni_;
@@ -210,25 +209,27 @@ void FluidSim::compute_phi() {
          liquid_phi(i_off,j_off) = min(liquid_phi(i_off,j_off), phi_temp);
       }
    }
-
-   //"extrapolate" phi into solids if nearby
-   for(int j = 0; j < nj; ++j) {
-      for(int i = 0; i < ni; ++i) {
-         if(liquid_phi(i,j) < 0.5f*dx) {
-            float solid_phi_val = 0.25f*(nodal_solid_phi(i,j) + nodal_solid_phi(i+1,j) + nodal_solid_phi(i,j+1) + nodal_solid_phi(i+1,j+1));
-            if(solid_phi_val < 0)
-               liquid_phi(i,j) = -0.5*dx;
-         }
-      }
-   }
 }
 
+void FluidSim::extrapolate_phi() {
 
+    //"extrapolate" phi into solids if nearby
+    for(int j = 0; j < nj; ++j) {
+       for(int i = 0; i < ni; ++i) {
+          if(liquid_phi(i,j) < 0.5f*dx) {
+             float solid_phi_val = 0.25f*(nodal_solid_phi(i,j) + nodal_solid_phi(i+1,j) + nodal_solid_phi(i,j+1) + nodal_solid_phi(i+1,j+1));
+             if(solid_phi_val < 0)
+                liquid_phi(i,j) = -0.5*dx;
+          }
+       }
+    }
+}
 
 void FluidSim::project(float dt) {
 
    //Estimate the liquid signed distance
    compute_phi();
+   extrapolate_phi();
 
    //Compute finite-volume type face area weight for each velocity sample.
    compute_weights();

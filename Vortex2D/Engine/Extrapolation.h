@@ -20,20 +20,29 @@ namespace Vortex2D { namespace Fluid {
 class Extrapolation
 {
 public:
-    Extrapolation(Dimensions dimensions);
+    Extrapolation(const glm::vec2& size,
+                  Renderer::Buffer& velocity,
+                  Renderer::Buffer& solidPhi);
 
     /**
      * @brief Will extrapolate values from buffer into the dirichlet and neumann boundaries
      * @param buffer needs to be double-buffered and with stencil buffer
      */
-    void Extrapolate(Renderer::Buffer& buffer, LevelSet& neumann, LevelSet& dirichlet);
+    void Extrapolate();
+
+    void ConstrainVelocity();
+
 
 private:
+    Renderer::Buffer& mVelocity;
+    Renderer::Buffer& mSolidPhi;
+
     Renderer::Buffer mExtrapolateValid;
 
     Renderer::Operator mIdentity;
     Renderer::Operator mExtrapolate;
-    Renderer::Operator mExtrapolateMask;
+    Renderer::Operator mValidExtrapolate;
+    Renderer::Operator mValidVelocities;
     Renderer::Operator mConstrainVelocity;
 
     Renderer::Rectangle mSurface;

@@ -30,10 +30,13 @@ public:
      */
     void Redistance(int iterations);
 
+    void Extrapolate(Renderer::Buffer& solidPhi);
+
 private:
     Renderer::Buffer mLevelSet0;
     Renderer::Operator mRedistance;
     Renderer::Operator mIdentity;
+    Renderer::Operator mExtrapolate;
 };
 
 }}

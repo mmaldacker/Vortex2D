@@ -98,15 +98,13 @@ public:
 
     friend class Density;
 //private:
-    void ExtrapolateFluid();
 
     Dimensions mDimensions;
 
     LinearSolver::Data mData;
     LinearSolver & mLinearSolver;
 
-    Extrapolation mExtrapolation;
-    Renderer::Operator mExtrapolateFluid;
+    //Extrapolation mExtrapolation;
 
     Renderer::Buffer mVelocity;
     Renderer::Buffer mBoundariesVelocity;

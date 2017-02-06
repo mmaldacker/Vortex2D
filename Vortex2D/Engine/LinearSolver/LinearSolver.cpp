@@ -54,7 +54,6 @@ LinearSolver::Parameters::Parameters(unsigned iterations, float errorTolerance)
 
 bool LinearSolver::Parameters::IsFinished(unsigned iterations, float error) const
 {
-
     if (Iterations > 0)
     {
         return iterations > Iterations  || error < ErrorTolerance;

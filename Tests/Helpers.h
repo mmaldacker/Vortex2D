@@ -77,6 +77,7 @@ static void CheckVelocity(const glm::vec2& size, Buffer& buffer, FluidSim& sim, 
     Reader reader(buffer);
     reader.Read();
 
+    // FIXME need to check the entire velocity buffer
     for (std::size_t i = 1; i < size.x - 1; i++)
     {
         for (std::size_t j = 1; j < size.y - 1; j++)
@@ -146,6 +147,33 @@ static void SetVelocity(Buffer& buffer, FluidSim& sim)
     Writer(buffer).Write(velocityData);
 }
 
+static void SetSolidPhi(Buffer& buffer, FluidSim& sim)
+{
+    std::vector<float> phi(buffer.Width() * buffer.Height(), 0.0f);
+    for (int i = 0; i < buffer.Width(); i++)
+    {
+        for (int j = 0; j < buffer.Height(); j++)
+        {
+            phi[i + j * buffer.Width()] = sim.nodal_solid_phi(i/2, j/2);
+        }
+    }
+
+    Writer(buffer).Write(phi);
+}
+
+static void SetLiquidPhi(Buffer& buffer, FluidSim& sim)
+{
+    std::vector<float> phi(buffer.Width() * buffer.Height(), 0.0f);
+    for (int i = 0; i < buffer.Width(); i++)
+    {
+        for (int j = 0; j < buffer.Height(); j++)
+        {
+            phi[i + j * buffer.Width()] = sim.liquid_phi(i, j);
+        }
+    }
+
+    Writer(buffer).Write(phi);
+}
 
 class MockLinearSolver : public LinearSolver
 {

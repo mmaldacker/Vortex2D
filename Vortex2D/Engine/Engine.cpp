@@ -11,27 +11,6 @@ namespace Vortex2D { namespace Fluid {
 namespace
 {
 
-const char * ExtrapolateFluidFrag = GLSL(
-     uniform sampler2D u_fluid;
-     uniform sampler2D u_obstacles;
-
-     in vec2 v_texCoord;
-     out vec4 out_color;
-
-     void main(void)
-     {
-         float f = texture(u_fluid, v_texCoord).x;
-         float o = texture(u_obstacles, v_texCoord).x;
-         if(f <= 1.0 && f > 0.0 && o >= 0.0)
-         {
-            out_color = vec4(-1.0, 0.0, 0.0, 0.0);
-         }
-         else
-         {
-             out_color = vec4(f, 0.0, 0.0, 0.0);
-         }
-     }
-);
 
 const char * FluidFrag = GLSL(
     in vec2 v_texCoord;
@@ -66,8 +45,7 @@ Engine::Engine(Dimensions dimensions, LinearSolver& linearSolver, float dt)
     , mDimensions(dimensions)
     , mData(dimensions.Size)
     , mLinearSolver(linearSolver)
-    , mExtrapolation(dimensions)
-    , mExtrapolateFluid(Renderer::Shader::TexturePositionVert, ExtrapolateFluidFrag)
+    //, mExtrapolation(dimensions)
     , mVelocity(dimensions.Size, 2, true, true)
     , mBoundariesVelocity(dimensions.Size, 2)
     , mFluidLevelSet(dimensions.Size)
@@ -83,7 +61,6 @@ Engine::Engine(Dimensions dimensions, LinearSolver& linearSolver, float dt)
 
     mFluidProgram.Use().Set("u_texture", 0).Unuse();
 
-    mExtrapolateFluid.Use().Set("u_fluid", 0).Set("u_obstacles", 1).Unuse();
 
     TopBoundary.Colour = BottomBoundary.Colour = LeftBoundary.Colour = RightBoundary.Colour = glm::vec4(1.0f);
 
@@ -97,7 +74,8 @@ void Engine::Solve()
 {
     Renderer::Disable d(GL_BLEND);
 
-    ExtrapolateFluid();
+    // FIXME extrapolate liquid phi
+    //Extrapolate();
 
     mData.Pressure.Clear(glm::vec4(0.0));
     mData.Pressure.ClearStencil();
@@ -110,7 +88,8 @@ void Engine::Solve()
 
     // FIXME use pressure solver
 
-    mExtrapolation.Extrapolate(mVelocity, mObstacleLevelSet, mFluidLevelSet);
+    // FIXME extrapolation
+    //mExtrapolation.Extrapolate(mVelocity, mObstacleLevelSet, mFluidLevelSet);
 
     // FIXME advect
 }
@@ -184,24 +163,6 @@ void Engine::Advect()
 {
     //FIXME
     //Advect(mFluidLevelSet);
-    mFluidLevelSet.Redistance(2);
-}
-
-void Engine::ExtrapolateFluid()
-{
-    /*
-    mFluidLevelSet.ClearStencil();
-    mFluidLevelSet.RenderMask(mFluidLevelSet);
-
-    Renderer::Enable e(GL_STENCIL_TEST);
-    glStencilFunc(GL_EQUAL, 1, 0xFF);
-    glStencilMask(0x00);
-    */
-
-    mFluidLevelSet.Swap();
-    mFluidLevelSet = mExtrapolateFluid(Back(mFluidLevelSet), mObstacleLevelSet);
-    // FIXME if the obstacles moves, is this correct?
-
     mFluidLevelSet.Redistance(2);
 }
 

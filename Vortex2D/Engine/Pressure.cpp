@@ -4,36 +4,12 @@
 //
 
 #include "Pressure.h"
+#include "HelperFunctions.h"
 
 namespace Vortex2D { namespace Fluid {
 
 namespace
 {
-
-const char* CommonFrag = GLSL(
-    float fraction_inside(float a, float b)
-    {
-        if(a < 0.0 && b < 0.0)
-            return 1.0;
-        if(a < 0.0 && b >= 0.0)
-            return a / (a - b);
-        if(a >= 0.0 && b < 0.0)
-            return b / (b - a);
-        return 0.0;
-    }
-
-    vec2 get_weight(vec2 texCoord, ivec2 offset, sampler2D solid_phi)
-    {
-        vec2 weight;
-
-        weight.x = 1.0 - fraction_inside(textureOffset(solid_phi, texCoord, offset + ivec2(0,2)).x,
-                                         textureOffset(solid_phi, texCoord, offset).x);
-        weight.y = 1.0 - fraction_inside(textureOffset(solid_phi, texCoord, offset + ivec2(2,0)).x,
-                                         textureOffset(solid_phi, texCoord, offset).x);
-
-        return clamp(weight, vec2(0.0), vec2(1.0));
-    }
-);
 
 const char * DivFrag = GLSL(
     uniform sampler2D u_velocity;
@@ -237,10 +213,10 @@ Pressure::Pressure(float dt,
     , mSolidPhi(solidPhi)
     , mLiquidPhi(liquidPhi)
     , mSolidVelocity(solidVelocity)
-    , mDiv(Renderer::Shader::TexturePositionVert, DivFrag, CommonFrag)
-    , mProject(Renderer::Shader::TexturePositionVert, ProjectFrag, CommonFrag)
-    , mWeights(Renderer::Shader::TexturePositionVert, WeightsFrag, CommonFrag)
-    , mDiagonals(Renderer::Shader::TexturePositionVert, DiagonalsFrag, CommonFrag)
+    , mDiv(Renderer::Shader::TexturePositionVert, DivFrag, WeightHelperFrag)
+    , mProject(Renderer::Shader::TexturePositionVert, ProjectFrag, WeightHelperFrag)
+    , mWeights(Renderer::Shader::TexturePositionVert, WeightsFrag, WeightHelperFrag)
+    , mDiagonals(Renderer::Shader::TexturePositionVert, DiagonalsFrag, WeightHelperFrag)
 {
     mDiv.Use().Set("u_velocity", 0).Set("u_obstacles", 1).Set("u_fluid", 2).Set("u_obstacles_velocity", 3).Set("dx", 1.0f / size.x).Unuse();
     mProject.Use().Set("u_velocity", 0).Set("u_pressure", 1).Set("u_fluid", 2).Set("u_obstacles", 3).Set("u_obstacles_velocity", 4).Set("delta", dt).Set("dx", 1.0f / size.x).Unuse();
