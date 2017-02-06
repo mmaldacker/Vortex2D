@@ -74,7 +74,7 @@ install:
 before_script:
   - export DISPLAY=:99
   - export LIBGL_ALWAYS_SOFTWARE=1
-  - xpra --xvfb="Xorg +extension GLX +extension RANDR +extension RENDER -config Tests/Config/test/dummy.xorg.conf -logfile ${HOME}/.xpra/xorg.log"  start :99
+  - xpra --xvfb="Xorg +extension GLX +extension RANDR +extension RENDER -config Tests/Config/dummy.xorg.conf -logfile ${HOME}/.xpra/xorg.log"  start :99
   - sleep 3
   - cat ${HOME}/.xpra/xorg.log
   - glxinfo
