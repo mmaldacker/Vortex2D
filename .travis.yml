@@ -18,6 +18,7 @@ addons:
       - libxrandr-dev
       - libxinerama-dev
       - libxcursor-dev
+      # Mesa dependencies
       - xserver-xorg-video-dummy
       - xpra
       - mesa-utils
@@ -68,15 +69,16 @@ install:
   - sudo cmake -Dgtest_disable_pthreads=ON .
   - sudo make
   - sudo mv libg* /usr/lib/
-  - cd $TRAVIS_BUILD_DIR
+  - cd ${TRAVIS_BUILD_DIR}
 
 before_script:
   - export DISPLAY=:99
   - export LIBGL_ALWAYS_SOFTWARE=1
-  - xpra --xvfb="Xorg +extension GLX +extension RANDR +extension RENDER -config `pwd`/test/dummy.xorg.conf -logfile ${HOME}/.xpra/xorg.log"  start :99
+  - xpra --xvfb="Xorg +extension GLX +extension RANDR +extension RENDER -config Tests/Config/test/dummy.xorg.conf -logfile ${HOME}/.xpra/xorg.log"  start :99
   - sleep 3
-  - glxinfo
   - cat ${HOME}/.xpra/xorg.log
+  - glxinfo
+
 script:
   - mkdir build
   - cd build
