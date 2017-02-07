@@ -9,16 +9,25 @@ branches:
   only:
     - master
 
+# Environment variables
+env:
+  global:
+    - GH_REPO_NAME: Vortex2D
+    - DOXYFILE: Doxyfile
+    - GH_REPO_REF: github.com/mmaldacker/Vortex2D.git
+    - secure: "XdKG1w18LP9346CJclS4FbRTYFZImPexTHQgzQcFGimBY0teubeMUKDs2Ah+f962ndxUFOZapXgAwPW0eVV8Zq8VIS80mthjuFqOREp5AuDGHoPjz/tSNBHkcQFddSa1T7Wt4r2WvKooriuM6sj3mIm1kMHxifrGUJI4z9xLd11BESo9i3BnENqv31T9Q2sdKQJRz2pLzVgoTHOq65G4DFQZ7MYKZncaepWacJSLlKQrYIKHqsJSLL3FVQ1SBvcc93nlDwIxfrv+U7tSfRXtHD5OqVLGWMASUSr7IE//wvd+w5WCedraFoc5N7qDbgH9glGzVxl7b5UxmP74A+lfacz+ENnItdUqm7YUEhzgNbp2/th3BbcVoBk1oSaatqXR02r500kkaLFget7oU0WYt36wNX3/RyXYAUnivWNbRA4Ch9N50stkkU1q0QbshAcfCZgPPVhTZ3DVsdihxRf+wYpQCe6EOAzsF0La8XJ6hsj1BpbPUguZCeTOM/cHI9gc36wSzPhkT4QuPr0/yI2F58vtVvBOBowwm38gC9BPe/e7wALQXWj4XWFVt7uUbiuuO8mpKgTlOZNf1vLmKw9jxq84G7X4GuxgrgVavZ5UGR9IZU8H3BN+6IOEpRfan7s/JpHyeKADXUonnUobkll16JUpde6g6VJAnD2EGyqKgh0="
+
 addons:
   apt:
     packages:
       # Vortex2D dependencies
       - google-mock
+      - doxygen
       # GLFW3 dependencies
       - libxrandr-dev
       - libxinerama-dev
       - libxcursor-dev
-      
+
 install:
 # GLFW 3.1.1 install
   - wget -O glfw-3.2.1.zip https://github.com/glfw/glfw/archive/3.2.1.zip
@@ -66,3 +75,9 @@ script:
   - cd build
   - cmake ..
   - make -j 4
+
+# Generate and deploy documentation
+after_success:
+  - cd $TRAVIS_BUILD_DIR/Docs
+  - chmod +x generatePublishDocs.sh
+  - ./generatePublishDocs.sh
