@@ -19,6 +19,13 @@
 using namespace Vortex2D::Renderer;
 using namespace Vortex2D::Fluid;
 
+// FIXME move implementations in .cpp file
+
+static void PrintData(float data)
+{
+    std::cout << "(" << data << ")";
+}
+
 template<typename T>
 void PrintData(int width, int height, const std::vector<T>& data)
 {
@@ -26,7 +33,7 @@ void PrintData(int width, int height, const std::vector<T>& data)
     {
         for (int i = 0; i < width; i++)
         {
-            std::cout << "(" << data[i + j * width] << ")";
+            PrintData(data[i + j * width]);
         }
         std::cout << std::endl;
     }
@@ -45,6 +52,20 @@ static void PrintVelocity(const glm::vec2& size, FluidSim& sim)
     }
     std::cout << std::endl;
 }
+
+static void DrawSquare(int width, int height, std::vector<float>& data, const glm::vec2& centre, const glm::vec2& size, float value = 1.0f)
+{
+    for (int i = 0; i < size.x; i++)
+    {
+        for (int j = 0; j < size.y; j++)
+        {
+            int x = i + centre.x;
+            int y = j + centre.y;
+            data[x + y * width] = value;
+        }
+    }
+}
+
 
 static void CheckTexture(int width, int height, const std::vector<float>& data, Reader& reader)
 {

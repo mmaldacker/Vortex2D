@@ -118,6 +118,7 @@ struct BlendState
     {
         // save blend state
         glGetIntegerv(GL_BLEND_EQUATION, &blendEquation);
+        // FIXME what about GL_BLEND_SRC_ALPHA (and DST one)?
         glGetIntegerv(GL_BLEND_SRC_RGB, &blendSrc);
         glGetIntegerv(GL_BLEND_DST_RGB, &blendDst);
 

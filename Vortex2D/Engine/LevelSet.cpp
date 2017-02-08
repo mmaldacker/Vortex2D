@@ -104,6 +104,7 @@ const char* ExtrapolateFluidFrag = GLSL(
     void main(void)
     {
         float f = texture(u_fluid, v_texCoord).x;
+        // FIXME should remove the 0.5 here and below
         if (f < 0.5 * dx)
         {
             float wxp = textureOffset(u_obstacles, v_texCoord, ivec2(0,0)).x;

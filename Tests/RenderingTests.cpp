@@ -12,19 +12,6 @@
 
 using namespace Vortex2D::Renderer;
 
-void DrawSquare(int width, int height, std::vector<float>& data, const glm::vec2& centre, const glm::vec2& size)
-{
-    for (int i = 0; i < size.x; i++)
-    {
-        for (int j = 0; j < size.y; j++)
-        {
-            int x = i + centre.x;
-            int y = j + centre.y;
-            data[x + y * width] = 1.0f;
-        }
-    }
-}
-
 void DrawEllipse(int width, int height, std::vector<float>& data, const glm::vec2& centre, const glm::vec2& radius, float rotation = 0.0f)
 {
     for (int i = 0; i < width; i++)
