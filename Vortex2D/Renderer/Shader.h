@@ -37,22 +37,22 @@ public:
     /**
      * @brief Source for the position vertex shader (@see Program)
      */
-    static const char * PositionVert;
+    static const char* PositionVert;
 
     /**
      * @brief Source for the position fragment shader (@see Program)
      */
-    static const char * PositionFrag;
+    static const char* PositionFrag;
 
     /**
      * @brief Source for the texture/position vertex shader (@see Program)
      */
-    static const char * TexturePositionVert;
+    static const char* TexturePositionVert;
 
     /**
      * @brief Source for the texture/position fragment shader (@see Program)
      */
-    static const char * TexturePositionFrag;
+    static const char* TexturePositionFrag;
 
 protected:
     Shader(GLuint shader, const char* source);
@@ -60,8 +60,8 @@ protected:
 private:
     GLuint mShader;
 
-    static const char * PositionName;
-    static const char * TexCoordsName;
+    static const char* PositionName;
+    static const char* TexCoordsName;
 };
 
 /**
@@ -89,8 +89,8 @@ class Uniform
 {
 public:
     Uniform() : mLocation(GL_INVALID_VALUE){}
-    Uniform(Program & program, const std::string & name);
-    void SetLocation(Program & program, const std::string & name);
+    Uniform(Program& program, const std::string& name);
+    void SetLocation(Program& program, const std::string& name);
     void Set(T value);
 
     friend class Program;
@@ -105,32 +105,16 @@ class Program
 {
 public:
     Program();
-    Program(const char * vertex, const char * fragment);
+    Program(const char* vertex, const char* fragment);
     ~Program();
 
-    Program(Program &&);
-    Program & operator=(Program &&);
-
-    /**
-     * @brief Attach a Fragment or Vertex shader
-     * @return returns *this
-     */
-    Program & AttachShader(const Shader & shader);
-
-    /**
-     * @brief Used for setting the variables used in the feedback shader
-     */
-    Program & AttachFeedback(const std::vector<const GLchar*> & varyings);
-
-    /**
-     * @brief Link the shaders to the Program
-     */
-    Program & Link();
+    Program(Program&&);
+    Program& operator=(Program&&);
 
     /**
      * @brief Use this Program
      */
-    Program & Use();
+    Program& Use();
 
     /**
      * @brief Set the current Program to 0
@@ -141,7 +125,7 @@ public:
      * @brief Set a uniform by name
      */
     template<typename T>
-    Program & Set(const std::string & name, T value)
+    Program& Set(const std::string& name, T value)
     {
         GLint location = glGetUniformLocation(mProgram, name.c_str());
         assert(location != GL_INVALID_OPERATION);
@@ -154,20 +138,38 @@ public:
      * @brief Set the model-view-projection matrix
      * @return returns *this
      */
-    Program & SetMVP(const glm::mat4 & mvp);
+    Program& SetMVP(const glm::mat4& mvp);
 
     /**
      * @brief Identity shader with a position & texture component (e.g. used in Sprite)
      */
-    static Program & TexturePositionProgram();
+    static Program& TexturePositionProgram();
 
     /**
      * @brief Identity shader with a position component and a colour uniform (e.g. used in Shapes)
      */
-    static Program & PositionProgram();
+    static Program& PositionProgram();
 
     template<typename T>
     friend class Uniform;
+
+protected:
+    /**
+     * @brief Attach a Fragment or Vertex shader
+     * @return returns *this
+     */
+    Program& AttachShader(const Shader& shader);
+
+    /**
+     * @brief Used for setting the variables used in the feedback shader
+     */
+    Program& AttachFeedback(const std::vector<const GLchar*>& varyings);
+
+    /**
+     * @brief Link the shaders to the Program
+     */
+    Program& Link();
+
 private:
     GLuint mProgram;
     Uniform<glm::mat4> mMVP;
@@ -176,13 +178,13 @@ private:
 };
 
 template<typename T>
-Uniform<T>::Uniform(Program & program, const std::string & name)
+Uniform<T>::Uniform(Program& program, const std::string& name)
 {
     SetLocation(program, name);
 }
 
 template<typename T>
-void Uniform<T>::SetLocation(Program & program, const std::string & name)
+void Uniform<T>::SetLocation(Program& program, const std::string& name)
 {
     program.Use();
     mLocation = glGetUniformLocation(program.mProgram, name.c_str());
