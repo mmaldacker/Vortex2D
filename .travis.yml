@@ -78,7 +78,7 @@ install:
 script:
   - mkdir build
   - cd build
-  - cmake .. -DENABLE_EXAMPLES=ON -DENABLE_TESTS=ON -DUSE_OSMESA_FOR_TESTS=ON
+  - cmake .. -DENABLE_EXAMPLES=ON -DENABLE_TESTS=ON -USE_OSMESA=ON
   - make -j 4
 
 # Generate and deploy documentation
