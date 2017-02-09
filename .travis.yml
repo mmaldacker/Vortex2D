@@ -39,7 +39,7 @@ install:
   - wget ftp://ftp.freedesktop.org/pub/mesa/13.0.4/mesa-13.0.4.tar.gz
   - tar xvzf mesa-13.0.4.tar.gz
   - cd mesa-13.0.4
-  - ./configure --enable-texture-float --disable-gles1 --disable-gles2 --disable-opengl --disable-dri --disable-egl --disable-glx --enable-gallium-osmesa --with-osmesa-bits=32 --with-llvm-prefix=/usr
+  - ./configure --enable-texture-float --disable-gles1 --disable-gles2 --disable-opengl --disable-dri --disable-egl --disable-glx --enable-gallium-osmesa --with-llvm-prefix=/usr
   - make -j 4
   - sudo make install
   - cd ..
