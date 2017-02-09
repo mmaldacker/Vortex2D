@@ -76,6 +76,9 @@ install:
   - sudo mv libg* /usr/lib/
   - cd ${TRAVIS_BUILD_DIR}
 
+before_script:
+  - glxinfo
+
 script:
   - mkdir build
   - cd build
