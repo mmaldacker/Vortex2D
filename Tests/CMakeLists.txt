@@ -24,9 +24,15 @@ find_library(GMOCK_LIBRARY NAMES gmock PATHS ${GTEST_ROOT} PATH_SUFFIXES lib)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
+if (WIN32)
+  set (OSMESA_LIB_NAME osmesa)
+else ()
+  set (OSMESA_LIB_NAME OSMesa)
+endif ()
+
 add_executable(vortex2d_tests ${TEST_SOURCES})
 target_compile_features(vortex2d_tests PRIVATE cxx_variadic_templates)
-target_link_libraries(vortex2d_tests glfw vortex2d vortex2d_window ${GTEST_BOTH_LIBRARIES} ${GMOCK_LIBRARY} Threads::Threads)
+target_link_libraries(vortex2d_tests ${OSMESA_LIB_NAME} glfw vortex2d vortex2d_window ${GTEST_BOTH_LIBRARIES} ${GMOCK_LIBRARY} Threads::Threads)
 target_include_directories(vortex2d_tests PRIVATE "variationalplusgfm")
 
 add_test(AllTests vortex2d_tests)
