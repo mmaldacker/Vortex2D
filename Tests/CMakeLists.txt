@@ -12,8 +12,6 @@ file(GLOB TEST_SOURCES "LevelSetTests.cpp"
                        "variationalplusgfm/*.cpp"
                        "variationalplusgfm/pcgsolver/*.h")
 
-find_package(glfw3 REQUIRED)
-
 enable_testing()
 
 find_package(GTest REQUIRED)

@@ -78,8 +78,10 @@ install:
 script:
   - mkdir build
   - cd build
-  - cmake .. -DENABLE_EXAMPLES=ON -DENABLE_TESTS=ON -DUSE_OSMESA=ON
+  - cmake .. -DENABLE_TESTS=ON -DUSE_OSMESA=ON
   - make -j 4
+  - cd Tests
+  - ./vortex2d_tests
 
 # Generate and deploy documentation
 after_success:
