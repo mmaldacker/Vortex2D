@@ -9,15 +9,12 @@ file(GLOB LIB_SOURCES
 find_package(glm REQUIRED)
 include_directories(${GLM_INCLUDE_DIRS})
 
-find_package(OpenGL REQUIRED)
-
 find_package(GLEW REQUIRED)
 include_directories(${GLEW_INCLUDE_DIRS})
 link_libraries(${GLEW_LIBRARIES})
 
 add_library(vortex2d STATIC ${LIB_SOURCES})
 target_include_directories(vortex2d PUBLIC Engine Engine/LinearSolver Renderer)
-target_link_libraries(vortex2d ${OPENGL_LIBRARIES})
 
 target_compile_features(vortex2d PRIVATE cxx_variadic_templates)
 
