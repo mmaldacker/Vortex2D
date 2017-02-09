@@ -43,12 +43,12 @@ struct DisableColorMask
 {
     DisableColorMask()
     {
-        glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+        //glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     }
 
     ~DisableColorMask()
     {
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        //glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     }
 };
 
