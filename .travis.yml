@@ -36,7 +36,7 @@ install:
   - wget ftp://ftp.freedesktop.org/pub/mesa/13.0.4/mesa-13.0.4.tar.gz
   - tar xvzf mesa-13.0.4.tar.gz
   - cd mesa-13.0.4
-  - ./configure --disable-gles1 --disable-gles2 --disable-va --disable-xvmc --disable-vdpau --with-gallium-drivers=swrast --disable-dri --with-dri-drivers= --disable-egl --with-egl-platforms= --disable-gbm --disable-glx --disable-osmesa --enable-gallium-osmesa --enable-texture-float --with-llvm-prefix=/usr
+  - ./configure --enable-opengl --disable-gles1 --disable-gles2 --disable-va --disable-xvmc --disable-vdpau --with-gallium-drivers=swrast --disable-dri --with-dri-drivers= --disable-egl --with-egl-platforms= --disable-gbm --disable-glx --disable-osmesa --enable-gallium-osmesa --enable-texture-float --with-llvm-prefix=/usr
   - make -j 4
   - sudo make install
   - cd ..
@@ -52,13 +52,10 @@ install:
   - git clone https://github.com/nigels-com/glew.git
   - cd glew
   - git checkout tags/glew-2.0.0
-  - cd auto
-  - make
-  - cd ..
-  - make
-  - sudo make install
-  - cd ..
+  - make -C auto
+  - pushd build/cmake; cmake -G 'Unix Makefiles' -DGLEW_OSMESA=1 . ; make; sudo make install; popd
   - sudo ln -s /usr/lib64/libGLEW.so.2.0 /usr/lib/libGLEW.so.2.0
+  - cd ..
 #GLM install
   - git clone https://github.com/g-truc/glm.git
   - cd glm
