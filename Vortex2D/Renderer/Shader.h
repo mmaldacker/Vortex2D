@@ -6,9 +6,10 @@
 #ifndef Vortex_Shader_h
 #define Vortex_Shader_h
 
+#include <Vortex2D/Renderer/Common.h>
+#include <Vortex2D/Renderer/Uniform.h>
+
 #include <string>
-#include "Common.h"
-#include "Uniform.h"
 
 namespace Vortex2D { namespace Renderer {
 

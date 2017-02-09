@@ -4,7 +4,8 @@
 //
 
 #include "Sprite.h"
-#include "RenderTarget.h"
+
+#include <Vortex2D/Renderer/RenderTarget.h>
 
 namespace Vortex2D { namespace Renderer {
 

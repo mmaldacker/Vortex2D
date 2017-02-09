@@ -6,7 +6,7 @@
 #ifndef Vortex_Drawable_h
 #define Vortex_Drawable_h
 
-#include "Common.h"
+#include <Vortex2D/Renderer/Common.h>
 
 namespace Vortex2D { namespace Renderer {
 

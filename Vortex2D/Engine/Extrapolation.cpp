@@ -3,9 +3,11 @@
 //  Vortex2D
 
 #include "Extrapolation.h"
-#include "Shader.h"
-#include "Disable.h"
-#include "HelperFunctions.h"
+
+#include <Vortex2D/Renderer/Shader.h>
+#include <Vortex2D/Renderer/Disable.h>
+
+#include <Vortex2D/Engine/HelperFunctions.h>
 
 namespace Vortex2D { namespace Fluid {
 

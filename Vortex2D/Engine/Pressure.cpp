@@ -4,7 +4,8 @@
 //
 
 #include "Pressure.h"
-#include "HelperFunctions.h"
+
+#include <Vortex2D/Engine/HelperFunctions.h>
 
 namespace Vortex2D { namespace Fluid {
 

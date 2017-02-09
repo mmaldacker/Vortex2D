@@ -4,6 +4,7 @@
 //
 
 #include "RenderTexture.h"
+
 #include <algorithm>
 #include <string>
 #include <stdexcept>

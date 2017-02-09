@@ -6,10 +6,8 @@
 #ifndef Vortex2D_BaseExample_h
 #define Vortex2D_BaseExample_h
 
-#include "Size.h"
-#include "Engine.h"
-#include "ConjugateGradient.h"
-#include "Disable.h"
+#include <Vortex2D/Vortex2D.h>
+#include <Vortex2D/Engine/LinearSolver/ConjugateGradient.h>
 
 class BaseExample
 {

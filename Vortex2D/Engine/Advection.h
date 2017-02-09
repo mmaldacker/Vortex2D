@@ -3,9 +3,9 @@
 //  Vortex
 //
 
-#include "Buffer.h"
-#include "Operator.h"
-#include "Common.h"
+#include <Vortex2D/Renderer/Common.h>
+#include <Vortex2D/Renderer/Buffer.h>
+#include <Vortex2D/Renderer/Operator.h>
 
 namespace Vortex2D { namespace Fluid {
 

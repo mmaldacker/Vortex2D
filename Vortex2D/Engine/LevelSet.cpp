@@ -4,7 +4,8 @@
 //
 
 #include "LevelSet.h"
-#include "Disable.h"
+
+#include <Vortex2D/Renderer/Disable.h>
 
 namespace Vortex2D { namespace  Fluid {
 

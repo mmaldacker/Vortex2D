@@ -4,7 +4,9 @@
 //
 
 #include "Reader.h"
-#include "Disable.h"
+
+#include <Vortex2D/Renderer/Disable.h>
+
 #include <iostream>
 
 namespace Vortex2D { namespace Renderer {

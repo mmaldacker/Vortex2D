@@ -1,4 +1,5 @@
 file(GLOB LIB_SOURCES
+        "Vortex2D.h"
         "Engine/*.cpp"
         "Engine/*.h"
         "Engine/LinearSolver/*.h"
@@ -14,7 +15,7 @@ include_directories(${GLEW_INCLUDE_DIRS})
 link_libraries(${GLEW_LIBRARIES})
 
 add_library(vortex2d STATIC ${LIB_SOURCES})
-target_include_directories(vortex2d PUBLIC Engine Engine/LinearSolver Renderer)
+target_include_directories(vortex2d PUBLIC ../)
 
 target_compile_features(vortex2d PRIVATE cxx_variadic_templates)
 

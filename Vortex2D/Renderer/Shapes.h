@@ -6,10 +6,10 @@
 #ifndef Vortex_Shapes_h
 #define Vortex_Shapes_h
 
-#include "Common.h"
-#include "Shader.h"
-#include "Drawable.h"
-#include "Transformable.h"
+#include <Vortex2D/Renderer/Common.h>
+#include <Vortex2D/Renderer/Shader.h>
+#include <Vortex2D/Renderer/Drawable.h>
+#include <Vortex2D/Renderer/Transformable.h>
 
 #include <vector>
 

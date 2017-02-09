@@ -6,9 +6,10 @@
 #ifndef Vortex2D_Writer_h
 #define Vortex2D_Writer_h
 
-#include "Common.h"
-#include "Texture.h"
-#include "Buffer.h"
+#include <Vortex2D/Renderer/Common.h>
+#include <Vortex2D/Renderer/Texture.h>
+#include <Vortex2D/Renderer/Buffer.h>
+
 #include <vector>
 
 namespace Vortex2D { namespace Renderer {

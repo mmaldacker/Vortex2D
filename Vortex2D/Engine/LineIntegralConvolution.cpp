@@ -1,4 +1,10 @@
+//
+//  LineIntegralConvolution.cpp
+//  Vortex2D
+//
+
 #include "LineIntegralConvolution.h"
+
 #include <random>
 
 namespace Vortex2D { namespace Fluid {

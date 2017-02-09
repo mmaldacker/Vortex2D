@@ -3,10 +3,11 @@
 //  Vortex2D
 //
 
-#include "gtest/gtest.h"
 #include "Helpers.h"
-#include "Pressure.h"
-#include "Writer.h"
+
+#include <Vortex2D/Renderer/Disable.h>
+
+#include <Vortex2D/Engine/Pressure.h>
 
 using namespace Vortex2D::Renderer;
 using namespace Vortex2D::Fluid;

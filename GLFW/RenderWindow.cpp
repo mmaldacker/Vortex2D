@@ -1,3 +1,8 @@
+//
+//  RenderWindow.cpp
+//  Vortex2D
+//
+
 #include "RenderWindow.h"
 #include <stdexcept>
 

@@ -4,8 +4,10 @@
 //
 
 #include "Shapes.h"
-#include "RenderTarget.h"
-#include "Disable.h"
+
+#include <Vortex2D/Renderer/RenderTarget.h>
+#include <Vortex2D/Renderer/Disable.h>
+
 #include <limits>
 #include <algorithm>
 

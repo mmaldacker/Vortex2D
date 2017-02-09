@@ -4,6 +4,7 @@
 //
 
 #include "Texture.h"
+
 #include <cassert>
 
 namespace Vortex2D { namespace Renderer {

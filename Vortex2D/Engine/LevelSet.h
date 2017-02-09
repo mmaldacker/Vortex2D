@@ -6,9 +6,9 @@
 #ifndef LevelSet_h
 #define LevelSet_h
 
-#include "Buffer.h"
-#include "Operator.h"
-#include "Drawable.h"
+#include <Vortex2D/Renderer/Buffer.h>
+#include <Vortex2D/Renderer/Operator.h>
+#include <Vortex2D/Renderer/Drawable.h>
 
 namespace Vortex2D { namespace Fluid {
 

@@ -6,9 +6,10 @@
 #ifndef Vortex_Boundaries_h
 #define Vortex_Boundaries_h
 
-#include "LevelSet.h"
-#include "Size.h"
-#include "Drawable.h"
+#include <Vortex2D/Renderer/Drawable.h>
+
+#include <Vortex2D/Engine/LevelSet.h>
+#include <Vortex2D/Engine/Size.h>
 
 namespace Vortex2D { namespace Fluid {
 

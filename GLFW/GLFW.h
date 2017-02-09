@@ -11,8 +11,8 @@
 class GLFW
 {
 public:
-    GLFW();
+    GLFW(bool visiable = true);
     ~GLFW();
 };
 
-#endif // GLFW_H
+#endif

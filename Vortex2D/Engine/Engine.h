@@ -6,13 +6,14 @@
 #ifndef Vortex_Engine_h
 #define Vortex_Engine_h
 
-#include "LinearSolver.h"
-#include "Size.h"
-#include "Operator.h"
-#include "Shapes.h"
-#include "Extrapolation.h"
-#include "LevelSet.h"
-#include "Drawable.h"
+#include <Vortex2D/Renderer/Drawable.h>
+#include <Vortex2D/Renderer/Shapes.h>
+#include <Vortex2D/Renderer/Operator.h>
+
+#include <Vortex2D/Engine/LinearSolver/LinearSolver.h>
+#include <Vortex2D/Engine/Size.h>
+#include <Vortex2D/Engine/Extrapolation.h>
+#include <Vortex2D/Engine/LevelSet.h>
 
 #include <vector>
 

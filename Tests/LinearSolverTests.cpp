@@ -3,15 +3,17 @@
 //  Vortex2D
 //
 
-#include <algorithm>
-#include "gtest/gtest.h"
 #include "Helpers.h"
-#include "Texture.h"
-#include "Disable.h"
-#include "Reader.h"
-#include "Writer.h"
-#include "ConjugateGradient.h"
-#include "SuccessiveOverRelaxation.h"
+
+#include <Vortex2D/Renderer/Texture.h>
+#include <Vortex2D/Renderer/Disable.h>
+#include <Vortex2D/Renderer/Reader.h>
+#include <Vortex2D/Renderer/Writer.h>
+
+#include <Vortex2D/Engine/LinearSolver/ConjugateGradient.h>
+#include <Vortex2D/Engine/LinearSolver/SuccessiveOverRelaxation.h>
+
+#include <algorithm>
 
 using namespace Vortex2D::Renderer;
 using namespace Vortex2D::Fluid;

@@ -6,9 +6,9 @@
 #ifndef RenderTexture_h
 #define RenderTexture_h
 
-#include "Common.h"
-#include "Texture.h"
-#include "RenderTarget.h"
+#include <Vortex2D/Renderer/Common.h>
+#include <Vortex2D/Renderer/Texture.h>
+#include <Vortex2D/Renderer/RenderTarget.h>
 
 namespace Vortex2D { namespace Renderer {
 

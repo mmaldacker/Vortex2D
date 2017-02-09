@@ -6,7 +6,7 @@
 #ifndef Vortex2D_Reduce_h
 #define Vortex2D_Reduce_h
 
-#include "Operator.h"
+#include <Vortex2D/Renderer/Operator.h>
 
 namespace Vortex2D { namespace Fluid {
 

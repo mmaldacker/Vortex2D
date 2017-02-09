@@ -6,7 +6,7 @@
 #ifndef RenderWindow_h
 #define RenderWindow_h
 
-#include "RenderTarget.h"
+#include <Vortex2D/Renderer/RenderTarget.h>
 #include <GLFW/glfw3.h>
 #include <string>
 
@@ -31,4 +31,4 @@ private:
     GLFWwindow * mWindow;
 };
 
-#endif 
+#endif

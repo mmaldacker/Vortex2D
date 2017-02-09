@@ -6,7 +6,7 @@
 #ifndef Vortex2D_LinearSolver_h
 #define Vortex2D_LinearSolver_h
 
-#include "Operator.h"
+#include <Vortex2D/Renderer/Operator.h>
 
 namespace Vortex2D { namespace Fluid {
 

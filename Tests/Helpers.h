@@ -6,14 +6,15 @@
 #include <vector>
 #include <iostream>
 
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
-#include "LinearSolver.h"
-#include "Disable.h"
-#include "RenderTexture.h"
-#include "Operator.h"
-#include "Reader.h"
-#include "Writer.h"
+#include <gmock/gmock.h>
+
+#include <Vortex2D/Renderer/Buffer.h>
+#include <Vortex2D/Renderer/Operator.h>
+#include <Vortex2D/Renderer/Reader.h>
+#include <Vortex2D/Renderer/Writer.h>
+
+#include <Vortex2D/Engine/LinearSolver/LinearSolver.h>
+
 #include "variationalplusgfm/fluidsim.h"
 
 using namespace Vortex2D::Renderer;

@@ -6,9 +6,9 @@
 #ifndef Sprite_h
 #define Sprite_h
 
-#include "Drawable.h"
-#include "Texture.h"
-#include "Shader.h"
+#include <Vortex2D/Renderer/Drawable.h>
+#include <Vortex2D/Renderer/Texture.h>
+#include <Vortex2D/Renderer/Shader.h>
 
 namespace Vortex2D { namespace Renderer {
 

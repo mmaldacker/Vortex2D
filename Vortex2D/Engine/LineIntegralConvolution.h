@@ -6,10 +6,10 @@
 #ifndef LineIntegralConvolution_h
 #define LineIntegralConvolution_h
 
-#include "Buffer.h"
-#include "Operator.h"
-#include "Drawable.h"
-#include "Sprite.h"
+#include <Vortex2D/Renderer/Buffer.h>
+#include <Vortex2D/Renderer/Operator.h>
+#include <Vortex2D/Renderer/Drawable.h>
+#include <Vortex2D/Renderer/Sprite.h>
 
 namespace Vortex2D { namespace Fluid {
 

@@ -4,8 +4,9 @@
 //
 
 #include "Buffer.h"
-#include "Shader.h"
-#include "Operator.h"
+
+#include <Vortex2D/Renderer/Shader.h>
+#include <Vortex2D/Renderer/Operator.h>
 
 namespace Vortex2D { namespace Renderer {
 

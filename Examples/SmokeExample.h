@@ -7,8 +7,6 @@
 #define Vortex2D_Smoke_h
 
 #include "BaseExample.h"
-#include "Shapes.h"
-#include "Density.h"
 
 class SmokeExample : public BaseExample
 {

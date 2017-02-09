@@ -3,10 +3,12 @@
 //  Vortex
 //
 
-#include "gtest/gtest.h"
 #include "Helpers.h"
-#include "Boundaries.h"
-#include "Shapes.h"
+
+#include <Vortex2D/Renderer/Shapes.h>
+#include <Vortex2D/Renderer/Disable.h>
+
+#include <Vortex2D/Engine/Boundaries.h>
 
 using namespace Vortex2D::Renderer;
 using namespace Vortex2D::Fluid;

@@ -1,3 +1,8 @@
+//
+//  GLFW.cpp
+//  Vortex2D
+//
+
 #include "GLFW.h"
 
 #include <stdexcept>
@@ -11,7 +16,7 @@ void ErrorCallback(int error, const char* description)
                              std::string(description));
 }
 
-GLFW::GLFW()
+GLFW::GLFW(bool visible)
 {
     if (!glfwInit())
     {
@@ -25,6 +30,7 @@ GLFW::GLFW()
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+    glfwWindowHint(GLFW_VISIBLE, visible ? GLFW_TRUE : GLFW_FALSE);
 }
 
 GLFW::~GLFW()

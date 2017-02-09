@@ -4,6 +4,7 @@
 //
 
 #include "Shader.h"
+
 #include <stdexcept>
 #include <cassert>
 

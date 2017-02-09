@@ -3,12 +3,9 @@
 //  Vortex2D
 //
 
-#include "gtest/gtest.h"
 #include "Helpers.h"
-#include "Disable.h"
-#include "Operator.h"
-#include "Buffer.h"
-#include "Writer.h"
+
+#include <Vortex2D/Renderer/Disable.h>
 
 using namespace Vortex2D::Renderer;
 

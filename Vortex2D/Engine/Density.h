@@ -6,10 +6,11 @@
 #ifndef Vortex2D_Density_h
 #define Vortex2D_Density_h
 
-#include "Size.h"
-#include "Operator.h"
-#include "Drawable.h"
-#include "Transformable.h"
+#include <Vortex2D/Renderer/Operator.h>
+#include <Vortex2D/Renderer/Drawable.h>
+#include <Vortex2D/Renderer/Transformable.h>
+
+#include <Vortex2D/Engine/Size.h>
 
 namespace Vortex2D { namespace Fluid {
 

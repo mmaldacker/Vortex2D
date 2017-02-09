@@ -6,11 +6,12 @@
 #ifndef Extrapolation_h
 #define Extrapolation_h
 
-#include "Size.h"
-#include "Operator.h"
-#include "Buffer.h"
-#include "Shapes.h"
-#include "LevelSet.h"
+#include <Vortex2D/Renderer/Operator.h>
+#include <Vortex2D/Renderer/Buffer.h>
+#include <Vortex2D/Renderer/Shapes.h>
+
+#include <Vortex2D/Engine/Size.h>
+#include <Vortex2D/Engine/LevelSet.h>
 
 namespace Vortex2D { namespace Fluid {
 

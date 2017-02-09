@@ -4,7 +4,9 @@
 //
 
 #include "Writer.h"
-#include "Disable.h"
+
+#include <Vortex2D/Renderer/Disable.h>
+
 #include <glm/gtc/type_ptr.hpp>
 #include <stdexcept>
 #include <cassert>

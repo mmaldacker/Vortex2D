@@ -6,9 +6,9 @@
 #ifndef Vortex2D_Reader_h
 #define Vortex2D_Reader_h
 
-#include "Common.h"
-#include "RenderTexture.h"
-#include "Buffer.h"
+#include <Vortex2D/Renderer/Common.h>
+#include <Vortex2D/Renderer/RenderTexture.h>
+#include <Vortex2D/Renderer/Buffer.h>
 
 namespace Vortex2D { namespace Renderer {
 

@@ -4,7 +4,10 @@
 //
 
 #include "Helpers.h"
-#include "Advection.h"
+
+#include <Vortex2D/Renderer/Disable.h>
+
+#include <Vortex2D/Engine/Advection.h>
 
 using namespace Vortex2D::Renderer;
 using namespace Vortex2D::Fluid;

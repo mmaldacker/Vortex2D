@@ -4,8 +4,9 @@
 //
 
 #include "ConjugateGradient.h"
-#include "Disable.h"
-#include "Reader.h"
+
+#include <Vortex2D/Renderer/Disable.h>
+#include <Vortex2D/Renderer/Reader.h>
 
 namespace Vortex2D { namespace Fluid {
 

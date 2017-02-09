@@ -6,7 +6,7 @@
 #ifndef Vortex2D_Size_h
 #define Vortex2D_Size_h
 
-#include "Common.h"
+#include <Vortex2D/Renderer/Common.h>
 
 namespace Vortex2D { namespace Fluid {
 
@@ -27,7 +27,7 @@ struct Dimensions
         , InvScale(glm::scale(glm::vec3(1.0f/scale, 1.0f/scale, 1.0f)))
     {
     }
-    
+
     const float Scale;
     const glm::vec2 Size;
     const glm::mat4 InvScale;

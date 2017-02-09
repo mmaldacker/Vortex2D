@@ -3,10 +3,10 @@
 //  Vortex2D
 //
 
-#include "Common.h"
-#include "Buffer.h"
-#include "Operator.h"
-#include "LinearSolver.h"
+#include <Vortex2D/Renderer/Buffer.h>
+#include <Vortex2D/Renderer/Operator.h>
+
+#include <Vortex2D/Engine/LinearSolver/LinearSolver.h>
 
 namespace Vortex2D { namespace Fluid {
 

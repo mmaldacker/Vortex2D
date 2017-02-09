@@ -4,7 +4,10 @@
 //
 
 #include "Helpers.h"
-#include "Extrapolation.h"
+
+#include <Vortex2D/Renderer/Disable.h>
+
+#include <Vortex2D/Engine/Extrapolation.h>
 
 using namespace Vortex2D::Fluid;
 using namespace Vortex2D::Renderer;

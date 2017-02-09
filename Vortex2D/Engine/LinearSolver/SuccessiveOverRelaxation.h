@@ -6,7 +6,7 @@
 #ifndef Vortex2D_SuccessiveOverRelaxation_h
 #define Vortex2D_SuccessiveOverRelaxation_h
 
-#include "LinearSolver.h"
+#include <Vortex2D/Engine/LinearSolver/LinearSolver.h>
 
 namespace Vortex2D { namespace Fluid {
 

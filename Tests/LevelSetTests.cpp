@@ -3,12 +3,13 @@
 //  Vortex2D
 //
 
-#include "gtest/gtest.h"
-#include "LevelSet.h"
-#include "Reader.h"
-#include "Shapes.h"
-#include "Disable.h"
 #include "Helpers.h"
+
+#include <Vortex2D/Renderer/Reader.h>
+#include <Vortex2D/Renderer/Shapes.h>
+#include <Vortex2D/Renderer/Disable.h>
+
+#include <Vortex2D/Engine/LevelSet.h>
 
 using namespace Vortex2D::Renderer;
 using namespace Vortex2D::Fluid;

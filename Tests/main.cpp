@@ -1,10 +1,10 @@
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 #include "RenderWindow.h"
 #include "GLFW.h"
 
 int main(int argc, char **argv)
 {
-    GLFW glfw;
+    GLFW glfw(false);
     RenderWindow mainWindow(1000, 1000, "Test Window");
 
     ::testing::InitGoogleTest(&argc, argv);

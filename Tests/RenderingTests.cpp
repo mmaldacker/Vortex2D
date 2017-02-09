@@ -3,11 +3,11 @@
 //  Vortex2D
 //
 
-#include "gtest/gtest.h"
 #include "Helpers.h"
-#include "Shapes.h"
-#include "Writer.h"
-#include "Disable.h"
+
+#include <Vortex2D/Renderer/Shapes.h>
+#include <Vortex2D/Renderer/Disable.h>
+
 #include <glm/gtx/rotate_vector.hpp>
 
 using namespace Vortex2D::Renderer;

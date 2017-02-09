@@ -6,9 +6,9 @@
 #ifndef Buffer_h
 #define Buffer_h
 
-#include "RenderTarget.h"
-#include "RenderTexture.h"
-#include "Sprite.h"
+#include <Vortex2D/Renderer/RenderTarget.h>
+#include <Vortex2D/Renderer/RenderTexture.h>
+#include <Vortex2D/Renderer/Sprite.h>
 
 namespace Vortex2D { namespace Renderer {
 

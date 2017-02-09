@@ -4,8 +4,10 @@
 //
 
 #include "Density.h"
-#include "Disable.h"
-#include "Engine.h"
+
+#include <Vortex2D/Renderer/Disable.h>
+
+#include <Vortex2D/Engine/Engine.h>
 
 namespace Vortex2D { namespace Fluid {
 

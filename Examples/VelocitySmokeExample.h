@@ -8,8 +8,6 @@
 
 
 #include "BaseExample.h"
-#include "Shapes.h"
-#include "Density.h"
 
 class VelocitySmokeExample : public BaseExample
 {

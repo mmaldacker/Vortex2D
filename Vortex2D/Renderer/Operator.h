@@ -6,8 +6,9 @@
 #ifndef Vortex2D_Operator_h
 #define Vortex2D_Operator_h
 
-#include "Buffer.h"
-#include "Shader.h"
+#include <Vortex2D/Renderer/Buffer.h>
+#include <Vortex2D/Renderer/Shader.h>
+
 #include <utility>
 #include <cassert>
 

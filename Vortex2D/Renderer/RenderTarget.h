@@ -6,8 +6,8 @@
 #ifndef RenderTarget_h
 #define RenderTarget_h
 
-#include "Common.h"
-#include "Drawable.h"
+#include <Vortex2D/Renderer/Common.h>
+#include <Vortex2D/Renderer/Drawable.h>
 
 namespace Vortex2D { namespace Renderer {
 

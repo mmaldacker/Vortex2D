@@ -6,8 +6,8 @@
 #ifndef Vertex2D_ConjugateGradient_h
 #define Vertex2D_ConjugateGradient_h
 
-#include "LinearSolver.h"
-#include "Reduce.h"
+#include <Vortex2D/Engine/LinearSolver/LinearSolver.h>
+#include <Vortex2D/Engine/LinearSolver/Reduce.h>
 
 namespace Vortex2D { namespace Fluid {
 

@@ -1,12 +1,13 @@
-#include "Common.h"
 #include "RenderWindow.h"
+#include "GLFW.h"
+
+#include <Vortex2D/Engine/LineIntegralConvolution.h>
+
 #include "SmokeExample.h"
 #include "ObstacleSmokeExample.h"
 #include "WaterExample.h"
 #include "VelocitySmokeExample.h"
 #include "ScaleWaterExample.h"
-#include "LineIntegralConvolution.h"
-#include "GLFW.h"
 
 #include <iostream>
 #include <memory>
