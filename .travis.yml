@@ -28,7 +28,6 @@ addons:
       - libxinerama-dev
       - libxcursor-dev
       # Mesa dependencies
-      - mesa-utils
       - python-mako
 
 install:
@@ -75,9 +74,6 @@ install:
   - sudo make
   - sudo mv libg* /usr/lib/
   - cd ${TRAVIS_BUILD_DIR}
-
-before_script:
-  - glxinfo
 
 script:
   - mkdir build
