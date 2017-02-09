@@ -43,11 +43,11 @@ install:
   - make -j 4
   - sudo make install
   - cd ..
-# GLFW 3.1.1 install
-  - wget -O glfw-3.2.1.zip https://github.com/glfw/glfw/archive/3.2.1.zip
-  - unzip glfw-3.2.1.zip
-  - cd glfw-3.2.1
-  - cmake -DBUILD_SHARED_LIBS=ON -DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_TESTS=OFF -DGLFW_BUILD_DOCS=OFF -DCMAKE_INSTALL_PREFIX=/usr -DLIB_SUFFIX=/x86_64-linux-gnu
+# GLFW masterinstall
+  - wget -O glfw-master.zip https://github.com/glfw/glfw/archive/master.zip
+  - unzip glfw-master.zip
+  - cd glfw-master
+  - cmake -DBUILD_SHARED_LIBS=ON -DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_TESTS=OFF -DGLFW_BUILD_DOCS=OFF -DCMAKE_INSTALL_PREFIX=/usr -DLIB_SUFFIX=/x86_64-linux-gnu -DGLFW_USE_OSMESA=ON
   - make
   - sudo make install
   - cd ..
