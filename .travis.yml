@@ -27,8 +27,20 @@ addons:
       - libxrandr-dev
       - libxinerama-dev
       - libxcursor-dev
+      # Mesa dependencies
+      - mesa-utils
+      - python-mako
+      - llvm-dev
 
 install:
+# Mesa 13.0.4 install
+  - wget ftp://ftp.freedesktop.org/pub/mesa/13.0.4/mesa-13.0.4.tar.gz
+  - tar xvzf mesa-13.0.4.tar.gz
+  - cd mesa-13.0.4
+  - ./configure --enable-texture-float --disable-gles1 --disable-gles2 --disable-opengl --disable-dri --disable-egl --enable-gallium-osmesa --with-osmesa-bits=32
+  - make -j 4
+  - sudo make install
+  - cd ..
 # GLFW 3.1.1 install
   - wget -O glfw-3.2.1.zip https://github.com/glfw/glfw/archive/3.2.1.zip
   - unzip glfw-3.2.1.zip
@@ -69,6 +81,9 @@ install:
   - sudo make
   - sudo mv libg* /usr/lib/
   - cd ${TRAVIS_BUILD_DIR}
+
+before_script:
+  - glxinfo -B
 
 script:
   - mkdir build
