@@ -19,6 +19,8 @@ env:
 
 addons:
   apt:
+    sources:
+      - llvm-toolchain-trusty-3.9
     packages:
       # Vortex2D dependencies
       - google-mock
@@ -30,7 +32,7 @@ addons:
       # Mesa dependencies
       - mesa-utils
       - python-mako
-      - llvm-dev
+      - llvm-3.9-dev
 
 install:
 # Mesa 13.0.4 install
