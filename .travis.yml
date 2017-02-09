@@ -48,13 +48,11 @@ install:
   - make
   - sudo make install
   - cd ..
-#GLEW 2.0.0 install
+#GLEW master install
   - git clone https://github.com/nigels-com/glew.git
   - cd glew
-  - git checkout tags/glew-2.0.0
   - make -C auto
   - pushd build/cmake; cmake -G 'Unix Makefiles' -DGLEW_OSMESA=1 . ; make; sudo make install; popd
-  - sudo ln -s /usr/lib64/libGLEW.so.2.0 /usr/lib/libGLEW.so.2.0
   - cd ..
 #GLM install
   - git clone https://github.com/g-truc/glm.git
@@ -77,9 +75,6 @@ install:
   - sudo make
   - sudo mv libg* /usr/lib/
   - cd ${TRAVIS_BUILD_DIR}
-
-before_script:
-  - glxinfo -B
 
 script:
   - mkdir build
