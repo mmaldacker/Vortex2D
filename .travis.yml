@@ -19,8 +19,6 @@ env:
 
 addons:
   apt:
-    sources:
-      - llvm-toolchain-trusty-3.9
     packages:
       # Vortex2D dependencies
       - google-mock
@@ -32,14 +30,13 @@ addons:
       # Mesa dependencies
       - mesa-utils
       - python-mako
-      - llvm-3.9-dev
 
 install:
 # Mesa 13.0.4 install
   - wget ftp://ftp.freedesktop.org/pub/mesa/13.0.4/mesa-13.0.4.tar.gz
   - tar xvzf mesa-13.0.4.tar.gz
   - cd mesa-13.0.4
-  - ./configure --enable-texture-float --disable-gles1 --disable-gles2 --disable-opengl --disable-dri --disable-egl --disable-glx --enable-gallium-osmesa --with-llvm-prefix=/usr
+  - ./configure --disable-gles1 --disable-gles2 --disable-va --disable-xvmc --disable-vdpau --with-gallium-drivers=swrast --disable-dri --with-dri-drivers= --disable-egl --with-egl-platforms= --disable-gbm --disable-glx --disable-osmesa --enable-gallium-osmesa --enable-texture-float --with-llvm-prefix=/usr
   - make -j 4
   - sudo make install
   - cd ..
