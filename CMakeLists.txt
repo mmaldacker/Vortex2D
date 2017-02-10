@@ -19,25 +19,6 @@ add_subdirectory(Dependencies/glad)
 add_subdirectory(Vortex2D)
 
 if (VORTEX2D_ENABLE_EXAMPLES OR VORTEX2D_ENABLE_TESTS)
-  if (VORTEX2D_USE_OSMESA)
-    set(GLFW_USE_OSMESA ON CACHE BOOL "" FORCE)
-    if (WIN32)
-      set(VORTEX2D_OPENGL_LIBRARIES osmesa)
-    else ()
-      set(VORTEX2D_OPENGL_LIBRARIES OSMesa)
-    endif ()
-  else ()
-    find_package(OpenGL REQUIRED)
-    set(VORTEX2D_OPENGL_LIBRARIES ${OPENGL_LIBRARIES})
-  endif ()
-  set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-  set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-  set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-  download_project(PROJ                glfw3
-                   GIT_REPOSITORY      https://github.com/glfw/glfw.git
-                   GIT_TAG             master
-                   ${UPDATE_DISCONNECTED_IF_AVAILABLE})
-  add_subdirectory(${glfw3_SOURCE_DIR} ${glfw3_BINARY_DIR})
   add_subdirectory(RenderWindow)
 endif ()
 
