@@ -1,8 +1,5 @@
 if (VORTEX2D_USE_OSMESA)
   set(GLFW_USE_OSMESA ON CACHE BOOL "" FORCE)
-  find_package(OSMesa REQUIRED)
-  include_directories(SYSTEM ${OSMESA_INCLUDE_DIR})
-  set(VORTEX2D_LIBRARIES ${OSMESA_LIBRARY})
 else()
   find_package(OpenGL REQUIRED)
   include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
