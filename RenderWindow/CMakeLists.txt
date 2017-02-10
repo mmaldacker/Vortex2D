@@ -1,8 +1,8 @@
 add_library(vortex2d_window STATIC
         "RenderWindow.h"
         "RenderWindow.cpp"
-        "GLFW.h"
-        "GLFW.cpp")
+        "glfw.h"
+        "glfw.cpp")
 
 target_compile_features(vortex2d_window PRIVATE cxx_nullptr)
 target_link_libraries(vortex2d_window PUBLIC vortex2d glfw)

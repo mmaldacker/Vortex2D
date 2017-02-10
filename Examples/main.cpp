@@ -1,5 +1,5 @@
 #include "RenderWindow.h"
-#include "GLFW.h"
+#include "glfw.h"
 
 #include <Vortex2D/Engine/LineIntegralConvolution.h>
 

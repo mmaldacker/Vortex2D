@@ -3,7 +3,7 @@
 //  Vortex2D
 //
 
-#include "GLFW.h"
+#include "glfw.h"
 
 #include <stdexcept>
 #include <string>
@@ -18,12 +18,12 @@ void ErrorCallback(int error, const char* description)
 
 GLFW::GLFW(bool visible)
 {
+    glfwSetErrorCallback(ErrorCallback);
+
     if (!glfwInit())
     {
         throw std::runtime_error("Could not initialise GLFW!");
     }
-
-    glfwSetErrorCallback(ErrorCallback);
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);

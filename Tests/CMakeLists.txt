@@ -19,7 +19,7 @@ find_package(Threads REQUIRED)
 
 add_executable(vortex2d_tests ${TEST_SOURCES})
 target_compile_features(vortex2d_tests PRIVATE cxx_variadic_templates)
-target_link_libraries(vortex2d_tests ${OPENGL_LIB_NAME} vortex2d vortex2d_window gtest gmock gmock_main Threads::Threads)
+target_link_libraries(vortex2d_tests ${VORTEX2D_OPENGL_LIBRARIES} vortex2d vortex2d_window gtest gmock gmock_main Threads::Threads)
 target_include_directories(vortex2d_tests PRIVATE "variationalplusgfm")
 
 add_test(AllTests vortex2d_tests)

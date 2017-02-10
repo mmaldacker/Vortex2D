@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include "RenderWindow.h"
-#include "GLFW.h"
+#include "glfw.h"
 
 int main(int argc, char **argv)
 {
