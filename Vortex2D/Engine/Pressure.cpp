@@ -22,8 +22,9 @@ const char * DivFrag = GLSL(
     in vec2 v_texCoord;
     out vec4 out_color;
 
-    float fraction_inside(float a, float b);
-    vec2 get_weight(vec2 texCoord, ivec2 offset, sampler2D solid_phi);
+    vec2 get_weight(vec2 texCoord, sampler2D solid_phi);
+    vec2 get_weightxp(vec2 texCoord, sampler2D solid_phi);
+    vec2 get_weightyp(vec2 texCoord, sampler2D solid_phi);
 
     void main()
     {
@@ -34,9 +35,9 @@ const char * DivFrag = GLSL(
             float uxp = textureOffset(u_velocity, v_texCoord, ivec2(1,0)).x;
             float vyp = textureOffset(u_velocity, v_texCoord, ivec2(0,1)).y;
 
-            vec2 wuv = get_weight(v_texCoord, ivec2(0,0), u_obstacles);
-            float wxp = get_weight(v_texCoord, ivec2(2,0), u_obstacles).x;
-            float wyp = get_weight(v_texCoord, ivec2(0,2), u_obstacles).y;
+            vec2 wuv = get_weight(v_texCoord, u_obstacles);
+            float wxp = get_weightxp(v_texCoord, u_obstacles).x;
+            float wyp = get_weightyp(v_texCoord, u_obstacles).y;
 
             float div = (wuv.x * uv.x - wxp * uxp + wuv.y * uv.y - wyp * vyp) / dx;
 
@@ -73,7 +74,7 @@ const char * ProjectFrag = GLSL(
     uniform float dx;
 
     float fraction_inside(float a, float b);
-    vec2 get_weight(vec2 texCoord, ivec2 offset, sampler2D solid_phi);
+    vec2 get_weight(vec2 texCoord, sampler2D solid_phi);
 
     void main()
     {
@@ -95,7 +96,7 @@ const char * ProjectFrag = GLSL(
         vec2 mask = vec2(1.0);
         vec2 obsV = vec2(0.0);
 
-        vec2 wuv = get_weight(v_texCoord, ivec2(0,0), u_obstacles);
+        vec2 wuv = get_weight(v_texCoord, u_obstacles);
         if (wuv.x <= 0.0 || (phi >= 0.0 && phixn >= 0.0))
         {
             mask.x = 0.0;
@@ -121,8 +122,9 @@ const char * WeightsFrag = GLSL(
     uniform float delta;
     uniform float dx;
 
-    float fraction_inside(float a, float b);
-    vec2 get_weight(vec2 texCoord, ivec2 offset, sampler2D solid_phi);
+    vec2 get_weight(vec2 texCoord, sampler2D solid_phi);
+    vec2 get_weightxp(vec2 texCoord, sampler2D solid_phi);
+    vec2 get_weightyp(vec2 texCoord, sampler2D solid_phi);
 
     void main()
     {
@@ -135,10 +137,10 @@ const char * WeightsFrag = GLSL(
             float pyn = textureOffset(u_fluid, v_texCoord, ivec2(0,-1)).x;
 
             vec4 weights;
-            vec2 uv = get_weight(v_texCoord, ivec2(0,0), u_obstacles);
-            weights.x = pxp >= 0.0 ? 0.0 : -get_weight(v_texCoord, ivec2(2,0), u_obstacles).x;
+            vec2 uv = get_weight(v_texCoord, u_obstacles);
+            weights.x = pxp >= 0.0 ? 0.0 : -get_weightxp(v_texCoord, u_obstacles).x;
             weights.y = pxn >= 0.0 ? 0.0 : -uv.x;
-            weights.z = pyp >= 0.0 ? 0.0 : -get_weight(v_texCoord, ivec2(0,2), u_obstacles).y;
+            weights.z = pyp >= 0.0 ? 0.0 : -get_weightyp(v_texCoord, u_obstacles).y;
             weights.w = pyn >= 0.0 ? 0.0 : -uv.y;
 
             out_color = delta * weights / (dx*dx);
@@ -160,7 +162,9 @@ const char * DiagonalsFrag = GLSL(
     uniform float dx;
 
     float fraction_inside(float a, float b);
-    vec2 get_weight(vec2 texCoord, ivec2 offset, sampler2D solid_phi);
+    vec2 get_weight(vec2 texCoord, sampler2D solid_phi);
+    vec2 get_weightxp(vec2 texCoord, sampler2D solid_phi);
+    vec2 get_weightyp(vec2 texCoord, sampler2D solid_phi);
 
     void main()
     {
@@ -173,10 +177,10 @@ const char * DiagonalsFrag = GLSL(
             float pyn = textureOffset(u_fluid, v_texCoord, ivec2(0,-1)).x;
 
             vec4 weights;
-            vec2 wuv = get_weight(v_texCoord, ivec2(0,0), u_obstacles);
-            weights.x = get_weight(v_texCoord, ivec2(2,0), u_obstacles).x;
+            vec2 wuv = get_weight(v_texCoord, u_obstacles);
+            weights.x = get_weightxp(v_texCoord, u_obstacles).x;
             weights.y = wuv.x;
-            weights.z = get_weight(v_texCoord, ivec2(0,2), u_obstacles).y;
+            weights.z = get_weightyp(v_texCoord, u_obstacles).y;
             weights.w = wuv.y;
 
             vec4 theta;

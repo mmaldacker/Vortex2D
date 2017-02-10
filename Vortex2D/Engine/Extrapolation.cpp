@@ -139,7 +139,7 @@ const char* ConstrainVelocityFrag = GLSL(
     in vec2 v_texCoord;
     out vec4 out_color;
 
-    vec2 get_weight(vec2 texCoord, ivec2 offset, sampler2D solid_phi);
+    vec2 get_weight(vec2 texCoord, sampler2D solid_phi);
 
     void main()
     {
@@ -151,7 +151,7 @@ const char* ConstrainVelocityFrag = GLSL(
         float v11 = textureOffset(u_obstacles, v_texCoord, ivec2(2,2)).x;
 
         vec2 constrained = vec2(0.0);
-        vec2 wuv = get_weight(v_texCoord, ivec2(0,0), u_obstacles);
+        vec2 wuv = get_weight(v_texCoord, u_obstacles);
 
         vec2 grad = vec2(mix(v10 - v00, v11 - v01, 0.5), mix(v01 - v00, v11 - v10, 0.5));
         if (wuv.x == 0.0)

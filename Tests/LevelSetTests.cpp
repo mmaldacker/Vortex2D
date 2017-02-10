@@ -94,7 +94,7 @@ void CheckDifference(int size, Buffer& buffer, float (*phi)(const Vec2f&))
     }
 }
 
-void CheckLiquidPhi(Buffer& buffer, FluidSim& sim)
+void CheckLiquidPhi(Buffer& buffer, FluidSim& sim, float error = 1e-6)
 {
     Reader reader(buffer);
     reader.Read();
@@ -103,7 +103,7 @@ void CheckLiquidPhi(Buffer& buffer, FluidSim& sim)
     {
         for (int j = 0; j < buffer.Height(); j++)
         {
-            EXPECT_FLOAT_EQ(sim.liquid_phi(i, j), reader.GetFloat(i, j));
+            ASSERT_NEAR(sim.liquid_phi(i, j), reader.GetFloat(i, j), error);
         }
     }
 }
