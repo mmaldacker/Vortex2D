@@ -44,7 +44,9 @@ const char* EllipseFrag = GLSL(
         vec2 pos = (gl_PointCoord * size) - u_size;
         pos = u_rotation * pos;
         float distance = dot(pos / u_radius, pos / u_radius);
-        if (distance - 1.0 <= 1e-6)
+        // gl_PointCoord is not exactly 0.0 on the left/top borders
+        // thus we need to include a tolerance so the left/top points are drawn
+        if (distance - 1.0 <= 1e-5)
         {
             out_color = u_Colour;
         }
