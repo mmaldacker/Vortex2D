@@ -6,6 +6,8 @@ option(VORTEX2D_ENABLE_EXAMPLES "Build examples" OFF)
 option(VORTEX2D_ENABLE_TESTS "Build tests" OFF)
 option(VORTEX2D_USE_OSMESA "Build using OSMesa instead of OpenGL for the tests/examples" OFF)
 
+include(Dependencies/CodeCoverage.cmake)
+
 # cmake file to download and include dependencies
 include(Dependencies/DownloadProject.cmake)
 set(UPDATE_DISCONNECTED_IF_AVAILABLE "UPDATE_DISCONNECTED 1")

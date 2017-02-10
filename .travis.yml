@@ -23,6 +23,7 @@ addons:
       # Vortex2D dependencies
       - doxygen
       - gdb
+      - lcov
       # GLFW3 dependencies
       - libxrandr-dev
       - libxinerama-dev
@@ -46,13 +47,20 @@ before_script:
 script:
   - mkdir build
   - cd build
-  - cmake .. -DVORTEX2D_ENABLE_TESTS=ON -DVORTEX2D_ENABLE_EXAMPLES=ON -DVORTEX2D_USE_OSMESA=ON
+  - cmake .. -DVORTEX2D_ENABLE_TESTS=ON -DVORTEX2D_ENABLE_EXAMPLES=ON -DVORTEX2D_USE_OSMESA=ON -DCMAKE_BUILD_TYPE=Coverage
   - make -j 4
-  - cd Tests
-  - ./vortex2d_tests
+  - make vortex2d_tests_coverage
 
 # Generate and deploy documentation
 after_success:
+  # Creating report
+  - cd ${TRAVIS_BUILD_DIR}
+  - lcov --directory . --capture --output-file coverage.info # capture coverage info
+  - lcov --remove coverage.info '/usr/*' --output-file coverage.info # filter out system
+  - lcov --list coverage.info #debug info
+  # Uploading report to CodeCov
+  - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
+  # Compile & Upload docs
   - cd $TRAVIS_BUILD_DIR/Docs
   - chmod +x generatePublishDocs.sh
   - ./generatePublishDocs.sh
