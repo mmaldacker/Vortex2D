@@ -22,6 +22,7 @@ addons:
     packages:
       # Vortex2D dependencies
       - doxygen
+      - gdb
       # GLFW3 dependencies
       - libxrandr-dev
       - libxinerama-dev
@@ -39,6 +40,9 @@ install:
   - sudo make install
   - cd ..
 
+before_script:
+  - ulimit -c unlimited -S       # enable core dumps
+
 script:
   - mkdir build
   - cd build
@@ -52,3 +56,8 @@ after_success:
   - cd $TRAVIS_BUILD_DIR/Docs
   - chmod +x generatePublishDocs.sh
   - ./generatePublishDocs.sh
+
+# Check if there is a coredump and print backtrace if there is
+after_failure:
+- COREFILE=$(find . -maxdepth 1 -name "core*" | head -n 1) # find core file
+- if [[ -f "$COREFILE" ]]; then gdb -c "$COREFILE" example -ex "thread apply all bt" -ex "set pagination 0" -batch; fi
