@@ -9,7 +9,11 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 
-#include <GL/glew.h>
+#ifdef _WIN32
+    #define APIENTRY __stdcall
+#endif
+
+#include <glad/glad.h>
 
 #include <vector>
 

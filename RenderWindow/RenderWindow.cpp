@@ -4,6 +4,7 @@
 //
 
 #include "RenderWindow.h"
+#include <glad/glad.h>
 #include <stdexcept>
 
 RenderWindow::RenderWindow(int width, int height, const std::string & name, RenderWindow * share)
@@ -14,10 +15,7 @@ RenderWindow::RenderWindow(int width, int height, const std::string & name, Rend
         throw std::runtime_error("glfwCreateWindow failed");
 
     glfwMakeContextCurrent(mWindow);
-
-    glewExperimental = GL_TRUE;
-    if (glewInit() != GLEW_OK)
-        throw std::runtime_error("glewInit failed");
+    gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
 
     glViewport(0, 0, width, height);
     glfwSwapInterval(1);

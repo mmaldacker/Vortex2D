@@ -21,7 +21,6 @@ addons:
   apt:
     packages:
       # Vortex2D dependencies
-      - google-mock
       - doxygen
       # GLFW3 dependencies
       - libxrandr-dev
@@ -33,47 +32,12 @@ addons:
 install:
 # Mesa 13.0.4 install
   - wget ftp://ftp.freedesktop.org/pub/mesa/13.0.4/mesa-13.0.4.tar.gz
-  - tar xvzf mesa-13.0.4.tar.gz
+  - tar xzf mesa-13.0.4.tar.gz
   - cd mesa-13.0.4
   - ./configure --enable-opengl --disable-gles1 --disable-gles2 --with-gallium-drivers=swrast --disable-dri --with-dri-drivers= --disable-egl --with-egl-platforms= --disable-gbm --disable-glx --enable-gallium-osmesa --enable-texture-float --with-llvm-prefix=/usr --disable-va --disable-xvmc --disable-vdpau
   - make -j 4
   - sudo make install
   - cd ..
-# GLFW masterinstall
-  - wget -O glfw-master.zip https://github.com/glfw/glfw/archive/master.zip
-  - unzip glfw-master.zip
-  - cd glfw-master
-  - cmake -DBUILD_SHARED_LIBS=ON -DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_TESTS=OFF -DGLFW_BUILD_DOCS=OFF -DCMAKE_INSTALL_PREFIX=/usr -DLIB_SUFFIX=/x86_64-linux-gnu -DGLFW_USE_OSMESA=ON
-  - make
-  - sudo make install
-  - cd ..
-#GLEW master install
-  - git clone https://github.com/nigels-com/glew.git
-  - cd glew
-  - make -C auto
-  - pushd build/cmake; cmake -G 'Unix Makefiles' -DGLEW_OSMESA=1 . ; make; sudo make install; popd
-  - cd ..
-#GLM install
-  - git clone https://github.com/g-truc/glm.git
-  - cd glm
-  - git checkout tags/0.9.8.4
-  - mkdir build
-  - cd build
-  - cmake ..
-  - make
-  - sudo make install
-  - cd ../..
-#Gtest&Gmock install
-  - cd /usr/src/gmock/gtest
-  - sudo cmake -Dgtest_disable_pthreads=ON .
-  - sudo make
-  - sudo mv libg* /usr/lib/
-  - sudo cp -r include/gtest /usr/include/gtest/
-  - cd ..
-  - sudo cmake -Dgtest_disable_pthreads=ON .
-  - sudo make
-  - sudo mv libg* /usr/lib/
-  - cd ${TRAVIS_BUILD_DIR}
 
 script:
   - mkdir build

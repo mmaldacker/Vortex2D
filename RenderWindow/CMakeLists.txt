@@ -1,5 +1,3 @@
-find_package(glfw3 REQUIRED)
-
 add_library(vortex2d_window STATIC
         "RenderWindow.h"
         "RenderWindow.cpp"
