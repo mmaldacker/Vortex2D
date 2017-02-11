@@ -39,7 +39,8 @@ void Density::Advect(Engine & engine)
 void Density::Render(Renderer::RenderTarget & target, const glm::mat4 & transform)
 {
     auto & densitySprite = mDensity.Sprite();
-    densitySprite.SetProgram(Renderer::Program::TexturePositionProgram());
+    // FIXME
+    //densitySprite.SetProgram(Renderer::Program::TexturePositionProgram());
     densitySprite.Render(target, glm::scale(glm::vec3(mDimensions.Scale, mDimensions.Scale, 1.0))*transform);
 }
 

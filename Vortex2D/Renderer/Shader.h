@@ -141,16 +141,6 @@ public:
      */
     Program& SetMVP(const glm::mat4& mvp);
 
-    /**
-     * @brief Identity shader with a position & texture component (e.g. used in Sprite)
-     */
-    static Program& TexturePositionProgram();
-
-    /**
-     * @brief Identity shader with a position component and a colour uniform (e.g. used in Shapes)
-     */
-    static Program& PositionProgram();
-
     template<typename T>
     friend class Uniform;
 

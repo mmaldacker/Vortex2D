@@ -60,9 +60,15 @@ const char* EllipseFrag = GLSL(
 }
 
 Shape::Shape()
-    : mNumVertices(0)
-    , mColourUniform(Program::PositionProgram(), "u_Colour")
-    , mProgram(&Program::PositionProgram())
+    : Shape(Shader::PositionVert, Shader::PositionFrag)
+{
+
+}
+
+Shape::Shape(const char* vert, const char* frag)
+    : mProgram(vert, frag)
+    , mColourUniform(mProgram, "u_Colour")
+    , mNumVertices(0)
 {
     glGenVertexArrays(1,&mVertexArray);
     glBindVertexArray(mVertexArray);
@@ -89,12 +95,12 @@ Shape::~Shape()
 Shape::Shape(Shape&& other)
     : Transformable(other)
     , Colour(other.Colour)
+    , mProgram(std::move(other.mProgram))
+    , mColourUniform(other.mColourUniform)
     , mType(other.mType)
     , mVertexBuffer(other.mVertexBuffer)
     , mVertexArray(other.mVertexArray)
     , mNumVertices(other.mNumVertices)
-    , mColourUniform(other.mColourUniform)
-    , mProgram(other.mProgram)
 {
     other.mVertexArray = 0;
 }
@@ -102,12 +108,6 @@ Shape::Shape(Shape&& other)
 void Shape::SetType(GLuint type)
 {
     mType = type;
-}
-
-void Shape::SetProgram(Program& program)
-{
-    mProgram = &program;
-    mColourUniform.SetLocation(program, "u_Colour");
 }
 
 void Shape::Set(const Path& path)
@@ -126,7 +126,7 @@ void Shape::Render(RenderTarget& target, const glm::mat4& transform)
 {
     if (mNumVertices > 0)
     {
-        mProgram->Use().SetMVP(target.Orth * transform*GetTransform());
+        mProgram.Use().SetMVP(target.Orth * transform*GetTransform());
 
         mColourUniform.Set(Colour);
 
@@ -134,7 +134,7 @@ void Shape::Render(RenderTarget& target, const glm::mat4& transform)
         glDrawArrays(mType, 0, mNumVertices);
         glBindVertexArray(0);
 
-        mProgram->Unuse();
+        mProgram.Unuse();
     }
 }
 
@@ -150,9 +150,8 @@ void Rectangle::SetRectangle(const glm::vec2& size)
 }
 
 Ellipse::Ellipse(const glm::vec2& radius)
-    : mProgram(EllipseVert, EllipseFrag)
+    : Shape(EllipseVert, EllipseFrag)
 {
-    SetProgram(mProgram);
     SetEllipse(radius);
 }
 

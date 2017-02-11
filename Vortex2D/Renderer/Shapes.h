@@ -39,31 +39,31 @@ public:
      */
     void Set(const Path& path);
 
-    /**
-     * @brief SetProgram the program to be used when rendering
-     */
-    void SetProgram(Program& program);
-
     void Render(RenderTarget& target, const glm::mat4& transform = glm::mat4()) override;
 
     glm::vec4 Colour;
 
+protected:
+    Shape(const char* vert, const char* frag);
+
+    Program mProgram;
+
 private:
+    Uniform<glm::vec4> mColourUniform;
+
     GLuint mType;
     GLuint mVertexBuffer;
     GLuint mVertexArray;
 
     GLsizei mNumVertices;
-
-    Uniform<glm::vec4> mColourUniform;
-    Program* mProgram;
 };
 
 /**
  * @brief A solid colour rectangle defined by two triangles. Implements the Drawable interface and Transformable interface.
  */
-struct Rectangle : Shape
+class Rectangle : public Shape
 {
+public:
     Rectangle() = default;
     Rectangle(const glm::vec2& size);
 
@@ -87,7 +87,6 @@ public:
     void Render(RenderTarget& target, const glm::mat4& transform = glm::mat4()) override;
 
 private:
-    Program mProgram;
     glm::vec2 mRadius;
 };
 

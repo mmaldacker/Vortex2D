@@ -99,7 +99,7 @@ FragmentShader::FragmentShader(const char* source)
 
 thread_local GLuint Program::CurrentProgram = 0;
 
-Program::Program(const char * vertexSource, const char * fragmentSource)
+Program::Program(const char* vertexSource, const char* fragmentSource)
     : mProgram(glCreateProgram())
 {
     VertexShader vertex(vertexSource);
@@ -127,7 +127,7 @@ Program::~Program()
     }
 }
 
-Program::Program(Program && other)
+Program::Program(Program&& other)
 {
     mProgram = other.mProgram;
     mMVP.mLocation = other.mMVP.mLocation;
@@ -136,7 +136,7 @@ Program::Program(Program && other)
     other.mMVP.mLocation = GL_INVALID_VALUE;
 }
 
-Program & Program::operator=(Program && other)
+Program & Program::operator=(Program&& other)
 {
     mProgram = other.mProgram;
     mMVP.mLocation = other.mMVP.mLocation;
@@ -147,7 +147,7 @@ Program & Program::operator=(Program && other)
     return *this;
 }
 
-Program & Program::AttachShader(const Shader &shader)
+Program & Program::AttachShader(const Shader& shader)
 {
     glAttachShader(mProgram, shader.mShader);
     return *this;
@@ -183,9 +183,9 @@ Program & Program::Link()
     return *this;
 }
 
-Program & Program::Use()
+Program& Program::Use()
 {
-    if(CurrentProgram != mProgram)
+    if (CurrentProgram != mProgram)
     {
         CurrentProgram = mProgram;
         glUseProgram(mProgram);
@@ -200,25 +200,10 @@ void Program::Unuse()
     glUseProgram(0);
 }
 
-Program & Program::SetMVP(const glm::mat4 &mvp)
+Program& Program::SetMVP(const glm::mat4& mvp)
 {
     mMVP.Set(mvp);
     return *this;
-}
-
-Program & Program::TexturePositionProgram()
-{
-    static Program program(Shader::TexturePositionVert, Shader::TexturePositionFrag);
-    //FIXME only set once
-    program.Use().Set("u_texture", 0).Unuse();
-
-    return program;
-}
-
-Program & Program::PositionProgram()
-{
-    static Program program(Shader::PositionVert, Shader::PositionFrag);
-    return program;
 }
 
 }}

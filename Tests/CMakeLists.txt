@@ -24,7 +24,7 @@ target_include_directories(vortex2d_tests PRIVATE "variationalplusgfm")
 
 add_test(AllTests vortex2d_tests)
 
-if (CMAKE_COMPILER_IS_GNUCXX)
+if (CMAKE_BUILD_TYPE STREQUAL "Coverage")
     setup_target_for_coverage(vortex2d_tests_coverage vortex2d_tests coverage)
 endif ()
 
