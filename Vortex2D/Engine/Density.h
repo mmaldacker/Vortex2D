@@ -14,7 +14,7 @@
 
 namespace Vortex2D { namespace Fluid {
 
-class Engine;
+class World;
 
 /**
  * @brief Used to move and render colour with the velocity field of the Engine
@@ -33,7 +33,7 @@ public:
     /**
      * @brief Advect the colours rendered with Render using the velocity field in Engine
      */
-    void Advect(Engine & engine);
+    void Advect(World & engine);
 
     /**
      * @brief Renders the colours to a RenderTarget

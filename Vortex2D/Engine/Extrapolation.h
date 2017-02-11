@@ -51,4 +51,4 @@ private:
 
 }}
 
-#endif /* Extrapolation_h */
+#endif

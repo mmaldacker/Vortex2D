@@ -7,7 +7,7 @@
 
 #include <Vortex2D/Renderer/Disable.h>
 
-#include <Vortex2D/Engine/Engine.h>
+#include <Vortex2D/Engine/World.h>
 
 namespace Vortex2D { namespace Fluid {
 
@@ -30,7 +30,7 @@ void Density::Render(Renderer::Drawable & object)
     mDensity.Render(object, mDimensions.InvScale);
 }
 
-void Density::Advect(Engine & engine)
+void Density::Advect(World & world)
 {
     // FIXME
     //engine.Advect(mDensity);

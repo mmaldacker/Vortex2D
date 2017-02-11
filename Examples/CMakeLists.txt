@@ -1,11 +1,9 @@
 file(GLOB EXAMPLES_SOURCES
         "main.cpp"
-        "BaseExample.h"
-        "ObstacleSmokeExample.h"
-        "ScaleWaterExample.h"
-        "SmokeExample.h"
-        "WaterExample.h"
-        "VelocitySmokeExample")
+        "ObstacleSmokeExample.cpp"
+        "ScaleWaterExample.cpp"
+        "SmokeExample.cpp"
+        "WaterExample.cpp")
 
 add_executable(vortex2d_examples ${EXAMPLES_SOURCES})
 target_compile_features(vortex2d_examples PRIVATE cxx_nullptr)

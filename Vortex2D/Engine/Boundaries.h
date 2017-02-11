@@ -18,6 +18,7 @@ class Boundaries
 {
 public:
     Boundaries(Dimensions dimensions, LevelSet& liquidPhi, LevelSet& solidPhi);
+    Boundaries(Boundaries&& other);
     ~Boundaries();
 
     void DrawLiquid(Renderer::Drawable& drawable, bool invert = false);

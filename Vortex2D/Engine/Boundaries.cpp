@@ -76,6 +76,18 @@ Boundaries::Boundaries(Dimensions dimensions, LevelSet& liquidPhi, LevelSet& sol
     mLiquidBoundaries.Use().Set("u_fluid", 0).Set("u_obstacles", 1).Unuse();
 }
 
+Boundaries::Boundaries(Boundaries&& other)
+    : mDimensions(other.mDimensions)
+    , mLiquidPhi(other.mLiquidPhi)
+    , mSolidPhi(other.mSolidPhi)
+    , mLiquidDraw(std::move(other.mLiquidDraw))
+    , mSolidDraw(std::move(other.mSolidDraw))
+    , mSolidBoundaries(std::move(other.mSolidBoundaries))
+    , mLiquidBoundaries(std::move(other.mLiquidBoundaries))
+{
+
+}
+
 Boundaries::~Boundaries()
 {
     mLiquidPhi = mLiquidBoundaries(mLiquidDraw, mSolidDraw);
