@@ -68,11 +68,11 @@ Boundaries::Boundaries(Dimensions dimensions, LevelSet& liquidPhi, LevelSet& sol
     , mLiquidPhi(liquidPhi)
     , mSolidPhi(solidPhi)
     , mLiquidDraw(dimensions.Size.x, dimensions.Size.y, Renderer::Texture::PixelFormat::RGBA8888)
-    , mSolidDraw(dimensions.Size.x, dimensions.Size.y, Renderer::Texture::PixelFormat::RGBA8888)
+    , mSolidDraw(2 * dimensions.Size.x, 2 * dimensions.Size.y, Renderer::Texture::PixelFormat::RGBA8888)
     , mSolidBoundaries(Renderer::Shader::TexturePositionVert, SolidBoundariesFrag)
     , mLiquidBoundaries(Renderer::Shader::TexturePositionVert, LiquidBoundariesFrag)
 {
-    mSolidBoundaries.Use().Set("u_obstacles", 1).Unuse();
+    mSolidBoundaries.Use().Set("u_obstacles", 0).Unuse();
     mLiquidBoundaries.Use().Set("u_fluid", 0).Set("u_obstacles", 1).Unuse();
 }
 
@@ -87,10 +87,12 @@ Boundaries::~Boundaries()
 
 void Boundaries::DrawLiquid(Renderer::Drawable& drawable, bool invert)
 {
-
     if (invert)
     {
-
+        mLiquidDraw.Clear(glm::vec4(1.0f));
+        Renderer::Enable d(GL_BLEND);
+        Renderer::BlendState s(GL_FUNC_ADD, GL_ZERO, GL_ZERO);
+        mLiquidDraw.Render(drawable, mDimensions.InvScale);
     }
     else
     {
@@ -103,7 +105,10 @@ void Boundaries::DrawSolid(Renderer::Drawable& drawable, bool invert)
 {
     if (invert)
     {
-
+        mSolidDraw.Clear(glm::vec4(1.0f));
+        Renderer::Enable d(GL_BLEND);
+        Renderer::BlendState s(GL_FUNC_ADD, GL_ZERO, GL_ZERO);
+        mSolidDraw.Render(drawable, glm::scale(glm::vec3(2.0f, 2.0f, 1.0f))*mDimensions.InvScale);
     }
     else
     {
