@@ -1,4 +1,4 @@
-![Build Status](https://travis-ci.org/mmaldacker/Vortex2D.svg?branch=master)
+![Build Status](https://travis-ci.org/mmaldacker/Vortex2D.svg?branch=master) ![Code Coverage](http://codecov.io/github/mmaldacker/Vortex2D/coverage.svg?branch=master)
 
 # Vortex2D
 
