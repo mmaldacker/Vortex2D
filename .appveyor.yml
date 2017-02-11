@@ -1,0 +1,9 @@
+clone_folder: C:\Vortex2D
+platform:
+    - x64
+build_script:
+    - mkdir build && cd build
+    - cmake -G"Visual Studio 14 Win64" ..
+    - cmake --build .
+test_script:
+    - ctest --output-on-failure
