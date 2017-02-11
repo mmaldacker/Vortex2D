@@ -2,7 +2,7 @@ clone_folder: C:\Vortex2D
 platform:
     - x64
 install:
-  - pip install scons
+  - pip install --egg scons
   - curl -o mesa-13.0.4.tar.gz  ftp://ftp.freedesktop.org/pub/mesa/13.0.4/mesa-13.0.4.tar.gz
   - 7z x mesa-13.0.4.tar.gz -so | 7z x -si -ttar > nul
   - cd mesa
