@@ -20,7 +20,7 @@ install:
   - cd ..
 build_script:
   - mkdir build && cd build
-  - cmake -G"Visual Studio 14 Win64" ..
+  - cmake -G"Visual Studio 14 Win64" .. -DVORTEX2D_ENABLE_TESTS=ON -DVORTEX2D_ENABLE_EXAMPLES=ON -DVORTEX2D_USE_OSMESA=ON
   - cmake --build .
 test_script:
   - ctest --output-on-failure
