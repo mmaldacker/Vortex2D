@@ -4,23 +4,24 @@ platform:
 environment:
   WINFLEXBISON_ARCHIVE: win_flex_bison-2.4.8.zip
 install:
-  - pip install --egg scons
-  - pip install Mako
+  #- pip install --egg scons
+  #- pip install Mako
   # Install flex/bison
-  - if not exist "%WINFLEXBISON_ARCHIVE%" appveyor DownloadFile "http://downloads.sourceforge.net/project/winflexbison/%WINFLEXBISON_ARCHIVE%"
-  - 7z x -y -owinflexbison\ "%WINFLEXBISON_ARCHIVE%" > nul
-  - set Path=%CD%\winflexbison;%Path%
-  - win_flex --version
-  - win_bison --version
+  #- if not exist "%WINFLEXBISON_ARCHIVE%" appveyor DownloadFile "http://downloads.sourceforge.net/project/winflexbison/%WINFLEXBISON_ARCHIVE%"
+  #- 7z x -y -owinflexbison\ "%WINFLEXBISON_ARCHIVE%" > nul
+  #- set Path=%CD%\winflexbison;%Path%
+  #- win_flex --version
+  #- win_bison --version
   # Compile Mesa
-  - curl -o mesa-13.0.4.tar.gz  ftp://ftp.freedesktop.org/pub/mesa/13.0.4/mesa-13.0.4.tar.gz
-  - 7z x mesa-13.0.4.tar.gz -so | 7z x -si -ttar > nul
-  - cd mesa-13.0.4
-  - scons
-  - cd ..
+  #- curl -o mesa-13.0.4.tar.gz  ftp://ftp.freedesktop.org/pub/mesa/13.0.4/mesa-13.0.4.tar.gz
+  #- 7z x mesa-13.0.4.tar.gz -so | 7z x -si -ttar > nul
+  #- cd mesa-13.0.4
+  #- scons
+  #- cd ..
 build_script:
   - mkdir build && cd build
-  - cmake -G"Visual Studio 14 Win64" .. -DVORTEX2D_ENABLE_TESTS=ON -DVORTEX2D_ENABLE_EXAMPLES=ON -DVORTEX2D_USE_OSMESA=ON
+  #- cmake -G"Visual Studio 14 Win64" .. -DVORTEX2D_ENABLE_TESTS=ON -DVORTEX2D_ENABLE_EXAMPLES=ON -DVORTEX2D_USE_OSMESA=ON
+  - cmake -G"Visual Studio 14 Win64" .. -DVORTEX2D_ENABLE_TESTS=ON -DVORTEX2D_ENABLE_EXAMPLES=ON
   - cmake --build .
 test_script:
-  - ctest
+  #- ctest
