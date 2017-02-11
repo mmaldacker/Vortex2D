@@ -2,12 +2,15 @@ clone_folder: C:\Vortex2D
 platform:
     - x64
 install:
-  - pip install --egg scons
-  - ps: Start-FileDownload ftp://ftp.freedesktop.org/pub/mesa/13.0.4/mesa-13.0.4.tar.gz
+  - pip install scons
+  - curl -o mesa-13.0.4.tar.gz  ftp://ftp.freedesktop.org/pub/mesa/13.0.4/mesa-13.0.4.tar.gz
   - 7z x mesa-13.0.4.tar.gz -so | 7z x -si -ttar > nul
+  - cd mesa
+  - scons
+  - cd ..
 build_script:
-    - mkdir build && cd build
-    - cmake -G"Visual Studio 14 Win64" ..
-    - cmake --build .
+  - mkdir build && cd build
+  - cmake -G"Visual Studio 14 Win64" ..
+  - cmake --build .
 test_script:
-    - ctest --output-on-failure
+  - ctest --output-on-failure
