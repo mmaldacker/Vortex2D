@@ -1,4 +1,6 @@
-![Build Status](https://travis-ci.org/mmaldacker/Vortex2D.svg?branch=master) ![Windows Build Status](https://ci.appveyor.com/project/mmaldacker/Vortex2D/branch/master) ![Code Coverage](http://codecov.io/github/mmaldacker/Vortex2D/coverage.svg?branch=master)
+[![Build Status](https://travis-ci.org/mmaldacker/Vortex2D.svg?branch=master)](https://travis-ci.org/mmaldacker/Vortex2D)
+[![Build status](https://ci.appveyor.com/api/projects/status/p7q9aple11yhs1ck?svg=true)](https://ci.appveyor.com/project/mmaldacker/vortex2d)
+[![Code Coverage](http://codecov.io/github/mmaldacker/Vortex2D/coverage.svg?branch=master)](http://codecov.io/github/mmaldacker/Vortex2D?branch=master)
 
 # Vortex2D
 

@@ -5,6 +5,7 @@ environment:
   WINFLEXBISON_ARCHIVE: win_flex_bison-2.4.8.zip
 install:
   - pip install --egg scons
+  - pip install Mako
   # Install flex/bison
   - if not exist "%WINFLEXBISON_ARCHIVE%" appveyor DownloadFile "http://downloads.sourceforge.net/project/winflexbison/%WINFLEXBISON_ARCHIVE%"
   - 7z x -y -owinflexbison\ "%WINFLEXBISON_ARCHIVE%" > nul
