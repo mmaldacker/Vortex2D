@@ -12,8 +12,6 @@ file(GLOB TEST_SOURCES "LevelSetTests.cpp"
                        "variationalplusgfm/*.cpp"
                        "variationalplusgfm/pcgsolver/*.h")
 
-enable_testing()
-
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 

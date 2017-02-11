@@ -32,6 +32,7 @@ if (VORTEX2D_ENABLE_EXAMPLES)
 endif ()
 
 if (VORTEX2D_ENABLE_TESTS)
+  enable_testing()
   download_project(PROJ                googletest
                    GIT_REPOSITORY      https://github.com/google/googletest.git
                    GIT_TAG             release-1.8.0
