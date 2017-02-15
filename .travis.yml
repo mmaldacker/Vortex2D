@@ -39,14 +39,7 @@ addons:
 
 install:
 # Mesa 13.0.4 install
-  - pip install Mako
-  - wget ftp://ftp.freedesktop.org/pub/mesa/13.0.4/mesa-13.0.4.tar.gz
-  - tar xzf mesa-13.0.4.tar.gz
-  - cd mesa-13.0.4
-  - ./configure --enable-opengl --disable-gles1 --disable-gles2 --with-gallium-drivers=swrast --disable-dri --with-dri-drivers= --disable-egl --with-egl-platforms= --disable-gbm --disable-glx --enable-gallium-osmesa --enable-texture-float --with-llvm-prefix=/usr --disable-va --disable-xvmc --disable-vdpau --prefix=/usr
-  - make -j 4
-  - sudo make install
-  - cd ..
+ - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cd Dependencies; chmod +x buildMesa.sh; ./buildMesa.sh; cd ..; fi
 
 before_script:
   - ulimit -c unlimited -S       # enable core dumps
@@ -66,11 +59,9 @@ after_success:
   - lcov --remove coverage.info '/usr/*' '*/Vortex2D/Dependencies/*' '*/Vortex2D/Tests/*' '*/Vortex2D/RenderWindow/*' '*/Vortex2D/build/*' --output-file coverage.info # filter out system
   - lcov --list coverage.info #debug info
   # Uploading report to CodeCov
-  - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"; fi
   # Compile & Upload docs
-  - cd $TRAVIS_BUILD_DIR/Docs
-  - chmod +x generatePublishDocs.sh
-  - ./generatePublishDocs.sh
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cd $TRAVIS_BUILD_DIR/Docs; chmod +x generatePublishDocs.sh; ./generatePublishDocs.sh; fi
 
 # Check if there is a coredump and print backtrace if there is
 after_failure:
