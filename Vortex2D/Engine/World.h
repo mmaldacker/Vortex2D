@@ -9,6 +9,7 @@
 #include <Vortex2D/Renderer/Drawable.h>
 #include <Vortex2D/Renderer/Shapes.h>
 #include <Vortex2D/Renderer/Operator.h>
+#include <Vortex2D/Renderer/Reader.h>
 
 #include <Vortex2D/Engine/LinearSolver/LinearSolver.h>
 #include <Vortex2D/Engine/LinearSolver/ConjugateGradient.h>
@@ -60,6 +61,8 @@ public:
      */
     void Advect();
 
+    Renderer::Reader& GetVelocityReader();
+
     /**
      * @brief the Colour to render the fluid region in
      */
@@ -82,6 +85,8 @@ private:
     Advection mAdvection;
     Pressure mPressure;
     Extrapolation mExtrapolation;
+
+    Renderer::Reader mVelocityReader;
 
     Renderer::Program mFluidProgram;
     Renderer::Uniform<glm::vec4> mColourUniform;

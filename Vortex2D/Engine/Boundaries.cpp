@@ -23,11 +23,11 @@ const char* SolidBoundariesFrag = GLSL(
         float f = texture(u_obstacles, v_texCoord).w;
         if (f > 0.0)
         {
-            out_color = vec4(1.0);
+            out_color = vec4(-1.0);
         }
         else
         {
-            out_color = vec4(-1.0);
+            out_color = vec4(1.0);
         }
     }
 );

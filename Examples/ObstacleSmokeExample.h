@@ -42,6 +42,7 @@ public:
 
         boundaries.DrawSolid(area, true);
         boundaries.DrawSolid(obstacle);
+        boundaries.DrawLiquid(area);
     }
 
     void Render(Vortex2D::Renderer::RenderTarget & target, const glm::mat4 & transform = glm::mat4()) override

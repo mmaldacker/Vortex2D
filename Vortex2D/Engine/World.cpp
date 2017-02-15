@@ -48,6 +48,7 @@ World::World(Dimensions dimensions, float dt)
     , mAdvection(dt, mVelocity)
     , mPressure(dt, dimensions.Size, mLinearSolver, mData, mVelocity, mObstacleLevelSet, mFluidLevelSet, mBoundariesVelocity)
     , mExtrapolation(dimensions.Size, mVelocity, mObstacleLevelSet)
+    , mVelocityReader(mVelocity)
     , mFluidProgram(Renderer::Shader::TexturePositionVert, FluidFrag)
     , mColourUniform(mFluidProgram, "u_Colour")
 {
@@ -110,6 +111,12 @@ void World::Advect(Renderer::Buffer& buffer)
     Renderer::Disable d(GL_BLEND);
 
     mAdvection.Advect(buffer);
+}
+
+Renderer::Reader& World::GetVelocityReader()
+{
+    mVelocityReader.Read();
+    return mVelocityReader;
 }
 
 }}

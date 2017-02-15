@@ -34,7 +34,7 @@ public:
         area.Position = glm::vec2(1.0f);
         area.Colour = glm::vec4(1.0f);
 
-        boundaries.DrawSolid(area, true);
+        boundaries.DrawLiquid(area);
     }
 
     void Render(Vortex2D::Renderer::RenderTarget & target, const glm::mat4 & transform = glm::mat4()) override

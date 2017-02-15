@@ -71,12 +71,13 @@ TEST(BoundariesTests, Solid)
         boundaries.DrawSolid(rectangle);
     }
 
-    std::vector<float> data(scaledSize.x * scaledSize.y, -1.0f);
+    std::vector<float> data(scaledSize.x * scaledSize.y, 1.0f);
     DrawSquare(scaledSize.x,
                scaledSize.y,
                data,
                (glm::vec2)rectangle.Position * glm::vec2(2.0f),
-               glm::vec2(10.0f) * glm::vec2(2.0f));
+               glm::vec2(10.0f) * glm::vec2(2.0f),
+               -1.0f);
 
     CheckSameSign(scaledSize, data, solidPhi);
 }
@@ -106,7 +107,7 @@ TEST(BoundariesTests, Clear)
     std::vector<float> liquidData(size.x * size.y, 1.0f);
     CheckSameSign(size, liquidData, liquidPhi);
 
-    std::vector<float> solidData(scaledSize.x * scaledSize.y, -1.0f);
+    std::vector<float> solidData(scaledSize.x * scaledSize.y, 1.0f);
     CheckSameSign(scaledSize, solidData, solidPhi);
 }
 
@@ -134,12 +135,13 @@ TEST(BoundariesTests, LiquidAndSolid)
         boundaries.DrawLiquid(rectangle);
     }
 
-    std::vector<float> solidData(scaledSize.x * scaledSize.y, -1.0f);
+    std::vector<float> solidData(scaledSize.x * scaledSize.y, 1.0f);
     DrawSquare(scaledSize.x,
                scaledSize.y,
                solidData,
                glm::vec2(5.0f) * glm::vec2(2.0f),
-               glm::vec2(10.0f) * glm::vec2(2.0f));
+               glm::vec2(10.0f) * glm::vec2(2.0f),
+               -1.0f);
 
     CheckSameSign(scaledSize, solidData, solidPhi);
 
@@ -148,12 +150,13 @@ TEST(BoundariesTests, LiquidAndSolid)
 
     CheckSameSign(size, liquidPhiData, liquidPhi);
 
-    std::vector<float> solidPhiData(scaledSize.x * scaledSize.y, -1.0f);
+    std::vector<float> solidPhiData(scaledSize.x * scaledSize.y, 1.0f);
     DrawSquare(scaledSize.x,
                scaledSize.y,
                solidPhiData,
                glm::vec2(5.0f) * glm::vec2(2.0f),
-               glm::vec2(10.0f) * glm::vec2(2.0f));
+               glm::vec2(10.0f) * glm::vec2(2.0f),
+               -1.0f);
     CheckSameSign(scaledSize, solidPhiData, solidPhi);
 }
 
@@ -226,13 +229,12 @@ TEST(BoundariesTests, InvertSolid)
         boundaries.DrawSolid(rectangle, true);
     }
 
-    std::vector<float> data(scaledSize.x * scaledSize.y, 1.0f);
+    std::vector<float> data(scaledSize.x * scaledSize.y, -1.0f);
     DrawSquare(scaledSize.x,
                scaledSize.y,
                data,
                (glm::vec2)rectangle.Position * glm::vec2(2.0f),
-               glm::vec2(10.0f) * glm::vec2(2.0f),
-               -1.0f);
+               glm::vec2(10.0f) * glm::vec2(2.0f));
 
     CheckSameSign(scaledSize, data, solidPhi);
 }

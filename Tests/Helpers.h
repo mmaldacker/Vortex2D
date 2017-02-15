@@ -67,7 +67,6 @@ static void DrawSquare(int width, int height, std::vector<float>& data, const gl
     }
 }
 
-
 static void CheckTexture(int width, int height, const std::vector<float>& data, Reader& reader)
 {
     reader.Read();
