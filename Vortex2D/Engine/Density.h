@@ -43,6 +43,7 @@ public:
 private:
     Dimensions mDimensions;
     Renderer::Buffer mDensity;
+    Renderer::Program mProgram;
 };
 
 }}

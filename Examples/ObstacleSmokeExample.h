@@ -14,9 +14,6 @@ extern glm::vec4 green;
 extern glm::vec4 gray;
 extern glm::vec4 blue;
 
-using Factory = std::function<std::unique_ptr<Vortex2D::Renderer::Drawable>(Vortex2D::Fluid::Dimensions dimensions, float dt)>;
-extern std::vector<Factory> examplesFactories;
-
 class ObstacleSmokeExample : public Vortex2D::Renderer::Drawable
 {
 public:
@@ -58,6 +55,11 @@ public:
 
         target.Render(density, transform);
         target.Render(obstacle, transform);
+    }
+
+    static std::unique_ptr<Vortex2D::Renderer::Drawable> Make(Vortex2D::Fluid::Dimensions dimensions, float dt)
+    {
+        return std::unique_ptr<Vortex2D::Renderer::Drawable>(new ObstacleSmokeExample(dimensions, dt));
     }
 
 private:

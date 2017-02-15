@@ -67,6 +67,7 @@ public:
 
     friend class Density;
 private:
+    void Advect(Renderer::Buffer& buffer);
 
     Dimensions mDimensions;
 

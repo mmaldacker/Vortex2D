@@ -13,9 +13,6 @@
 extern glm::vec4 green;
 extern glm::vec4 gray;
 
-using Factory = std::function<std::unique_ptr<Vortex2D::Renderer::Drawable>(Vortex2D::Fluid::Dimensions dimensions, float dt)>;
-extern std::vector<Factory> examplesFactories;
-
 class SmokeExample : public Vortex2D::Renderer::Drawable
 {
 public:
@@ -29,7 +26,6 @@ public:
         source2.Position = force2.Position = {332.0f, 100.0f};
 
         force1.Colour = force2.Colour = {0.0f, 5.0f, 0.0f, 0.0f};
-
         source1.Colour = source2.Colour = gray;
 
         auto boundaries = world.DrawBoundaries();

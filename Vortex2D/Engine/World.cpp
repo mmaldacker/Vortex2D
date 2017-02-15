@@ -105,4 +105,11 @@ void World::Advect()
     mFluidLevelSet.Redistance(2);
 }
 
+void World::Advect(Renderer::Buffer& buffer)
+{
+    Renderer::Disable d(GL_BLEND);
+
+    mAdvection.Advect(buffer);
+}
+
 }}

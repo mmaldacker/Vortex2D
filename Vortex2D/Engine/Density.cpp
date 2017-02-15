@@ -14,9 +14,12 @@ namespace Vortex2D { namespace Fluid {
 Density::Density(Dimensions dimensions)
     : mDimensions(dimensions)
     , mDensity(dimensions.Size, 4, true, true)
+    , mProgram(Renderer::Shader::TexturePositionVert, Renderer::Shader::TexturePositionFrag)
 {
     mDensity.Linear();
     mDensity.Clear(glm::vec4(0.0));
+
+    mProgram.Use().Set("u_texture", 0).Unuse();
 }
 
 Density::~Density()
@@ -24,7 +27,7 @@ Density::~Density()
 
 }
 
-void Density::Render(Renderer::Drawable & object)
+void Density::Render(Renderer::Drawable& object)
 {
     Renderer::Disable d(GL_BLEND);
     mDensity.Render(object, mDimensions.InvScale);
@@ -32,15 +35,13 @@ void Density::Render(Renderer::Drawable & object)
 
 void Density::Advect(World & world)
 {
-    // FIXME
-    //engine.Advect(mDensity);
+    world.Advect(mDensity);
 }
 
-void Density::Render(Renderer::RenderTarget & target, const glm::mat4 & transform)
+void Density::Render(Renderer::RenderTarget& target, const glm::mat4& transform)
 {
     auto & densitySprite = mDensity.Sprite();
-    // FIXME
-    //densitySprite.SetProgram(Renderer::Program::TexturePositionProgram());
+    densitySprite.SetProgram(mProgram);
     densitySprite.Render(target, glm::scale(glm::vec3(mDimensions.Scale, mDimensions.Scale, 1.0))*transform);
 }
 
