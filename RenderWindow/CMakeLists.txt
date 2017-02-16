@@ -30,7 +30,7 @@ if(APPLE)
     find_library(IOKIT_FRAMEWORK IOKit)
     find_library(CORE_VIDEO_FRAMEWORK CoreVideo)
 
-    target_link_libraries(vortex2d_window ${COCOA_FRAMEWORK} ${IOKIT_FRAMEWORK} ${CORE_VIDEO_FRAMEWORK})
+    target_link_libraries(vortex2d_window PUBLIC ${COCOA_FRAMEWORK} ${IOKIT_FRAMEWORK} ${CORE_VIDEO_FRAMEWORK})
 endif()
 
 source_group(Examples REGULAR_EXPRESSION ".*(h|cpp)")
