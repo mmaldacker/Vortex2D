@@ -97,7 +97,7 @@ FragmentShader::FragmentShader(const char* source)
 {
 }
 
-thread_local GLuint Program::CurrentProgram = 0;
+GLuint Program::CurrentProgram = 0;
 
 Program::Program(const char* vertexSource, const char* fragmentSource)
     : mProgram(glCreateProgram())

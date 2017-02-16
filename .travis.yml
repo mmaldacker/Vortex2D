@@ -2,16 +2,12 @@ sudo: required
 dist: trusty
 language: cpp
 
-compiler:
-  - gcc
-
-os:
-  - linux
-  - osx
-
 matrix:
-  allow_failures:
+  include:
     - os: osx
+      compiler: clang
+    - os: linux
+      compile: gcc
 
 branches:
   only:
@@ -45,11 +41,12 @@ before_script:
   - ulimit -c unlimited -S       # enable core dumps
 
 script:
+  - cd ${TRAVIS_BUILD_DIR}
   - mkdir build
   - cd build
-  - cmake .. -DVORTEX2D_ENABLE_TESTS=ON -DVORTEX2D_ENABLE_EXAMPLES=ON -DVORTEX2D_USE_OSMESA=ON -DCMAKE_BUILD_TYPE=Coverage
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cmake .. -DVORTEX2D_ENABLE_TESTS=ON -DVORTEX2D_ENABLE_EXAMPLES=ON -DVORTEX2D_USE_OSMESA=ON -DCMAKE_BUILD_TYPE=Coverage; else cmake .. -DVORTEX2D_ENABLE_TESTS=ON -DVORTEX2D_ENABLE_EXAMPLES=ON; fi
   - make -j 4
-  - make vortex2d_tests_coverage
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make vortex2d_tests_coverage; fi
 
 # Generate and deploy documentation
 after_success:

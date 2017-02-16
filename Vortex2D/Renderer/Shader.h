@@ -165,7 +165,7 @@ private:
     GLuint mProgram;
     Uniform<glm::mat4> mMVP;
 
-    static thread_local GLuint CurrentProgram;
+    static GLuint CurrentProgram;
 };
 
 template<typename T>
