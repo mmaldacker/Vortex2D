@@ -3,8 +3,6 @@ dist: trusty
 language: cpp
 
 matrix:
-  allow_failures:
-    - os: osx
   include:
     - os: osx
       compiler: clang
