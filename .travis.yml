@@ -4,6 +4,7 @@ language: cpp
 
 compiler:
   - gcc
+  - clang
 
 os:
   - linux
@@ -12,6 +13,11 @@ os:
 matrix:
   allow_failures:
     - os: osx
+  include:
+    - os: osx
+      compiler: clang
+    - os: linux
+      compile: gcc
 
 branches:
   only:
