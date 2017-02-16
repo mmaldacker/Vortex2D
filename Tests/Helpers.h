@@ -54,7 +54,8 @@ static void PrintVelocity(const glm::vec2& size, FluidSim& sim)
     std::cout << std::endl;
 }
 
-static void DrawSquare(int width, int height, std::vector<float>& data, const glm::vec2& centre, const glm::vec2& size, float value = 1.0f)
+template<typename T>
+static void DrawSquare(int width, int height, std::vector<T>& data, const glm::vec2& centre, const glm::vec2& size, T value)
 {
     for (int i = 0; i < size.x; i++)
     {
@@ -67,7 +68,22 @@ static void DrawSquare(int width, int height, std::vector<float>& data, const gl
     }
 }
 
-static void CheckTexture(int width, int height, const std::vector<float>& data, Reader& reader)
+static void CheckData(int i, int j, float value, Reader& reader)
+{
+    EXPECT_FLOAT_EQ(value, reader.GetFloat(i, j)) << "Value not equal at " << i << ", " << j;
+
+}
+
+static void CheckData(int i, int j, const glm::vec4& value, Reader& reader)
+{
+    EXPECT_FLOAT_EQ(value.x, reader.GetVec4(i, j).x) << "Value not equal at " << i << ", " << j;
+    EXPECT_FLOAT_EQ(value.y, reader.GetVec4(i, j).y) << "Value not equal at " << i << ", " << j;
+    EXPECT_FLOAT_EQ(value.z, reader.GetVec4(i, j).z) << "Value not equal at " << i << ", " << j;
+    EXPECT_FLOAT_EQ(value.w, reader.GetVec4(i, j).w) << "Value not equal at " << i << ", " << j;
+}
+
+template<typename T>
+static void CheckTexture(int width, int height, const std::vector<T>& data, Reader& reader)
 {
     reader.Read();
 
@@ -75,19 +91,21 @@ static void CheckTexture(int width, int height, const std::vector<float>& data, 
     {
         for (int j = 0; j < height; j++)
         {
-            float value = data[i + j * width];
-            EXPECT_FLOAT_EQ(value, reader.GetFloat(i, j)) << "Value not equal at " << i << ", " << j;
+            T value = data[i + j * width];
+            CheckData(i, j, value, reader);
         }
     }
 }
 
-static void CheckTexture(int width, int height, const std::vector<float>& data, Buffer& buffer)
+template<typename T>
+static void CheckTexture(int width, int height, const std::vector<T>& data, Buffer& buffer)
 {
     Reader reader(buffer);
     CheckTexture(width, height, data, reader);
 }
 
-static void CheckTexture(int width, int height, const std::vector<float>& data, RenderTexture& texture)
+template<typename T>
+static void CheckTexture(int width, int height, const std::vector<T>& data, RenderTexture& texture)
 {
     Reader reader(texture);
     CheckTexture(width, height, data, reader);

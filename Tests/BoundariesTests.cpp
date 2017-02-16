@@ -234,7 +234,8 @@ TEST(BoundariesTests, InvertSolid)
                scaledSize.y,
                data,
                (glm::vec2)rectangle.Position * glm::vec2(2.0f),
-               glm::vec2(10.0f) * glm::vec2(2.0f));
+               glm::vec2(10.0f) * glm::vec2(2.0f),
+               1.0f);
 
     CheckSameSign(scaledSize, data, solidPhi);
 }

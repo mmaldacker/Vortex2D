@@ -28,17 +28,17 @@ public:
     /**
      * @brief Renders some colours on the density grid
      */
-    void Render(Renderer::Drawable & object);
+    void Render(Renderer::Drawable& object);
 
     /**
      * @brief Advect the colours rendered with Render using the velocity field in Engine
      */
-    void Advect(World & engine);
+    void Advect(World& engine);
 
     /**
      * @brief Renders the colours to a RenderTarget
      */
-    void Render(Renderer::RenderTarget & target, const glm::mat4 & transform) override;
+    void Render(Renderer::RenderTarget& target, const glm::mat4& transform = glm::mat4()) override;
 
 private:
     Dimensions mDimensions;

@@ -52,7 +52,7 @@ TEST(RenderingTest, WriteTexture)
     RenderTexture texture(50, 50, Texture::PixelFormat::RF);
 
     std::vector<float> data(50*50, 0.0f);
-    DrawSquare(50, 50, data, glm::vec2(10.0f, 15.0f), glm::vec2(5.0f, 8.0f));
+    DrawSquare(50, 50, data, glm::vec2(10.0f, 15.0f), glm::vec2(5.0f, 8.0f), 1.0f);
 
     Writer writer(texture);
     writer.Write(data);
@@ -136,7 +136,7 @@ TEST(RenderingTest, Square)
 
     size *= (glm::vec2)rect.Scale;
     std::vector<float> data(50*50, 0.0f);
-    DrawSquare(50, 50, data, rect.Position, size);
+    DrawSquare(50, 50, data, rect.Position, size, 1.0f);
 
     CheckTexture(50, 50, data, texture);
 }
