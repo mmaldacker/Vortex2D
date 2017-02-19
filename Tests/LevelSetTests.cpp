@@ -94,20 +94,6 @@ void CheckDifference(int size, Buffer& buffer, float (*phi)(const Vec2f&))
     }
 }
 
-void CheckLiquidPhi(Buffer& buffer, FluidSim& sim, float error = 1e-6)
-{
-    Reader reader(buffer);
-    reader.Read();
-
-    for (int i = 0; i < buffer.Width(); i++)
-    {
-        for (int j = 0; j < buffer.Height(); j++)
-        {
-            ASSERT_NEAR(sim.liquid_phi(i, j), reader.GetFloat(i, j), error);
-        }
-    }
-}
-
 TEST(LevelSetTests, SimpleCircle)
 {
     Vortex2D::Renderer::Disable e(GL_BLEND);
@@ -166,24 +152,28 @@ TEST(LevelSetTests, Extrapolate)
 
     glm::vec2 size(50);
 
-    FluidSim sim;
-    sim.initialize(1.0f, size.x, size.y);
-    sim.set_boundary(complex_boundary_phi);
-
-    AddParticles(size, sim, complex_boundary_phi);
-
-    sim.compute_phi();
-
     Buffer solidPhi(glm::vec2(2)*size, 1);
     solidPhi.ClampToEdge();
-    SetSolidPhi(solidPhi, sim);
+
+    std::vector<float> solidData(4 * size.x * size.y, 1.0);
+    DrawSquare(100, 100, solidData, glm::vec2(10.0f), glm::vec2(20.0f), -1.0f);
+    Writer(solidPhi).Write(solidData);
 
     LevelSet liquidPhi(size);
-    SetLiquidPhi(liquidPhi, sim);
 
-    sim.extrapolate_phi();
+    std::vector<float> liquidData(4 * size.x * size.y, 0.0);
+    Writer(liquidPhi).Write(liquidData);
 
     liquidPhi.Extrapolate(solidPhi);
 
-    CheckLiquidPhi(liquidPhi, sim);
+    Reader reader(liquidPhi);
+    reader.Read();
+
+    for (int i = 0; i < 9; i++)
+    {
+        EXPECT_FLOAT_EQ(-1.0f, reader.GetFloat(i + 5, 5));
+        EXPECT_FLOAT_EQ(-1.0f, reader.GetFloat(5, i + 5));
+        EXPECT_FLOAT_EQ(-1.0f, reader.GetFloat(i + 5, 10));
+        EXPECT_FLOAT_EQ(-1.0f, reader.GetFloat(10, i + 5));
+    }
 }

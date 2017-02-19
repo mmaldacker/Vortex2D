@@ -26,9 +26,11 @@ public:
 
         obstacle1.Position = {150.0f, 100.0f};
         obstacle1.Rotation = 45.0f;
+        obstacle1.Colour = green;
 
         obstacle2.Position = {350.0f, 100.0f};
         obstacle2.Rotation = 30.0f;
+        obstacle2.Colour = green;
 
         world.Colour = blue;
 

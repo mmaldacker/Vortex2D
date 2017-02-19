@@ -97,7 +97,8 @@ const char* RedistanceFrag = GLSL(
 const char* ExtrapolateFluidFrag = GLSL(
     uniform sampler2D u_fluid;
     uniform sampler2D u_obstacles;
-    uniform float dx;
+
+    const float dx = 1.0;
 
     in vec2 v_texCoord;
     out vec4 out_color;
@@ -105,8 +106,7 @@ const char* ExtrapolateFluidFrag = GLSL(
     void main(void)
     {
         float f = texture(u_fluid, v_texCoord).x;
-        // FIXME should remove the 0.5 here and below
-        if (f < 0.5 * dx)
+        if (f < dx)
         {
             float wxp = textureOffset(u_obstacles, v_texCoord, ivec2(0,0)).x;
             float wxn = textureOffset(u_obstacles, v_texCoord, ivec2(2,0)).x;
@@ -117,7 +117,7 @@ const char* ExtrapolateFluidFrag = GLSL(
 
             if (w < 0.0)
             {
-                out_color = vec4(-0.5 * dx, 0.0, 0.0, 0.0);
+                out_color = vec4(-dx, 0.0, 0.0, 0.0);
             }
             else
             {

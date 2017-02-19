@@ -51,7 +51,6 @@ public:
         density.Render(source);
 
         world.Solve();
-
         density.Advect(world);
 
         target.Render(density, transform);

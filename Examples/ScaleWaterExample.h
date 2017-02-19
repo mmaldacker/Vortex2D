@@ -24,8 +24,8 @@ public:
     {
         gravity.Colour = {0.0f, -0.5f, 0.0f, 0.0f};
 
-        obstacle.Colour = glm::vec4(1);
         obstacle.Position = {200, 50};
+        obstacle.Colour = green;
 
         world.Colour = blue;
 
