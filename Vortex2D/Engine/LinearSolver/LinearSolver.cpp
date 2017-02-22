@@ -74,6 +74,8 @@ LinearSolver::LinearSolver()
 
 void LinearSolver::RenderMask(Renderer::Buffer& destination, Data& data)
 {
+    destination.ClearStencil();
+
     Renderer::Enable e(GL_STENCIL_TEST);
     Renderer::DisableColorMask c;
 

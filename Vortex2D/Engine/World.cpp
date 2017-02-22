@@ -41,7 +41,7 @@ World::World(Dimensions dimensions, float dt)
     : mDimensions(dimensions)
     , mData(dimensions.Size)
     , mLinearSolver(dimensions.Size)
-    , mVelocity(dimensions.Size, 2, true, true)
+    , mVelocity(dimensions.Size, 2, true)
     , mBoundariesVelocity(dimensions.Size, 2)
     , mFluidLevelSet(dimensions.Size)
     , mObstacleLevelSet(glm::vec2(2.0f)*dimensions.Size)
@@ -54,8 +54,6 @@ World::World(Dimensions dimensions, float dt)
 {
     mVelocity.Clear(glm::vec4(0.0));
     mBoundariesVelocity.Clear(glm::vec4(0.0));
-    mFluidLevelSet.Clear(glm::vec4(-1.0));
-    mObstacleLevelSet.Clear(glm::vec4(-1.0));
 
     mFluidProgram.Use().Set("u_texture", 0).Unuse();
 }

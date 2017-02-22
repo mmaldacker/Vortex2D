@@ -289,3 +289,56 @@ TEST(LinearSolverTests, Complex_PCG)
 
     std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
 }
+
+TEST(LinearSolverTests, Zero_CG)
+{
+    Disable d(GL_BLEND);
+
+    glm::vec2 size(50);
+
+    LinearSolver::Data data(size);
+    data.Pressure.Clear(glm::vec4(0.0f));
+
+    LinearSolver::Parameters params(1000, 1e-5f);
+    ConjugateGradient solver(size);
+    solver.Init(data);
+    solver.NormalSolve(data, params);
+
+    Reader reader(data.Pressure);
+    reader.Read();
+
+    for (int i = 0; i < size.x; i++)
+    {
+        for (int j = 0; j < size.y; j++)
+        {
+            EXPECT_FLOAT_EQ(0.0f, reader.GetVec2(i, j).x);
+        }
+    }
+}
+
+
+TEST(LinearSolverTests, Zero_PCG)
+{
+    Disable d(GL_BLEND);
+
+    glm::vec2 size(50);
+
+    LinearSolver::Data data(size);
+    data.Pressure.Clear(glm::vec4(0.0f));
+
+    LinearSolver::Parameters params(1000, 1e-5f);
+    ConjugateGradient solver(size);
+    solver.Init(data);
+    solver.Solve(data, params);
+
+    Reader reader(data.Pressure);
+    reader.Read();
+
+    for (int i = 0; i < size.x; i++)
+    {
+        for (int j = 0; j < size.y; j++)
+        {
+            EXPECT_FLOAT_EQ(0.0f, reader.GetVec2(i, j).x);
+        }
+    }
+}

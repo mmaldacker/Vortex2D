@@ -162,6 +162,7 @@ ConjugateGradient::~ConjugateGradient()
 
 void ConjugateGradient::Init(Data& data)
 {
+    z.Clear(glm::vec4(0.0f));
     RenderMask(z, data);
 }
 
@@ -169,6 +170,12 @@ void ConjugateGradient::Solve(Data& data, Parameters& params)
 {
     // r = b
     r = residual(data.Pressure);
+
+    // if r = 0, return
+    if (GetError() == 0.0f)
+    {
+        return;
+    }
 
     // p = 0
     data.Pressure.Clear(glm::vec4(0.0f));
@@ -228,6 +235,12 @@ void ConjugateGradient::NormalSolve(Data& data, Parameters& params)
 {
     // r = b
     r = residual(data.Pressure);
+
+    // if r = 0, return
+    if (GetError() == 0.0f)
+    {
+        return;
+    }
 
     // p = 0
     data.Pressure.Clear(glm::vec4(0.0f));

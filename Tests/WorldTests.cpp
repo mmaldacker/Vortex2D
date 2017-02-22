@@ -40,7 +40,6 @@ TEST(WorldTests, Velocity)
     }
 }
 
-
 TEST(WorldTests, RenderFluid)
 {
     Dimensions dimensions(glm::vec2(30.0f), 1.0f);
@@ -88,6 +87,41 @@ TEST(WorldTests, Solve)
     world.RenderForce(rect);
 
     world.Solve();
+
+    auto& reader = world.GetVelocityReader();
+
+    for (int i = 0; i < 15.0f; i++)
+    {
+        for (int j = 0; j < 15.0f; j++)
+        {
+            EXPECT_FALSE(std::isnan(reader.GetVec2(i, j).x));
+            EXPECT_FALSE(std::isnan(reader.GetVec2(i, j).y));
+        }
+    }
+}
+
+TEST(WorldTests, Water)
+{
+    glm::vec2 size(30.0f);
+    Dimensions dimensions(size, 1.0f);
+    World world(dimensions, 0.01f);
+    world.Colour = glm::vec4(1.0f);
+
+    Rectangle area(glm::vec2(10.0f, 5.0f));
+    area.Position = glm::vec2(4.0f);
+    area.Colour = glm::vec4(1.0f);
+
+    {
+        auto boundaries = world.DrawBoundaries();
+        boundaries.DrawLiquid(area);
+    }
+
+    Rectangle force(size);
+    force.Colour = glm::vec4(0.0f, -1.0f, 0.0f, 0.0f);
+
+    world.RenderForce(force);
+    world.Solve();
+    world.Advect();
 
     auto& reader = world.GetVelocityReader();
 

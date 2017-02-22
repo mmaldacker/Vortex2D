@@ -153,8 +153,6 @@ LevelSet::LevelSet(const glm::vec2& size)
 
 void LevelSet::Redistance(int iterations)
 {
-    Renderer::Disable d(GL_BLEND);
-
     mLevelSet0 = mIdentity(*this);
 
     for (int i = 0; i < iterations; i++)

@@ -96,14 +96,14 @@ void CheckDifference(int size, Buffer& buffer, float (*phi)(const Vec2f&))
 
 TEST(LevelSetTests, SimpleCircle)
 {
-    Vortex2D::Renderer::Disable e(GL_BLEND);
+    Disable e(GL_BLEND);
 
     glm::vec2 size(20.0f);
     glm::vec2 doubleSize(glm::vec2(2.0f) * size);
 
-    Vortex2D::Fluid::LevelSet levelSet(doubleSize);
+    LevelSet levelSet(doubleSize);
 
-    Vortex2D::Renderer::Ellipse circle(glm::vec2{rad0} * doubleSize);
+    Ellipse circle(glm::vec2{rad0} * doubleSize);
     circle.Colour = glm::vec4(0.5f);
     circle.Position = glm::vec2(c0[0], c0[1]) * doubleSize;
 
@@ -116,17 +116,17 @@ TEST(LevelSetTests, SimpleCircle)
 
 TEST(LevelSetTests, ComplexCircles)
 {
-    Vortex2D::Renderer::Disable e(GL_BLEND);
+    Disable e(GL_BLEND);
 
     glm::vec2 size(50.0f);
     glm::vec2 doubleSize(glm::vec2(2.0f) * size);
 
-    Vortex2D::Fluid::LevelSet levelSet(doubleSize);
+    LevelSet levelSet(doubleSize);
 
-    Vortex2D::Renderer::Ellipse circle0(glm::vec2{rad0} * doubleSize);
-    Vortex2D::Renderer::Ellipse circle1(glm::vec2{rad1} * doubleSize);
-    Vortex2D::Renderer::Ellipse circle2(glm::vec2{rad2} * doubleSize);
-    Vortex2D::Renderer::Ellipse circle3(glm::vec2{rad3} * doubleSize);
+    Ellipse circle0(glm::vec2{rad0} * doubleSize);
+    Ellipse circle1(glm::vec2{rad1} * doubleSize);
+    Ellipse circle2(glm::vec2{rad2} * doubleSize);
+    Ellipse circle3(glm::vec2{rad3} * doubleSize);
 
     circle0.Colour = glm::vec4(1.0);
     circle1.Colour = circle2.Colour = circle3.Colour = glm::vec4(-1.0f);
