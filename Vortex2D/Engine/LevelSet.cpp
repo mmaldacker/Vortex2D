@@ -136,7 +136,7 @@ const char* ExtrapolateFluidFrag = GLSL(
 using Renderer::Back;
 
 LevelSet::LevelSet(const glm::vec2& size)
-    : Renderer::Buffer(size, 1, true, true)
+    : Renderer::Buffer(size, 1, true)
     , mLevelSet0(size, 1)
     , mRedistance(Renderer::Shader::TexturePositionVert, RedistanceFrag)
     , mIdentity(Renderer::Shader::TexturePositionVert, Renderer::Shader::TexturePositionFrag)

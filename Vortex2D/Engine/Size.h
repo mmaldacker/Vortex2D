@@ -24,14 +24,12 @@ struct Dimensions
     Dimensions(const glm::vec2 & size, const float scale)
         : Scale(scale)
         , Size(glm::floor(size/scale))
-        , RealSize(size)
         , InvScale(glm::scale(glm::vec3(1.0f/scale, 1.0f/scale, 1.0f)))
     {
     }
 
     const float Scale;
     const glm::vec2 Size;
-    const glm::vec2 RealSize;
     const glm::mat4 InvScale;
 };
 

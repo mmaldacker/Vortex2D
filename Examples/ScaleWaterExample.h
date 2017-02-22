@@ -17,9 +17,10 @@ extern glm::vec4 blue;
 class ScaleWaterExample : public Vortex2D::Renderer::Drawable
 {
 public:
-    ScaleWaterExample(Vortex2D::Fluid::Dimensions dimensions, float dt)
+    ScaleWaterExample(const glm::vec2& size, float dt)
     : gravity(glm::vec2(500))
     , obstacle(glm::vec2(100))
+    , dimensions(size, 2.0f)
     , world(dimensions, dt)
     {
         gravity.Colour = {0.0f, -0.5f, 0.0f, 0.0f};
@@ -37,7 +38,7 @@ public:
 
         boundaries.DrawLiquid(source);
 
-        Vortex2D::Renderer::Rectangle area(dimensions.RealSize - glm::vec2(2.0f));
+        Vortex2D::Renderer::Rectangle area(size - glm::vec2(2.0f));
         area.Position = glm::vec2(1.0f);
         area.Colour = glm::vec4(1.0f);
 
@@ -58,6 +59,7 @@ public:
 private:
     Vortex2D::Renderer::Rectangle gravity;
     Vortex2D::Renderer::Rectangle obstacle;
+    Vortex2D::Fluid::Dimensions dimensions;
     Vortex2D::Fluid::World world;
 
 };

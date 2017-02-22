@@ -72,7 +72,7 @@ TEST(WorldTests, Solve)
     Dimensions dimensions(glm::vec2(30.0f), 2.0f);
     World world(dimensions, 0.01f);
 
-    Rectangle area(dimensions.RealSize - glm::vec2(2.0f));
+    Rectangle area(glm::vec2(30.0f) - glm::vec2(2.0f));
     area.Position = glm::vec2(1.0f);
     area.Colour = glm::vec4(1.0f);
 
