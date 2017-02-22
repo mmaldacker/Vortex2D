@@ -47,15 +47,7 @@ This class is used to represent dye or smoke in the fluid. The object is initial
 
 ### Water
 
-This class is used to simulate water. This is more complex than the *Density* class as the interesting part of simulating water, is simulating the boundary between water and air. The velocity field is then seperated in two section: the water and air section.
-
-For simplicity, the air is simulated as having pressure 0 (i.e. dirichlet boundaries). For the simulation to be interesting, the interface air/water needs to be evolved, so that our water can splash around. We use the level set method to achieve this.
-
-A level set is a grid where each grid cell has the signed distance to the nearest water/air boundary. The distance is positive in the water and negative in the air. The *Water* class has a level set grid the size of the *Engine*, we can then mark (i.e. draw) some sections as beeing water. The class will internally maintain the level set to contain an approximate distance field.
-
-We can then evolve the level set by simply advecting it with the velocity field. Again, the class will ensure the distance field is preserved. After each advection, the engine's boundaries need to be updated, in other words we need to set a dirichlet boundaries wherever the distance is negative. The *RenderBoundaries* method is used to update the dirichlet boundaries.
-
-Finally, the level set can be rendered as water (again, it is simply a texture).
+To simulate water, it is a simple matter of moving the fluid region itself using the *Advect* function in the *World* class.
 
 ## Example
 
