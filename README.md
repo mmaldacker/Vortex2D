@@ -4,91 +4,42 @@
 
 # Vortex2D
 
-A real time fluid simulation engine based on the incompressible Navier-Stokes equation.
+A C++ real time fluid simulation engine based on the incompressible Navier-Stokes equation.
 This implementation is grid based as opposed to particle based (such as the smoothed-particle hyddrodynamics a.k.a. SPH implementations).
 All computing is done on the GPU with OpenGL using simple vertex/fragment shaders and thus requires only OpenGL 3.2+ support.
 
-## Dependencies
+## Compiling/Dependencies
 
- * OpenGL 3.2+
- * GLM
- * GLFW3
- * CMake
- * GLEW
- * C++11
+The project uses CMake to compile, the engine relies on GLM and GLAD for the Engine, GLFW3 for the examples, and GMock/GTest for the tests. Glad is included in the project and all the other dependencies are downloaded by CMake. This means getting started is a simple matter of:
+
+```
+mkdir build && cd build
+cmake .. -DENABLE_EXAMPLES=ON
+make -j 4
+```
 
 ## Introduction
 
-This engine is a work in progress and there might be changes to its API in the future. The fundamental piece of the engine is a texture which represents the velocity field of the fluid. This means we cannot simulate an inifinitely size world, but a world exactly the size of said texture. Boundaries, boundary velocities and forces can be applied to the field. The field is then evolved using the incompressible Navier-Stokes equations. Evolving this field is divided in three steps:
+This engine is a work in progress and there might be changes to its API in the future. The fundamental piece of the engine is a texture which represents the velocity field of the fluid. This means we cannot simulate an inifinite size world, but a world exactly the size of said texture. Boundaries, boundary velocities and forces can be applied to the field. The field is then evolved using the incompressible Navier-Stokes equations. Evolving this field is divided in three steps:
 * Advection: moving the velocity field (or any other field) using the velocity field with an integrator (currently Runge-Kutta 3)
 * Adding external forces: gravity, forces applied by bodies in the fluid, etc
 * Projection: calculating a pressure field, ensuring it is incompressible and applying it to the velocity to make it divergence free and ensuring boundary conditions. This done by solving a system of linear equations, using either the successive-over-relaxation iterative solver or the preconditioned conjugate gradient solver.
 
-### Code structure
-
-The code is divided in two sections: Renderer and Engine.
-
-The renderer section provides some simple wrapping around OpenGL functionality that makes coding the engine easier. This includes loading/compiling shaders, setting up textures and render textures, basic shape drawing, transformations and debugging content of textures.
-
-The engine builds on the tools provided by creating functionality to treat OpenGL as a generic computing platform. This is then used to build the linear solvers, the projection, advection and other facilities to simulate smoke or water.
-
-### General programming on the GPU
-
-Since the engine works on a grid and most of the algorithms are trivially parallelisable, using the GPU with OpenGL is quite straightforward. Floating textures are used to represent grids, computations are done with the fragment shader and rendered on another texture by drawing a rectangle that covers the whole texture. While we can't update textures in place, we can use two textures and ping pong between them to get the same effect.
-
-So an operation looks like this:
-
-```cpp
-// constructions ellided for simplicity
-Renderer::RenderTexture input, output;
-Renderer::Program program;
-Renderer::Sprite sprite;
-
-output.begin();
-program.use();
-input.bind();
-sprite.render();
-output.end();
-```
-
-There are two classes that simplify and make this clearer: *Buffer* and *Operator*. By using operator overloading, the above can be written as:
-
-```cpp
-Buffer output, input;
-Operator op;
-
-output = op(input);
-```
-
-Writting information to a Buffer is a matter of rendering a shape to the Buffer. For examples to add gravity, we can draw a rectangle covering the whole texture with the colour being the gravity force.
-
 ## Fluid engine
 
-The class *Engine* is the core of the simulation and handles the boundaries, forces, velocity field, solving the incompressible equations and advections.
+The class *World* is the core of the simulation and handles the boundaries, forces, velocity field, solving the incompressible equations and advections.
 
-In addition, there are classes to help two common cases we want to simulate:
-* *Density*: handles drawing a smoke
-* *Water*: handles drawing water
+### World
 
-### Engine
-
-This is the main class that handles the core of the simulation. It is constructed with a size, time-step and linear solver. There are currently two available linear solvers: an iterative preconditioned conjugate gradient solver and an iterative red-black successive over relaxation solver.
+This is the main class that handles the core of the simulation. It is constructed with a size and time-step.
 
 The class has methods to draw boundaries, either once at the beginning or each time the boundary changes (e.g. with a moving object). Note that the boundaries need to cleared before hand. Boundary velocities can be drawn as well (e.g. with a moving object). Then forces can be applied to the fluid (e.g. rising smoke) and the *Solve* method is called to apply one step to the simulation. This will solve the incompressible equations and do the advection.
 
-Visualisation of the fluid with either the *Density* or *Water* classes need to be updated after the *Solve* method by advecting their fluid. This is done with the *Advect* method.
+Visualisation of the fluid with either the *Density* or *World* classes need to be updated after the *Solve* method by advecting their fluid. This is done with the *Advect* method.
 
 #### Boundaries
 
-There are two types of boundaries possible which require some explanation. When solving the incompressible equations, we need to know what pressure to use at the boundaries and we support two types:
-
- * Dirichlet
-
-Dirichlet boundaries simply set the pressure at boundaries to 0. This means that any movement towards a dirichlet boundary will be unchanged. This is useful for simulating water/air interaction or to simulate a continuation of the fluid without showing it (e.g. smoke disapearing from the side of the screen).
-
- * Neumann
-
-Neumann boundaries set the pressure to be the negative of the fluid pressure. This represents solid objects and the fluid will respond by moving away from it. It is used for solid objects immersed in the fluid.
+There are two main functions to define boundaries: *DrawLiquid* and *DrawSolid*. The default type of boundary for the simulation is known as *Dirichlet boundaries*. This defines a boundary of pressure 0, in other words nothing happens to the fluid when moving against it. So *DrawLiquid* defines the area where liquid simulation happens. *DrawSolid* then defines the solid boundaries, i.e. where the fluid get deflected.
 
 ### Density
 
@@ -112,8 +63,7 @@ A simple example for a smoke simulation:
 
 ```cpp
 Dimensions dimensions(glm::vec2(500), 1.0);
-ConjugateGradient solver(dimensions.Size);
-Engine engine(dimensions, &solver, 0.033);
+World world(dimensions, 0.033);
 Density density(dimensions);
 
 Rectangle source(20.0)
@@ -130,35 +80,24 @@ obstacle.Position = {200.0, 200.0};
 obstacle.Rotation = 45.0;
 obstacle.Colour = glm::vec4(1.0);
 
+auto boundaries = world.DrawBoundaries();
+boundaries.DrawSolid(obstacle);
+
 void Update(Renderer::RenderTarget & target)
 {
-    engine.RenderDirichlet(engine.TopBoundary);
-    engine.RenderDirichlet(engine.BottomBoundary);
-    engine.RenderDirichlet(engine.LeftBoundary);
-    engine.RenderDirichlet(engine.RightBoundary);
-
-    engine.RenderNeumann(obstacle);
-
     engine.RenderForce(force);
 
     density.Render(source);
 
-    engine.Solve();
-    density.Advect(engine);
-
-	target.Render(density);
+    world.Solve();
+    density.Advect(world);
+    target.Render(density);
 }
 ```
-
 ## Documentation
 
-Doxygen generated documentation can be found [here](http://mmaldacker.github.io/Vortex2D/).
+Doxygen generated documentation can be found [here](http://mmaldacker.github.io/Vortex2D/html). Those are automatically generated after each commit.
 
 ## Demo
 
 [![Demo](http://img.youtube.com/vi/c8Idjf03bI8/0.jpg)](http://www.youtube.com/watch?v=c8Idjf03bI8)
-
-## Todo
-
-* The velocity field is extrapolated in the boundaries so the level set can be properly advectated. However for Neumann boundaries, only the normal velocity on the surface should be set.
-* Neumann boundaries can move the flui, it'd be interesting to have this work the other way around, e.g. objects moved by water
