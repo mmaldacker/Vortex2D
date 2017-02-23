@@ -95,7 +95,7 @@ void SuccessiveOverRelaxation::Solve(Data& data, Parameters& params)
     // FIXME implement solving within error tolerance
     assert(params.Iterations > 0);
 
-    for (unsigned i  = 0; !params.IsFinished(i); ++i)
+    for (unsigned i  = 0; !params.IsFinished(i, 0.0f); ++i)
     {
         Step(data, true);
         Step(data, false);

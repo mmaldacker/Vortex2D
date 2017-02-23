@@ -46,7 +46,7 @@ struct LinearSolver
     {
         Parameters(unsigned iterations, float errorTolerance = 0.0f);
 
-        bool IsFinished(unsigned iterations, float error = 0.0f) const;
+        bool IsFinished(unsigned iterations, float error) const;
 
         unsigned Iterations;
 

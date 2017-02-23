@@ -6,6 +6,8 @@
 #ifndef Vertex2D_ConjugateGradient_h
 #define Vertex2D_ConjugateGradient_h
 
+#include <Vortex2D/Renderer/Reader.h>
+
 #include <Vortex2D/Engine/LinearSolver/LinearSolver.h>
 #include <Vortex2D/Engine/LinearSolver/Reduce.h>
 
@@ -35,13 +37,13 @@ public:
 
 private:
     void ApplyPreconditioner(Data& data);
-    float GetError();
     void InnerProduct(Renderer::Buffer& output, Renderer::Buffer& intput1, Renderer::Buffer& input2);
 
     Renderer::Buffer r, s, z, alpha, beta, rho, rho_new, sigma, reduce, error;
     Renderer::Operator matrixMultiply, scalarDivision, scalarMultiply, multiplyAdd, multiplySub, residual, identity;
     ReduceSum reduceSum;
     ReduceMax reduceMax;
+    Renderer::Reader errorReader;
 };
 
 }}

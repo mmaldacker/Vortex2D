@@ -6,7 +6,6 @@
 #include "ConjugateGradient.h"
 
 #include <Vortex2D/Renderer/Disable.h>
-#include <Vortex2D/Renderer/Reader.h>
 
 namespace Vortex2D { namespace Fluid {
 
@@ -146,6 +145,7 @@ ConjugateGradient::ConjugateGradient(const glm::vec2& size)
     , identity(Renderer::Shader::TexturePositionVert, Renderer::Shader::TexturePositionFrag)
     , reduceSum(size)
     , reduceMax(size)
+    , errorReader(error)
 {
     residual.Use().Set("u_texture", 0).Unuse();
     identity.Use().Set("u_texture", 0).Unuse();
@@ -172,7 +172,9 @@ void ConjugateGradient::Solve(Data& data, Parameters& params)
     r = residual(data.Pressure);
 
     // if r = 0, return
-    if (GetError() == 0.0f)
+    error = reduceMax(r);
+    // FIXME can use this value to improve tolerance checking as in pcg_solver.h
+    if (errorReader.Read().GetFloat(0, 0) == 0.0f)
     {
         return;
     }
@@ -206,12 +208,18 @@ void ConjugateGradient::Solve(Data& data, Parameters& params)
         r.Swap();
         r = multiplySub(Back(r), z, alpha);
 
+        // calculate max error
+        error = reduceMax(r);
+
         // exit condition
         params.OutIterations = i;
-        if (params.IsFinished(i, GetError()))
+        if (params.IsFinished(i, errorReader.GetFloat(0, 0)))
         {
             return;
         }
+
+        // async copy of error to client
+        errorReader.Read();
 
         // z = M^-1 r
         ApplyPreconditioner(data);
@@ -237,7 +245,8 @@ void ConjugateGradient::NormalSolve(Data& data, Parameters& params)
     r = residual(data.Pressure);
 
     // if r = 0, return
-    if (GetError() == 0.0f)
+    error = reduceMax(r);
+    if (errorReader.Read().GetFloat(0, 0) == 0.0f)
     {
         return;
     }
@@ -268,9 +277,13 @@ void ConjugateGradient::NormalSolve(Data& data, Parameters& params)
         r.Swap();
         r = multiplySub(Back(r), z, alpha);
 
+        // calculate max error
+        error = reduceMax(r);
+        errorReader.Read();
+
         // exit condition
         params.OutIterations = i;
-        if (params.IsFinished(i, GetError()))
+        if (params.IsFinished(i, errorReader.GetFloat(0, 0)))
         {
             return;
         }
@@ -304,13 +317,5 @@ void ConjugateGradient::InnerProduct(Renderer::Buffer& output, Renderer::Buffer&
     reduce = scalarMultiply(input1, input2);
     output = reduceSum(reduce);
 }
-
-float ConjugateGradient::GetError()
-{
-    // FIXME don't compute if we don't want to terminate based on error tolerance
-    error = reduceMax(r);
-    return Renderer::Reader(error).Read().GetFloat(0, 0);
-}
-
 
 }}
