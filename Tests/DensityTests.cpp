@@ -31,5 +31,5 @@ TEST(DensityTests, Render)
     std::vector<glm::vec4> data(30*30, glm::vec4(0.0f));
     DrawSquare(30, 30, data, area.Position, size, glm::vec4(1.0f));
 
-    CheckTexture(30, 30, data, texture);
+    CheckTexture(data, texture);
 }
