@@ -47,11 +47,11 @@ public:
     void Bind(int n = 0) const;
     static void Unbind();
 
-    void SetAliasTexParameters();
-    void SetAntiAliasTexParameters();
+    void Nearest();
+    void Linear();
 
-    void SetClampToEdgeTexParameters();
-    void SetClampToBorderTexParameters();
+    void ClampToEdge();
+    void ClampToBorder();
 
     friend class Writer;
 protected:

@@ -83,7 +83,7 @@ TEST(ShaderTests, SingleShader)
     buffer = op();
 
     std::vector<float> data(50*50, 1.2f);
-    CheckTexture(50, 50, data, buffer);
+    CheckTexture(data, buffer);
 }
 
 TEST(ShaderTests, MultipleShaders)
@@ -97,7 +97,7 @@ TEST(ShaderTests, MultipleShaders)
     buffer = op();
 
     std::vector<float> data(50*50, 1.2f);
-    CheckTexture(50, 50, data, buffer);
+    CheckTexture(data, buffer);
 }
 
 TEST(ShaderTests, OperatorBind)
@@ -114,7 +114,7 @@ TEST(ShaderTests, OperatorBind)
     Buffer buffer(glm::vec2(50, 50), 1);
     buffer = op(texture);
 
-    CheckTexture(50, 50, data, buffer);
+    CheckTexture(data, buffer);
 }
 
 TEST(ShaderTests, OperatorBack)

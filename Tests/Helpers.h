@@ -83,45 +83,44 @@ static void CheckData(int i, int j, const glm::vec4& value, Reader& reader)
 }
 
 template<typename T>
-static void CheckTexture(int width, int height, const std::vector<T>& data, Reader& reader)
+static void CheckTexture(const std::vector<T>& data, Reader& reader)
 {
     reader.Read();
 
-    for (int i = 0; i < width; i++)
+    for (int i = 0; i < reader.Width(); i++)
     {
-        for (int j = 0; j < height; j++)
+        for (int j = 0; j < reader.Height(); j++)
         {
-            T value = data[i + j * width];
+            T value = data[i + j * reader.Width()];
             CheckData(i, j, value, reader);
         }
     }
 }
 
 template<typename T>
-static void CheckTexture(int width, int height, const std::vector<T>& data, Buffer& buffer)
+static void CheckTexture(const std::vector<T>& data, Buffer& buffer)
 {
     Reader reader(buffer);
-    CheckTexture(width, height, data, reader);
+    CheckTexture(data, reader);
 }
 
 template<typename T>
-static void CheckTexture(int width, int height, const std::vector<T>& data, RenderTexture& texture)
+static void CheckTexture(const std::vector<T>& data, RenderTexture& texture)
 {
     Reader reader(texture);
-    CheckTexture(width, height, data, reader);
+    CheckTexture(data, reader);
 }
 
-static void CheckVelocity(const glm::vec2& size, Buffer& buffer, FluidSim& sim, float error = 1e-6)
+static void CheckVelocity(Buffer& buffer, FluidSim& sim, float error = 1e-6)
 {
     Reader reader(buffer);
     reader.Read();
 
     // FIXME need to check the entire velocity buffer
-    for (std::size_t i = 1; i < size.x - 1; i++)
+    for (std::size_t i = 1; i < buffer.Width() - 1; i++)
     {
-        for (std::size_t j = 1; j < size.y - 1; j++)
+        for (std::size_t j = 1; j < buffer.Height() - 1; j++)
         {
-            std::size_t index = i + size.x * j;
             ASSERT_NEAR(sim.u(i, j), reader.GetVec2(i, j).x, error) << "Mismatch at " << i << "," << j;
             ASSERT_NEAR(sim.v(i, j), reader.GetVec2(i, j).y, error) << "Mismatch at " << i << "," << j;
         }

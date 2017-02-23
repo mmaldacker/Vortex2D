@@ -133,4 +133,14 @@ float Reader::Get(int x, int y, int size, int offset) const
     return mPixels[(x + y * width) * size + offset];
 }
 
+int Reader::Width() const
+{
+    return mTexture.Width();
+}
+
+int Reader::Height() const
+{
+    return mTexture.Height();
+}
+
 }}

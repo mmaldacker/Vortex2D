@@ -228,7 +228,7 @@ TEST(PressureTest, Project_Simple)
     LinearSolver::Parameters params(0);
     pressure.Solve(params);
 
-    CheckVelocity(size, velocity, sim);
+    CheckVelocity(velocity, sim);
 }
 
 TEST(PressureTest, Project_Complex)
@@ -281,5 +281,5 @@ TEST(PressureTest, Project_Complex)
     LinearSolver::Parameters params(0);
     pressure.Solve(params);
 
-    CheckVelocity(size, velocity, sim);
+    CheckVelocity(velocity, sim);
 }

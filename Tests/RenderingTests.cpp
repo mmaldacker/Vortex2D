@@ -42,7 +42,7 @@ TEST(RenderingTest, RenderTexture)
     std::vector<float> data(50*50, 3.5f);
     texture.Clear(glm::vec4(3.5f));
 
-    CheckTexture(50, 50, data, texture);
+    CheckTexture(data, texture);
 }
 
 TEST(RenderingTest, WriteTexture)
@@ -57,7 +57,7 @@ TEST(RenderingTest, WriteTexture)
     Writer writer(texture);
     writer.Write(data);
 
-    CheckTexture(50, 50, data, texture);
+    CheckTexture(data, texture);
 }
 
 TEST(RenderingTest, WriteVector2)
@@ -138,7 +138,7 @@ TEST(RenderingTest, Square)
     std::vector<float> data(50*50, 0.0f);
     DrawSquare(50, 50, data, rect.Position, size, 1.0f);
 
-    CheckTexture(50, 50, data, texture);
+    CheckTexture(data, texture);
 }
 
 TEST(RenderingTest, Circle)
@@ -157,7 +157,7 @@ TEST(RenderingTest, Circle)
     std::vector<float> data(50*50, 0.0f);
     DrawCircle(50, 50, data, ellipse.Position, 5.0f);
 
-    CheckTexture(50, 50, data, texture);
+    CheckTexture(data, texture);
 }
 
 TEST(RenderingTest, Ellipse)
@@ -178,7 +178,7 @@ TEST(RenderingTest, Ellipse)
     std::vector<float> data(50*50, 0.0f);
     DrawEllipse(50, 50, data, ellipse.Position, radius);
 
-    CheckTexture(50, 50, data, texture);
+    CheckTexture(data, texture);
 }
 
 TEST(RenderingTest, ScaledEllipse)
@@ -202,7 +202,7 @@ TEST(RenderingTest, ScaledEllipse)
     std::vector<float> data(50*50, 0.0f);
     DrawEllipse(50, 50, data, ellipse.Position, radius);
 
-    CheckTexture(50, 50, data, texture);
+    CheckTexture(data, texture);
 }
 
 TEST(RenderingTest, RotatedEllipse)
@@ -224,7 +224,7 @@ TEST(RenderingTest, RotatedEllipse)
     std::vector<float> data(50*50, 0.0f);
     DrawEllipse(50, 50, data, ellipse.Position, radius, ellipse.Rotation);
 
-    CheckTexture(50, 50, data, texture);
+    CheckTexture(data, texture);
 }
 
 TEST(RenderingTest, RenderScaledEllipse)
@@ -248,5 +248,5 @@ TEST(RenderingTest, RenderScaledEllipse)
     std::vector<float> data(50*50, 0.0f);
     DrawEllipse(50, 50, data, pos, radius);
 
-    CheckTexture(50, 50, data, texture);
+    CheckTexture(data, texture);
 }

@@ -33,12 +33,12 @@ void Buffer::ClearStencil()
 
 void Buffer::Linear()
 {
-    for (auto&& t : mTextures) t.SetAntiAliasTexParameters();
+    for (auto&& t : mTextures) t.Linear();
 }
 
 void Buffer::ClampToEdge()
 {
-    for (auto&& t : mTextures) t.SetClampToEdgeTexParameters();
+    for (auto&& t : mTextures) t.ClampToEdge();
 }
 
 void Buffer::Clear(const glm::vec4& colour)
@@ -86,8 +86,8 @@ void Buffer::Add(const glm::vec2& size, unsigned components, bool depth)
                                              Renderer::Texture::PixelFormat::RGBAF,
                            depth ? Renderer::RenderTexture::DepthFormat::DEPTH24_STENCIL8 :
                                    Renderer::RenderTexture::DepthFormat::NONE);
-    mTextures.back().SetAliasTexParameters();
-    mTextures.back().SetClampToBorderTexParameters();
+    mTextures.back().Nearest();
+    mTextures.back().ClampToBorder();
 }
 
 }}

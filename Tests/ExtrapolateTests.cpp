@@ -46,7 +46,7 @@ TEST(ExtrapolateTest, Extrapolate)
     Extrapolation extrapolation(size, velocity, solidPhi);
     extrapolation.Extrapolate();
 
-    CheckVelocity(size, velocity, sim);
+    CheckVelocity(velocity, sim);
 }
 
 TEST(ExtrapolateTest, Constrain)

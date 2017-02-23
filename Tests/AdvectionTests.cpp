@@ -34,7 +34,7 @@ TEST(AdvectionTests, AdvectVelocity_Simple)
     advection.Advect();
 
     // using low error tolerance due to different accuracy algorithms used
-    CheckVelocity(size, velocity, sim, 1e-3);
+    CheckVelocity(velocity, sim, 1e-3);
 }
 
 TEST(AdvectionTests, AdvectVelocity_Complex)
@@ -59,5 +59,5 @@ TEST(AdvectionTests, AdvectVelocity_Complex)
     advection.Advect();
 
     // using low error tolerance due to different accuracy algorithms used
-    CheckVelocity(size, velocity, sim, 1e-3);
+    CheckVelocity(velocity, sim, 1e-3);
 }

@@ -69,6 +69,9 @@ public:
      */
     uint8_t GetStencil(int x, int y) const;
 
+    int Width() const;
+    int Height() const;
+
 private:
     float Get(int x, int y, int size, int offset) const;
 

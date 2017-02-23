@@ -77,7 +77,7 @@ Texture& Texture::operator=(Texture&& other)
     return *this;
 }
 
-void Texture::SetAliasTexParameters()
+void Texture::Nearest()
 {
     Bind();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -85,7 +85,7 @@ void Texture::SetAliasTexParameters()
     Unbind();
 }
 
-void Texture::SetAntiAliasTexParameters()
+void Texture::Linear()
 {
     Bind();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -93,7 +93,7 @@ void Texture::SetAntiAliasTexParameters()
     Unbind();
 }
 
-void Texture::SetClampToEdgeTexParameters()
+void Texture::ClampToEdge()
 {
     Bind();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -101,7 +101,7 @@ void Texture::SetClampToEdgeTexParameters()
     Unbind();
 }
 
-void Texture::SetClampToBorderTexParameters()
+void Texture::ClampToBorder()
 {
     Bind();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
