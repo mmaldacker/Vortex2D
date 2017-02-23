@@ -155,7 +155,7 @@ Program & Program::AttachShader(const Shader& shader)
 
 Program & Program::AttachFeedback(const std::vector<const GLchar*> & varyings)
 {
-    glTransformFeedbackVaryings(mProgram, varyings.size(), varyings.data(), GL_INTERLEAVED_ATTRIBS);
+    glTransformFeedbackVaryings(mProgram, (GLsizei)varyings.size(), varyings.data(), GL_INTERLEAVED_ATTRIBS);
     return *this;
 }
 

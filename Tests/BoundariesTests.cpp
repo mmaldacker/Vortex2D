@@ -239,3 +239,33 @@ TEST(BoundariesTests, InvertSolid)
 
     CheckSameSign(scaledSize, data, solidPhi);
 }
+
+TEST(BoundariesTests, Scaled)
+{
+    Disable d(GL_BLEND);
+
+    glm::vec2 size(20);
+    glm::vec2 scaledSize = size * glm::vec2(2.0f);
+    Dimensions dimensions(scaledSize, 2.0f);
+
+    LevelSet liquidPhi(size), solidPhi(scaledSize);
+
+    Rectangle rectangle(glm::vec2(10.0f));
+    rectangle.Position = glm::vec2(5.0f);
+    rectangle.Colour = glm::vec4(0.4f, 0.1f, 0.3f, 0.8f);
+
+    {
+        Boundaries boundaries(dimensions, liquidPhi, solidPhi);
+        boundaries.DrawSolid(rectangle);
+    }
+
+    std::vector<float> data(scaledSize.x * scaledSize.y, 1.0f);
+    DrawSquare(scaledSize.x,
+               scaledSize.y,
+               data,
+               (glm::vec2)rectangle.Position,
+               glm::vec2(10.0f),
+               -1.0f);
+
+    CheckSameSign(scaledSize, data, solidPhi);
+}

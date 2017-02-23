@@ -18,7 +18,7 @@ class ScaleWaterExample : public Vortex2D::Renderer::Drawable
 {
 public:
     ScaleWaterExample(const glm::vec2& size, float dt)
-    : gravity(glm::vec2(500))
+    : gravity(size)
     , obstacle(glm::vec2(100))
     , dimensions(size, 2.0f)
     , world(dimensions, dt)
@@ -43,6 +43,7 @@ public:
         area.Colour = glm::vec4(1.0f);
 
         boundaries.DrawSolid(area, true);
+        boundaries.DrawSolid(obstacle);
     }
 
     void Render(Vortex2D::Renderer::RenderTarget & target, const glm::mat4 & transform = glm::mat4()) override
