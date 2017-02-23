@@ -38,8 +38,9 @@ public:
 
         boundaries.DrawLiquid(source);
 
-        Vortex2D::Renderer::Rectangle area(size - glm::vec2(2.0f));
-        area.Position = glm::vec2(1.0f);
+        // border needs a thickness of scale factor (2.0)
+        Vortex2D::Renderer::Rectangle area(size - glm::vec2(4.0f));
+        area.Position = glm::vec2(2.0f);
         area.Colour = glm::vec4(1.0f);
 
         boundaries.DrawSolid(area, true);
