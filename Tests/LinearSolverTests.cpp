@@ -14,6 +14,7 @@
 #include <Vortex2D/Engine/LinearSolver/SuccessiveOverRelaxation.h>
 
 #include <algorithm>
+#include <chrono>
 
 using namespace Vortex2D::Renderer;
 using namespace Vortex2D::Fluid;
@@ -78,7 +79,7 @@ TEST(LinearSolverTests, RenderMask)
     solver.RenderMask(buffer, data);
 
     Reader reader(buffer);
-    reader.Read();
+    reader.ReadStencil();
 
     for (std::size_t i = 0; i < size.x; i++)
     {
@@ -341,4 +342,38 @@ TEST(LinearSolverTests, Zero_PCG)
             EXPECT_FLOAT_EQ(0.0f, reader.GetVec2(i, j).x);
         }
     }
+}
+
+TEST(LinearSolverTests, PerformanceMeasurements)
+{
+    Disable d(GL_BLEND);
+
+    glm::vec2 size(100);
+
+    FluidSim sim;
+    sim.initialize(1.0f, size.x, size.y);
+    sim.set_boundary(complex_boundary_phi);
+
+    AddParticles(size, sim, complex_boundary_phi);
+
+    sim.add_force(0.01f);
+    sim.project(0.01f);
+
+    LinearSolver::Data data(size);
+    BuildLinearEquation(size, data, sim);
+
+    LinearSolver::Parameters params(1000, 1e-5f);
+    ConjugateGradient solver(size);
+
+    solver.Init(data);
+
+    auto start = std::chrono::system_clock::now();
+
+    solver.Solve(data, params);
+
+    auto end = std::chrono::system_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+
+    std::cout << "Solved in time: " << elapsed.count() << std::endl;
+    std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
 }

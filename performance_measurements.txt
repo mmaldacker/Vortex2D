@@ -1,0 +1,44 @@
+# Original code:
+
+Solved in time: 281
+Solved with number of iterations: 210
+
+# Changing glReadPixels with PixelBufferObject
+
+Solved in time: 318
+Solved with number of iterations: 210
+
+# Delay between reading and mapping error:
+
+Solved in time: 310
+Solved with number of iterations: 210
+
+# More delay
+
+Solved in time: 265
+Solved with number of iterations: 210
+
+# More delay
+
+Solved in time: 251
+Solved with number of iterations: 210
+
+# More delay
+
+Solved in time: 248
+Solved with number of iterations: 210
+
+# Even more delay
+
+Solved in time: 236
+Solved with number of iterations: 210
+
+# Maximum delay possible
+
+Solved in time: 227
+Solved with number of iterations: 211
+
+# Without doing read
+
+Solved in time: 225
+Solved with number of iterations: 212
