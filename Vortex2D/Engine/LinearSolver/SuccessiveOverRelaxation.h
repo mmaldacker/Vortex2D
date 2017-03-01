@@ -19,6 +19,13 @@ public:
     SuccessiveOverRelaxation(const glm::vec2& size);
     SuccessiveOverRelaxation(const glm::vec2& size, float w);
 
+
+    void Build(Data& data,
+               Renderer::Operator& diagonals,
+               Renderer::Operator& weights,
+               Renderer::Buffer& solidPhi,
+               Renderer::Buffer& liquidPhi) override;
+
     /**
      * @brief Sets up the stencil mask to enable red-black solving
      */

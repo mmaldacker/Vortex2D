@@ -14,6 +14,7 @@ using namespace Vortex2D::Fluid;
 using ::testing::NiceMock;
 using ::testing::InvokeWithoutArgs;
 using ::testing::_;
+using ::testing::Invoke;
 
 void PrintWeights(const glm::vec2& size, FluidSim& sim)
 {
@@ -54,7 +55,7 @@ void CheckDiagonal(const glm::vec2& size, Buffer& buffer, FluidSim& sim, float e
         for (std::size_t j = 1; j < size.y - 1; j++)
         {
             std::size_t index = i + size.x * j;
-            ASSERT_NEAR(sim.matrix(index, index), reader.GetFloat(i, j), error);
+            EXPECT_NEAR(sim.matrix(index, index), reader.GetFloat(i, j), error);
         }
     }
 }
@@ -69,10 +70,10 @@ void CheckWeights(const glm::vec2& size, Buffer& buffer, FluidSim& sim, float er
         for (std::size_t j = 1; j < size.y - 1; j++)
         {
             std::size_t index = i + size.x * j;
-            ASSERT_NEAR(sim.matrix(index + 1, index), reader.GetVec4(i, j).x, error);
-            ASSERT_NEAR(sim.matrix(index - 1, index), reader.GetVec4(i, j).y, error);
-            ASSERT_NEAR(sim.matrix(index, index + size.x), reader.GetVec4(i, j).z, error);
-            ASSERT_NEAR(sim.matrix(index, index - size.x), reader.GetVec4(i, j).w, error);
+            EXPECT_NEAR(sim.matrix(index + 1, index), reader.GetVec4(i, j).x, error);
+            EXPECT_NEAR(sim.matrix(index - 1, index), reader.GetVec4(i, j).y, error);
+            EXPECT_NEAR(sim.matrix(index, index + size.x), reader.GetVec4(i, j).z, error);
+            EXPECT_NEAR(sim.matrix(index, index - size.x), reader.GetVec4(i, j).w, error);
         }
     }
 }
@@ -87,7 +88,7 @@ void CheckDiv(const glm::vec2& size, Buffer& buffer, FluidSim& sim, float error 
         for (std::size_t j = 1; j < size.y - 1; j++)
         {
             std::size_t index = i + size.x * j;
-            ASSERT_NEAR(sim.rhs[index], reader.GetVec2(i, j).y, error);
+            EXPECT_NEAR(sim.rhs[index], reader.GetVec2(i, j).y, error);
         }
     }
 }
@@ -109,17 +110,25 @@ TEST(PressureTest, LinearEquationSetup_Simple)
     LinearSolver::Data data(size);
     NiceMock<MockLinearSolver> solver;
 
+    EXPECT_CALL(solver, Build(_, _, _, _, _)).WillOnce(Invoke([](LinearSolver::Data& data,
+                                                                 Operator& diagonals,
+                                                                 Operator& weights,
+                                                                 Buffer& solidPhi,
+                                                                 Buffer& liquidPhi)
+    {
+       data.Weights = weights(solidPhi, liquidPhi);
+       data.Diagonal = diagonals(solidPhi, liquidPhi);
+    }));
+
     Buffer velocity(size, 2, true);
     SetVelocity(velocity, sim);
 
     sim.project(0.01f);
 
     Buffer solidPhi(glm::vec2(2)*size, 1);
-    solidPhi.ClampToEdge();
     SetSolidPhi(solidPhi, sim);
 
     Buffer liquidPhi(size, 1);
-    liquidPhi.ClampToEdge();
     SetLiquidPhi(liquidPhi, sim);
 
     Buffer solidVelocity(size, 2);
@@ -129,6 +138,8 @@ TEST(PressureTest, LinearEquationSetup_Simple)
 
     LinearSolver::Parameters params(0);
     pressure.Solve(params);
+
+    Reader(data.Weights).Read().Print();
 
     CheckWeights(size, data.Weights, sim, 1e-3); // FIXME can we reduce error tolerance?
     CheckDiv(size, data.Pressure, sim);
@@ -152,17 +163,25 @@ TEST(PressureTest, LinearEquationSetup_Complex)
     LinearSolver::Data data(size);
     NiceMock<MockLinearSolver> solver;
 
+    EXPECT_CALL(solver, Build(_, _, _, _, _)).WillOnce(Invoke([](LinearSolver::Data& data,
+                                                                 Operator& diagonals,
+                                                                 Operator& weights,
+                                                                 Buffer& solidPhi,
+                                                                 Buffer& liquidPhi)
+    {
+       data.Weights = weights(solidPhi, liquidPhi);
+       data.Diagonal = diagonals(solidPhi, liquidPhi);
+    }));
+
     Buffer velocity(size, 2, true);
     SetVelocity(velocity, sim);
 
     sim.project(0.01f);
 
     Buffer solidPhi(glm::vec2(2)*size, 1);
-    solidPhi.ClampToEdge();
     SetSolidPhi(solidPhi, sim);
 
     Buffer liquidPhi(size, 1);
-    liquidPhi.ClampToEdge();
     SetLiquidPhi(liquidPhi, sim);
 
     Buffer solidVelocity(size, 2);
@@ -201,11 +220,9 @@ TEST(PressureTest, Project_Simple)
     sim.project(0.01f);
 
     Buffer solidPhi(glm::vec2(2)*size, 1);
-    solidPhi.ClampToEdge();
     SetSolidPhi(solidPhi, sim);
 
     Buffer liquidPhi(size, 1);
-    liquidPhi.ClampToEdge();
     SetLiquidPhi(liquidPhi, sim);
 
     Buffer solidVelocity(size, 2);
@@ -213,6 +230,7 @@ TEST(PressureTest, Project_Simple)
 
     Pressure pressure(0.01f, size, solver, data, velocity, solidPhi, liquidPhi, solidVelocity);
 
+    EXPECT_CALL(solver, Build(_, _, _, _, _));
     EXPECT_CALL(solver, Init(_));
     EXPECT_CALL(solver, Solve(_, _)).WillOnce(InvokeWithoutArgs([&]
     {
@@ -254,11 +272,9 @@ TEST(PressureTest, Project_Complex)
     sim.project(0.01f);
 
     Buffer solidPhi(glm::vec2(2)*size, 1);
-    solidPhi.ClampToEdge();
     SetSolidPhi(solidPhi, sim);
 
     Buffer liquidPhi(size, 1);
-    liquidPhi.ClampToEdge();
     SetLiquidPhi(liquidPhi, sim);
 
     Buffer solidVelocity(size, 2);
@@ -266,6 +282,7 @@ TEST(PressureTest, Project_Complex)
 
     Pressure pressure(0.01f, size, solver, data, velocity, solidPhi, liquidPhi, solidVelocity);
 
+    EXPECT_CALL(solver, Build(_, _, _, _, _));
     EXPECT_CALL(solver, Init(_));
     EXPECT_CALL(solver, Solve(_, _)).WillOnce(InvokeWithoutArgs([&]
     {

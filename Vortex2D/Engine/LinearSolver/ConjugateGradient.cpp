@@ -163,6 +163,16 @@ ConjugateGradient::~ConjugateGradient()
 {
 }
 
+void ConjugateGradient::Build(Data& data,
+                              Renderer::Operator& diagonals,
+                              Renderer::Operator& weights,
+                              Renderer::Buffer& solidPhi,
+                              Renderer::Buffer& liquidPhi)
+{
+    data.Weights = weights(solidPhi, liquidPhi);
+    data.Diagonal = diagonals(solidPhi, liquidPhi);
+}
+
 void ConjugateGradient::Init(Data& data)
 {
     z.Clear(glm::vec4(0.0f));

@@ -142,10 +142,8 @@ LevelSet::LevelSet(const glm::vec2& size)
     , mIdentity(Renderer::Shader::TexturePositionVert, Renderer::Shader::TexturePositionFrag)
     , mExtrapolate(Renderer::Shader::TexturePositionVert, ExtrapolateFluidFrag)
 {
-    ClampToEdge();
     Linear();
 
-    mLevelSet0.ClampToEdge();
     mRedistance.Use().Set("delta", 0.1f).Set("u_levelSet", 0).Set("u_levelSet0", 1).Unuse();
     mIdentity.Use().Set("u_texture", 0).Unuse();
     mExtrapolate.Use().Set("u_fluid", 0).Set("u_obstacles", 1).Set("dx", 1.0f / size.x).Unuse();

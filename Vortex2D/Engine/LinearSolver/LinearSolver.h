@@ -59,6 +59,12 @@ struct LinearSolver
 
     virtual ~LinearSolver() {}
 
+    virtual void Build(Data& data,
+                       Renderer::Operator& diagonals,
+                       Renderer::Operator& weights,
+                       Renderer::Buffer& solidPhi,
+                       Renderer::Buffer& liquidPhi) = 0;
+
     /**
      * @brief Any initialisation steps to be done before solving the linear equations
      */

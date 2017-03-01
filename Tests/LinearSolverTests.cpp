@@ -134,7 +134,7 @@ void CheckPressure(const glm::vec2& size, const std::vector<double>& pressure, L
         {
             std::size_t index = i + j * size.x;
             float value = pressure[index];
-            ASSERT_NEAR(value, reader.GetVec2(i, j).x, error) << "Mismatch at " << i << ", " << j << "\n";
+            EXPECT_NEAR(value, reader.GetVec2(i, j).x, error) << "Mismatch at " << i << ", " << j << "\n";
         }
     }
 }
