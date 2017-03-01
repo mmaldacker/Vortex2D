@@ -154,6 +154,9 @@ ConjugateGradient::ConjugateGradient(const glm::vec2& size)
     scalarMultiply.Use().Set("u_x", 0).Set("u_y", 1).Unuse();
     multiplyAdd.Use().Set("u_x", 0).Set("u_y", 1).Set("u_scalar", 2).Unuse();
     multiplySub.Use().Set("u_x", 0).Set("u_y", 1).Set("u_scalar", 2).Unuse();
+
+    reduce.ClampToBorder();
+    error.ClampToBorder();
 }
 
 ConjugateGradient::~ConjugateGradient()

@@ -51,6 +51,8 @@ public:
      */
     void ClampToEdge();
 
+    void ClampToBorder();
+
     /**
      * @brief Clears the Buffer
      */

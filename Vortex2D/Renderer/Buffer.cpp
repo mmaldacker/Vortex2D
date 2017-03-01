@@ -41,6 +41,11 @@ void Buffer::ClampToEdge()
     for (auto&& t : mTextures) t.ClampToEdge();
 }
 
+void Buffer::ClampToBorder()
+{
+    for (auto&& t: mTextures) t.ClampToBorder();
+}
+
 void Buffer::Clear(const glm::vec4& colour)
 {
     for (auto&& t : mTextures) t.Clear(colour);
@@ -87,7 +92,7 @@ void Buffer::Add(const glm::vec2& size, unsigned components, bool depth)
                            depth ? Renderer::RenderTexture::DepthFormat::DEPTH24_STENCIL8 :
                                    Renderer::RenderTexture::DepthFormat::NONE);
     mTextures.back().Nearest();
-    mTextures.back().ClampToBorder();
+    mTextures.back().ClampToEdge();
 }
 
 }}

@@ -1,2 +1,4 @@
 build
+qt-creator-build
 Docs/html
+CMakeLists.txt.user
