@@ -57,6 +57,7 @@ Reduce::Reduce(glm::vec2 size, const char* fragment)
     {
         size = glm::ceil(size/glm::vec2(2.0f));
         s.emplace_back(size, 1);
+        s.back().ClampToBorder();
     }
 
     reduce.Use().Set("u_texture", 0).Unuse();
