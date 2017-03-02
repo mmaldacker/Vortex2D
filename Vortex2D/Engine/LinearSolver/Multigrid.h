@@ -26,8 +26,7 @@ public:
     void Solve(Data& data, Parameters& params) override;
 
 private:
-    Data & GetData(int depth);
-    void DampedJacobi(Data & data, int iterations = 10);
+    void DampedJacobi(Data & data, int iterations);
 
     int mDepths;
     Renderer::Operator mProlongate;

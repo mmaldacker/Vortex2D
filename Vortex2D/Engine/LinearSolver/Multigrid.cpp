@@ -5,7 +5,7 @@
 
 #include "Multigrid.h"
 
-#include <Vortex2D/Renderer/Reader.h>
+#include <Vortex2D/Renderer/Disable.h>
 
 namespace Vortex2D { namespace Fluid {
 
@@ -36,8 +36,7 @@ const char * DampedJacobiFrag = GLSL(
         vec4 c = texture(u_weights, v_texCoord);
         float d = texture(u_diagonals, v_texCoord).x;
 
-        float pressure = 0.0;
-        if(d > 0.0) pressure = cell.x + w * (dot(p,c) + cell.y) / d;
+        float pressure = mix(cell.x, (cell.y - dot(p, c)) / d, w);
 
         out_color = vec4(pressure, cell.y, 0.0, 0.0);
     }
@@ -97,7 +96,7 @@ const char * ResidualFrag = GLSL(
         vec4 c = texture(u_weights, v_texCoord);
         float d = texture(u_diagonals, v_texCoord).x;
 
-        float residual = dot(p,c) - d * cell.x + cell.y;
+        float residual = cell.y - (dot(p, c) + d * cell.x);
         colour_out = vec4(residual, cell.y, 0.0, 0.0);
     }
 );
@@ -156,17 +155,18 @@ Multigrid::Multigrid(glm::vec2 size)
 {
     const float min_size = 4.0f;
 
-    do
+    while (size.x > min_size && size.y > min_size)
     {
+        size = glm::ceil(size/glm::vec2(2.0f));
+
         mDatas.emplace_back(size);
         mDatas.back().Pressure.Linear();
 
         mLiquidPhis.emplace_back(size, 1);
-        mSolidPhis.emplace_back(size, 1);
+        mSolidPhis.emplace_back(glm::vec2(2)*size, 1);
 
-        size = glm::ceil(size/glm::vec2(2.0f));
         mDepths++;
-    } while (size.x > min_size && size.y > min_size);
+    }
 
     mProlongate.Use().Set("u_texture", 0).Set("u_pressure", 1).Unuse();
     mResidual.Use().Set("u_texture", 0).Set("u_weights", 1).Set("u_diagonals", 2).Unuse();
@@ -177,12 +177,7 @@ Multigrid::Multigrid(glm::vec2 size)
     mMin.Use().Set("u_texture", 0).Unuse();
 }
 
-LinearSolver::Data & Multigrid::GetData(int depth)
-{
-    return mDatas[depth];
-}
-
-void Multigrid::DampedJacobi(Data & data, int iterations)
+void Multigrid::DampedJacobi(Data& data, int iterations)
 {
     for(int i = 0 ; i < iterations ; i++)
     {
@@ -196,65 +191,83 @@ void Multigrid::Build(Renderer::Operator& diagonals,
                       Renderer::Buffer& solidPhi,
                       Renderer::Buffer& liquidPhi)
 {
-    mLiquidPhis[0] = mIdentity(liquidPhi);
-    mSolidPhis[0] = mIdentity(solidPhi);
-
-    Renderer::Reader(mLiquidPhis[0]).Read().Print();
-    Renderer::Reader(mSolidPhis[0]).Read().Print();
+    mLiquidPhis[0] = mMax(liquidPhi);
+    mSolidPhis[0] = mMin(solidPhi);
 
     for (int i = 1; i < mDepths; i++)
     {
         mLiquidPhis[i] = mMax(mLiquidPhis[i - 1]);
         mSolidPhis[i] = mMin(mSolidPhis[i - 1]);
-
-        Renderer::Reader(mLiquidPhis[i]).Read().Print();
-        Renderer::Reader(mSolidPhis[i]).Read().Print();
     }
 
     for (int i = 0; i < mDepths; i++)
     {
-        auto& x = GetData(i);
+        auto& x = mDatas[i];
         x.Diagonal = diagonals(mSolidPhis[i], mLiquidPhis[i]);
         x.Weights = weights(mSolidPhis[i], mLiquidPhis[i]);
-
-        Renderer::Reader(x.Diagonal).Read().Print();
-        Renderer::Reader(x.Weights).Read().Print();
     }
 }
 
 void Multigrid::Init(LinearSolver::Data& data)
 {
+    RenderMask(data.Pressure, data);
+
+    for (int i = 0; i < mDepths; i++)
+    {
+        RenderMask(mDatas[i].Pressure, mDatas[i]);
+    }
 }
 
-void Multigrid::Solve(LinearSolver::Data& data, Parameters& params)
+void Multigrid::Solve(LinearSolver::Data& data, Parameters&)
 {
-    for(int i = 0 ; i < mDepths - 1 ; i++)
-    {
-        auto& x = GetData(i);
+    assert(!mDatas.empty());
 
-        DampedJacobi(x);
+    Renderer::Enable e(GL_STENCIL_TEST);
+    glStencilMask(0x00);
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+
+    int numIterations = 2;
+
+    DampedJacobi(data, numIterations);
+
+    data.Pressure.Swap();
+    data.Pressure = mResidual(Back(data.Pressure), data.Weights, data.Diagonal);
+
+    mDatas[0].Pressure = mRestrict(data.Pressure);
+
+    for (int i = 0 ; i < mDepths - 1 ; i++)
+    {
+        numIterations *= 2;
+        auto& x = mDatas[i];
+
+        DampedJacobi(x, numIterations);
 
         x.Pressure.Swap();
         x.Pressure = mResidual(Back(x.Pressure), x.Weights, x.Diagonal);
 
-        auto & r = GetData(i+1);
-        r.Pressure = mRestrict(x.Pressure);
+        mDatas[i + 1].Pressure = mRestrict(x.Pressure);
     }
 
-    DampedJacobi(GetData(mDepths - 1));
+    DampedJacobi(mDatas.back(), numIterations * 2);
 
     for(int i = mDepths - 2 ; i >= 0 ; --i)
     {
-        auto & x = GetData(i);
-        auto & u = GetData(i+1);
+        auto& x = mDatas[i];
 
         x.Pressure.Swap();
-        x.Pressure = mProlongate(u.Pressure, Back(x.Pressure));
+        x.Pressure = mProlongate(mDatas[i + 1].Pressure, Back(x.Pressure));
 
-        DampedJacobi(x);
+        DampedJacobi(x, numIterations);
+
+        numIterations /= 2;
     }
 
-    data.Pressure = mIdentity(GetData(0).Pressure);
+    auto& u = mDatas[0];
+
+    data.Pressure.Swap();
+    data.Pressure = mProlongate(u.Pressure, Back(data.Pressure));
+
+    DampedJacobi(data, numIterations);
 }
 
 }}

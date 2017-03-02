@@ -12,6 +12,8 @@
 
 #include <Vortex2D/Engine/LinearSolver/ConjugateGradient.h>
 #include <Vortex2D/Engine/LinearSolver/SuccessiveOverRelaxation.h>
+#include <Vortex2D/Engine/LinearSolver/Multigrid.h>
+#include <Vortex2D/Engine/Pressure.h>
 
 #include <algorithm>
 #include <chrono>
@@ -342,6 +344,48 @@ TEST(LinearSolverTests, Zero_PCG)
             EXPECT_FLOAT_EQ(0.0f, reader.GetVec2(i, j).x);
         }
     }
+}
+
+TEST(LinearSolverTests, Simple_Multigrid)
+{
+    Disable d(GL_BLEND);
+
+    glm::vec2 size(16);
+
+    FluidSim sim;
+    sim.initialize(1.0f, size.x, size.y);
+    sim.set_boundary(boundary_phi);
+
+    AddParticles(size, sim, boundary_phi);
+
+    sim.add_force(0.01f);
+
+    Buffer velocity(size, 2, true);
+    SetVelocity(velocity, sim);
+
+    sim.project(0.01f);
+
+    Buffer solidPhi(glm::vec2(2)*size, 1);
+    SetSolidPhi(solidPhi, sim);
+
+    Buffer liquidPhi(size, 1);
+    SetLiquidPhi(liquidPhi, sim);
+
+    Buffer solidVelocity(size, 2);
+    // leave empty
+
+    LinearSolver::Data data(size);
+
+    LinearSolver::Parameters params(200);
+    Multigrid solver(size);
+
+    Pressure pressure(0.01f, size, solver, data, velocity, solidPhi, liquidPhi, solidVelocity);
+    pressure.Solve(params);
+
+    Reader(data.Pressure).Read().Print();
+    //CheckPressure(size, sim.pressure, data, 1e-4f);
+
+    PrintData(size.x, size.y, sim.pressure);
 }
 
 TEST(LinearSolverTests, PerformanceMeasurements)
