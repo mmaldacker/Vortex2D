@@ -196,6 +196,7 @@ void ConjugateGradient::Solve(Data& data, Parameters& params)
         r.Swap();
         r = multiplySub(Back(r), z, alpha);
 
+        // FIXME don't calculate if we don't do by error
         // calculate max error
         error = reduceMax(r);
 
