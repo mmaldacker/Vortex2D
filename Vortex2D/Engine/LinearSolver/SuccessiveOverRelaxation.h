@@ -20,8 +20,7 @@ public:
     SuccessiveOverRelaxation(const glm::vec2& size, float w);
 
 
-    void Build(Data& data,
-               Renderer::Operator& diagonals,
+    void Build(Renderer::Operator& diagonals,
                Renderer::Operator& weights,
                Renderer::Buffer& solidPhi,
                Renderer::Buffer& liquidPhi) override;

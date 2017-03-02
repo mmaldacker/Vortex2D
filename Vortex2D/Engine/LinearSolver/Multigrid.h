@@ -16,8 +16,7 @@ class Multigrid : public LinearSolver
 public:
     Multigrid(glm::vec2 size);
 
-    void Build(Data& data,
-               Renderer::Operator& diagonals,
+    void Build(Renderer::Operator& diagonals,
                Renderer::Operator& weights,
                Renderer::Buffer& solidPhi,
                Renderer::Buffer& liquidPhi) override;
@@ -36,6 +35,7 @@ private:
     Renderer::Operator mRestrict;
     Renderer::Operator mDampedJacobi;
     Renderer::Operator mIdentity;
+    Renderer::Operator mMax, mMin;
 
     std::vector<Data> mDatas;
     std::vector<Renderer::Buffer> mSolidPhis;

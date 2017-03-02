@@ -23,8 +23,7 @@ public:
     ConjugateGradient(const glm::vec2& size);
     virtual ~ConjugateGradient();
 
-    void Build(Data& data,
-               Renderer::Operator& diagonals,
+    void Build(Renderer::Operator& diagonals,
                Renderer::Operator& weights,
                Renderer::Buffer& solidPhi,
                Renderer::Buffer& liquidPhi) override;

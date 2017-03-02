@@ -72,14 +72,11 @@ SuccessiveOverRelaxation::SuccessiveOverRelaxation(const glm::vec2& size, float 
 }
 
 
-void SuccessiveOverRelaxation::Build(Data& data,
-                                     Renderer::Operator& diagonals,
+void SuccessiveOverRelaxation::Build(Renderer::Operator& diagonals,
                                      Renderer::Operator& weights,
                                      Renderer::Buffer& solidPhi,
                                      Renderer::Buffer& liquidPhi)
 {
-    data.Weights = weights(solidPhi, liquidPhi);
-    data.Diagonal = diagonals(solidPhi, liquidPhi);
 }
 
 void SuccessiveOverRelaxation::Init(Data& data)

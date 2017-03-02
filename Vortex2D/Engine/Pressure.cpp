@@ -232,8 +232,10 @@ Pressure::Pressure(float dt,
 void Pressure::Solve(LinearSolver::Parameters& params)
 {
     mData.Pressure = mDiv(mVelocity, mSolidPhi, mLiquidPhi, mSolidVelocity);
+    mData.Weights = mWeights(mSolidPhi, mLiquidPhi);
+    mData.Diagonal = mDiagonals(mSolidPhi, mLiquidPhi);
 
-    mSolver.Build(mData, mDiagonals, mWeights, mSolidPhi, mLiquidPhi);
+    mSolver.Build(mDiagonals, mWeights, mSolidPhi, mLiquidPhi);
     mSolver.Init(mData);
     mSolver.Solve(mData, params);
 
