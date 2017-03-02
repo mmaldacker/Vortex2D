@@ -7,6 +7,7 @@
 #define Vortex2D_Reduce_h
 
 #include <Vortex2D/Renderer/Operator.h>
+#include <Vortex2D/Renderer/Buffer.h>
 
 namespace Vortex2D { namespace Fluid {
 
@@ -19,7 +20,7 @@ public:
     /**
      * @brief Runs the reduce operation
      */
-    Renderer::OperatorContext operator()(Renderer::Buffer& buffer);
+    Renderer::OperatorContext operator()(Renderer::Buffer& input);
 
 protected:
     Reduce(glm::vec2 size, const char* fragment);
@@ -33,6 +34,13 @@ class ReduceSum : public Reduce
 {
 public:
     ReduceSum(const glm::vec2& size);
+
+    using Reduce::operator();
+    Renderer::OperatorContext operator()(Renderer::Buffer& input1, Renderer::Buffer& input2);
+
+private:
+    Renderer::Operator mMultiply;
+    Renderer::Buffer mReduce;
 };
 
 class ReduceMax : public Reduce

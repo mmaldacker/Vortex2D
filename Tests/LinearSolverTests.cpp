@@ -43,6 +43,31 @@ TEST(LinearSolverTests, ReduceSum)
     ASSERT_EQ(0.5f*150.0f*151.0f, total);
 }
 
+TEST(LinearSolverTests, ReduceInnerProduct)
+{
+    Disable d(GL_BLEND);
+
+    ReduceSum reduce(glm::vec2(10, 15));
+
+    Buffer input1(glm::vec2(10, 15), 1);
+    Buffer input2(glm::vec2(10, 15), 1);
+
+    std::vector<float> input1Data(10*15);
+    float n = 1.0f;
+    std::generate(input1Data.begin(), input1Data.end(), [&n]{ return n++; });
+    Writer(input1).Write(input1Data);
+
+    std::vector<float> input2Data(10*15, 2.0f);
+    Writer(input2).Write(input2Data);
+
+    Buffer output(glm::vec2(1), 1);
+    output = reduce(input1, input2);
+
+    float total = Reader(output).Read().GetFloat(0, 0);
+
+    ASSERT_EQ(150.0f*151.0f, total);
+}
+
 TEST(LinearSolverTests, ReduceMax)
 {
     Disable d(GL_BLEND);

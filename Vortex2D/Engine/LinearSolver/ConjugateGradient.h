@@ -44,8 +44,8 @@ private:
     void ApplyPreconditioner(Data& data);
     void InnerProduct(Renderer::Buffer& output, Renderer::Buffer& intput1, Renderer::Buffer& input2);
 
-    Renderer::Buffer r, s, z, alpha, beta, rho, rho_new, sigma, reduce, error;
-    Renderer::Operator matrixMultiply, scalarDivision, scalarMultiply, multiplyAdd, multiplySub, residual, identity;
+    Renderer::Buffer r, s, z, alpha, beta, rho, rho_new, sigma, error;
+    Renderer::Operator matrixMultiply, scalarDivision, multiplyAdd, multiplySub, residual, identity;
     ReduceSum reduceSum;
     ReduceMax reduceMax;
     Renderer::Reader errorReader;

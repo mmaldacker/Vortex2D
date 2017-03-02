@@ -28,22 +28,6 @@ const char * DivideFrag = GLSL(
     }
 );
 
-const char * MultiplyFrag = GLSL(
-     in vec2 v_texCoord;
-     out vec4 colour_out;
-
-     uniform sampler2D u_x;
-     uniform sampler2D u_y;
-
-     void main()
-     {
-         float x = texture(u_x, v_texCoord).x;
-         float y = texture(u_y, v_texCoord).x;
-
-         colour_out = vec4(x * y, 0.0, 0.0, 0.0);
-     }
-);
-
 const char * MultiplyAddFrag = GLSL(
     in vec2 v_texCoord;
     out vec4 colour_out;
@@ -134,11 +118,9 @@ ConjugateGradient::ConjugateGradient(const glm::vec2& size)
     , rho({1,1}, 1)
     , rho_new({1,1}, 1)
     , sigma({1,1}, 1)
-    , reduce(size, 1)
     , error({1,1}, 1)
     , matrixMultiply(Renderer::Shader::TexturePositionVert, MultiplyMatrixFrag)
     , scalarDivision(Renderer::Shader::TexturePositionVert, DivideFrag)
-    , scalarMultiply(Renderer::Shader::TexturePositionVert, MultiplyFrag)
     , multiplyAdd(Renderer::Shader::TexturePositionVert, MultiplyAddFrag)
     , multiplySub(Renderer::Shader::TexturePositionVert, MultiplySubFrag)
     , residual(Renderer::Shader::TexturePositionVert, ResidualFrag)
@@ -151,12 +133,8 @@ ConjugateGradient::ConjugateGradient(const glm::vec2& size)
     identity.Use().Set("u_texture", 0).Unuse();
     matrixMultiply.Use().Set("u_texture", 0).Set("u_weights", 1).Set("u_diagonals", 2).Unuse();
     scalarDivision.Use().Set("u_x", 0).Set("u_y", 1).Unuse();
-    scalarMultiply.Use().Set("u_x", 0).Set("u_y", 1).Unuse();
     multiplyAdd.Use().Set("u_x", 0).Set("u_y", 1).Set("u_scalar", 2).Unuse();
     multiplySub.Use().Set("u_x", 0).Set("u_y", 1).Set("u_scalar", 2).Unuse();
-
-    reduce.ClampToBorder();
-    error.ClampToBorder();
 }
 
 ConjugateGradient::~ConjugateGradient()
@@ -324,8 +302,7 @@ void ConjugateGradient::ApplyPreconditioner(Data& data)
 
 void ConjugateGradient::InnerProduct(Renderer::Buffer& output, Renderer::Buffer& input1, Renderer::Buffer& input2)
 {
-    reduce = scalarMultiply(input1, input2);
-    output = reduceSum(reduce);
+    output = reduceSum(input1, input2);
 }
 
 }}
