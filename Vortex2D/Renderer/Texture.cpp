@@ -93,6 +93,13 @@ void Texture::Linear()
     Unbind();
 }
 
+void Texture::BorderColour(const glm::vec4& colour)
+{
+  Bind();
+  glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, &colour[0]);
+  Unbind();
+}
+
 void Texture::ClampToEdge()
 {
     Bind();
