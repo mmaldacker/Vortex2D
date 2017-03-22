@@ -13,10 +13,12 @@
 #include <Vortex2D/Engine/LinearSolver/ConjugateGradient.h>
 #include <Vortex2D/Engine/LinearSolver/SuccessiveOverRelaxation.h>
 #include <Vortex2D/Engine/LinearSolver/Multigrid.h>
+#include <Vortex2D/Engine/LinearSolver/Transfer.h>
 #include <Vortex2D/Engine/Pressure.h>
 
 #include <algorithm>
 #include <chrono>
+#include <numeric>
 
 using namespace Vortex2D::Renderer;
 using namespace Vortex2D::Fluid;
@@ -29,6 +31,7 @@ TEST(LinearSolverTests, ReduceSum)
     ReduceSum reduce(glm::vec2(10, 15));
 
     Buffer input(glm::vec2(10, 15), 1);
+    input.ClampToBorder();
 
     std::vector<float> bData(10*15);
     float n = 1.0f;
@@ -87,6 +90,89 @@ TEST(LinearSolverTests, ReduceMax)
     float total = Reader(output).Read().GetFloat(0, 0);
 
     ASSERT_EQ(150.0f, total);
+}
+
+TEST(LinearSolverTests, Transfer_Prolongate)
+{
+    Disable d(GL_BLEND);
+
+    glm::vec2 size(2);
+
+    Transfer t;
+
+    Buffer input(size, 1), output(glm::vec2(2) * size, 1);
+
+    std::vector<float> data(size.x * size.y, 0.0f);
+    std::iota(data.begin(), data.end(), 1.0f);
+    Writer(input).Write(data);
+
+    output = t.Prolongate(input);
+
+    float total;
+
+    total = (9*1 + 3*2 + 3*3 + 1*4) / 16.0f;
+    EXPECT_FLOAT_EQ(total, Reader(output).Read().GetFloat(1, 1));
+
+    total = (9*2 + 3*1 + 3*4 + 1*3) / 16.0f;
+    EXPECT_FLOAT_EQ(total, Reader(output).Read().GetFloat(2, 1));
+
+    total = (9*3 + 3*1 + 3*4 + 1*2) / 16.0f;
+    EXPECT_FLOAT_EQ(total, Reader(output).Read().GetFloat(1, 2));
+
+    total = (9*4 + 3*2 + 3*3 + 1*1) / 16.0f;
+    EXPECT_FLOAT_EQ(total, Reader(output).Read().GetFloat(2, 2));
+}
+
+TEST(LinearSolverTests, Transfer_Restrict)
+{
+    Disable d(GL_BLEND);
+
+    glm::vec2 size(3);
+
+    Transfer t;
+
+    Buffer input(glm::vec2(2) * size, 1), output(size, 1);
+
+    std::vector<float> data(size.x * size.y * 4, 1.0f);
+    std::iota(data.begin(), data.end(), 1.0f);
+    Writer(input).Write(data);
+
+    output = t.Restrict(input);
+
+    float total = (1*8 + 3*9 + 3*10 + 1*11 +
+            3*14 + 9*15 + 9*16 + 3*17 +
+            3*20 + 9*21 + 9*22 + 3*23 +
+            1*26 + 3*27 + 3*28 + 1*29) / 64.0f;
+
+    EXPECT_FLOAT_EQ(total, Reader(output).Read().GetFloat(1, 1));
+}
+
+TEST(LinearSolverTests, Transfer_Symmetric)
+{
+    Disable d(GL_BLEND);
+
+    glm::vec2 size(8);
+
+    Transfer t;
+
+    Buffer input(size, 1), output(glm::vec2(2) * size, 1);
+
+    std::vector<float> data(size.x * size.y * 4, 1.0f);
+    Writer(input).Write(data);
+
+    output = t.Prolongate(input);
+    input = t.Restrict(output);
+
+    Reader reader(input);
+    reader.Read();
+
+    for (int i = 1; i < size.x - 1; i++)
+    {
+        for (int j = 1; j < size.y - 1; j++)
+        {
+            EXPECT_FLOAT_EQ(1.0f, reader.GetFloat(i, j));
+        }
+    }
 }
 
 TEST(LinearSolverTests, RenderMask)
@@ -375,7 +461,7 @@ TEST(LinearSolverTests, Simple_Multigrid)
 {
     Disable d(GL_BLEND);
 
-    glm::vec2 size(16);
+    glm::vec2 size(32);
 
     FluidSim sim;
     sim.initialize(1.0f, size.x, size.y);
@@ -385,8 +471,11 @@ TEST(LinearSolverTests, Simple_Multigrid)
 
     sim.add_force(0.01f);
 
-    Buffer velocity(size, 2, true);
-    SetVelocity(velocity, sim);
+    Buffer velocity1(size, 2, true);
+    SetVelocity(velocity1, sim);
+
+    Buffer velocity2(size, 2, true);
+    SetVelocity(velocity2, sim);
 
     sim.project(0.01f);
 
@@ -399,18 +488,36 @@ TEST(LinearSolverTests, Simple_Multigrid)
     Buffer solidVelocity(size, 2);
     // leave empty
 
-    LinearSolver::Data data(size);
+    // multigrid solver
+    {
+        LinearSolver::Data data(size);
 
-    LinearSolver::Parameters params(200);
-    Multigrid solver(size);
+        LinearSolver::Parameters params(0);
+        Multigrid solver(size);
 
-    Pressure pressure(0.01f, size, solver, data, velocity, solidPhi, liquidPhi, solidVelocity);
-    pressure.Solve(params);
+        Pressure pressure(0.01f, size, solver, data, velocity1, solidPhi, liquidPhi, solidVelocity);
+        pressure.Solve(params);
 
-    Reader(data.Pressure).Read().Print();
-    //CheckPressure(size, sim.pressure, data, 1e-4f);
+        Reader(data.Pressure).Read().Print();
+    }
 
-    PrintData(size.x, size.y, sim.pressure);
+    // solution from SOR with only few iterations (to check multigrid is an improvement)
+    {
+        LinearSolver::Data data(size);
+
+        LinearSolver::Parameters params(4);
+        SuccessiveOverRelaxation solver(size);
+
+        Pressure pressure(0.01f, size, solver, data, velocity2, solidPhi, liquidPhi, solidVelocity);
+        pressure.Solve(params);
+
+        Reader(data.Pressure).Read().Print();
+    }
+
+    // solution from FluidSim
+    {
+        PrintData(size.x, size.y, sim.pressure);
+    }
 }
 
 TEST(LinearSolverTests, PerformanceMeasurements)
