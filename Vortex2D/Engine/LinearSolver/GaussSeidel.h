@@ -1,10 +1,10 @@
 //
-//  SuccessiveOverRelaxation.h
+//  GaussSeidel.h
 //  Vortex2D
 //
 
-#ifndef Vortex2D_SuccessiveOverRelaxation_h
-#define Vortex2D_SuccessiveOverRelaxation_h
+#ifndef Vortex2D_GaussSeidel_h
+#define Vortex2D_GaussSeidel_h
 
 #include <Vortex2D/Engine/LinearSolver/LinearSolver.h>
 
@@ -13,11 +13,11 @@ namespace Vortex2D { namespace Fluid {
 /**
  * @brief An iterative black and red successive over relaxation linear solver.
  */
-class SuccessiveOverRelaxation : public LinearSolver
+class GaussSeidel : public LinearSolver
 {
 public:
-    SuccessiveOverRelaxation(const glm::vec2& size);
-    SuccessiveOverRelaxation(const glm::vec2& size, float w);
+    GaussSeidel();
+    GaussSeidel(const glm::vec2& size);
 
 
     void Build(Renderer::Operator& diagonals,
@@ -35,12 +35,19 @@ public:
      */
     void Solve(Data& data, Parameters& params) override;
 
-private:
-    void Step(Data& data, bool isRed);
 
-    Renderer::Operator mSor;
+    /**
+     * @brief Will do one step in the red-black gauss seidel solve, given the mask
+     */
+    void Step(Data& data, uint8_t redMask, uint8_t blackMask);
+
+    void SetW(float w);
+
+private:
+    Renderer::Operator mGaussSeidel;
     Renderer::Operator mStencil;
     Renderer::Operator mIdentity;
+    Renderer::Uniform<float> mW;
 };
 
 }}

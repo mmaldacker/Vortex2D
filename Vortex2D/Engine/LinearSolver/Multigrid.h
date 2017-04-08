@@ -7,6 +7,8 @@
 #define Multigrid_h
 
 #include <Vortex2D/Engine/LinearSolver/LinearSolver.h>
+#include <Vortex2D/Engine/LinearSolver/Transfer.h>
+#include <Vortex2D/Engine/LinearSolver/GaussSeidel.h>
 #include <Vortex2D/Renderer/Buffer.h>
 
 namespace Vortex2D { namespace Fluid {
@@ -21,20 +23,25 @@ public:
                Renderer::Buffer& solidPhi,
                Renderer::Buffer& liquidPhi) override;
 
-    void Init(Data & data) override;
+    void Init(Data& data) override;
 
     void Solve(Data& data, Parameters& params) override;
 
 private:
-    void DampedJacobi(Data & data, int iterations);
+    void Smoother(Data& data, int iterations);
+    void BorderSmoother(Data& data, int iterations, bool up);
+
+    void RenderBoundaryMask(Data& data, Renderer::Buffer& buffer);
 
     int mDepths;
-    Renderer::Operator mProlongate;
     Renderer::Operator mResidual;
-    Renderer::Operator mRestrict;
     Renderer::Operator mDampedJacobi;
     Renderer::Operator mIdentity;
-    Renderer::Operator mMax, mMin;
+    Renderer::Operator mScale;
+    Renderer::Operator mBoundaryMask;
+
+    Transfer mTransfer;
+    GaussSeidel mGaussSeidel;
 
     std::vector<Data> mDatas;
     std::vector<Renderer::Buffer> mSolidPhis;

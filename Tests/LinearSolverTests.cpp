@@ -11,7 +11,7 @@
 #include <Vortex2D/Renderer/Writer.h>
 
 #include <Vortex2D/Engine/LinearSolver/ConjugateGradient.h>
-#include <Vortex2D/Engine/LinearSolver/SuccessiveOverRelaxation.h>
+#include <Vortex2D/Engine/LinearSolver/GaussSeidel.h>
 #include <Vortex2D/Engine/LinearSolver/Multigrid.h>
 #include <Vortex2D/Engine/LinearSolver/Transfer.h>
 #include <Vortex2D/Engine/Pressure.h>
@@ -100,27 +100,30 @@ TEST(LinearSolverTests, Transfer_Prolongate)
 
     Transfer t;
 
-    Buffer input(size, 1), output(glm::vec2(2) * size, 1);
+    Buffer pressure(size, 2);
+    pressure.Clear(glm::vec4(0.0f));
+
+    Buffer input(size, 1), output(glm::vec2(2) * size, 2);
 
     std::vector<float> data(size.x * size.y, 0.0f);
     std::iota(data.begin(), data.end(), 1.0f);
     Writer(input).Write(data);
 
-    output = t.Prolongate(input);
+    output = t.Prolongate(input, pressure);
 
     float total;
 
     total = (9*1 + 3*2 + 3*3 + 1*4) / 16.0f;
-    EXPECT_FLOAT_EQ(total, Reader(output).Read().GetFloat(1, 1));
+    EXPECT_FLOAT_EQ(total, Reader(output).Read().GetVec2(1, 1).x);
 
     total = (9*2 + 3*1 + 3*4 + 1*3) / 16.0f;
-    EXPECT_FLOAT_EQ(total, Reader(output).Read().GetFloat(2, 1));
+    EXPECT_FLOAT_EQ(total, Reader(output).Read().GetVec2(2, 1).x);
 
     total = (9*3 + 3*1 + 3*4 + 1*2) / 16.0f;
-    EXPECT_FLOAT_EQ(total, Reader(output).Read().GetFloat(1, 2));
+    EXPECT_FLOAT_EQ(total, Reader(output).Read().GetVec2(1, 2).x);
 
     total = (9*4 + 3*2 + 3*3 + 1*1) / 16.0f;
-    EXPECT_FLOAT_EQ(total, Reader(output).Read().GetFloat(2, 2));
+    EXPECT_FLOAT_EQ(total, Reader(output).Read().GetVec2(2, 2).x);
 }
 
 TEST(LinearSolverTests, Transfer_Restrict)
@@ -131,7 +134,7 @@ TEST(LinearSolverTests, Transfer_Restrict)
 
     Transfer t;
 
-    Buffer input(glm::vec2(2) * size, 1), output(size, 1);
+    Buffer input(glm::vec2(2) * size, 1), output(size, 2);
 
     std::vector<float> data(size.x * size.y * 4, 1.0f);
     std::iota(data.begin(), data.end(), 1.0f);
@@ -144,35 +147,7 @@ TEST(LinearSolverTests, Transfer_Restrict)
             3*20 + 9*21 + 9*22 + 3*23 +
             1*26 + 3*27 + 3*28 + 1*29) / 64.0f;
 
-    EXPECT_FLOAT_EQ(total, Reader(output).Read().GetFloat(1, 1));
-}
-
-TEST(LinearSolverTests, Transfer_Symmetric)
-{
-    Disable d(GL_BLEND);
-
-    glm::vec2 size(8);
-
-    Transfer t;
-
-    Buffer input(size, 1), output(glm::vec2(2) * size, 1);
-
-    std::vector<float> data(size.x * size.y * 4, 1.0f);
-    Writer(input).Write(data);
-
-    output = t.Prolongate(input);
-    input = t.Restrict(output);
-
-    Reader reader(input);
-    reader.Read();
-
-    for (int i = 1; i < size.x - 1; i++)
-    {
-        for (int j = 1; j < size.y - 1; j++)
-        {
-            EXPECT_FLOAT_EQ(1.0f, reader.GetFloat(i, j));
-        }
-    }
+    EXPECT_FLOAT_EQ(total, Reader(output).Read().GetVec2(1, 1).y);
 }
 
 TEST(LinearSolverTests, RenderMask)
@@ -198,7 +173,7 @@ TEST(LinearSolverTests, RenderMask)
     {
         for (std::size_t j = 0; j < size.y; j++)
         {
-            uint8_t value = 1 - dataData[i + j * size.x];
+            uint8_t value = dataData[i + j * size.x];
             EXPECT_EQ(value, reader.GetStencil(i, j)) << "Value not equal at " << i << ", " << j;
         }
     }
@@ -271,7 +246,7 @@ TEST(LinearSolverTests, Simple_SOR)
     BuildLinearEquation(size, data, sim);
 
     LinearSolver::Parameters params(200);
-    SuccessiveOverRelaxation solver(size);
+    GaussSeidel solver(size);
 
     solver.Init(data);
     solver.Solve(data, params);
@@ -300,7 +275,7 @@ TEST(LinearSolverTests, Complex_SOR)
     BuildLinearEquation(size, data, sim);
 
     LinearSolver::Parameters params(200);
-    SuccessiveOverRelaxation solver(size);
+    GaussSeidel solver(size);
 
     solver.Init(data);
     solver.Solve(data, params);
@@ -461,7 +436,7 @@ TEST(LinearSolverTests, Simple_Multigrid)
 {
     Disable d(GL_BLEND);
 
-    glm::vec2 size(32);
+    glm::vec2 size(16);
 
     FluidSim sim;
     sim.initialize(1.0f, size.x, size.y);
@@ -506,7 +481,7 @@ TEST(LinearSolverTests, Simple_Multigrid)
         LinearSolver::Data data(size);
 
         LinearSolver::Parameters params(4);
-        SuccessiveOverRelaxation solver(size);
+        GaussSeidel solver(size);
 
         Pressure pressure(0.01f, size, solver, data, velocity2, solidPhi, liquidPhi, solidVelocity);
         pressure.Solve(params);

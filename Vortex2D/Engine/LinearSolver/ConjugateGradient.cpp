@@ -296,7 +296,7 @@ void ConjugateGradient::ApplyPreconditioner(Data& data)
 {
     Renderer::Enable e(GL_STENCIL_TEST);
     glStencilMask(0x00);
-    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
 
     z = scalarDivision(r, data.Diagonal);
 }

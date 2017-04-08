@@ -22,13 +22,9 @@ const char* MaskFrag = GLSL(
     {
         float x = texture(u_texture, v_texCoord).x;
 
-        if (x != 0.0)
+        if (x == 0.0)
         {
             discard;
-        }
-        else
-        {
-            out_color = vec4(1.0, 0.0, 0.0, 0.0);
         }
     }
 );
