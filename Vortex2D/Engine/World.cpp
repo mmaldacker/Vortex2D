@@ -75,6 +75,7 @@ void World::Solve()
     mFluidLevelSet.Swap();
 
     mExtrapolation.Extrapolate();
+    mExtrapolation.ConstrainVelocity();
 
     mAdvection.Advect();
 }

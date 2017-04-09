@@ -45,8 +45,8 @@ const char* CommonFrag = GLSL(
     vec2 get_velocity(ivec2 pos, sampler2D velocity)
     {
        vec2 uv = texelFetch(velocity, pos, 0).xy;
-       float up = texelFetch(velocity, pos - ivec2(1,0), 0).x;
-       float vp = texelFetch(velocity, pos - ivec2(0,1), 0).y;
+       float up = texelFetch(velocity, pos + ivec2(1,0), 0).x;
+       float vp = texelFetch(velocity, pos + ivec2(0,1), 0).y;
 
        return vec2(uv.x + up, uv.y + vp) * 0.5;
     }
