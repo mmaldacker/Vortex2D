@@ -153,25 +153,36 @@ const char* ConstrainVelocityFrag = GLSL(
         vec2 constrained = vec2(0.0);
         vec2 wuv = get_weight(v_texCoord, u_obstacles);
 
-        vec2 grad = vec2(mix(v10 - v00, v11 - v01, 0.5), mix(v01 - v00, v11 - v10, 0.5));
         if (wuv.x == 0.0)
         {
-            //vec2 grad = vec2(mix(v10 - v00, v11 - v01, 0.5), v01 - v00);
-            //vec2 grad = vec2(v10-v00,v01-v00);
-
+            vec2 grad = vec2(mix(v10 - v00, v11 - v01, 0.5), v01 - v00);
             vec2 normal = normalize(grad);
-            float perp_component = dot(normal, uv);
-            constrained.x = perp_component * normal.x;
+
+            float vn = textureOffset(u_velocity, v_texCoord, ivec2(-1, 0)).y;
+            float vp = textureOffset(u_velocity, v_texCoord, ivec2(-1, 1)).y;
+            float up = textureOffset(u_velocity, v_texCoord, ivec2(0, 1)).y;
+
+            float v = (vn + uv.y + vp + up) * 0.25;
+
+            float perp_component = dot(normal, vec2(uv.x, v));
+
+            constrained.x = normal.x * perp_component;
         }
 
         if (wuv.y == 0.0)
         {
-            //vec2 grad = vec2(v10 - v00, mix(v01 - v00, v11 - v10, 0.5));
-            //vec2 grad = vec2(v10-v00,v01-v00);
-
+            vec2 grad = vec2(v10 - v00, mix(v01 - v00, v11 - v10, 0.5));
             vec2 normal = normalize(grad);
-            float perp_component = dot(normal, uv);
-            constrained.y = perp_component * normal.y;
+
+            float vn = textureOffset(u_velocity, v_texCoord, ivec2(0, -1)).x;
+            float vp = textureOffset(u_velocity, v_texCoord, ivec2(1, -1)).x;
+            float up = textureOffset(u_velocity, v_texCoord, ivec2(1, 0)).x;
+
+            float u = (vn + uv.x + vp + up) * 0.25;
+
+            float perp_component = dot(normal, vec2(u, uv.y));
+
+            constrained.y = normal.y * perp_component;
         }
 
         // FIXME need to set the obstacle velocity (means we don't have to set it in project?)

@@ -52,7 +52,8 @@ TEST(ExtrapolateTest, Constrain)
 {
     Disable d(GL_BLEND);
 
-    glm::vec2 size(10);
+    // FIXME doesn't work when size is above 50?
+    glm::vec2 size(40);
 
     FluidSim sim;
     sim.initialize(1.0f, size.x, size.y);
@@ -69,26 +70,19 @@ TEST(ExtrapolateTest, Constrain)
         sim.v(i, 0) = 0.0;
     }
 
-    Buffer velocity(size, 2, true);
-    SetVelocity(velocity, sim);
-
     Buffer solidPhi(glm::vec2(2)*size, 1);
     SetSolidPhi(solidPhi, sim);
 
     extrapolate(sim.u, sim.u_valid);
     extrapolate(sim.v, sim.v_valid);
+
+    Buffer velocity(size, 2, true);
+    SetVelocity(velocity, sim);
+
     sim.constrain_velocity();
 
     Extrapolation extrapolation(size, velocity, solidPhi);
-    extrapolation.Extrapolate();
-
-    Reader(velocity).Read().Print();
-
     extrapolation.ConstrainVelocity();
 
-    PrintVelocity(size, sim);
-    Reader(velocity).Read().Print();
-
-    // FIXME not working yet
-    //CheckVelocity(size, velocity, sim);
+    CheckVelocity(velocity, sim);
 }
