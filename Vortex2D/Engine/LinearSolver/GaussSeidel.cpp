@@ -1,18 +1,20 @@
 //
-//  SuccessiveOverRelaxation.cpp
+//  GaussSeidel.cpp
 //  Vortex2D
 //
 
-#include "SuccessiveOverRelaxation.h"
+#include "GaussSeidel.h"
 
 #include <Vortex2D/Renderer/Disable.h>
+
+#include <glm/gtc/constants.hpp>
 
 namespace Vortex2D { namespace Fluid {
 
 namespace
 {
 
-const char * SorFrag = GLSL(
+const char * GaussSeidelFrag = GLSL(
     in vec2 v_texCoord;
     out vec4 out_color;
 
@@ -44,7 +46,7 @@ const char * SorFrag = GLSL(
 const char * CheckerMask = GLSL(
     void main()
     {
-        if(mod(gl_FragCoord.x + gl_FragCoord.y,2.0) == 1.0)
+        if (mod(gl_FragCoord.x + gl_FragCoord.y, 2.0) == 1.0)
         {
             discard;
         }
@@ -55,32 +57,40 @@ const char * CheckerMask = GLSL(
 
 using Renderer::Back;
 
-SuccessiveOverRelaxation::SuccessiveOverRelaxation(const glm::vec2& size)
-    : mSor(Renderer::Shader::TexturePositionVert, SorFrag)
+GaussSeidel::GaussSeidel()
+    : mGaussSeidel(Renderer::Shader::TexturePositionVert, GaussSeidelFrag)
     , mStencil(Renderer::Shader::TexturePositionVert, CheckerMask)
     , mIdentity(Renderer::Shader::TexturePositionVert, Renderer::Shader::TexturePositionFrag)
+    , mW(mGaussSeidel, "w")
 {
-    float w = 2.0f/(1.0f+std::sin(4.0f*std::atan(1.0f)/std::sqrt(size.x*size.y)));
-
-    mSor.Use().Set("u_texture", 0).Set("u_weights", 1).Set("u_diagonals", 2).Set("w", w).Unuse();
+    mGaussSeidel.Use().Set("u_texture", 0).Set("u_weights", 1).Set("u_diagonals", 2).Unuse();
 }
 
-SuccessiveOverRelaxation::SuccessiveOverRelaxation(const glm::vec2& size, float w)
-    : SuccessiveOverRelaxation(size)
+GaussSeidel::GaussSeidel(const glm::vec2& size)
+    : GaussSeidel()
 {
-    mSor.Use().Set("w", w).Unuse();
+    float w = 2.0f/(1.0f+std::sin(glm::pi<float>()/std::sqrt(size.x*size.y)));
+    SetW(w);
 }
 
-void SuccessiveOverRelaxation::Init(Data& data)
+void GaussSeidel::Build(Data&,
+                        Renderer::Operator&,
+                        Renderer::Operator&,
+                        Renderer::Buffer&,
+                        Renderer::Buffer&)
+{
+}
+
+void GaussSeidel::Init(Data& data)
 {
     RenderMask(data.Pressure, data);
 
     Renderer::Enable e(GL_STENCIL_TEST);
     Renderer::DisableColorMask c;
 
-    glStencilFunc(GL_NOTEQUAL, 1, 0xFF); // write value in stencil buffer
+    glStencilFunc(GL_NOTEQUAL, 0, 0xFF); // write value in stencil buffer
     glStencilOp(GL_KEEP, GL_KEEP, GL_INVERT); // invert value
-    glStencilMask(0x02); // write in second place
+    glStencilMask(0x03); // write 2 in stencil
 
     data.Pressure = mStencil();
     data.Pressure.Swap();
@@ -90,32 +100,39 @@ void SuccessiveOverRelaxation::Init(Data& data)
     glStencilMask(0x00); // disable stencil writing
 }
 
-void SuccessiveOverRelaxation::Solve(Data& data, Parameters& params)
+void GaussSeidel::Solve(Data& data, Parameters& params)
 {
     // FIXME implement solving within error tolerance
     assert(params.Iterations > 0);
 
-    for (unsigned i  = 0; !params.IsFinished(i); ++i)
+    for (unsigned i  = 0; !params.IsFinished(i, 0.0f); ++i)
     {
-        Step(data, true);
-        Step(data, false);
+        Step(data, 0x02, 0x01);
+        Step(data, 0x01, 0x02);
 
         params.OutIterations = i;
     }
 }
 
-void SuccessiveOverRelaxation::Step(Data& data, bool isRed)
+void GaussSeidel::Step(Data& data, uint8_t redMask, uint8_t blackMask)
 {
     Renderer::Enable e(GL_STENCIL_TEST);
     glStencilMask(0x00);
 
     data.Pressure.Swap();
 
-    glStencilFunc(GL_EQUAL, isRed ? 2 : 0, 0xFF);
-    data.Pressure = mSor(Back(data.Pressure), data.Weights, data.Diagonal);
+    glStencilFunc(GL_EQUAL, redMask, 0xFF);
+    data.Pressure = mGaussSeidel(Back(data.Pressure), data.Weights, data.Diagonal);
 
-    glStencilFunc(GL_EQUAL, isRed ? 0 : 2, 0xFF);
+    glStencilFunc(GL_NOTEQUAL, 0x00, blackMask);
     data.Pressure = mIdentity(Back(data.Pressure), data.Weights, data.Diagonal);
+}
+
+void GaussSeidel::SetW(float w)
+{
+    mGaussSeidel.Use();
+    mW.Set(w);
+    mGaussSeidel.Unuse();
 }
 
 }}

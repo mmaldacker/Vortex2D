@@ -53,6 +53,8 @@ public:
 
     void ClampToBorder();
 
+    void BorderColour(const glm::vec4& colour);
+
     /**
      * @brief Clears the Buffer
      */

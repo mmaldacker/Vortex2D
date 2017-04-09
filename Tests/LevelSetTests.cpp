@@ -153,7 +153,6 @@ TEST(LevelSetTests, Extrapolate)
     glm::vec2 size(50);
 
     Buffer solidPhi(glm::vec2(2)*size, 1);
-    solidPhi.ClampToEdge();
 
     std::vector<float> solidData(4 * size.x * size.y, 1.0);
     DrawSquare(100, 100, solidData, glm::vec2(10.0f), glm::vec2(20.0f), -1.0f);

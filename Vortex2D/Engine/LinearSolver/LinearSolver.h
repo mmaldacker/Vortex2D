@@ -8,6 +8,8 @@
 
 #include <Vortex2D/Renderer/Operator.h>
 
+#include <chrono>
+
 namespace Vortex2D { namespace Fluid {
 
 /**
@@ -46,18 +48,27 @@ struct LinearSolver
     {
         Parameters(unsigned iterations, float errorTolerance = 0.0f);
 
-        bool IsFinished(unsigned iterations, float error = 0.0f) const;
+        bool IsFinished(unsigned iterations, float error) const;
 
         unsigned Iterations;
 
         float ErrorTolerance;
 
         unsigned OutIterations;
+
+        std::chrono::microseconds initTime;
+        std::chrono::microseconds solveTime;
     };
 
     LinearSolver();
 
     virtual ~LinearSolver() {}
+
+    virtual void Build(Data& data,
+                       Renderer::Operator& diagonals,
+                       Renderer::Operator& weights,
+                       Renderer::Buffer& solidPhi,
+                       Renderer::Buffer& liquidPhi) = 0;
 
     /**
      * @brief Any initialisation steps to be done before solving the linear equations

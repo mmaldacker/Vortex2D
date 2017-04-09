@@ -37,7 +37,6 @@ TEST(ExtrapolateTest, Extrapolate)
     SetVelocity(velocity, sim);
 
     Buffer solidPhi(glm::vec2(2)*size, 1);
-    solidPhi.ClampToEdge();
     SetSolidPhi(solidPhi, sim);
 
     extrapolate(sim.u, sim.u_valid);
@@ -74,7 +73,6 @@ TEST(ExtrapolateTest, Constrain)
     SetVelocity(velocity, sim);
 
     Buffer solidPhi(glm::vec2(2)*size, 1);
-    solidPhi.ClampToEdge();
     SetSolidPhi(solidPhi, sim);
 
     extrapolate(sim.u, sim.u_valid);

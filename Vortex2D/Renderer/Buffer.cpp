@@ -43,7 +43,12 @@ void Buffer::ClampToEdge()
 
 void Buffer::ClampToBorder()
 {
-    for (auto&& t: mTextures) t.ClampToBorder();
+    for (auto&& t : mTextures) t.ClampToBorder();
+}
+
+void Buffer::BorderColour(const glm::vec4& colour)
+{
+    for (auto&& t : mTextures) t.BorderColour(colour);
 }
 
 void Buffer::Clear(const glm::vec4& colour)

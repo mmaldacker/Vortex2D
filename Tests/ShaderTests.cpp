@@ -70,6 +70,26 @@ const char * MultiplySubFrag = GLSL(
     }
 );
 
+const char * BorderFrag = GLSL(
+    in vec2 v_texCoord;
+    out vec4 colour_out;
+
+    uniform sampler2D u_texture;
+
+    void main()
+    {
+        vec4 p;
+        p.x = textureOffset(u_texture, v_texCoord, ivec2(1,0)).x;
+        p.y = textureOffset(u_texture, v_texCoord, ivec2(-1,0)).x;
+        p.z = textureOffset(u_texture, v_texCoord, ivec2(0,1)).x;
+        p.w = textureOffset(u_texture, v_texCoord, ivec2(0,-1)).x;
+
+        const vec4 q = vec4(1.0);
+
+        colour_out = vec4(dot(p, q), 0.0, 0.0, 0.0);
+    }
+);
+
 }
 
 TEST(ShaderTests, SingleShader)
@@ -142,4 +162,24 @@ TEST(ShaderTests, OperatorBack)
     reader.Read();
 
     ASSERT_FLOAT_EQ(xValue - yValue * zValue, reader.GetFloat(0, 0));
+}
+
+TEST(ShaderTests, BorderColour)
+{
+  Disable d(GL_BLEND);
+
+  Buffer x({2,2}, 1);
+  RenderTexture tex(2, 2, Texture::PixelFormat::RF);
+  tex.Clear(glm::vec4(0.0f));
+  tex.ClampToBorder();
+  tex.BorderColour(glm::vec4(-1.0f));
+
+  Operator op(Shader::TexturePositionVert, BorderFrag);
+  op.Use().Set("u_texture", 0).Unuse();
+
+  x = op(tex);
+
+  std::vector<float> data(4, -2.0f);
+
+  CheckTexture(data, x);
 }

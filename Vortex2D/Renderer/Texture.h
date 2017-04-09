@@ -49,6 +49,7 @@ public:
 
     void Nearest();
     void Linear();
+    void BorderColour(const glm::vec4& colour);
 
     void ClampToEdge();
     void ClampToBorder();

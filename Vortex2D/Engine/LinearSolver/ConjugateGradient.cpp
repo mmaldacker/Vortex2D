@@ -6,7 +6,6 @@
 #include "ConjugateGradient.h"
 
 #include <Vortex2D/Renderer/Disable.h>
-#include <Vortex2D/Renderer/Reader.h>
 
 namespace Vortex2D { namespace Fluid {
 
@@ -27,22 +26,6 @@ const char * DivideFrag = GLSL(
 
         colour_out = vec4(x / y, 0.0, 0.0, 0.0);
     }
-);
-
-const char * MultiplyFrag = GLSL(
-     in vec2 v_texCoord;
-     out vec4 colour_out;
-
-     uniform sampler2D u_x;
-     uniform sampler2D u_y;
-
-     void main()
-     {
-         float x = texture(u_x, v_texCoord).x;
-         float y = texture(u_y, v_texCoord).x;
-
-         colour_out = vec4(x * y, 0.0, 0.0, 0.0);
-     }
 );
 
 const char * MultiplyAddFrag = GLSL(
@@ -122,6 +105,18 @@ const char * ResidualFrag = GLSL(
     }
 );
 
+const char* SwizzleFrag = GLSL(
+    in vec2 v_texCoord;
+    out vec4 colour_out;
+
+    uniform sampler2D u_texture;
+
+    void main()
+    {
+        float div = texture(u_texture, v_texCoord).x;
+        colour_out = vec4(0.0, div, 0.0, 0.0);
+    }
+);
 }
 
 using Renderer::Back;
@@ -129,44 +124,52 @@ using Renderer::Back;
 ConjugateGradient::ConjugateGradient(const glm::vec2& size)
     : r(size, 1, true)
     , s(size, 1, true)
-    , z(size, 1, false, true)
     , alpha({1,1}, 1)
     , beta({1,1}, 1)
     , rho({1,1}, 1)
     , rho_new({1,1}, 1)
     , sigma({1,1}, 1)
-    , reduce(size, 1)
     , error({1,1}, 1)
     , matrixMultiply(Renderer::Shader::TexturePositionVert, MultiplyMatrixFrag)
     , scalarDivision(Renderer::Shader::TexturePositionVert, DivideFrag)
-    , scalarMultiply(Renderer::Shader::TexturePositionVert, MultiplyFrag)
     , multiplyAdd(Renderer::Shader::TexturePositionVert, MultiplyAddFrag)
     , multiplySub(Renderer::Shader::TexturePositionVert, MultiplySubFrag)
     , residual(Renderer::Shader::TexturePositionVert, ResidualFrag)
     , identity(Renderer::Shader::TexturePositionVert, Renderer::Shader::TexturePositionFrag)
     , reduceSum(size)
     , reduceMax(size)
+    , errorReader(error)
+    , swizzle(Renderer::Shader::TexturePositionVert, SwizzleFrag)
+    , z(size)
+    , preconditioner(size)
 {
     residual.Use().Set("u_texture", 0).Unuse();
     identity.Use().Set("u_texture", 0).Unuse();
     matrixMultiply.Use().Set("u_texture", 0).Set("u_weights", 1).Set("u_diagonals", 2).Unuse();
     scalarDivision.Use().Set("u_x", 0).Set("u_y", 1).Unuse();
-    scalarMultiply.Use().Set("u_x", 0).Set("u_y", 1).Unuse();
     multiplyAdd.Use().Set("u_x", 0).Set("u_y", 1).Set("u_scalar", 2).Unuse();
     multiplySub.Use().Set("u_x", 0).Set("u_y", 1).Set("u_scalar", 2).Unuse();
-
-    reduce.ClampToBorder();
-    error.ClampToBorder();
+    swizzle.Use().Set("u_texture", 0).Unuse();
 }
 
 ConjugateGradient::~ConjugateGradient()
 {
 }
 
+void ConjugateGradient::Build(Data&,
+                              Renderer::Operator& diagonals,
+                              Renderer::Operator& weights,
+                              Renderer::Buffer& solidPhi,
+                              Renderer::Buffer& liquidPhi)
+{
+    preconditioner.Build(z, diagonals, weights, solidPhi, liquidPhi);
+}
+
 void ConjugateGradient::Init(Data& data)
 {
-    z.Clear(glm::vec4(0.0f));
-    RenderMask(z, data);
+    z.Pressure.Clear(glm::vec4(0.0f));
+    RenderMask(z.Pressure, data);
+    preconditioner.Init(z);
 }
 
 void ConjugateGradient::Solve(Data& data, Parameters& params)
@@ -175,7 +178,9 @@ void ConjugateGradient::Solve(Data& data, Parameters& params)
     r = residual(data.Pressure);
 
     // if r = 0, return
-    if (GetError() == 0.0f)
+    error = reduceMax(r);
+    // FIXME can use this value to improve tolerance checking as in pcg_solver.h
+    if (errorReader.Read().GetFloat(0, 0) == 0.0f)
     {
         return;
     }
@@ -187,18 +192,18 @@ void ConjugateGradient::Solve(Data& data, Parameters& params)
     ApplyPreconditioner(data);
 
     // s = z
-    s = identity(z);
+    s = identity(z.Pressure);
 
     // rho = zTr
-    InnerProduct(rho, z, r);
+    InnerProduct(rho, z.Pressure, r);
 
     for (unsigned i = 0 ;; ++i)
     {
         // z = As
-        z = matrixMultiply(s, data.Weights, data.Diagonal);
+        z.Pressure = matrixMultiply(s, data.Weights, data.Diagonal);
 
         // alpha = rho / zTs
-        InnerProduct(sigma, z, s);
+        InnerProduct(sigma, z.Pressure, s);
         alpha = scalarDivision(rho, sigma);
 
         // p = p + alpha * s
@@ -207,27 +212,34 @@ void ConjugateGradient::Solve(Data& data, Parameters& params)
 
         // r = r - alpha * z
         r.Swap();
-        r = multiplySub(Back(r), z, alpha);
+        r = multiplySub(Back(r), z.Pressure, alpha);
+
+        // FIXME don't calculate if we don't do by error
+        // calculate max error
+        error = reduceMax(r);
 
         // exit condition
         params.OutIterations = i;
-        if (params.IsFinished(i, GetError()))
+        if (params.IsFinished(i, errorReader.GetFloat(0, 0)))
         {
             return;
         }
+
+        // async copy of error to client
+        errorReader.Read();
 
         // z = M^-1 r
         ApplyPreconditioner(data);
 
         // rho_new = zTr
-        InnerProduct(rho_new, z, r);
+        InnerProduct(rho_new, z.Pressure, r);
 
         // beta = rho_new / rho
         beta = scalarDivision(rho_new, rho);
 
         // s = z + beta * s
         s.Swap();
-        s = multiplyAdd(z, Back(s), beta);
+        s = multiplyAdd(z.Pressure, Back(s), beta);
 
         // rho = rho_new
         rho = identity(rho_new);
@@ -240,7 +252,8 @@ void ConjugateGradient::NormalSolve(Data& data, Parameters& params)
     r = residual(data.Pressure);
 
     // if r = 0, return
-    if (GetError() == 0.0f)
+    error = reduceMax(r);
+    if (errorReader.Read().GetFloat(0, 0) == 0.0f)
     {
         return;
     }
@@ -257,10 +270,10 @@ void ConjugateGradient::NormalSolve(Data& data, Parameters& params)
     for (unsigned i = 0 ;; ++i)
     {
         // z = As
-        z = matrixMultiply(s, data.Weights, data.Diagonal);
+        z.Pressure = matrixMultiply(s, data.Weights, data.Diagonal);
 
         // alpha = rho / zTs
-        InnerProduct(sigma, z, s);
+        InnerProduct(sigma, z.Pressure, s);
         alpha = scalarDivision(rho, sigma);
 
         // p = p + alpha * s
@@ -269,11 +282,15 @@ void ConjugateGradient::NormalSolve(Data& data, Parameters& params)
 
         // r = r - alpha * z
         r.Swap();
-        r = multiplySub(Back(r), z, alpha);
+        r = multiplySub(Back(r), z.Pressure, alpha);
+
+        // calculate max error
+        error = reduceMax(r);
+        errorReader.Read();
 
         // exit condition
         params.OutIterations = i;
-        if (params.IsFinished(i, GetError()))
+        if (params.IsFinished(i, errorReader.GetFloat(0, 0)))
         {
             return;
         }
@@ -297,23 +314,19 @@ void ConjugateGradient::ApplyPreconditioner(Data& data)
 {
     Renderer::Enable e(GL_STENCIL_TEST);
     glStencilMask(0x00);
-    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
 
-    z = scalarDivision(r, data.Diagonal);
+    z.Pressure = scalarDivision(r, data.Diagonal);
+
+    /*
+    z.Pressure = swizzle(r);
+    preconditioner.Solve(z, Parameters(0));
+    */
 }
 
 void ConjugateGradient::InnerProduct(Renderer::Buffer& output, Renderer::Buffer& input1, Renderer::Buffer& input2)
 {
-    reduce = scalarMultiply(input1, input2);
-    output = reduceSum(reduce);
+    output = reduceSum(input1, input2);
 }
-
-float ConjugateGradient::GetError()
-{
-    // FIXME don't compute if we don't want to terminate based on error tolerance
-    error = reduceMax(r);
-    return Renderer::Reader(error).Read().GetFloat(0, 0);
-}
-
 
 }}

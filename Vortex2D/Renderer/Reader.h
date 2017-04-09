@@ -29,6 +29,8 @@ public:
      */
     Reader& Read();
 
+    Reader& ReadStencil();
+
     /**
      * @brief Prints the colour part of the render texture to stdout
      * @return returns *this
@@ -76,7 +78,7 @@ private:
     float Get(int x, int y, int size, int offset) const;
 
     Renderer::RenderTexture& mTexture;
-    float* mPixels;
+    GLuint mPixelBuffer;
     uint8_t* mStencil;
 };
 

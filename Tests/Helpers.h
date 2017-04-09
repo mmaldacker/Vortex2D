@@ -121,8 +121,8 @@ static void CheckVelocity(Buffer& buffer, FluidSim& sim, float error = 1e-6)
     {
         for (std::size_t j = 1; j < buffer.Height() - 1; j++)
         {
-            ASSERT_NEAR(sim.u(i, j), reader.GetVec2(i, j).x, error) << "Mismatch at " << i << "," << j;
-            ASSERT_NEAR(sim.v(i, j), reader.GetVec2(i, j).y, error) << "Mismatch at " << i << "," << j;
+            EXPECT_NEAR(sim.u(i, j), reader.GetVec2(i, j).x, error) << "Mismatch at " << i << "," << j;
+            EXPECT_NEAR(sim.v(i, j), reader.GetVec2(i, j).y, error) << "Mismatch at " << i << "," << j;
         }
     }
 }
@@ -216,6 +216,8 @@ static void SetLiquidPhi(Buffer& buffer, FluidSim& sim)
 class MockLinearSolver : public LinearSolver
 {
 public:
+
+    MOCK_METHOD5(Build, void(Data&, Operator&, Operator&, Buffer&, Buffer&));
     MOCK_METHOD1(Init, void(Data&));
     MOCK_METHOD2(Solve, void(Data&, Parameters&));
 };
