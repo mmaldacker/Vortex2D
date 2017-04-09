@@ -105,6 +105,18 @@ const char * ResidualFrag = GLSL(
     }
 );
 
+const char* SwizzleFrag = GLSL(
+    in vec2 v_texCoord;
+    out vec4 colour_out;
+
+    uniform sampler2D u_texture;
+
+    void main()
+    {
+        float div = texture(u_texture, v_texCoord).x;
+        colour_out = vec4(0.0, div, 0.0, 0.0);
+    }
+);
 }
 
 using Renderer::Back;
@@ -112,7 +124,6 @@ using Renderer::Back;
 ConjugateGradient::ConjugateGradient(const glm::vec2& size)
     : r(size, 1, true)
     , s(size, 1, true)
-    , z(size, 1, false, true)
     , alpha({1,1}, 1)
     , beta({1,1}, 1)
     , rho({1,1}, 1)
@@ -128,6 +139,9 @@ ConjugateGradient::ConjugateGradient(const glm::vec2& size)
     , reduceSum(size)
     , reduceMax(size)
     , errorReader(error)
+    , swizzle(Renderer::Shader::TexturePositionVert, SwizzleFrag)
+    , z(size)
+    , preconditioner(size)
 {
     residual.Use().Set("u_texture", 0).Unuse();
     identity.Use().Set("u_texture", 0).Unuse();
@@ -135,23 +149,27 @@ ConjugateGradient::ConjugateGradient(const glm::vec2& size)
     scalarDivision.Use().Set("u_x", 0).Set("u_y", 1).Unuse();
     multiplyAdd.Use().Set("u_x", 0).Set("u_y", 1).Set("u_scalar", 2).Unuse();
     multiplySub.Use().Set("u_x", 0).Set("u_y", 1).Set("u_scalar", 2).Unuse();
+    swizzle.Use().Set("u_texture", 0).Unuse();
 }
 
 ConjugateGradient::~ConjugateGradient()
 {
 }
 
-void ConjugateGradient::Build(Renderer::Operator& diagonals,
+void ConjugateGradient::Build(Data&,
+                              Renderer::Operator& diagonals,
                               Renderer::Operator& weights,
                               Renderer::Buffer& solidPhi,
                               Renderer::Buffer& liquidPhi)
 {
+    preconditioner.Build(z, diagonals, weights, solidPhi, liquidPhi);
 }
 
 void ConjugateGradient::Init(Data& data)
 {
-    z.Clear(glm::vec4(0.0f));
-    RenderMask(z, data);
+    z.Pressure.Clear(glm::vec4(0.0f));
+    RenderMask(z.Pressure, data);
+    preconditioner.Init(z);
 }
 
 void ConjugateGradient::Solve(Data& data, Parameters& params)
@@ -174,18 +192,18 @@ void ConjugateGradient::Solve(Data& data, Parameters& params)
     ApplyPreconditioner(data);
 
     // s = z
-    s = identity(z);
+    s = identity(z.Pressure);
 
     // rho = zTr
-    InnerProduct(rho, z, r);
+    InnerProduct(rho, z.Pressure, r);
 
     for (unsigned i = 0 ;; ++i)
     {
         // z = As
-        z = matrixMultiply(s, data.Weights, data.Diagonal);
+        z.Pressure = matrixMultiply(s, data.Weights, data.Diagonal);
 
         // alpha = rho / zTs
-        InnerProduct(sigma, z, s);
+        InnerProduct(sigma, z.Pressure, s);
         alpha = scalarDivision(rho, sigma);
 
         // p = p + alpha * s
@@ -194,7 +212,7 @@ void ConjugateGradient::Solve(Data& data, Parameters& params)
 
         // r = r - alpha * z
         r.Swap();
-        r = multiplySub(Back(r), z, alpha);
+        r = multiplySub(Back(r), z.Pressure, alpha);
 
         // FIXME don't calculate if we don't do by error
         // calculate max error
@@ -214,14 +232,14 @@ void ConjugateGradient::Solve(Data& data, Parameters& params)
         ApplyPreconditioner(data);
 
         // rho_new = zTr
-        InnerProduct(rho_new, z, r);
+        InnerProduct(rho_new, z.Pressure, r);
 
         // beta = rho_new / rho
         beta = scalarDivision(rho_new, rho);
 
         // s = z + beta * s
         s.Swap();
-        s = multiplyAdd(z, Back(s), beta);
+        s = multiplyAdd(z.Pressure, Back(s), beta);
 
         // rho = rho_new
         rho = identity(rho_new);
@@ -252,10 +270,10 @@ void ConjugateGradient::NormalSolve(Data& data, Parameters& params)
     for (unsigned i = 0 ;; ++i)
     {
         // z = As
-        z = matrixMultiply(s, data.Weights, data.Diagonal);
+        z.Pressure = matrixMultiply(s, data.Weights, data.Diagonal);
 
         // alpha = rho / zTs
-        InnerProduct(sigma, z, s);
+        InnerProduct(sigma, z.Pressure, s);
         alpha = scalarDivision(rho, sigma);
 
         // p = p + alpha * s
@@ -264,7 +282,7 @@ void ConjugateGradient::NormalSolve(Data& data, Parameters& params)
 
         // r = r - alpha * z
         r.Swap();
-        r = multiplySub(Back(r), z, alpha);
+        r = multiplySub(Back(r), z.Pressure, alpha);
 
         // calculate max error
         error = reduceMax(r);
@@ -298,7 +316,12 @@ void ConjugateGradient::ApplyPreconditioner(Data& data)
     glStencilMask(0x00);
     glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
 
-    z = scalarDivision(r, data.Diagonal);
+    z.Pressure = scalarDivision(r, data.Diagonal);
+
+    /*
+    z.Pressure = swizzle(r);
+    preconditioner.Solve(z, Parameters(0));
+    */
 }
 
 void ConjugateGradient::InnerProduct(Renderer::Buffer& output, Renderer::Buffer& input1, Renderer::Buffer& input2)

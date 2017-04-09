@@ -18,7 +18,8 @@ class Multigrid : public LinearSolver
 public:
     Multigrid(glm::vec2 size);
 
-    void Build(Renderer::Operator& diagonals,
+    void Build(Data& data,
+               Renderer::Operator& diagonals,
                Renderer::Operator& weights,
                Renderer::Buffer& solidPhi,
                Renderer::Buffer& liquidPhi) override;

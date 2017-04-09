@@ -233,11 +233,15 @@ void Multigrid::RenderBoundaryMask(Data& data, Renderer::Buffer& buffer)
     glStencilMask(0x00); // disable stencil writing
 }
 
-void Multigrid::Build(Renderer::Operator& diagonals,
+void Multigrid::Build(Data& data,
+                      Renderer::Operator& diagonals,
                       Renderer::Operator& weights,
                       Renderer::Buffer& solidPhi,
                       Renderer::Buffer& liquidPhi)
 {
+    data.Diagonal = diagonals(solidPhi, liquidPhi);
+    data.Weights = weights(solidPhi, liquidPhi);
+
     mLiquidPhis[0] = mScale(liquidPhi);
     mSolidPhis[0] = mScale(solidPhi);
 
@@ -284,7 +288,7 @@ void Multigrid::Solve(LinearSolver::Data& data, Parameters&)
     int numIterations = 2;
 
     Smoother(data, numIterations);
-    BorderSmoother(data, numIterations, true);
+    //BorderSmoother(data, numIterations, true);
 
     if (mDepths > 0)
     {
@@ -299,7 +303,7 @@ void Multigrid::Solve(LinearSolver::Data& data, Parameters&)
             auto& x = mDatas[i];
 
             Smoother(x, numIterations);
-            BorderSmoother(x, numIterations, true);
+            //BorderSmoother(x, numIterations, true);
 
             x.Pressure.Swap();
             x.Pressure = mResidual(Back(x.Pressure), x.Weights, x.Diagonal);
@@ -316,7 +320,7 @@ void Multigrid::Solve(LinearSolver::Data& data, Parameters&)
             x.Pressure.Swap();
             x.Pressure = mTransfer.Prolongate(mDatas[i + 1].Pressure, Back(x.Pressure));
 
-            BorderSmoother(x, numIterations, false);
+            //BorderSmoother(x, numIterations, false);
             Smoother(x, numIterations);
 
             numIterations /= 2;
@@ -326,7 +330,7 @@ void Multigrid::Solve(LinearSolver::Data& data, Parameters&)
         data.Pressure = mTransfer.Prolongate(mDatas[0].Pressure, Back(data.Pressure));
     }
 
-    BorderSmoother(data, numIterations, false);
+    //BorderSmoother(data, numIterations, false);
     Smoother(data, numIterations);
 }
 

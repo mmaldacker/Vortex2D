@@ -73,10 +73,11 @@ GaussSeidel::GaussSeidel(const glm::vec2& size)
     SetW(w);
 }
 
-void GaussSeidel::Build(Renderer::Operator& ,
-                        Renderer::Operator& ,
-                        Renderer::Buffer& ,
-                        Renderer::Buffer& )
+void GaussSeidel::Build(Data&,
+                        Renderer::Operator&,
+                        Renderer::Operator&,
+                        Renderer::Buffer&,
+                        Renderer::Buffer&)
 {
 }
 

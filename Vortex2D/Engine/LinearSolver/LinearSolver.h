@@ -8,6 +8,8 @@
 
 #include <Vortex2D/Renderer/Operator.h>
 
+#include <chrono>
+
 namespace Vortex2D { namespace Fluid {
 
 /**
@@ -53,13 +55,17 @@ struct LinearSolver
         float ErrorTolerance;
 
         unsigned OutIterations;
+
+        std::chrono::microseconds initTime;
+        std::chrono::microseconds solveTime;
     };
 
     LinearSolver();
 
     virtual ~LinearSolver() {}
 
-    virtual void Build(Renderer::Operator& diagonals,
+    virtual void Build(Data& data,
+                       Renderer::Operator& diagonals,
                        Renderer::Operator& weights,
                        Renderer::Buffer& solidPhi,
                        Renderer::Buffer& liquidPhi) = 0;

@@ -9,6 +9,7 @@
 #include <Vortex2D/Renderer/Reader.h>
 
 #include <Vortex2D/Engine/LinearSolver/LinearSolver.h>
+#include <Vortex2D/Engine/LinearSolver/Multigrid.h>
 #include <Vortex2D/Engine/LinearSolver/Reduce.h>
 
 namespace Vortex2D { namespace Fluid {
@@ -23,7 +24,8 @@ public:
     ConjugateGradient(const glm::vec2& size);
     virtual ~ConjugateGradient();
 
-    void Build(Renderer::Operator& diagonals,
+    void Build(Data& data,
+               Renderer::Operator& diagonals,
                Renderer::Operator& weights,
                Renderer::Buffer& solidPhi,
                Renderer::Buffer& liquidPhi) override;
@@ -44,11 +46,15 @@ private:
     void ApplyPreconditioner(Data& data);
     void InnerProduct(Renderer::Buffer& output, Renderer::Buffer& intput1, Renderer::Buffer& input2);
 
-    Renderer::Buffer r, s, z, alpha, beta, rho, rho_new, sigma, error;
+    Renderer::Buffer r, s, alpha, beta, rho, rho_new, sigma, error;
     Renderer::Operator matrixMultiply, scalarDivision, multiplyAdd, multiplySub, residual, identity;
     ReduceSum reduceSum;
     ReduceMax reduceMax;
     Renderer::Reader errorReader;
+
+    Renderer::Operator swizzle;
+    Data z;
+    Multigrid preconditioner;
 };
 
 }}

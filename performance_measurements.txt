@@ -42,3 +42,8 @@ Solved with number of iterations: 211
 
 Solved in time: 225
 Solved with number of iterations: 212
+
+# Replaced texelFetch with textureOffset as it's the correct way
+
+Solved in time: 246
+Solved with number of iterations: 211

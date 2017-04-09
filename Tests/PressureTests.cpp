@@ -208,7 +208,7 @@ TEST(PressureTest, Project_Simple)
 
     Pressure pressure(0.01f, size, solver, data, velocity, solidPhi, liquidPhi, solidVelocity);
 
-    EXPECT_CALL(solver, Build(_, _, _, _));
+    EXPECT_CALL(solver, Build(_, _, _, _, _));
     EXPECT_CALL(solver, Init(_));
     EXPECT_CALL(solver, Solve(_, _)).WillOnce(InvokeWithoutArgs([&]
     {
@@ -260,7 +260,7 @@ TEST(PressureTest, Project_Complex)
 
     Pressure pressure(0.01f, size, solver, data, velocity, solidPhi, liquidPhi, solidVelocity);
 
-    EXPECT_CALL(solver, Build(_, _, _, _));
+    EXPECT_CALL(solver, Build(_, _, _, _, _));
     EXPECT_CALL(solver, Init(_));
     EXPECT_CALL(solver, Solve(_, _)).WillOnce(InvokeWithoutArgs([&]
     {

@@ -217,7 +217,7 @@ class MockLinearSolver : public LinearSolver
 {
 public:
 
-    MOCK_METHOD4(Build, void(Operator&, Operator&, Buffer&, Buffer&));
+    MOCK_METHOD5(Build, void(Data&, Operator&, Operator&, Buffer&, Buffer&));
     MOCK_METHOD1(Init, void(Data&));
     MOCK_METHOD2(Solve, void(Data&, Parameters&));
 };
