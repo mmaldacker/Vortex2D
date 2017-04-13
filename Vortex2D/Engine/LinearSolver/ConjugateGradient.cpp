@@ -220,7 +220,8 @@ void ConjugateGradient::Solve(Data& data, Parameters& params)
 
         // exit condition
         params.OutIterations = i;
-        if (params.IsFinished(i, errorReader.GetFloat(0, 0)))
+        params.OutError = errorReader.GetFloat(0, 0);
+        if (params.IsFinished(i, params.OutError))
         {
             return;
         }
@@ -290,7 +291,8 @@ void ConjugateGradient::NormalSolve(Data& data, Parameters& params)
 
         // exit condition
         params.OutIterations = i;
-        if (params.IsFinished(i, errorReader.GetFloat(0, 0)))
+        params.OutError = errorReader.GetFloat(0, 0);
+        if (params.IsFinished(i, params.OutError))
         {
             return;
         }

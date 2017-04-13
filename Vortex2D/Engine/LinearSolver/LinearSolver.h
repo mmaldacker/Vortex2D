@@ -8,8 +8,6 @@
 
 #include <Vortex2D/Renderer/Operator.h>
 
-#include <chrono>
-
 namespace Vortex2D { namespace Fluid {
 
 /**
@@ -56,8 +54,7 @@ struct LinearSolver
 
         unsigned OutIterations;
 
-        std::chrono::microseconds initTime;
-        std::chrono::microseconds solveTime;
+        float OutError;
     };
 
     LinearSolver();

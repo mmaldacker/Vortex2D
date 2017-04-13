@@ -45,6 +45,7 @@ LinearSolver::Parameters::Parameters(unsigned iterations, float errorTolerance)
     : Iterations(iterations)
     , ErrorTolerance(errorTolerance)
     , OutIterations(0)
+    , OutError(0.0f)
 {
 
 }

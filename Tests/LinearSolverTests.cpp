@@ -590,7 +590,5 @@ TEST(LinearSolverTests, PerformanceMeasurements)
     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
     std::cout << "Total Solved time: " << elapsed.count() << std::endl;
-    std::cout << "Init time: " << params.initTime.count() << std::endl;
-    std::cout << "Solve time: " << params.solveTime.count() << std::endl;
     std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
 }

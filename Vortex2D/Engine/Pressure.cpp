@@ -237,19 +237,8 @@ void Pressure::Solve(LinearSolver::Parameters& params)
 
     // TODO maybe move the two lines above inside Build? In any case this is not very clean
     mSolver.Build(mData, mDiagonals, mWeights, mSolidPhi, mLiquidPhi);
-
-    auto start = std::chrono::system_clock::now();
-
     mSolver.Init(mData);
-
-    auto end = std::chrono::system_clock::now();
-    params.initTime = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-
     mSolver.Solve(mData, params);
-
-    end = std::chrono::system_clock::now();
-    params.solveTime = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-
 
     mVelocity.Swap();
     mVelocity = mProject(Back(mVelocity),
