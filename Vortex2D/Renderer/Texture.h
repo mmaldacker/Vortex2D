@@ -45,7 +45,6 @@ public:
     unsigned GetNumberComponents() const;
 
     void Bind(int n = 0) const;
-    static void Unbind();
 
     void Nearest();
     void Linear();
@@ -66,9 +65,6 @@ private:
     int mWidth;
     int mHeight;
     PixelFormat mFormat;
-
-    static GLuint BoundId[4];
-    static int ActiveUnit;
 };
 
 }}

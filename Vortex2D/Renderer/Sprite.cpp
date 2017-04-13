@@ -82,8 +82,6 @@ void Sprite::Render(RenderTarget & target, const glm::mat4 & transform)
     glBindVertexArray(mVertexArray);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     glBindVertexArray(0);
-
-    Renderer::Texture::Unbind();
 }
 
 }}

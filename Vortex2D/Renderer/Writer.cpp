@@ -83,7 +83,6 @@ void Writer::Write(const void* data)
                  mTexture.GetFormat(),
                  mTexture.GetType(),
                  data);
-    mTexture.Unbind();
 }
 
 

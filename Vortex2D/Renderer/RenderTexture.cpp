@@ -5,6 +5,8 @@
 
 #include "RenderTexture.h"
 
+#include <Vortex2D/Renderer/State.h>
+
 #include <algorithm>
 #include <string>
 #include <stdexcept>
@@ -119,11 +121,7 @@ void RenderTexture::Render(Drawable& object, const glm::mat4& transform)
 
 void RenderTexture::Begin()
 {
-    // FIXME Begin/End is extremely slow, particularly because of the glGetIntergerv calls
-    // need to improve this by tracking the information ourselves (viewport and current frame buffer)
-    glGetIntegerv(GL_VIEWPORT, mOldViewPort);
-
-    glViewport(0, 0, Width(), Height());
+    State::SetViewPort(0, 0, Width(), Height());
 
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &mOldFrameBuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, mFrameBuffer);
@@ -132,7 +130,6 @@ void RenderTexture::Begin()
 void RenderTexture::End()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, mOldFrameBuffer);
-    glViewport(mOldViewPort[0], mOldViewPort[1], mOldViewPort[2], mOldViewPort[3]);
 }
 
 }}

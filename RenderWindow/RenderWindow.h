@@ -28,6 +28,7 @@ public:
     void SetKeyCallback(GLFWkeyfun cbfun);
 
 private:
+    int mWidth, mHeight;
     GLFWwindow * mWindow;
 };
 

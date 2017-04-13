@@ -5,12 +5,11 @@
 
 #include "Texture.h"
 
+#include <Vortex2D/Renderer/State.h>
+
 #include <cassert>
 
 namespace Vortex2D { namespace Renderer {
-
-GLuint Texture::BoundId[4] = {0};
-int Texture::ActiveUnit = -1;
 
 Texture::Texture(int width, int height, PixelFormat pixelFormat)
     : mWidth(width), mHeight(height), mFormat(pixelFormat)
@@ -34,24 +33,13 @@ Texture::Texture(int width, int height, PixelFormat pixelFormat)
                  GetFormat(),
                  GetType(),
                  NULL);
-
-    Unbind();
 }
 
 Texture::~Texture()
 {
     if (mId)
     {
-        // make sure we clear the cache for this texture id
-        // because OpenGL can re-use texture ids and it won't be correctly bound
-        for (auto& id : BoundId)
-        {
-            if (id == mId)
-            {
-                id = 0;
-            }
-        }
-
+        State::ClearTexture(mId);
         glDeleteTextures(1, &mId);
     }
 }
@@ -82,7 +70,6 @@ void Texture::Nearest()
     Bind();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    Unbind();
 }
 
 void Texture::Linear()
@@ -90,14 +77,12 @@ void Texture::Linear()
     Bind();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    Unbind();
 }
 
 void Texture::BorderColour(const glm::vec4& colour)
 {
   Bind();
   glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, &colour[0]);
-  Unbind();
 }
 
 void Texture::ClampToEdge()
@@ -105,7 +90,6 @@ void Texture::ClampToEdge()
     Bind();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    Unbind();
 }
 
 void Texture::ClampToBorder()
@@ -113,28 +97,11 @@ void Texture::ClampToBorder()
     Bind();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-    Unbind();
 }
 
 void Texture::Bind(int textureUnit) const
 {
-    if (ActiveUnit != textureUnit)
-    {
-        ActiveUnit = textureUnit;
-        glActiveTexture(GL_TEXTURE0+textureUnit);
-    }
-    if (BoundId[textureUnit] != mId)
-    {
-        BoundId[textureUnit] = mId;
-        glBindTexture(GL_TEXTURE_2D, mId);
-    }
-}
-
-void Texture::Unbind()
-{
-    assert(ActiveUnit >= 0);
-    BoundId[ActiveUnit] = 0;
-    glBindTexture(GL_TEXTURE_2D, 0);
+    State::BindTexture(mId, textureUnit);
 }
 
 GLint Texture::GetInternalFormat() const

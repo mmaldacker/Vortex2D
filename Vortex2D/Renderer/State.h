@@ -15,8 +15,11 @@ void UseProgram(GLuint shader);
 void ClearProgram(GLuint shader);
 
 // glActiveTexture/glBindTexture
+void BindTexture(GLuint texture, int textureUnit = 0);
+void ClearTexture(GLuint texture);
 
 // glViewPort/glBindFrameBuffer
+void SetViewPort(GLint x, GLint y, GLsizei width, GLsizei height);
 
 // glClearColor/glClear
 

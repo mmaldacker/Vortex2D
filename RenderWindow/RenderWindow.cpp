@@ -4,11 +4,16 @@
 //
 
 #include "RenderWindow.h"
+
+#include <Vortex2D/Renderer/State.h>
+
 #include <glad/glad.h>
 #include <stdexcept>
 
 RenderWindow::RenderWindow(int width, int height, const std::string & name, RenderWindow * share)
     : Vortex2D::Renderer::RenderTarget(width, height)
+    , mWidth(width)
+    , mHeight(height)
     , mWindow(glfwCreateWindow(width, height, name.c_str(), nullptr, share ? share->mWindow : nullptr))
 {
     if (!mWindow)
@@ -17,7 +22,6 @@ RenderWindow::RenderWindow(int width, int height, const std::string & name, Rend
     glfwMakeContextCurrent(mWindow);
     gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
 
-    glViewport(0, 0, width, height);
     glfwSwapInterval(1);
 
     glEnable(GL_BLEND);
@@ -48,6 +52,7 @@ void RenderWindow::Render(Vortex2D::Renderer::Drawable & object, const glm::mat4
 
 void RenderWindow::Display()
 {
+    Renderer::State::SetViewPort(0, 0, mWidth, mHeight);
     glfwSwapBuffers(mWindow);
 }
 

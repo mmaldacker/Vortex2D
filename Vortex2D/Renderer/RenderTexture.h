@@ -63,7 +63,6 @@ private:
     GLuint mFrameBuffer;
     GLuint mDepthRenderBuffer;
 
-    GLint mOldViewPort[4];
     GLint mOldFrameBuffer;
 };
 
