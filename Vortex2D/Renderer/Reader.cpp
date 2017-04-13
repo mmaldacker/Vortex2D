@@ -62,13 +62,10 @@ Reader& Reader::Read()
 {
     EnableParameter p(glPixelStorei, GL_PACK_ALIGNMENT, 1);
 
-    mTexture.Begin();
-
+    mTexture.BindBuffer();
     glBindBuffer(GL_PIXEL_PACK_BUFFER, mPixelBuffer);
     glReadPixels(0, 0, mTexture.Width(), mTexture.Height(), mTexture.GetFormat(), GL_FLOAT, NULL);
-    glBindBuffer(GL_PIXEL_PACK_BUFFER, mPixelBuffer);
-
-    mTexture.End();
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 
     return *this;
 }
@@ -77,9 +74,8 @@ Reader& Reader::ReadStencil()
 {
     EnableParameter p(glPixelStorei, GL_PACK_ALIGNMENT, 1);
 
-    mTexture.Begin();
+    mTexture.BindBuffer();
     glReadPixels(0, 0, mTexture.Width(), mTexture.Height(), GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, mStencil);
-    mTexture.End();
 
     glFlush();
 

@@ -19,6 +19,8 @@ namespace
     int ActiveUnit = -1;
 
     ViewPort CurrentViewPort = {{-1}};
+
+    GLuint CurrentFrameBuffer = 0;
 }
 
 void UseProgram(GLuint program)
@@ -71,6 +73,23 @@ void SetViewPort(GLint x, GLint y, GLsizei width, GLsizei height)
     {
         CurrentViewPort = viewPort;
         glViewport(viewPort[0], viewPort[1], viewPort[2], viewPort[3]);
+    }
+}
+
+void BindFrameBuffer(GLuint framebuffer)
+{
+    if (CurrentFrameBuffer != framebuffer)
+    {
+        CurrentFrameBuffer = framebuffer;
+        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    }
+}
+
+void ClearFrameBuffer(GLuint framebuffer)
+{
+    if (CurrentFrameBuffer == framebuffer)
+    {
+        CurrentFrameBuffer = -1;
     }
 }
 

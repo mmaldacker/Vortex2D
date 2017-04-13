@@ -20,6 +20,8 @@ void ClearTexture(GLuint texture);
 
 // glViewPort/glBindFrameBuffer
 void SetViewPort(GLint x, GLint y, GLsizei width, GLsizei height);
+void BindFrameBuffer(GLuint framebuffer);
+void ClearFrameBuffer(GLuint framebuffer);
 
 // glClearColor/glClear
 

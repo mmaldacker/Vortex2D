@@ -47,12 +47,13 @@ void RenderWindow::Clear(const glm::vec4 & colour)
 
 void RenderWindow::Render(Vortex2D::Renderer::Drawable & object, const glm::mat4 & transform)
 {
+    Vortex2D::Renderer::State::SetViewPort(0, 0, mWidth, mHeight);
+    Vortex2D::Renderer::State::BindFrameBuffer(0);
     object.Render(*this, transform);
 }
 
 void RenderWindow::Display()
 {
-    Renderer::State::SetViewPort(0, 0, mWidth, mHeight);
     glfwSwapBuffers(mWindow);
 }
 

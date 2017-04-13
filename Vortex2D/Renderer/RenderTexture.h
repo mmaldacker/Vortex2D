@@ -57,8 +57,7 @@ public:
 
     friend class Reader;
 private:
-    void Begin();
-    void End();
+    void BindBuffer();
 
     GLuint mFrameBuffer;
     GLuint mDepthRenderBuffer;
