@@ -118,11 +118,6 @@ public:
     Program& Use();
 
     /**
-     * @brief Set the current Program to 0
-     */
-    static void Unuse();
-
-    /**
      * @brief Set a uniform by name
      */
     template<typename T>
@@ -164,8 +159,6 @@ protected:
 private:
     GLuint mProgram;
     Uniform<glm::mat4> mMVP;
-
-    static GLuint CurrentProgram;
 };
 
 template<typename T>
@@ -180,7 +173,6 @@ void Uniform<T>::SetLocation(Program& program, const std::string& name)
     program.Use();
     mLocation = glGetUniformLocation(program.mProgram, name.c_str());
     assert(mLocation != GL_INVALID_OPERATION);
-    program.Unuse();
 }
 
 template<typename T>

@@ -63,7 +63,7 @@ GaussSeidel::GaussSeidel()
     , mIdentity(Renderer::Shader::TexturePositionVert, Renderer::Shader::TexturePositionFrag)
     , mW(mGaussSeidel, "w")
 {
-    mGaussSeidel.Use().Set("u_texture", 0).Set("u_weights", 1).Set("u_diagonals", 2).Unuse();
+    mGaussSeidel.Use().Set("u_texture", 0).Set("u_weights", 1).Set("u_diagonals", 2);
 }
 
 GaussSeidel::GaussSeidel(const glm::vec2& size)
@@ -132,7 +132,6 @@ void GaussSeidel::SetW(float w)
 {
     mGaussSeidel.Use();
     mW.Set(w);
-    mGaussSeidel.Unuse();
 }
 
 }}

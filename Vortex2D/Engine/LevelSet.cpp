@@ -144,9 +144,9 @@ LevelSet::LevelSet(const glm::vec2& size)
 {
     Linear();
 
-    mRedistance.Use().Set("delta", 0.1f).Set("u_levelSet", 0).Set("u_levelSet0", 1).Unuse();
-    mIdentity.Use().Set("u_texture", 0).Unuse();
-    mExtrapolate.Use().Set("u_fluid", 0).Set("u_obstacles", 1).Set("dx", 1.0f / size.x).Unuse();
+    mRedistance.Use().Set("delta", 0.1f).Set("u_levelSet", 0).Set("u_levelSet0", 1);
+    mIdentity.Use().Set("u_texture", 0);
+    mExtrapolate.Use().Set("u_fluid", 0).Set("u_obstacles", 1).Set("dx", 1.0f / size.x);
 }
 
 void LevelSet::Redistance(int iterations)

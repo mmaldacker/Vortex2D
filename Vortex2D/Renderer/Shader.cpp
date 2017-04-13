@@ -5,6 +5,8 @@
 
 #include "Shader.h"
 
+#include <Vortex2D/Renderer/State.h>
+
 #include <stdexcept>
 #include <cassert>
 
@@ -97,8 +99,6 @@ FragmentShader::FragmentShader(const char* source)
 {
 }
 
-GLuint Program::CurrentProgram = 0;
-
 Program::Program(const char* vertexSource, const char* fragmentSource)
     : mProgram(glCreateProgram())
 {
@@ -118,11 +118,7 @@ Program::~Program()
 {
     if (mProgram)
     {
-        if (CurrentProgram == mProgram)
-        {
-            CurrentProgram = 0;
-        }
-
+        State::ClearProgram(mProgram);
         glDeleteProgram(mProgram);
     }
 }
@@ -185,19 +181,8 @@ Program & Program::Link()
 
 Program& Program::Use()
 {
-    if (CurrentProgram != mProgram)
-    {
-        CurrentProgram = mProgram;
-        glUseProgram(mProgram);
-    }
-
+    State::UseProgram(mProgram);
     return *this;
-}
-
-void Program::Unuse()
-{
-    CurrentProgram = 0;
-    glUseProgram(0);
 }
 
 Program& Program::SetMVP(const glm::mat4& mvp)

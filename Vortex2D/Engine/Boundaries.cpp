@@ -72,8 +72,8 @@ Boundaries::Boundaries(Dimensions dimensions, LevelSet& liquidPhi, LevelSet& sol
     , mSolidBoundaries(Renderer::Shader::TexturePositionVert, SolidBoundariesFrag)
     , mLiquidBoundaries(Renderer::Shader::TexturePositionVert, LiquidBoundariesFrag)
 {
-    mSolidBoundaries.Use().Set("u_obstacles", 0).Unuse();
-    mLiquidBoundaries.Use().Set("u_fluid", 0).Set("u_obstacles", 1).Unuse();
+    mSolidBoundaries.Use().Set("u_obstacles", 0);
+    mLiquidBoundaries.Use().Set("u_fluid", 0).Set("u_obstacles", 1);
 
     ClearLiquid();
     ClearSolid();

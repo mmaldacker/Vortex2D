@@ -133,8 +133,6 @@ void Shape::Render(RenderTarget& target, const glm::mat4& transform)
         glBindVertexArray(mVertexArray);
         glDrawArrays(mType, 0, mNumVertices);
         glBindVertexArray(0);
-
-        mProgram.Unuse();
     }
 }
 

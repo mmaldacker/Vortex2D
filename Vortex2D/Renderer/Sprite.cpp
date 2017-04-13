@@ -84,7 +84,6 @@ void Sprite::Render(RenderTarget & target, const glm::mat4 & transform)
     glBindVertexArray(0);
 
     Renderer::Texture::Unbind();
-    mProgram->Unuse();
 }
 
 }}

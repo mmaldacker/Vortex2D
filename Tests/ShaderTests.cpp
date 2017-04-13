@@ -145,7 +145,7 @@ TEST(ShaderTests, OperatorBack)
     Buffer y({1,1}, 1);
     Buffer z({1,1}, 1);
     Operator op(Shader::TexturePositionVert, MultiplySubFrag);
-    op.Use().Use().Set("u_x", 0).Set("u_y", 1).Set("u_scalar", 2).Unuse();
+    op.Use().Use().Set("u_x", 0).Set("u_y", 1).Set("u_scalar", 2);
 
     float xValue = 1.0f;
     float yValue = 0.5f;
@@ -175,7 +175,7 @@ TEST(ShaderTests, BorderColour)
   tex.BorderColour(glm::vec4(-1.0f));
 
   Operator op(Shader::TexturePositionVert, BorderFrag);
-  op.Use().Set("u_texture", 0).Unuse();
+  op.Use().Set("u_texture", 0);
 
   x = op(tex);
 

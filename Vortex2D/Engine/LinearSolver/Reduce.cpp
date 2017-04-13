@@ -76,7 +76,7 @@ Reduce::Reduce(glm::vec2 size, const char* fragment)
         s.back().ClampToBorder();
     }
 
-    reduce.Use().Set("u_texture", 0).Unuse();
+    reduce.Use().Set("u_texture", 0);
 }
 
 Renderer::OperatorContext Reduce::operator()(Renderer::Buffer& buffer)
@@ -96,7 +96,7 @@ ReduceSum::ReduceSum(const glm::vec2& size)
     , mReduce(size, 1)
     , mMultiply(Renderer::Shader::TexturePositionVert, MultiplyFrag)
 {
-    mMultiply.Use().Set("u_x", 0).Set("u_y", 1).Unuse();
+    mMultiply.Use().Set("u_x", 0).Set("u_y", 1);
     mReduce.ClampToBorder();
 }
 

@@ -55,7 +55,7 @@ World::World(Dimensions dimensions, float dt)
     mVelocity.Clear(glm::vec4(0.0));
     mBoundariesVelocity.Clear(glm::vec4(0.0));
 
-    mFluidProgram.Use().Set("u_texture", 0).Unuse();
+    mFluidProgram.Use().Set("u_texture", 0);
 }
 
 Boundaries World::DrawBoundaries()

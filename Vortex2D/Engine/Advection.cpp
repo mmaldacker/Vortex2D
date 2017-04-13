@@ -158,8 +158,8 @@ Advection::Advection(float dt, Renderer::Buffer& velocity)
     , mVelocityAdvect(Renderer::Shader::TexturePositionVert, AdvectVelocityFrag, CommonFrag)
     , mAdvect(Renderer::Shader::TexturePositionVert, AdvectFrag, CommonFrag)
 {
-    mVelocityAdvect.Use().Set("delta", dt).Set("u_velocity", 0).Unuse();
-    mAdvect.Use().Set("delta", dt).Set("u_texture", 0).Set("u_velocity", 1).Unuse();
+    mVelocityAdvect.Use().Set("delta", dt).Set("u_velocity", 0);
+    mAdvect.Use().Set("delta", dt).Set("u_texture", 0).Set("u_velocity", 1);
 }
 
 void Advection::Advect()

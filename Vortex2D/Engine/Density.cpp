@@ -17,7 +17,7 @@ Density::Density(Dimensions dimensions)
     , mProgram(Renderer::Shader::TexturePositionVert, Renderer::Shader::TexturePositionFrag)
 {
     mDensity.Clear(glm::vec4(0.0));
-    mProgram.Use().Set("u_texture", 0).Unuse();
+    mProgram.Use().Set("u_texture", 0);
 }
 
 Density::~Density()
