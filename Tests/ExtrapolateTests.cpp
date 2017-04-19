@@ -48,7 +48,7 @@ TEST(ExtrapolateTest, Extrapolate)
     CheckVelocity(velocity, sim);
 }
 
-TEST(ExtrapolateTest, Constrain)
+TEST(ExtrapolateTest, DISABLED_Constrain)
 {
     Disable d(GL_BLEND);
 

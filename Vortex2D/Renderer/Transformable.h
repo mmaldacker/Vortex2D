@@ -15,25 +15,18 @@ struct Transformable;
 /**
  * @brief Simple class to simulate properties like in C#
  */
-template<typename T, typename Transformable = Transformable>
+template<typename T>
 class property
 {
-    T value;
-    Transformable & t;
 public:
-    property(Transformable & t) : t(t) {}
+    property(Transformable& t);
 
-    T & operator = (const T &i)
-    {
-        value = i;
-        t.Update();
-        return value;
-    }
+    T& operator = (const T& i);
+    operator T const & () const;
 
-    operator T const & () const
-    {
-        return value;
-    }
+private:
+    T value;
+    Transformable& t;
 };
 
 /**
@@ -41,35 +34,19 @@ public:
  */
 struct Transformable
 {
-    Transformable()
-        : Position(*this)
-        , Scale(*this)
-        , Rotation(*this)
-        , Anchor(*this)
-    {
-        Position = {0.0f, 0.0f};
-        Scale = {1.0f, 1.0f};
-        Rotation = 0.0f;
-        Anchor = {0.0f, 0.0f};
-    }
+    Transformable();
 
     virtual ~Transformable(){}
 
     /**
      * @brief Returns the transform matrix
      */
-    const glm::mat4 & GetTransform() const
-    {
-        return mTransform;
-    }
+    const glm::mat4& GetTransform() const;
 
     /**
      * @brief Returns the inverse transform matrix
      */
-    const glm::mat4 & GetInverseTransform() const
-    {
-        return mInverseTransform;
-    }
+    const glm::mat4& GetInverseTransform() const;
 
     /**
      * @brief absolute position
@@ -94,15 +71,7 @@ struct Transformable
     /**
      * @brief Update the transform matrix with the position, scale, rotation and anchor.
      */
-    void Update()
-    {
-        mTransform = glm::translate(glm::vec3{(glm::vec2)Position, 0.0f});
-        mTransform = glm::scale(mTransform, glm::vec3{(glm::vec2)Scale, 1.0f});
-        mTransform = glm::rotate(mTransform, glm::radians((float)Rotation), glm::vec3{0.0f, 0.0f, 1.0f});
-        mTransform = glm::translate(mTransform, glm::vec3{-(glm::vec2)Anchor, 0.0f});
-
-        mInverseTransform = glm::inverse(mTransform);
-    }
+    void Update();
 
 private:
     glm::mat4 mTransform;

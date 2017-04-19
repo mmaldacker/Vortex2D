@@ -5,6 +5,8 @@
 
 #include "Shapes.h"
 
+#include <glm/gtx/transform.hpp>
+
 #include <Vortex2D/Renderer/RenderTarget.h>
 #include <Vortex2D/Renderer/Disable.h>
 

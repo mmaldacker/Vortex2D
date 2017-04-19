@@ -17,9 +17,7 @@ namespace Vortex2D { namespace Renderer {
  */
 struct RenderTarget
 {
-    RenderTarget(float width, float height)
-        : Orth(glm::ortho(0.0f, width, 0.0f, height))
-    {}
+    RenderTarget(float width, float height);
 
     virtual ~RenderTarget(){}
 

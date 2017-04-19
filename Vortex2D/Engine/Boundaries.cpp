@@ -7,6 +7,8 @@
 
 #include <Vortex2D/Renderer/Disable.h>
 
+#include <glm/gtx/transform.hpp>
+
 namespace Vortex2D { namespace Fluid {
 
 namespace

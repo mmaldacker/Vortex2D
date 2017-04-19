@@ -5,6 +5,8 @@
 
 #include "Density.h"
 
+#include <glm/gtx/transform.hpp>
+
 #include <Vortex2D/Renderer/Disable.h>
 
 #include <Vortex2D/Engine/World.h>

@@ -17,13 +17,16 @@ const char * SumFrag = GLSL(
 
    void main()
    {
-       ivec2 pos = 2 * ivec2(gl_FragCoord.xy - 0.5);
+       ivec2 pos = 3 * ivec2(gl_FragCoord.xy - 0.5);
 
        float x = 0.0;
-       x += texelFetch(u_texture, pos + ivec2(0,0), 0).x;
-       x += texelFetch(u_texture, pos + ivec2(1,0), 0).x;
-       x += texelFetch(u_texture, pos + ivec2(0,1), 0).x;
-       x += texelFetch(u_texture, pos + ivec2(1,1), 0).x;
+       for (int j = 0; j < 3; j++)
+       {
+           for (int i = 0; i < 3; i++)
+           {
+               x += texelFetch(u_texture, pos + ivec2(i,j), 0).x;
+           }
+       }
 
        colour_out = vec4(x, 0.0, 0.0, 0.0);
    }
@@ -36,15 +39,19 @@ const char * MaxFrag = GLSL(
 
   void main()
   {
-      ivec2 pos = 2 * ivec2(gl_FragCoord.xy - 0.5);
+      ivec2 pos = 3 * ivec2(gl_FragCoord.xy - 0.5);
 
-      vec4 value;
-      value.x = abs(texelFetch(u_texture, pos + ivec2(0,0), 0).x);
-      value.y = abs(texelFetch(u_texture, pos + ivec2(1,0), 0).x);
-      value.z = abs(texelFetch(u_texture, pos + ivec2(0,1), 0).x);
-      value.w = abs(texelFetch(u_texture, pos + ivec2(1,1), 0).x);
+      float maximum = 0.0;
+      for (int j = 0; j < 3; j++)
+      {
+          for (int i = 0; i < 3; i++)
+          {
+             float value = abs(texelFetch(u_texture, pos + ivec2(i,j), 0).x);
+             maximum = max(value, maximum);
+          }
+      }
 
-      colour_out = vec4(max(max(value.x, value.y), max(value.z, value.w)), 0.0, 0.0, 0.0);
+      colour_out = vec4(maximum, 0.0, 0.0, 0.0);
   }
 );
 
@@ -71,7 +78,7 @@ Reduce::Reduce(glm::vec2 size, const char* fragment)
 {
     while(size.x > 1.0f && size.y > 1.0f)
     {
-        size = glm::ceil(size/glm::vec2(2.0f));
+        size = glm::ceil(size/glm::vec2(3.0f));
         s.emplace_back(size, 1);
         s.back().ClampToBorder();
     }
