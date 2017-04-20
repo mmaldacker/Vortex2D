@@ -5,8 +5,6 @@
 
 #include "Multigrid.h"
 
-#include <Vortex2D/Renderer/Disable.h>
-
 namespace Vortex2D { namespace Fluid {
 
 namespace
@@ -207,30 +205,6 @@ void Multigrid::BorderSmoother(Data& data, int iterations, bool up)
 
 void Multigrid::RenderBoundaryMask(Data& data, Renderer::Buffer& buffer)
 {
-    Renderer::Enable e(GL_STENCIL_TEST);
-    Renderer::DisableColorMask c;
-
-    glStencilFunc(GL_NOTEQUAL, 0, 0xFF); // write value in stencil buffer
-    glStencilOp(GL_KEEP, GL_KEEP, GL_INVERT); // invert value
-    glStencilMask(0x03); // write 2 in stencil
-
-    mBoundaryMask.Use().Set("u_eveness", 1.0f);
-
-    data.Pressure = mBoundaryMask(buffer);
-    data.Pressure.Swap();
-    data.Pressure = mBoundaryMask(buffer);
-    data.Pressure.Swap();
-
-    glStencilMask(0x05); // write 4 in stencil
-
-    mBoundaryMask.Use().Set("u_eveness", 0.0f);
-
-    data.Pressure = mBoundaryMask(buffer);
-    data.Pressure.Swap();
-    data.Pressure = mBoundaryMask(buffer);
-    data.Pressure.Swap();
-
-    glStencilMask(0x00); // disable stencil writing
 }
 
 void Multigrid::Build(Data& data,
@@ -281,10 +255,6 @@ void Multigrid::Init(LinearSolver::Data& data)
 
 void Multigrid::Solve(LinearSolver::Data& data, Parameters&)
 {
-    Renderer::Enable e(GL_STENCIL_TEST);
-    glStencilMask(0x00);
-    glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
-
     int numIterations = 2;
 
     Smoother(data, numIterations);

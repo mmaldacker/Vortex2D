@@ -8,7 +8,6 @@
 #include <glm/gtx/transform.hpp>
 
 #include <Vortex2D/Renderer/RenderTarget.h>
-#include <Vortex2D/Renderer/Disable.h>
 
 #include <limits>
 #include <algorithm>
@@ -70,28 +69,11 @@ Shape::Shape()
 Shape::Shape(const char* vert, const char* frag)
     : mProgram(vert, frag)
     , mColourUniform(mProgram, "u_Colour")
-    , mNumVertices(0)
 {
-    glGenVertexArrays(1,&mVertexArray);
-    glBindVertexArray(mVertexArray);
-
-    glGenBuffers(1, &mVertexBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, mVertexBuffer);
-
-    glVertexAttribPointer(Shader::Position, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
-    glEnableVertexAttribArray(Shader::Position);
-
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 Shape::~Shape()
 {
-    if (mVertexArray)
-    {
-        glDeleteBuffers(1, &mVertexBuffer);
-        glDeleteVertexArrays(1, &mVertexArray);
-    }
 }
 
 Shape::Shape(Shape&& other)
@@ -100,42 +82,20 @@ Shape::Shape(Shape&& other)
     , mProgram(std::move(other.mProgram))
     , mColourUniform(other.mColourUniform)
     , mType(other.mType)
-    , mVertexBuffer(other.mVertexBuffer)
-    , mVertexArray(other.mVertexArray)
-    , mNumVertices(other.mNumVertices)
 {
-    other.mVertexArray = 0;
 }
 
-void Shape::SetType(GLuint type)
+void Shape::SetType(Type type)
 {
     mType = type;
 }
 
 void Shape::Set(const Path& path)
 {
-    mNumVertices = (GLsizei)path.size();
-
-    if (mNumVertices > 0)
-    {
-        glBindBuffer(GL_ARRAY_BUFFER, mVertexBuffer);
-        glBufferData(GL_ARRAY_BUFFER, 2u * mNumVertices * sizeof(path[0][0]), &path[0][0], GL_DYNAMIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-    }
 }
 
 void Shape::Render(RenderTarget& target, const glm::mat4& transform)
 {
-    if (mNumVertices > 0)
-    {
-        mProgram.Use().SetMVP(target.Orth * transform*GetTransform());
-
-        mColourUniform.Set(Colour);
-
-        glBindVertexArray(mVertexArray);
-        glDrawArrays(mType, 0, mNumVertices);
-        glBindVertexArray(0);
-    }
 }
 
 Rectangle::Rectangle(const glm::vec2& size)
@@ -145,7 +105,7 @@ Rectangle::Rectangle(const glm::vec2& size)
 
 void Rectangle::SetRectangle(const glm::vec2& size)
 {
-    SetType(GL_TRIANGLES);
+    SetType(Type::TRIANGLES);
     Set({{0.0f, 0.0f}, {size.x, 0.0f}, {0.0f, size.y}, {size.x, 0.0f,}, {size.x, size.y}, {0.0f, size.y}});
 }
 
@@ -157,16 +117,13 @@ Ellipse::Ellipse(const glm::vec2& radius)
 
 void Ellipse::SetEllipse(const glm::vec2& radius)
 {
-    SetType(GL_POINTS);
+    SetType(Type::POINTS);
     Set({{0.0f,0.0f}});
     mRadius = radius;
 }
 
 void Ellipse::Render(RenderTarget& target, const glm::mat4& transform)
 {
-    Enable e(GL_PROGRAM_POINT_SIZE);
-    EnableParameter ep(glPointParameteri, GL_POINT_SPRITE_COORD_ORIGIN, GL_LOWER_LEFT);
-
     glm::vec2 transformScale(glm::length(transform[0]), glm::length(transform[1]));
     glm::vec2 radius = mRadius * (glm::vec2)Scale * transformScale;
     glm::mat4 rotation4 = glm::rotate(glm::radians((float)Rotation), glm::vec3(0.0f, 0.0f, 1.0f));

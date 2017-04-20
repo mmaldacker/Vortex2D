@@ -7,8 +7,6 @@
 
 #include <glm/gtx/transform.hpp>
 
-#include <Vortex2D/Renderer/Disable.h>
-
 namespace Vortex2D { namespace Fluid {
 
 namespace
@@ -67,8 +65,6 @@ Boundaries World::DrawBoundaries()
 
 void World::Solve()
 {
-    Renderer::Disable d(GL_BLEND);
-
     mFluidLevelSet.Extrapolate(mObstacleLevelSet);
 
     LinearSolver::Parameters params(300, 1e-5f);
@@ -84,8 +80,7 @@ void World::Solve()
 
 void World::RenderForce(Renderer::Drawable& object)
 {
-    Renderer::Enable b(GL_BLEND);
-    Renderer::BlendState s(GL_FUNC_ADD, GL_ONE, GL_ONE);
+    //Renderer::BlendState s(GL_FUNC_ADD, GL_ONE, GL_ONE);
 
     mVelocity.Render(object, mDimensions.InvScale);
 }
@@ -101,16 +96,12 @@ void World::Render(Renderer::RenderTarget& target, const glm::mat4& transform)
 
 void World::Advect()
 {
-    Renderer::Disable d(GL_BLEND);
-
     mAdvection.Advect(mFluidLevelSet);
     mFluidLevelSet.Redistance(2);
 }
 
 void World::Advect(Renderer::Buffer& buffer)
 {
-    Renderer::Disable d(GL_BLEND);
-
     mAdvection.Advect(buffer);
 }
 

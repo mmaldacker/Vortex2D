@@ -7,7 +7,6 @@
 #define Vortex_Shader_h
 
 #include <Vortex2D/Renderer/Common.h>
-#include <Vortex2D/Renderer/Uniform.h>
 
 #include <string>
 
@@ -21,19 +20,16 @@ class Program;
 class Shader
 {
 public:
+    enum class Type
+    {
+        Vertex,
+        Fragment,
+        Compute
+    };
+
     virtual ~Shader();
 
     friend class Program;
-
-    /**
-     * @brief Attribute location of the texture coordinates variable in the shaders
-     */
-    static const GLuint TexCoords = 1;
-
-    /**
-     * @brief Attribute location of the position variable in the shaders
-     */
-    static const GLuint Position = 2;
 
     /**
      * @brief Source for the position vertex shader (@see Program)
@@ -56,11 +52,9 @@ public:
     static const char* TexturePositionFrag;
 
 protected:
-    Shader(GLuint shader, const char* source);
+    Shader(Type shader, const char* source);
 
 private:
-    GLuint mShader;
-
     static const char* PositionName;
     static const char* TexCoordsName;
 };
@@ -89,14 +83,13 @@ template<typename T>
 class Uniform
 {
 public:
-    Uniform() : mLocation(GL_INVALID_VALUE){}
+    Uniform() {}
     Uniform(Program& program, const std::string& name);
     void SetLocation(Program& program, const std::string& name);
     void Set(T value);
 
     friend class Program;
 private:
-    GLuint mLocation;
 };
 
 /**
@@ -123,10 +116,6 @@ public:
     template<typename T>
     Program& Set(const std::string& name, T value)
     {
-        GLint location = glGetUniformLocation(mProgram, name.c_str());
-        assert(location != GL_INVALID_OPERATION);
-        glUniform(location, value);
-
         return *this;
     }
 
@@ -147,17 +136,11 @@ protected:
     Program& AttachShader(const Shader& shader);
 
     /**
-     * @brief Used for setting the variables used in the feedback shader
-     */
-    Program& AttachFeedback(const std::vector<const GLchar*>& varyings);
-
-    /**
      * @brief Link the shaders to the Program
      */
     Program& Link();
 
 private:
-    GLuint mProgram;
     Uniform<glm::mat4> mMVP;
 };
 
@@ -171,14 +154,11 @@ template<typename T>
 void Uniform<T>::SetLocation(Program& program, const std::string& name)
 {
     program.Use();
-    mLocation = glGetUniformLocation(program.mProgram, name.c_str());
-    assert(mLocation != GL_INVALID_OPERATION);
 }
 
 template<typename T>
 void Uniform<T>::Set(T value)
 {
-    glUniform(mLocation, value);
 }
 
 }}

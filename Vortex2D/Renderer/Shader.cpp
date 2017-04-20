@@ -5,8 +5,6 @@
 
 #include "Shader.h"
 
-#include <Vortex2D/Renderer/State.h>
-
 #include <stdexcept>
 #include <cassert>
 
@@ -62,45 +60,25 @@ const char * Shader::TexturePositionFrag = GLSL(
     }
 );
 
-Shader::Shader(GLuint shader, const char* source) : mShader(shader)
+Shader::Shader(Type shader, const char* source)
 {
-    glShaderSource(mShader, 1, &source, NULL);
-
-    glCompileShader(mShader);
-
-    GLint status;
-    glGetShaderiv(mShader, GL_COMPILE_STATUS, &status);
-
-    if(!status)
-    {
-        GLsizei length;
-        glGetShaderiv(mShader, GL_INFO_LOG_LENGTH, &length);
-        std::vector<GLchar> src(length);
-
-        glGetShaderInfoLog(mShader, length, NULL, src.data());
-        throw std::runtime_error("Error compiling shader: \n" + std::string(src.data()));
-    }
-
 }
 
 Shader::~Shader()
 {
-    assert(mShader);
-    glDeleteShader(mShader);
 }
 
 VertexShader::VertexShader(const char* source)
-    : Shader(glCreateShader(GL_VERTEX_SHADER), source)
+    : Shader(Type::Vertex, source)
 {
 }
 
 FragmentShader::FragmentShader(const char* source)
-    : Shader(glCreateShader(GL_FRAGMENT_SHADER), source)
+    : Shader(Type::Fragment, source)
 {
 }
 
 Program::Program(const char* vertexSource, const char* fragmentSource)
-    : mProgram(glCreateProgram())
 {
     VertexShader vertex(vertexSource);
     FragmentShader fragment(fragmentSource);
@@ -110,84 +88,40 @@ Program::Program(const char* vertexSource, const char* fragmentSource)
     Link();
 }
 
-Program::Program() : mProgram(glCreateProgram())
+Program::Program()
 {
 }
 
 Program::~Program()
 {
-    if (mProgram)
-    {
-        State::ClearProgram(mProgram);
-        glDeleteProgram(mProgram);
-    }
 }
 
 Program::Program(Program&& other)
 {
-    mProgram = other.mProgram;
-    mMVP.mLocation = other.mMVP.mLocation;
-
-    other.mProgram = 0;
-    other.mMVP.mLocation = GL_INVALID_VALUE;
 }
 
 Program & Program::operator=(Program&& other)
 {
-    mProgram = other.mProgram;
-    mMVP.mLocation = other.mMVP.mLocation;
-
-    other.mProgram = 0;
-    other.mMVP.mLocation = GL_INVALID_VALUE;
-
     return *this;
 }
 
 Program & Program::AttachShader(const Shader& shader)
 {
-    glAttachShader(mProgram, shader.mShader);
-    return *this;
-}
-
-Program & Program::AttachFeedback(const std::vector<const GLchar*> & varyings)
-{
-    glTransformFeedbackVaryings(mProgram, (GLsizei)varyings.size(), varyings.data(), GL_INTERLEAVED_ATTRIBS);
     return *this;
 }
 
 Program & Program::Link()
 {
-    glBindAttribLocation(mProgram, Shader::Position, Shader::PositionName);
-    glBindAttribLocation(mProgram, Shader::TexCoords, Shader::TexCoordsName);
-
-    glLinkProgram(mProgram);
-
-    GLint status;
-    glGetProgramiv(mProgram, GL_LINK_STATUS, &status);
-    if(!status)
-    {
-        GLsizei length;
-        glGetProgramiv(mProgram, GL_INFO_LOG_LENGTH, &length);
-        std::vector<GLchar> src(length);
-
-        glGetProgramInfoLog(mProgram, length, NULL, src.data());
-        throw std::runtime_error("Error linking program: " + std::string(src.data()));
-    }
-
-    mMVP.SetLocation(*this, "u_Projection");
-
     return *this;
 }
 
 Program& Program::Use()
 {
-    State::UseProgram(mProgram);
     return *this;
 }
 
 Program& Program::SetMVP(const glm::mat4& mvp)
 {
-    mMVP.Set(mvp);
     return *this;
 }
 

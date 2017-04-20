@@ -7,8 +7,10 @@ file(GLOB LIB_SOURCES
         "Renderer/*.cpp"
         "Renderer/*.h")
 
+find_package(Vulkan)
+
 add_library(vortex2d STATIC ${LIB_SOURCES})
-target_link_libraries(vortex2d PUBLIC glm glad)
-target_include_directories(vortex2d PUBLIC ../)
+target_link_libraries(vortex2d PUBLIC glm ${Vulkan_LIBRARIES})
+target_include_directories(vortex2d PUBLIC ../ ${Vulkan_INCLUDE_DIRS})
 
 target_compile_features(vortex2d PRIVATE cxx_variadic_templates)

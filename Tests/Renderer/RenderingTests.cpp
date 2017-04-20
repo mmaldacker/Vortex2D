@@ -6,7 +6,6 @@
 #include "Helpers.h"
 
 #include <Vortex2D/Renderer/Shapes.h>
-#include <Vortex2D/Renderer/Disable.h>
 
 #include <glm/gtx/rotate_vector.hpp>
 
@@ -35,8 +34,6 @@ void DrawCircle(int width, int height, std::vector<float>& data, const glm::vec2
 
 TEST(RenderingTest, RenderTexture)
 {
-    Disable d(GL_BLEND);
-
     RenderTexture texture(50, 50, Texture::PixelFormat::RF);
 
     std::vector<float> data(50*50, 3.5f);
@@ -47,8 +44,6 @@ TEST(RenderingTest, RenderTexture)
 
 TEST(RenderingTest, WriteTexture)
 {
-    Disable d(GL_BLEND);
-
     RenderTexture texture(50, 50, Texture::PixelFormat::RF);
 
     std::vector<float> data(50*50, 0.0f);
@@ -62,8 +57,6 @@ TEST(RenderingTest, WriteTexture)
 
 TEST(RenderingTest, WriteVector2)
 {
-    Disable d(GL_BLEND);
-
     RenderTexture texture(50, 50, Texture::PixelFormat::RGF);
 
     std::vector<glm::vec2> data(50*50, glm::vec2(3.0f, -2.0f));
@@ -89,8 +82,6 @@ TEST(RenderingTest, WriteVector2)
 
 TEST(RenderingTest, WriteVector4)
 {
-    Disable d(GL_BLEND);
-
     RenderTexture texture(50, 50, Texture::PixelFormat::RGBAF);
 
     std::vector<glm::vec4> data(50*50, glm::vec4(3.0f, -2.0f, 0.5f, 4.6));
@@ -120,8 +111,6 @@ TEST(RenderingTest, WriteVector4)
 
 TEST(RenderingTest, Square)
 {
-    Disable d(GL_BLEND);
-
     glm::vec2 size = {10.0f, 20.0f};
 
     Rectangle rect(size);
@@ -143,8 +132,6 @@ TEST(RenderingTest, Square)
 
 TEST(RenderingTest, Circle)
 {
-    Disable d(GL_BLEND);
-
     Ellipse ellipse(glm::vec2(5.0f));
     ellipse.Position = glm::vec2(10.0f, 15.0f);
     ellipse.Colour = glm::vec4(1.0f);
@@ -162,8 +149,6 @@ TEST(RenderingTest, Circle)
 
 TEST(RenderingTest, Ellipse)
 {
-    Disable d(GL_BLEND);
-
     glm::vec2 radius(4.0f, 7.0f);
 
     Ellipse ellipse(radius);
@@ -183,8 +168,6 @@ TEST(RenderingTest, Ellipse)
 
 TEST(RenderingTest, ScaledEllipse)
 {
-    Disable d(GL_BLEND);
-
     glm::vec2 pos(20.0f, 15.0f);
     glm::vec2 radius(4.0f, 7.0f);
 
@@ -207,8 +190,6 @@ TEST(RenderingTest, ScaledEllipse)
 
 TEST(RenderingTest, RotatedEllipse)
 {
-    Disable d(GL_BLEND);
-
     glm::vec2 radius(4.0f, 7.0f);
 
     Ellipse ellipse(radius);
@@ -229,8 +210,6 @@ TEST(RenderingTest, RotatedEllipse)
 
 TEST(RenderingTest, RenderScaledEllipse)
 {
-    Disable d(GL_BLEND);
-
     glm::vec2 pos(10.0f, 10.0f);
     glm::vec2 radius(5.0f, 8.0f);
 

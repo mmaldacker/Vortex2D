@@ -21,8 +21,7 @@ public:
     enum class DepthFormat
     {
         NONE = 0,
-        DEPTH24 = GL_DEPTH_COMPONENT24,
-        DEPTH24_STENCIL8 = GL_DEPTH24_STENCIL8,
+        STENCIL,
     };
 
     /**
@@ -58,11 +57,6 @@ public:
     friend class Reader;
 private:
     void BindBuffer();
-
-    GLuint mFrameBuffer;
-    GLuint mDepthRenderBuffer;
-
-    GLint mOldFrameBuffer;
 };
 
 }}

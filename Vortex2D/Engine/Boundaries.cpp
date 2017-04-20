@@ -5,8 +5,6 @@
 
 #include "Boundaries.h"
 
-#include <Vortex2D/Renderer/Disable.h>
-
 #include <glm/gtx/transform.hpp>
 
 namespace Vortex2D { namespace Fluid {
@@ -94,8 +92,6 @@ Boundaries::Boundaries(Boundaries&& other)
 
 Boundaries::~Boundaries()
 {
-    Renderer::Disable d(GL_BLEND);
-
     mLiquidPhi = mLiquidBoundaries(mLiquidDraw, mSolidDraw);
     mSolidPhi = mSolidBoundaries(mSolidDraw);
 
@@ -108,13 +104,11 @@ void Boundaries::DrawLiquid(Renderer::Drawable& drawable, bool invert)
     if (invert)
     {
         mLiquidDraw.Clear(glm::vec4(1.0f));
-        Renderer::Enable d(GL_BLEND);
-        Renderer::BlendState s(GL_FUNC_ADD, GL_ZERO, GL_ZERO);
+        //Renderer::BlendState s(GL_FUNC_ADD, GL_ZERO, GL_ZERO);
         mLiquidDraw.Render(drawable, mDimensions.InvScale);
     }
     else
     {
-        Renderer::Disable d(GL_BLEND);
         mLiquidDraw.Render(drawable, mDimensions.InvScale);
     }
 }
@@ -124,13 +118,11 @@ void Boundaries::DrawSolid(Renderer::Drawable& drawable, bool invert)
     if (invert)
     {
         mSolidDraw.Clear(glm::vec4(1.0f));
-        Renderer::Enable d(GL_BLEND);
-        Renderer::BlendState s(GL_FUNC_ADD, GL_ZERO, GL_ZERO);
+        //Renderer::BlendState s(GL_FUNC_ADD, GL_ZERO, GL_ZERO);
         mSolidDraw.Render(drawable, glm::scale(glm::vec3(2.0f, 2.0f, 1.0f))*mDimensions.InvScale);
     }
     else
     {
-        Renderer::Disable d(GL_BLEND);
         mSolidDraw.Render(drawable, glm::scale(glm::vec3(2.0f, 2.0f, 1.0f))*mDimensions.InvScale);
     }
 }

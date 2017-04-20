@@ -43,9 +43,6 @@ public:
     void Render(RenderTarget & target, const glm::mat4 & transform = glm::mat4()) override;
 
 private:
-    GLuint mVertexArray;
-    GLuint mVertexBuffer;
-
     Texture * mTexture;
     Program * mProgram;
 };

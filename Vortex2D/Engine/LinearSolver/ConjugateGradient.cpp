@@ -5,8 +5,6 @@
 
 #include "ConjugateGradient.h"
 
-#include <Vortex2D/Renderer/Disable.h>
-
 namespace Vortex2D { namespace Fluid {
 
 namespace
@@ -314,10 +312,6 @@ void ConjugateGradient::NormalSolve(Data& data, Parameters& params)
 
 void ConjugateGradient::ApplyPreconditioner(Data& data)
 {
-    Renderer::Enable e(GL_STENCIL_TEST);
-    glStencilMask(0x00);
-    glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
-
     z.Pressure = scalarDivision(r, data.Diagonal);
 
     /*

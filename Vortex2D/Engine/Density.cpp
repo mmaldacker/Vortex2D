@@ -7,8 +7,6 @@
 
 #include <glm/gtx/transform.hpp>
 
-#include <Vortex2D/Renderer/Disable.h>
-
 #include <Vortex2D/Engine/World.h>
 
 namespace Vortex2D { namespace Fluid {
@@ -28,7 +26,6 @@ Density::~Density()
 
 void Density::Render(Renderer::Drawable& object)
 {
-    Renderer::Disable d(GL_BLEND);
     mDensity.Render(object, mDimensions.InvScale);
 }
 

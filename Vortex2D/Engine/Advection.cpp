@@ -5,9 +5,6 @@
 
 #include "Advection.h"
 
-#include <Vortex2D/Renderer/Disable.h>
-
-
 namespace Vortex2D { namespace Fluid {
 
 namespace
@@ -170,7 +167,6 @@ void Advection::Advect()
 
 void Advection::Advect(Renderer::Buffer& buffer)
 {
-    Renderer::Disable d(GL_BLEND);
     buffer.Swap();
     buffer = mAdvect(Back(buffer), mVelocity);
 }

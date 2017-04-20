@@ -5,8 +5,6 @@
 
 #include "GaussSeidel.h"
 
-#include <Vortex2D/Renderer/Disable.h>
-
 #include <glm/gtc/constants.hpp>
 
 namespace Vortex2D { namespace Fluid {
@@ -83,21 +81,6 @@ void GaussSeidel::Build(Data&,
 
 void GaussSeidel::Init(Data& data)
 {
-    RenderMask(data.Pressure, data);
-
-    Renderer::Enable e(GL_STENCIL_TEST);
-    Renderer::DisableColorMask c;
-
-    glStencilFunc(GL_NOTEQUAL, 0, 0xFF); // write value in stencil buffer
-    glStencilOp(GL_KEEP, GL_KEEP, GL_INVERT); // invert value
-    glStencilMask(0x03); // write 2 in stencil
-
-    data.Pressure = mStencil();
-    data.Pressure.Swap();
-    data.Pressure = mStencil();
-    data.Pressure.Swap();
-
-    glStencilMask(0x00); // disable stencil writing
 }
 
 void GaussSeidel::Solve(Data& data, Parameters& params)
@@ -116,15 +99,11 @@ void GaussSeidel::Solve(Data& data, Parameters& params)
 
 void GaussSeidel::Step(Data& data, uint8_t redMask, uint8_t blackMask)
 {
-    Renderer::Enable e(GL_STENCIL_TEST);
-    glStencilMask(0x00);
 
     data.Pressure.Swap();
 
-    glStencilFunc(GL_EQUAL, redMask, 0xFF);
     data.Pressure = mGaussSeidel(Back(data.Pressure), data.Weights, data.Diagonal);
 
-    glStencilFunc(GL_NOTEQUAL, 0x00, blackMask);
     data.Pressure = mIdentity(Back(data.Pressure), data.Weights, data.Diagonal);
 }
 

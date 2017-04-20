@@ -94,7 +94,7 @@ void Buffer::Add(const glm::vec2& size, unsigned components, bool depth)
                            components == 1 ? Renderer::Texture::PixelFormat::RF :
                            components == 2 ? Renderer::Texture::PixelFormat::RGF :
                                              Renderer::Texture::PixelFormat::RGBAF,
-                           depth ? Renderer::RenderTexture::DepthFormat::DEPTH24_STENCIL8 :
+                           depth ? Renderer::RenderTexture::DepthFormat::STENCIL :
                                    Renderer::RenderTexture::DepthFormat::NONE);
     mTextures.back().Nearest();
     mTextures.back().ClampToEdge();

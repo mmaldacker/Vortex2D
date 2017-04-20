@@ -5,7 +5,6 @@
 #include "Extrapolation.h"
 
 #include <Vortex2D/Renderer/Shader.h>
-#include <Vortex2D/Renderer/Disable.h>
 
 #include <Vortex2D/Engine/HelperFunctions.h>
 

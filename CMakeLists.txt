@@ -4,7 +4,6 @@ project(Vortex2D)
 
 option(VORTEX2D_ENABLE_EXAMPLES "Build examples" OFF)
 option(VORTEX2D_ENABLE_TESTS "Build tests" OFF)
-option(VORTEX2D_USE_OSMESA "Build using OSMesa instead of OpenGL for the tests/examples" OFF)
 
 # Only do coverage builds for gcc for the moment
 if (CMAKE_COMPILER_IS_GNUCXX)
@@ -20,11 +19,10 @@ download_project(PROJ                glm
                  GIT_TAG             0.9.8.4
                  ${UPDATE_DISCONNECTED_IF_AVAILABLE})
 add_subdirectory(${glm_SOURCE_DIR} ${glm_BINARY_DIR})
-add_subdirectory(Dependencies/glad)
 add_subdirectory(Vortex2D)
 
 if (VORTEX2D_ENABLE_EXAMPLES OR VORTEX2D_ENABLE_TESTS)
-  add_subdirectory(RenderWindow)
+  add_subdirectory(VulkanGLFW)
 endif ()
 
 if (VORTEX2D_ENABLE_EXAMPLES)

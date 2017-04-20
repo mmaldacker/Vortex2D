@@ -54,12 +54,6 @@ public:
     void ClampToBorder();
 
     friend class Writer;
-protected:
-    GLint GetInternalFormat() const;
-    GLenum GetFormat() const;
-    GLenum GetType() const;
-
-    GLuint mId = 0;
 
 private:
     int mWidth;

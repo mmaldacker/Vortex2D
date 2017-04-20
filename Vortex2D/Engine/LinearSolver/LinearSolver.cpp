@@ -5,8 +5,6 @@
 
 #include "LinearSolver.h"
 
-#include <Vortex2D/Renderer/Disable.h>
-
 namespace Vortex2D { namespace Fluid {
 
 namespace
@@ -72,27 +70,6 @@ LinearSolver::LinearSolver()
 void LinearSolver::RenderMask(Renderer::Buffer& destination, Data& data)
 {
     destination.ClearStencil();
-
-    Renderer::Enable e(GL_STENCIL_TEST);
-    Renderer::DisableColorMask c;
-
-    glStencilFunc(GL_ALWAYS, 1, 0xFF); // write 1 in stencil buffer
-    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); // replace value with above
-    glStencilMask(0xFF); // enable stencil writing
-
-    if (destination.IsDoubleBuffer())
-    {
-        destination = mMask(Back(data.Diagonal));
-        destination.Swap();
-        destination = mMask(Back(data.Diagonal));
-        destination.Swap();
-    }
-    else
-    {
-        destination = mMask(data.Diagonal);
-    }
-
-    glStencilMask(0x00); // disable stencil writing
 }
 
 
