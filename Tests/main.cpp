@@ -1,11 +1,9 @@
 #include <gtest/gtest.h>
-#include "RenderWindow.h"
 #include "glfw.h"
 
 int main(int argc, char **argv)
 {
-    GLFW glfw(false);
-    RenderWindow mainWindow(1000, 1000, "Test Window");
+    GLFWApp glfw(1000, 1000, false);
 
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

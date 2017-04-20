@@ -16,7 +16,7 @@ void ErrorCallback(int error, const char* description)
                              std::string(description));
 }
 
-GLFW::GLFW(bool visible)
+GLFWApp::GLFWApp(int width, int height, bool visible)
 {
     glfwSetErrorCallback(ErrorCallback);
 
@@ -25,17 +25,32 @@ GLFW::GLFW(bool visible)
         throw std::runtime_error("Could not initialise GLFW!");
     }
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-#ifdef __APPLE__
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     glfwWindowHint(GLFW_VISIBLE, visible ? GLFW_TRUE : GLFW_FALSE);
+
+   mWindow = glfwCreateWindow(width, height, "Vortex2D App", nullptr, nullptr);
+   if (!mWindow)
+   {
+       throw std::runtime_error("Error creating GLFW Window");
+   }
+
 }
 
-GLFW::~GLFW()
+GLFWApp::~GLFWApp()
 {
+    glfwDestroyWindow(mWindow);
     glfwTerminate();
+}
+
+void GLFWApp::Run()
+{
+    while (!glfwWindowShouldClose(mWindow))
+    {
+        glfwPollEvents();
+    }
+}
+
+void GLFWApp::SetKeyCallback(GLFWkeyfun cbfun)
+{
+    glfwSetKeyCallback(mWindow, cbfun);
 }

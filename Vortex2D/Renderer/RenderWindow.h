@@ -7,29 +7,26 @@
 #define RenderWindow_h
 
 #include <Vortex2D/Renderer/RenderTarget.h>
-#include <GLFW/glfw3.h>
 #include <string>
+
+namespace Vortex2D { namespace Renderer {
+
 
 class RenderWindow : public Vortex2D::Renderer::RenderTarget
 {
 public:
     RenderWindow(int width,
-                 int height,
-                 const std::string & name = "Window",
-                 RenderWindow * share = nullptr);
+                 int height);
 
     virtual ~RenderWindow();
 
-    void MakeCurrent();
     void Clear(const glm::vec4 & colour);
     void Render(Vortex2D::Renderer::Drawable & object, const glm::mat4 & transform);
-    void Display();
-    bool ShouldClose();
-    void SetKeyCallback(GLFWkeyfun cbfun);
 
 private:
     int mWidth, mHeight;
-    GLFWwindow * mWindow;
 };
+
+}}
 
 #endif

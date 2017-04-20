@@ -8,11 +8,18 @@
 
 #include <GLFW/glfw3.h>
 
-class GLFW
+class GLFWApp
 {
 public:
-    GLFW(bool visiable = true);
-    ~GLFW();
+    GLFWApp(int width, int height, bool visible = true);
+    ~GLFWApp();
+
+    void SetKeyCallback(GLFWkeyfun cbfun);
+
+    void Run();
+
+private:
+    GLFWwindow * mWindow;
 };
 
 #endif

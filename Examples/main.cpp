@@ -1,4 +1,3 @@
-#include "RenderWindow.h"
 #include "glfw.h"
 
 #include <Vortex2D/Vortex2D.h>
@@ -47,32 +46,12 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 int main()
 {
-    GLFW glfw;
-
     auto colour = glm::vec4{99.0f,96.0f,93.0f,255.0f} / glm::vec4(255.0f);
 
-    RenderWindow mainWindow(size.x, size.y, "Vortex2D Examples");
+    GLFWApp mainWindow(size.x, size.y);
     mainWindow.SetKeyCallback(key_callback);
 
     example.reset(new SmokeExample(size, 0.033f));
 
-    //RenderWindow debugWindow(size.x, size.y, "Debug Window", &mainWindow);
-    //Vortex2D::Fluid::LineIntegralConvolution lic(size);
-
-    while (!mainWindow.ShouldClose())
-    {
-        glfwPollEvents();
-
-        mainWindow.MakeCurrent();
-        mainWindow.Clear(colour);
-        example->Render(mainWindow);
-        mainWindow.Display();
-
-        /*
-        debugWindow.MakeCurrent();
-        debugWindow.Clear(colour);
-        lic.Render(debugWindow);
-        debugWindow.Display();
-        */
-    }
+    mainWindow.Run();
 }
