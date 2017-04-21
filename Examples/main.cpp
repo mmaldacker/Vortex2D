@@ -1,7 +1,7 @@
 #include "glfw.h"
 
 #include <Vortex2D/Vortex2D.h>
-#include <Vortex2D/Engine/LineIntegralConvolution.h>
+#include <Vortex2D/Renderer/Device.h>
 
 #include "ObstacleSmokeExample.h"
 #include "ScaleWaterExample.h"
@@ -37,7 +37,6 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             break;
         case GLFW_KEY_4:
             example.reset(new ScaleWaterExample(size, 0.033f));
-
         default:
             break;
     }
@@ -46,12 +45,21 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 int main()
 {
-    auto colour = glm::vec4{99.0f,96.0f,93.0f,255.0f} / glm::vec4(255.0f);
+    try
+    {
+        auto colour = glm::vec4{99.0f,96.0f,93.0f,255.0f} / glm::vec4(255.0f);
 
-    GLFWApp mainWindow(size.x, size.y);
-    mainWindow.SetKeyCallback(key_callback);
+        GLFWApp mainWindow(size.x, size.y);
+        mainWindow.SetKeyCallback(key_callback);
 
-    example.reset(new SmokeExample(size, 0.033f));
+        Vortex2D::Renderer::Device device(mainWindow.GetDevice());
 
-    mainWindow.Run();
+        example.reset(new SmokeExample(size, 0.033f));
+
+        mainWindow.Run();
+    }
+    catch (const std::exception& error)
+    {
+        std::cout << "exception: " << error.what() << std::endl;
+    }
 }
