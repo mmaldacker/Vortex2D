@@ -43,11 +43,11 @@ public:
     template<typename ... Shaders>
     Operator(const char* vertexSource, const char* fragmentSource, Shaders&& ... shaderSources)
     {
-        VertexShader vertex(vertexSource);
-        FragmentShader fragment(fragmentSource);
+        //VertexShader vertex(vertexSource);
+        //FragmentShader fragment(fragmentSource);
 
-        AttachShader(vertex);
-        AttachShader(fragment);
+        //AttachShader(vertex);
+        //AttachShader(fragment);
         AttachShaders(std::forward<Shaders>(shaderSources)...);
         Link();
     }
@@ -75,9 +75,9 @@ private:
     template<typename ... Shaders>
     void AttachShaders(const char* shaderSource, Shaders&& ... shaderSources)
     {
-        FragmentShader shader(shaderSource);
+        //FragmentShader shader(shaderSource);
 
-        AttachShader(shader);
+        //AttachShader(shader);
         AttachShaders(std::forward<Shaders>(shaderSources)...);
     }
 

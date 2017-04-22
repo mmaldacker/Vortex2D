@@ -7,85 +7,51 @@
 
 #include <stdexcept>
 #include <cassert>
+#include <string>
+#include <fstream>
+#include <streambuf>
 
 namespace Vortex2D { namespace Renderer {
 
-const char * Shader::PositionName = "a_Position";
-const char * Shader::TexCoordsName = "a_TexCoords";
+const char* Shader::PositionVert;
+const char* Shader::PositionFrag;
+const char* Shader::TexturePositionVert;
+const char* Shader::TexturePositionFrag;
 
-const char * Shader::PositionVert = GLSL(
-    in vec2 a_Position;
-    uniform mat4 u_Projection;
 
-    void main()
-    {
-        gl_Position = u_Projection * vec4(a_Position, 0.0, 1.0);
-    }
-);
-
-const char * Shader::PositionFrag = GLSL(
-    uniform vec4 u_Colour;
-    out vec4 out_color;
-
-    void main()
-    {
-        out_color = u_Colour;
-    }
-);
-
-const char * Shader::TexturePositionVert = GLSL(
-    in vec2 a_Position;
-    in vec2 a_TexCoords;
-
-    out vec2 v_texCoord;
-
-    uniform mat4 u_Projection;
-
-    void main()
-    {
-        gl_Position = u_Projection * vec4(a_Position, 0.0, 1.0);
-        v_texCoord = a_TexCoords;
-    }
-);
-
-const char * Shader::TexturePositionFrag = GLSL(
-    in vec2 v_texCoord;
-    uniform sampler2D u_texture;
-
-    out vec4 out_color;
-
-    void main()
-    {
-        out_color = texture(u_texture, v_texCoord);
-    }
-);
-
-Shader::Shader(Type shader, const char* source)
+Shader::Shader(vk::Device device, const std::string& fileName)
 {
+    std::ifstream input(fileName);
+    std::string content((std::istreambuf_iterator<char>(input)),
+                        std::istreambuf_iterator<char>());
+
+    std::vector<uint32_t> contentAligned(content.size() / sizeof(uint32_t) + 1);
+    std::memcpy(contentAligned.data(), content.data(), content.size());
+
+    vk::ShaderModuleCreateInfo shaderInfo;
+    shaderInfo
+            .setCodeSize(contentAligned.size())
+            .setPCode(contentAligned.data());
+
+    mShader = device.createShaderModuleUnique(shaderInfo);
 }
 
 Shader::~Shader()
 {
 }
 
-VertexShader::VertexShader(const char* source)
-    : Shader(Type::Vertex, source)
+VertexShader::VertexShader(vk::Device device, const std::string& fileName)
+    : Shader(device, fileName)
 {
 }
 
-FragmentShader::FragmentShader(const char* source)
-    : Shader(Type::Fragment, source)
+FragmentShader::FragmentShader(vk::Device device, const std::string& fileName)
+    : Shader(device, fileName)
 {
 }
 
 Program::Program(const char* vertexSource, const char* fragmentSource)
 {
-    VertexShader vertex(vertexSource);
-    FragmentShader fragment(fragmentSource);
-
-    AttachShader(vertex);
-    AttachShader(fragment);
-    Link();
 }
 
 Program::Program()

@@ -31,6 +31,8 @@ public:
 
     friend class Program;
 
+    Shader(vk::Device device, const std::string& fileName);
+
     /**
      * @brief Source for the position vertex shader (@see Program)
      */
@@ -51,12 +53,8 @@ public:
      */
     static const char* TexturePositionFrag;
 
-protected:
-    Shader(Type shader, const char* source);
-
 private:
-    static const char* PositionName;
-    static const char* TexCoordsName;
+    vk::UniqueShaderModule mShader;
 };
 
 /**
@@ -64,7 +62,7 @@ private:
  */
 struct VertexShader : Shader
 {
-    VertexShader(const char* source);
+    VertexShader(vk::Device device, const std::string& fileName);
 };
 
 /**
@@ -72,7 +70,7 @@ struct VertexShader : Shader
  */
 struct FragmentShader : Shader
 {
-    FragmentShader(const char* source);
+    FragmentShader(vk::Device device, const std::string& fileName);
 };
 
 /**
