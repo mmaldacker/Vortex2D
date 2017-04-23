@@ -18,21 +18,19 @@ public:
     ~GLFWApp();
 
     void SetKeyCallback(GLFWkeyfun cbfun);
-    Vortex2D::Renderer::Device GetDevice();
+    vk::PhysicalDevice GetPhysicalDevice() const;
+
+    // TODO can return a struct with surface, width and height
+    vk::SurfaceKHR GetSurface() const;
 
     void Run();
 
 private:
     uint32_t mWidth, mHeight;
-    bool mValidation;
-    GLFWwindow * mWindow;
+    GLFWwindow* mWindow;
     vk::UniqueInstance mInstance;
     vk::UniqueDebugReportCallbackEXT mDebugCallback;
     vk::UniqueSurfaceKHR mSurface;
-    vk::UniqueDevice mDevice;
-    vk::Queue mQueue;
-    vk::UniqueSwapchainKHR mSwapChain;
-    int GetFamilyIndex(vk::PhysicalDevice physicalDevice);
 };
 
 #endif

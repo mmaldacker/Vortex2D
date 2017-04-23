@@ -2,6 +2,7 @@
 
 #include <Vortex2D/Vortex2D.h>
 #include <Vortex2D/Renderer/Device.h>
+#include <Vortex2D/Renderer/RenderWindow.h>
 
 #include "RenderExample.h"
 #include "ObstacleSmokeExample.h"
@@ -12,6 +13,8 @@
 #include <iostream>
 #include <memory>
 #include <functional>
+
+using namespace Vortex2D;
 
 glm::vec4 green = glm::vec4(35.0f, 163.0f, 143.0f, 255.0f)/glm::vec4(255.0f);
 glm::vec4 gray = glm::vec4(182.0f,172.0f,164.0f, 255.0f)/glm::vec4(255.0f);
@@ -53,13 +56,16 @@ int main()
         GLFWApp mainWindow(size.x, size.y);
         mainWindow.SetKeyCallback(key_callback);
 
-        Vortex2D::Renderer::Device device(mainWindow.GetDevice());
+        Renderer::Device device(mainWindow.GetPhysicalDevice(),
+                                mainWindow.GetSurface());
 
-        Vortex2D::Renderer::VertexShader vertShader1(device, "../Vortex2D/Position.vert.spv");
-        Vortex2D::Renderer::VertexShader vertShader2(device, "../Vortex2D/TexturePosition.vert.spv");
+        Renderer::RenderWindow window(device, mainWindow.GetSurface(), size.x, size.y);
 
-        Vortex2D::Renderer::FragmentShader fragShader1(device, "../Vortex2D/Position.frag.spv");
-        Vortex2D::Renderer::FragmentShader fragShader2(device, "../Vortex2D/TexturePosition.frag.spv");
+        Renderer::VertexShader vertShader1(device.GetDevice(), "../Vortex2D/Position.vert.spv");
+        Renderer::VertexShader vertShader2(device.GetDevice(), "../Vortex2D/TexturePosition.vert.spv");
+
+        Renderer::FragmentShader fragShader1(device.GetDevice(), "../Vortex2D/Position.frag.spv");
+        Renderer::FragmentShader fragShader2(device.GetDevice(), "../Vortex2D/TexturePosition.frag.spv");
 
         example.reset(new RenderExample(size));
 

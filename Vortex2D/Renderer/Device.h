@@ -13,11 +13,15 @@ namespace Vortex2D { namespace Renderer {
 class Device
 {
 public:
-    Device(vk::Device device, vk::Queue queue);
+    // TODO should be able to create a Device without surface (offscreen rendering)
+    Device(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface, bool validation = true);
 
-    operator vk::Device() const;
+    vk::Device GetDevice() const;
+    vk::PhysicalDevice GetPhysicalDevice() const;
+
 private:
-    vk::Device mDevice;
+    vk::PhysicalDevice mPhysicalDevice;
+    vk::UniqueDevice mDevice;
     vk::Queue mQueue;
 };
 
