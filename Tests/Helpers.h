@@ -8,7 +8,7 @@
 
 #include <gmock/gmock.h>
 
-#include <Vortex2D/Renderer/Buffer.h>
+#include <Vortex2D/Renderer/Data.h>
 #include <Vortex2D/Renderer/Operator.h>
 #include <Vortex2D/Renderer/Reader.h>
 #include <Vortex2D/Renderer/Writer.h>

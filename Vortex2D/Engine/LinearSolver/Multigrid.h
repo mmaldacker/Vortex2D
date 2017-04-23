@@ -9,7 +9,7 @@
 #include <Vortex2D/Engine/LinearSolver/LinearSolver.h>
 #include <Vortex2D/Engine/LinearSolver/Transfer.h>
 #include <Vortex2D/Engine/LinearSolver/GaussSeidel.h>
-#include <Vortex2D/Renderer/Buffer.h>
+#include <Vortex2D/Renderer/Data.h>
 
 namespace Vortex2D { namespace Fluid {
 

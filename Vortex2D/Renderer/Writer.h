@@ -8,7 +8,7 @@
 
 #include <Vortex2D/Renderer/Common.h>
 #include <Vortex2D/Renderer/Texture.h>
-#include <Vortex2D/Renderer/Buffer.h>
+#include <Vortex2D/Renderer/Data.h>
 
 #include <vector>
 

@@ -6,7 +6,7 @@
 #ifndef Transfer_h
 #define Transfer_h
 
-#include <Vortex2D/Renderer/Buffer.h>
+#include <Vortex2D/Renderer/Data.h>
 #include <Vortex2D/Renderer/Operator.h>
 
 namespace Vortex2D { namespace Fluid {

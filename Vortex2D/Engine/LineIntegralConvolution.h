@@ -6,7 +6,7 @@
 #ifndef LineIntegralConvolution_h
 #define LineIntegralConvolution_h
 
-#include <Vortex2D/Renderer/Buffer.h>
+#include <Vortex2D/Renderer/Data.h>
 #include <Vortex2D/Renderer/Operator.h>
 #include <Vortex2D/Renderer/Drawable.h>
 #include <Vortex2D/Renderer/Sprite.h>

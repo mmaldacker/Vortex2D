@@ -1,9 +1,9 @@
 //
-//  Buffer.cpp
+//  Data.cpp
 //  Vortex2D
 //
 
-#include "Buffer.h"
+#include "Data.h"
 
 #include <Vortex2D/Renderer/Shader.h>
 #include <Vortex2D/Renderer/Operator.h>

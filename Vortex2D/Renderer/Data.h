@@ -1,10 +1,10 @@
 //
-//  Buffer.h
+//  Data.h
 //  Vortex2D
 //
 
-#ifndef Buffer_h
-#define Buffer_h
+#ifndef Data_h
+#define Data_h
 
 #include <Vortex2D/Renderer/RenderTarget.h>
 #include <Vortex2D/Renderer/RenderTexture.h>

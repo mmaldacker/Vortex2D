@@ -1,19 +1,31 @@
-out vec4 out_color;
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
 
-uniform vec4 u_Colour;
-uniform float u_size;
-uniform vec2 u_radius;
-uniform mat2 u_rotation;
+
+layout(location = 0) out vec4 out_colour;
+
+layout(binding = 0) uniform UBO
+{
+  vec4 colour;
+} u;
+
+layout(binding = 1) uniform Size
+{
+    float size;
+    vec2 radius;
+    mat2 rotation;
+} s;
+
 
 void main()
 {
-    float size = 2 * u_size + 1;
-    vec2 pos = (gl_PointCoord * size) - u_size;
-    pos = u_rotation * pos;
-    float distance = dot(pos / u_radius, pos / u_radius);
+    float size = 2 * s.size + 1;
+    vec2 pos = (gl_PointCoord * size) - s.size;
+    pos = s.rotation * pos;
+    float distance = dot(pos / s.radius, pos / s.radius);
     if (distance - 1.0 <= 0.0)
     {
-        out_color = u_Colour;
+        out_colour = u.colour;
     }
     else
     {

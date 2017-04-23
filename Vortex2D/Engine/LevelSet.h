@@ -6,7 +6,7 @@
 #ifndef LevelSet_h
 #define LevelSet_h
 
-#include <Vortex2D/Renderer/Buffer.h>
+#include <Vortex2D/Renderer/Data.h>
 #include <Vortex2D/Renderer/Operator.h>
 #include <Vortex2D/Renderer/Drawable.h>
 
