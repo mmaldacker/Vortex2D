@@ -1,5 +1,6 @@
 file(GLOB EXAMPLES_SOURCES
         "main.cpp"
+        "RenderExample.h"
         "ObstacleSmokeExample.h"
         "ScaleWaterExample.h"
         "SmokeExample.h"

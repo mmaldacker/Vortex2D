@@ -23,7 +23,6 @@ typedef std::vector<glm::vec2> Path;
 class Shape : public Drawable, public Transformable
 {
 public:
-
     enum class Type
     {
         TRIANGLES,
@@ -39,17 +38,11 @@ public:
      * @brief SetType sets the primitive type of this shape
      * @param type must be GL_POINTS, GL_TRIANGLES, etc
      */
-    void SetType(Type type);
-
-    /**
-     * @brief Set sets a list of points (e.g. triangles)
-     */
-    void Set(const Path& path);
+    void SetType(Type type, const Path& path);
 
     void Render(RenderTarget& target, const glm::mat4& transform = glm::mat4()) override;
 
     glm::vec4 Colour;
-
 protected:
     Shape(const char* vert, const char* frag);
 

@@ -7,6 +7,7 @@
 #define Vortex_Shader_h
 
 #include <Vortex2D/Renderer/Common.h>
+#include <Vortex2D/Renderer/Device.h>
 
 #include <string>
 
@@ -20,18 +21,10 @@ class Program;
 class Shader
 {
 public:
-    enum class Type
-    {
-        Vertex,
-        Fragment,
-        Compute
-    };
-
     virtual ~Shader();
 
     friend class Program;
 
-    Shader(vk::Device device, const std::string& fileName);
 
     /**
      * @brief Source for the position vertex shader (@see Program)
@@ -53,8 +46,11 @@ public:
      */
     static const char* TexturePositionFrag;
 
-private:
+protected:
+    Shader(vk::Device device, const std::string& fileName);
+
     vk::UniqueShaderModule mShader;
+    vk::PipelineShaderStageCreateInfo mPipelineInfo;
 };
 
 /**

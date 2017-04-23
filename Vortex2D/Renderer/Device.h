@@ -15,6 +15,7 @@ class Device
 public:
     Device(vk::Device device, vk::Queue queue);
 
+    operator vk::Device() const;
 private:
     vk::Device mDevice;
     vk::Queue mQueue;

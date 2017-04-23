@@ -3,6 +3,7 @@
 #include <Vortex2D/Vortex2D.h>
 #include <Vortex2D/Renderer/Device.h>
 
+#include "RenderExample.h"
 #include "ObstacleSmokeExample.h"
 #include "ScaleWaterExample.h"
 #include "SmokeExample.h"
@@ -54,7 +55,13 @@ int main()
 
         Vortex2D::Renderer::Device device(mainWindow.GetDevice());
 
-        example.reset(new SmokeExample(size, 0.033f));
+        Vortex2D::Renderer::VertexShader vertShader1(device, "../Vortex2D/Position.vert.spv");
+        Vortex2D::Renderer::VertexShader vertShader2(device, "../Vortex2D/TexturePosition.vert.spv");
+
+        Vortex2D::Renderer::FragmentShader fragShader1(device, "../Vortex2D/Position.frag.spv");
+        Vortex2D::Renderer::FragmentShader fragShader2(device, "../Vortex2D/TexturePosition.frag.spv");
+
+        example.reset(new RenderExample(size));
 
         mainWindow.Run();
     }

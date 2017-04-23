@@ -21,17 +21,23 @@ const char* Shader::TexturePositionFrag;
 
 Shader::Shader(vk::Device device, const std::string& fileName)
 {
-    std::ifstream input(fileName);
-    std::string content((std::istreambuf_iterator<char>(input)),
-                        std::istreambuf_iterator<char>());
+    std::ifstream is(fileName, std::ios::binary | std::ios::in | std::ios::ate);
 
-    std::vector<uint32_t> contentAligned(content.size() / sizeof(uint32_t) + 1);
-    std::memcpy(contentAligned.data(), content.data(), content.size());
+    if (!is.is_open())
+    {
+        throw std::runtime_error("Couldn't open file:" + fileName);
+    }
+
+    size_t size = is.tellg();
+    is.seekg(0, std::ios::beg);
+    std::vector<char> content(size);
+    is.read(content.data(), size);
+    is.close();
 
     vk::ShaderModuleCreateInfo shaderInfo;
     shaderInfo
-            .setCodeSize(contentAligned.size())
-            .setPCode(contentAligned.data());
+            .setCodeSize(content.size())
+            .setPCode((const uint32_t*)content.data());
 
     mShader = device.createShaderModuleUnique(shaderInfo);
 }
@@ -43,11 +49,19 @@ Shader::~Shader()
 VertexShader::VertexShader(vk::Device device, const std::string& fileName)
     : Shader(device, fileName)
 {
+    mPipelineInfo
+            .setModule(*mShader)
+            .setPName("main")
+            .setStage(vk::ShaderStageFlagBits::eVertex);
 }
 
 FragmentShader::FragmentShader(vk::Device device, const std::string& fileName)
     : Shader(device, fileName)
 {
+    mPipelineInfo
+            .setModule(*mShader)
+            .setPName("main")
+            .setStage(vk::ShaderStageFlagBits::eFragment);
 }
 
 Program::Program(const char* vertexSource, const char* fragmentSource)

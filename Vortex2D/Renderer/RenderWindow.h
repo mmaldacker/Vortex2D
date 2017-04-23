@@ -15,8 +15,7 @@ namespace Vortex2D { namespace Renderer {
 class RenderWindow : public Vortex2D::Renderer::RenderTarget
 {
 public:
-    RenderWindow(int width,
-                 int height);
+    RenderWindow(vk::Device device, int width, int height);
 
     virtual ~RenderWindow();
 

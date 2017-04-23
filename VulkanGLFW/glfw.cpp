@@ -103,19 +103,6 @@ GLFWApp::GLFWApp(uint32_t width, uint32_t height, bool visible, bool validation)
         extensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
     }
 
-    // print extensions & layers for information
-    std::cout << "Extensions:" << std::endl;
-    for (auto& extension : vk::enumerateInstanceExtensionProperties())
-    {
-        std::cout << "  " << extension.extensionName << std::endl;
-    }
-
-    std::cout << "Layers:" << std::endl;
-    for (auto& layer : vk::enumerateInstanceLayerProperties())
-    {
-        std::cout << "  " << layer.layerName << std::endl;
-    }
-
     // configure instance
     vk::ApplicationInfo appInfo;
     appInfo.setPApplicationName("Vortex2D App");
@@ -224,6 +211,29 @@ GLFWApp::GLFWApp(uint32_t width, uint32_t height, bool visible, bool validation)
             .setClipped(true);
 
     mSwapChain = mDevice->createSwapchainKHRUnique(swapChainInfo);
+
+    // TODO this might need to be moved in RenderWindow or something
+    std::vector<vk::Image> swapChainImages = mDevice->getSwapchainImagesKHR(*mSwapChain);
+    std::vector<vk::UniqueImageView> swapChainImageViews;
+    for (const auto& image : swapChainImages)
+    {
+        vk::ImageViewCreateInfo imageViewInfo;
+        imageViewInfo
+                .setImage(image)
+                .setViewType(vk::ImageViewType::e2D)
+                // TODO set same as for swapChainInfo
+                .setFormat(vk::Format::eB8G8R8A8Unorm)
+                .setComponents({vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity})
+                .setSubresourceRange({vk::ImageAspectFlagBits::eColor, 0, 1, 0 ,1});
+
+       swapChainImageViews.push_back(mDevice->createImageViewUnique(imageViewInfo));
+    }
+
+    // Create command buffer pool
+    vk::CommandPoolCreateInfo commandPoolInfo;
+    commandPoolInfo.setQueueFamilyIndex(index);
+    auto commandPool = mDevice->createCommandPoolUnique(commandPoolInfo);
+
 }
 
 GLFWApp::~GLFWApp()

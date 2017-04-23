@@ -12,8 +12,11 @@ Device::Device(vk::Device device, vk::Queue queue)
     : mDevice(device)
     , mQueue(queue)
 {
+}
 
-
+Device::operator vk::Device() const
+{
+    return mDevice;
 }
 
 

@@ -14,52 +14,6 @@
 
 namespace Vortex2D { namespace Renderer {
 
-namespace
-{
-
-const char* EllipseVert = GLSL(
-    in vec2 a_Position;
-
-    uniform mat4 u_Projection;
-    uniform float u_size;
-    uniform vec2 u_radius;
-
-    void main()
-    {
-        gl_PointSize = 2 * u_size + 1;
-        gl_Position = u_Projection * vec4(a_Position, 0.0, 1.0);
-    }
-);
-
-const char* EllipseFrag = GLSL(
-    out vec4 out_color;
-
-    uniform vec4 u_Colour;
-    uniform float u_size;
-    uniform vec2 u_radius;
-    uniform mat2 u_rotation;
-
-    void main()
-    {
-        float size = 2 * u_size + 1;
-        vec2 pos = (gl_PointCoord * size) - u_size;
-        pos = u_rotation * pos;
-        float distance = dot(pos / u_radius, pos / u_radius);
-        // gl_PointCoord is not exactly 0.0 on the left/top borders
-        // thus we need to include a tolerance so the left/top points are drawn
-        if (distance - 1.0 <= 1e-5)
-        {
-            out_color = u_Colour;
-        }
-        else
-        {
-            discard;
-        }
-    }
-);
-
-}
-
 Shape::Shape()
     : Shape(Shader::PositionVert, Shader::PositionFrag)
 {
@@ -85,17 +39,28 @@ Shape::Shape(Shape&& other)
 {
 }
 
-void Shape::SetType(Type type)
+void Shape::SetType(Type type, const Path& path)
 {
-    mType = type;
-}
-
-void Shape::Set(const Path& path)
-{
+    vk::PipelineVertexInputStateCreateInfo vertexInputInfo;
 }
 
 void Shape::Render(RenderTarget& target, const glm::mat4& transform)
 {
+    vk::Viewport viewport;
+    vk::Rect2D scissor;
+
+    vk::PipelineRasterizationStateCreateInfo rasterizationInfo;
+    rasterizationInfo
+            .setLineWidth(1.0f)
+            .setCullMode(vk::CullModeFlagBits::eBack)
+            .setFrontFace(vk::FrontFace::eClockwise);
+
+    vk::PipelineMultisampleStateCreateInfo multisampleInfo;
+    multisampleInfo
+            .setRasterizationSamples(vk::SampleCountFlagBits::e1)
+            .setMinSampleShading(1.0f);
+
+    // TODO add blending
 }
 
 Rectangle::Rectangle(const glm::vec2& size)
@@ -105,20 +70,23 @@ Rectangle::Rectangle(const glm::vec2& size)
 
 void Rectangle::SetRectangle(const glm::vec2& size)
 {
-    SetType(Type::TRIANGLES);
-    Set({{0.0f, 0.0f}, {size.x, 0.0f}, {0.0f, size.y}, {size.x, 0.0f,}, {size.x, size.y}, {0.0f, size.y}});
+    SetType(Type::TRIANGLES,
+    {{0.0f, 0.0f},
+     {size.x, 0.0f},
+     {0.0f, size.y},
+     {size.x, 0.0f,},
+     {size.x, size.y},
+     {0.0f, size.y}});
 }
 
 Ellipse::Ellipse(const glm::vec2& radius)
-    : Shape(EllipseVert, EllipseFrag)
 {
     SetEllipse(radius);
 }
 
 void Ellipse::SetEllipse(const glm::vec2& radius)
 {
-    SetType(Type::POINTS);
-    Set({{0.0f,0.0f}});
+    SetType(Type::POINTS, {{0.0f,0.0f}});
     mRadius = radius;
 }
 
