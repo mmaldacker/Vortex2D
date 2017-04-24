@@ -19,10 +19,14 @@ public:
     vk::Device GetDevice() const;
     vk::PhysicalDevice GetPhysicalDevice() const;
 
+    std::vector<vk::CommandBuffer> CreateCommandBuffers(uint32_t size) const;
+    uint32_t FindMemoryPropertiesIndex(uint32_t memoryTypeBits, vk::MemoryPropertyFlags properties) const;
+
 private:
     vk::PhysicalDevice mPhysicalDevice;
     vk::UniqueDevice mDevice;
     vk::Queue mQueue;
+    vk::UniqueCommandPool mCommandPool;
 };
 
 }}

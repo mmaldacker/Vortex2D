@@ -47,6 +47,7 @@ Device::Device(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface, bool v
     const std::vector<const char*> validationLayers = {"VK_LAYER_LUNARG_standard_validation"};
     const std::vector<const char*> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
+    // create queue
     vk::PhysicalDeviceFeatures deviceFeatures;
     vk::DeviceCreateInfo deviceInfo;
     deviceInfo
@@ -65,6 +66,11 @@ Device::Device(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface, bool v
 
     mDevice = physicalDevice.createDeviceUnique(deviceInfo);
     mQueue = mDevice->getQueue(index, 0);
+
+    // create command pool
+    vk::CommandPoolCreateInfo commandPoolInfo;
+    commandPoolInfo.setQueueFamilyIndex(index);
+    mCommandPool = mDevice->createCommandPoolUnique(commandPoolInfo);
 }
 
 vk::Device Device::GetDevice() const
@@ -76,5 +82,30 @@ vk::PhysicalDevice Device::GetPhysicalDevice() const
 {
     return mPhysicalDevice;
 }
+
+std::vector<vk::CommandBuffer> Device::CreateCommandBuffers(uint32_t size) const
+{
+    vk::CommandBufferAllocateInfo commandBufferInfo;
+    commandBufferInfo
+            .setCommandBufferCount(size)
+            .setCommandPool(*mCommandPool)
+            .setLevel(vk::CommandBufferLevel::ePrimary);
+
+    return mDevice->allocateCommandBuffers(commandBufferInfo);
+}
+
+uint32_t Device::FindMemoryPropertiesIndex(uint32_t memoryTypeBits, vk::MemoryPropertyFlags properties) const
+{
+    auto memoryProperties = mPhysicalDevice.getMemoryProperties();
+    for (uint32_t i = 0; i < memoryProperties.memoryTypeCount; ++i)
+    {
+        if ((memoryTypeBits & (1 << i)) &&
+            ((memoryProperties.memoryTypes[i].propertyFlags & properties) == properties))
+            return i;
+    }
+
+    throw std::runtime_error("Memory type not found");
+}
+
 
 }}
