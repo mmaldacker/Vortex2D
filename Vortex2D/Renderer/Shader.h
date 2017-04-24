@@ -70,23 +70,6 @@ struct FragmentShader : Shader
 };
 
 /**
- * @brief Uniform that hols the location of a uniform in a shader
- * and allows for fast update of it. It is templated on the type of the uniform.
- */
-template<typename T>
-class Uniform
-{
-public:
-    Uniform() {}
-    Uniform(Program& program, const std::string& name);
-    void SetLocation(Program& program, const std::string& name);
-    void Set(T value);
-
-    friend class Program;
-private:
-};
-
-/**
  * @brief A program which is defined from a Vertex and Fragment shader
  */
 class Program
@@ -118,42 +101,8 @@ public:
      * @return returns *this
      */
     Program& SetMVP(const glm::mat4& mvp);
-
-    template<typename T>
-    friend class Uniform;
-
-protected:
-    /**
-     * @brief Attach a Fragment or Vertex shader
-     * @return returns *this
-     */
-    Program& AttachShader(const Shader& shader);
-
-    /**
-     * @brief Link the shaders to the Program
-     */
-    Program& Link();
-
-private:
-    Uniform<glm::mat4> mMVP;
 };
 
-template<typename T>
-Uniform<T>::Uniform(Program& program, const std::string& name)
-{
-    SetLocation(program, name);
-}
-
-template<typename T>
-void Uniform<T>::SetLocation(Program& program, const std::string& name)
-{
-    program.Use();
-}
-
-template<typename T>
-void Uniform<T>::Set(T value)
-{
-}
 
 }}
 

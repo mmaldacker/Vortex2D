@@ -50,7 +50,6 @@ World::World(Dimensions dimensions, float dt)
     , mExtrapolation(dimensions.Size, mVelocity, mObstacleLevelSet)
     , mVelocityReader(mVelocity)
     , mFluidProgram(Renderer::Shader::TexturePositionVert, FluidFrag)
-    , mColourUniform(mFluidProgram, "u_Colour")
 {
     mVelocity.Clear(glm::vec4(0.0));
     mBoundariesVelocity.Clear(glm::vec4(0.0));
@@ -90,7 +89,6 @@ void World::Render(Renderer::RenderTarget& target, const glm::mat4& transform)
     auto & sprite = mFluidLevelSet.Sprite();
     sprite.SetProgram(mFluidProgram);
     mFluidProgram.Use();
-    mColourUniform.Set(Colour);
     target.Render(sprite, glm::scale(glm::vec3(mDimensions.Scale, mDimensions.Scale, 1.0))*transform);
 }
 

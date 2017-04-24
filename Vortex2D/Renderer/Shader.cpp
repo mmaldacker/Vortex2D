@@ -85,16 +85,6 @@ Program & Program::operator=(Program&& other)
     return *this;
 }
 
-Program & Program::AttachShader(const Shader& shader)
-{
-    return *this;
-}
-
-Program & Program::Link()
-{
-    return *this;
-}
-
 Program& Program::Use()
 {
     return *this;

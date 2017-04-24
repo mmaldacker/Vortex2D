@@ -89,7 +89,6 @@ private:
     Renderer::Reader mVelocityReader;
 
     Renderer::Program mFluidProgram;
-    Renderer::Uniform<glm::vec4> mColourUniform;
 };
 
 }}

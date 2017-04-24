@@ -48,7 +48,6 @@ private:
     Renderer::Operator mGaussSeidel;
     Renderer::Operator mStencil;
     Renderer::Operator mIdentity;
-    Renderer::Uniform<float> mW;
 };
 
 }}
