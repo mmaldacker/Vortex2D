@@ -79,10 +79,12 @@ class PositionProgram : public Program
 public:
     PositionProgram(vk::Device device);
 
+    vk::PipelineVertexInputStateCreateInfo VertexInfo;
+    vk::PipelineShaderStageCreateInfo ShaderStages[2];
+
 private:
     VertexShader mVertexShader;
     FragmentShader mFragmentShader;
-    vk::PipelineShaderStageCreateInfo mShaderStages[2];
 };
 
 class TexturePositionProgram : public Program

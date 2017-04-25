@@ -75,15 +75,14 @@ PositionProgram::PositionProgram(vk::Device device)
     vk::VertexInputAttributeDescription attributeDescription;
     attributeDescription.setFormat(vk::Format::eR32G32Sfloat);
 
-    vk::PipelineVertexInputStateCreateInfo vertexInfo;
-    vertexInfo
+    VertexInfo
             .setVertexBindingDescriptionCount(1)
             .setPVertexBindingDescriptions(&bindingDescription)
             .setVertexAttributeDescriptionCount(1)
             .setPVertexAttributeDescriptions(&attributeDescription);
 
-    mShaderStages[0] = mVertexShader.PipelineInfo;
-    mShaderStages[1] = mFragmentShader.PipelineInfo;
+    ShaderStages[0] = mVertexShader.PipelineInfo;
+    ShaderStages[1] = mFragmentShader.PipelineInfo;
 }
 
 }}

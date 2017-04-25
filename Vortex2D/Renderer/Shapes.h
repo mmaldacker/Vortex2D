@@ -41,6 +41,12 @@ private:
     uint32_t mCount;
     PositionProgram mProgram;
     VertexBuffer<glm::vec2> mVertexBuffer;
+    vk::UniquePipelineLayout mPipelineLayout;
+    vk::PipelineInputAssemblyStateCreateInfo mInputAssembly;
+    vk::UniquePipeline mPipeline;
+
+    // TODO will need to replace with map
+    std::vector<vk::CommandBuffer> mCommandBuffers;
 };
 
 /**

@@ -30,11 +30,18 @@ Shape::Shape(const Device& device, Type type, const Path& path)
     , mProgram(device.GetDevice())
     , mVertexBuffer(device, path)
 {
-    vk::PipelineInputAssemblyStateCreateInfo inputAssembly;
-    inputAssembly.setTopology(GetTopology(type));
+    mInputAssembly.setTopology(GetTopology(type));
 
-    //VertexBuffer<float> vertexBuffer()
+    vk::PipelineLayoutCreateInfo layoutInfo;
+    // TODO add descriptor for MVP
 
+    // TODO should be moved to Program
+    mPipelineLayout = device.GetDevice().createPipelineLayoutUnique(layoutInfo);
+}
+
+void Shape::Render(const Device& device, RenderTarget & target)
+{
+    // create pipline
     vk::PipelineRasterizationStateCreateInfo rasterizationInfo;
     rasterizationInfo
             .setLineWidth(1.0f)
@@ -46,8 +53,6 @@ Shape::Shape(const Device& device, Type type, const Path& path)
             .setRasterizationSamples(vk::SampleCountFlagBits::e1)
             .setMinSampleShading(1.0f);
 
-    // TODO add blending
-
     vk::DynamicState dynamicStates[] = { vk::DynamicState::eViewport,
                                          vk::DynamicState::eScissor,
                                          vk::DynamicState::eBlendConstants };
@@ -57,18 +62,20 @@ Shape::Shape(const Device& device, Type type, const Path& path)
             .setDynamicStateCount(3)
             .setPDynamicStates(dynamicStates);
 
-    vk::UniquePipelineLayout pipelineLayout;
-    // TODO fill in
+    vk::GraphicsPipelineCreateInfo graphicsPipelineInfo;
+    graphicsPipelineInfo
+            .setStageCount(2)
+            .setPStages(mProgram.ShaderStages)
+            .setPVertexInputState(&mProgram.VertexInfo)
+            .setPInputAssemblyState(&mInputAssembly)
+            .setPRasterizationState(&rasterizationInfo)
+            .setPMultisampleState(&multisampleInfo)
+            .setLayout(*mPipelineLayout)
+            .setRenderPass(target.RenderPass);
 
+    mPipeline = device.GetDevice().createGraphicsPipelineUnique(nullptr, graphicsPipelineInfo);
 
-    //vk::GraphicsPipelineCreateInfo graphicsPipelineInfo;
-    //graphicsPipelineInfo.setStageCount(2)
-    //        .set
-
-}
-
-void Shape::Render(const Device& device, RenderTarget & target)
-{
+    // create command with pipeline and RenderTarget
     vk::CommandBufferBeginInfo beginInfo;
     beginInfo.setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse);
 
@@ -91,10 +98,12 @@ void Shape::Render(const Device& device, RenderTarget & target)
             .setRenderArea({{0u, 0u}, {target.Width, target.Height}});
 
     commandBuffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
-    //commandBuffer.bindPipeline(mPipeline, )
+    commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *mPipeline);
     commandBuffer.draw(mCount, 1, 0, 0);
     commandBuffer.endRenderPass();
     commandBuffer.end();
+
+    mCommandBuffers.push_back(commandBuffer);
 }
 
 Rectangle::Rectangle(const Device& device, const glm::vec2& size)
