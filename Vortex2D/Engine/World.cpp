@@ -49,12 +49,9 @@ World::World(Dimensions dimensions, float dt)
     , mPressure(dt, dimensions.Size, mLinearSolver, mData, mVelocity, mObstacleLevelSet, mFluidLevelSet, mBoundariesVelocity)
     , mExtrapolation(dimensions.Size, mVelocity, mObstacleLevelSet)
     , mVelocityReader(mVelocity)
-    , mFluidProgram(Renderer::Shader::TexturePositionVert, FluidFrag)
 {
     mVelocity.Clear(glm::vec4(0.0));
     mBoundariesVelocity.Clear(glm::vec4(0.0));
-
-    mFluidProgram.Use().Set("u_texture", 0);
 }
 
 Boundaries World::DrawBoundaries()

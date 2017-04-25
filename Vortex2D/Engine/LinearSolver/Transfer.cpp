@@ -71,8 +71,6 @@ Transfer::Transfer()
     : prolongate(Renderer::Shader::PositionVert, ProlongateFrag)
     , restrict(Renderer::Shader::PositionVert, RestrictFrag)
 {
-    prolongate.Use().Set("u_texture", 0).Set("u_pressure", 1);
-    restrict.Use().Set("u_texture", 0);
 }
 
 }}

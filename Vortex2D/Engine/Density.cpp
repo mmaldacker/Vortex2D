@@ -14,10 +14,8 @@ namespace Vortex2D { namespace Fluid {
 Density::Density(Dimensions dimensions)
     : mDimensions(dimensions)
     , mDensity(dimensions.Size, 4, true)
-    , mProgram(Renderer::Shader::TexturePositionVert, Renderer::Shader::TexturePositionFrag)
 {
     mDensity.Clear(glm::vec4(0.0));
-    mProgram.Use().Set("u_texture", 0);
 }
 
 Density::~Density()

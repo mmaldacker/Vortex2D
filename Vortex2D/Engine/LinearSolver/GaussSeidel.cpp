@@ -60,7 +60,6 @@ GaussSeidel::GaussSeidel()
     , mStencil(Renderer::Shader::TexturePositionVert, CheckerMask)
     , mIdentity(Renderer::Shader::TexturePositionVert, Renderer::Shader::TexturePositionFrag)
 {
-    mGaussSeidel.Use().Set("u_texture", 0).Set("u_weights", 1).Set("u_diagonals", 2);
 }
 
 GaussSeidel::GaussSeidel(const glm::vec2& size)
@@ -108,7 +107,6 @@ void GaussSeidel::Step(Data& data, uint8_t redMask, uint8_t blackMask)
 
 void GaussSeidel::SetW(float w)
 {
-    mGaussSeidel.Use();
 }
 
 }}

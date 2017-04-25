@@ -13,8 +13,6 @@
 
 namespace Vortex2D { namespace Renderer {
 
-class Program;
-
 /**
  * @brief Represents a Vertex or Fragment shader
  */
@@ -22,9 +20,6 @@ class Shader
 {
 public:
     virtual ~Shader();
-
-    friend class Program;
-
 
     /**
      * @brief Source for the position vertex shader (@see Program)
@@ -46,11 +41,13 @@ public:
      */
     static const char* TexturePositionFrag;
 
+
+    vk::PipelineShaderStageCreateInfo PipelineInfo;
+
 protected:
     Shader(vk::Device device, const std::string& fileName);
 
     vk::UniqueShaderModule mShader;
-    vk::PipelineShaderStageCreateInfo mPipelineInfo;
 };
 
 /**
@@ -75,34 +72,23 @@ struct FragmentShader : Shader
 class Program
 {
 public:
-    Program();
-    Program(const char* vertex, const char* fragment);
-    ~Program();
-
-    Program(Program&&);
-    Program& operator=(Program&&);
-
-    /**
-     * @brief Use this Program
-     */
-    Program& Use();
-
-    /**
-     * @brief Set a uniform by name
-     */
-    template<typename T>
-    Program& Set(const std::string& name, T value)
-    {
-        return *this;
-    }
-
-    /**
-     * @brief Set the model-view-projection matrix
-     * @return returns *this
-     */
-    Program& SetMVP(const glm::mat4& mvp);
 };
 
+class PositionProgram : public Program
+{
+public:
+    PositionProgram(vk::Device device);
+
+private:
+    VertexShader mVertexShader;
+    FragmentShader mFragmentShader;
+    vk::PipelineShaderStageCreateInfo mShaderStages[2];
+};
+
+class TexturePositionProgram : public Program
+{
+
+};
 
 }}
 

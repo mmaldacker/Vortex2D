@@ -168,12 +168,6 @@ Multigrid::Multigrid(glm::vec2 size)
         mDepths++;
     }
 
-    mResidual.Use().Set("u_texture", 0).Set("u_weights", 1).Set("u_diagonals", 2);
-    mDampedJacobi.Use().Set("u_texture", 0).Set("u_weights", 1).Set("u_diagonals", 2);
-    mIdentity.Use().Set("u_texture", 0);
-    mScale.Use().Set("u_texture", 0);
-    mBoundaryMask.Use().Set("u_texture", 0);
-
     mGaussSeidel.SetW(1.0f);
 }
 

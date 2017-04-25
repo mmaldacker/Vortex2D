@@ -223,10 +223,6 @@ Pressure::Pressure(float dt,
     , mWeights(Renderer::Shader::TexturePositionVert, WeightsFrag, WeightHelperFrag)
     , mDiagonals(Renderer::Shader::TexturePositionVert, DiagonalsFrag, WeightHelperFrag)
 {
-    mDiv.Use().Set("u_velocity", 0).Set("u_obstacles", 1).Set("u_fluid", 2).Set("u_obstacles_velocity", 3).Set("dx", 1.0f / size.x);
-    mProject.Use().Set("u_velocity", 0).Set("u_pressure", 1).Set("u_fluid", 2).Set("u_obstacles", 3).Set("u_obstacles_velocity", 4).Set("delta", dt).Set("dx", 1.0f / size.x);
-    mWeights.Use().Set("u_obstacles", 0).Set("u_fluid", 1).Set("delta", dt).Set("dx", 1.0f / size.x);
-    mDiagonals.Use().Set("u_obstacles", 0).Set("u_fluid", 1).Set("delta", dt).Set("dx", 1.0f /size.x);
 }
 
 void Pressure::Solve(LinearSolver::Parameters& params)

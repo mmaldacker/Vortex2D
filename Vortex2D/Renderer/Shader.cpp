@@ -49,7 +49,7 @@ Shader::~Shader()
 VertexShader::VertexShader(vk::Device device, const std::string& fileName)
     : Shader(device, fileName)
 {
-    mPipelineInfo
+    PipelineInfo
             .setModule(*mShader)
             .setPName("main")
             .setStage(vk::ShaderStageFlagBits::eVertex);
@@ -58,41 +58,32 @@ VertexShader::VertexShader(vk::Device device, const std::string& fileName)
 FragmentShader::FragmentShader(vk::Device device, const std::string& fileName)
     : Shader(device, fileName)
 {
-    mPipelineInfo
+    PipelineInfo
             .setModule(*mShader)
             .setPName("main")
             .setStage(vk::ShaderStageFlagBits::eFragment);
 }
 
-Program::Program(const char* vertexSource, const char* fragmentSource)
+PositionProgram::PositionProgram(vk::Device device)
+    : mVertexShader(device, "../Vortex2D/Position.vert.spv")
+    , mFragmentShader(device, "../Vortex2D/TexturePosition.vert.spv")
 {
-}
+    vk::VertexInputBindingDescription bindingDescription;
+    bindingDescription.setStride(sizeof(glm::vec2));
+    bindingDescription.setInputRate(vk::VertexInputRate::eVertex);
 
-Program::Program()
-{
-}
+    vk::VertexInputAttributeDescription attributeDescription;
+    attributeDescription.setFormat(vk::Format::eR32G32Sfloat);
 
-Program::~Program()
-{
-}
+    vk::PipelineVertexInputStateCreateInfo vertexInfo;
+    vertexInfo
+            .setVertexBindingDescriptionCount(1)
+            .setPVertexBindingDescriptions(&bindingDescription)
+            .setVertexAttributeDescriptionCount(1)
+            .setPVertexAttributeDescriptions(&attributeDescription);
 
-Program::Program(Program&& other)
-{
-}
-
-Program & Program::operator=(Program&& other)
-{
-    return *this;
-}
-
-Program& Program::Use()
-{
-    return *this;
-}
-
-Program& Program::SetMVP(const glm::mat4& mvp)
-{
-    return *this;
+    mShaderStages[0] = mVertexShader.PipelineInfo;
+    mShaderStages[1] = mFragmentShader.PipelineInfo;
 }
 
 }}

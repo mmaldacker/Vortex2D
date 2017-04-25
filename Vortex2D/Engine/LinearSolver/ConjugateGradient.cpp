@@ -141,13 +141,6 @@ ConjugateGradient::ConjugateGradient(const glm::vec2& size)
     , z(size)
     , preconditioner(size)
 {
-    residual.Use().Set("u_texture", 0);
-    identity.Use().Set("u_texture", 0);
-    matrixMultiply.Use().Set("u_texture", 0).Set("u_weights", 1).Set("u_diagonals", 2);
-    scalarDivision.Use().Set("u_x", 0).Set("u_y", 1);
-    multiplyAdd.Use().Set("u_x", 0).Set("u_y", 1).Set("u_scalar", 2);
-    multiplySub.Use().Set("u_x", 0).Set("u_y", 1).Set("u_scalar", 2);
-    swizzle.Use().Set("u_texture", 0);
 }
 
 ConjugateGradient::~ConjugateGradient()

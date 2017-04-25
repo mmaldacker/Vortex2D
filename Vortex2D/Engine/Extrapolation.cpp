@@ -206,11 +206,6 @@ Extrapolation::Extrapolation(const glm::vec2& size,
     , mConstrainVelocity(Renderer::Shader::TexturePositionVert, ConstrainVelocityFrag, WeightHelperFrag)
     , mSurface(size)
 {
-    mIdentity.Use().Set("u_texture", 0);
-    mExtrapolate.Use().Set("u_valid", 0).Set("u_texture", 1);
-    mValidExtrapolate.Use().Set("u_valid", 0);
-    mValidVelocities.Use().Set("u_velocity", 0);
-    mConstrainVelocity.Use().Set("u_velocity", 0).Set("u_obstacles", 1);
 }
 
 void Extrapolation::Extrapolate()
