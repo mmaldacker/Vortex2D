@@ -38,8 +38,9 @@ public:
         boundaries.DrawLiquid(area);
     }
 
-    void Render(Vortex2D::Renderer::RenderTarget & target, const glm::mat4 & transform = glm::mat4()) override
+    void Render(const Vortex2D::Renderer::Device& device, Vortex2D::Renderer::RenderTarget & target) override
     {
+        /*
         world.RenderForce(force1);
         world.RenderForce(force2);
 
@@ -50,6 +51,7 @@ public:
         density.Advect(world);
 
         target.Render(density, transform);
+        */
     }
 
 private:

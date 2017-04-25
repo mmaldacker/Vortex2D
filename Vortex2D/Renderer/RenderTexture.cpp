@@ -49,7 +49,7 @@ void RenderTexture::ClearStencil()
 void RenderTexture::Render(Drawable& object, const glm::mat4& transform)
 {
     BindBuffer();
-    object.Render(*this, transform);
+    //object.Render(*this, transform);
 }
 
 void RenderTexture::BindBuffer()

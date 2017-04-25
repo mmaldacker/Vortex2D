@@ -40,7 +40,7 @@ public:
     /**
      * @brief Renders the Sprite to a RenderTarget
      */
-    void Render(RenderTarget & target, const glm::mat4 & transform = glm::mat4()) override;
+    void Render(const Device& device, RenderTarget & target) override;
 
 private:
     Texture * mTexture;

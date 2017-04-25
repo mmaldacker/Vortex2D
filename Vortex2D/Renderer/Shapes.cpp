@@ -90,8 +90,9 @@ void Ellipse::SetEllipse(const glm::vec2& radius)
     mRadius = radius;
 }
 
-void Ellipse::Render(RenderTarget& target, const glm::mat4& transform)
+void Ellipse::Render(const Device& device, RenderTarget & target)
 {
+    /*
     glm::vec2 transformScale(glm::length(transform[0]), glm::length(transform[1]));
     glm::vec2 radius = mRadius * (glm::vec2)Scale * transformScale;
     glm::mat4 rotation4 = glm::rotate(glm::radians((float)Rotation), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -101,6 +102,7 @@ void Ellipse::Render(RenderTarget& target, const glm::mat4& transform)
             .Set("u_size", std::max(radius.x, radius.y))
             .Set("u_rotation", rotation);
     Shape::Render(target, transform);
+    */
 }
 
 }}

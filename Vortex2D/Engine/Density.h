@@ -38,7 +38,7 @@ public:
     /**
      * @brief Renders the colours to a RenderTarget
      */
-    void Render(Renderer::RenderTarget& target, const glm::mat4& transform = glm::mat4()) override;
+    void Render(const Renderer::Device& device, Renderer::RenderTarget & target) override;
 
 private:
     Dimensions mDimensions;

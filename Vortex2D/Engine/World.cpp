@@ -84,12 +84,14 @@ void World::RenderForce(Renderer::Drawable& object)
     mVelocity.Render(object, mDimensions.InvScale);
 }
 
-void World::Render(Renderer::RenderTarget& target, const glm::mat4& transform)
+void World::Render(const Renderer::Device& device, Renderer::RenderTarget & target)
 {
+    /*
     auto & sprite = mFluidLevelSet.Sprite();
     sprite.SetProgram(mFluidProgram);
     mFluidProgram.Use();
     target.Render(sprite, glm::scale(glm::vec3(mDimensions.Scale, mDimensions.Scale, 1.0))*transform);
+    */
 }
 
 void World::Advect()

@@ -131,7 +131,7 @@ void RenderWindow::Clear(const glm::vec4 & colour)
 
 void RenderWindow::Render(Vortex2D::Renderer::Drawable & object, const glm::mat4 & transform)
 {
-    object.Render(*this, transform);
+    //object.Render(*this, transform);
 }
 
 }}

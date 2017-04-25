@@ -39,9 +39,6 @@ public:
     Texture(Texture&&);
     Texture & operator=(Texture&&);
 
-    int Width() const { return mWidth; }
-    int Height() const { return mHeight; }
-
     unsigned GetNumberComponents() const;
 
     void Bind(int n = 0) const;
@@ -56,8 +53,6 @@ public:
     friend class Writer;
 
 private:
-    int mWidth;
-    int mHeight;
     PixelFormat mFormat;
 };
 

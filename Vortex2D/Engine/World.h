@@ -54,7 +54,7 @@ public:
     /**
      * @brief Renders the fluid region
      */
-    void Render(Renderer::RenderTarget & target, const glm::mat4 & transform = glm::mat4()) override;
+    void Render(const Renderer::Device& device, Renderer::RenderTarget & target) override;
 
     /**
      * @brief Advect the fluid region, this is used to simulate water.

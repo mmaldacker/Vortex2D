@@ -41,12 +41,12 @@ Reader& Reader::Print()
     assert(pixels);
 
     int size = mTexture.GetNumberComponents();
-    for (int j = 0 ; j < mTexture.Height() ; ++j)
+    for (int j = 0 ; j < mTexture.Height ; ++j)
     {
-        for (int i = 0 ; i < mTexture.Width() ; ++i)
+        for (int i = 0 ; i < mTexture.Width ; ++i)
         {
             std::cout << "(";
-            int width = mTexture.Width();
+            int width = mTexture.Width;
             for (int k = 0 ; k < size ; k++)
             {
                 std::cout << pixels[i * size + j * width * size + k];
@@ -78,19 +78,19 @@ glm::vec4 Reader::GetVec4(int x, int y) const
 
 float Reader::Get(int x, int y, int size, int offset) const
 {
-    assert(x >= 0 && x < mTexture.Width());
-    assert(y >= 0 && y < mTexture.Height());
+    assert(x >= 0 && x < mTexture.Width);
+    assert(y >= 0 && y < mTexture.Height);
     return 0.0f;
 }
 
 int Reader::Width() const
 {
-    return mTexture.Width();
+    return mTexture.Width;
 }
 
 int Reader::Height() const
 {
-    return mTexture.Height();
+    return mTexture.Height;
 }
 
 }}

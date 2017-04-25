@@ -48,12 +48,14 @@ void Sprite::SetProgram(Program & program)
     mProgram = &program;
 }
 
-void Sprite::Render(RenderTarget & target, const glm::mat4 & transform)
+void Sprite::Render(const Device& device, RenderTarget & target)
 {
+    /*
     assert(mProgram);
 
     mProgram->Use().SetMVP(target.Orth*transform);
     if(mTexture) mTexture->Bind();
+    */
 }
 
 }}

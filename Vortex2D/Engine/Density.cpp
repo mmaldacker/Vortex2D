@@ -34,11 +34,13 @@ void Density::Advect(World & world)
     world.Advect(mDensity);
 }
 
-void Density::Render(Renderer::RenderTarget& target, const glm::mat4& transform)
+void Density::Render(const Renderer::Device& device, Renderer::RenderTarget & target)
 {
+    /*
     auto & densitySprite = mDensity.Sprite();
     densitySprite.SetProgram(mProgram);
     densitySprite.Render(target, glm::scale(glm::vec3(mDimensions.Scale, mDimensions.Scale, 1.0))*transform);
+    */
 }
 
 }}

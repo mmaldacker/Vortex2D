@@ -51,8 +51,9 @@ public:
         boundaries.DrawSolid(obstacle2);
     }
 
-    void Render(Vortex2D::Renderer::RenderTarget & target, const glm::mat4 & transform = glm::mat4()) override
+    void Render(const Vortex2D::Renderer::Device& device, Vortex2D::Renderer::RenderTarget & target) override
     {
+        /*
         world.RenderForce(gravity);
         world.Solve();
         world.Advect();
@@ -60,6 +61,7 @@ public:
         target.Render(world);
         target.Render(obstacle1);
         target.Render(obstacle2);
+        */
     }
 
 private:

@@ -90,7 +90,7 @@ void LineIntegralConvolution::Calculate(Renderer::Buffer& velocity)
     mOutput = mLic(velocity, mWhiteNoise);
 }
 
-void LineIntegralConvolution::Render(Renderer::RenderTarget& target, const glm::mat4& transform)
+void LineIntegralConvolution::Render(const Renderer::Device& device, Renderer::RenderTarget & target)
 {
 }
 

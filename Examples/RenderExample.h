@@ -17,9 +17,9 @@ public:
 
     }
 
-    void Render(Vortex2D::Renderer::RenderTarget & target, const glm::mat4 & transform = glm::mat4()) override
+    void Render(const Vortex2D::Renderer::Device& device, Vortex2D::Renderer::RenderTarget & target) override
     {
-        target.Render(rectangle);
+        //target.Render(rectangle);
     }
 
 private:

@@ -10,10 +10,8 @@
 namespace Vortex2D { namespace Renderer {
 
 Texture::Texture(int width, int height, PixelFormat pixelFormat)
-    : mWidth(width), mHeight(height), mFormat(pixelFormat)
+    : mFormat(pixelFormat)
 {
-    assert(mWidth > 0);
-    assert(mHeight > 0);
 }
 
 Texture::~Texture()
@@ -21,16 +19,12 @@ Texture::~Texture()
 }
 
 Texture::Texture(Texture&& other)
-    : mWidth(other.mWidth)
-    , mHeight(other.mHeight)
-    , mFormat(other.mFormat)
+    : mFormat(other.mFormat)
 {
 }
 
 Texture& Texture::operator=(Texture&& other)
 {
-    mWidth = other.mWidth;
-    mHeight = other.mHeight;
     mFormat = other.mFormat;
 
     return *this;

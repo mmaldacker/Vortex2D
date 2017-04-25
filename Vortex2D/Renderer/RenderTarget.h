@@ -37,6 +37,12 @@ struct RenderTarget
      * @brief Matrix holding an orthographic projection
      */
     glm::mat4 Orth;
+
+    vk::Framebuffer Framebuffer;
+
+    vk::RenderPass RenderPass;
+
+    uint32_t Width, Height;
 };
 
 }}

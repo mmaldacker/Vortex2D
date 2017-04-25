@@ -80,12 +80,12 @@ bool Buffer::IsDoubleBuffer() const
 
 int Buffer::Width() const
 {
-    return mTextures.front().Width();
+    return mTextures.front().Width;
 }
 
 int Buffer::Height() const
 {
-    return mTextures.front().Height();
+    return mTextures.front().Height;
 }
 
 void Buffer::Add(const glm::vec2& size, unsigned components, bool depth)
