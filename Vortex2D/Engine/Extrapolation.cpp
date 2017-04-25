@@ -204,7 +204,6 @@ Extrapolation::Extrapolation(const glm::vec2& size,
     , mValidExtrapolate(Renderer::Shader::TexturePositionVert, ValidExtrapolateFrag)
     , mValidVelocities(Renderer::Shader::TexturePositionVert, ValidVelocitiesFrag)
     , mConstrainVelocity(Renderer::Shader::TexturePositionVert, ConstrainVelocityFrag, WeightHelperFrag)
-    , mSurface(size)
 {
 }
 

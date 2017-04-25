@@ -17,9 +17,9 @@ extern glm::vec4 blue;
 class ScaleWaterExample : public Vortex2D::Renderer::Drawable
 {
 public:
-    ScaleWaterExample(const glm::vec2& size, float dt)
-    : gravity(size)
-    , obstacle(glm::vec2(100))
+    ScaleWaterExample(const Vortex2D::Renderer::Device& device, const glm::vec2& size, float dt)
+    : gravity(device, size)
+    , obstacle(device, glm::vec2(100))
     , dimensions(size, 2.0f)
     , world(dimensions, dt)
     {
@@ -32,14 +32,14 @@ public:
 
         auto boundaries = world.DrawBoundaries();
 
-        Vortex2D::Renderer::Rectangle source({300,100});
+        Vortex2D::Renderer::Rectangle source(device, {300,100});
         source.Position = {100,300};
         source.Colour = glm::vec4(1.0f);
 
         boundaries.DrawLiquid(source);
 
         // border needs a thickness of scale factor (2.0)
-        Vortex2D::Renderer::Rectangle area(size - glm::vec2(4.0f));
+        Vortex2D::Renderer::Rectangle area(device, size - glm::vec2(4.0f));
         area.Position = glm::vec2(2.0f);
         area.Colour = glm::vec4(1.0f);
 

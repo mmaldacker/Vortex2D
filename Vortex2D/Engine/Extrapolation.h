@@ -45,8 +45,6 @@ private:
     Renderer::Operator mValidExtrapolate;
     Renderer::Operator mValidVelocities;
     Renderer::Operator mConstrainVelocity;
-
-    Renderer::Rectangle mSurface;
 };
 
 }}

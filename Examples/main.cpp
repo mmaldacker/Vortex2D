@@ -24,6 +24,7 @@ glm::vec2 size = {500,500};
 
 std::unique_ptr<Vortex2D::Renderer::Drawable> example;
 
+/*
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if (action != GLFW_PRESS) return;
@@ -46,6 +47,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     }
 
 }
+*/
 
 int main()
 {
@@ -54,20 +56,14 @@ int main()
         auto colour = glm::vec4{99.0f,96.0f,93.0f,255.0f} / glm::vec4(255.0f);
 
         GLFWApp mainWindow(size.x, size.y);
-        mainWindow.SetKeyCallback(key_callback);
+        //mainWindow.SetKeyCallback(key_callback);
 
         Renderer::Device device(mainWindow.GetPhysicalDevice(),
                                 mainWindow.GetSurface());
 
         Renderer::RenderWindow window(device, mainWindow.GetSurface(), size.x, size.y);
 
-        Renderer::VertexShader vertShader1(device.GetDevice(), "../Vortex2D/Position.vert.spv");
-        Renderer::VertexShader vertShader2(device.GetDevice(), "../Vortex2D/TexturePosition.vert.spv");
-
-        Renderer::FragmentShader fragShader1(device.GetDevice(), "../Vortex2D/Position.frag.spv");
-        Renderer::FragmentShader fragShader2(device.GetDevice(), "../Vortex2D/TexturePosition.frag.spv");
-
-        example.reset(new RenderExample(size));
+        example.reset(new RenderExample(device, size));
 
         mainWindow.Run();
     }

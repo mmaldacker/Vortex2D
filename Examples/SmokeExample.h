@@ -16,9 +16,9 @@ extern glm::vec4 gray;
 class SmokeExample : public Vortex2D::Renderer::Drawable
 {
 public:
-    SmokeExample(const glm::vec2& size, float dt)
-        : source1(glm::vec2(20.0f)), source2(glm::vec2(20.0f))
-        , force1(glm::vec2(20.0f)), force2(glm::vec2(20.0f))
+    SmokeExample(const Vortex2D::Renderer::Device& device, const glm::vec2& size, float dt)
+        : source1(device, glm::vec2(20.0f)), source2(device, glm::vec2(20.0f))
+        , force1(device, glm::vec2(20.0f)), force2(device, glm::vec2(20.0f))
         , dimensions(size, 1.0f)
         , density(dimensions)
         , world(dimensions, dt)
@@ -31,7 +31,7 @@ public:
 
         auto boundaries = world.DrawBoundaries();
 
-        Vortex2D::Renderer::Rectangle area(size - glm::vec2(2.0f));
+        Vortex2D::Renderer::Rectangle area(device, size - glm::vec2(2.0f));
         area.Position = glm::vec2(1.0f);
         area.Colour = glm::vec4(1.0f);
 

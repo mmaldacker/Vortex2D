@@ -10,6 +10,8 @@
 #include <Vortex2D/Renderer/Shader.h>
 #include <Vortex2D/Renderer/Drawable.h>
 #include <Vortex2D/Renderer/Transformable.h>
+#include <Vortex2D/Renderer/Buffer.h>
+#include <Vortex2D/Renderer/Device.h>
 
 #include <vector>
 
@@ -29,28 +31,16 @@ public:
         POINTS
     };
 
-    Shape();
-    ~Shape();
+    Shape(const Device& device, Type type, const Path& path);
 
-    Shape(Shape&&);
-
-    /**
-     * @brief SetType sets the primitive type of this shape
-     * @param type must be GL_POINTS, GL_TRIANGLES, etc
-     */
-    void SetType(Type type, const Path& path);
-
-    void Render(RenderTarget& target, const glm::mat4& transform = glm::mat4()) override;
+    void Render(const Device& device, RenderTarget & target) override;
 
     glm::vec4 Colour;
-protected:
-    Shape(const char* vert, const char* frag);
-
-    Program mProgram;
 
 private:
-    Uniform<glm::vec4> mColourUniform;
-    Type mType;
+    uint32_t mCount;
+    PositionProgram mProgram;
+    VertexBuffer<glm::vec2> mVertexBuffer;
 };
 
 /**
@@ -59,27 +49,21 @@ private:
 class Rectangle : public Shape
 {
 public:
-    Rectangle() = default;
-    Rectangle(const glm::vec2& size);
+    Rectangle(const Device& device, const glm::vec2& size);
 
-    /**
-     * @brief Sets the rectangle size
-     */
-    void SetRectangle(const glm::vec2& size);
 };
 
 /**
  * @brief A solid colour ellipse. Implements the Drawable interface and Transformable interface.
  */
-class Ellipse : public Shape
+class Ellipse : public Drawable, public Transformable
 {
 public:
-    Ellipse() = default;
-    Ellipse(const glm::vec2& radius);
+    Ellipse(const Device& device, const glm::vec2& radius);
 
-    void SetEllipse(const glm::vec2& radius);
+    void Render(const Device& device, RenderTarget & target) override;
 
-    void Render(RenderTarget& target, const glm::mat4& transform = glm::mat4()) override;
+    glm::vec4 Colour;
 
 private:
     glm::vec2 mRadius;

@@ -39,7 +39,6 @@ VertexBuffer<T>::VertexBuffer(const Device& device, const std::vector<T>& vertex
     device.GetDevice().unmapMemory(*mBufferMemory);
 }
 
-template class VertexBuffer<float>;
 template class VertexBuffer<glm::vec2>;
 
 }}

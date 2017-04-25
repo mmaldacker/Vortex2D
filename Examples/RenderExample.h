@@ -11,10 +11,9 @@
 class RenderExample : public Vortex2D::Renderer::Drawable
 {
 public:
-    RenderExample(const glm::vec2& size)
-        : rectangle({100,100})
+    RenderExample(const Vortex2D::Renderer::Device& device, const glm::vec2& size)
+        : rectangle(device, {100,100})
     {
-
     }
 
     void Render(const Vortex2D::Renderer::Device& device, Vortex2D::Renderer::RenderTarget & target) override

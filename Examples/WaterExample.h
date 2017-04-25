@@ -17,9 +17,9 @@ extern glm::vec4 blue;
 class WaterExample : public Vortex2D::Renderer::Drawable
 {
 public:
-    WaterExample(const glm::vec2& size, float dt)
-        : gravity(size)
-        , obstacle1({100,100}), obstacle2({100,100})
+    WaterExample(const Vortex2D::Renderer::Device& device, const glm::vec2& size, float dt)
+        : gravity(device, size)
+        , obstacle1(device, {100,100}), obstacle2(device, {100,100})
         , dimensions(size, 1.0f)
         , world(dimensions, dt)
     {
@@ -37,12 +37,12 @@ public:
 
         auto boundaries = world.DrawBoundaries();
 
-        Vortex2D::Renderer::Rectangle source({300,100});
+        Vortex2D::Renderer::Rectangle source(device, {300,100});
         source.Position = {100,350};
         source.Colour = glm::vec4(1.0f);
         boundaries.DrawLiquid(source);
 
-        Vortex2D::Renderer::Rectangle area(size - glm::vec2(2.0f));
+        Vortex2D::Renderer::Rectangle area(device, size - glm::vec2(2.0f));
         area.Position = glm::vec2(1.0f);
         area.Colour = glm::vec4(1.0f);
 

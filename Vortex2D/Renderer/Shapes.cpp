@@ -14,40 +14,26 @@
 
 namespace Vortex2D { namespace Renderer {
 
-Shape::Shape()
-    : Shape(Shader::PositionVert, Shader::PositionFrag)
+vk::PrimitiveTopology GetTopology(Shape::Type type)
 {
-
+    switch (type)
+    {
+    case Shape::Type::POINTS:
+        return vk::PrimitiveTopology::ePointList;
+    case Shape::Type::TRIANGLES:
+        return vk::PrimitiveTopology::eTriangleList;
+    }
 }
 
-Shape::Shape(const char* vert, const char* frag)
-    : mProgram(vert, frag)
-    , mColourUniform(mProgram, "u_Colour")
+Shape::Shape(const Device& device, Type type, const Path& path)
+    : mCount(path.size())
+    , mProgram(device.GetDevice())
+    , mVertexBuffer(device, path)
 {
-}
+    vk::PipelineInputAssemblyStateCreateInfo inputAssembly;
+    inputAssembly.setTopology(GetTopology(type));
 
-Shape::~Shape()
-{
-}
-
-Shape::Shape(Shape&& other)
-    : Transformable(other)
-    , Colour(other.Colour)
-    , mProgram(std::move(other.mProgram))
-    , mColourUniform(other.mColourUniform)
-    , mType(other.mType)
-{
-}
-
-void Shape::SetType(Type type, const Path& path)
-{
-    vk::PipelineVertexInputStateCreateInfo vertexInputInfo;
-}
-
-void Shape::Render(RenderTarget& target, const glm::mat4& transform)
-{
-    vk::Viewport viewport;
-    vk::Rect2D scissor;
+    //VertexBuffer<float> vertexBuffer()
 
     vk::PipelineRasterizationStateCreateInfo rasterizationInfo;
     rasterizationInfo
@@ -61,33 +47,63 @@ void Shape::Render(RenderTarget& target, const glm::mat4& transform)
             .setMinSampleShading(1.0f);
 
     // TODO add blending
+
+    vk::DynamicState dynamicStates[] = { vk::DynamicState::eViewport,
+                                         vk::DynamicState::eScissor,
+                                         vk::DynamicState::eBlendConstants };
+
+    vk::PipelineDynamicStateCreateInfo dynamicInfo;
+    dynamicInfo
+            .setDynamicStateCount(3)
+            .setPDynamicStates(dynamicStates);
+
+    vk::UniquePipelineLayout pipelineLayout;
+    // TODO fill in
+
+
+    //vk::GraphicsPipelineCreateInfo graphicsPipelineInfo;
+    //graphicsPipelineInfo.setStageCount(2)
+    //        .set
+
 }
 
-Rectangle::Rectangle(const glm::vec2& size)
+void Shape::Render(const Device& device, RenderTarget & target)
 {
-    SetRectangle(size);
+    vk::CommandBufferBeginInfo beginInfo;
+    beginInfo.setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse);
+
+    vk::CommandBuffer commandBuffer = device.CreateCommandBuffers(1).at(0);
+    commandBuffer.begin(beginInfo);
+
+    // TODO seems a bit redundant
+    vk::ClearColorValue clearColour;
+    clearColour.setFloat32({0.0f, 0.0f, 0.0f, 1.0f});
+
+    vk::ClearValue clear(clearColour);
+
+    vk::RenderPassBeginInfo renderPassInfo;
+    renderPassInfo
+            .setRenderPass(target.RenderPass)
+            .setRenderArea({{0u,0u}, {target.Width, target.Height}})
+            .setClearValueCount(1)
+            .setPClearValues(&clear)
+            .setFramebuffer(target.Framebuffer)
+            .setRenderArea({{0u, 0u}, {target.Width, target.Height}});
+
+    commandBuffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
+    //commandBuffer.bindPipeline(mPipeline, )
+    commandBuffer.draw(mCount, 1, 0, 0);
+    commandBuffer.endRenderPass();
+    commandBuffer.end();
 }
 
-void Rectangle::SetRectangle(const glm::vec2& size)
+Rectangle::Rectangle(const Device& device, const glm::vec2& size)
+    : Shape(device, Type::TRIANGLES, {{0.0f, 0.0f}, {size.x, 0.0f}, {0.0f, size.y}, {size.x, 0.0f,}, {size.x, size.y}, {0.0f, size.y}})
 {
-    SetType(Type::TRIANGLES,
-    {{0.0f, 0.0f},
-     {size.x, 0.0f},
-     {0.0f, size.y},
-     {size.x, 0.0f,},
-     {size.x, size.y},
-     {0.0f, size.y}});
 }
 
-Ellipse::Ellipse(const glm::vec2& radius)
+Ellipse::Ellipse(const Device& device, const glm::vec2& radius)
 {
-    SetEllipse(radius);
-}
-
-void Ellipse::SetEllipse(const glm::vec2& radius)
-{
-    SetType(Type::POINTS, {{0.0f,0.0f}});
-    mRadius = radius;
 }
 
 void Ellipse::Render(const Device& device, RenderTarget & target)
