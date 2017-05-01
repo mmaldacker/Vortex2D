@@ -241,7 +241,7 @@ void Multigrid::Init(LinearSolver::Data& data)
 
     for (int i = 0; i < mDepths; i++)
     {
-        mDatas[i].Pressure.Clear(glm::vec4(0.0f));
+        //mDatas[i].Pressure.Clear(glm::vec4(0.0f));
         RenderMask(mDatas[i].Pressure, mDatas[i]);
         RenderBoundaryMask(mDatas[i], mDatas[i].Diagonal);
     }

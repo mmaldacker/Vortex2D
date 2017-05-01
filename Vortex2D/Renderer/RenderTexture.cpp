@@ -37,19 +37,9 @@ RenderTexture& RenderTexture::operator=(RenderTexture&& other)
     return *this;
 }
 
-void RenderTexture::Clear(const glm::vec4& colour)
-{
-}
-
 void RenderTexture::ClearStencil()
 {
 
-}
-
-void RenderTexture::Render(Drawable& object, const glm::mat4& transform)
-{
-    BindBuffer();
-    //object.Render(*this, transform);
 }
 
 void RenderTexture::BindBuffer()

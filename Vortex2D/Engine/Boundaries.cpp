@@ -98,6 +98,7 @@ Boundaries::~Boundaries()
 
 void Boundaries::DrawLiquid(Renderer::Drawable& drawable, bool invert)
 {
+    /*
     if (invert)
     {
         mLiquidDraw.Clear(glm::vec4(1.0f));
@@ -108,10 +109,12 @@ void Boundaries::DrawLiquid(Renderer::Drawable& drawable, bool invert)
     {
         mLiquidDraw.Render(drawable, mDimensions.InvScale);
     }
+    */
 }
 
 void Boundaries::DrawSolid(Renderer::Drawable& drawable, bool invert)
 {
+    /*
     if (invert)
     {
         mSolidDraw.Clear(glm::vec4(1.0f));
@@ -122,16 +125,17 @@ void Boundaries::DrawSolid(Renderer::Drawable& drawable, bool invert)
     {
         mSolidDraw.Render(drawable, glm::scale(glm::vec3(2.0f, 2.0f, 1.0f))*mDimensions.InvScale);
     }
+    */
 }
 
 void Boundaries::ClearSolid()
 {
-    mSolidDraw.Clear(glm::vec4(0.0f));
+    //mSolidDraw.Clear(glm::vec4(0.0f));
 }
 
 void Boundaries::ClearLiquid()
 {
-    mLiquidDraw.Clear(glm::vec4(0.0f));
+    //mLiquidDraw.Clear(glm::vec4(0.0f));
 }
 
 }}

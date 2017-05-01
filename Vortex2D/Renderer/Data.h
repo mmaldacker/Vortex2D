@@ -56,18 +56,6 @@ public:
     void BorderColour(const glm::vec4& colour);
 
     /**
-     * @brief Clears the Buffer
-     */
-    void Clear(const glm::vec4& colour) override;
-
-    /**
-     * @brief Renders an object on the front RenderTexture only
-     * @param object the object to use
-     * @param transform an optional transform to apply
-     */
-    void Render(Renderer::Drawable& object, const glm::mat4& transform = glm::mat4()) override;
-
-    /**
      * @brief Clears the stencil on both RenderTexture
      */
     void ClearStencil();

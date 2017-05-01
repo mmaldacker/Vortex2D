@@ -21,21 +21,6 @@ struct RenderTarget
 
     virtual ~RenderTarget(){}
 
-    /**
-     * @brief Clear clears the whole target with the colour
-     */
-    virtual void Clear(const glm::vec4 & colour) = 0;
-
-    /**
-     * @brief Render the object to the target
-     * @param object An object whose class implements Drawable
-     * @param transform An optional aditional transformation matrix to be applied before rendering
-     */
-    virtual void Render(Drawable & object, const glm::mat4 & transform = glm::mat4()) = 0;
-
-    /**
-     * @brief Matrix holding an orthographic projection
-     */
     glm::mat4 Orth;
 
     vk::Framebuffer Framebuffer;

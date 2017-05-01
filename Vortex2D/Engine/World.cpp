@@ -50,8 +50,8 @@ World::World(Dimensions dimensions, float dt)
     , mExtrapolation(dimensions.Size, mVelocity, mObstacleLevelSet)
     , mVelocityReader(mVelocity)
 {
-    mVelocity.Clear(glm::vec4(0.0));
-    mBoundariesVelocity.Clear(glm::vec4(0.0));
+    //mVelocity.Clear(glm::vec4(0.0));
+    //mBoundariesVelocity.Clear(glm::vec4(0.0));
 }
 
 Boundaries World::DrawBoundaries()
@@ -78,7 +78,7 @@ void World::RenderForce(Renderer::Drawable& object)
 {
     //Renderer::BlendState s(GL_FUNC_ADD, GL_ONE, GL_ONE);
 
-    mVelocity.Render(object, mDimensions.InvScale);
+    //mVelocity.Render(object, mDimensions.InvScale);
 }
 
 void World::Render(const Renderer::Device& device, Renderer::RenderTarget & target)

@@ -158,7 +158,7 @@ void ConjugateGradient::Build(Data&,
 
 void ConjugateGradient::Init(Data& data)
 {
-    z.Pressure.Clear(glm::vec4(0.0f));
+    //z.Pressure.Clear(glm::vec4(0.0f));
     RenderMask(z.Pressure, data);
     preconditioner.Init(z);
 }
@@ -177,7 +177,7 @@ void ConjugateGradient::Solve(Data& data, Parameters& params)
     }
 
     // p = 0
-    data.Pressure.Clear(glm::vec4(0.0f));
+    //data.Pressure.Clear(glm::vec4(0.0f));
 
     // z = M^-1 r
     ApplyPreconditioner(data);
@@ -251,7 +251,7 @@ void ConjugateGradient::NormalSolve(Data& data, Parameters& params)
     }
 
     // p = 0
-    data.Pressure.Clear(glm::vec4(0.0f));
+    //data.Pressure.Clear(glm::vec4(0.0f));
 
     // s = r
     s = identity(r);

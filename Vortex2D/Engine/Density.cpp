@@ -15,7 +15,6 @@ Density::Density(Dimensions dimensions)
     : mDimensions(dimensions)
     , mDensity(dimensions.Size, 4, true)
 {
-    mDensity.Clear(glm::vec4(0.0));
 }
 
 Density::~Density()
@@ -24,7 +23,6 @@ Density::~Density()
 
 void Density::Render(Renderer::Drawable& object)
 {
-    mDensity.Render(object, mDimensions.InvScale);
 }
 
 void Density::Advect(World & world)

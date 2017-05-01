@@ -22,7 +22,7 @@ Buffer& Buffer::operator=(OperatorContext context)
 {
     mSprite.NoTexture();
     mSprite.SetProgram(context.Program);
-    Render(mSprite);
+    //Render(mSprite);
     return *this;
 }
 
@@ -49,16 +49,6 @@ void Buffer::ClampToBorder()
 void Buffer::BorderColour(const glm::vec4& colour)
 {
     for (auto&& t : mTextures) t.BorderColour(colour);
-}
-
-void Buffer::Clear(const glm::vec4& colour)
-{
-    for (auto&& t : mTextures) t.Clear(colour);
-}
-
-void Buffer::Render(Renderer::Drawable& object, const glm::mat4& transform)
-{
-    mTextures.front().Render(object, transform);
 }
 
 void Buffer::Swap()
