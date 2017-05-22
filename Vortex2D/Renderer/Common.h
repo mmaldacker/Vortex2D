@@ -15,6 +15,4 @@
 #include <glm/mat2x2.hpp>
 #include <glm/mat4x4.hpp>
 
-#define GLSL(src) "#version 450 core\n" #src
-
 #endif

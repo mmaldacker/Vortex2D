@@ -8,7 +8,7 @@ out gl_PerVertex
 
 layout(location = 0) in vec2 position;
 
-layout(binding = 0) uniform UBO
+layout(set = 0, binding = 0) uniform UBO
 {
     mat4 mvp;
 } u;

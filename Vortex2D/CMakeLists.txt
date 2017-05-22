@@ -1,9 +1,9 @@
 file(GLOB LIB_SOURCES
     "Vortex2D.h"
-    "Engine/*.cpp"
-    "Engine/*.h"
-    "Engine/LinearSolver/*.h"
-    "Engine/LinearSolver/*.cpp"
+#    "Engine/*.cpp"
+#    "Engine/*.h"
+#    "Engine/LinearSolver/*.h"
+#    "Engine/LinearSolver/*.cpp"
     "Renderer/*.cpp"
     "Renderer/*.h")
 

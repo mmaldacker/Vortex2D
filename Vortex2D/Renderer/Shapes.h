@@ -7,55 +7,47 @@
 #define Vortex_Shapes_h
 
 #include <Vortex2D/Renderer/Common.h>
-#include <Vortex2D/Renderer/Shader.h>
+#include <Vortex2D/Renderer/Pipeline.h>
 #include <Vortex2D/Renderer/Drawable.h>
 #include <Vortex2D/Renderer/Transformable.h>
 #include <Vortex2D/Renderer/Buffer.h>
 #include <Vortex2D/Renderer/Device.h>
+#include <Vortex2D/Renderer/DescriptorSet.h>
 
 #include <vector>
 
 namespace Vortex2D { namespace Renderer {
 
 typedef std::vector<glm::vec2> Path;
+class RenderTarget;
 
-/**
- * @brief Generic class to render a solid coloured shape using the basic OpenGL primitives
- */
-class Shape : public Drawable, public Transformable
+class Shape : public Drawable
 {
 public:
-    enum class Type
-    {
-        TRIANGLES,
-        POINTS
-    };
+    Shape(const Device& device, const std::vector<glm::vec2>& vertices, const glm::vec4& colour);
 
-    Shape(const Device& device, Type type, const Path& path);
+    void Update(const glm::mat4& mvp);
 
-    void Render(const Device& device, RenderTarget & target) override;
-
-    glm::vec4 Colour;
+    void Create(RenderTarget& renderTarget) override;
+    void Draw(vk::CommandBuffer commandBuffer, vk::RenderPass renderPass) override;
 
 private:
-    uint32_t mCount;
-    PositionProgram mProgram;
-    VertexBuffer<glm::vec2> mVertexBuffer;
-    vk::UniquePipelineLayout mPipelineLayout;
-    vk::PipelineInputAssemblyStateCreateInfo mInputAssembly;
-    vk::UniquePipeline mPipeline;
-
-    // TODO will need to replace with map
-    std::vector<vk::CommandBuffer> mCommandBuffers;
+    Buffer mMVPBuffer;
+    Buffer mColourBuffer;
+    Buffer mVertexBuffer;
+    DescriptorSet mDescriptorSet;
+    PipelineLayout mPipelineLayout;
+    GraphicsPipeline mPipeline;
+    uint32_t mNumVertices;
 };
 
 /**
  * @brief A solid colour rectangle defined by two triangles. Implements the Drawable interface and Transformable interface.
  */
-class Rectangle : public Shape
+class Rectangle : public Shape, public Transformable
 {
 public:
-    Rectangle(const Device& device, const glm::vec2& size);
+    Rectangle(const Device& device, const glm::vec2& size, const glm::vec4& colour);
 
 };
 
@@ -67,12 +59,24 @@ class Ellipse : public Drawable, public Transformable
 public:
     Ellipse(const Device& device, const glm::vec2& radius);
 
-    void Render(const Device& device, RenderTarget & target) override;
-
-    glm::vec4 Colour;
+    void Draw(vk::CommandBuffer commandBuffer, vk::RenderPass renderPass) override;
 
 private:
     glm::vec2 mRadius;
+};
+
+class Clear : public Drawable
+{
+public:
+    Clear(uint32_t width, uint32_t height, const glm::vec4& colour);
+
+    void Create(RenderTarget& renderTarget) override;
+    void Draw(vk::CommandBuffer commandBuffer, vk::RenderPass renderPass) override;
+
+private:
+    uint32_t mWidth;
+    uint32_t mHeight;
+    glm::vec4 mColour;
 };
 
 }}

@@ -8,45 +8,39 @@
 
 #include <Vortex2D/Renderer/Drawable.h>
 #include <Vortex2D/Renderer/Texture.h>
-#include <Vortex2D/Renderer/Shader.h>
+#include <Vortex2D/Renderer/Pipeline.h>
+#include <Vortex2D/Renderer/Buffer.h>
+#include <Vortex2D/Renderer/DescriptorSet.h>
 
 namespace Vortex2D { namespace Renderer {
 
-/**
- * @brief Drawable to draw a texture with a given program
- */
+class RenderTarget;
+
 class Sprite : public Drawable
 {
 public:
-    Sprite(const glm::vec2 & size);
-    Sprite(Sprite &&);
-    ~Sprite();
+    Sprite(const Device& device, const Texture& texture);
 
-    /**
-     * @brief Set the texture to be bound when rendering.
-     */
-    void SetTexture(Texture & texture);
+    void Create(RenderTarget& renderTarget);
 
-    /**
-     * @brief Don't bind any texture when rendering, useful when we bind the texture seperately.
-     */
-    void NoTexture();
+    void Update(const glm::mat4& mvp);
 
-    /**
-     * @brief The program to use when rendering.
-     */
-    void SetProgram(Program & program);
-
-    /**
-     * @brief Renders the Sprite to a RenderTarget
-     */
-    void Render(const Device& device, RenderTarget & target) override;
-
+    void Draw(vk::CommandBuffer commandBuffer, vk::RenderPass renderPass) override;
 private:
-    Texture * mTexture;
-    Program * mProgram;
+    struct Vertex
+    {
+        glm::vec2 uv;
+        glm::vec2 pos;
+    };
+
+    Buffer mMVPBuffer;
+    Buffer mVertexBuffer;
+    vk::UniqueSampler mSampler;
+    DescriptorSet mDescriptorSet;
+    PipelineLayout mPipelineLayout;
+    GraphicsPipeline mPipeline;
 };
 
 }}
 
-#endif /* Sprite_h */
+#endif

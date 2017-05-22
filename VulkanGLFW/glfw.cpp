@@ -137,19 +137,6 @@ GLFWApp::~GLFWApp()
     glfwTerminate();
 }
 
-void GLFWApp::Run()
-{
-    while (!glfwWindowShouldClose(mWindow))
-    {
-        glfwPollEvents();
-    }
-}
-
-void GLFWApp::SetKeyCallback(GLFWkeyfun cbfun)
-{
-    glfwSetKeyCallback(mWindow, cbfun);
-}
-
 vk::PhysicalDevice GLFWApp::GetPhysicalDevice() const
 {
     // TODO better search than first available device
@@ -163,7 +150,14 @@ vk::PhysicalDevice GLFWApp::GetPhysicalDevice() const
     return physicalDevice;
 }
 
+// TODO can return a struct with surface, width and height
 vk::SurfaceKHR GLFWApp::GetSurface() const
 {
     return *mSurface;
 }
+
+bool GLFWApp::ShoudCloseWindow() const
+{
+    return glfwWindowShouldClose(mWindow);
+}
+

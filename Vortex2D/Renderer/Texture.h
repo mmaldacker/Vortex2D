@@ -7,53 +7,45 @@
 #define Vortex_Texture_h
 
 #include <Vortex2D/Renderer/Common.h>
+#include <Vortex2D/Renderer/Device.h>
 
 namespace Vortex2D { namespace Renderer {
+class SamplerBuilder
+{
+public:
+    SamplerBuilder();
 
-/**
- * @brief Create and manage a texture
- */
+    vk::UniqueSampler Create(vk::Device device);
+
+private:
+    vk::SamplerCreateInfo mSamplerInfo;
+};
+
 class Texture
 {
 public:
-    enum class PixelFormat
-    {
-        // 8-bit texture: RGBA8888
-        RGBA8888,
-        // 8-bit texture: RGB888
-        RGB888,
-        // 32-bit float texture
-        RGBAF,
-        // 32-bit float texture
-        RGBF,
-        // 32-bit float texture
-        RGF,
-        // 32-bit float texture
-        RF,
-    };
+    Texture(const Device& device, uint32_t width, uint32_t height, vk::Format format, bool host);
+    void CopyFrom(const void* data, vk::DeviceSize bytesPerPixel);
+    void CopyTo(void* data, vk::DeviceSize bytesPerPixel);
 
-    Texture() = default;
-    Texture(int width, int height, PixelFormat pixelFormat);
-    virtual ~Texture();
+    void CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcImage);
 
-    Texture(Texture&&);
-    Texture & operator=(Texture&&);
+    void Barrier(vk::CommandBuffer commandBuffer, vk::ImageLayout newLayout, vk::AccessFlags newAccess);
+    operator vk::ImageView() const;
 
-    unsigned GetNumberComponents() const;
-
-    void Bind(int n = 0) const;
-
-    void Nearest();
-    void Linear();
-    void BorderColour(const glm::vec4& colour);
-
-    void ClampToEdge();
-    void ClampToBorder();
-
-    friend class Writer;
+    uint32_t Width() const;
+    uint32_t Height() const;
 
 private:
-    PixelFormat mFormat;
+    bool mHost;
+    vk::Device mDevice;
+    uint32_t mWidth;
+    uint32_t mHeight;
+    vk::UniqueImage mImage;
+    vk::UniqueDeviceMemory mMemory;
+    vk::UniqueImageView mImageView;
+    vk::ImageLayout mLayout;
+    vk::AccessFlags mAccess;
 };
 
 }}

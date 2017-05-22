@@ -7,44 +7,30 @@
 #define RenderTexture_h
 
 #include <Vortex2D/Renderer/Common.h>
+#include <Vortex2D/Renderer/Device.h>
 #include <Vortex2D/Renderer/Texture.h>
 #include <Vortex2D/Renderer/RenderTarget.h>
+#include <Vortex2D/Renderer/Pipeline.h>
 
 namespace Vortex2D { namespace Renderer {
 
-/**
- * @brief Use to draw objects off-screen on a texture.
- */
-class RenderTexture : public Texture, public RenderTarget
+class RenderTexture : public RenderTarget, public Texture
 {
 public:
-    enum class DepthFormat
-    {
-        NONE = 0,
-        STENCIL,
-    };
-
-    /**
-     * @brief Will create the underlying framebuffer, texture and potential depth/stencil buffer
-     * @param width must be greater than 0
-     * @param height must be greater than 0
-     * @param pixelFormat @see Texture
-     * @param depthFormat @see Texture
-     */
-    RenderTexture(int width, int height, Texture::PixelFormat pixelFormat, DepthFormat depthFormat = DepthFormat::NONE);
+    RenderTexture(const Device& device, uint32_t width, uint32_t height, vk::Format format);
     ~RenderTexture();
 
-    RenderTexture(RenderTexture&& other);
-    RenderTexture& operator=(RenderTexture&& other);
+    void Create(GraphicsPipeline& pipeline) override;
 
-    /**
-     * @brief Clears the stencil buffer to 0
-     */
-    void ClearStencil();
+    void Record(CommandFn commandFn) override;
+    void Submit() override;
 
-    friend class Reader;
 private:
-    void BindBuffer();
+    const Device& mDevice;
+    vk::UniqueRenderPass mRenderPass;
+    vk::UniqueFramebuffer mFramebuffer;
+    vk::CommandBuffer mCmd;
+    vk::UniqueFence mFence;
 };
 
 }}

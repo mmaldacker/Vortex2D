@@ -5,8 +5,6 @@
 
 #include "RenderWindow.h"
 
-#include <stdexcept>
-
 namespace Vortex2D { namespace Renderer {
 
 struct SwapChainSupportDetails
@@ -32,6 +30,7 @@ RenderWindow::RenderWindow(const Device& device, vk::SurfaceKHR surface, uint32_
     : RenderTarget(width, height)
     , mWidth(width)
     , mHeight(height)
+    , mDevice(device)
 {
     // get swap chain support details
     SwapChainSupportDetails details(device.GetPhysicalDevice(), surface);
@@ -40,76 +39,71 @@ RenderWindow::RenderWindow(const Device& device, vk::SurfaceKHR surface, uint32_
         throw std::runtime_error("Swap chain support invalid");
     }
 
+    // TODO verify this value is valid
+    uint32_t numFramebuffers = details.capabilities.minImageCount + 1;
+
+    // TODO choose given the details
+    auto format = vk::Format::eB8G8R8A8Unorm;
+
+    // TODO find if better mode is available
+    auto mode = vk::PresentModeKHR::eFifo;
+
     // create swap chain
-    vk::SwapchainCreateInfoKHR swapChainInfo;
-    swapChainInfo
+    auto swapChainInfo = vk::SwapchainCreateInfoKHR()
             .setSurface(surface)
-            // TODO choose given the details
-            .setImageFormat(vk::Format::eB8G8R8A8Unorm)
+            .setImageFormat(format)
             .setImageColorSpace(vk::ColorSpaceKHR::eSrgbNonlinear)
-            .setMinImageCount(details.capabilities.minImageCount + 1)
+            .setMinImageCount(numFramebuffers)
             .setImageExtent({mWidth, mHeight})
             .setImageArrayLayers(1)
             .setImageUsage(vk::ImageUsageFlagBits::eColorAttachment)
             .setImageSharingMode(vk::SharingMode::eExclusive)
             .setPreTransform(details.capabilities.currentTransform)
             .setCompositeAlpha(vk::CompositeAlphaFlagBitsKHR::eOpaque)
-            // TODO find if better mode is available
-            .setPresentMode(vk::PresentModeKHR::eFifo)
+            .setPresentMode(mode)
             .setClipped(true);
 
-    mSwapChain = device.GetDevice().createSwapchainKHRUnique(swapChainInfo);
+    mSwapChain = device.Handle().createSwapchainKHRUnique(swapChainInfo);
 
     // create swap chain image views
-    std::vector<vk::Image> swapChainImages = device.GetDevice().getSwapchainImagesKHR(*mSwapChain);
+    std::vector<vk::Image> swapChainImages = device.Handle().getSwapchainImagesKHR(*mSwapChain);
     for (const auto& image : swapChainImages)
     {
-        vk::ImageViewCreateInfo imageViewInfo;
-        imageViewInfo
+        auto imageViewInfo = vk::ImageViewCreateInfo()
                 .setImage(image)
                 .setViewType(vk::ImageViewType::e2D)
-                // TODO set same as for swapChainInfo
-                .setFormat(vk::Format::eB8G8R8A8Unorm)
-                .setComponents({vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity, vk::ComponentSwizzle::eIdentity})
+                .setFormat(format)
+                .setComponents({vk::ComponentSwizzle::eIdentity,
+                                vk::ComponentSwizzle::eIdentity,
+                                vk::ComponentSwizzle::eIdentity,
+                                vk::ComponentSwizzle::eIdentity})
                 .setSubresourceRange({vk::ImageAspectFlagBits::eColor, 0, 1, 0 ,1});
 
-       mSwapChainImageViews.push_back(device.GetDevice().createImageViewUnique(imageViewInfo));
+        mSwapChainImageViews.push_back(device.Handle().createImageViewUnique(imageViewInfo));
     }
 
     // Create render pass
-    vk::AttachmentDescription colorAttachment;
-    colorAttachment
-            .setLoadOp(vk::AttachmentLoadOp::eClear)
-            .setStoreOp(vk::AttachmentStoreOp::eStore)
-            .setInitialLayout(vk::ImageLayout::eUndefined)
-            .setFinalLayout(vk::ImageLayout::ePresentSrcKHR)
-            .setFormat(vk::Format::eB8G8R8A8Unorm);
-
-    vk::AttachmentReference colorAttachmentRef;
-    colorAttachmentRef
-            .setAttachment(0)
-            .setLayout(vk::ImageLayout::eColorAttachmentOptimal);
-
-    vk::SubpassDescription subpass;
-    subpass
-            .setColorAttachmentCount(1)
-            .setPColorAttachments(&colorAttachmentRef);
-
-    vk::RenderPassCreateInfo renderPassInfo;
-    renderPassInfo
-            .setAttachmentCount(1)
-            .setPAttachments(&colorAttachment)
-            .setSubpassCount(1)
-            .setPSubpasses(&subpass);
-
-    mRenderPass = device.GetDevice().createRenderPassUnique(renderPassInfo);
+    mRenderPass = RenderpassBuilder()
+            .Attachement(format)
+            .AttachementLoadOp(vk::AttachmentLoadOp::eDontCare)
+            .AttachementStoreOp(vk::AttachmentStoreOp::eStore)
+            .AttachementFinalLayout(vk::ImageLayout::ePresentSrcKHR)
+            .Subpass(vk::PipelineBindPoint::eGraphics)
+            .SubpassColorAttachment(vk::ImageLayout::eColorAttachmentOptimal, 0)
+            .Dependency(VK_SUBPASS_EXTERNAL, 0)
+            // TODO still not 100% sure what values below should be
+            .DependencySrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
+            .DependencyDstStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
+            .DependencySrcAccessMask(vk::AccessFlagBits::eMemoryRead)
+            .DependencyDstAccessMask(vk::AccessFlagBits::eColorAttachmentRead |
+                                     vk::AccessFlagBits::eColorAttachmentWrite)
+            .Create(device.Handle());
 
     // Create framebuffers
     for (const auto& imageView : mSwapChainImageViews)
     {
         vk::ImageView attachments[] = {*imageView};
-        vk::FramebufferCreateInfo framebufferInfo;
-        framebufferInfo
+        auto framebufferInfo = vk::FramebufferCreateInfo()
                 .setRenderPass(*mRenderPass)
                 .setAttachmentCount(1)
                 .setPAttachments(attachments)
@@ -117,21 +111,88 @@ RenderWindow::RenderWindow(const Device& device, vk::SurfaceKHR surface, uint32_
                 .setHeight(mHeight)
                 .setLayers(1);
 
-        mFrameBuffers.push_back(device.GetDevice().createFramebufferUnique(framebufferInfo));
+        mFrameBuffers.push_back(device.Handle().createFramebufferUnique(framebufferInfo));
     }
+
+    // Create semaphores
+    mImageAvailableSemaphore = device.Handle().createSemaphoreUnique({});
+    mRenderFinishedSemaphore = device.Handle().createSemaphoreUnique({});
+
+    // Create command Buffers
+    mCmdBuffers = device.CreateCommandBuffers(numFramebuffers);
 }
 
 RenderWindow::~RenderWindow()
 {
+    mDevice.FreeCommandBuffers({mCmdBuffers});
 }
 
-void RenderWindow::Clear(const glm::vec4 & colour)
+void RenderWindow::Submit()
 {
+    uint32_t imageIndex;
+    auto result = mDevice.Handle().acquireNextImageKHR(*mSwapChain, UINT64_MAX, *mImageAvailableSemaphore, nullptr);
+    if (result.result == vk::Result::eSuccess)
+    {
+        imageIndex = result.value;
+    }
+    else
+    {
+        throw std::runtime_error("Acquire error " + vk::to_string(result.result));
+    }
+
+    vk::Semaphore waitSemaphors[] = {*mImageAvailableSemaphore};
+    vk::Semaphore signalSemaphors[] = {*mRenderFinishedSemaphore};
+    vk::PipelineStageFlags waitStages[] = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
+
+    auto submitInfo = vk::SubmitInfo()
+            .setCommandBufferCount(1)
+            .setPCommandBuffers(&mCmdBuffers[imageIndex])
+            .setWaitSemaphoreCount(1)
+            .setPWaitSemaphores(waitSemaphors)
+            .setSignalSemaphoreCount(1)
+            .setPSignalSemaphores(signalSemaphors)
+            .setPWaitDstStageMask(waitStages);
+
+    mDevice.Queue().submit({submitInfo}, nullptr);
+
+    vk::SwapchainKHR swapChain[] = {*mSwapChain};
+
+    auto presentInfo = vk::PresentInfoKHR()
+            .setSwapchainCount(1)
+            .setPSwapchains(swapChain)
+            .setPImageIndices(&imageIndex)
+            .setPWaitSemaphores(signalSemaphors)
+            .setWaitSemaphoreCount(1);
+
+    mDevice.Queue().presentKHR(presentInfo);
 }
 
-void RenderWindow::Render(Vortex2D::Renderer::Drawable & object, const glm::mat4 & transform)
+void RenderWindow::Record(CommandFn commandFn)
 {
-    //object.Render(*this, transform);
+    for (uint32_t i = 0; i < mCmdBuffers.size(); i++)
+    {
+        auto bufferBegin = vk::CommandBufferBeginInfo()
+                .setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse);
+
+        mCmdBuffers[i].begin(bufferBegin);
+
+        auto renderPassBegin = vk::RenderPassBeginInfo()
+                .setFramebuffer(*mFrameBuffers[i])
+                .setRenderPass(*mRenderPass)
+                .setRenderArea({{0, 0}, {mWidth, mHeight}});
+
+        mCmdBuffers[i].beginRenderPass(renderPassBegin, vk::SubpassContents::eInline);
+
+        commandFn(mCmdBuffers[i], *mRenderPass);
+
+        mCmdBuffers[i].endRenderPass();
+        mCmdBuffers[i].end();
+    }
+}
+
+void RenderWindow::Create(GraphicsPipeline& pipeline)
+{
+    pipeline.Create(mDevice.Handle(), mWidth, mHeight, *mRenderPass);
 }
 
 }}

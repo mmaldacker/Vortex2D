@@ -7,9 +7,12 @@
 #define RenderTarget_h
 
 #include <Vortex2D/Renderer/Common.h>
-#include <Vortex2D/Renderer/Drawable.h>
+
+#include <functional>
 
 namespace Vortex2D { namespace Renderer {
+
+class GraphicsPipeline;
 
 /**
  * @brief And interface to represent a target that can be rendered to.
@@ -19,17 +22,48 @@ struct RenderTarget
 {
     RenderTarget(float width, float height);
 
-    virtual ~RenderTarget(){}
+    using CommandFn = std::function<void(vk::CommandBuffer, vk::RenderPass)>;
+    virtual ~RenderTarget() {}
+    virtual void Create(GraphicsPipeline&) = 0;
+    virtual void Record(CommandFn) = 0;
+    virtual void Submit() = 0;
 
     glm::mat4 Orth;
+};
 
-    vk::Framebuffer Framebuffer;
+class RenderpassBuilder
+{
+public:
+    RenderpassBuilder& Attachement(vk::Format format);
+    RenderpassBuilder& AttachementLoadOp(vk::AttachmentLoadOp value);
+    RenderpassBuilder& AttachementStoreOp(vk::AttachmentStoreOp value);
+    RenderpassBuilder& AttachementFinalLayout(vk::ImageLayout layout);
 
-    vk::RenderPass RenderPass;
+    RenderpassBuilder& Subpass(vk::PipelineBindPoint bindPoint);
+    RenderpassBuilder& SubpassColorAttachment(vk::ImageLayout layout, uint32_t attachment);
 
-    uint32_t Width, Height;
+    RenderpassBuilder& Dependency(uint32_t srcSubpass, uint32_t dstSubpass);
+    RenderpassBuilder& DependencySrcStageMask(vk::PipelineStageFlags value);
+    RenderpassBuilder& DependencyDstStageMask(vk::PipelineStageFlags value);
+    RenderpassBuilder& DependencySrcAccessMask(vk::AccessFlags value);
+    RenderpassBuilder& DependencyDstAccessMask(vk::AccessFlags value);
+
+    vk::UniqueRenderPass Create(vk::Device device);
+
+private:
+    constexpr static int mMaxRefs = 64;
+
+    vk::AttachmentReference* GetAttachmentReference();
+
+    std::vector<vk::AttachmentDescription> mAttachementDescriptions;
+    std::vector<vk::SubpassDescription> mSubpassDescriptions;
+    std::vector<vk::SubpassDependency> mSubpassDependencies;
+
+    int mNumRefs = 0;
+    std::array<vk::AttachmentReference, mMaxRefs> mAttachmentReferences;
+
 };
 
 }}
 
-#endif /* RenderTarget_h */
+#endif

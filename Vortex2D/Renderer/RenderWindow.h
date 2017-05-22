@@ -6,29 +6,36 @@
 #ifndef RenderWindow_h
 #define RenderWindow_h
 
+#include <Vortex2D/Renderer/Common.h>
 #include <Vortex2D/Renderer/RenderTarget.h>
 #include <Vortex2D/Renderer/Device.h>
-#include <string>
+#include <Vortex2D/Renderer/Pipeline.h>
 
 namespace Vortex2D { namespace Renderer {
-
 
 class RenderWindow : public RenderTarget
 {
 public:
     RenderWindow(const Device& device, vk::SurfaceKHR surface, uint32_t width, uint32_t height);
 
-    virtual ~RenderWindow();
+    ~RenderWindow();
 
-    void Clear(const glm::vec4 & colour);
-    void Render(Drawable & object, const glm::mat4 & transform);
+    void Submit() override;
+
+    void Record(CommandFn commandFn) override;
+
+    void Create(GraphicsPipeline& pipeline) override;
 
 private:
     uint32_t mWidth, mHeight;
+    const Device& mDevice;
     vk::UniqueSwapchainKHR mSwapChain;
     vk::UniqueRenderPass mRenderPass;
     std::vector<vk::UniqueImageView> mSwapChainImageViews;
     std::vector<vk::UniqueFramebuffer> mFrameBuffers;
+    std::vector<vk::CommandBuffer> mCmdBuffers;
+    vk::UniqueSemaphore mImageAvailableSemaphore;
+    vk::UniqueSemaphore mRenderFinishedSemaphore;
 };
 
 }}

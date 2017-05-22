@@ -15,15 +15,15 @@ class GLFWApp
 {
 public:
     GLFWApp(uint32_t width, uint32_t height, bool visible = true, bool validation = true);
+
     ~GLFWApp();
 
-    void SetKeyCallback(GLFWkeyfun cbfun);
     vk::PhysicalDevice GetPhysicalDevice() const;
 
     // TODO can return a struct with surface, width and height
     vk::SurfaceKHR GetSurface() const;
 
-    void Run();
+    bool ShoudCloseWindow() const;
 
 private:
     uint32_t mWidth, mHeight;

@@ -5,10 +5,6 @@
 #include <Vortex2D/Renderer/RenderWindow.h>
 
 #include "RenderExample.h"
-#include "ObstacleSmokeExample.h"
-#include "ScaleWaterExample.h"
-#include "SmokeExample.h"
-#include "WaterExample.h"
 
 #include <iostream>
 #include <memory>
@@ -66,6 +62,8 @@ int main()
         example.reset(new RenderExample(device, size));
 
         mainWindow.Run();
+
+        example.reset();
     }
     catch (const std::exception& error)
     {

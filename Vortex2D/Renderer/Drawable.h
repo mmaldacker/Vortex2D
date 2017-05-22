@@ -10,21 +10,13 @@
 
 namespace Vortex2D { namespace Renderer {
 
-struct RenderTarget;
-class Device;
+class RenderTarget;
 
-/**
- * @brief An interface to represent an object that can be rendered on a RenderTarget
- */
-class Drawable
+struct Drawable
 {
-public:
-    virtual ~Drawable(){}
-
-    virtual void Render(const Device& device, RenderTarget & target) = 0;
-
-protected:
-    std::vector<vk::CommandBuffer> mCommandBuffers;
+    virtual ~Drawable() {}
+    virtual void Create(RenderTarget& renderTarget) = 0;
+    virtual void Draw(vk::CommandBuffer commandBuffer, vk::RenderPass renderPass) = 0;
 };
 
 }}
