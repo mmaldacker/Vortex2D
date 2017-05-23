@@ -22,7 +22,7 @@ public:
 
     void Submit() override;
 
-    void Record(CommandFn commandFn, const RenderState& renderState) override;
+    void Record(CommandFn commandFn) override;
 
 private:
     const Device& mDevice;

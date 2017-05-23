@@ -62,12 +62,16 @@ int main()
 
         example->Initialize({window});
 
-        window.Record([&](vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState)
+        device.ExecuteCommand([&](vk::CommandBuffer commandBuffer)
+        {
+
+        });
+
+        window.Record([&](vk::CommandBuffer commandBuffer)
         {
             Renderer::Clear(size.x, size.y, {0.5f, 0.5f, 0.5f, 1.0f}).Draw(commandBuffer);
-            example->Draw(commandBuffer, renderState);
-        },
-        {window});
+            example->Draw(commandBuffer, {window});
+        });
 
         while(!mainWindow.ShoudCloseWindow())
         {
@@ -76,7 +80,6 @@ int main()
         }
 
         device.Handle().waitIdle();
-
 
         example.reset();
     }

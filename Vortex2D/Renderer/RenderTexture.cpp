@@ -57,7 +57,7 @@ RenderTexture::~RenderTexture()
     mDevice.FreeCommandBuffers({mCmd});
 }
 
-void RenderTexture::Record(CommandFn commandFn, const RenderState& renderState)
+void RenderTexture::Record(CommandFn commandFn)
 {
     auto bufferBegin = vk::CommandBufferBeginInfo()
             .setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse);
@@ -71,7 +71,7 @@ void RenderTexture::Record(CommandFn commandFn, const RenderState& renderState)
 
     mCmd.beginRenderPass(renderPassBegin, vk::SubpassContents::eInline);
 
-    commandFn(mCmd, renderState);
+    commandFn(mCmd);
 
     mCmd.endRenderPass();
     mCmd.end();

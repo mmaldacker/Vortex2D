@@ -20,12 +20,12 @@ class RenderState;
  */
 struct RenderTarget
 {
-    using CommandFn = std::function<void(vk::CommandBuffer, const RenderState&)>;
+    using CommandFn = std::function<void(vk::CommandBuffer)>;
 
     RenderTarget(uint32_t width, uint32_t height);
     virtual ~RenderTarget();
 
-    virtual void Record(CommandFn, const RenderState& renderState) = 0;
+    virtual void Record(CommandFn) = 0;
     virtual void Submit() = 0;
 
     uint32_t Width;

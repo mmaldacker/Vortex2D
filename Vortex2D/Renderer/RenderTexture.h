@@ -20,7 +20,7 @@ public:
     RenderTexture(const Device& device, uint32_t width, uint32_t height, vk::Format format);
     ~RenderTexture();
 
-    void Record(CommandFn commandFn, const RenderState& renderState) override;
+    void Record(CommandFn commandFn) override;
     void Submit() override;
 
 private:

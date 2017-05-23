@@ -165,7 +165,7 @@ void RenderWindow::Submit()
     mDevice.Queue().presentKHR(presentInfo);
 }
 
-void RenderWindow::Record(CommandFn commandFn, const RenderState& renderState)
+void RenderWindow::Record(CommandFn commandFn)
 {
     for (uint32_t i = 0; i < mCmdBuffers.size(); i++)
     {
@@ -181,7 +181,7 @@ void RenderWindow::Record(CommandFn commandFn, const RenderState& renderState)
 
         mCmdBuffers[i].beginRenderPass(renderPassBegin, vk::SubpassContents::eInline);
 
-        commandFn(mCmdBuffers[i], renderState);
+        commandFn(mCmdBuffers[i]);
 
         mCmdBuffers[i].endRenderPass();
         mCmdBuffers[i].end();
