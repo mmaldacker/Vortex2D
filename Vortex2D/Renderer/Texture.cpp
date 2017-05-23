@@ -141,6 +141,11 @@ void Texture::CopyTo(void* data, vk::DeviceSize bytesPerPixel)
 
 void Texture::CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcImage)
 {
+    if (mWidth != srcImage.mWidth || mHeight != srcImage.mHeight)
+    {
+        return;
+    }
+
     srcImage.Barrier(commandBuffer, vk::ImageLayout::eTransferSrcOptimal, vk::AccessFlagBits::eTransferRead);
     Barrier(commandBuffer, vk::ImageLayout::eTransferDstOptimal, vk::AccessFlagBits::eTransferWrite);
 

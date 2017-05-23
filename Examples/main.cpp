@@ -62,10 +62,7 @@ int main()
 
         example->Initialize({window});
 
-        device.ExecuteCommand([&](vk::CommandBuffer commandBuffer)
-        {
-
-        });
+        example->Update(window.Orth, glm::mat4());
 
         window.Record([&](vk::CommandBuffer commandBuffer)
         {

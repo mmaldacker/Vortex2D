@@ -22,9 +22,8 @@ class Sprite : public Drawable, public Transformable
 public:
     Sprite(const Device& device, const Texture& texture);
 
-    void Update(const glm::mat4& mvp);
-
     void Initialize(const RenderState& renderState) override;
+    void Update(const glm::mat4& model, const glm::mat4& view) override;
     void Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState) override;
 
 private:

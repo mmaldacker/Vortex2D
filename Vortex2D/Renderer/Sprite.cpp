@@ -72,11 +72,10 @@ Sprite::Sprite(const Device& device, const Texture& texture)
 
 }
 
-void Sprite::Update(const glm::mat4& mvp)
+void Sprite::Update(const glm::mat4& model, const glm::mat4& view)
 {
-    mMVPBuffer.CopyTo(mvp);
+    mMVPBuffer.CopyTo(model * view * GetTransform());
 }
-
 
 void Sprite::Initialize(const RenderState& renderState)
 {

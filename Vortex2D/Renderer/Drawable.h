@@ -16,6 +16,7 @@ struct Drawable
 {
     virtual ~Drawable() {}
     virtual void Initialize(const RenderState& renderState) = 0;
+    virtual void Update(const glm::mat4& model, const glm::mat4& view) = 0;
     virtual void Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState) = 0;
 };
 

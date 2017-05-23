@@ -35,16 +35,21 @@ public:
         mDevice.unmapMemory(*mMemory);
     }
 
+    void CopyFrom(vk::CommandBuffer commandBuffer, Buffer& srcBuffer);
+
     void Flush();
 
     operator vk::Buffer() const;
     vk::DeviceSize Size() const;
+
+    void Barrier(vk::CommandBuffer commandBuffer, vk::AccessFlags newAccess);
 
 private:
     vk::Device mDevice;
     vk::UniqueBuffer mBuffer;
     vk::UniqueDeviceMemory mMemory;
     vk::DeviceSize mSize;
+    vk::AccessFlags mAccess;
 };
 
 }}

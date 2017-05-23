@@ -25,6 +25,8 @@ class Texture
 {
 public:
     Texture(const Device& device, uint32_t width, uint32_t height, vk::Format format, bool host);
+
+    // TODO have bytesPerPixel deduced from format
     void CopyFrom(const void* data, vk::DeviceSize bytesPerPixel);
     void CopyTo(void* data, vk::DeviceSize bytesPerPixel);
 

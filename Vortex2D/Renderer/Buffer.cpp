@@ -13,6 +13,7 @@ Buffer::Buffer(const Device& device,
        vk::DeviceSize deviceSize)
     : mDevice(device.Handle())
     , mSize(deviceSize)
+    , mAccess({}) // TODO should this be the initial access?
 {
     auto bufferInfo = vk::BufferCreateInfo()
             .setSize(deviceSize)
@@ -51,6 +52,48 @@ Buffer::operator vk::Buffer() const
 vk::DeviceSize Buffer::Size() const
 {
     return mSize;
+}
+
+void Buffer::CopyFrom(vk::CommandBuffer commandBuffer, Buffer& srcBuffer)
+{
+    if (mSize != srcBuffer.mSize)
+    {
+        return;
+    }
+
+    srcBuffer.Barrier(commandBuffer, vk::AccessFlagBits::eTransferRead);
+    Barrier(commandBuffer, vk::AccessFlagBits::eTransferWrite);
+
+    auto region = vk::BufferCopy()
+            .setSize(mSize);
+
+    commandBuffer.copyBuffer(srcBuffer, *mBuffer, region);
+}
+
+void Buffer::Barrier(vk::CommandBuffer commandBuffer, vk::AccessFlags newAccess)
+{
+    if (newAccess == mAccess)
+    {
+        return;
+    }
+
+    vk::AccessFlags oldAccess = mAccess;
+    mAccess = newAccess;
+
+    auto bufferMemoryBarriers = vk::BufferMemoryBarrier()
+            .setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+            .setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+            .setBuffer(*mBuffer)
+            .setSize(mSize)
+            .setSrcAccessMask(oldAccess)
+            .setDstAccessMask(newAccess);
+
+    commandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eAllCommands,
+                                  vk::PipelineStageFlagBits::eAllCommands,
+                                  {},
+                                  nullptr,
+                                  bufferMemoryBarriers,
+                                  nullptr);
 }
 
 }}

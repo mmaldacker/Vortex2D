@@ -67,9 +67,9 @@ void Shape::Initialize(const RenderState& renderState)
     mPipeline.Create(mDevice, renderState);
 }
 
-void Shape::Update(const glm::mat4& mvp)
+void Shape::Update(const glm::mat4& model, const glm::mat4& view)
 {
-    mMVPBuffer.CopyTo(mvp);
+    mMVPBuffer.CopyTo(model * view * GetTransform());
 }
 
 void Shape::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState)

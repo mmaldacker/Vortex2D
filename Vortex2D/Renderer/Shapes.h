@@ -26,9 +26,8 @@ class Shape : public Drawable, public Transformable
 public:
     Shape(const Device& device, const std::vector<glm::vec2>& vertices, const glm::vec4& colour);
 
-    void Update(const glm::mat4& mvp);
-
     void Initialize(const RenderState& renderState) override;
+    void Update(const glm::mat4& model, const glm::mat4& view) override;
     void Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState) override;
 
 private:
@@ -49,7 +48,6 @@ class Rectangle : public Shape
 {
 public:
     Rectangle(const Device& device, const glm::vec2& size, const glm::vec4& colour);
-
 };
 
 /**
@@ -61,6 +59,7 @@ public:
     Ellipse(const Device& device, const glm::vec2& radius);
 
     void Initialize(const RenderState& renderState) override;
+    void Update(const glm::mat4& model, const glm::mat4& view) override;
     void Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState) override;
 
 private:
