@@ -9,6 +9,7 @@
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
 
+#include <Vortex2D/Renderer/Instance.h>
 #include <Vortex2D/Renderer/Device.h>
 
 class GLFWApp
@@ -23,13 +24,14 @@ public:
     // TODO can return a struct with surface, width and height
     vk::SurfaceKHR GetSurface() const;
 
+    vk::Instance GetInstance() const;
+
     bool ShoudCloseWindow() const;
 
 private:
     uint32_t mWidth, mHeight;
     GLFWwindow* mWindow;
-    vk::UniqueInstance mInstance;
-    vk::UniqueDebugReportCallbackEXT mDebugCallback;
+    Vortex2D::Renderer::Instance mInstance;
     vk::UniqueSurfaceKHR mSurface;
 };
 

@@ -6,7 +6,6 @@
 #include <Vortex2D/Renderer/Drawable.h>
 #include <Vortex2D/Renderer/Shapes.h>
 
-
 class RenderExample : public Vortex2D::Renderer::Drawable
 {
 public:
@@ -14,6 +13,7 @@ public:
         : rectangle(device, {100,100}, {1.0f, 1.0f, 1.0f, 1.0f})
     {
         rectangle.Position = {200, 200};
+        rectangle.Rotation = 45.0f;
     }
 
     void Initialize(const Vortex2D::Renderer::RenderState& renderState) override
