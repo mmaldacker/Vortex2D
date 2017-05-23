@@ -22,15 +22,11 @@ public:
 
     void Submit() override;
 
-    void Record(CommandFn commandFn) override;
-
-    void Create(GraphicsPipeline& pipeline) override;
+    void Record(CommandFn commandFn, const RenderState& renderState) override;
 
 private:
-    uint32_t mWidth, mHeight;
     const Device& mDevice;
     vk::UniqueSwapchainKHR mSwapChain;
-    vk::UniqueRenderPass mRenderPass;
     std::vector<vk::UniqueImageView> mSwapChainImageViews;
     std::vector<vk::UniqueFramebuffer> mFrameBuffers;
     std::vector<vk::CommandBuffer> mCmdBuffers;

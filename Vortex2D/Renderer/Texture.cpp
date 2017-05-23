@@ -191,12 +191,12 @@ Texture::operator vk::ImageView() const
     return *mImageView;
 }
 
-uint32_t Texture::Width() const
+uint32_t Texture::GetWidth() const
 {
     return mWidth;
 }
 
-uint32_t Texture::Height() const
+uint32_t Texture::GetHeight() const
 {
     return mHeight;
 }

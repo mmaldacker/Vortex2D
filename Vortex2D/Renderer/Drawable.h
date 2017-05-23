@@ -10,13 +10,13 @@
 
 namespace Vortex2D { namespace Renderer {
 
-class RenderTarget;
+class RenderState;
 
 struct Drawable
 {
     virtual ~Drawable() {}
-    virtual void Create(RenderTarget& renderTarget) = 0;
-    virtual void Draw(vk::CommandBuffer commandBuffer, vk::RenderPass renderPass) = 0;
+    virtual void Initialize(const RenderState& renderState) = 0;
+    virtual void Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState) = 0;
 };
 
 }}

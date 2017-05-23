@@ -33,8 +33,8 @@ public:
     void Barrier(vk::CommandBuffer commandBuffer, vk::ImageLayout newLayout, vk::AccessFlags newAccess);
     operator vk::ImageView() const;
 
-    uint32_t Width() const;
-    uint32_t Height() const;
+    uint32_t GetWidth() const;
+    uint32_t GetHeight() const;
 
 private:
     bool mHost;

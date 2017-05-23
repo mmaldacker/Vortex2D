@@ -8,8 +8,9 @@
 
 #include <Vortex2D/Renderer/Common.h>
 #include <Vortex2D/Renderer/Device.h>
+#include <Vortex2D/Renderer/RenderState.h>
 
-#include <map>
+#include <vector>
 #include <string>
 
 namespace Vortex2D { namespace Renderer {
@@ -51,9 +52,9 @@ public:
         Builder& VertexBinding(uint32_t binding, uint32_t stride, vk::VertexInputRate inputRate = vk::VertexInputRate::eVertex);
 
         Builder& Layout(vk::PipelineLayout pipelineLayout);
-        vk::UniquePipeline Create(vk::Device device, uint32_t width, uint32_t height, vk::RenderPass renderPass);
+        vk::UniquePipeline Create(vk::Device device, const RenderState& renderState);
+
     private:
-        vk::PipelineColorBlendAttachmentState mColorBlendAttachment;
         vk::PipelineMultisampleStateCreateInfo mMultisampleInfo;
         vk::PipelineRasterizationStateCreateInfo mRasterizationInfo;
         vk::PipelineInputAssemblyStateCreateInfo mInputAssembly;
@@ -67,12 +68,13 @@ public:
     GraphicsPipeline();
     GraphicsPipeline(Builder builder);
 
-    void Create(vk::Device device, uint32_t width, uint32_t height, vk::RenderPass renderPass);
-    void Bind(vk::CommandBuffer commandBuffer, vk::RenderPass renderPass);
+    void Create(vk::Device device, const RenderState& renderState);
+    void Bind(vk::CommandBuffer commandBuffer, const RenderState& renderState);
 
 private:
     Builder mBuilder;
-    std::map<vk::RenderPass, vk::UniquePipeline> mPipelines;
+    using PipelineList = std::vector<std::pair<RenderState, vk::UniquePipeline>>;
+    PipelineList mPipelines;
 };
 
 class ComputePipelineBuilder

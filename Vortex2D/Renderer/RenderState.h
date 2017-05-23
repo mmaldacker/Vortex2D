@@ -10,13 +10,20 @@
 
 namespace Vortex2D { namespace Renderer {
 
+class RenderTarget;
+
 class RenderState
 {
 public:
-    int Width;
-    int Height;
+    RenderState(const RenderTarget& renderTarget);
+
+    uint32_t Width;
+    uint32_t Height;
     vk::RenderPass RenderPass;
+    vk::PipelineColorBlendAttachmentState ColorBlend;
 };
+
+bool operator==(const RenderState& left, const RenderState right);
 
 }}
 

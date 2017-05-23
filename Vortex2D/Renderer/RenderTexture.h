@@ -20,14 +20,11 @@ public:
     RenderTexture(const Device& device, uint32_t width, uint32_t height, vk::Format format);
     ~RenderTexture();
 
-    void Create(GraphicsPipeline& pipeline) override;
-
-    void Record(CommandFn commandFn) override;
+    void Record(CommandFn commandFn, const RenderState& renderState) override;
     void Submit() override;
 
 private:
     const Device& mDevice;
-    vk::UniqueRenderPass mRenderPass;
     vk::UniqueFramebuffer mFramebuffer;
     vk::CommandBuffer mCmd;
     vk::UniqueFence mFence;

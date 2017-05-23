@@ -10,7 +10,8 @@
 namespace Vortex2D { namespace Renderer {
 
 Sprite::Sprite(const Device& device, const Texture& texture)
-    : mMVPBuffer(device,
+    : mDevice(device.Handle())
+    , mMVPBuffer(device,
                  vk::BufferUsageFlagBits::eUniformBuffer,
                  vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
                  sizeof(glm::mat4))
@@ -21,11 +22,11 @@ Sprite::Sprite(const Device& device, const Texture& texture)
 {
     Vertex vertices[] = {
         {{0.0f, 0.0f}, {0.0f, 0.0f}},
-        {{1.0f, 0.0f}, {texture.Width(), 0.0f}},
-        {{0.0f, 1.0f}, {0.0f, texture.Height()}},
-        {{1.0f, 0.0f}, {texture.Width(), 0.0f}},
-        {{1.0f, 1.0f}, {texture.Width(), texture.Height()}},
-        {{0.0f, 1.0f}, {0.0f, texture.Height()}}
+        {{1.0f, 0.0f}, {texture.GetWidth(), 0.0f}},
+        {{0.0f, 1.0f}, {0.0f, texture.GetHeight()}},
+        {{1.0f, 0.0f}, {texture.GetWidth(), 0.0f}},
+        {{1.0f, 1.0f}, {texture.GetWidth(), texture.GetHeight()}},
+        {{0.0f, 1.0f}, {0.0f, texture.GetHeight()}}
     };
 
     mVertexBuffer.CopyTo(vertices);
@@ -71,19 +72,20 @@ Sprite::Sprite(const Device& device, const Texture& texture)
 
 }
 
-void Sprite::Create(RenderTarget& renderTarget)
-{
-    renderTarget.Create(mPipeline);
-}
-
 void Sprite::Update(const glm::mat4& mvp)
 {
     mMVPBuffer.CopyTo(mvp);
 }
 
-void Sprite::Draw(vk::CommandBuffer commandBuffer, vk::RenderPass renderPass)
+
+void Sprite::Initialize(const RenderState& renderState)
 {
-    mPipeline.Bind(commandBuffer, renderPass);
+    mPipeline.Create(mDevice, renderState);
+}
+
+void Sprite::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState)
+{
+    mPipeline.Bind(commandBuffer, renderState);
     commandBuffer.bindVertexBuffers(0, {mVertexBuffer}, {0ul});
     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, mPipelineLayout, 0, {mDescriptorSet}, {});
     commandBuffer.draw(6, 1, 0, 0);

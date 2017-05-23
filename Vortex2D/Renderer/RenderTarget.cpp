@@ -9,8 +9,15 @@
 
 namespace Vortex2D { namespace Renderer {
 
-RenderTarget::RenderTarget(float width, float height)
-    : Orth(glm::ortho(0.0f, width, 0.0f, height))
+RenderTarget::RenderTarget(uint32_t width, uint32_t height)
+    : Width(width)
+    , Height(height)
+    , Orth(glm::ortho(0.0f, (float)width, 0.0f, (float)height))
+{
+
+}
+
+RenderTarget::~RenderTarget()
 {
 
 }

@@ -16,7 +16,7 @@ glm::vec4 green = glm::vec4(35.0f, 163.0f, 143.0f, 255.0f)/glm::vec4(255.0f);
 glm::vec4 gray = glm::vec4(182.0f,172.0f,164.0f, 255.0f)/glm::vec4(255.0f);
 glm::vec4 blue = glm::vec4(99.0f, 155.0f, 188.0f, 255.0f)/glm::vec4(255.0f);
 
-glm::vec2 size = {500,500};
+glm::vec2 size = {1000,1000};
 
 std::unique_ptr<Vortex2D::Renderer::Drawable> example;
 
@@ -52,7 +52,6 @@ int main()
         auto colour = glm::vec4{99.0f,96.0f,93.0f,255.0f} / glm::vec4(255.0f);
 
         GLFWApp mainWindow(size.x, size.y);
-        //mainWindow.SetKeyCallback(key_callback);
 
         Renderer::Device device(mainWindow.GetPhysicalDevice(),
                                 mainWindow.GetSurface());
@@ -61,7 +60,23 @@ int main()
 
         example.reset(new RenderExample(device, size));
 
-        mainWindow.Run();
+        example->Initialize({window});
+
+        window.Record([&](vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState)
+        {
+            Renderer::Clear(size.x, size.y, {0.5f, 0.5f, 0.5f, 1.0f}).Draw(commandBuffer);
+            example->Draw(commandBuffer, renderState);
+        },
+        {window});
+
+        while(!mainWindow.ShoudCloseWindow())
+        {
+            glfwPollEvents();
+            window.Submit();
+        }
+
+        device.Handle().waitIdle();
+
 
         example.reset();
     }

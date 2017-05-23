@@ -11,21 +11,22 @@
 #include <Vortex2D/Renderer/Pipeline.h>
 #include <Vortex2D/Renderer/Buffer.h>
 #include <Vortex2D/Renderer/DescriptorSet.h>
+#include <Vortex2D/Renderer/Transformable.h>
 
 namespace Vortex2D { namespace Renderer {
 
 class RenderTarget;
 
-class Sprite : public Drawable
+class Sprite : public Drawable, public Transformable
 {
 public:
     Sprite(const Device& device, const Texture& texture);
 
-    void Create(RenderTarget& renderTarget);
-
     void Update(const glm::mat4& mvp);
 
-    void Draw(vk::CommandBuffer commandBuffer, vk::RenderPass renderPass) override;
+    void Initialize(const RenderState& renderState) override;
+    void Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState) override;
+
 private:
     struct Vertex
     {
@@ -33,6 +34,7 @@ private:
         glm::vec2 pos;
     };
 
+    vk::Device mDevice;
     Buffer mMVPBuffer;
     Buffer mVertexBuffer;
     vk::UniqueSampler mSampler;

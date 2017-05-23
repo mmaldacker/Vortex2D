@@ -10,7 +10,8 @@
 namespace Vortex2D { namespace Renderer {
 
 Shape::Shape(const Device& device, const std::vector<glm::vec2>& vertices, const glm::vec4& colour)
-    : mMVPBuffer(device,
+    : mDevice(device.Handle())
+    , mMVPBuffer(device,
                  vk::BufferUsageFlagBits::eUniformBuffer,
                  vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
                  sizeof(glm::mat4))
@@ -61,9 +62,9 @@ Shape::Shape(const Device& device, const std::vector<glm::vec2>& vertices, const
             .Layout(mPipelineLayout);
 }
 
-void Shape::Create(RenderTarget& renderTarget)
+void Shape::Initialize(const RenderState& renderState)
 {
-    renderTarget.Create(mPipeline);
+    mPipeline.Create(mDevice, renderState);
 }
 
 void Shape::Update(const glm::mat4& mvp)
@@ -71,9 +72,9 @@ void Shape::Update(const glm::mat4& mvp)
     mMVPBuffer.CopyTo(mvp);
 }
 
-void Shape::Draw(vk::CommandBuffer commandBuffer, vk::RenderPass renderPass)
+void Shape::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState)
 {
-    mPipeline.Bind(commandBuffer, renderPass);
+    mPipeline.Bind(commandBuffer, renderState);
     commandBuffer.bindVertexBuffers(0, {mVertexBuffer}, {0ul});
     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, mPipelineLayout, 0, {mDescriptorSet}, {});
     commandBuffer.draw(mNumVertices, 1, 0, 0);
@@ -111,12 +112,7 @@ Clear::Clear(uint32_t width, uint32_t height, const glm::vec4& colour)
 
 }
 
-void Clear::Create(RenderTarget& renderTarget)
-{
-
-}
-
-void Clear::Draw(vk::CommandBuffer commandBuffer, vk::RenderPass renderPass)
+void Clear::Draw(vk::CommandBuffer commandBuffer)
 {
     auto clearValue = vk::ClearValue()
             .setColor(std::array<float, 4>{{mColour.r, mColour.g, mColour.b, mColour.a}});

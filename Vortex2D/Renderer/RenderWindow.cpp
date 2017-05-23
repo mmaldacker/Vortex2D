@@ -28,8 +28,6 @@ struct SwapChainSupportDetails
 
 RenderWindow::RenderWindow(const Device& device, vk::SurfaceKHR surface, uint32_t width, uint32_t height)
     : RenderTarget(width, height)
-    , mWidth(width)
-    , mHeight(height)
     , mDevice(device)
 {
     // get swap chain support details
@@ -54,7 +52,7 @@ RenderWindow::RenderWindow(const Device& device, vk::SurfaceKHR surface, uint32_
             .setImageFormat(format)
             .setImageColorSpace(vk::ColorSpaceKHR::eSrgbNonlinear)
             .setMinImageCount(numFramebuffers)
-            .setImageExtent({mWidth, mHeight})
+            .setImageExtent({Width, Height})
             .setImageArrayLayers(1)
             .setImageUsage(vk::ImageUsageFlagBits::eColorAttachment)
             .setImageSharingMode(vk::SharingMode::eExclusive)
@@ -83,7 +81,7 @@ RenderWindow::RenderWindow(const Device& device, vk::SurfaceKHR surface, uint32_
     }
 
     // Create render pass
-    mRenderPass = RenderpassBuilder()
+    RenderPass = RenderpassBuilder()
             .Attachement(format)
             .AttachementLoadOp(vk::AttachmentLoadOp::eDontCare)
             .AttachementStoreOp(vk::AttachmentStoreOp::eStore)
@@ -104,11 +102,11 @@ RenderWindow::RenderWindow(const Device& device, vk::SurfaceKHR surface, uint32_
     {
         vk::ImageView attachments[] = {*imageView};
         auto framebufferInfo = vk::FramebufferCreateInfo()
-                .setRenderPass(*mRenderPass)
+                .setRenderPass(*RenderPass)
                 .setAttachmentCount(1)
                 .setPAttachments(attachments)
-                .setWidth(mWidth)
-                .setHeight(mHeight)
+                .setWidth(Width)
+                .setHeight(Height)
                 .setLayers(1);
 
         mFrameBuffers.push_back(device.Handle().createFramebufferUnique(framebufferInfo));
@@ -167,7 +165,7 @@ void RenderWindow::Submit()
     mDevice.Queue().presentKHR(presentInfo);
 }
 
-void RenderWindow::Record(CommandFn commandFn)
+void RenderWindow::Record(CommandFn commandFn, const RenderState& renderState)
 {
     for (uint32_t i = 0; i < mCmdBuffers.size(); i++)
     {
@@ -178,21 +176,16 @@ void RenderWindow::Record(CommandFn commandFn)
 
         auto renderPassBegin = vk::RenderPassBeginInfo()
                 .setFramebuffer(*mFrameBuffers[i])
-                .setRenderPass(*mRenderPass)
-                .setRenderArea({{0, 0}, {mWidth, mHeight}});
+                .setRenderPass(*RenderPass)
+                .setRenderArea({{0, 0}, {Width, Height}});
 
         mCmdBuffers[i].beginRenderPass(renderPassBegin, vk::SubpassContents::eInline);
 
-        commandFn(mCmdBuffers[i], *mRenderPass);
+        commandFn(mCmdBuffers[i], renderState);
 
         mCmdBuffers[i].endRenderPass();
         mCmdBuffers[i].end();
     }
-}
-
-void RenderWindow::Create(GraphicsPipeline& pipeline)
-{
-    pipeline.Create(mDevice.Handle(), mWidth, mHeight, *mRenderPass);
 }
 
 }}

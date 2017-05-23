@@ -21,17 +21,18 @@ namespace Vortex2D { namespace Renderer {
 typedef std::vector<glm::vec2> Path;
 class RenderTarget;
 
-class Shape : public Drawable
+class Shape : public Drawable, public Transformable
 {
 public:
     Shape(const Device& device, const std::vector<glm::vec2>& vertices, const glm::vec4& colour);
 
     void Update(const glm::mat4& mvp);
 
-    void Create(RenderTarget& renderTarget) override;
-    void Draw(vk::CommandBuffer commandBuffer, vk::RenderPass renderPass) override;
+    void Initialize(const RenderState& renderState) override;
+    void Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState) override;
 
 private:
+    vk::Device mDevice;
     Buffer mMVPBuffer;
     Buffer mColourBuffer;
     Buffer mVertexBuffer;
@@ -44,7 +45,7 @@ private:
 /**
  * @brief A solid colour rectangle defined by two triangles. Implements the Drawable interface and Transformable interface.
  */
-class Rectangle : public Shape, public Transformable
+class Rectangle : public Shape
 {
 public:
     Rectangle(const Device& device, const glm::vec2& size, const glm::vec4& colour);
@@ -59,19 +60,19 @@ class Ellipse : public Drawable, public Transformable
 public:
     Ellipse(const Device& device, const glm::vec2& radius);
 
-    void Draw(vk::CommandBuffer commandBuffer, vk::RenderPass renderPass) override;
+    void Initialize(const RenderState& renderState) override;
+    void Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState) override;
 
 private:
     glm::vec2 mRadius;
 };
 
-class Clear : public Drawable
+class Clear
 {
 public:
     Clear(uint32_t width, uint32_t height, const glm::vec4& colour);
 
-    void Create(RenderTarget& renderTarget) override;
-    void Draw(vk::CommandBuffer commandBuffer, vk::RenderPass renderPass) override;
+    void Draw(vk::CommandBuffer commandBuffer);
 
 private:
     uint32_t mWidth;

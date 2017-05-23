@@ -16,15 +16,14 @@ public:
         rectangle.Position = {200, 200};
     }
 
-    void Create(Vortex2D::Renderer::RenderTarget& renderTarget) override
+    void Initialize(const Vortex2D::Renderer::RenderState& renderState) override
     {
-        rectangle.Create(renderTarget);
+        rectangle.Initialize(renderState);
     }
 
-
-    void Draw(vk::CommandBuffer commandBuffer, vk::RenderPass renderPass) override
+    void Draw(vk::CommandBuffer commandBuffer, const Vortex2D::Renderer::RenderState& renderState) override
     {
-        rectangle.Draw(commandBuffer, renderPass);
+        rectangle.Draw(commandBuffer, renderState);
     }
 
 private:

@@ -13,7 +13,7 @@ RenderTexture::RenderTexture(const Device& device, uint32_t width, uint32_t heig
     , mDevice(device)
 {
     // Create render pass
-    mRenderPass = RenderpassBuilder()
+    RenderPass = RenderpassBuilder()
             .Attachement(format)
             .AttachementLoadOp(vk::AttachmentLoadOp::eDontCare)
             .AttachementStoreOp(vk::AttachmentStoreOp::eStore)
@@ -33,9 +33,9 @@ RenderTexture::RenderTexture(const Device& device, uint32_t width, uint32_t heig
     vk::ImageView attachments[] = {*this};
 
     auto framebufferInfo = vk::FramebufferCreateInfo()
-            .setWidth(Width())
-            .setHeight(Height())
-            .setRenderPass(*mRenderPass)
+            .setWidth(Width)
+            .setHeight(Height)
+            .setRenderPass(*RenderPass)
             .setAttachmentCount(1)
             .setPAttachments(attachments)
             .setLayers(1);
@@ -57,12 +57,7 @@ RenderTexture::~RenderTexture()
     mDevice.FreeCommandBuffers({mCmd});
 }
 
-void RenderTexture::Create(GraphicsPipeline& pipeline)
-{
-    pipeline.Create(mDevice.Handle(), Width(), Height(), *mRenderPass);
-}
-
-void RenderTexture::Record(CommandFn commandFn)
+void RenderTexture::Record(CommandFn commandFn, const RenderState& renderState)
 {
     auto bufferBegin = vk::CommandBufferBeginInfo()
             .setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse);
@@ -71,12 +66,12 @@ void RenderTexture::Record(CommandFn commandFn)
 
     auto renderPassBegin = vk::RenderPassBeginInfo()
             .setFramebuffer(*mFramebuffer)
-            .setRenderPass(*mRenderPass)
-            .setRenderArea({{0, 0}, {Width(), Height()}});
+            .setRenderPass(*RenderPass)
+            .setRenderArea({{0, 0}, {Width, Height}});
 
     mCmd.beginRenderPass(renderPassBegin, vk::SubpassContents::eInline);
 
-    commandFn(mCmd, *mRenderPass);
+    commandFn(mCmd, renderState);
 
     mCmd.endRenderPass();
     mCmd.end();

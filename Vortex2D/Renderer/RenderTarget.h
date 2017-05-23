@@ -12,23 +12,26 @@
 
 namespace Vortex2D { namespace Renderer {
 
-class GraphicsPipeline;
+class RenderState;
 
 /**
  * @brief And interface to represent a target that can be rendered to.
- * This is implemented by the RenderWindow (in the examples) and the RenderTexture
+ * This is implemented by the RenderWindow and the RenderTexture
  */
 struct RenderTarget
 {
-    RenderTarget(float width, float height);
+    using CommandFn = std::function<void(vk::CommandBuffer, const RenderState&)>;
 
-    using CommandFn = std::function<void(vk::CommandBuffer, vk::RenderPass)>;
-    virtual ~RenderTarget() {}
-    virtual void Create(GraphicsPipeline&) = 0;
-    virtual void Record(CommandFn) = 0;
+    RenderTarget(uint32_t width, uint32_t height);
+    virtual ~RenderTarget();
+
+    virtual void Record(CommandFn, const RenderState& renderState) = 0;
     virtual void Submit() = 0;
 
+    uint32_t Width;
+    uint32_t Height;
     glm::mat4 Orth;
+    vk::UniqueRenderPass RenderPass;
 };
 
 class RenderpassBuilder
@@ -61,7 +64,6 @@ private:
 
     int mNumRefs = 0;
     std::array<vk::AttachmentReference, mMaxRefs> mAttachmentReferences;
-
 };
 
 }}

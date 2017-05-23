@@ -6,6 +6,7 @@
 #include "Pipeline.h"
 
 #include <fstream>
+#include <algorithm>
 
 namespace Vortex2D { namespace Renderer {
 
@@ -56,7 +57,6 @@ PipelineLayout::operator vk::PipelineLayout() const
     return *mPipelineLayout;
 }
 
-// TODO is this format better? or like DescriptorSetLayout?
 GraphicsPipeline::Builder::Builder()
 {
     // TODO topology as parameter
@@ -73,14 +73,6 @@ GraphicsPipeline::Builder::Builder()
     mMultisampleInfo = vk::PipelineMultisampleStateCreateInfo()
             .setRasterizationSamples(vk::SampleCountFlagBits::e1)
             .setMinSampleShading(1.0f);
-
-    // TODO blending as parameter
-    mColorBlendAttachment = vk::PipelineColorBlendAttachmentState()
-            .setColorWriteMask(vk::ColorComponentFlagBits::eR |
-                               vk::ColorComponentFlagBits::eG |
-                               vk::ColorComponentFlagBits::eB |
-                               vk::ColorComponentFlagBits::eA)
-            .setBlendEnable(false);
 }
 
 GraphicsPipeline::Builder& GraphicsPipeline::Builder::Shader(vk::ShaderModule shader,
@@ -119,10 +111,7 @@ GraphicsPipeline::Builder& GraphicsPipeline::Builder::Layout(vk::PipelineLayout 
     return *this;
 }
 
-vk::UniquePipeline GraphicsPipeline::Builder::Create(vk::Device device,
-                                                     uint32_t width,
-                                                     uint32_t height,
-                                                     vk::RenderPass renderPass)
+vk::UniquePipeline GraphicsPipeline::Builder::Create(vk::Device device, const RenderState& renderState)
 {
     auto vertexInputInfo = vk::PipelineVertexInputStateCreateInfo()
             .setVertexBindingDescriptionCount(mVertexBindingDescriptions.size())
@@ -130,8 +119,8 @@ vk::UniquePipeline GraphicsPipeline::Builder::Create(vk::Device device,
             .setVertexAttributeDescriptionCount(mVertexAttributeDescriptions.size())
             .setPVertexAttributeDescriptions(mVertexAttributeDescriptions.data());
 
-    auto viewPort = vk::Viewport(0, 0, width, height, 0.0f, 1.0f);
-    auto scissor = vk::Rect2D({0, 0}, {width, height});
+    auto viewPort = vk::Viewport(0, 0, renderState.Width, renderState.Height, 0.0f, 1.0f);
+    auto scissor = vk::Rect2D({0, 0}, {renderState.Width, renderState.Height});
 
     auto viewPortState = vk::PipelineViewportStateCreateInfo()
             .setScissorCount(1)
@@ -141,7 +130,7 @@ vk::UniquePipeline GraphicsPipeline::Builder::Create(vk::Device device,
 
     auto blendInfo = vk::PipelineColorBlendStateCreateInfo()
             .setAttachmentCount(1)
-            .setPAttachments(&mColorBlendAttachment);
+            .setPAttachments(&renderState.ColorBlend);
 
     auto pipelineInfo = vk::GraphicsPipelineCreateInfo()
             .setStageCount(mShaderStages.size())
@@ -152,7 +141,7 @@ vk::UniquePipeline GraphicsPipeline::Builder::Create(vk::Device device,
             .setPMultisampleState(&mMultisampleInfo)
             .setPColorBlendState(&blendInfo)
             .setLayout(mPipelineLayout)
-            .setRenderPass(renderPass)
+            .setRenderPass(renderState.RenderPass)
             .setPViewportState(&viewPortState);
 
     return device.createGraphicsPipelineUnique(nullptr, pipelineInfo);
@@ -167,14 +156,18 @@ GraphicsPipeline::GraphicsPipeline(GraphicsPipeline::Builder builder)
 {
 }
 
-void GraphicsPipeline::Create(vk::Device device, uint32_t width, uint32_t height, vk::RenderPass renderPass)
+void GraphicsPipeline::Create(vk::Device device, const RenderState& renderState)
 {
-    mPipelines[renderPass] = mBuilder.Create(device, width, height, renderPass);
+    mPipelines.emplace_back(renderState, mBuilder.Create(device, renderState));
 }
 
-void GraphicsPipeline::Bind(vk::CommandBuffer commandBuffer, vk::RenderPass renderPass)
+void GraphicsPipeline::Bind(vk::CommandBuffer commandBuffer, const RenderState& renderState)
 {
-    auto it = mPipelines.find(renderPass);
+    auto it = std::find_if(mPipelines.begin(), mPipelines.end(), [&](const PipelineList::value_type& value)
+    {
+        return value.first == renderState;
+    });
+
     if (it != mPipelines.end())
     {
         commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *it->second);
