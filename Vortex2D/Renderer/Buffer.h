@@ -14,24 +14,25 @@ namespace Vortex2D { namespace Renderer {
 class Buffer
 {
 public:
-    Buffer(const Device& device,
-           vk::BufferUsageFlags usageFlags,
-           vk::MemoryPropertyFlags memoryFlags,
-           vk::DeviceSize deviceSize);
+    Buffer(const Device& device, vk::BufferUsageFlags usageFlags, bool host, vk::DeviceSize deviceSize);
 
     template<typename T>
     void CopyTo(const T& data)
     {
+        assert(sizeof(T) == mSize);
+
         void* mapped = mDevice.mapMemory(*mMemory, 0, mSize, vk::MemoryMapFlagBits());
-        memcpy(mapped, &data, sizeof(T));
+        std::memcpy(mapped, &data, mSize);
         mDevice.unmapMemory(*mMemory);
     }
 
     template<typename T>
     void CopyTo(const std::vector<T>& data)
     {
+        assert(sizeof(T) * data.size() == mSize);
+
         void* mapped = mDevice.mapMemory(*mMemory, 0, mSize, vk::MemoryMapFlagBits());
-        memcpy(mapped, data.data(), sizeof(T) * data.size());
+        std::memcpy(mapped, data.data(), mSize);
         mDevice.unmapMemory(*mMemory);
     }
 

@@ -10,7 +10,7 @@
 
 namespace Vortex2D { namespace Renderer {
 
-class RenderTarget;
+struct RenderTarget;
 
 class RenderState
 {

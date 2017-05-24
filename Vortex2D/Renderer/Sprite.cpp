@@ -11,14 +11,8 @@ namespace Vortex2D { namespace Renderer {
 
 Sprite::Sprite(const Device& device, const Texture& texture)
     : mDevice(device.Handle())
-    , mMVPBuffer(device,
-                 vk::BufferUsageFlagBits::eUniformBuffer,
-                 vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-                 sizeof(glm::mat4))
-    , mVertexBuffer(device,
-                    vk::BufferUsageFlagBits::eVertexBuffer,
-                    vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-                    sizeof(glm::vec2) * 6)
+    , mMVPBuffer(device, vk::BufferUsageFlagBits::eUniformBuffer, true, sizeof(glm::mat4))
+    , mVertexBuffer(device, vk::BufferUsageFlagBits::eVertexBuffer, true, sizeof(glm::vec2) * 6)
 {
     Vertex vertices[] = {
         {{0.0f, 0.0f}, {0.0f, 0.0f}},

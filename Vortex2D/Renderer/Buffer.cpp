@@ -7,10 +7,7 @@
 
 namespace Vortex2D { namespace Renderer {
 
-Buffer::Buffer(const Device& device,
-       vk::BufferUsageFlags usageFlags,
-       vk::MemoryPropertyFlags memoryFlags,
-       vk::DeviceSize deviceSize)
+Buffer::Buffer(const Device& device, vk::BufferUsageFlags usageFlags, bool host, vk::DeviceSize deviceSize)
     : mDevice(device.Handle())
     , mSize(deviceSize)
     , mAccess({}) // TODO should this be the initial access?
@@ -23,6 +20,10 @@ Buffer::Buffer(const Device& device,
     mBuffer = device.Handle().createBufferUnique(bufferInfo);
 
     auto memoryRequirements = device.Handle().getBufferMemoryRequirements(*mBuffer);
+
+    vk::MemoryPropertyFlags memoryFlags = host ? vk::MemoryPropertyFlagBits::eHostVisible |
+                                                 vk::MemoryPropertyFlagBits::eHostCoherent
+                                               : vk::MemoryPropertyFlagBits::eDeviceLocal;
 
     uint32_t memoryPropertyIndex =
             device.FindMemoryPropertiesIndex(memoryRequirements.memoryTypeBits, memoryFlags);

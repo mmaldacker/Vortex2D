@@ -24,6 +24,8 @@ class RenderTarget;
 class Shape : public Drawable, public Transformable
 {
 public:
+    // TODO have colour has member variable and updated in the Update function
+    // do this also for Ellipse
     Shape(const Device& device, const std::vector<glm::vec2>& vertices, const glm::vec4& colour);
 
     void Initialize(const RenderState& renderState) override;
@@ -56,14 +58,33 @@ public:
 class Ellipse : public Drawable, public Transformable
 {
 public:
-    Ellipse(const Device& device, const glm::vec2& radius);
+    Ellipse(const Device& device, const glm::vec2& radius, const glm::vec4& colour);
 
     void Initialize(const RenderState& renderState) override;
     void Update(const glm::mat4& model, const glm::mat4& view) override;
     void Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState) override;
 
 private:
+    // std140 aligned structure
+    struct Size
+    {
+        alignas(4) float size;
+        alignas(8) glm::vec2 radius;
+        // need to seperate out the matrix in its column so we can align each column to 16
+        // mat2 rotation
+        alignas(16) glm::vec2 rotation0;
+        alignas(16) glm::vec2 rotation1;
+    };
+
+    vk::Device mDevice;
     glm::vec2 mRadius;
+    Buffer mMVPBuffer;
+    Buffer mColourBuffer;
+    Buffer mVertexBuffer;
+    Buffer mSizeBuffer;
+    DescriptorSet mDescriptorSet;
+    PipelineLayout mPipelineLayout;
+    GraphicsPipeline mPipeline;
 };
 
 class Clear

@@ -105,6 +105,12 @@ GraphicsPipeline::Builder& GraphicsPipeline::Builder::VertexBinding(uint32_t bin
     return *this;
 }
 
+GraphicsPipeline::Builder& GraphicsPipeline::Builder::Topology(vk::PrimitiveTopology topology)
+{
+    mInputAssembly.setTopology(topology);
+    return *this;
+}
+
 GraphicsPipeline::Builder& GraphicsPipeline::Builder::Layout(vk::PipelineLayout pipelineLayout)
 {
     mPipelineLayout = pipelineLayout;

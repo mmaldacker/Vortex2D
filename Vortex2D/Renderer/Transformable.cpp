@@ -10,7 +10,7 @@
 namespace Vortex2D { namespace Renderer {
 
 template<typename T>
-property<T>::property(Transformable& t) : t(t)
+property<T>::property(Transformable& t) : value(), t(t)
 {
 
 }

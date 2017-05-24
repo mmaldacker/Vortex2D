@@ -3,12 +3,12 @@
 
 layout(location = 0) in vec2 a_Position;
 
-layout(binding = 0) uniform Projection
+layout(binding = 0) uniform UBO
 {
-  mat4 mvp;
+    mat4 mvp;
 } u;
 
-layout(binding = 1) uniform Size
+layout(std140, binding = 1) uniform Size
 {
     float size;
     vec2 radius;
@@ -20,7 +20,6 @@ out gl_PerVertex
     vec4 gl_Position;
     float gl_PointSize;
 };
-
 
 void main()
 {

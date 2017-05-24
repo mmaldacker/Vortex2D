@@ -51,6 +51,7 @@ public:
         Builder& VertexAttribute(uint32_t location, uint32_t binding, vk::Format format, uint32_t offset);
         Builder& VertexBinding(uint32_t binding, uint32_t stride, vk::VertexInputRate inputRate = vk::VertexInputRate::eVertex);
 
+        Builder& Topology(vk::PrimitiveTopology topology);
         Builder& Layout(vk::PipelineLayout pipelineLayout);
         vk::UniquePipeline Create(vk::Device device, const RenderState& renderState);
 

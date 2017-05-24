@@ -3,229 +3,88 @@
 //  Vortex2D
 //
 
-#include "Helpers.h"
+#include <gtest/gtest.h>
 
 #include <Vortex2D/Renderer/Shapes.h>
+#include <Vortex2D/Renderer/Texture.h>
+#include <Vortex2D/Renderer/RenderTexture.h>
 
-#include <glm/gtx/rotate_vector.hpp>
+#include "ShapeDrawer.h"
+#include "Verify.h"
 
 using namespace Vortex2D::Renderer;
 
-void DrawEllipse(int width, int height, std::vector<float>& data, const glm::vec2& centre, const glm::vec2& radius, float rotation = 0.0f)
+extern Device* device;
+
+TEST(RenderingTest, WriteHostTextureInt)
 {
-    for (int i = 0; i < width; i++)
-    {
-        for (int j = 0; j < height; j++)
-        {
-            glm::vec2 pos(i, j);
-            pos = glm::rotate(pos - centre + glm::vec2(1.0f), glm::radians(rotation));
-            if (glm::dot(pos / radius, pos / radius) <= 1.0f)
-            {
-                data[i + j * width] = 1.0f;
-            }
-        }
-    }
+    Texture texture(*device, 50, 50, vk::Format::eR8Uint, true);
+
+    std::vector<uint8_t> data(50*50, 0);
+    DrawSquare<uint8_t>(50, 50, data, glm::vec2(10.0f, 15.0f), glm::vec2(5.0f, 8.0f), 12);
+
+    texture.CopyFrom(data.data(), 1);
+
+    CheckTexture(data, texture, 1);
 }
 
-void DrawCircle(int width, int height, std::vector<float>& data, const glm::vec2& centre, float radius)
+TEST(RenderingTest, WriteHostTextureFloat)
 {
-    DrawEllipse(width, height, data, centre, glm::vec2(radius));
-}
-
-TEST(RenderingTest, RenderTexture)
-{
-    RenderTexture texture(50, 50, Texture::PixelFormat::RF);
-
-    std::vector<float> data(50*50, 3.5f);
-    texture.Clear(glm::vec4(3.5f));
-
-    CheckTexture(data, texture);
-}
-
-TEST(RenderingTest, WriteTexture)
-{
-    RenderTexture texture(50, 50, Texture::PixelFormat::RF);
+    Texture texture(*device, 50, 50, vk::Format::eR32Sfloat, true);
 
     std::vector<float> data(50*50, 0.0f);
     DrawSquare(50, 50, data, glm::vec2(10.0f, 15.0f), glm::vec2(5.0f, 8.0f), 1.0f);
 
-    Writer writer(texture);
-    writer.Write(data);
+    texture.CopyFrom(data.data(), 4);
 
-    CheckTexture(data, texture);
+    CheckTexture(data, texture, 4);
 }
 
-TEST(RenderingTest, WriteVector2)
+TEST(RenderingTest, TextureCopy)
 {
-    RenderTexture texture(50, 50, Texture::PixelFormat::RGF);
+    Texture texture(*device, 50, 50, vk::Format::eR32Sint, false);
+    Texture inTexture(*device, 50, 50, vk::Format::eR32Sint, true);
+    Texture outTexture(*device, 50, 50, vk::Format::eR32Sint, true);
 
-    std::vector<glm::vec2> data(50*50, glm::vec2(3.0f, -2.0f));
-    data[20 + 50 * 2].x = 8.0f;
-    data[12 + 50 * 4].y = 12.0f;
+    std::vector<int8_t> data(50*50, 0);
+    DrawSquare<int8_t>(50, 50, data, glm::vec2(10.0f, 15.0f), glm::vec2(5.0f, 8.0f), -5);
 
-    Writer writer(texture);
-    writer.Write(data);
+    inTexture.CopyFrom(data.data(), 1);
 
-    Reader reader(texture);
-    reader.Read();
-
-    for (int i = 0; i < 50; i++)
+    device->ExecuteCommand([&](vk::CommandBuffer commandBuffer)
     {
-        for (int j = 0; j < 50; j++)
-        {
-            glm::vec2 value = data[i + j * 50];
-            EXPECT_FLOAT_EQ(value.x, reader.GetVec2(i, j).x) << "Value not equal at " << i << ", " << j;
-            EXPECT_FLOAT_EQ(value.y, reader.GetVec2(i, j).y) << "Value not equal at " << i << ", " << j;
-        }
-    }
-}
+       texture.CopyFrom(commandBuffer, inTexture);
+    });
 
-TEST(RenderingTest, WriteVector4)
-{
-    RenderTexture texture(50, 50, Texture::PixelFormat::RGBAF);
-
-    std::vector<glm::vec4> data(50*50, glm::vec4(3.0f, -2.0f, 0.5f, 4.6));
-    data[20 + 50 * 2].x = 8.0f;
-    data[12 + 50 * 4].y = 12.0f;
-    data[43 + 50 * 12].z = -2.0f;
-    data[32 + 50 * 38].w = -4.5f;
-
-    Writer writer(texture);
-    writer.Write(data);
-
-    Reader reader(texture);
-    reader.Read();
-
-    for (int i = 0; i < 50; i++)
+    device->ExecuteCommand([&](vk::CommandBuffer commandBuffer)
     {
-        for (int j = 0; j < 50; j++)
-        {
-            glm::vec4 value = data[i + j * 50];
-            EXPECT_FLOAT_EQ(value.x, reader.GetVec4(i, j).x) << "Value not equal at " << i << ", " << j;
-            EXPECT_FLOAT_EQ(value.y, reader.GetVec4(i, j).y) << "Value not equal at " << i << ", " << j;
-            EXPECT_FLOAT_EQ(value.z, reader.GetVec4(i, j).z) << "Value not equal at " << i << ", " << j;
-            EXPECT_FLOAT_EQ(value.w, reader.GetVec4(i, j).w) << "Value not equal at " << i << ", " << j;
-        }
-    }
+       outTexture.CopyFrom(commandBuffer, texture);
+       outTexture.Barrier(commandBuffer, vk::ImageLayout::eGeneral, vk::AccessFlagBits::eHostRead);
+    });
+
+    CheckTexture(data, outTexture, 1);
 }
 
-TEST(RenderingTest, Square)
+TEST(RenderingTest, ClearTexture)
 {
-    glm::vec2 size = {10.0f, 20.0f};
+    RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
 
-    Rectangle rect(size);
-    rect.Position = glm::vec2(5.0f, 7.0f);
-    rect.Scale = glm::vec2(1.5f, 1.0f);
-    rect.Colour = glm::vec4(1.0f);
+    std::vector<float> data(50*50, 3.5f);
 
-    RenderTexture texture(50, 50, Texture::PixelFormat::RF);
+    texture.Record([&](vk::CommandBuffer commandBuffer)
+    {
+        Clear(50, 50, {3.5f, 0.0f, 0.0f, 0.0f}).Draw(commandBuffer);
+    });
 
-    texture.Clear(glm::vec4(0.0));
-    texture.Render(rect);
+    texture.Submit();
+    device->Queue().waitIdle();
 
-    size *= (glm::vec2)rect.Scale;
-    std::vector<float> data(50*50, 0.0f);
-    DrawSquare(50, 50, data, rect.Position, size, 1.0f);
+    Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);
+    device->ExecuteCommand([&](vk::CommandBuffer commandBuffer)
+    {
+        outTexture.CopyFrom(commandBuffer, texture);
+        outTexture.Barrier(commandBuffer, vk::ImageLayout::eGeneral, vk::AccessFlagBits::eHostRead);
+    });
 
-    CheckTexture(data, texture);
-}
-
-TEST(RenderingTest, Circle)
-{
-    Ellipse ellipse(glm::vec2(5.0f));
-    ellipse.Position = glm::vec2(10.0f, 15.0f);
-    ellipse.Colour = glm::vec4(1.0f);
-
-    RenderTexture texture(50, 50, Texture::PixelFormat::RF);
-
-    texture.Clear(glm::vec4(0.0));
-    texture.Render(ellipse);
-
-    std::vector<float> data(50*50, 0.0f);
-    DrawCircle(50, 50, data, ellipse.Position, 5.0f);
-
-    CheckTexture(data, texture);
-}
-
-TEST(RenderingTest, Ellipse)
-{
-    glm::vec2 radius(4.0f, 7.0f);
-
-    Ellipse ellipse(radius);
-    ellipse.Position = glm::vec2(20.0f, 15.0f);
-    ellipse.Colour = glm::vec4(1.0f);
-
-    RenderTexture texture(50, 50, Texture::PixelFormat::RF);
-
-    texture.Clear(glm::vec4(0.0));
-    texture.Render(ellipse);
-
-    std::vector<float> data(50*50, 0.0f);
-    DrawEllipse(50, 50, data, ellipse.Position, radius);
-
-    CheckTexture(data, texture);
-}
-
-TEST(RenderingTest, ScaledEllipse)
-{
-    glm::vec2 pos(20.0f, 15.0f);
-    glm::vec2 radius(4.0f, 7.0f);
-
-    Ellipse ellipse(radius);
-    ellipse.Position = pos;
-    ellipse.Colour = glm::vec4(1.0f);
-    ellipse.Scale = glm::vec2(1.0f, 2.0f);
-
-    RenderTexture texture(50, 50, Texture::PixelFormat::RF);
-
-    texture.Clear(glm::vec4(0.0));
-    texture.Render(ellipse);
-
-    radius *= (glm::vec2)ellipse.Scale;
-    std::vector<float> data(50*50, 0.0f);
-    DrawEllipse(50, 50, data, ellipse.Position, radius);
-
-    CheckTexture(data, texture);
-}
-
-TEST(RenderingTest, RotatedEllipse)
-{
-    glm::vec2 radius(4.0f, 7.0f);
-
-    Ellipse ellipse(radius);
-    ellipse.Position = glm::vec2(20.0f, 15.0f);
-    ellipse.Colour = glm::vec4(1.0f);
-    ellipse.Rotation = 33.0f;
-
-    RenderTexture texture(50, 50, Texture::PixelFormat::RF);
-
-    texture.Clear(glm::vec4(0.0));
-    texture.Render(ellipse);
-
-    std::vector<float> data(50*50, 0.0f);
-    DrawEllipse(50, 50, data, ellipse.Position, radius, ellipse.Rotation);
-
-    CheckTexture(data, texture);
-}
-
-TEST(RenderingTest, RenderScaledEllipse)
-{
-    glm::vec2 pos(10.0f, 10.0f);
-    glm::vec2 radius(5.0f, 8.0f);
-
-    Ellipse ellipse(radius);
-    ellipse.Position = pos;
-    ellipse.Colour = glm::vec4(1.0f);
-
-    RenderTexture texture(50, 50, Texture::PixelFormat::RF);
-
-    texture.Clear(glm::vec4(0.0));
-    texture.Render(ellipse, glm::scale(glm::vec3(2.0f, 2.0f, 1.0f)));
-
-    radius *= glm::vec2(2.0f);
-    pos *= glm::vec2(2.0f);
-    std::vector<float> data(50*50, 0.0f);
-    DrawEllipse(50, 50, data, pos, radius);
-
-    CheckTexture(data, texture);
+    CheckTexture(data, outTexture, 4);
 }
