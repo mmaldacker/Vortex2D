@@ -145,8 +145,8 @@ void Ellipse::Update(const glm::mat4& model, const glm::mat4& view)
     size.radius = mRadius * (glm::vec2)Scale * transformScale;
 
     glm::mat4 rotation4 = glm::rotate(glm::radians((float)Rotation), glm::vec3(0.0f, 0.0f, 1.0f));
-    size.rotation0 = rotation4[0].xy;
-    size.rotation1 = rotation4[1].xy;
+    size.rotation[0] = rotation4[0];
+    size.rotation[1] = rotation4[1];
 
     size.size = std::max(size.radius.x, size.radius.y);
 

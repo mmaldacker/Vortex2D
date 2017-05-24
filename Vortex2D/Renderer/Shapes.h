@@ -70,10 +70,8 @@ private:
     {
         alignas(4) float size;
         alignas(8) glm::vec2 radius;
-        // need to seperate out the matrix in its column so we can align each column to 16
-        // mat2 rotation
-        alignas(16) glm::vec2 rotation0;
-        alignas(16) glm::vec2 rotation1;
+        // matrices are represented as arrays of columns, each of size 16
+        alignas(16) glm::mat2x4 rotation;
     };
 
     vk::Device mDevice;
