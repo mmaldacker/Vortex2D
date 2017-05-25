@@ -36,6 +36,17 @@ public:
         mDevice.unmapMemory(*mMemory);
     }
 
+    template<typename T>
+    void CopyFrom(std::vector<T>& data)
+    {
+        assert(sizeof(T) * data.size() == mSize);
+
+        void* mapped = mDevice.mapMemory(*mMemory, 0, mSize, vk::MemoryMapFlagBits());
+        std::memcpy(data.data(), mapped, mSize);
+        mDevice.unmapMemory(*mMemory);
+    }
+
+
     void CopyFrom(vk::CommandBuffer commandBuffer, Buffer& srcBuffer);
 
     void Flush();

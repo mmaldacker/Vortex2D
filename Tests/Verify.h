@@ -6,6 +6,7 @@
 #include <gtest/gtest.h>
 
 #include <Vortex2D/Renderer/Texture.h>
+#include <Vortex2D/Renderer/Buffer.h>
 #include <vector>
 
 template<typename T>
@@ -37,5 +38,19 @@ void CheckTexture(const std::vector<T>& data, Vortex2D::Renderer::Texture& textu
             T value = pixels[i + j * texture.GetWidth()];
             EXPECT_FLOAT_EQ(expectedValue, value) << "Value not equal at " << i << ", " << j;
         }
+    }
+}
+
+template<typename T>
+void CheckBuffer(const std::vector<T>& data, Vortex2D::Renderer::Buffer& buffer)
+{
+    std::vector<T> pixels(data.size(), 0.0f);
+    buffer.CopyTo(pixels);
+
+    for (int i = 0; i < data.size(); i++)
+    {
+        T expectedValue = data[i];
+        T value = pixels[i];
+        EXPECT_FLOAT_EQ(expectedValue, value) << "Value not equal at " << i;
     }
 }

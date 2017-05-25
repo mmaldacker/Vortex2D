@@ -12,6 +12,9 @@ Buffer::Buffer(const Device& device, vk::BufferUsageFlags usageFlags, bool host,
     , mSize(deviceSize)
     , mAccess({}) // TODO should this be the initial access?
 {
+    usageFlags |= vk::BufferUsageFlagBits::eTransferDst |
+                  vk::BufferUsageFlagBits::eTransferSrc;
+
     auto bufferInfo = vk::BufferCreateInfo()
             .setSize(deviceSize)
             .setUsage(usageFlags)

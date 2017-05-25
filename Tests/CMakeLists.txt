@@ -19,7 +19,8 @@ file(GLOB RENDERER_TEST_SOURCES  "Renderer/ShapeDrawer.h"
                                  "Renderer/ShapeTests.cpp"
                                  "Renderer/ComputeTests.cpp")
 
-file(GLOB SHADER_TEST_SOURCES "Kernels/Image.comp")
+file(GLOB SHADER_TEST_SOURCES "Kernels/Image.comp"
+                              "Kernels/Buffer.comp")
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)

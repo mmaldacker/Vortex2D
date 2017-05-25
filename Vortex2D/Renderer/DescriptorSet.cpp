@@ -80,8 +80,7 @@ DescriptorSetUpdater& DescriptorSetUpdater::Image(vk::Sampler sampler,
                                                   vk::ImageView imageView,
                                                   vk::ImageLayout imageLayout)
 {
-    if (!mDescriptorWrites.empty() && mNumImages != mImageInfo.size() &&
-            mDescriptorWrites.back().pImageInfo)
+    if (!mDescriptorWrites.empty() && mNumImages != mImageInfo.size() && mDescriptorWrites.back().pImageInfo)
     {
         mDescriptorWrites.back().descriptorCount++;
         mImageInfo[mNumImages++] = vk::DescriptorImageInfo(sampler, imageView, imageLayout);
