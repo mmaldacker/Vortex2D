@@ -48,9 +48,74 @@ TEST(ComputeTests, BufferCopy)
     CheckBuffer(data, outBuffer);
 }
 
+struct Particle
+{
+    alignas(8) glm::vec2 position;
+    alignas(8) glm::vec2 velocity;
+};
+
+struct UBO
+{
+    alignas(4) float deltaT;
+    alignas(4) int particleCount;
+};
+
 TEST(ComputeTests, BufferCompute)
 {
+    std::vector<Particle> particles(100, {{1.0f, 1.0f}, {10.0f, 10.0f}});
 
+    Buffer buffer(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(Particle) * 100);
+    Buffer uboBuffer(*device, vk::BufferUsageFlagBits::eUniformBuffer, true, sizeof(UBO));
+
+    UBO ubo = {0.2f, 100};
+
+    buffer.CopyTo(particles);
+    uboBuffer.CopyTo(ubo);
+
+    auto shader = ShaderBuilder().File("Buffer.comp.spv").Create(*device);
+
+    auto descriptorLayout = DescriptorSetLayoutBuilder()
+            .Binding(0, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute, 1)
+            .Binding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute, 1)
+            .Create(*device);
+
+    auto descriptorSet = DescriptorSet(device->Handle(), descriptorLayout, device->DescriptorPool());
+
+    DescriptorSetUpdater()
+            .WriteDescriptorSet(descriptorSet)
+            .WriteBuffers(0, 0, vk::DescriptorType::eStorageBuffer).Buffer(buffer)
+            .WriteBuffers(1, 0, vk::DescriptorType::eUniformBuffer).Buffer(uboBuffer)
+            .Update(device->Handle());
+
+    auto layout = PipelineLayout()
+            .DescriptorSetLayout(descriptorLayout)
+            .Create(device->Handle());
+
+    auto pipeline = ComputePipelineBuilder()
+            .Shader(shader)
+            .Layout(layout)
+            .Create(device->Handle());
+
+    device->ExecuteCommand([&](vk::CommandBuffer commandBuffer)
+    {
+        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, layout, 0, {descriptorSet}, {});
+        commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, *pipeline);
+        commandBuffer.dispatch(16, 16, 1);
+    });
+
+    std::vector<Particle> output(100);
+    buffer.CopyFrom(output);
+
+    for (int i = 0; i < 100; i++)
+    {
+        auto particle = output[i];
+        Particle expectedParticle = {{3.0f, 3.0f}, {10.0f, 10.0f}};
+
+        EXPECT_FLOAT_EQ(expectedParticle.position.x, particle.position.x) << "Value not equal at " << i;
+        EXPECT_FLOAT_EQ(expectedParticle.position.x, particle.position.y) << "Value not equal at " << i;
+        EXPECT_FLOAT_EQ(expectedParticle.velocity.x, particle.velocity.x) << "Value not equal at " << i;
+        EXPECT_FLOAT_EQ(expectedParticle.velocity.y, particle.velocity.y) << "Value not equal at " << i;
+    }
 }
 
 TEST(ComputeTests, ImageCompute)
@@ -99,8 +164,6 @@ TEST(ComputeTests, ImageCompute)
         commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, *pipeline);
         commandBuffer.dispatch(16, 16, 1);
     });
-
-    device->Queue().waitIdle();
 
     device->ExecuteCommand([&](vk::CommandBuffer commandBuffer)
     {

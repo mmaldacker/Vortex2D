@@ -11,7 +11,7 @@ struct Particle
 // Binding 0 : Position storage buffer
 layout(std140, binding = 0) buffer Pos
 {
-   Particle particles[ ];
+   Particle particles[];
 };
 
 layout (local_size_x = 256) in;
