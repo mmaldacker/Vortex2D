@@ -39,13 +39,8 @@ Shape::Shape(const Device& device, const std::vector<glm::vec2>& vertices, const
             .DescriptorSetLayout(descriptorLayout)
             .Create(device.Handle());
 
-    static vk::ShaderModule vertexShader = ShaderBuilder()
-            .File("../Vortex2D/Position.vert.spv")
-            .Create(device);
-
-    static vk::ShaderModule fragShader = ShaderBuilder()
-            .File("../Vortex2D/Position.frag.spv")
-            .Create(device);
+    static vk::ShaderModule vertexShader = MakeShader(device, "../Vortex2D/Position.vert.spv");
+    static vk::ShaderModule fragShader = MakeShader(device, "../Vortex2D/Position.frag.spv");
 
     mPipeline = GraphicsPipeline::Builder()
             .Shader(vertexShader, vk::ShaderStageFlagBits::eVertex)
@@ -114,13 +109,8 @@ Ellipse::Ellipse(const Device& device, const glm::vec2& radius, const glm::vec4&
             .DescriptorSetLayout(descriptorLayout)
             .Create(device.Handle());
 
-    static vk::ShaderModule vertexShader = ShaderBuilder()
-            .File("../Vortex2D/Ellipse.vert.spv")
-            .Create(device);
-
-    static vk::ShaderModule fragShader = ShaderBuilder()
-            .File("../Vortex2D/Ellipse.frag.spv")
-            .Create(device);
+    static vk::ShaderModule vertexShader = MakeShader(device, "../Vortex2D/Ellipse.vert.spv");
+    static vk::ShaderModule fragShader = MakeShader(device, "../Vortex2D/Ellipse.frag.spv");
 
     mPipeline = GraphicsPipeline::Builder()
             .Shader(vertexShader, vk::ShaderStageFlagBits::eVertex)

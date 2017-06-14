@@ -13,9 +13,7 @@ LevelSet::LevelSet(const Renderer::Device& device, const glm::vec2& size)
     , mLevelSetBack(device, size.x, size.y, vk::Format::eR32Sfloat, false)
 {
     // Redistance compute shader
-    static auto redistanceShader = Renderer::ShaderBuilder()
-            .File("../Vortex2D/Redistance.comp.spv")
-            .Create(device);
+    static auto redistanceShader = Renderer::MakeShader(device, "../Vortex2D/Redistance.comp.spv");
 
     static auto redistanceLayout = Renderer::DescriptorSetLayoutBuilder()
             .Binding(0, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute, 1)
@@ -50,9 +48,7 @@ LevelSet::LevelSet(const Renderer::Device& device, const glm::vec2& size)
             .Create(device.Handle());
 
     // Extrapolate compute shader
-    static auto extrapolateShader = Renderer::ShaderBuilder()
-            .File("../Vortex2D/Extrapolate.comp.spv")
-            .Create(device);
+    static auto extrapolateShader = Renderer::MakeShader(device, "../Vortex2D/Extrapolate.comp.spv");
 
     static auto extrapolateLayout = Renderer::DescriptorSetLayoutBuilder()
             .Binding(0, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute, 1)

@@ -15,16 +15,7 @@
 
 namespace Vortex2D { namespace Renderer {
 
-class ShaderBuilder
-{
-public:
-    ShaderBuilder& File(const std::string& fileName);
-
-    vk::ShaderModule Create(const Device& device);
-
-private:
-    std::vector<char> mContent;
-};
+vk::ShaderModule MakeShader(const Device& device, const std::string& filename);
 
 class PipelineLayout
 {

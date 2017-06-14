@@ -10,29 +10,28 @@
 
 namespace Vortex2D { namespace Renderer {
 
-ShaderBuilder& ShaderBuilder::File(const std::string& fileName)
+
+vk::ShaderModule MakeShader(const Device& device, const std::string& filename)
 {
-    std::ifstream is(fileName, std::ios::binary | std::ios::in | std::ios::ate);
+
+    std::ifstream is(filename, std::ios::binary | std::ios::in | std::ios::ate);
 
     if (!is.is_open())
     {
-        throw std::runtime_error("Couldn't open file:" + fileName);
+        throw std::runtime_error("Couldn't open file:" + filename);
     }
+
+    std::vector<char> content;
 
     size_t size = is.tellg();
     is.seekg(0, std::ios::beg);
-    mContent.resize(size);
-    is.read(mContent.data(), size);
+    content.resize(size);
+    is.read(content.data(), size);
     is.close();
 
-    return *this;
-}
-
-vk::ShaderModule ShaderBuilder::Create(const Device& device)
-{
     auto shaderInfo = vk::ShaderModuleCreateInfo()
-            .setCodeSize(mContent.size())
-            .setPCode((const uint32_t*)mContent.data());
+            .setCodeSize(content.size())
+            .setPCode((const uint32_t*)content.data());
 
     return device.CreateShaderModule(shaderInfo);
 }
