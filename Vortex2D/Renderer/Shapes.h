@@ -19,7 +19,7 @@
 namespace Vortex2D { namespace Renderer {
 
 typedef std::vector<glm::vec2> Path;
-class RenderTarget;
+struct RenderTarget;
 
 class Shape : public Drawable, public Transformable
 {

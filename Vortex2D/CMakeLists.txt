@@ -1,5 +1,7 @@
 file(GLOB LIB_SOURCES
     "Vortex2D.h"
+    "Engine/LevelSet.h"
+    "Engine/LevelSet.cpp"
 #    "Engine/*.cpp"
 #    "Engine/*.h"
 #    "Engine/LinearSolver/*.h"
@@ -9,7 +11,8 @@ file(GLOB LIB_SOURCES
 
 file(GLOB SHADER_SOURCES
     "Renderer/Kernels/*.vert"
-    "Renderer/Kernels/*.frag")
+    "Renderer/Kernels/*.frag"
+    "Engine/Kernels/*.comp")
 
 find_package(Vulkan)
 

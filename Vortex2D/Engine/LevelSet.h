@@ -6,9 +6,9 @@
 #ifndef LevelSet_h
 #define LevelSet_h
 
-#include <Vortex2D/Renderer/Data.h>
-#include <Vortex2D/Renderer/Operator.h>
-#include <Vortex2D/Renderer/Drawable.h>
+#include <Vortex2D/Renderer/RenderTexture.h>
+#include <Vortex2D/Renderer/Pipeline.h>
+#include <Vortex2D/Renderer/DescriptorSet.h>
 
 namespace Vortex2D { namespace Fluid {
 
@@ -17,12 +17,10 @@ namespace Vortex2D { namespace Fluid {
  * The additional functionality ensures that the buffer represents a distance set.
  * This set can be reinitialised (or improved).
  */
-class LevelSet : public Renderer::Buffer
+class LevelSet : public Renderer::RenderTexture
 {
 public:
-    LevelSet(const glm::vec2& size);
-
-    using Buffer::operator=;
+    LevelSet(const Renderer::Device& device, const glm::vec2& size);
 
     /**
      * @brief Iterative improvements to transform buffer into distance function
@@ -33,10 +31,17 @@ public:
     void Extrapolate(Renderer::Buffer& solidPhi);
 
 private:
-    Renderer::Buffer mLevelSet0;
-    Renderer::Operator mRedistance;
-    Renderer::Operator mIdentity;
-    Renderer::Operator mExtrapolate;
+    Renderer::Texture mLevelSet0;
+    Renderer::Texture mLevelSetBack;
+
+    Renderer::DescriptorSet mExtrapolateDescriptorSet;
+    Renderer::PipelineLayout mExtrapolateLayout;
+    vk::UniquePipeline mExtrapolatePipeline;
+
+    Renderer::DescriptorSet mRedistanceFrontDescriptorSet;
+    Renderer::DescriptorSet mRedistanceBackDescriptorSet;
+    Renderer::PipelineLayout mRedistanceLayout;
+    vk::UniquePipeline mRedistancePipeline;
 };
 
 }}

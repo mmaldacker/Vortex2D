@@ -3,17 +3,17 @@
 //  Vortex2D
 //
 
-#include "Helpers.h"
+#include "VariationalHelpers.h"
 
-#include <Vortex2D/Renderer/Reader.h>
 #include <Vortex2D/Renderer/Shapes.h>
-#include <Vortex2D/Renderer/Disable.h>
-
 #include <Vortex2D/Engine/LevelSet.h>
 
 using namespace Vortex2D::Renderer;
 using namespace Vortex2D::Fluid;
 
+extern Device* device;
+
+/*
 void PrintLevelSet(int size, float (*phi)(const Vec2f&))
 {
     for (int i = 0; i < size; i++)
@@ -65,26 +65,27 @@ void PrintLevelSet(Buffer& buffer)
     }
     std::cout << std::endl;
 }
+*/
 
-void CheckDifference(int size, Buffer& buffer, float (*phi)(const Vec2f&))
+void CheckDifference(Texture& texture, float (*phi)(const Vec2f&))
 {
-    Reader reader(buffer);
-    reader.Read();
+    std::vector<float> pixels(texture.GetWidth() * texture.GetHeight());
+    texture.CopyTo(pixels.data(), 4);
 
-    for (int j = 0; j < buffer.Height() / 2; j++)
+    for (uint32_t j = 0; j < texture.GetHeight() / 2; j++)
     {
-        for (int i = 0; i < buffer.Width() / 2; i++)
+        for (uint32_t i = 0; i < texture.GetWidth() / 2; i++)
         {
             Vec2f pos(i,j);
             pos += Vec2f(1.0f);
-            pos /= (float)size;
-            float value = size * phi(pos);
+            pos /= (float)texture.GetWidth();
+            float value = texture.GetWidth() * phi(pos);
 
             float readerValue = 0.0f;
-            readerValue += reader.GetFloat(i * 2, j * 2);
-            readerValue += reader.GetFloat(i * 2 + 1, j * 2);
-            readerValue += reader.GetFloat(i * 2, j * 2 + 1);
-            readerValue += reader.GetFloat(i * 2 + 1, j * 2 + 1);
+            readerValue += pixels[i * 2 + (j * 2) * texture.GetWidth()];
+            readerValue += pixels[i * 2 + 1 + (j * 2) * texture.GetWidth()];
+            readerValue += pixels[i * 2 + (j * 2 + 1) * texture.GetWidth()];
+            readerValue += pixels[i * 2 + 1 + (j * 2 + 1) * texture.GetWidth()];
             readerValue *= 0.25f * 0.5f;
 
             float diff = std::abs(value - readerValue);
@@ -96,28 +97,31 @@ void CheckDifference(int size, Buffer& buffer, float (*phi)(const Vec2f&))
 
 TEST(LevelSetTests, SimpleCircle)
 {
-    Disable e(GL_BLEND);
-
     glm::vec2 size(20.0f);
     glm::vec2 doubleSize(glm::vec2(2.0f) * size);
 
-    LevelSet levelSet(doubleSize);
+    LevelSet levelSet(*device, doubleSize);
 
-    Ellipse circle(glm::vec2{rad0} * doubleSize);
-    circle.Colour = glm::vec4(0.5f);
+    Ellipse circle(*device, glm::vec2{rad0} * doubleSize, glm::vec4(0.5f));
     circle.Position = glm::vec2(c0[0], c0[1]) * doubleSize;
 
-    levelSet.Clear(glm::vec4(-0.5f));
-    levelSet.Render(circle);
+    circle.Initialize({levelSet});
+    circle.Update(levelSet.Orth, glm::mat4());
+
+    levelSet.Record([&](vk::CommandBuffer commandBuffer)
+    {
+        Clear(20, 20, glm::vec4(-0.5f)).Draw(commandBuffer);
+        circle.Draw(commandBuffer, {levelSet});
+    });
+
     levelSet.Redistance(500);
 
-    CheckDifference(size.x, levelSet, boundary_phi);
+    CheckDifference(levelSet, boundary_phi);
 }
 
+/*
 TEST(LevelSetTests, ComplexCircles)
 {
-    Disable e(GL_BLEND);
-
     glm::vec2 size(50.0f);
     glm::vec2 doubleSize(glm::vec2(2.0f) * size);
 
@@ -148,8 +152,6 @@ TEST(LevelSetTests, ComplexCircles)
 
 TEST(LevelSetTests, Extrapolate)
 {
-    Disable d(GL_BLEND);
-
     glm::vec2 size(50);
 
     Buffer solidPhi(glm::vec2(2)*size, 1);
@@ -176,3 +178,4 @@ TEST(LevelSetTests, Extrapolate)
         EXPECT_FLOAT_EQ(-1.0f, reader.GetFloat(10, i + 5));
     }
 }
+*/

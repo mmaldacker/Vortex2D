@@ -7,144 +7,73 @@
 
 namespace Vortex2D { namespace  Fluid {
 
-namespace
+LevelSet::LevelSet(const Renderer::Device& device, const glm::vec2& size)
+    : Renderer::RenderTexture(device, size.x, size.y, vk::Format::eR32Sfloat)
+    , mLevelSet0(device, size.x, size.y, vk::Format::eR32Sfloat, false)
+    , mLevelSetBack(device, size.x, size.y, vk::Format::eR32Sfloat, false)
 {
+    // Redistance compute shader
+    static auto redistanceShader = Renderer::ShaderBuilder()
+            .File("../Vortex2D/Redistance.comp.spv")
+            .Create(device);
 
-const char* RedistanceFrag = GLSL(
-    in vec2 v_texCoord;
-    out vec4 out_color;
+    static auto redistanceLayout = Renderer::DescriptorSetLayoutBuilder()
+            .Binding(0, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute, 1)
+            .Binding(1, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute, 1)
+            .Binding(2, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute, 1)
+            .Create(device);
 
-    uniform sampler2D u_levelSet;
-    uniform sampler2D u_levelSet0;
-    uniform float delta;
+    mRedistanceFrontDescriptorSet = Renderer::DescriptorSet(device.Handle(), redistanceLayout, device.DescriptorPool());
+    mRedistanceBackDescriptorSet = Renderer::DescriptorSet(device.Handle(), redistanceLayout, device.DescriptorPool());
 
-    const float dx = 1.0;
+    Renderer::DescriptorSetUpdater()
+            .WriteDescriptorSet(mRedistanceFrontDescriptorSet)
+            .WriteImages(0, 0, vk::DescriptorType::eStorageImage).Image({}, mLevelSet0, vk::ImageLayout::eGeneral)
+            .WriteImages(1, 0, vk::DescriptorType::eStorageImage).Image({}, *this, vk::ImageLayout::eGeneral)
+            .WriteImages(2, 0, vk::DescriptorType::eStorageImage).Image({}, mLevelSetBack, vk::ImageLayout::eGeneral)
+            .Update(device.Handle());
 
-    float g(float s, float w, float wxp, float wxn, float wyp, float wyn)
-    {
-       float a = (w - wxn) / dx;
-       float b = (wxp - w) / dx;
-       float c = (w - wyn) / dx;
-       float d = (wyp - w) / dx;
+    Renderer::DescriptorSetUpdater()
+            .WriteDescriptorSet(mRedistanceBackDescriptorSet)
+            .WriteImages(0, 0, vk::DescriptorType::eStorageImage).Image({}, mLevelSet0, vk::ImageLayout::eGeneral)
+            .WriteImages(1, 0, vk::DescriptorType::eStorageImage).Image({}, mLevelSetBack, vk::ImageLayout::eGeneral)
+            .WriteImages(2, 0, vk::DescriptorType::eStorageImage).Image({}, *this, vk::ImageLayout::eGeneral)
+            .Update(device.Handle());
 
-       if (s > 0)
-       {
-           float ap = max(a,0);
-           float bn = min(b,0);
-           float cp = max(c,0);
-           float dn = min(d,0);
+    mRedistanceLayout = Renderer::PipelineLayout()
+            .DescriptorSetLayout(redistanceLayout)
+            .Create(device.Handle());
 
-           return sqrt(max(ap * ap, bn * bn) + max(cp * cp, dn * dn)) - 1.0;
-       }
-       else
-       {
-           float an = min(a,0);
-           float bp = max(b,0);
-           float cn = min(c,0);
-           float dp = max(d,0);
+    mRedistancePipeline = Renderer::ComputePipelineBuilder()
+            .Shader(redistanceShader)
+            .Layout(mRedistanceLayout)
+            .Create(device.Handle());
 
-           return sqrt(max(an * an, bp * bp) + max(cn * cn, dp * dp)) - 1.0;
-       }
+    // Extrapolate compute shader
+    static auto extrapolateShader = Renderer::ShaderBuilder()
+            .File("../Vortex2D/Extrapolate.comp.spv")
+            .Create(device);
 
-    }
+    static auto extrapolateLayout = Renderer::DescriptorSetLayoutBuilder()
+            .Binding(0, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute, 1)
+            .Binding(1, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute, 1)
+            .Create(device);
 
-    void main()
-    {
-       float w0 = texture(u_levelSet0, v_texCoord).x;
-       float wxp0 = textureOffset(u_levelSet0, v_texCoord, ivec2(1,0)).x;
-       float wxn0 = textureOffset(u_levelSet0, v_texCoord, ivec2(-1,0)).x;
-       float wyp0 = textureOffset(u_levelSet0, v_texCoord, ivec2(0,1)).x;
-       float wyn0 = textureOffset(u_levelSet0, v_texCoord, ivec2(0,-1)).x;
+    mExtrapolateDescriptorSet = Renderer::DescriptorSet(device.Handle(), extrapolateLayout, device.DescriptorPool());
 
-       float w = texture(u_levelSet, v_texCoord).x;
-       float wxp = textureOffset(u_levelSet, v_texCoord, ivec2(1,0)).x;
-       float wxn = textureOffset(u_levelSet, v_texCoord, ivec2(-1,0)).x;
-       float wyp = textureOffset(u_levelSet, v_texCoord, ivec2(0,1)).x;
-       float wyn = textureOffset(u_levelSet, v_texCoord, ivec2(0,-1)).x;
+    mExtrapolateLayout = Renderer::PipelineLayout()
+            .DescriptorSetLayout(extrapolateLayout)
+            .Create(device.Handle());
 
-       float s = sign(w0);
-
-       if (w0 * wxp0 < 0.0 || w0 * wxn0 < 0.0 || w0 * wyp0 < 0.0 || w0 * wyn0 < 0.0)
-       {
-           /*
-           float wx0 = wxp0 - wxn0;
-           float wy0 = wyp0 - wyn0;
-           float d = 2 * dx * w0 / sqrt(wx0 * wx0 + wy0 * wy0);
-           */
-
-           float wx0 = max(max(abs(0.5 * (wxp0 - wxn0)),
-                               abs(wxp0 - w0)),
-                           max(abs(w0 - wxn0),
-                               0.001));
-           float wy0 = max(max(abs(0.5 * (wyp0 - wyn0)),
-                               abs(wyp0 - w0)),
-                           max(abs(w0 - wyn0),
-                               0.001));
-           float d = dx * w0 / sqrt(wx0 * wx0 + wy0 * wy0);
-
-           out_color = vec4(w - delta * (s * abs(w) - d) / dx, 0.0, 0.0, 0.0);
-       }
-       else
-       {
-           out_color = vec4(w - delta * s * g(s, w, wxp, wxn, wyp, wyn), 0.0, 0.0, 0.0);
-       }
-
-    }
-);
-
-const char* ExtrapolateFluidFrag = GLSL(
-    uniform sampler2D u_fluid;
-    uniform sampler2D u_obstacles;
-
-    const float dx = 1.0;
-
-    in vec2 v_texCoord;
-    out vec4 out_color;
-
-    void main(void)
-    {
-        float f = texture(u_fluid, v_texCoord).x;
-        if (f < dx)
-        {
-            float wxp = textureOffset(u_obstacles, v_texCoord, ivec2(0,0)).x;
-            float wxn = textureOffset(u_obstacles, v_texCoord, ivec2(2,0)).x;
-            float wyp = textureOffset(u_obstacles, v_texCoord, ivec2(0,2)).x;
-            float wyn = textureOffset(u_obstacles, v_texCoord, ivec2(2,2)).x;
-
-            float w = 0.25 * (wxp + wxn + wyp + wyn);
-
-            if (w < 0.0)
-            {
-                out_color = vec4(-dx, 0.0, 0.0, 0.0);
-            }
-            else
-            {
-                out_color = vec4(f, 0.0, 0.0, 0.0);
-            }
-        }
-        else
-        {
-            out_color = vec4(f, 0.0, 0.0, 0.0);
-        }
-    }
-);
-
-}
-
-using Renderer::Back;
-
-LevelSet::LevelSet(const glm::vec2& size)
-    : Renderer::Buffer(size, 1, true)
-    , mLevelSet0(size, 1)
-    , mRedistance(Renderer::Shader::TexturePositionVert, RedistanceFrag)
-    , mIdentity(Renderer::Shader::TexturePositionVert, Renderer::Shader::TexturePositionFrag)
-    , mExtrapolate(Renderer::Shader::TexturePositionVert, ExtrapolateFluidFrag)
-{
-    Linear();
+    mExtrapolatePipeline = Renderer::ComputePipelineBuilder()
+            .Shader(extrapolateShader)
+            .Layout(mExtrapolateLayout)
+            .Create(device.Handle());
 }
 
 void LevelSet::Redistance(int iterations)
 {
+    /*
     mLevelSet0 = mIdentity(*this);
 
     for (int i = 0; i < iterations; i++)
@@ -152,13 +81,15 @@ void LevelSet::Redistance(int iterations)
         Swap();
         *this = mRedistance(Back(*this), mLevelSet0);
     }
+    */
 }
 
 void LevelSet::Extrapolate(Renderer::Buffer& solidPhi)
 {
+    /*
     Swap();
     *this = mExtrapolate(Back(*this), solidPhi);
+    */
 }
-
 
 }}
