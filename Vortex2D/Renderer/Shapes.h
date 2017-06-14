@@ -37,7 +37,7 @@ private:
     Buffer mMVPBuffer;
     Buffer mColourBuffer;
     Buffer mVertexBuffer;
-    DescriptorSet mDescriptorSet;
+    vk::UniqueDescriptorSet mDescriptorSet;
     PipelineLayout mPipelineLayout;
     GraphicsPipeline mPipeline;
     uint32_t mNumVertices;
@@ -80,7 +80,7 @@ private:
     Buffer mColourBuffer;
     Buffer mVertexBuffer;
     Buffer mSizeBuffer;
-    DescriptorSet mDescriptorSet;
+    vk::UniqueDescriptorSet mDescriptorSet;
     PipelineLayout mPipelineLayout;
     GraphicsPipeline mPipeline;
 };

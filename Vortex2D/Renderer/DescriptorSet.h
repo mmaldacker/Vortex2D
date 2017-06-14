@@ -26,25 +26,14 @@ private:
     std::vector<vk::DescriptorSetLayoutBinding> mDescriptorSetLayoutBindings;
 };
 
-class DescriptorSet
-{
-public:
-    DescriptorSet() = default;
-    DescriptorSet(vk::Device device, vk::DescriptorSetLayout layout, vk::DescriptorPool pool);
-
-    operator vk::DescriptorSet() const;
-
-private:
-    vk::UniqueDescriptorSet mDescriptorSet;
-};
+vk::UniqueDescriptorSet MakeDescriptorSet(const Device& device, vk::DescriptorSetLayout layout);
 
 // TODO this can be merged with the DescriptorSet class
 class DescriptorSetUpdater
 {
 public:
-    DescriptorSetUpdater(int maxBuffers = 10, int maxImages = 10);
+    DescriptorSetUpdater(vk::DescriptorSet dstSet, int maxBuffers = 10, int maxImages = 10);
 
-    DescriptorSetUpdater& WriteDescriptorSet(vk::DescriptorSet dstSet);
     DescriptorSetUpdater& WriteImages(uint32_t dstBinding, uint32_t dstArrayElement, vk::DescriptorType descriptorType);
     DescriptorSetUpdater& Image(vk::Sampler sampler, vk::ImageView imageView, vk::ImageLayout imageLayout);
     DescriptorSetUpdater& WriteBuffers(uint32_t dstBinding, uint32_t dstArrayElement, vk::DescriptorType descriptorType);

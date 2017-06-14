@@ -37,7 +37,7 @@ private:
     Buffer mMVPBuffer;
     Buffer mVertexBuffer;
     vk::UniqueSampler mSampler;
-    DescriptorSet mDescriptorSet;
+    vk::UniqueDescriptorSet mDescriptorSet;
     PipelineLayout mPipelineLayout;
     GraphicsPipeline mPipeline;
 };

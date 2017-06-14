@@ -26,10 +26,9 @@ Shape::Shape(const Device& device, const std::vector<glm::vec2>& vertices, const
             .Binding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment, 1)
             .Create(device);
 
-    mDescriptorSet = DescriptorSet(device.Handle(), descriptorLayout, device.DescriptorPool());
+    mDescriptorSet = MakeDescriptorSet(device, descriptorLayout);
 
-    DescriptorSetUpdater()
-            .WriteDescriptorSet(mDescriptorSet)
+    DescriptorSetUpdater(*mDescriptorSet)
             .WriteBuffers(0, 0, vk::DescriptorType::eUniformBuffer).Buffer(mMVPBuffer)
             .WriteBuffers(1, 0, vk::DescriptorType::eUniformBuffer).Buffer(mColourBuffer)
             .Update(device.Handle());
@@ -64,7 +63,7 @@ void Shape::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState
 {
     mPipeline.Bind(commandBuffer, renderState);
     commandBuffer.bindVertexBuffers(0, {mVertexBuffer}, {0ul});
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, mPipelineLayout, 0, {mDescriptorSet}, {});
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, mPipelineLayout, 0, {*mDescriptorSet}, {});
     commandBuffer.draw(mNumVertices, 1, 0, 0);
 }
 
@@ -95,10 +94,9 @@ Ellipse::Ellipse(const Device& device, const glm::vec2& radius, const glm::vec4&
             .Binding(2, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment, 1)
             .Create(device);
 
-    mDescriptorSet = DescriptorSet(device.Handle(), descriptorLayout, device.DescriptorPool());
+    mDescriptorSet = MakeDescriptorSet(device, descriptorLayout);
 
-    DescriptorSetUpdater()
-            .WriteDescriptorSet(mDescriptorSet)
+    DescriptorSetUpdater(*mDescriptorSet)
             .WriteBuffers(0, 0, vk::DescriptorType::eUniformBuffer).Buffer(mMVPBuffer)
             .WriteBuffers(1, 0, vk::DescriptorType::eUniformBuffer).Buffer(mSizeBuffer)
             .WriteBuffers(2, 0, vk::DescriptorType::eUniformBuffer).Buffer(mColourBuffer)
@@ -147,7 +145,7 @@ void Ellipse::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderSta
 {
     mPipeline.Bind(commandBuffer, renderState);
     commandBuffer.bindVertexBuffers(0, {mVertexBuffer}, {0ul});
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, mPipelineLayout, 0, {mDescriptorSet}, {});
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, mPipelineLayout, 0, {*mDescriptorSet}, {});
     commandBuffer.draw(1, 1, 0, 0);
 }
 

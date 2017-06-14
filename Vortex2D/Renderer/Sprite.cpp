@@ -30,17 +30,14 @@ Sprite::Sprite(const Device& device, const Texture& texture)
             .Binding(1, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
             .Create(device);
 
-    mDescriptorSet = DescriptorSet(device.Handle(), descriptorLayout, device.DescriptorPool());
+    mDescriptorSet = MakeDescriptorSet(device, descriptorLayout);
 
     // TODO add as parameter
     mSampler = SamplerBuilder().Create(device.Handle());
 
-    DescriptorSetUpdater()
-            .WriteDescriptorSet(mDescriptorSet)
-            .WriteBuffers(0, 0, vk::DescriptorType::eUniformBuffer)
-            .Buffer(mMVPBuffer)
-            .WriteImages(1, 0, vk::DescriptorType::eCombinedImageSampler)
-            .Image(*mSampler, texture, vk::ImageLayout::eShaderReadOnlyOptimal)
+    DescriptorSetUpdater(*mDescriptorSet)
+            .WriteBuffers(0, 0, vk::DescriptorType::eUniformBuffer).Buffer(mMVPBuffer)
+            .WriteImages(1, 0, vk::DescriptorType::eCombinedImageSampler).Image(*mSampler, texture, vk::ImageLayout::eShaderReadOnlyOptimal)
             .Update(device.Handle());
 
     // TODO should be static?
@@ -75,7 +72,7 @@ void Sprite::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderStat
 {
     mPipeline.Bind(commandBuffer, renderState);
     commandBuffer.bindVertexBuffers(0, {mVertexBuffer}, {0ul});
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, mPipelineLayout, 0, {mDescriptorSet}, {});
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, mPipelineLayout, 0, {*mDescriptorSet}, {});
     commandBuffer.draw(6, 1, 0, 0);
 }
 

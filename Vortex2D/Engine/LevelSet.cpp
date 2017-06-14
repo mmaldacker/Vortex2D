@@ -21,18 +21,16 @@ LevelSet::LevelSet(const Renderer::Device& device, const glm::vec2& size)
             .Binding(2, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute, 1)
             .Create(device);
 
-    mRedistanceFrontDescriptorSet = Renderer::DescriptorSet(device.Handle(), redistanceLayout, device.DescriptorPool());
-    mRedistanceBackDescriptorSet = Renderer::DescriptorSet(device.Handle(), redistanceLayout, device.DescriptorPool());
+    mRedistanceFrontDescriptorSet = Renderer::MakeDescriptorSet(device, redistanceLayout);
+    mRedistanceBackDescriptorSet = Renderer::MakeDescriptorSet(device, redistanceLayout);
 
-    Renderer::DescriptorSetUpdater()
-            .WriteDescriptorSet(mRedistanceFrontDescriptorSet)
+    Renderer::DescriptorSetUpdater(*mRedistanceFrontDescriptorSet)
             .WriteImages(0, 0, vk::DescriptorType::eStorageImage).Image({}, mLevelSet0, vk::ImageLayout::eGeneral)
             .WriteImages(1, 0, vk::DescriptorType::eStorageImage).Image({}, *this, vk::ImageLayout::eGeneral)
             .WriteImages(2, 0, vk::DescriptorType::eStorageImage).Image({}, mLevelSetBack, vk::ImageLayout::eGeneral)
             .Update(device.Handle());
 
-    Renderer::DescriptorSetUpdater()
-            .WriteDescriptorSet(mRedistanceBackDescriptorSet)
+    Renderer::DescriptorSetUpdater(*mRedistanceBackDescriptorSet)
             .WriteImages(0, 0, vk::DescriptorType::eStorageImage).Image({}, mLevelSet0, vk::ImageLayout::eGeneral)
             .WriteImages(1, 0, vk::DescriptorType::eStorageImage).Image({}, mLevelSetBack, vk::ImageLayout::eGeneral)
             .WriteImages(2, 0, vk::DescriptorType::eStorageImage).Image({}, *this, vk::ImageLayout::eGeneral)
@@ -55,7 +53,7 @@ LevelSet::LevelSet(const Renderer::Device& device, const glm::vec2& size)
             .Binding(1, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute, 1)
             .Create(device);
 
-    mExtrapolateDescriptorSet = Renderer::DescriptorSet(device.Handle(), extrapolateLayout, device.DescriptorPool());
+    mExtrapolateDescriptorSet = Renderer::MakeDescriptorSet(device, extrapolateLayout);
 
     mExtrapolateLayout = Renderer::PipelineLayout()
             .DescriptorSetLayout(extrapolateLayout)

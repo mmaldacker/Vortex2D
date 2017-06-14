@@ -79,10 +79,9 @@ TEST(ComputeTests, BufferCompute)
             .Binding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute, 1)
             .Create(*device);
 
-    auto descriptorSet = DescriptorSet(device->Handle(), descriptorLayout, device->DescriptorPool());
+    auto descriptorSet = MakeDescriptorSet(*device, descriptorLayout);
 
-    DescriptorSetUpdater()
-            .WriteDescriptorSet(descriptorSet)
+    DescriptorSetUpdater(*descriptorSet)
             .WriteBuffers(0, 0, vk::DescriptorType::eStorageBuffer).Buffer(buffer)
             .WriteBuffers(1, 0, vk::DescriptorType::eUniformBuffer).Buffer(uboBuffer)
             .Update(device->Handle());
@@ -98,7 +97,7 @@ TEST(ComputeTests, BufferCompute)
 
     device->ExecuteCommand([&](vk::CommandBuffer commandBuffer)
     {
-        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, layout, 0, {descriptorSet}, {});
+        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, layout, 0, {*descriptorSet}, {});
         commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, *pipeline);
         commandBuffer.dispatch(16, 16, 1);
     });
@@ -139,10 +138,9 @@ TEST(ComputeTests, ImageCompute)
             .Binding(1, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute, 1)
             .Create(*device);
 
-    auto descriptorSet = DescriptorSet(device->Handle(), descriptorSetLayout, device->DescriptorPool());
+    auto descriptorSet = MakeDescriptorSet(*device, descriptorSetLayout);
 
-    DescriptorSetUpdater()
-            .WriteDescriptorSet(descriptorSet)
+    DescriptorSetUpdater(*descriptorSet)
             .WriteImages(0, 0, vk::DescriptorType::eStorageImage).Image({}, inTexture, vk::ImageLayout::eGeneral)
             .WriteImages(1, 0, vk::DescriptorType::eStorageImage).Image({}, outTexture, vk::ImageLayout::eGeneral)
             .Update(device->Handle());
@@ -160,7 +158,7 @@ TEST(ComputeTests, ImageCompute)
     {
         inTexture.Barrier(commandBuffer, vk::ImageLayout::eGeneral, vk::AccessFlagBits::eShaderRead);
         outTexture.Barrier(commandBuffer, vk::ImageLayout::eGeneral, vk::AccessFlagBits::eShaderWrite);
-        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, layout, 0, {descriptorSet}, {});
+        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, layout, 0, {*descriptorSet}, {});
         commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, *pipeline);
         commandBuffer.dispatch(16, 16, 1);
     });

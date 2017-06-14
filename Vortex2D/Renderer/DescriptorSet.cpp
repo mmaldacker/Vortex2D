@@ -29,36 +29,25 @@ vk::DescriptorSetLayout DescriptorSetLayoutBuilder::Create(const Device& device)
     return device.CreateDescriptorSetLayout(descriptorSetLayoutInfo);
 }
 
-DescriptorSet::DescriptorSet(vk::Device device, vk::DescriptorSetLayout layout, vk::DescriptorPool pool)
+vk::UniqueDescriptorSet MakeDescriptorSet(const Device& device, vk::DescriptorSetLayout layout)
 {
     vk::DescriptorSetLayout layouts[] = {layout};
     auto descriptorSetInfo = vk::DescriptorSetAllocateInfo()
-            .setDescriptorPool(pool)
+            .setDescriptorPool(device.DescriptorPool())
             .setDescriptorSetCount(1)
             .setPSetLayouts(layouts);
 
-    mDescriptorSet = std::move(device.allocateDescriptorSetsUnique(descriptorSetInfo).at(0));
+    return std::move(device.Handle().allocateDescriptorSetsUnique(descriptorSetInfo).at(0));
 }
 
-DescriptorSet::operator vk::DescriptorSet() const
-{
-    return *mDescriptorSet;
-}
-
-DescriptorSetUpdater::DescriptorSetUpdater(int maxBuffers, int maxImages)
-    : mNumBuffers(0)
+DescriptorSetUpdater::DescriptorSetUpdater(vk::DescriptorSet dstSet, int maxBuffers, int maxImages)
+    : mDstSet(dstSet)
+    , mNumBuffers(0)
     , mNumImages(0)
 {
     // we must pre-size these buffers as we take pointers to their members.
     mBufferInfo.resize(maxBuffers);
     mImageInfo.resize(maxImages);
-}
-
-DescriptorSetUpdater& DescriptorSetUpdater::WriteDescriptorSet(vk::DescriptorSet dstSet)
-{
-    mDstSet = dstSet;
-
-    return *this;
 }
 
 DescriptorSetUpdater& DescriptorSetUpdater::WriteImages(uint32_t dstBinding,
