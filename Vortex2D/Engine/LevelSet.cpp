@@ -40,10 +40,7 @@ LevelSet::LevelSet(const Renderer::Device& device, const glm::vec2& size)
             .DescriptorSetLayout(redistanceLayout)
             .Create(device.Handle());
 
-    mRedistancePipeline = Renderer::ComputePipelineBuilder()
-            .Shader(redistanceShader)
-            .Layout(mRedistanceLayout)
-            .Create(device.Handle());
+    mRedistancePipeline = Renderer::MakeComputePipeline(device.Handle(), redistanceShader, mRedistanceLayout);
 
     // Extrapolate compute shader
     static auto extrapolateShader = Renderer::MakeShader(device, "../Vortex2D/Extrapolate.comp.spv");
@@ -59,10 +56,7 @@ LevelSet::LevelSet(const Renderer::Device& device, const glm::vec2& size)
             .DescriptorSetLayout(extrapolateLayout)
             .Create(device.Handle());
 
-    mExtrapolatePipeline = Renderer::ComputePipelineBuilder()
-            .Shader(extrapolateShader)
-            .Layout(mExtrapolateLayout)
-            .Create(device.Handle());
+    mExtrapolatePipeline = Renderer::MakeComputePipeline(device.Handle(), extrapolateShader, mExtrapolateLayout);
 }
 
 void LevelSet::Redistance(int iterations)

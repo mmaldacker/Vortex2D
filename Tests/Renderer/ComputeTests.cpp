@@ -90,10 +90,7 @@ TEST(ComputeTests, BufferCompute)
             .DescriptorSetLayout(descriptorLayout)
             .Create(device->Handle());
 
-    auto pipeline = ComputePipelineBuilder()
-            .Shader(shader)
-            .Layout(layout)
-            .Create(device->Handle());
+    auto pipeline = MakeComputePipeline(device->Handle(), shader, layout);
 
     device->ExecuteCommand([&](vk::CommandBuffer commandBuffer)
     {
@@ -149,10 +146,7 @@ TEST(ComputeTests, ImageCompute)
             .DescriptorSetLayout(descriptorSetLayout)
             .Create(device->Handle());
 
-    auto pipeline = ComputePipelineBuilder()
-            .Shader(shader)
-            .Layout(layout)
-            .Create(device->Handle());
+    auto pipeline = MakeComputePipeline(device->Handle(), shader, layout);
 
     device->ExecuteCommand([&](vk::CommandBuffer commandBuffer)
     {

@@ -183,27 +183,18 @@ void GraphicsPipeline::Bind(vk::CommandBuffer commandBuffer, const RenderState& 
     }
 }
 
-
-ComputePipelineBuilder& ComputePipelineBuilder::Shader(vk::ShaderModule shader)
+vk::UniquePipeline MakeComputePipeline(vk::Device device, vk::ShaderModule shader, vk::PipelineLayout layout)
 {
-    mStageInfo
+    auto stageInfo = vk::PipelineShaderStageCreateInfo()
             .setModule(shader)
             .setPName("main")
             .setStage(vk::ShaderStageFlagBits::eCompute);
 
-    mPipelineInfo.setStage(mStageInfo);
-    return *this;
-}
+    auto pipelineInfo = vk::ComputePipelineCreateInfo()
+            .setStage(stageInfo)
+            .setLayout(layout);
 
-ComputePipelineBuilder& ComputePipelineBuilder::Layout(vk::PipelineLayout layout)
-{
-    mPipelineInfo.setLayout(layout);
-    return *this;
-}
-
-vk::UniquePipeline ComputePipelineBuilder::Create(vk::Device device)
-{
-    return device.createComputePipelineUnique(nullptr, mPipelineInfo);
+    return device.createComputePipelineUnique(nullptr, pipelineInfo);
 }
 
 }}

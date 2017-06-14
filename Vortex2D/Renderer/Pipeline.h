@@ -69,18 +69,8 @@ private:
     PipelineList mPipelines;
 };
 
-class ComputePipelineBuilder
-{
-public:
-    ComputePipelineBuilder& Shader(vk::ShaderModule shader);
-    ComputePipelineBuilder& Layout(vk::PipelineLayout layout);
-    vk::UniquePipeline Create(vk::Device device);
+vk::UniquePipeline MakeComputePipeline(vk::Device device, vk::ShaderModule shader, vk::PipelineLayout layout);
 
-private:
-    vk::ComputePipelineCreateInfo mPipelineInfo;
-    vk::PipelineLayout mLayout;
-    vk::PipelineShaderStageCreateInfo mStageInfo;
-};
 
 }}
 
