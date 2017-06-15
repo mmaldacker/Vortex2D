@@ -23,7 +23,7 @@ Sprite::Sprite(const Device& device, const Texture& texture)
         {{0.0f, 1.0f}, {0.0f, texture.GetHeight()}}
     };
 
-    mVertexBuffer.CopyTo(vertices);
+    mVertexBuffer.CopyFrom(vertices);
 
     static vk::DescriptorSetLayout descriptorLayout = DescriptorSetLayoutBuilder()
             .Binding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
@@ -60,7 +60,7 @@ Sprite::Sprite(const Device& device, const Texture& texture)
 
 void Sprite::Update(const glm::mat4& model, const glm::mat4& view)
 {
-    mMVPBuffer.CopyTo(model * view * GetTransform());
+    mMVPBuffer.CopyFrom(model * view * GetTransform());
 }
 
 void Sprite::Initialize(const RenderState& renderState)

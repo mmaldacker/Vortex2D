@@ -17,7 +17,7 @@ public:
     Buffer(const Device& device, vk::BufferUsageFlags usageFlags, bool host, vk::DeviceSize deviceSize);
 
     template<typename T>
-    void CopyTo(const T& data)
+    void CopyFrom(const T& data)
     {
         assert(sizeof(T) == mSize);
 
@@ -27,7 +27,7 @@ public:
     }
 
     template<typename T>
-    void CopyTo(const std::vector<T>& data)
+    void CopyFrom(const std::vector<T>& data)
     {
         assert(sizeof(T) * data.size() == mSize);
 
@@ -37,7 +37,7 @@ public:
     }
 
     template<typename T>
-    void CopyFrom(std::vector<T>& data)
+    void CopyTo(std::vector<T>& data)
     {
         assert(sizeof(T) * data.size() == mSize);
 
@@ -47,7 +47,7 @@ public:
     }
 
 
-    void CopyFrom(vk::CommandBuffer commandBuffer, Buffer& srcBuffer);
+    void CopyTo(vk::CommandBuffer commandBuffer, Buffer& srcBuffer);
 
     void Flush();
 

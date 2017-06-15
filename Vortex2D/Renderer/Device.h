@@ -50,7 +50,11 @@ public:
     }
 
     uint32_t FindMemoryPropertiesIndex(uint32_t memoryTypeBits, vk::MemoryPropertyFlags properties) const;
+
+    // TODO have a getter like shader module
+    // use a map of layout description to the handle (equality should be easy)
     vk::DescriptorSetLayout CreateDescriptorSetLayout(vk::DescriptorSetLayoutCreateInfo layoutInfo) const;
+
     vk::ShaderModule GetShaderModule(const std::string& filename) const;
 
 private:

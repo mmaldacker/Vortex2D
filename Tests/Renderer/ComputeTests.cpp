@@ -7,6 +7,7 @@
 
 #include <Vortex2D/Renderer/Pipeline.h>
 #include <Vortex2D/Renderer/DescriptorSet.h>
+#include <Vortex2D/Renderer/Work.h>
 
 #include "Verify.h"
 
@@ -20,7 +21,7 @@ TEST(ComputeTests, WriteBuffer)
     std::vector<float> data(100, 23.4f);
     Buffer buffer(*device, vk::BufferUsageFlagBits::eUniformBuffer, true, sizeof(float) * data.size());
 
-    buffer.CopyFrom(data);
+    buffer.CopyTo(data);
 
     CheckBuffer(data, buffer);
 }
@@ -32,16 +33,16 @@ TEST(ComputeTests, BufferCopy)
     Buffer inBuffer(*device, vk::BufferUsageFlagBits::eUniformBuffer, true, sizeof(float) * data.size());
     Buffer outBuffer(*device, vk::BufferUsageFlagBits::eUniformBuffer, true, sizeof(float) * data.size());
 
-    inBuffer.CopyFrom(data);
+    inBuffer.CopyTo(data);
 
     device->ExecuteCommand([&](vk::CommandBuffer commandBuffer)
     {
-       buffer.CopyFrom(commandBuffer, inBuffer);
+       buffer.CopyTo(commandBuffer, inBuffer);
     });
 
     device->ExecuteCommand([&](vk::CommandBuffer commandBuffer)
     {
-       outBuffer.CopyFrom(commandBuffer, buffer);
+       outBuffer.CopyTo(commandBuffer, buffer);
        outBuffer.Barrier(commandBuffer, vk::AccessFlagBits::eHostRead);
     });
 
@@ -69,8 +70,8 @@ TEST(ComputeTests, BufferCompute)
 
     UBO ubo = {0.2f, 100};
 
-    buffer.CopyTo(particles);
-    uboBuffer.CopyTo(ubo);
+    buffer.CopyFrom(particles);
+    uboBuffer.CopyFrom(ubo);
 
     auto shader = device->GetShaderModule("Buffer.comp.spv");
 
@@ -100,7 +101,7 @@ TEST(ComputeTests, BufferCompute)
     });
 
     std::vector<Particle> output(100);
-    buffer.CopyFrom(output);
+    buffer.CopyTo(output);
 
     for (int i = 0; i < 100; i++)
     {
@@ -165,4 +166,33 @@ TEST(ComputeTests, ImageCompute)
 
     std::vector<float> doubleData(data.size(), 2.0f);
     CheckTexture(doubleData, stagingTexture, 4);
+}
+
+TEST(ComputeTests, Work)
+{
+    Buffer buffer(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float)*16*16);
+    Work work(*device, {16, 16}, "Work.comp.spv", {{0, vk::DescriptorType::eStorageBuffer, buffer}});
+
+    device->ExecuteCommand([&](vk::CommandBuffer commandBuffer)
+    {
+        work.Dispatch(commandBuffer);
+    });
+
+    std::vector<float> expectedOutput(16*16);
+    for (int i = 0; i < 16; i ++)
+    {
+        for (int j = 0; j < 16; j++)
+        {
+            if ((i + j) % 2 == 0)
+            {
+                expectedOutput[i + j * 16] = 1;
+            }
+            else
+            {
+                expectedOutput[i + j * 16] = 0;
+            }
+        }
+    }
+
+    CheckBuffer(expectedOutput, buffer);
 }

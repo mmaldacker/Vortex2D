@@ -18,8 +18,8 @@ Shape::Shape(const Device& device, const std::vector<glm::vec2>& vertices, const
     , mVertexBuffer(device, vk::BufferUsageFlagBits::eVertexBuffer, true, sizeof(glm::vec2) * vertices.size())
     , mNumVertices(vertices.size())
 {
-    mColourBuffer.CopyTo(colour);
-    mVertexBuffer.CopyTo(vertices);
+    mColourBuffer.CopyFrom(colour);
+    mVertexBuffer.CopyFrom(vertices);
 
     static vk::DescriptorSetLayout descriptorLayout = DescriptorSetLayoutBuilder()
             .Binding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
@@ -56,7 +56,7 @@ void Shape::Initialize(const RenderState& renderState)
 
 void Shape::Update(const glm::mat4& model, const glm::mat4& view)
 {
-    mMVPBuffer.CopyTo(model * view * GetTransform());
+    mMVPBuffer.CopyFrom(model * view * GetTransform());
 }
 
 void Shape::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState)
@@ -85,8 +85,8 @@ Ellipse::Ellipse(const Device& device, const glm::vec2& radius, const glm::vec4&
     , mVertexBuffer(device, vk::BufferUsageFlagBits::eVertexBuffer, true, sizeof(glm::vec2))
     , mSizeBuffer(device, vk::BufferUsageFlagBits::eUniformBuffer, true, sizeof(Size))
 {
-    mColourBuffer.CopyTo(colour);
-    mVertexBuffer.CopyTo(glm::vec2(0.0f, 0.0f));
+    mColourBuffer.CopyFrom(colour);
+    mVertexBuffer.CopyFrom(glm::vec2(0.0f, 0.0f));
 
     static vk::DescriptorSetLayout descriptorLayout = DescriptorSetLayoutBuilder()
             .Binding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
@@ -126,7 +126,7 @@ void Ellipse::Initialize(const RenderState& renderState)
 
 void Ellipse::Update(const glm::mat4& model, const glm::mat4& view)
 {
-    mMVPBuffer.CopyTo(model * view * GetTransform());
+    mMVPBuffer.CopyFrom(model * view * GetTransform());
 
     Size size;
     glm::vec2 transformScale(glm::length(view[0]), glm::length(view[1]));
@@ -138,7 +138,7 @@ void Ellipse::Update(const glm::mat4& model, const glm::mat4& view)
 
     size.size = std::max(size.radius.x, size.radius.y);
 
-    mSizeBuffer.CopyTo(size);
+    mSizeBuffer.CopyFrom(size);
 }
 
 void Ellipse::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState)
