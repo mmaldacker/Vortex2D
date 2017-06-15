@@ -72,7 +72,7 @@ TEST(ComputeTests, BufferCompute)
     buffer.CopyTo(particles);
     uboBuffer.CopyTo(ubo);
 
-    auto shader = MakeShader(*device, "Buffer.comp.spv");
+    auto shader = device->GetShaderModule("Buffer.comp.spv");
 
     auto descriptorLayout = DescriptorSetLayoutBuilder()
             .Binding(0, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute, 1)
@@ -128,7 +128,7 @@ TEST(ComputeTests, ImageCompute)
        inTexture.CopyFrom(commandBuffer, stagingTexture);
     });
 
-    auto shader = MakeShader(*device, "Image.comp.spv");
+    auto shader = device->GetShaderModule("Image.comp.spv");
 
     auto descriptorSetLayout = DescriptorSetLayoutBuilder()
             .Binding(0, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute, 1)

@@ -5,36 +5,9 @@
 
 #include "Pipeline.h"
 
-#include <fstream>
 #include <algorithm>
 
 namespace Vortex2D { namespace Renderer {
-
-
-vk::ShaderModule MakeShader(const Device& device, const std::string& filename)
-{
-
-    std::ifstream is(filename, std::ios::binary | std::ios::in | std::ios::ate);
-
-    if (!is.is_open())
-    {
-        throw std::runtime_error("Couldn't open file:" + filename);
-    }
-
-    std::vector<char> content;
-
-    size_t size = is.tellg();
-    is.seekg(0, std::ios::beg);
-    content.resize(size);
-    is.read(content.data(), size);
-    is.close();
-
-    auto shaderInfo = vk::ShaderModuleCreateInfo()
-            .setCodeSize(content.size())
-            .setPCode((const uint32_t*)content.data());
-
-    return device.CreateShaderModule(shaderInfo);
-}
 
 PipelineLayoutBuilder& PipelineLayoutBuilder::DescriptorSetLayout(vk::DescriptorSetLayout layout)
 {

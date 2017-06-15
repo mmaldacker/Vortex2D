@@ -8,6 +8,8 @@
 
 #include <Vortex2D/Renderer/Common.h>
 
+#include <map>
+
 namespace Vortex2D { namespace Renderer {
 
 class Device
@@ -49,7 +51,7 @@ public:
 
     uint32_t FindMemoryPropertiesIndex(uint32_t memoryTypeBits, vk::MemoryPropertyFlags properties) const;
     vk::DescriptorSetLayout CreateDescriptorSetLayout(vk::DescriptorSetLayoutCreateInfo layoutInfo) const;
-    vk::ShaderModule CreateShaderModule(vk::ShaderModuleCreateInfo moduleInfo) const;
+    vk::ShaderModule GetShaderModule(const std::string& filename) const;
 
 private:
     vk::PhysicalDevice mPhysicalDevice;
@@ -57,8 +59,8 @@ private:
     vk::Queue mQueue;
     vk::UniqueCommandPool mCommandPool;
     vk::UniqueDescriptorPool mDescriptorPool;
+    mutable std::map<std::string, vk::UniqueShaderModule> mShaders;
     mutable std::vector<vk::UniqueDescriptorSetLayout> mDescriptorSetLayouts;
-    mutable std::vector<vk::UniqueShaderModule> mShaders;
 };
 
 }}

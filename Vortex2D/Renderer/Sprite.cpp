@@ -45,8 +45,8 @@ Sprite::Sprite(const Device& device, const Texture& texture)
             .DescriptorSetLayout(descriptorLayout)
             .Create(device.Handle());
 
-    static vk::ShaderModule vertexShader = MakeShader(device, "../TexturePosition.vert.spv");
-    static vk::ShaderModule fragShader = MakeShader(device, "../TexturePosition.frag.spv");
+    vk::ShaderModule vertexShader = device.GetShaderModule("../TexturePosition.vert.spv");
+    vk::ShaderModule fragShader = device.GetShaderModule("../TexturePosition.frag.spv");
 
     mPipeline = GraphicsPipeline::Builder()
             .Shader(vertexShader, vk::ShaderStageFlagBits::eVertex)

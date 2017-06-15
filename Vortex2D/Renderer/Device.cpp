@@ -5,6 +5,7 @@
 
 #include "Device.h"
 #include <iostream>
+#include <fstream>
 
 namespace Vortex2D { namespace Renderer {
 
@@ -195,10 +196,33 @@ vk::DescriptorSetLayout Device::CreateDescriptorSetLayout(vk::DescriptorSetLayou
     return *mDescriptorSetLayouts.back();
 }
 
-vk::ShaderModule Device::CreateShaderModule(vk::ShaderModuleCreateInfo moduleInfo) const
+vk::ShaderModule Device::GetShaderModule(const std::string& filename) const
 {
-    mShaders.emplace_back(mDevice->createShaderModuleUnique(moduleInfo));
-    return *mShaders.back();
+    auto shaderIt = mShaders.find(filename);
+    if (shaderIt != mShaders.end())
+    {
+        return *shaderIt->second;
+    }
+
+    std::ifstream is(filename, std::ios::binary | std::ios::in | std::ios::ate);
+    if (!is.is_open())
+    {
+        throw std::runtime_error("Couldn't open file:" + filename);
+    }
+
+    std::vector<char> content;
+
+    size_t size = is.tellg();
+    is.seekg(0, std::ios::beg);
+    content.resize(size);
+    is.read(content.data(), size);
+    is.close();
+
+    auto shaderInfo = vk::ShaderModuleCreateInfo()
+            .setCodeSize(content.size())
+            .setPCode((const uint32_t*)content.data());
+
+    return *(mShaders[filename] = mDevice->createShaderModuleUnique(shaderInfo));
 }
 
 }}

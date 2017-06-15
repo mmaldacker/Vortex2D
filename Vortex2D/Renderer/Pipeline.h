@@ -15,8 +15,6 @@
 
 namespace Vortex2D { namespace Renderer {
 
-vk::ShaderModule MakeShader(const Device& device, const std::string& filename);
-
 class PipelineLayoutBuilder
 {
 public:
@@ -70,7 +68,6 @@ private:
 };
 
 vk::UniquePipeline MakeComputePipeline(vk::Device device, vk::ShaderModule shader, vk::PipelineLayout layout);
-
 
 }}
 
