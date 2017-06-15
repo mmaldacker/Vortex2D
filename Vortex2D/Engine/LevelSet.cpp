@@ -36,11 +36,11 @@ LevelSet::LevelSet(const Renderer::Device& device, const glm::vec2& size)
             .WriteImages(2, 0, vk::DescriptorType::eStorageImage).Image({}, *this, vk::ImageLayout::eGeneral)
             .Update(device.Handle());
 
-    mRedistanceLayout = Renderer::PipelineLayout()
+    mRedistanceLayout = Renderer::PipelineLayoutBuilder()
             .DescriptorSetLayout(redistanceLayout)
             .Create(device.Handle());
 
-    mRedistancePipeline = Renderer::MakeComputePipeline(device.Handle(), redistanceShader, mRedistanceLayout);
+    mRedistancePipeline = Renderer::MakeComputePipeline(device.Handle(), redistanceShader, *mRedistanceLayout);
 
     // Extrapolate compute shader
     static auto extrapolateShader = Renderer::MakeShader(device, "../Vortex2D/Extrapolate.comp.spv");
@@ -52,11 +52,11 @@ LevelSet::LevelSet(const Renderer::Device& device, const glm::vec2& size)
 
     mExtrapolateDescriptorSet = Renderer::MakeDescriptorSet(device, extrapolateLayout);
 
-    mExtrapolateLayout = Renderer::PipelineLayout()
+    mExtrapolateLayout = Renderer::PipelineLayoutBuilder()
             .DescriptorSetLayout(extrapolateLayout)
             .Create(device.Handle());
 
-    mExtrapolatePipeline = Renderer::MakeComputePipeline(device.Handle(), extrapolateShader, mExtrapolateLayout);
+    mExtrapolatePipeline = Renderer::MakeComputePipeline(device.Handle(), extrapolateShader, *mExtrapolateLayout);
 }
 
 void LevelSet::Redistance(int iterations)

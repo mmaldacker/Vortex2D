@@ -34,7 +34,7 @@ Shape::Shape(const Device& device, const std::vector<glm::vec2>& vertices, const
             .Update(device.Handle());
 
     // TODO should be static?
-    mPipelineLayout = PipelineLayout()
+    mPipelineLayout = PipelineLayoutBuilder()
             .DescriptorSetLayout(descriptorLayout)
             .Create(device.Handle());
 
@@ -46,7 +46,7 @@ Shape::Shape(const Device& device, const std::vector<glm::vec2>& vertices, const
             .Shader(fragShader, vk::ShaderStageFlagBits::eFragment)
             .VertexAttribute(0, 0, vk::Format::eR32G32Sfloat, 0)
             .VertexBinding(0, sizeof(glm::vec2))
-            .Layout(mPipelineLayout);
+            .Layout(*mPipelineLayout);
 }
 
 void Shape::Initialize(const RenderState& renderState)
@@ -63,7 +63,7 @@ void Shape::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState
 {
     mPipeline.Bind(commandBuffer, renderState);
     commandBuffer.bindVertexBuffers(0, {mVertexBuffer}, {0ul});
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, mPipelineLayout, 0, {*mDescriptorSet}, {});
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *mPipelineLayout, 0, {*mDescriptorSet}, {});
     commandBuffer.draw(mNumVertices, 1, 0, 0);
 }
 
@@ -103,7 +103,7 @@ Ellipse::Ellipse(const Device& device, const glm::vec2& radius, const glm::vec4&
             .Update(device.Handle());
 
     // TODO should be static?
-    mPipelineLayout = PipelineLayout()
+    mPipelineLayout = PipelineLayoutBuilder()
             .DescriptorSetLayout(descriptorLayout)
             .Create(device.Handle());
 
@@ -116,7 +116,7 @@ Ellipse::Ellipse(const Device& device, const glm::vec2& radius, const glm::vec4&
             .VertexAttribute(0, 0, vk::Format::eR32G32Sfloat, 0)
             .VertexBinding(0, sizeof(glm::vec2))
             .Topology(vk::PrimitiveTopology::ePointList)
-            .Layout(mPipelineLayout);
+            .Layout(*mPipelineLayout);
 }
 
 void Ellipse::Initialize(const RenderState& renderState)
@@ -145,7 +145,7 @@ void Ellipse::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderSta
 {
     mPipeline.Bind(commandBuffer, renderState);
     commandBuffer.bindVertexBuffers(0, {mVertexBuffer}, {0ul});
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, mPipelineLayout, 0, {*mDescriptorSet}, {});
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *mPipelineLayout, 0, {*mDescriptorSet}, {});
     commandBuffer.draw(1, 1, 0, 0);
 }
 

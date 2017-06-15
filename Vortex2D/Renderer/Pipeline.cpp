@@ -36,29 +36,31 @@ vk::ShaderModule MakeShader(const Device& device, const std::string& filename)
     return device.CreateShaderModule(shaderInfo);
 }
 
-PipelineLayout& PipelineLayout::DescriptorSetLayout(vk::DescriptorSetLayout layout)
+PipelineLayoutBuilder& PipelineLayoutBuilder::DescriptorSetLayout(vk::DescriptorSetLayout layout)
 {
     mLayouts.push_back(layout);
     return *this;
 }
 
-PipelineLayout PipelineLayout::Create(vk::Device device)
+PipelineLayoutBuilder& PipelineLayoutBuilder::PushConstantRange(vk::PushConstantRange range)
+{
+    mPushConstantRanges.push_back(range);
+    return *this;
+}
+
+vk::UniquePipelineLayout PipelineLayoutBuilder::Create(vk::Device device)
 {
     auto pipelineLayoutInfo = vk::PipelineLayoutCreateInfo()
             .setSetLayoutCount(mLayouts.size())
-            .setPSetLayouts(mLayouts.data());
-    mPipelineLayout = device.createPipelineLayoutUnique(pipelineLayoutInfo);
-    return std::move(*this);
-}
+            .setPSetLayouts(mLayouts.data())
+            .setPPushConstantRanges(mPushConstantRanges.data())
+            .setPushConstantRangeCount(mPushConstantRanges.size());
 
-PipelineLayout::operator vk::PipelineLayout() const
-{
-    return *mPipelineLayout;
+    return device.createPipelineLayoutUnique(pipelineLayoutInfo);
 }
 
 GraphicsPipeline::Builder::Builder()
 {
-    // TODO topology as parameter
     mInputAssembly = vk::PipelineInputAssemblyStateCreateInfo()
             .setTopology(vk::PrimitiveTopology::eTriangleList);
 

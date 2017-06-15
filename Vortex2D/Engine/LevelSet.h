@@ -35,12 +35,12 @@ private:
     Renderer::Texture mLevelSetBack;
 
     vk::UniqueDescriptorSet mExtrapolateDescriptorSet;
-    Renderer::PipelineLayout mExtrapolateLayout;
+    vk::UniquePipelineLayout mExtrapolateLayout;
     vk::UniquePipeline mExtrapolatePipeline;
 
     vk::UniqueDescriptorSet mRedistanceFrontDescriptorSet;
     vk::UniqueDescriptorSet mRedistanceBackDescriptorSet;
-    Renderer::PipelineLayout mRedistanceLayout;
+    vk::UniquePipelineLayout mRedistanceLayout;
     vk::UniquePipeline mRedistancePipeline;
 };
 

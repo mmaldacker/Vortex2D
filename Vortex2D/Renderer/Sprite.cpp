@@ -41,7 +41,7 @@ Sprite::Sprite(const Device& device, const Texture& texture)
             .Update(device.Handle());
 
     // TODO should be static?
-    mPipelineLayout = PipelineLayout()
+    mPipelineLayout = PipelineLayoutBuilder()
             .DescriptorSetLayout(descriptorLayout)
             .Create(device.Handle());
 
@@ -54,7 +54,7 @@ Sprite::Sprite(const Device& device, const Texture& texture)
             .VertexAttribute(0, 0, vk::Format::eR32G32Sfloat, offsetof(Vertex, pos))
             .VertexAttribute(1, 0, vk::Format::eR32G32Sfloat, offsetof(Vertex, uv))
             .VertexBinding(0, sizeof(Vertex))
-            .Layout(mPipelineLayout);
+            .Layout(*mPipelineLayout);
 
 }
 
@@ -72,7 +72,7 @@ void Sprite::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderStat
 {
     mPipeline.Bind(commandBuffer, renderState);
     commandBuffer.bindVertexBuffers(0, {mVertexBuffer}, {0ul});
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, mPipelineLayout, 0, {*mDescriptorSet}, {});
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *mPipelineLayout, 0, {*mDescriptorSet}, {});
     commandBuffer.draw(6, 1, 0, 0);
 }
 

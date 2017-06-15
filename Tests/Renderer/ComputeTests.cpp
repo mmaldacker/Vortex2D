@@ -86,15 +86,15 @@ TEST(ComputeTests, BufferCompute)
             .WriteBuffers(1, 0, vk::DescriptorType::eUniformBuffer).Buffer(uboBuffer)
             .Update(device->Handle());
 
-    auto layout = PipelineLayout()
+    auto layout = PipelineLayoutBuilder()
             .DescriptorSetLayout(descriptorLayout)
             .Create(device->Handle());
 
-    auto pipeline = MakeComputePipeline(device->Handle(), shader, layout);
+    auto pipeline = MakeComputePipeline(device->Handle(), shader, *layout);
 
     device->ExecuteCommand([&](vk::CommandBuffer commandBuffer)
     {
-        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, layout, 0, {*descriptorSet}, {});
+        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, *layout, 0, {*descriptorSet}, {});
         commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, *pipeline);
         commandBuffer.dispatch(16, 16, 1);
     });
@@ -142,17 +142,17 @@ TEST(ComputeTests, ImageCompute)
             .WriteImages(1, 0, vk::DescriptorType::eStorageImage).Image({}, outTexture, vk::ImageLayout::eGeneral)
             .Update(device->Handle());
 
-    auto layout = PipelineLayout()
+    auto layout = PipelineLayoutBuilder()
             .DescriptorSetLayout(descriptorSetLayout)
             .Create(device->Handle());
 
-    auto pipeline = MakeComputePipeline(device->Handle(), shader, layout);
+    auto pipeline = MakeComputePipeline(device->Handle(), shader, *layout);
 
     device->ExecuteCommand([&](vk::CommandBuffer commandBuffer)
     {
         inTexture.Barrier(commandBuffer, vk::ImageLayout::eGeneral, vk::AccessFlagBits::eShaderRead);
         outTexture.Barrier(commandBuffer, vk::ImageLayout::eGeneral, vk::AccessFlagBits::eShaderWrite);
-        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, layout, 0, {*descriptorSet}, {});
+        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, *layout, 0, {*descriptorSet}, {});
         commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, *pipeline);
         commandBuffer.dispatch(16, 16, 1);
     });

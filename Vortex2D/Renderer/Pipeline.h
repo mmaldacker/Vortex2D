@@ -17,16 +17,16 @@ namespace Vortex2D { namespace Renderer {
 
 vk::ShaderModule MakeShader(const Device& device, const std::string& filename);
 
-class PipelineLayout
+class PipelineLayoutBuilder
 {
 public:
-    PipelineLayout& DescriptorSetLayout(vk::DescriptorSetLayout layout);
-    PipelineLayout Create(vk::Device device);
-    operator vk::PipelineLayout() const;
+    PipelineLayoutBuilder& DescriptorSetLayout(vk::DescriptorSetLayout layout);
+    PipelineLayoutBuilder& PushConstantRange(vk::PushConstantRange range);
+    vk::UniquePipelineLayout Create(vk::Device device);
 
 private:
     std::vector<vk::DescriptorSetLayout> mLayouts;
-    vk::UniquePipelineLayout mPipelineLayout;
+    std::vector<vk::PushConstantRange> mPushConstantRanges;
 };
 
 class GraphicsPipeline
