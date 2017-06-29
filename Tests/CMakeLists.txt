@@ -1,6 +1,6 @@
 file(GLOB ENGINE_TEST_SOURCES "Engine/VariationalHelpers.h"
-                              "Engine/LevelSetTests.cpp")
-                              #"Engine/LinearSolverTests.cpp"
+                              "Engine/LevelSetTests.cpp"
+                              "Engine/LinearSolverTests.cpp")
                               #"Engine/ShaderTests.cpp"
                               #"Engine/PressureTests.cpp"
                               #"Engine/AdvectionTests.cpp"

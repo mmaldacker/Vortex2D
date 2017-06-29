@@ -6,44 +6,35 @@
 #ifndef Vortex2D_Reduce_h
 #define Vortex2D_Reduce_h
 
-#include <Vortex2D/Renderer/Operator.h>
-#include <Vortex2D/Renderer/Data.h>
+#include <Vortex2D/Renderer/Device.h>
+#include <Vortex2D/Renderer/Pipeline.h>
+#include <Vortex2D/Renderer/DescriptorSet.h>
+#include <Vortex2D/Renderer/Buffer.h>
+#include <Vortex2D/Renderer/CommandBuffer.h>
 
 namespace Vortex2D { namespace Fluid {
 
-/**
- * @brief An Operator class that reduces a Buffer with given operator
- */
-class Reduce
+class ReduceSum
 {
 public:
-    /**
-     * @brief Runs the reduce operation
-     */
-    Renderer::OperatorContext operator()(Renderer::Buffer& input);
+    ReduceSum(const Renderer::Device& device,
+              const glm::vec2& size,
+              Renderer::Buffer& input,
+              Renderer::Buffer& output);
 
-protected:
-    Reduce(glm::vec2 size, const char* fragment);
-
-private:
-    std::vector<Renderer::Buffer> s;
-    Renderer::Operator reduce;
-};
-
-class ReduceSum : public Reduce
-{
-public:
-    ReduceSum(const glm::vec2& size);
-
-    using Reduce::operator();
-    Renderer::OperatorContext operator()(Renderer::Buffer& input1, Renderer::Buffer& input2);
+    void Submit();
 
 private:
-    Renderer::Operator mMultiply;
+    Renderer::CommandBuffer mCommandBuffer;
+    int mSize;
     Renderer::Buffer mReduce;
+    vk::UniqueDescriptorSet mDescriptorSet0;
+    vk::UniqueDescriptorSet mDescriptorSet1;
+    vk::UniquePipelineLayout mPipelineLayout;
+    vk::UniquePipeline mPipeline;
 };
 
-class ReduceMax : public Reduce
+class ReduceMax
 {
 public:
     ReduceMax(const glm::vec2& size);

@@ -3,74 +3,81 @@
 //  Vortex2D
 //
 
-#include "Helpers.h"
+#include "Verify.h"
+#include <Vortex2D/Engine/LinearSolver/Reduce.h>
 
-#include <Vortex2D/Renderer/Texture.h>
-#include <Vortex2D/Renderer/Disable.h>
-#include <Vortex2D/Renderer/Reader.h>
-#include <Vortex2D/Renderer/Writer.h>
-
+/*
 #include <Vortex2D/Engine/LinearSolver/ConjugateGradient.h>
 #include <Vortex2D/Engine/LinearSolver/GaussSeidel.h>
 #include <Vortex2D/Engine/LinearSolver/Multigrid.h>
 #include <Vortex2D/Engine/LinearSolver/Transfer.h>
 #include <Vortex2D/Engine/Pressure.h>
-
+*/
 #include <algorithm>
 #include <chrono>
 #include <numeric>
 
 using namespace Vortex2D::Renderer;
 using namespace Vortex2D::Fluid;
-using ::testing::NiceMock;
+
+extern Device* device;
 
 TEST(LinearSolverTests, ReduceSum)
 {
-    Disable d(GL_BLEND);
+    glm::vec2 size(10, 15);
+    float n = size.x * size.y;
+    Buffer input(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float) * n);
+    Buffer output(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float));
 
-    ReduceSum reduce(glm::vec2(10, 15));
+    ReduceSum reduce(*device, size, input, output);
 
-    Buffer input(glm::vec2(10, 15), 1);
-    input.ClampToBorder();
+    std::vector<float> inputData(n);
 
-    std::vector<float> bData(10*15);
-    float n = 1.0f;
-    std::generate(bData.begin(), bData.end(), [&n]{ return n++; });
-    Writer(input).Write(bData);
+    {
+        float n = 1.0f;
+        std::generate(inputData.begin(), inputData.end(), [&n]{ return n++; });
+    }
 
-    Buffer output(glm::vec2(1), 1);
-    output = reduce(input);
+    input.CopyFrom(inputData);
 
-    float total = Reader(output).Read().GetFloat(0, 0);
+    reduce.Submit();
+    device->Handle().waitIdle();
 
-    ASSERT_EQ(0.5f*150.0f*151.0f, total);
+    std::vector<float> outputData(1, 0.0f);
+    output.CopyTo(outputData);
+
+    ASSERT_EQ(0.5f * n * (n + 1), outputData[0]);
 }
 
-TEST(LinearSolverTests, ReduceInnerProduct)
+TEST(LinearSolverTests, ReduceBigSum)
 {
-    Disable d(GL_BLEND);
+    glm::vec2 size(500, 500);
+    float n = size.x * size.y; // 1 million
 
-    ReduceSum reduce(glm::vec2(10, 15));
+    Buffer input(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float) * n);
+    Buffer output(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float));
 
-    Buffer input1(glm::vec2(10, 15), 1);
-    Buffer input2(glm::vec2(10, 15), 1);
+    ReduceSum reduce(*device, size, input, output);
 
-    std::vector<float> input1Data(10*15);
-    float n = 1.0f;
-    std::generate(input1Data.begin(), input1Data.end(), [&n]{ return n++; });
-    Writer(input1).Write(input1Data);
+    std::vector<float> inputData(n, 1.0f);
 
-    std::vector<float> input2Data(10*15, 2.0f);
-    Writer(input2).Write(input2Data);
+    {
+        float n = 1.0f;
+        std::generate(inputData.begin(), inputData.end(), [&n]{ return n++; });
+    }
 
-    Buffer output(glm::vec2(1), 1);
-    output = reduce(input1, input2);
+    input.CopyFrom(inputData);
 
-    float total = Reader(output).Read().GetFloat(0, 0);
+    reduce.Submit();
+    device->Handle().waitIdle();
 
-    ASSERT_EQ(150.0f*151.0f, total);
+    std::vector<float> outputData(1, 0.0f);
+    output.CopyTo(outputData);
+
+    ASSERT_EQ(0.5f * n * (n + 1), outputData[0]);
 }
 
+/*
 TEST(LinearSolverTests, ReduceMax)
 {
     Disable d(GL_BLEND);
@@ -592,3 +599,4 @@ TEST(LinearSolverTests, PerformanceMeasurements)
     std::cout << "Total Solved time: " << elapsed.count() << std::endl;
     std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
 }
+*/

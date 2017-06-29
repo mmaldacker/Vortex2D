@@ -5,115 +5,104 @@
 
 #include "Reduce.h"
 
+#include <Vortex2D/Renderer/DescriptorSet.h>
+
 namespace Vortex2D { namespace Fluid {
 
 namespace
 {
-
-const char * SumFrag = GLSL(
-   out vec4 colour_out;
-
-   uniform sampler2D u_texture;
-
-   void main()
-   {
-       ivec2 pos = 3 * ivec2(gl_FragCoord.xy - 0.5);
-
-       float x = 0.0;
-       for (int j = 0; j < 3; j++)
-       {
-           for (int i = 0; i < 3; i++)
-           {
-               x += texelFetch(u_texture, pos + ivec2(i,j), 0).x;
-           }
-       }
-
-       colour_out = vec4(x, 0.0, 0.0, 0.0);
-   }
-);
-
-const char * MaxFrag = GLSL(
-  out vec4 colour_out;
-
-  uniform sampler2D u_texture;
-
-  void main()
-  {
-      ivec2 pos = 3 * ivec2(gl_FragCoord.xy - 0.5);
-
-      float maximum = 0.0;
-      for (int j = 0; j < 3; j++)
-      {
-          for (int i = 0; i < 3; i++)
-          {
-             float value = abs(texelFetch(u_texture, pos + ivec2(i,j), 0).x);
-             maximum = max(value, maximum);
-          }
-      }
-
-      colour_out = vec4(maximum, 0.0, 0.0, 0.0);
-  }
-);
-
-const char * MultiplyFrag = GLSL(
-   in vec2 v_texCoord;
-   out vec4 colour_out;
-
-   uniform sampler2D u_x;
-   uniform sampler2D u_y;
-
-   void main()
-   {
-       float x = texture(u_x, v_texCoord).x;
-       float y = texture(u_y, v_texCoord).x;
-
-       colour_out = vec4(x * y, 0.0, 0.0, 0.0);
-   }
-);
-
-}
-
-Reduce::Reduce(glm::vec2 size, const char* fragment)
-    : reduce(Renderer::Shader::PositionVert, fragment)
-{
-    while(size.x > 1.0f && size.y > 1.0f)
+    int GetWorkGroupSize(int n, int localSize)
     {
-        size = glm::ceil(size/glm::vec2(3.0f));
-        s.emplace_back(size, 1);
-        s.back().ClampToBorder();
+        return (n + (localSize * 2 - 1)) / (localSize * 2);
+    }
+
+    int GetBufferSize(const glm::vec2& size)
+    {
+        int localSize = Renderer::GetLocalSize(size.x * size.y, 1).x;
+        return GetWorkGroupSize(size.x * size.y, localSize);
     }
 }
 
-Renderer::OperatorContext Reduce::operator()(Renderer::Buffer& buffer)
+ReduceSum::ReduceSum(const Renderer::Device& device,
+                     const glm::vec2& size,
+                     Renderer::Buffer& input,
+                     Renderer::Buffer& output)
+    : mCommandBuffer(device)
+    , mSize(size.x * size.y)
+    , mReduce(device,
+              vk::BufferUsageFlagBits::eStorageBuffer,
+              true,
+              sizeof(float) * GetBufferSize(size))
 {
-    s[0] = reduce(buffer);
+    static vk::DescriptorSetLayout descriptorLayout = Renderer::DescriptorSetLayoutBuilder()
+            .Binding(0, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute, 1)
+            .Binding(1, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute, 1)
+            .Create(device);
 
-    for (std::size_t i = 1; i < s.size(); i++)
+    mDescriptorSet0 = Renderer::MakeDescriptorSet(device, descriptorLayout);
+    mDescriptorSet1 = Renderer::MakeDescriptorSet(device, descriptorLayout);
+
+    Renderer::DescriptorSetUpdater(*mDescriptorSet0)
+            .WriteBuffers(0, 0, vk::DescriptorType::eStorageBuffer).Buffer(input)
+            .WriteBuffers(1, 0, vk::DescriptorType::eStorageBuffer).Buffer(mReduce)
+            .Update(device.Handle());
+
+    Renderer::DescriptorSetUpdater(*mDescriptorSet1)
+            .WriteBuffers(0, 0, vk::DescriptorType::eStorageBuffer).Buffer(mReduce)
+            .WriteBuffers(1, 0, vk::DescriptorType::eStorageBuffer).Buffer(output)
+            .Update(device.Handle());
+
+    mPipelineLayout = Renderer::PipelineLayoutBuilder()
+            .DescriptorSetLayout(descriptorLayout)
+            .PushConstantRange({vk::ShaderStageFlagBits::eCompute, 0, 4})
+            .Create(device.Handle());
+
+    vk::ShaderModule sumShader = device.GetShaderModule("../Vortex2D/Sum.comp.spv");
+
+    int n = size.x * size.y;
+    auto localSize = Renderer::GetLocalSize(n, 1);
+    int workGroupSize0 = GetWorkGroupSize(n, localSize.x);
+    int workGroupSize1 = GetWorkGroupSize(workGroupSize0, localSize.x);
+
+    // TODO fix and do recursive loop
+    assert(workGroupSize1 == 1);
+
+    std::array<int, 2> constants = {{localSize.x, localSize.x}};
+
+    std::vector<vk::SpecializationMapEntry> mapEntries = {{1, 0, 4}, {2, 0, 4}};
+
+    auto specialisationConst = vk::SpecializationInfo()
+            .setMapEntryCount(mapEntries.size())
+            .setPMapEntries(mapEntries.data())
+            .setDataSize(8)
+            .setPData(constants.data());
+
+    mPipeline = Renderer::MakeComputePipeline(device.Handle(), sumShader, *mPipelineLayout, specialisationConst);
+
+    mCommandBuffer.Wait();
+    mCommandBuffer.Record([&](vk::CommandBuffer commandBuffer)
     {
-        s[i] = reduce(s[i-1]);
-    }
+        input.Barrier(commandBuffer, vk::AccessFlagBits::eShaderRead);
+        mReduce.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite);
 
-    return reduce(s.back());
+        commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, *mPipeline);
+
+        commandBuffer.pushConstants(*mPipelineLayout, vk::ShaderStageFlagBits::eCompute, 0, 4, &mSize);
+        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, *mPipelineLayout, 0, {*mDescriptorSet0}, {});
+        commandBuffer.dispatch(workGroupSize0, 1, 1);
+
+        mReduce.Barrier(commandBuffer, vk::AccessFlagBits::eShaderRead);
+        output.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite);
+
+        commandBuffer.pushConstants(*mPipelineLayout, vk::ShaderStageFlagBits::eCompute, 0, 4, &workGroupSize0);
+        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, *mPipelineLayout, 0, {*mDescriptorSet1}, {});
+        commandBuffer.dispatch(workGroupSize1, 1, 1);
+    });
 }
 
-ReduceSum::ReduceSum(const glm::vec2& size)
-    : Reduce(size, SumFrag)
-    , mReduce(size, 1)
-    , mMultiply(Renderer::Shader::TexturePositionVert, MultiplyFrag)
+void ReduceSum::Submit()
 {
-    mReduce.ClampToBorder();
-}
-
-Renderer::OperatorContext ReduceSum::operator()(Renderer::Buffer& input1, Renderer::Buffer& input2)
-{
-    mReduce = mMultiply(input1, input2);
-    return Reduce::operator()(mReduce);
-}
-
-ReduceMax::ReduceMax(const glm::vec2& size)
-    : Reduce(size, MaxFrag)
-{
-
+    mCommandBuffer.Submit();
 }
 
 }}
