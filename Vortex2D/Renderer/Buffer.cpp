@@ -58,7 +58,7 @@ vk::DeviceSize Buffer::Size() const
     return mSize;
 }
 
-void Buffer::CopyTo(vk::CommandBuffer commandBuffer, Buffer& srcBuffer)
+void Buffer::CopyFrom(vk::CommandBuffer commandBuffer, Buffer& srcBuffer)
 {
     if (mSize != srcBuffer.mSize)
     {

@@ -26,6 +26,7 @@ void main()
 {
     // Current SSBO index
     uint index = gl_GlobalInvocationID.x;
+
     // Don't try to write beyond particle count
     if (index >= ubo.particleCount)
         return;

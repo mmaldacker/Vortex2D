@@ -15,6 +15,14 @@
 
 namespace Vortex2D { namespace Renderer {
 
+struct Size
+{
+    uint32_t x, y;
+};
+
+Size GetLocalSize(uint32_t width, uint32_t height);
+Size GetWorkSize(uint32_t width, uint32_t height);
+
 class PipelineLayoutBuilder
 {
 public:
@@ -67,7 +75,16 @@ private:
     PipelineList mPipelines;
 };
 
-vk::UniquePipeline MakeComputePipeline(vk::Device device, vk::ShaderModule shader, vk::PipelineLayout layout);
+vk::UniquePipeline MakeComputePipeline(vk::Device device,
+                                       vk::ShaderModule shader,
+                                       vk::PipelineLayout layout,
+                                       vk::SpecializationInfo specializationInfo);
+
+vk::UniquePipeline MakeComputePipeline(vk::Device device,
+                                       vk::ShaderModule shader,
+                                       vk::PipelineLayout layout,
+                                       uint32_t localX = 16,
+                                       uint32_t localY = 16);
 
 }}
 

@@ -40,7 +40,8 @@ Work::Work(const Device& device,
             .PushConstantRange({vk::ShaderStageFlagBits::eCompute, 0, 8})
             .Create(device.Handle());
 
-    mPipeline = MakeComputePipeline(device.Handle(), shaderModule, *mLayout);
+    auto localSize = GetLocalSize(mWidth, mHeight);
+    mPipeline = MakeComputePipeline(device.Handle(), shaderModule, *mLayout, localSize.x, localSize.y);
 }
 
 void Work::Dispatch(vk::CommandBuffer commandBuffer)
@@ -49,8 +50,9 @@ void Work::Dispatch(vk::CommandBuffer commandBuffer)
     commandBuffer.pushConstants(*mLayout, vk::ShaderStageFlagBits::eCompute, 4, 4, &mHeight);
     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, *mLayout, 0, {*mDescriptor}, {});
     commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, *mPipeline);
-    // TODO correct work group size given local size and work size
-    commandBuffer.dispatch(1, 1, 1);
+
+    auto workSize = GetWorkSize(mWidth, mHeight);
+    commandBuffer.dispatch(workSize.x, workSize.y, 1);
 }
 
 }}

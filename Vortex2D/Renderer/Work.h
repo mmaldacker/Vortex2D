@@ -30,8 +30,8 @@ public:
     void Dispatch(vk::CommandBuffer commandBuffer);
 
 private:
-    int mWidth;
-    int mHeight;
+    uint32_t mWidth;
+    uint32_t mHeight;
     vk::UniqueDescriptorSet mDescriptor;
     vk::UniquePipelineLayout mLayout;
     vk::UniquePipeline mPipeline;

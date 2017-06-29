@@ -9,6 +9,36 @@
 
 namespace Vortex2D { namespace Renderer {
 
+namespace
+{
+    const uint32_t DefaultLocalX = 16;
+    const uint32_t DefaultLocalY = 16;
+}
+
+Size GetLocalSize(uint32_t width, uint32_t height)
+{
+    if (height == 1)
+    {
+        return {DefaultLocalX * DefaultLocalY, 1};
+    }
+    else
+    {
+        return {DefaultLocalX, DefaultLocalY};
+    }
+}
+
+Size GetWorkSize(uint32_t width, uint32_t height)
+{
+    if (height == 1)
+    {
+        return {1 + width / (DefaultLocalX * DefaultLocalY), 1};
+    }
+    else
+    {
+        return {1 + width / DefaultLocalX, 1 + height / DefaultLocalY};
+    }
+}
+
 PipelineLayoutBuilder& PipelineLayoutBuilder::DescriptorSetLayout(vk::DescriptorSetLayout layout)
 {
     mLayouts.push_back(layout);
@@ -158,12 +188,35 @@ void GraphicsPipeline::Bind(vk::CommandBuffer commandBuffer, const RenderState& 
     }
 }
 
-vk::UniquePipeline MakeComputePipeline(vk::Device device, vk::ShaderModule shader, vk::PipelineLayout layout)
+vk::UniquePipeline MakeComputePipeline(vk::Device device,
+                                       vk::ShaderModule shader,
+                                       vk::PipelineLayout layout,
+                                       uint32_t localX,
+                                       uint32_t localY)
+{
+    Size localSize{localX, localY};
+    std::vector<vk::SpecializationMapEntry> mapEntries = {{1, offsetof(Size, x), sizeof(Size::x)},
+                                                          {2, offsetof(Size, y), sizeof(Size::y)}};
+
+    auto specialisationConst = vk::SpecializationInfo()
+            .setMapEntryCount(mapEntries.size())
+            .setPMapEntries(mapEntries.data())
+            .setDataSize(sizeof(Size))
+            .setPData(&localSize);
+
+    return MakeComputePipeline(device, shader, layout, specialisationConst);
+}
+
+vk::UniquePipeline MakeComputePipeline(vk::Device device,
+                                       vk::ShaderModule shader,
+                                       vk::PipelineLayout layout,
+                                       vk::SpecializationInfo specializationInfo)
 {
     auto stageInfo = vk::PipelineShaderStageCreateInfo()
             .setModule(shader)
             .setPName("main")
-            .setStage(vk::ShaderStageFlagBits::eCompute);
+            .setStage(vk::ShaderStageFlagBits::eCompute)
+            .setPSpecializationInfo(&specializationInfo);
 
     auto pipelineInfo = vk::ComputePipelineCreateInfo()
             .setStage(stageInfo)

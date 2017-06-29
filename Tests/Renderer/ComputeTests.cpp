@@ -21,7 +21,7 @@ TEST(ComputeTests, WriteBuffer)
     std::vector<float> data(100, 23.4f);
     Buffer buffer(*device, vk::BufferUsageFlagBits::eUniformBuffer, true, sizeof(float) * data.size());
 
-    buffer.CopyTo(data);
+    buffer.CopyFrom(data);
 
     CheckBuffer(data, buffer);
 }
@@ -33,17 +33,16 @@ TEST(ComputeTests, BufferCopy)
     Buffer inBuffer(*device, vk::BufferUsageFlagBits::eUniformBuffer, true, sizeof(float) * data.size());
     Buffer outBuffer(*device, vk::BufferUsageFlagBits::eUniformBuffer, true, sizeof(float) * data.size());
 
-    inBuffer.CopyTo(data);
+    inBuffer.CopyFrom(data);
 
     device->ExecuteCommand([&](vk::CommandBuffer commandBuffer)
     {
-       buffer.CopyTo(commandBuffer, inBuffer);
+       buffer.CopyFrom(commandBuffer, inBuffer);
     });
 
     device->ExecuteCommand([&](vk::CommandBuffer commandBuffer)
     {
-       outBuffer.CopyTo(commandBuffer, buffer);
-       outBuffer.Barrier(commandBuffer, vk::AccessFlagBits::eHostRead);
+       outBuffer.CopyFrom(commandBuffer, buffer);
     });
 
     CheckBuffer(data, outBuffer);
@@ -95,9 +94,9 @@ TEST(ComputeTests, BufferCompute)
 
     device->ExecuteCommand([&](vk::CommandBuffer commandBuffer)
     {
-        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, *layout, 0, {*descriptorSet}, {});
         commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, *pipeline);
-        commandBuffer.dispatch(16, 16, 1);
+        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, *layout, 0, {*descriptorSet}, {});
+        commandBuffer.dispatch(1, 1, 1);
     });
 
     std::vector<Particle> output(100);
