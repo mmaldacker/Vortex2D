@@ -14,15 +14,17 @@
 
 namespace Vortex2D { namespace Fluid {
 
-class ReduceSum
+class Reduce
 {
 public:
-    ReduceSum(const Renderer::Device& device,
-              const glm::vec2& size,
-              Renderer::Buffer& input,
-              Renderer::Buffer& output);
-
     void Submit();
+
+protected:
+    Reduce(const Renderer::Device& device,
+           const std::string& fileName,
+           const glm::vec2& size,
+           Renderer::Buffer& input,
+           Renderer::Buffer& output);
 
 private:
     Renderer::CommandBuffer mCommandBuffer;
@@ -34,10 +36,22 @@ private:
     vk::UniquePipeline mPipeline;
 };
 
-class ReduceMax
+class ReduceSum : public Reduce
 {
 public:
-    ReduceMax(const glm::vec2& size);
+    ReduceSum(const Renderer::Device& device,
+              const glm::vec2& size,
+              Renderer::Buffer& input,
+              Renderer::Buffer& output);
+};
+
+class ReduceMax : public Reduce
+{
+public:
+    ReduceMax(const Renderer::Device& device,
+              const glm::vec2& size,
+              Renderer::Buffer& input,
+              Renderer::Buffer& output);
 };
 
 }}

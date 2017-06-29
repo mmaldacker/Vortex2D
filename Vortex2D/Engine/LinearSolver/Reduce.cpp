@@ -23,10 +23,11 @@ namespace
     }
 }
 
-ReduceSum::ReduceSum(const Renderer::Device& device,
-                     const glm::vec2& size,
-                     Renderer::Buffer& input,
-                     Renderer::Buffer& output)
+Reduce::Reduce(const Renderer::Device& device,
+               const std::string& fileName,
+               const glm::vec2& size,
+               Renderer::Buffer& input,
+               Renderer::Buffer& output)
     : mCommandBuffer(device)
     , mSize(size.x * size.y)
     , mReduce(device,
@@ -57,7 +58,7 @@ ReduceSum::ReduceSum(const Renderer::Device& device,
             .PushConstantRange({vk::ShaderStageFlagBits::eCompute, 0, 4})
             .Create(device.Handle());
 
-    vk::ShaderModule sumShader = device.GetShaderModule("../Vortex2D/Sum.comp.spv");
+    vk::ShaderModule sumShader = device.GetShaderModule(fileName);
 
     int n = size.x * size.y;
     auto localSize = Renderer::GetLocalSize(n, 1);
@@ -100,9 +101,27 @@ ReduceSum::ReduceSum(const Renderer::Device& device,
     });
 }
 
-void ReduceSum::Submit()
+void Reduce::Submit()
 {
     mCommandBuffer.Submit();
+}
+
+ReduceSum::ReduceSum(const Renderer::Device& device,
+                     const glm::vec2& size,
+                     Renderer::Buffer& input,
+                     Renderer::Buffer& output)
+    : Reduce(device, "../Vortex2D/Sum.comp.spv", size, input, output)
+{
+
+}
+
+ReduceMax::ReduceMax(const Renderer::Device& device,
+                     const glm::vec2& size,
+                     Renderer::Buffer& input,
+                     Renderer::Buffer& output)
+    : Reduce(device, "../Vortex2D/Max.comp.spv", size, input, output)
+{
+
 }
 
 }}

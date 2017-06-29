@@ -77,28 +77,35 @@ TEST(LinearSolverTests, ReduceBigSum)
     ASSERT_EQ(0.5f * n * (n + 1), outputData[0]);
 }
 
-/*
 TEST(LinearSolverTests, ReduceMax)
 {
-    Disable d(GL_BLEND);
+    glm::vec2 size(10, 15);
+    float n = size.x * size.y;
 
-    ReduceMax reduce(glm::vec2(10, 15));
+    Buffer input(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float) * n);
+    Buffer output(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float));
 
-    Buffer input(glm::vec2(10, 15), 1);
+    ReduceMax reduce(*device, size, input, output);
 
-    std::vector<float> bData(10*15);
-    float n = -1.0f;
-    std::generate(bData.begin(), bData.end(), [&n]{ return n--; });
-    Writer(input).Write(bData);
+    std::vector<float> inputData(10*15);
 
-    Buffer output(glm::vec2(1), 1);
-    output = reduce(input);
+    {
+        float n = -1.0f;
+        std::generate(inputData.begin(), inputData.end(), [&n]{ return n--; });
+    }
 
-    float total = Reader(output).Read().GetFloat(0, 0);
+    input.CopyFrom(inputData);
 
-    ASSERT_EQ(150.0f, total);
+    reduce.Submit();
+    device->Handle().waitIdle();
+
+    std::vector<float> outputData(1, 0.0f);
+    output.CopyTo(outputData);
+
+    ASSERT_EQ(150.0f, outputData[0]);
 }
 
+/*
 TEST(LinearSolverTests, Transfer_Prolongate)
 {
     Disable d(GL_BLEND);

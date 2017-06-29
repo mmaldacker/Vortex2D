@@ -1,0 +1,72 @@
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+// set local size to something like local_size_x = 256
+// set num work group to  (n + (local_size_x * 2 - 1)) / (local_size_x * 2)
+// then use above formula recurisvely with num work group as n untill num work group is 1
+
+layout(std430, binding = 0) buffer Input
+{
+   float inputs[];
+};
+
+layout(std430, binding = 1) buffer Output
+{
+   float outputs[];
+};
+
+layout (local_size_x_id = 1) in;
+layout (constant_id = 2) const int blockSize = 256; // same as gl_WorkGroupSize.x or local_size_x
+
+layout(push_constant) uniform PushConsts
+{
+  int n;
+} consts;
+
+shared float sdata[blockSize];
+
+void main()
+{
+  uint tid = gl_LocalInvocationID.x;
+  uint i = gl_WorkGroupID.x * blockSize * 2 + gl_LocalInvocationID.x;
+  uint gridSize = blockSize * 2 * gl_NumWorkGroups.x;
+
+  // perform first level of reduction,
+  // reading from global memory, writing to shared memory
+  // TODO can replace while with if (if gridSize is big enough to cover the whole array)
+  float maximum = 0.0;
+  while (i < consts.n)
+  {
+    maximum = max(abs(inputs[i]), maximum);
+    if (i + blockSize < consts.n)
+    {
+      maximum = max(abs(inputs[i + blockSize]), maximum);
+    }
+
+    i += gridSize;
+  }
+
+  sdata[tid] = maximum;
+
+  memoryBarrierShared();
+  barrier();
+
+  // do reduction in shared mem
+  for (int s = blockSize / 2; s > 0; s >>= 1)
+  {
+    if (tid < s)
+    {
+      maximum = max(sdata[tid + s], maximum);
+      sdata[tid] = maximum;
+    }
+
+    memoryBarrierShared();
+    barrier();
+  }
+
+  // write result for this block to global mem
+  if (tid == 0)
+  {
+    outputs[gl_WorkGroupID.x] = maximum;
+  }
+}
