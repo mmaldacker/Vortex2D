@@ -95,7 +95,7 @@ void CheckDifference(Texture& texture, float (*phi)(const Vec2f&))
     }
 }
 
-TEST(LevelSetTests, SimpleCircle)
+TEST(DISABLED_LevelSetTests, SimpleCircle)
 {
     glm::vec2 size(20.0f);
     glm::vec2 doubleSize(glm::vec2(2.0f) * size);

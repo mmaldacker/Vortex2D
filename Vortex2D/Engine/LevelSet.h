@@ -7,8 +7,8 @@
 #define LevelSet_h
 
 #include <Vortex2D/Renderer/RenderTexture.h>
-#include <Vortex2D/Renderer/Pipeline.h>
-#include <Vortex2D/Renderer/DescriptorSet.h>
+#include <Vortex2D/Renderer/Work.h>
+#include <Vortex2D/Renderer/CommandBuffer.h>
 
 namespace Vortex2D { namespace Fluid {
 
@@ -34,14 +34,15 @@ private:
     Renderer::Texture mLevelSet0;
     Renderer::Texture mLevelSetBack;
 
-    vk::UniqueDescriptorSet mExtrapolateDescriptorSet;
-    vk::UniquePipelineLayout mExtrapolateLayout;
-    vk::UniquePipeline mExtrapolatePipeline;
+    Renderer::Work mExtrapolate;
+    Renderer::Work::Bound mExtrapolateBound;
+    Renderer::Work mRedistance;
+    Renderer::Work::Bound mRedistanceFront;
+    Renderer::Work::Bound mRedistanceBack;
 
-    vk::UniqueDescriptorSet mRedistanceFrontDescriptorSet;
-    vk::UniqueDescriptorSet mRedistanceBackDescriptorSet;
-    vk::UniquePipelineLayout mRedistanceLayout;
-    vk::UniquePipeline mRedistancePipeline;
+    Renderer::CommandBuffer mExtrapolateCmd;
+    Renderer::CommandBuffer mReinitialiseCmd;
+    Renderer::CommandBuffer mRedistanceCmd;
 };
 
 }}

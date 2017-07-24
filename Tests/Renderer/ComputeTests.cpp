@@ -170,11 +170,13 @@ TEST(ComputeTests, ImageCompute)
 TEST(ComputeTests, Work)
 {
     Buffer buffer(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float)*16*16);
-    Work work(*device, {16, 16}, "Work.comp.spv", {{0, vk::DescriptorType::eStorageBuffer, buffer}});
+    Work work(*device, {16, 16}, "Work.comp.spv", {vk::DescriptorType::eStorageBuffer});
+
+    auto boundWork = work.Bind({buffer});
 
     device->ExecuteCommand([&](vk::CommandBuffer commandBuffer)
     {
-        work.Dispatch(commandBuffer);
+        boundWork.Record(commandBuffer);
     });
 
     std::vector<float> expectedOutput(16*16);
