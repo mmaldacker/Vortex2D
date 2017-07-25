@@ -6,6 +6,11 @@ layout (local_size_x = 16, local_size_y = 16) in;
 
 layout (binding = 0, r32f) uniform readonly image2D obstacles;
 layout (binding = 1, r32f) uniform image2D fluid;
+layout(push_constant) uniform PushConsts
+{
+  int width;
+  int height;
+} consts;
 
 const float dx = 1.0;
 

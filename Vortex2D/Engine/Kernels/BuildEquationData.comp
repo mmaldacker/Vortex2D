@@ -1,0 +1,129 @@
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+const float dx = 1.0;
+
+layout (local_size_x = 16, local_size_y = 16) in;
+
+struct Data
+{
+  vec4 weights;
+  float diagonal;
+  float div;
+};
+
+layout(std430, binding = 0) buffer EquationData
+{
+  Data data[];
+};
+
+layout(binding = 1, r32f) uniform image2D FluidLevelSet;
+layout(binding = 2, r32f) uniform image2D SolidLevelSet;
+layout(binding = 3, rg32f) uniform image2D Velocity;
+layout(binding = 4, rg32f) uniform image2D SolidLevelSetVelocity;
+
+float fraction_inside(float a, float b)
+{
+    if(a < 0.0 && b < 0.0)
+        return 1.0;
+    if(a < 0.0 && b >= 0.0)
+        return a / (a - b);
+    if(a >= 0.0 && b < 0.0)
+        return b / (b - a);
+    return 0.0;
+}
+
+vec2 get_weight(ivec2 pos, image2D solid_phi)
+{
+    vec2 weight;
+    weight.x = 1.0 - fraction_inside(imageLoad(solid_phi, pos + ivec2(0,2)).x,
+                                     imageLoad(solid_phi, pos + ivec2(0,0)).x);
+    weight.y = 1.0 - fraction_inside(imageLoad(solid_phi, pos + ivec2(2,0)).x,
+                                     imageLoad(solid_phi, pos + ivec2(0,0)).x);
+
+    return clamp(weight, vec2(0.0), vec2(1.0));
+}
+
+vec2 get_weightxp(ivec2 pos, image2D solid_phi)
+{
+    vec2 weight;
+    weight.x = 1.0 - fraction_inside(imageLoad(solid_phi, pos + ivec2(2,2)).x,
+                                     imageLoad(solid_phi, pos + ivec2(2,0)).x);
+    weight.y = 1.0 - fraction_inside(imageLoad(solid_phi, pos + ivec2(4,0)).x,
+                                     imageLoad(solid_phi, pos + ivec2(2,0)).x);
+
+    return clamp(weight, vec2(0.0), vec2(1.0));
+}
+
+vec2 get_weightyp(ivec2 pos, image2D solid_phi)
+{
+    vec2 weight;
+    weight.x = 1.0 - fraction_inside(imageLoad(solid_phi, pos + ivec2(0,4)).x,
+                                     imageLoad(solid_phi, pos + ivec2(0,2)).x);
+    weight.y = 1.0 - fraction_inside(imageLoad(solid_phi, pos + ivec2(2,2)).x,
+                                     imageLoad(solid_phi, pos + ivec2(0,2)).x);
+
+    return clamp(weight, vec2(0.0), vec2(1.0));
+}
+
+void main()
+{
+  ivec2 pos = ivec2(gl_GlobalInvocationID);
+
+  float liquid_phi = imageLoad(FluidLevelSet, pos).x;
+  if (liquid_phi < 0.0)
+  {
+    vec2  uv  = imageLoad(Velocity, pos).xy;
+    float uxp = imageLoad(Velocity, pos + ivec2(1,0)).x;
+    float vyp = imageLoad(Velocity, pos + ivec2(0,1)).y;
+
+    vec2 wuv = get_weight(pos, SolidLevelSet);
+    float wxp = get_weightxp(pos, SolidLevelSet).x;
+    float wyp = get_weightyp(pos, SolidLevelSet).y;
+
+    float div = (wuv.x * uv.x - wxp * uxp + wuv.y * uv.y - wyp * vyp) / dx;
+    vec2 solid_uv = imageLoad(SolidLevelSetVelocity, pos).xy;
+    float solid_uxp = imageLoad(SolidLevelSetVelocity, pos + ivec2(1,0)).x;
+    float solid_vyp = imageLoad(SolidLevelSetVelocity, pos + ivec2(0,1)).y;
+
+    div += ((1.0 - wxp) * solid_uxp - (1.0 - wuv.x) * solid_uv.x + (1.0 - wyp) * solid_vyp - (1.0 - wuv.y) * solid_uv.y) / dx;
+
+    // set div
+    // ...
+
+    float pxp = imageLoad(FluidLevelSet, pos + ivec2(1,0)).x;
+    float pxn = imageLoad(FluidLevelSet, pos + ivec2(-1,0)).x;
+    float pyp = imageLoad(FluidLevelSet, pos + ivec2(0,1)).x;
+    float pyn = imageLoad(FluidLevelSet, pos + ivec2(0,-1)).x;
+
+    vec4 weights;
+    weights.x = pxp >= 0.0 ? 0.0 : -get_weightxp(pos, SolidLevelSet).x;
+    weights.y = pxn >= 0.0 ? 0.0 : -wuv.x;
+    weights.z = pyp >= 0.0 ? 0.0 : -get_weightyp(pos, SolidLevelSet).y;
+    weights.w = pyn >= 0.0 ? 0.0 : -wuv.y;
+
+    // set weights
+    //out_color = delta * weights / (dx*dx);
+
+    vec4 diagonalWeights;
+    diagonalWeights.x = weights.x;
+    diagonalWeights.y = wuv.x;
+    diagonalWeights.z = weights.z;
+    diagonalWeights.w = wuv.y;
+
+    vec4 theta;
+    theta.x = pxp < 0.0 ? 1.0 : fraction_inside(liquid_phi, pxp);
+    theta.y = pxn < 0.0 ? 1.0 : fraction_inside(liquid_phi, pxn);
+    theta.z = pyp < 0.0 ? 1.0 : fraction_inside(liquid_phi, pyp);
+    theta.w = pyn < 0.0 ? 1.0 : fraction_inside(liquid_phi, pyn);
+
+    diagonalWeights /= max(theta, 0.01);
+
+    // set diagonal
+    //out_color = vec4(delta * dot(diagonalWeights, vec4(1.0)) / (dx*dx), 0.0, 0.0, 0.0)
+  }
+  else
+  {
+    // set 0
+  }
+}

@@ -3,19 +3,12 @@
 //  Vortex2D
 //
 
-#include "Helpers.h"
-
-#include <Vortex2D/Renderer/Disable.h>
-
 #include <Vortex2D/Engine/Pressure.h>
 
 using namespace Vortex2D::Renderer;
 using namespace Vortex2D::Fluid;
-using ::testing::NiceMock;
-using ::testing::InvokeWithoutArgs;
-using ::testing::_;
-using ::testing::Invoke;
 
+/*
 void PrintWeights(const glm::vec2& size, FluidSim& sim)
 {
     for (std::size_t j = 1; j < size.y - 1; j++)
@@ -278,3 +271,4 @@ TEST(PressureTest, Project_Complex)
 
     CheckVelocity(velocity, sim);
 }
+*/
