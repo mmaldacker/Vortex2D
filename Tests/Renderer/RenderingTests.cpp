@@ -24,9 +24,9 @@ TEST(RenderingTest, WriteHostTextureInt)
     std::vector<uint8_t> data(50*50, 0);
     DrawSquare<uint8_t>(50, 50, data, glm::vec2(10.0f, 15.0f), glm::vec2(5.0f, 8.0f), 12);
 
-    texture.CopyFrom(data.data(), 1);
+    texture.CopyFrom(data);
 
-    CheckTexture(data, texture, 1);
+    CheckTexture(data, texture);
 }
 
 TEST(RenderingTest, WriteHostTextureFloat)
@@ -36,9 +36,9 @@ TEST(RenderingTest, WriteHostTextureFloat)
     std::vector<float> data(50*50, 0.0f);
     DrawSquare(50, 50, data, glm::vec2(10.0f, 15.0f), glm::vec2(5.0f, 8.0f), 1.0f);
 
-    texture.CopyFrom(data.data(), 4);
+    texture.CopyFrom(data);
 
-    CheckTexture(data, texture, 4);
+    CheckTexture(data, texture);
 }
 
 TEST(RenderingTest, TextureCopy)
@@ -50,7 +50,7 @@ TEST(RenderingTest, TextureCopy)
     std::vector<int8_t> data(50*50, 0);
     DrawSquare<int8_t>(50, 50, data, glm::vec2(10.0f, 15.0f), glm::vec2(5.0f, 8.0f), -5);
 
-    inTexture.CopyFrom(data.data(), 1);
+    inTexture.CopyFrom(data);
 
     CommandBuffer cmd(*device);
     cmd.Record([&](vk::CommandBuffer commandBuffer)
@@ -68,7 +68,7 @@ TEST(RenderingTest, TextureCopy)
     cmd.Submit();
     cmd.Wait();
 
-    CheckTexture(data, outTexture, 1);
+    CheckTexture(data, outTexture);
 }
 
 TEST(RenderingTest, ClearTexture)
@@ -96,5 +96,5 @@ TEST(RenderingTest, ClearTexture)
     cmd.Submit();
     cmd.Wait();
 
-    CheckTexture(data, outTexture, 4);
+    CheckTexture(data, outTexture);
 }

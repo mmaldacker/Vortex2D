@@ -25,10 +25,10 @@ void PrintData(int width, int height, const std::vector<T>& data)
 }
 
 template<typename T>
-void CheckTexture(const std::vector<T>& data, Vortex2D::Renderer::Texture& texture, vk::DeviceSize bytesPerPixel)
+void CheckTexture(const std::vector<T>& data, Vortex2D::Renderer::Texture& texture)
 {
     std::vector<T> pixels(data.size());
-    texture.CopyTo(pixels.data(), bytesPerPixel);
+    texture.CopyTo(pixels);
 
     for (int i = 0; i < texture.GetWidth(); i++)
     {

@@ -40,8 +40,6 @@ struct LinearSolver
         float OutError;
     };
 
-    LinearSolver();
-
     virtual ~LinearSolver() {}
 
     /**

@@ -7,14 +7,29 @@
 
 namespace Vortex2D { namespace Fluid {
 
-Pressure::Pressure(float dt,
+Pressure::Pressure(const Renderer::Device& device,
+                   float dt,
                    const glm::vec2& size,
                    LinearSolver& solver,
-                   LinearSolver::Data& data,
-                   Renderer::Buffer& velocity,
-                   Renderer::Buffer& solidPhi,
-                   Renderer::Buffer& liquidPhi,
-                   Renderer::Buffer& solidVelocity)
+                   Renderer::Texture& velocity,
+                   Renderer::Texture& solidPhi,
+                   Renderer::Texture& liquidPhi,
+                   Renderer::Texture& solidVelocity)
+    : mData(device,
+            vk::BufferUsageFlagBits::eStorageBuffer,
+            false,
+            size.x*size.y*sizeof(LinearSolver::Data))
+    , mBuildEquationData(device, size, "../Vortex2D/BuildEquationData.comp.spv",
+                        {vk::DescriptorType::eStorageBuffer,
+                         vk::DescriptorType::eStorageImage,
+                         vk::DescriptorType::eStorageImage,
+                         vk::DescriptorType::eStorageImage,
+                         vk::DescriptorType::eStorageImage})
+    , mBuildEquationDataBound(mBuildEquationData.Bind({mData,
+                                                       liquidPhi,
+                                                       solidPhi,
+                                                       velocity,
+                                                       solidVelocity}))
 {
 }
 

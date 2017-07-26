@@ -54,7 +54,7 @@ TEST(RenderingTest, Square)
     cmd.Submit();
     cmd.Wait();
 
-    CheckTexture(data, outTexture, 4);
+    CheckTexture(data, outTexture);
 }
 
 TEST(RenderingTest, MultipleSquares)
@@ -109,7 +109,7 @@ TEST(RenderingTest, MultipleSquares)
     cmd.Submit();
     cmd.Wait();
 
-    CheckTexture(data, outTexture, 4);
+    CheckTexture(data, outTexture);
 }
 
 TEST(RenderingTest, Circle)
@@ -144,7 +144,7 @@ TEST(RenderingTest, Circle)
     cmd.Submit();
     cmd.Wait();
 
-    CheckTexture(data, outTexture, 4);
+    CheckTexture(data, outTexture);
 }
 
 TEST(RenderingTest, Ellipse)
@@ -181,7 +181,7 @@ TEST(RenderingTest, Ellipse)
     cmd.Submit();
     cmd.Wait();
 
-    CheckTexture(data, outTexture, 4);
+    CheckTexture(data, outTexture);
 }
 
 TEST(RenderingTest, ScaledEllipse)
@@ -221,7 +221,7 @@ TEST(RenderingTest, ScaledEllipse)
     cmd.Submit();
     cmd.Wait();
 
-    CheckTexture(data, outTexture, 4);
+    CheckTexture(data, outTexture);
 }
 
 TEST(RenderingTest, RotatedEllipse)
@@ -259,7 +259,7 @@ TEST(RenderingTest, RotatedEllipse)
     cmd.Submit();
     cmd.Wait();
 
-    CheckTexture(data, outTexture, 4);
+    CheckTexture(data, outTexture);
 }
 
 TEST(RenderingTest, RenderScaledEllipse)
@@ -299,5 +299,5 @@ TEST(RenderingTest, RenderScaledEllipse)
     cmd.Submit();
     cmd.Wait();
 
-    CheckTexture(data, outTexture, 4);
+    CheckTexture(data, outTexture);
 }

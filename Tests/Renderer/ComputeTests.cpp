@@ -131,7 +131,7 @@ TEST(ComputeTests, ImageCompute)
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, false);
 
     std::vector<float> data(50*50,1.0f);
-    stagingTexture.CopyFrom(data.data(), 4);
+    stagingTexture.CopyFrom(data);
 
     CommandBuffer cmd(*device);
     cmd.Record([&](vk::CommandBuffer commandBuffer)
@@ -179,7 +179,7 @@ TEST(ComputeTests, ImageCompute)
     cmd.Wait();
 
     std::vector<float> doubleData(data.size(), 2.0f);
-    CheckTexture(doubleData, stagingTexture, 4);
+    CheckTexture(doubleData, stagingTexture);
 }
 
 TEST(ComputeTests, Work)

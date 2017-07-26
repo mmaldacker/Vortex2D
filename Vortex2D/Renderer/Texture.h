@@ -28,9 +28,17 @@ class Texture
 public:
     Texture(const Device& device, uint32_t width, uint32_t height, vk::Format format, bool host);
 
-    // TODO have bytesPerPixel deduced from format
-    void CopyFrom(const void* data, vk::DeviceSize bytesPerPixel);
-    void CopyTo(void* data, vk::DeviceSize bytesPerPixel);
+    template<typename T>
+    void CopyFrom(const std::vector<T>& data)
+    {
+        CopyFrom(data.data(), sizeof(T));
+    }
+
+    template<typename T>
+    void CopyTo(std::vector<T>& data)
+    {
+        CopyTo(data.data(), sizeof(T));
+    }
 
     void CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcImage);
 
@@ -46,6 +54,9 @@ public:
     uint32_t GetHeight() const;
 
 private:
+    void CopyFrom(const void* data, vk::DeviceSize bytesPerPixel);
+    void CopyTo(void* data, vk::DeviceSize bytesPerPixel);
+
     bool mHost;
     vk::Device mDevice;
     uint32_t mWidth;

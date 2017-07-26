@@ -120,6 +120,8 @@ Texture::Texture(const Device& device, uint32_t width, uint32_t height, vk::Form
 
 void Texture::CopyFrom(const void* data, vk::DeviceSize bytesPerPixel)
 {
+    // TODO verify bytesPerPixel is correct
+
     if (mHost)
     {
         auto subresource = vk::ImageSubresource()

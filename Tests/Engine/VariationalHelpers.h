@@ -9,6 +9,8 @@
 #include <gmock/gmock.h>
 #include <glm/vec2.hpp>
 
+#include <Vortex2D/Renderer/Texture.h>
+
 #include "variationalplusgfm/fluidsim.h"
 
 //Boundary definition - several circles in a circular domain.
@@ -52,48 +54,49 @@ static void AddParticles(const glm::vec2& size, FluidSim& sim, float (*phi)(cons
     }
 }
 
-/*
-static void SetVelocity(Buffer& buffer, FluidSim& sim)
+static void SetVelocity(const glm::vec2& size, Vortex2D::Renderer::Texture& buffer, FluidSim& sim)
 {
-    std::vector<glm::vec2> velocityData(buffer.Width() * buffer.Height(), glm::vec2(0.0f));
-    for (int i = 0; i < buffer.Width(); i++)
+    std::vector<glm::vec2> velocityData(size.x * size.y, glm::vec2(0.0f));
+    for (int i = 0; i < size.x; i++)
     {
-        for (int j = 0; j < buffer.Height(); j++)
+        for (int j = 0; j < size.y; j++)
         {
-            std::size_t index = i + buffer.Width() * j;
+            std::size_t index = i + size.x * j;
             velocityData[index].x = sim.u(i, j);
             velocityData[index].y = sim.v(i, j);
         }
     }
 
-    Writer(buffer).Write(velocityData);
+    buffer.CopyFrom(velocityData);
 }
 
-static void SetSolidPhi(Buffer& buffer, FluidSim& sim)
+static void SetSolidPhi(const glm::vec2& size, Vortex2D::Renderer::Texture& buffer, FluidSim& sim)
 {
-    std::vector<float> phi(buffer.Width() * buffer.Height(), 0.0f);
-    for (int i = 0; i < buffer.Width(); i++)
+    std::vector<float> phi(size.x * size.y, 0.0f);
+    for (int i = 0; i < size.x; i++)
     {
-        for (int j = 0; j < buffer.Height(); j++)
+        for (int j = 0; j < size.y; j++)
         {
-            phi[i + j * buffer.Width()] = sim.nodal_solid_phi(i/2, j/2);
+            int width = size.x;
+            phi[i + j * width] = sim.nodal_solid_phi(i/2, j/2);
         }
     }
 
-    Writer(buffer).Write(phi);
+    buffer.CopyFrom(phi);
 }
 
-static void SetLiquidPhi(Buffer& buffer, FluidSim& sim)
+static void SetLiquidPhi(const glm::vec2& size, Vortex2D::Renderer::Texture& buffer, FluidSim& sim)
 {
-    std::vector<float> phi(buffer.Width() * buffer.Height(), 0.0f);
-    for (int i = 0; i < buffer.Width(); i++)
+    std::vector<float> phi(size.x * size.y, 0.0f);
+    for (int i = 0; i < size.x; i++)
     {
-        for (int j = 0; j < buffer.Height(); j++)
+        for (int j = 0; j < size.y; j++)
         {
-            phi[i + j * buffer.Width()] = sim.liquid_phi(i, j);
+            int width = size.x;
+            phi[i + j * width] = sim.liquid_phi(i, j);
         }
     }
 
-    Writer(buffer).Write(phi);
+    buffer.CopyFrom(phi);
 }
-*/
+

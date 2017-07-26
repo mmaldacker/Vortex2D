@@ -32,7 +32,7 @@ void PrintLevelSet(int size, float (*phi)(const Vec2f&))
 void PrintLevelSet(Texture& texture)
 {
     std::vector<float> pixels(texture.GetWidth() * texture.GetHeight());
-    texture.CopyTo(pixels.data(), 4);
+    texture.CopyTo(pixels);
 
     for (int j = 0; j < texture.GetHeight() / 2; j++)
     {
@@ -55,7 +55,7 @@ void PrintLevelSet(Texture& texture)
 void CheckDifference(Texture& texture, float (*phi)(const Vec2f&))
 {
     std::vector<float> pixels(texture.GetWidth() * texture.GetHeight());
-    texture.CopyTo(pixels.data(), 4);
+    texture.CopyTo(pixels);
 
     for (uint32_t j = 0; j < texture.GetHeight() / 2; j++)
     {
