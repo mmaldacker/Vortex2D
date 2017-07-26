@@ -40,6 +40,12 @@ RenderpassBuilder& RenderpassBuilder::AttachementStoreOp(vk::AttachmentStoreOp v
     return *this;
 }
 
+RenderpassBuilder& RenderpassBuilder::AttachementInitialLayout(vk::ImageLayout layout)
+{
+    mAttachementDescriptions.back().setInitialLayout(layout);
+    return *this;
+}
+
 RenderpassBuilder& RenderpassBuilder::AttachementFinalLayout(vk::ImageLayout layout)
 {
     mAttachementDescriptions.back().setFinalLayout(layout);

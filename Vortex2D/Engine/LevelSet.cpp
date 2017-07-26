@@ -9,49 +9,69 @@
 
 namespace Vortex2D { namespace  Fluid {
 
-LevelSet::LevelSet(const Renderer::Device& device, const glm::vec2& size)
+LevelSet::LevelSet(const Renderer::Device& device, const glm::vec2& size, int reinitializeIterations)
     : Renderer::RenderTexture(device, size.x, size.y, vk::Format::eR32Sfloat)
     , mLevelSet0(device, size.x, size.y, vk::Format::eR32Sfloat, false)
     , mLevelSetBack(device, size.x, size.y, vk::Format::eR32Sfloat, false)
+    , mSampler(Renderer::SamplerBuilder()
+               .AddressMode(vk::SamplerAddressMode::eClampToEdge)
+               .Create(device.Handle()))
     , mExtrapolate(device, size, "../Vortex2D/Extrapolate.comp.spv",
                    {vk::DescriptorType::eStorageImage,
                     vk::DescriptorType::eStorageImage})
     , mRedistance(device, size, "../Vortex2D/Redistance.comp.spv",
-                  {vk::DescriptorType::eStorageImage,
-                   vk::DescriptorType::eStorageImage,
-                   vk::DescriptorType::eStorageImage})
-    , mRedistanceFront(mRedistance.Bind({mLevelSet0, *this, mLevelSetBack}))
-    , mRedistanceBack(mRedistance.Bind({mLevelSet0, mLevelSetBack, *this}))
+                  {vk::DescriptorType::eCombinedImageSampler,
+                   vk::DescriptorType::eCombinedImageSampler,
+                   vk::DescriptorType::eStorageImage},
+                  4)
+    , mRedistanceFront(mRedistance.Bind({{*mSampler, mLevelSet0}, {*mSampler, *this}, mLevelSetBack}))
+    , mRedistanceBack(mRedistance.Bind({{*mSampler, mLevelSet0}, {*mSampler, mLevelSetBack}, *this}))
     , mExtrapolateCmd(device)
     , mReinitialiseCmd(device)
     , mRedistanceCmd(device)
 {
     const float delta = 0.1f;
 
-    mRedistanceCmd.Wait();
     mRedistanceCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
-        // TODO add barriers
         mLevelSet0.CopyFrom(commandBuffer, *this);
+
         mRedistanceFront.PushConstant(commandBuffer, 8, delta);
         mRedistanceFront.Record(commandBuffer);
+        mLevelSetBack.Barrier(commandBuffer,
+                              vk::ImageLayout::eGeneral,
+                              vk::AccessFlagBits::eShaderWrite,
+                              vk::ImageLayout::eGeneral,
+                              vk::AccessFlagBits::eShaderRead);
         mRedistanceBack.PushConstant(commandBuffer, 8, delta);
         mRedistanceBack.Record(commandBuffer);
+        Barrier(commandBuffer,
+                vk::ImageLayout::eGeneral,
+                vk::AccessFlagBits::eShaderWrite,
+                vk::ImageLayout::eGeneral,
+                vk::AccessFlagBits::eShaderRead);
     });
 
-    mReinitialiseCmd.Wait();
     mReinitialiseCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
-        // TODO add barriers
         mLevelSet0.CopyFrom(commandBuffer, *this);
 
-        mRedistanceFront.PushConstant(commandBuffer, 8, delta);
-        mRedistanceBack.PushConstant(commandBuffer, 8, delta);
-
-        for (int i = 0; i < 50; i++)
+        for (int i = 0; i < reinitializeIterations; i++)
         {
+            mRedistanceFront.PushConstant(commandBuffer, 8, delta);
             mRedistanceFront.Record(commandBuffer);
+            mLevelSetBack.Barrier(commandBuffer,
+                                  vk::ImageLayout::eGeneral,
+                                  vk::AccessFlagBits::eShaderWrite,
+                                  vk::ImageLayout::eGeneral,
+                                  vk::AccessFlagBits::eShaderRead);
+            mRedistanceBack.PushConstant(commandBuffer, 8, delta);
             mRedistanceBack.Record(commandBuffer);
+            Barrier(commandBuffer,
+                    vk::ImageLayout::eGeneral,
+                    vk::AccessFlagBits::eShaderWrite,
+                    vk::ImageLayout::eGeneral,
+                    vk::AccessFlagBits::eShaderRead);
         }
     });
 }
@@ -59,12 +79,26 @@ LevelSet::LevelSet(const Renderer::Device& device, const glm::vec2& size)
 void LevelSet::Extrapolate(Renderer::Buffer& solidPhi)
 {
     mExtrapolateBound = mExtrapolate.Bind({solidPhi, *this});
-    mExtrapolateCmd.Wait();
     mExtrapolateCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
         // TODO add barrier
         mExtrapolateBound.Record(commandBuffer);
     });
+}
+
+void LevelSet::Reinitialise()
+{
+    mReinitialiseCmd.Submit();
+}
+
+void LevelSet::Redistance()
+{
+    mRedistanceCmd.Submit();
+}
+
+void LevelSet::Extrapolate()
+{
+    mExtrapolateCmd.Submit();
 }
 
 }}

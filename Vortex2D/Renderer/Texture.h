@@ -15,6 +15,8 @@ class SamplerBuilder
 public:
     SamplerBuilder();
 
+    SamplerBuilder& AddressMode(vk::SamplerAddressMode mode);
+
     vk::UniqueSampler Create(vk::Device device);
 
 private:
@@ -32,7 +34,12 @@ public:
 
     void CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcImage);
 
-    void Barrier(vk::CommandBuffer commandBuffer, vk::ImageLayout newLayout, vk::AccessFlags newAccess);
+    void Barrier(vk::CommandBuffer commandBuffer,
+                 vk::ImageLayout oldLayout,
+                 vk::AccessFlags oldAccess,
+                 vk::ImageLayout newLayout,
+                 vk::AccessFlags newAccess);
+
     operator vk::ImageView() const;
 
     uint32_t GetWidth() const;
@@ -46,8 +53,6 @@ private:
     vk::UniqueImage mImage;
     vk::UniqueDeviceMemory mMemory;
     vk::UniqueImageView mImageView;
-    vk::ImageLayout mLayout;
-    vk::AccessFlags mAccess;
 };
 
 }}

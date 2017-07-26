@@ -40,6 +40,7 @@ public:
     RenderpassBuilder& Attachement(vk::Format format);
     RenderpassBuilder& AttachementLoadOp(vk::AttachmentLoadOp value);
     RenderpassBuilder& AttachementStoreOp(vk::AttachmentStoreOp value);
+    RenderpassBuilder& AttachementInitialLayout(vk::ImageLayout layout);
     RenderpassBuilder& AttachementFinalLayout(vk::ImageLayout layout);
 
     RenderpassBuilder& Subpass(vk::PipelineBindPoint bindPoint);

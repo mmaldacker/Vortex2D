@@ -22,6 +22,8 @@ CommandBuffer::~CommandBuffer()
 
 void CommandBuffer::Record(CommandBuffer::CommandFn commandFn)
 {
+    Wait();
+
     auto bufferBegin = vk::CommandBufferBeginInfo()
             .setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse);
 
@@ -44,6 +46,5 @@ void CommandBuffer::Submit()
 
     mDevice.Queue().submit({submitInfo}, *mFence);
 }
-
 
 }}

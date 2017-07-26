@@ -20,19 +20,19 @@ namespace Vortex2D { namespace Fluid {
 class LevelSet : public Renderer::RenderTexture
 {
 public:
-    LevelSet(const Renderer::Device& device, const glm::vec2& size);
-
-    /**
-     * @brief Iterative improvements to transform buffer into distance function
-     * @param iterations number of iterations (1-3 after advection, 100 for reinitialisation)
-     */
-    void Redistance(int iterations);
+    LevelSet(const Renderer::Device& device, const glm::vec2& size, int reinitializeIterations = 50);
 
     void Extrapolate(Renderer::Buffer& solidPhi);
+
+    void Reinitialise();
+    void Redistance();
+    void Extrapolate();
 
 private:
     Renderer::Texture mLevelSet0;
     Renderer::Texture mLevelSetBack;
+
+    vk::UniqueSampler mSampler;
 
     Renderer::Work mExtrapolate;
     Renderer::Work::Bound mExtrapolateBound;
@@ -43,6 +43,7 @@ private:
     Renderer::CommandBuffer mExtrapolateCmd;
     Renderer::CommandBuffer mReinitialiseCmd;
     Renderer::CommandBuffer mRedistanceCmd;
+
 };
 
 }}

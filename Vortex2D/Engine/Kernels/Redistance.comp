@@ -3,11 +3,14 @@
 
 layout (local_size_x = 16, local_size_y = 16) in;
 
-layout (binding = 0, r32f) uniform readonly image2D levelSet0;
-layout (binding = 1, r32f) uniform image2D levelSet;
+layout (binding = 0) uniform sampler2D levelSet0;
+layout (binding = 1) uniform sampler2D levelSet;
+layout (binding = 2, r32f) uniform image2D levelSetBack;
 layout(push_constant) uniform PushConsts
 {
-    float delta;
+  int width;
+  int height;
+  float delta;
 } consts;
 
 const float dx = 1.0;
@@ -42,18 +45,19 @@ float g(float s, float w, float wxp, float wxn, float wyp, float wyn)
 void main()
 {
     ivec2 pos = ivec2(gl_GlobalInvocationID);
+    vec2 texPos = vec2((pos.x + 0.5) / consts.width, (pos.y + 0.5) / consts.height);
 
-    float w0 = imageLoad(levelSet0, pos).x;
-    float wxp0 = imageLoad(levelSet0, pos + ivec2(1,0)).x;
-    float wxn0 = imageLoad(levelSet0, pos + ivec2(-1,0)).x;
-    float wyp0 = imageLoad(levelSet0, pos + ivec2(0,1)).x;
-    float wyn0 = imageLoad(levelSet0, pos + ivec2(0,-1)).x;
+    float w0 = texture(levelSet0, texPos).x;
+    float wxp0 = textureOffset(levelSet0, texPos, ivec2(1,0)).x;
+    float wxn0 = textureOffset(levelSet0, texPos, ivec2(-1,0)).x;
+    float wyp0 = textureOffset(levelSet0, texPos, ivec2(0,1)).x;
+    float wyn0 = textureOffset(levelSet0, texPos, ivec2(0,-1)).x;
 
-    float w = imageLoad(levelSet, pos).x;
-    float wxp = imageLoad(levelSet, pos + ivec2(1,0)).x;
-    float wxn = imageLoad(levelSet, pos + ivec2(-1,0)).x;
-    float wyp = imageLoad(levelSet, pos + ivec2(0,1)).x;
-    float wyn = imageLoad(levelSet, pos + ivec2(0,-1)).x;
+    float w = texture(levelSet, texPos).x;
+    float wxp = textureOffset(levelSet, texPos, ivec2(1,0)).x;
+    float wxn = textureOffset(levelSet, texPos, ivec2(-1,0)).x;
+    float wyp = textureOffset(levelSet, texPos, ivec2(0,1)).x;
+    float wyn = textureOffset(levelSet, texPos, ivec2(0,-1)).x;
 
     float s = sign(w0);
 
@@ -69,10 +73,10 @@ void main()
                             0.001));
         float d = dx * w0 / sqrt(wx0 * wx0 + wy0 * wy0);
 
-        imageStore(levelSet, pos, vec4(w - consts.delta * (s * abs(w) - d) / dx, 0.0, 0.0, 0.0));
+        imageStore(levelSetBack, pos, vec4(w - consts.delta * (s * abs(w) - d) / dx, 0.0, 0.0, 0.0));
     }
     else
     {
-        imageStore(levelSet, pos, vec4(w - consts.delta * s * g(s, w, wxp, wxn, wyp, wyn), 0.0, 0.0, 0.0));
+        imageStore(levelSetBack, pos, vec4(w - consts.delta * s * g(s, w, wxp, wxn, wyp, wyn), 0.0, 0.0, 0.0));
     }
 }

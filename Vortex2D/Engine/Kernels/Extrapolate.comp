@@ -16,30 +16,30 @@ const float dx = 1.0;
 
 void main(void)
 {
-    ivec2 pos = ivec2(gl_GlobalInvocationID);
+  ivec2 pos = ivec2(gl_GlobalInvocationID);
 
-    float f = imageLoad(fluid, pos).x;
+  float f = imageLoad(fluid, pos).x;
 
-    if (f < dx)
-    {
-        float wxp = imageLoad(obstacles, pos + ivec2(0,0)).x;
-        float wxn = imageLoad(obstacles, pos + ivec2(2,0)).x;
-        float wyp = imageLoad(obstacles, pos + ivec2(0,2)).x;
-        float wyn = imageLoad(obstacles, pos + ivec2(2,2)).x;
+  if (f < dx)
+  {
+      float wxp = imageLoad(obstacles, pos + ivec2(0,0)).x;
+      float wxn = imageLoad(obstacles, pos + ivec2(2,0)).x;
+      float wyp = imageLoad(obstacles, pos + ivec2(0,2)).x;
+      float wyn = imageLoad(obstacles, pos + ivec2(2,2)).x;
 
-        float w = 0.25 * (wxp + wxn + wyp + wyn);
+      float w = 0.25 * (wxp + wxn + wyp + wyn);
 
     if (w < 0.0)
     {
-        imageStore(fluid, pos, vec4(-dx, 0.0, 0.0, 0.0));
+      imageStore(fluid, pos, vec4(-dx, 0.0, 0.0, 0.0));
     }
     else
     {
-       imageStore(fluid, pos, vec4(f, 0.0, 0.0, 0.0));
+      imageStore(fluid, pos, vec4(f, 0.0, 0.0, 0.0));
     }
-    }
-    else
-    {
-        imageStore(fluid, pos, vec4(f, 0.0, 0.0, 0.0));
-    }
+  }
+  else
+  {
+    imageStore(fluid, pos, vec4(f, 0.0, 0.0, 0.0));
+  }
 }

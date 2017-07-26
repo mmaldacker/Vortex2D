@@ -15,18 +15,18 @@ RenderTexture::RenderTexture(const Device& device, uint32_t width, uint32_t heig
     // Create render pass
     RenderPass = RenderpassBuilder()
             .Attachement(format)
-            .AttachementLoadOp(vk::AttachmentLoadOp::eDontCare)
+            .AttachementLoadOp(vk::AttachmentLoadOp::eLoad)
             .AttachementStoreOp(vk::AttachmentStoreOp::eStore)
-            .AttachementFinalLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
+            // TODO should they both be general?
+            .AttachementInitialLayout(vk::ImageLayout::eGeneral)
+            .AttachementFinalLayout(vk::ImageLayout::eGeneral)
             .Subpass(vk::PipelineBindPoint::eGraphics)
             .SubpassColorAttachment(vk::ImageLayout::eColorAttachmentOptimal, 0)
             .Dependency(VK_SUBPASS_EXTERNAL, 0)
-            // TODO still not 100% sure what values below should be
             .DependencySrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
             .DependencyDstStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
-            .DependencySrcAccessMask(vk::AccessFlagBits::eMemoryRead)
-            .DependencyDstAccessMask(vk::AccessFlagBits::eColorAttachmentRead |
-                                     vk::AccessFlagBits::eColorAttachmentWrite)
+            .DependencySrcAccessMask(vk::AccessFlagBits::eColorAttachmentRead)
+            .DependencyDstAccessMask(vk::AccessFlagBits::eColorAttachmentWrite)
             .Create(mDevice.Handle());
 
     // Create framebuffer
@@ -59,6 +59,7 @@ RenderTexture::~RenderTexture()
 
 void RenderTexture::Record(CommandFn commandFn)
 {
+    // TODO this doesn't work if we want to record more while previous cmd was submitted
     auto bufferBegin = vk::CommandBufferBeginInfo()
             .setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse);
 
@@ -79,6 +80,7 @@ void RenderTexture::Record(CommandFn commandFn)
 
 void RenderTexture::Submit()
 {
+    // TODO this seems wrong, see TODO above
     mDevice.Handle().waitForFences({*mFence}, true, UINT64_MAX);
     mDevice.Handle().resetFences({*mFence});
 

@@ -8,13 +8,13 @@
 #include <Vortex2D/Renderer/Pipeline.h>
 #include <Vortex2D/Renderer/DescriptorSet.h>
 #include <Vortex2D/Renderer/Work.h>
+#include <Vortex2D/Renderer/CommandBuffer.h>
 
 #include "Verify.h"
 
 using namespace Vortex2D::Renderer;
 
 extern Device* device;
-
 
 TEST(ComputeTests, WriteBuffer)
 {
@@ -35,15 +35,21 @@ TEST(ComputeTests, BufferCopy)
 
     inBuffer.CopyFrom(data);
 
-    device->ExecuteCommand([&](vk::CommandBuffer commandBuffer)
+    CommandBuffer cmd(*device);
+    cmd.Record([&](vk::CommandBuffer commandBuffer)
     {
        buffer.CopyFrom(commandBuffer, inBuffer);
     });
 
-    device->ExecuteCommand([&](vk::CommandBuffer commandBuffer)
+    cmd.Submit();
+
+    cmd.Record([&](vk::CommandBuffer commandBuffer)
     {
        outBuffer.CopyFrom(commandBuffer, buffer);
     });
+
+    cmd.Submit();
+    cmd.Wait();
 
     CheckBuffer(data, outBuffer);
 }
@@ -92,12 +98,16 @@ TEST(ComputeTests, BufferCompute)
 
     auto pipeline = MakeComputePipeline(device->Handle(), shader, *layout);
 
-    device->ExecuteCommand([&](vk::CommandBuffer commandBuffer)
+    CommandBuffer cmd(*device);
+    cmd.Record([&](vk::CommandBuffer commandBuffer)
     {
         commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, *pipeline);
         commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, *layout, 0, {*descriptorSet}, {});
         commandBuffer.dispatch(1, 1, 1);
     });
+
+    cmd.Submit();
+    cmd.Wait();
 
     std::vector<Particle> output(100);
     buffer.CopyTo(output);
@@ -123,10 +133,13 @@ TEST(ComputeTests, ImageCompute)
     std::vector<float> data(50*50,1.0f);
     stagingTexture.CopyFrom(data.data(), 4);
 
-    device->ExecuteCommand([&](vk::CommandBuffer commandBuffer)
+    CommandBuffer cmd(*device);
+    cmd.Record([&](vk::CommandBuffer commandBuffer)
     {
        inTexture.CopyFrom(commandBuffer, stagingTexture);
     });
+
+    cmd.Submit();
 
     auto shader = device->GetShaderModule("Image.comp.spv");
 
@@ -148,20 +161,22 @@ TEST(ComputeTests, ImageCompute)
 
     auto pipeline = MakeComputePipeline(device->Handle(), shader, *layout);
 
-    device->ExecuteCommand([&](vk::CommandBuffer commandBuffer)
+    cmd.Record([&](vk::CommandBuffer commandBuffer)
     {
-        inTexture.Barrier(commandBuffer, vk::ImageLayout::eGeneral, vk::AccessFlagBits::eShaderRead);
-        outTexture.Barrier(commandBuffer, vk::ImageLayout::eGeneral, vk::AccessFlagBits::eShaderWrite);
         commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, *layout, 0, {*descriptorSet}, {});
         commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, *pipeline);
         commandBuffer.dispatch(16, 16, 1);
     });
 
-    device->ExecuteCommand([&](vk::CommandBuffer commandBuffer)
+    cmd.Submit();
+
+    cmd.Record([&](vk::CommandBuffer commandBuffer)
     {
        stagingTexture.CopyFrom(commandBuffer, outTexture);
-       stagingTexture.Barrier(commandBuffer, vk::ImageLayout::eGeneral, vk::AccessFlagBits::eHostRead);
     });
+
+    cmd.Submit();
+    cmd.Wait();
 
     std::vector<float> doubleData(data.size(), 2.0f);
     CheckTexture(doubleData, stagingTexture, 4);
@@ -174,10 +189,14 @@ TEST(ComputeTests, Work)
 
     auto boundWork = work.Bind({buffer});
 
-    device->ExecuteCommand([&](vk::CommandBuffer commandBuffer)
+    CommandBuffer cmd(*device);
+    cmd.Record([&](vk::CommandBuffer commandBuffer)
     {
         boundWork.Record(commandBuffer);
     });
+
+    cmd.Submit();
+    cmd.Wait();
 
     std::vector<float> expectedOutput(16*16);
     for (int i = 0; i < 16; i ++)

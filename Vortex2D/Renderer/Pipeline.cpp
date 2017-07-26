@@ -31,11 +31,11 @@ Size GetWorkSize(uint32_t width, uint32_t height)
 {
     if (height == 1)
     {
-        return {(1 + width) / (DefaultLocalX * DefaultLocalY), 1};
+        return {1 + width / (DefaultLocalX * DefaultLocalY), 1};
     }
     else
     {
-        return {(1 + width) / DefaultLocalX, 1 + height / DefaultLocalY};
+        return {1 + width / DefaultLocalX, 1 + height / DefaultLocalY};
     }
 }
 

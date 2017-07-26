@@ -16,14 +16,21 @@ Work::Input::Input(Renderer::Buffer& buffer)
 }
 
 Work::Input::Input(Renderer::Texture& texture)
-    : Texture(&texture)
+    : Image(texture)
 {
 }
+
+Work::Input::Input(vk::Sampler sampler, Renderer::Texture& texture)
+    : Image(sampler, texture)
+{
+}
+
 
 Work::Work(const Device& device,
            const glm::vec2& size,
            const std::string& shader,
-           const std::vector<vk::DescriptorType>& binding)
+           const std::vector<vk::DescriptorType>& binding,
+           const uint32_t pushConstantExtraSize)
     : mWidth(size.x)
     , mHeight(size.y)
     , mDevice(device)
@@ -40,7 +47,7 @@ Work::Work(const Device& device,
 
     mLayout = PipelineLayoutBuilder()
             .DescriptorSetLayout(mDescriptorLayout)
-            .PushConstantRange({vk::ShaderStageFlagBits::eCompute, 0, 8})
+            .PushConstantRange({vk::ShaderStageFlagBits::eCompute, 0, 8 + pushConstantExtraSize})
             .Create(device.Handle());
 
     auto localSize = GetLocalSize(mWidth, mHeight);
@@ -60,9 +67,12 @@ Work::Bound Work::Bind(const std::vector<Input>& inputs)
         {
             updater.WriteBuffers(i, 0, mBindings[i]).Buffer(*inputs[i].Buffer);
         }
-        else if (mBindings[i] == vk::DescriptorType::eStorageImage)
+        else if (mBindings[i] == vk::DescriptorType::eStorageImage ||
+                 mBindings[i] == vk::DescriptorType::eCombinedImageSampler)
         {
-            updater.WriteImages(i, 0, mBindings[i]).Image({}, *inputs[i].Texture, vk::ImageLayout::eGeneral);
+            updater.WriteImages(i, 0, mBindings[i]).Image(inputs[i].Image.Sampler,
+                                                          *inputs[i].Image.Texture,
+                                                          vk::ImageLayout::eGeneral);
         }
         else
         {

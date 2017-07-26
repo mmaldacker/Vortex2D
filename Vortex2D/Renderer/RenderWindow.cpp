@@ -89,12 +89,9 @@ RenderWindow::RenderWindow(const Device& device, vk::SurfaceKHR surface, uint32_
             .Subpass(vk::PipelineBindPoint::eGraphics)
             .SubpassColorAttachment(vk::ImageLayout::eColorAttachmentOptimal, 0)
             .Dependency(VK_SUBPASS_EXTERNAL, 0)
-            // TODO still not 100% sure what values below should be
             .DependencySrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
             .DependencyDstStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
-            .DependencySrcAccessMask(vk::AccessFlagBits::eMemoryRead)
-            .DependencyDstAccessMask(vk::AccessFlagBits::eColorAttachmentRead |
-                                     vk::AccessFlagBits::eColorAttachmentWrite)
+            .DependencyDstAccessMask(vk::AccessFlagBits::eColorAttachmentWrite)
             .Create(device.Handle());
 
     // Create framebuffers

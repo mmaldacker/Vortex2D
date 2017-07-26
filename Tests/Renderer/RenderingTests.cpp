@@ -8,6 +8,7 @@
 #include <Vortex2D/Renderer/Shapes.h>
 #include <Vortex2D/Renderer/Texture.h>
 #include <Vortex2D/Renderer/RenderTexture.h>
+#include <Vortex2D/Renderer/CommandBuffer.h>
 
 #include "ShapeDrawer.h"
 #include "Verify.h"
@@ -51,16 +52,21 @@ TEST(RenderingTest, TextureCopy)
 
     inTexture.CopyFrom(data.data(), 1);
 
-    device->ExecuteCommand([&](vk::CommandBuffer commandBuffer)
+    CommandBuffer cmd(*device);
+    cmd.Record([&](vk::CommandBuffer commandBuffer)
     {
        texture.CopyFrom(commandBuffer, inTexture);
     });
 
-    device->ExecuteCommand([&](vk::CommandBuffer commandBuffer)
+    cmd.Submit();
+
+    cmd.Record([&](vk::CommandBuffer commandBuffer)
     {
        outTexture.CopyFrom(commandBuffer, texture);
-       outTexture.Barrier(commandBuffer, vk::ImageLayout::eGeneral, vk::AccessFlagBits::eHostRead);
     });
+
+    cmd.Submit();
+    cmd.Wait();
 
     CheckTexture(data, outTexture, 1);
 }
@@ -80,11 +86,15 @@ TEST(RenderingTest, ClearTexture)
     device->Queue().waitIdle();
 
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);
-    device->ExecuteCommand([&](vk::CommandBuffer commandBuffer)
+
+    CommandBuffer cmd(*device);
+    cmd.Record([&](vk::CommandBuffer commandBuffer)
     {
         outTexture.CopyFrom(commandBuffer, texture);
-        outTexture.Barrier(commandBuffer, vk::ImageLayout::eGeneral, vk::AccessFlagBits::eHostRead);
     });
+
+    cmd.Submit();
+    cmd.Wait();
 
     CheckTexture(data, outTexture, 4);
 }

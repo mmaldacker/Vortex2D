@@ -25,30 +25,6 @@ public:
     vk::PhysicalDevice GetPhysicalDevice() const;
     std::vector<vk::CommandBuffer> CreateCommandBuffers(uint32_t size) const;
     void FreeCommandBuffers(vk::ArrayProxy<const vk::CommandBuffer> commandBuffers) const;
-
-    // TODO replace with command buffer ring
-    // TODO use barrier instead of fence
-    template<typename F>
-    void ExecuteCommand(F f)
-    {
-        vk::CommandBuffer cmd = CreateCommandBuffers(1).at(0);
-
-        auto cmdBeginInfo = vk::CommandBufferBeginInfo()
-                .setFlags(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
-
-        cmd.begin(cmdBeginInfo);
-        f(cmd);
-        cmd.end();
-
-        auto submitInfo = vk::SubmitInfo()
-                .setCommandBufferCount(1)
-                .setPCommandBuffers(&cmd);
-
-        mQueue.submit({submitInfo}, nullptr);
-        mQueue.waitIdle();
-        FreeCommandBuffers({cmd});
-    }
-
     uint32_t FindMemoryPropertiesIndex(uint32_t memoryTypeBits, vk::MemoryPropertyFlags properties) const;
 
     // TODO have a getter like shader module

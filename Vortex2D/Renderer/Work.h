@@ -20,18 +20,36 @@ public:
     {
         Input(Renderer::Buffer& buffer);
         Input(Renderer::Texture& texture);
+        Input(vk::Sampler sampler, Renderer::Texture& texture);
+
+        struct DescriptorImage
+        {
+            DescriptorImage(vk::Sampler sampler, Renderer::Texture& texture)
+                : Sampler(sampler)
+                , Texture(&texture)
+            {}
+
+            DescriptorImage(Renderer::Texture& texture)
+                : Sampler()
+                , Texture(&texture)
+            {}
+
+            vk::Sampler Sampler;
+            Renderer::Texture* Texture;
+        };
 
         union
         {
             Renderer::Buffer* Buffer;
-            Renderer::Texture* Texture;
+            DescriptorImage Image;
         };
     };
 
     Work(const Device& device,
          const glm::vec2& size,
          const std::string& shader,
-         const std::vector<vk::DescriptorType>& bindings);
+         const std::vector<vk::DescriptorType>& bindings,
+         const uint32_t pushConstantExtraSize = 0);
 
     class Bound
     {
@@ -55,7 +73,7 @@ public:
               vk::Pipeline pipeline,
               vk::UniqueDescriptorSet descriptor);
 
-        uint32_t mWidth, mHeight;
+        uint32_t mWidth = 0, mHeight = 0;
         vk::PipelineLayout mLayout;
         vk::Pipeline mPipeline;
         vk::UniqueDescriptorSet mDescriptor;

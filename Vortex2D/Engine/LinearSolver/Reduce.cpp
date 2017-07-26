@@ -80,7 +80,6 @@ Reduce::Reduce(const Renderer::Device& device,
 
     mPipeline = Renderer::MakeComputePipeline(device.Handle(), sumShader, *mPipelineLayout, specialisationConst);
 
-    mCommandBuffer.Wait();
     mCommandBuffer.Record([&](vk::CommandBuffer commandBuffer)
     {
         input.Barrier(commandBuffer, vk::AccessFlagBits::eShaderRead);
