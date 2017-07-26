@@ -59,7 +59,9 @@ RenderTexture::~RenderTexture()
 
 void RenderTexture::Record(CommandFn commandFn)
 {
-    // TODO this doesn't work if we want to record more while previous cmd was submitted
+    mDevice.Handle().waitForFences({*mFence}, true, UINT64_MAX);
+    mDevice.Handle().resetFences({*mFence});
+
     auto bufferBegin = vk::CommandBufferBeginInfo()
             .setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse);
 
@@ -80,10 +82,6 @@ void RenderTexture::Record(CommandFn commandFn)
 
 void RenderTexture::Submit()
 {
-    // TODO this seems wrong, see TODO above
-    mDevice.Handle().waitForFences({*mFence}, true, UINT64_MAX);
-    mDevice.Handle().resetFences({*mFence});
-
     auto submitInfo = vk::SubmitInfo()
             .setCommandBufferCount(1)
             .setPCommandBuffers(&mCmd);
