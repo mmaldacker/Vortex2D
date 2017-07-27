@@ -78,7 +78,7 @@ static void SetSolidPhi(const glm::vec2& size, Vortex2D::Renderer::Texture& buff
         for (int j = 0; j < size.y; j++)
         {
             int width = size.x;
-            phi[i + j * width] = sim.nodal_solid_phi(i/2, j/2);
+            phi[i + j * width] = sim.nodal_solid_phi(i, j);
         }
     }
 

@@ -15,43 +15,58 @@ Pressure::Pressure(const Renderer::Device& device,
                    Renderer::Texture& solidPhi,
                    Renderer::Texture& liquidPhi,
                    Renderer::Texture& solidVelocity)
-    : mData(device,
+    : mSolver(solver)
+    , mData(device,
             vk::BufferUsageFlagBits::eStorageBuffer,
             false,
             size.x*size.y*sizeof(LinearSolver::Data))
+    , mPressure(device,
+                vk::BufferUsageFlagBits::eStorageBuffer,
+                false,
+                size.x*size.y*sizeof(float))
     , mBuildEquationData(device, size, "../Vortex2D/BuildEquationData.comp.spv",
                         {vk::DescriptorType::eStorageBuffer,
                          vk::DescriptorType::eStorageImage,
                          vk::DescriptorType::eStorageImage,
                          vk::DescriptorType::eStorageImage,
-                         vk::DescriptorType::eStorageImage})
+                         vk::DescriptorType::eStorageImage},
+                         4)
     , mBuildEquationDataBound(mBuildEquationData.Bind({mData,
                                                        liquidPhi,
                                                        solidPhi,
                                                        velocity,
                                                        solidVelocity}))
+    , mProject(device, size, "../Vortex2D/Project.comp.spv",
+              {vk::DescriptorType::eStorageBuffer,
+               vk::DescriptorType::eStorageImage,
+               vk::DescriptorType::eStorageImage,
+               vk::DescriptorType::eStorageImage,
+               vk::DescriptorType::eStorageImage},
+               4)
+    , mProjectBound(mProject.Bind({mPressure, liquidPhi, solidPhi, velocity, solidVelocity}))
+    , mBuildEquationCmd(device)
+    , mProjectCmd(device)
 {
+    mBuildEquationCmd.Record([&](vk::CommandBuffer commandBuffer)
+    {
+        // TODO barrier for liquidPhi, solidPhi, velocity and solidVelocity
+        mBuildEquationDataBound.PushConstant(commandBuffer, 8, dt);
+        mBuildEquationDataBound.Record(commandBuffer);
+    });
+
+    mProjectCmd.Record([&](vk::CommandBuffer commandBuffer)
+    {
+        // TODO barrier for pressure
+        mProjectBound.PushConstant(commandBuffer, 8, dt);
+        mProjectBound.Record(commandBuffer);
+    });
 }
 
 void Pressure::Solve(LinearSolver::Parameters& params)
 {
-    /*
-    mData.Pressure = mDiv(mVelocity, mSolidPhi, mLiquidPhi, mSolidVelocity);
-    mData.Weights = mWeights(mSolidPhi, mLiquidPhi);
-    mData.Diagonal = mDiagonals(mSolidPhi, mLiquidPhi);
-
-    // TODO maybe move the two lines above inside Build? In any case this is not very clean
-    mSolver.Build(mData, mDiagonals, mWeights, mSolidPhi, mLiquidPhi);
-    mSolver.Init(mData);
-    mSolver.Solve(mData, params);
-
-    mVelocity.Swap();
-    mVelocity = mProject(Back(mVelocity),
-                         mData.Pressure,
-                         mLiquidPhi,
-                         mSolidPhi,
-                         mSolidVelocity);
-    */
+    mBuildEquationCmd.Submit();
+    mSolver.Solve(mPressure, mData, params);
+    mProjectCmd.Submit();
 }
 
 }}

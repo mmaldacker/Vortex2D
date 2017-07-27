@@ -31,12 +31,14 @@ public:
     template<typename T>
     void CopyFrom(const std::vector<T>& data)
     {
+        assert(data.size() == mWidth * mHeight);
         CopyFrom(data.data(), sizeof(T));
     }
 
     template<typename T>
     void CopyTo(std::vector<T>& data)
     {
+        assert(data.size() == mWidth * mHeight);
         CopyTo(data.data(), sizeof(T));
     }
 

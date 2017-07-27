@@ -29,51 +29,22 @@ void PrintLevelSet(int size, float (*phi)(const Vec2f&))
     std::cout << std::endl;
 }
 
-void PrintLevelSet(Texture& texture)
-{
-    std::vector<float> pixels(texture.GetWidth() * texture.GetHeight());
-    texture.CopyTo(pixels);
-
-    for (int j = 0; j < texture.GetHeight() / 2; j++)
-    {
-        for (int i = 0; i < texture.GetWidth() / 2; i++)
-        {
-            float value = 0.0f;
-            value += pixels[i * 2 + (j * 2) * texture.GetWidth()];
-            value += pixels[i * 2 + 1 + (j * 2) * texture.GetWidth()];
-            value += pixels[i * 2 + (j * 2 + 1) * texture.GetWidth()];
-            value += pixels[i * 2 + 1 + (j * 2 + 1) * texture.GetWidth()];
-            value *= 0.25f * 0.5f;
-
-            std::cout << "(" << value << ")";
-        }
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
-}
-
 void CheckDifference(Texture& texture, float (*phi)(const Vec2f&))
 {
     std::vector<float> pixels(texture.GetWidth() * texture.GetHeight());
     texture.CopyTo(pixels);
 
-    for (uint32_t j = 0; j < texture.GetHeight() / 2; j++)
+    for (uint32_t j = 0; j < texture.GetHeight(); j++)
     {
-        for (uint32_t i = 0; i < texture.GetWidth() / 2; i++)
+        for (uint32_t i = 0; i < texture.GetWidth(); i++)
         {
             Vec2f pos(i,j);
             pos += Vec2f(1.0f);
-            pos /= 0.5f * texture.GetWidth();
-            float value = 0.5f * texture.GetWidth() * phi(pos);
+            pos /= texture.GetWidth();
+            float value = texture.GetWidth() * phi(pos);
 
-            float readerValue = 0.0f;
-            readerValue += pixels[i * 2 + (j * 2) * texture.GetWidth()];
-            readerValue += pixels[i * 2 + 1 + (j * 2) * texture.GetWidth()];
-            readerValue += pixels[i * 2 + (j * 2 + 1) * texture.GetWidth()];
-            readerValue += pixels[i * 2 + 1 + (j * 2 + 1) * texture.GetWidth()];
-            readerValue *= 0.25f * 0.5f;
-
-            float diff = std::abs(std::abs(value) - std::abs(readerValue));
+            float readerValue = pixels[i + j * texture.GetWidth()];
+            float diff = std::abs(value - readerValue);
 
             EXPECT_LT(diff, 0.8f) << "Mismatch at " << i << ", " << j; // almost sqrt(0.5)
         }
@@ -83,20 +54,19 @@ void CheckDifference(Texture& texture, float (*phi)(const Vec2f&))
 TEST(LevelSetTests, SimpleCircle)
 {
     glm::vec2 size(20.0f);
-    glm::vec2 doubleSize(glm::vec2(2.0f) * size);
 
-    LevelSet levelSet(*device, doubleSize, 500);
-    Texture outTexture(*device, doubleSize.x, doubleSize.y, vk::Format::eR32Sfloat, true);
+    LevelSet levelSet(*device, size, 500);
+    Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
 
-    Ellipse circle(*device, glm::vec2{rad0} * doubleSize, glm::vec4(0.5f));
-    circle.Position = glm::vec2(c0[0], c0[1]) * doubleSize;
+    Ellipse circle(*device, glm::vec2{rad0} * size, glm::vec4(0.5f));
+    circle.Position = glm::vec2(c0[0], c0[1]) * size;
 
     circle.Initialize({levelSet});
     circle.Update(levelSet.Orth, glm::mat4());
 
     levelSet.Record([&](vk::CommandBuffer commandBuffer)
     {
-        Clear(doubleSize.x, doubleSize.y, glm::vec4(-0.5f)).Draw(commandBuffer);
+        Clear(size.x, size.y, glm::vec4(-0.5f)).Draw(commandBuffer);
         circle.Draw(commandBuffer, {levelSet});
     });
 
@@ -121,20 +91,19 @@ TEST(LevelSetTests, SimpleCircle)
 TEST(LevelSetTests, ComplexCircles)
 {
     glm::vec2 size(50.0f);
-    glm::vec2 doubleSize(glm::vec2(2.0f) * size);
 
-    LevelSet levelSet(*device, doubleSize, 2000);
-    Texture outTexture(*device, doubleSize.x, doubleSize.y, vk::Format::eR32Sfloat, true);
+    LevelSet levelSet(*device, size, 2000);
+    Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
 
-    Ellipse circle0(*device, glm::vec2{rad0} * doubleSize, glm::vec4(1.0f));
-    Ellipse circle1(*device, glm::vec2{rad1} * doubleSize, glm::vec4(-1.0f));
-    Ellipse circle2(*device, glm::vec2{rad2} * doubleSize, glm::vec4(-1.0f));
-    Ellipse circle3(*device, glm::vec2{rad3} * doubleSize, glm::vec4(-1.0f));
+    Ellipse circle0(*device, glm::vec2{rad0} * size, glm::vec4(1.0f));
+    Ellipse circle1(*device, glm::vec2{rad1} * size, glm::vec4(-1.0f));
+    Ellipse circle2(*device, glm::vec2{rad2} * size, glm::vec4(-1.0f));
+    Ellipse circle3(*device, glm::vec2{rad3} * size, glm::vec4(-1.0f));
 
-    circle0.Position = glm::vec2(c0[0], c0[1]) * doubleSize;
-    circle1.Position = glm::vec2(c1[0], c1[1]) * doubleSize;
-    circle2.Position = glm::vec2(c2[0], c2[1]) * doubleSize;
-    circle3.Position = glm::vec2(c3[0], c3[1]) * doubleSize;
+    circle0.Position = glm::vec2(c0[0], c0[1]) * size;
+    circle1.Position = glm::vec2(c1[0], c1[1]) * size;
+    circle2.Position = glm::vec2(c2[0], c2[1]) * size;
+    circle3.Position = glm::vec2(c3[0], c3[1]) * size;
 
     circle0.Initialize({levelSet});
     circle1.Initialize({levelSet});
@@ -147,7 +116,7 @@ TEST(LevelSetTests, ComplexCircles)
 
     levelSet.Record([&](vk::CommandBuffer commandBuffer)
     {
-        Clear(doubleSize.x, doubleSize.y, glm::vec4(-1.0f)).Draw(commandBuffer);
+        Clear(size.x, size.y, glm::vec4(-1.0f)).Draw(commandBuffer);
         circle0.Draw(commandBuffer, {levelSet});
         circle1.Draw(commandBuffer, {levelSet});
         circle2.Draw(commandBuffer, {levelSet});

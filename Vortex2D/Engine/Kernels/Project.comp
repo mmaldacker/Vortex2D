@@ -1,8 +1,6 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-const float dx = 1.0;
-
 layout (local_size_x = 16, local_size_y = 16) in;
 
 layout(push_constant) uniform Consts
@@ -33,53 +31,53 @@ float fraction_inside(float a, float b)
     return 0.0;
 }
 
-vec2 get_weight(ivec2 pos, image2D solid_phi)
+vec2 get_weight(ivec2 pos)
 {
-    vec2 weight;
-    weight.x = 1.0 - fraction_inside(imageLoad(solid_phi, pos + ivec2(0,2)).x,
-                                     imageLoad(solid_phi, pos + ivec2(0,0)).x);
-    weight.y = 1.0 - fraction_inside(imageLoad(solid_phi, pos + ivec2(2,0)).x,
-                                     imageLoad(solid_phi, pos + ivec2(0,0)).x);
+  vec2 weight;
+  weight.x = 1.0 - fraction_inside(imageLoad(SolidLevelSet, pos + ivec2(0,1)).x,
+                                   imageLoad(SolidLevelSet, pos + ivec2(0,0)).x);
+  weight.y = 1.0 - fraction_inside(imageLoad(SolidLevelSet, pos + ivec2(1,0)).x,
+                                   imageLoad(SolidLevelSet, pos + ivec2(0,0)).x);
 
-    return clamp(weight, vec2(0.0), vec2(1.0));
+  return clamp(weight, vec2(0.0), vec2(1.0));
 }
 
 void main()
 {
   ivec2 pos = ivec2(gl_GlobalInvocationID);
-  uvec2 index = gl_GlobalInvocationID.xy;
-
-  vec2 cell = imageLoad(Velocity, pos).xy;
-
-  // TODO check boundaries
-  float p = pressure.value[index.x + index.y * consts.width];
-  float pxn = pressure.value[(index.x - 1) + index.y * consts.width];
-  float pyn = pressure.value[index.x + (index.y - 1) * consts.width];
-
-  vec2 pGrad = vec2(p-pxn, p-pyn);
-
-  float phi = imageLoad(FluidLevelSet, pos).x;
-  float phixn = imageLoad(FluidLevelSet, pos + ivec2(-1,0)).x;
-  float phiyn = imageLoad(FluidLevelSet, pos + ivec2(0,-1)).x;
-
-  vec2 theta = vec2(fraction_inside(phixn, phi), fraction_inside(phiyn, phi));
-  pGrad /= max(theta, 0.01);
-
-  vec2 mask = vec2(1.0);
-  vec2 obsV = vec2(0.0);
-
-  vec2 wuv = get_weight(pos, SolidLevelSet);
-  if (wuv.x <= 0.0 || (phi >= 0.0 && phixn >= 0.0))
+  if (pos.x > 0 && pos.y > 0 && pos.x < consts.width && pos.y < consts.height)
   {
-    mask.x = 0.0;
-    obsV.x = imageLoad(SolidVelocity, pos).x;
-  }
-  if (wuv.y <= 0.0|| (phi >= 0.0 && phiyn >= 0.0))
-  {
-    mask.y = 0.0;
-    obsV.y = imageLoad(SolidVelocity, pos).y;
-  }
+    vec2 cell = imageLoad(Velocity, pos).xy;
 
-  vec2 new_cell = cell - consts.delta * pGrad / dx;
-  imageStore(Velocity, pos, vec4(mask * new_cell + obsV, 0.0, 0.0));
+    float p = pressure.value[pos.x + pos.y * consts.width];
+    float pxn = pressure.value[(pos.x - 1) + pos.y * consts.width];
+    float pyn = pressure.value[pos.x + (pos.y - 1) * consts.width];
+
+    vec2 pGrad = vec2(p-pxn, p-pyn);
+
+    float phi = imageLoad(FluidLevelSet, pos).x;
+    float phixn = imageLoad(FluidLevelSet, pos + ivec2(-1,0)).x;
+    float phiyn = imageLoad(FluidLevelSet, pos + ivec2(0,-1)).x;
+
+    vec2 theta = vec2(fraction_inside(phixn, phi), fraction_inside(phiyn, phi));
+    pGrad /= max(theta, 0.01);
+
+    vec2 mask = vec2(1.0);
+    vec2 obsV = vec2(0.0);
+
+    vec2 wuv = get_weight(pos);
+    if (wuv.x <= 0.0 || (phi >= 0.0 && phixn >= 0.0))
+    {
+      mask.x = 0.0;
+      obsV.x = imageLoad(SolidVelocity, pos).x;
+    }
+    if (wuv.y <= 0.0|| (phi >= 0.0 && phiyn >= 0.0))
+    {
+      mask.y = 0.0;
+      obsV.y = imageLoad(SolidVelocity, pos).y;
+    }
+
+    vec2 new_cell = cell - consts.delta * pGrad * consts.width;
+    imageStore(Velocity, pos, vec4(mask * new_cell + obsV, 0.0, 0.0));
+  }
 }

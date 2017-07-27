@@ -78,7 +78,8 @@ Device::Device(vk::PhysicalDevice physicalDevice, int familyIndex, bool validati
     const std::vector<const char*> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
     // create queue
-    vk::PhysicalDeviceFeatures deviceFeatures;
+    auto deviceFeatures = vk::PhysicalDeviceFeatures()
+            .setShaderStorageImageExtendedFormats(true);
     auto deviceInfo = vk::DeviceCreateInfo()
             .setQueueCreateInfoCount(1)
             .setPQueueCreateInfos(&deviceQueueInfo)

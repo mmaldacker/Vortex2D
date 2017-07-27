@@ -4,6 +4,7 @@
 //
 
 #include "VariationalHelpers.h"
+#include "Verify.h"
 
 #include <Vortex2D/Engine/Pressure.h>
 #include <iostream>
@@ -21,11 +22,44 @@ struct LinearSolverMock : LinearSolver
     MOCK_METHOD3(Solve, void(Buffer& pressure, Buffer& data, Parameters& params));
 };
 
-void PrintWeights(const glm::vec2& size, FluidSim& sim)
+void PrintDiv(const glm::vec2& size, Buffer& buffer)
 {
+    std::vector<LinearSolver::Data> pixels(size.x * size.y);
+    buffer.CopyTo(pixels);
+
     for (std::size_t j = 0; j < size.y; j++)
     {
         for (std::size_t i = 0; i < size.x; i++)
+        {
+            std::size_t index = i + size.x * j;
+            std::cout << "(" <<  pixels[index].Div << ")";
+        }
+        std::cout << std::endl;
+    }
+}
+
+void PrintDiagonal(const glm::vec2& size, Buffer& buffer)
+{
+    std::vector<LinearSolver::Data> pixels(size.x * size.y);
+    buffer.CopyTo(pixels);
+
+    for (std::size_t j = 0; j < size.y; j++)
+    {
+        for (std::size_t i = 0; i < size.x; i++)
+        {
+            std::size_t index = i + size.x * j;
+            std::cout << "(" <<  pixels[index].Diagonal << ")";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+}
+
+void PrintWeights(const glm::vec2& size, FluidSim& sim)
+{
+    for (std::size_t j = 1; j < size.y - 1; j++)
+    {
+        for (std::size_t i = 1; i < size.x - 1; i++)
         {
             std::size_t index = i + size.x * j;
             std::cout << "(" <<  sim.matrix(index + 1, index) << ","
@@ -35,6 +69,7 @@ void PrintWeights(const glm::vec2& size, FluidSim& sim)
         }
         std::cout << std::endl;
     }
+    std::cout << std::endl;
 }
 
 void PrintDiagonal(const glm::vec2& size, FluidSim& sim)
@@ -70,9 +105,9 @@ void CheckWeights(const glm::vec2& size, Buffer& buffer, FluidSim& sim, float er
     std::vector<LinearSolver::Data> pixels(size.x * size.y);
     buffer.CopyTo(pixels);
 
-    for (std::size_t i = 0; i < size.x; i++)
+    for (std::size_t i = 1; i < size.x - 1; i++)
     {
-        for (std::size_t j = 0; j < size.y; j++)
+        for (std::size_t j = 1; j < size.y - 1; j++)
         {
             std::size_t index = i + size.x * j;
             EXPECT_NEAR(sim.matrix(index + 1, index), pixels[index].Weights.x, error);
@@ -98,6 +133,77 @@ void CheckDiv(const glm::vec2& size, Buffer& buffer, FluidSim& sim, float error 
     }
 }
 
+void CheckVelocity(const glm::vec2& size, Vortex2D::Renderer::Texture& buffer, FluidSim& sim, float error = 1e-6)
+{
+    std::vector<glm::vec2> pixels(size.x * size.y);
+    buffer.CopyTo(pixels);
+
+    // FIXME need to check the entire velocity buffer
+    for (std::size_t i = 1; i < size.x; i++)
+    {
+        for (std::size_t j = 1; j < size.y; j++)
+        {
+            auto uv = pixels[i + j * size.x];
+            EXPECT_NEAR(sim.u(i, j), uv.x, error) << "Mismatch at " << i << "," << j;
+            EXPECT_NEAR(sim.v(i, j), uv.y, error) << "Mismatch at " << i << "," << j;
+        }
+    }
+}
+
+void PrintVelocity(const glm::vec2& size, Texture& buffer)
+{
+    std::vector<glm::vec2> pixels(size.x * size.y);
+    buffer.CopyTo(pixels);
+
+    for (std::size_t j = 0; j < size.y; j++)
+    {
+        for (std::size_t i = 0; i < size.x; i++)
+        {
+            std::size_t index = i + size.x * j;
+            std::cout << "(" <<  pixels[index].x << "," << pixels[index].y << ")";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+}
+
+void PrintVelocity(const glm::vec2& size, FluidSim& sim)
+{
+    for (std::size_t j = 0; j < size.y; j++)
+    {
+        for (std::size_t i = 0; i < size.x; i++)
+        {
+            std::cout << "(" << sim.u(i, j) << "," << sim.v(i, j) << ")";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+}
+
+void BuildInputs(const glm::vec2& size, FluidSim& sim, Texture& velocity, Texture& solidPhi, Texture& liquidPhi)
+{
+    Texture inputVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
+    SetVelocity(size, inputVelocity, sim);
+
+    sim.project(0.01f);
+
+    Texture inputSolidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
+    SetSolidPhi(size, inputSolidPhi, sim);
+
+    Texture inputLiquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
+    SetLiquidPhi(size, inputLiquidPhi, sim);
+
+    CommandBuffer cmd(*device);
+    cmd.Record([&](vk::CommandBuffer commandBuffer)
+    {
+       velocity.CopyFrom(commandBuffer, inputVelocity);
+       solidPhi.CopyFrom(commandBuffer, inputSolidPhi);
+       liquidPhi.CopyFrom(commandBuffer, inputLiquidPhi);
+    });
+    cmd.Submit();
+    cmd.Wait();
+}
+
 TEST(PressureTest, LinearEquationSetup_Simple)
 {
     glm::vec2 size(50);
@@ -112,19 +218,12 @@ TEST(PressureTest, LinearEquationSetup_Simple)
 
     NiceMock<LinearSolverMock> solver;
 
-    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
-    SetVelocity(size, velocity, sim);
+    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
+    Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
+    Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
+    Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
 
-    sim.project(0.01f);
-
-    Texture solidPhi(*device, 2 * size.x, 2 * size.y, vk::Format::eR32Sfloat, true);
-    SetSolidPhi(size, solidPhi, sim);
-
-    Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
-    SetLiquidPhi(size, liquidPhi, sim);
-
-    Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
-    // leave empty
+    BuildInputs(size, sim, velocity, solidPhi, liquidPhi);
 
     Pressure pressure(*device, 0.01f, size, solver, velocity, solidPhi, liquidPhi, solidVelocity);
 
@@ -139,16 +238,25 @@ TEST(PressureTest, LinearEquationSetup_Simple)
     pressure.Solve(params);
 
     ASSERT_TRUE(result != nullptr);
-    CheckWeights(size, *result, sim, 1e-3); // FIXME can we reduce error tolerance?
-    CheckDiv(size, *result, sim);
-    CheckDiagonal(size, *result, sim, 1e-3); // FIXME can we reduce error tolerance?
+
+    Buffer p(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(LinearSolver::Data));
+
+    device->Queue().waitIdle();
+    CommandBuffer cmd(*device);
+    cmd.Record([&](vk::CommandBuffer commandBuffer)
+    {
+        p.CopyFrom(commandBuffer, *result);
+    });
+    cmd.Submit();
+    cmd.Wait();
+
+    CheckDiagonal(size, p, sim, 1e-3); // FIXME can we reduce error tolerance?
+    CheckWeights(size, p, sim, 1e-3); // FIXME can we reduce error tolerance?
+    CheckDiv(size, p, sim);
 }
 
-/*
 TEST(PressureTest, LinearEquationSetup_Complex)
 {
-    Disable d(GL_BLEND);
-
     glm::vec2 size(50);
 
     FluidSim sim;
@@ -159,37 +267,47 @@ TEST(PressureTest, LinearEquationSetup_Complex)
 
     sim.add_force(0.01f);
 
-    LinearSolver::Data data(size);
-    NiceMock<MockLinearSolver> solver;
+    NiceMock<LinearSolverMock> solver;
 
-    Buffer velocity(size, 2, true);
-    SetVelocity(velocity, sim);
+    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
+    Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
+    Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
+    Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
 
-    sim.project(0.01f);
+    BuildInputs(size, sim, velocity, solidPhi, liquidPhi);
 
-    Buffer solidPhi(glm::vec2(2)*size, 1);
-    SetSolidPhi(solidPhi, sim);
+    Pressure pressure(*device, 0.01f, size, solver, velocity, solidPhi, liquidPhi, solidVelocity);
 
-    Buffer liquidPhi(size, 1);
-    SetLiquidPhi(liquidPhi, sim);
-
-    Buffer solidVelocity(size, 2);
-    // leave empty
-
-    Pressure pressure(0.01f, size, solver, data, velocity, solidPhi, liquidPhi, solidVelocity);
+    Buffer* result = nullptr;
+    EXPECT_CALL(solver, Solve(_, _, _))
+            .WillOnce(Invoke([&](Buffer& pressure, Buffer& data, LinearSolver::Parameters& params)
+            {
+                result = &data;
+            }));
 
     LinearSolver::Parameters params(0);
     pressure.Solve(params);
 
-    CheckWeights(size, data.Weights, sim, 1e-3); // FIXME can we reduce error tolerance?
-    CheckDiv(size, data.Pressure, sim);
-    CheckDiagonal(size, data.Diagonal, sim, 1e-3); // FIXME can we reduce error tolerance?
+    ASSERT_TRUE(result != nullptr);
+
+    Buffer p(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(LinearSolver::Data));
+
+    device->Queue().waitIdle();
+    CommandBuffer cmd(*device);
+    cmd.Record([&](vk::CommandBuffer commandBuffer)
+    {
+        p.CopyFrom(commandBuffer, *result);
+    });
+    cmd.Submit();
+    cmd.Wait();
+
+    CheckDiagonal(size, p, sim, 1e-3); // FIXME can we reduce error tolerance?
+    CheckWeights(size, p, sim, 1e-3); // FIXME can we reduce error tolerance?
+    CheckDiv(size, p, sim);
 }
 
 TEST(PressureTest, Project_Simple)
 {
-    Disable d(GL_BLEND);
-
     glm::vec2 size(50);
 
     FluidSim sim;
@@ -200,93 +318,106 @@ TEST(PressureTest, Project_Simple)
 
     sim.add_force(0.01f);
 
-    LinearSolver::Data data(size);
-    MockLinearSolver solver;
+    NiceMock<LinearSolverMock> solver;
 
-    Buffer velocity(size, 2, true);
-    SetVelocity(velocity, sim);
+    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
+    Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
+    Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
+    Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
 
-    sim.project(0.01f);
+    BuildInputs(size, sim, velocity, solidPhi, liquidPhi);
 
-    Buffer solidPhi(glm::vec2(2)*size, 1);
-    SetSolidPhi(solidPhi, sim);
-
-    Buffer liquidPhi(size, 1);
-    SetLiquidPhi(liquidPhi, sim);
-
-    Buffer solidVelocity(size, 2);
-    // leave empty
-
-    Pressure pressure(0.01f, size, solver, data, velocity, solidPhi, liquidPhi, solidVelocity);
-
-    EXPECT_CALL(solver, Build(_, _, _, _, _));
-    EXPECT_CALL(solver, Init(_));
-    EXPECT_CALL(solver, Solve(_, _)).WillOnce(InvokeWithoutArgs([&]
+    Buffer computedPressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+    std::vector<float> computedPressureData(size.x*size.y, 0.0f);
+    for (std::size_t i = 0; i < computedPressureData.size(); i++)
     {
-        std::vector<glm::vec2> pressureData(size.x*size.y, glm::vec2(0.0f, 0.0f));
-        for (std::size_t i = 0; i < pressureData.size(); i++)
-        {
-            pressureData[i].x = sim.pressure[i];
-        }
+        computedPressureData[i] = sim.pressure[i];
+    }
+    computedPressure.CopyFrom(computedPressureData);
 
-        Writer(data.Pressure).Write(pressureData);
-    }));
+    Pressure pressure(*device, 0.01f, size, solver, velocity, solidPhi, liquidPhi, solidVelocity);
+
+    EXPECT_CALL(solver, Solve(_, _, _))
+        .WillOnce(Invoke([&](Buffer& pressure, Buffer& data, LinearSolver::Parameters& params)
+        {
+            CommandBuffer cmd(*device);
+            cmd.Record([&](vk::CommandBuffer commandBuffer)
+            {
+                pressure.CopyFrom(commandBuffer, computedPressure);
+            });
+            cmd.Submit();
+            cmd.Wait();
+        }));
 
     LinearSolver::Parameters params(0);
     pressure.Solve(params);
 
-    CheckVelocity(velocity, sim);
+    Texture outputVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
+
+    CommandBuffer cmd(*device);
+    cmd.Record([&](vk::CommandBuffer commandBuffer)
+    {
+        outputVelocity.CopyFrom(commandBuffer, velocity);
+    });
+    cmd.Submit();
+    cmd.Wait();
+
+    CheckVelocity(size, outputVelocity, sim);
 }
 
 TEST(PressureTest, Project_Complex)
 {
-    Disable d(GL_BLEND);
-
     glm::vec2 size(50);
 
     FluidSim sim;
     sim.initialize(1.0f, size.x, size.y);
     sim.set_boundary(boundary_phi);
 
-    AddParticles(size, sim, complex_boundary_phi);
+    AddParticles(size, sim, boundary_phi);
 
     sim.add_force(0.01f);
 
-    LinearSolver::Data data(size);
-    MockLinearSolver solver;
+    NiceMock<LinearSolverMock> solver;
 
-    Buffer velocity(size, 2, true);
-    SetVelocity(velocity, sim);
+    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
+    Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
+    Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
+    Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
 
-    sim.project(0.01f);
+    BuildInputs(size, sim, velocity, solidPhi, liquidPhi);
 
-    Buffer solidPhi(glm::vec2(2)*size, 1);
-    SetSolidPhi(solidPhi, sim);
-
-    Buffer liquidPhi(size, 1);
-    SetLiquidPhi(liquidPhi, sim);
-
-    Buffer solidVelocity(size, 2);
-    // leave empty
-
-    Pressure pressure(0.01f, size, solver, data, velocity, solidPhi, liquidPhi, solidVelocity);
-
-    EXPECT_CALL(solver, Build(_, _, _, _, _));
-    EXPECT_CALL(solver, Init(_));
-    EXPECT_CALL(solver, Solve(_, _)).WillOnce(InvokeWithoutArgs([&]
+    Buffer computedPressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+    std::vector<float> computedPressureData(size.x*size.y, 0.0f);
+    for (std::size_t i = 0; i < computedPressureData.size(); i++)
     {
-        std::vector<glm::vec2> pressureData(size.x*size.y, glm::vec2(0.0f, 0.0f));
-        for (std::size_t i = 0; i < pressureData.size(); i++)
-        {
-            pressureData[i].x = sim.pressure[i];
-        }
+        computedPressureData[i] = sim.pressure[i];
+    }
+    computedPressure.CopyFrom(computedPressureData);
 
-        Writer(data.Pressure).Write(pressureData);
-    }));
+    Pressure pressure(*device, 0.01f, size, solver, velocity, solidPhi, liquidPhi, solidVelocity);
+
+    EXPECT_CALL(solver, Solve(_, _, _))
+        .WillOnce(Invoke([&](Buffer& pressure, Buffer& data, LinearSolver::Parameters& params)
+        {
+            CommandBuffer cmd(*device);
+            cmd.Record([&](vk::CommandBuffer commandBuffer)
+            {
+                pressure.CopyFrom(commandBuffer, computedPressure);
+            });
+            cmd.Submit();
+            cmd.Wait();
+        }));
 
     LinearSolver::Parameters params(0);
     pressure.Solve(params);
 
-    CheckVelocity(velocity, sim);
+    Texture outputVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
+
+    CommandBuffer cmd(*device);
+    cmd.Record([&](vk::CommandBuffer commandBuffer)
+    {
+        outputVelocity.CopyFrom(commandBuffer, velocity);
+    });
+    cmd.Submit();
+    cmd.Wait();
 }
-*/

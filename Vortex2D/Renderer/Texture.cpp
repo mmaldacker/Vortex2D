@@ -97,6 +97,7 @@ Texture::Texture(const Device& device, uint32_t width, uint32_t height, vk::Form
 
     // Transition to eGeneral and clear texture
     // TODO perhaps have initial color or data in the constructor?
+    // TODO put in clear command
     CommandBuffer cmd(device);
     cmd.Record([&](vk::CommandBuffer commandBuffer)
     {
