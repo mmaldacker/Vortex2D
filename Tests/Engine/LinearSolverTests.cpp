@@ -4,11 +4,12 @@
 //
 
 #include "Verify.h"
+#include "VariationalHelpers.h"
 #include <Vortex2D/Engine/LinearSolver/Reduce.h>
+#include <Vortex2D/Engine/LinearSolver/GaussSeidel.h>
 
 /*
 #include <Vortex2D/Engine/LinearSolver/ConjugateGradient.h>
-#include <Vortex2D/Engine/LinearSolver/GaussSeidel.h>
 #include <Vortex2D/Engine/LinearSolver/Multigrid.h>
 #include <Vortex2D/Engine/LinearSolver/Transfer.h>
 #include <Vortex2D/Engine/Pressure.h>
@@ -192,43 +193,32 @@ TEST(LinearSolverTests, RenderMask)
         }
     }
 }
+*/
 
-void BuildLinearEquation(const glm::vec2& size, LinearSolver::Data& data, FluidSim& sim)
+void BuildLinearEquation(const glm::vec2& size, Buffer& data, FluidSim& sim)
 {
-    std::vector<glm::vec2> pressureData(size.x * size.y, glm::vec2(0.0f));
-    for (std::size_t i = 0; i < pressureData.size(); i++)
-    {
-        pressureData[i].y = sim.rhs[i];
-    }
-
-    std::vector<float> diagonalData(size.x * size.y, 0.0f);
-    for (std::size_t index = 0; index < diagonalData.size(); index++)
-    {
-        diagonalData[index] = sim.matrix(index, index);
-    }
-
-    std::vector<glm::vec4> weightsData(size.x * size.y, glm::vec4(0.0f));
+    std::vector<LinearSolver::Data> equationData(size.x * size.y);
     for (std::size_t i = 1; i < size.x - 1; i++)
     {
         for (std::size_t j = 1; j < size.y - 1; j++)
         {
             std::size_t index = i + size.x * j;
-            weightsData[index].x = sim.matrix(index + 1, index);
-            weightsData[index].y = sim.matrix(index - 1, index);
-            weightsData[index].z = sim.matrix(index, index + size.x);
-            weightsData[index].w = sim.matrix(index, index - size.x);
+        equationData[index].Div = sim.rhs[index];
+        equationData[index].Diagonal = sim.matrix(index, index);
+        equationData[index].Weights.x = sim.matrix(index + 1, index);
+        equationData[index].Weights.y = sim.matrix(index - 1, index);
+        equationData[index].Weights.z = sim.matrix(index, index + size.x);
+        equationData[index].Weights.w = sim.matrix(index, index - size.x);
         }
     }
 
-    Writer(data.Pressure).Write(pressureData);
-    Writer(data.Diagonal).Write(diagonalData);
-    Writer(data.Weights).Write(weightsData);
+    data.CopyFrom(equationData);
 }
 
-void CheckPressure(const glm::vec2& size, const std::vector<double>& pressure, LinearSolver::Data& data, float error)
+void CheckPressure(const glm::vec2& size, const std::vector<double>& pressure, Buffer& bufferPressure, float error)
 {
-    Reader reader(data.Pressure);
-    reader.Read();
+    std::vector<float> bufferPressureData(size.x * size.y);
+    bufferPressure.CopyTo(bufferPressureData);
 
     for (int i = 0; i < size.x; i++)
     {
@@ -236,15 +226,13 @@ void CheckPressure(const glm::vec2& size, const std::vector<double>& pressure, L
         {
             std::size_t index = i + j * size.x;
             float value = pressure[index];
-            EXPECT_NEAR(value, reader.GetVec2(i, j).x, error) << "Mismatch at " << i << ", " << j << "\n";
+            EXPECT_NEAR(value, bufferPressureData[index], error) << "Mismatch at " << i << ", " << j << "\n";
         }
     }
 }
 
 TEST(LinearSolverTests, Simple_SOR)
 {
-    Disable d(GL_BLEND);
-
     glm::vec2 size(50);
 
     FluidSim sim;
@@ -256,20 +244,24 @@ TEST(LinearSolverTests, Simple_SOR)
     sim.add_force(0.01f);
     sim.project(0.01f);
 
-    LinearSolver::Data data(size);
+    Buffer data(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(LinearSolver::Data));
+    Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+
     BuildLinearEquation(size, data, sim);
 
     LinearSolver::Parameters params(200);
-    GaussSeidel solver(size);
+    GaussSeidel solver(*device, size);
 
-    solver.Init(data);
-    solver.Solve(data, params);
+    solver.Init(data, pressure);
+    solver.Solve(params);
 
-    CheckPressure(size, sim.pressure, data, 1e-4f);
+    PrintBuffer(size, pressure);
+    //CheckPressure(size, sim.pressure, data, 1e-4f);
 
     std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
 }
 
+/*
 TEST(LinearSolverTests, Complex_SOR)
 {
     Disable d(GL_BLEND);

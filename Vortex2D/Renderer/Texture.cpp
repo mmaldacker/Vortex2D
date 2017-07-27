@@ -98,8 +98,7 @@ Texture::Texture(const Device& device, uint32_t width, uint32_t height, vk::Form
     // Transition to eGeneral and clear texture
     // TODO perhaps have initial color or data in the constructor?
     // TODO put in clear command
-    CommandBuffer cmd(device);
-    cmd.Record([&](vk::CommandBuffer commandBuffer)
+    ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
     {
         Barrier(commandBuffer,
                 imageLayout,
@@ -115,8 +114,6 @@ Texture::Texture(const Device& device, uint32_t width, uint32_t height, vk::Form
                                       clearValue,
                                       vk::ImageSubresourceRange{vk::ImageAspectFlagBits::eColor, 0, 1, 0 ,1});
     });
-    cmd.Submit();
-    cmd.Wait();
 }
 
 void Texture::CopyFrom(const void* data, vk::DeviceSize bytesPerPixel)

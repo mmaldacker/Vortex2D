@@ -76,14 +76,10 @@ TEST(LevelSetTests, SimpleCircle)
 
     device->Handle().waitIdle();
 
-    CommandBuffer cmd(*device);
-    cmd.Record([&](vk::CommandBuffer commandBuffer)
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
        outTexture.CopyFrom(commandBuffer, levelSet);
     });
-
-    cmd.Submit();
-    cmd.Wait();
 
     CheckDifference(outTexture, boundary_phi);
 }
@@ -128,14 +124,10 @@ TEST(LevelSetTests, ComplexCircles)
 
     device->Handle().waitIdle();
 
-    CommandBuffer cmd(*device);
-    cmd.Record([&](vk::CommandBuffer commandBuffer)
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
         outTexture.CopyFrom(commandBuffer, levelSet);
     });
-
-    cmd.Submit();
-    cmd.Wait();
 
     CheckDifference(outTexture, complex_boundary_phi);
 }

@@ -32,6 +32,8 @@ private:
     vk::UniqueFence mFence;
 };
 
+void ExecuteCommand(const Device& device, CommandBuffer::CommandFn commandFn);
+
 }}
 
 #endif

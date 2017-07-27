@@ -44,15 +44,11 @@ TEST(RenderingTest, Square)
     std::vector<float> data(50*50, 0.0f);
     DrawSquare(50, 50, data, rect.Position, size, 1.0f);
 
-    CommandBuffer cmd(*device);
-    cmd.Record([&](vk::CommandBuffer commandBuffer)
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
         outTexture.CopyFrom(commandBuffer, texture);
 
     });
-
-    cmd.Submit();
-    cmd.Wait();
 
     CheckTexture(data, outTexture);
 }
@@ -100,14 +96,10 @@ TEST(RenderingTest, MultipleSquares)
     size *= (glm::vec2)rect1.Scale;
     DrawSquare(50, 50, data, rect1.Position, size, 1.0f);
 
-    CommandBuffer cmd(*device);
-    cmd.Record([&](vk::CommandBuffer commandBuffer)
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
        outTexture.CopyFrom(commandBuffer, texture);
     });
-
-    cmd.Submit();
-    cmd.Wait();
 
     CheckTexture(data, outTexture);
 }
@@ -135,14 +127,10 @@ TEST(RenderingTest, Circle)
     std::vector<float> data(50*50, 0.0f);
     DrawCircle(50, 50, data, ellipse.Position, 5.0f);
 
-    CommandBuffer cmd(*device);
-    cmd.Record([&](vk::CommandBuffer commandBuffer)
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
        outTexture.CopyFrom(commandBuffer, texture);
     });
-
-    cmd.Submit();
-    cmd.Wait();
 
     CheckTexture(data, outTexture);
 }
@@ -172,14 +160,10 @@ TEST(RenderingTest, Ellipse)
     std::vector<float> data(50*50, 0.0f);
     DrawEllipse(50, 50, data, ellipse.Position, radius);
 
-    CommandBuffer cmd(*device);
-    cmd.Record([&](vk::CommandBuffer commandBuffer)
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
        outTexture.CopyFrom(commandBuffer, texture);
     });
-
-    cmd.Submit();
-    cmd.Wait();
 
     CheckTexture(data, outTexture);
 }
@@ -212,14 +196,10 @@ TEST(RenderingTest, ScaledEllipse)
     std::vector<float> data(50*50, 0.0f);
     DrawEllipse(50, 50, data, ellipse.Position, radius);
 
-    CommandBuffer cmd(*device);
-    cmd.Record([&](vk::CommandBuffer commandBuffer)
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
        outTexture.CopyFrom(commandBuffer, texture);
     });
-
-    cmd.Submit();
-    cmd.Wait();
 
     CheckTexture(data, outTexture);
 }
@@ -250,14 +230,10 @@ TEST(RenderingTest, RotatedEllipse)
     std::vector<float> data(50*50, 0.0f);
     DrawEllipse(50, 50, data, ellipse.Position, radius, ellipse.Rotation);
 
-    CommandBuffer cmd(*device);
-    cmd.Record([&](vk::CommandBuffer commandBuffer)
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
        outTexture.CopyFrom(commandBuffer, texture);
     });
-
-    cmd.Submit();
-    cmd.Wait();
 
     CheckTexture(data, outTexture);
 }
@@ -290,14 +266,10 @@ TEST(RenderingTest, RenderScaledEllipse)
     std::vector<float> data(50*50, 0.0f);
     DrawEllipse(50, 50, data, pos, radius);
 
-    CommandBuffer cmd(*device);
-    cmd.Record([&](vk::CommandBuffer commandBuffer)
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
        outTexture.CopyFrom(commandBuffer, texture);
     });
-
-    cmd.Submit();
-    cmd.Wait();
 
     CheckTexture(data, outTexture);
 }

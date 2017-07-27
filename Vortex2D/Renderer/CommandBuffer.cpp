@@ -47,4 +47,13 @@ void CommandBuffer::Submit()
     mDevice.Queue().submit({submitInfo}, *mFence);
 }
 
+void ExecuteCommand(const Device& device, CommandBuffer::CommandFn commandFn)
+{
+    CommandBuffer cmd(device);
+    cmd.Record(commandFn);
+    cmd.Submit();
+    cmd.Wait();
+}
+
+
 }}

@@ -52,21 +52,11 @@ TEST(RenderingTest, TextureCopy)
 
     inTexture.CopyFrom(data);
 
-    CommandBuffer cmd(*device);
-    cmd.Record([&](vk::CommandBuffer commandBuffer)
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
        texture.CopyFrom(commandBuffer, inTexture);
-    });
-
-    cmd.Submit();
-
-    cmd.Record([&](vk::CommandBuffer commandBuffer)
-    {
        outTexture.CopyFrom(commandBuffer, texture);
     });
-
-    cmd.Submit();
-    cmd.Wait();
 
     CheckTexture(data, outTexture);
 }
@@ -87,14 +77,10 @@ TEST(RenderingTest, ClearTexture)
 
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);
 
-    CommandBuffer cmd(*device);
-    cmd.Record([&](vk::CommandBuffer commandBuffer)
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
         outTexture.CopyFrom(commandBuffer, texture);
     });
-
-    cmd.Submit();
-    cmd.Wait();
 
     CheckTexture(data, outTexture);
 }

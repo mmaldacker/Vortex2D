@@ -8,7 +8,16 @@ int main(int argc, char **argv)
 {
     std::vector<const char*> extensions;
     Vortex2D::Renderer::Instance instance_;
-    instance_.Create("Tests", extensions, true);
+
+    bool debug;
+
+#ifdef NDEBUG
+    debug = false;
+#else
+    debug = true;
+#endif
+
+    instance_.Create("Tests", extensions, debug);
     Vortex2D::Renderer::Device device_(instance_.GetPhysicalDevice());
 
     device = &device_;

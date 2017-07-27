@@ -60,12 +60,14 @@ Pressure::Pressure(const Renderer::Device& device,
         mProjectBound.PushConstant(commandBuffer, 8, dt);
         mProjectBound.Record(commandBuffer);
     });
+
+    mSolver.Init(mData, mPressure);
 }
 
 void Pressure::Solve(LinearSolver::Parameters& params)
 {
     mBuildEquationCmd.Submit();
-    mSolver.Solve(mPressure, mData, params);
+    mSolver.Solve(params);
     mProjectCmd.Submit();
 }
 

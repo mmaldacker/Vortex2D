@@ -19,7 +19,8 @@ extern Device* device;
 
 struct LinearSolverMock : LinearSolver
 {
-    MOCK_METHOD3(Solve, void(Buffer& pressure, Buffer& data, Parameters& params));
+    MOCK_METHOD2(Init, void(Buffer& data, Buffer& pressure));
+    MOCK_METHOD1(Solve, void(Parameters& params));
 };
 
 void PrintDiv(const glm::vec2& size, Buffer& buffer)
@@ -193,15 +194,12 @@ void BuildInputs(const glm::vec2& size, FluidSim& sim, Texture& velocity, Textur
     Texture inputLiquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
     SetLiquidPhi(size, inputLiquidPhi, sim);
 
-    CommandBuffer cmd(*device);
-    cmd.Record([&](vk::CommandBuffer commandBuffer)
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
        velocity.CopyFrom(commandBuffer, inputVelocity);
        solidPhi.CopyFrom(commandBuffer, inputSolidPhi);
        liquidPhi.CopyFrom(commandBuffer, inputLiquidPhi);
     });
-    cmd.Submit();
-    cmd.Wait();
 }
 
 TEST(PressureTest, LinearEquationSetup_Simple)
@@ -225,14 +223,14 @@ TEST(PressureTest, LinearEquationSetup_Simple)
 
     BuildInputs(size, sim, velocity, solidPhi, liquidPhi);
 
-    Pressure pressure(*device, 0.01f, size, solver, velocity, solidPhi, liquidPhi, solidVelocity);
-
     Buffer* result = nullptr;
-    EXPECT_CALL(solver, Solve(_, _, _))
-            .WillOnce(Invoke([&](Buffer& pressure, Buffer& data, LinearSolver::Parameters& params)
+    EXPECT_CALL(solver, Init(_, _))
+            .WillOnce(Invoke([&](Buffer& data, Buffer& pressure)
             {
                 result = &data;
             }));
+
+    Pressure pressure(*device, 0.01f, size, solver, velocity, solidPhi, liquidPhi, solidVelocity);
 
     LinearSolver::Parameters params(0);
     pressure.Solve(params);
@@ -241,14 +239,10 @@ TEST(PressureTest, LinearEquationSetup_Simple)
 
     Buffer p(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(LinearSolver::Data));
 
-    device->Queue().waitIdle();
-    CommandBuffer cmd(*device);
-    cmd.Record([&](vk::CommandBuffer commandBuffer)
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
         p.CopyFrom(commandBuffer, *result);
     });
-    cmd.Submit();
-    cmd.Wait();
 
     CheckDiagonal(size, p, sim, 1e-3); // FIXME can we reduce error tolerance?
     CheckWeights(size, p, sim, 1e-3); // FIXME can we reduce error tolerance?
@@ -276,14 +270,14 @@ TEST(PressureTest, LinearEquationSetup_Complex)
 
     BuildInputs(size, sim, velocity, solidPhi, liquidPhi);
 
-    Pressure pressure(*device, 0.01f, size, solver, velocity, solidPhi, liquidPhi, solidVelocity);
-
     Buffer* result = nullptr;
-    EXPECT_CALL(solver, Solve(_, _, _))
-            .WillOnce(Invoke([&](Buffer& pressure, Buffer& data, LinearSolver::Parameters& params)
+    EXPECT_CALL(solver, Init(_, _))
+            .WillOnce(Invoke([&](Buffer& data, Buffer& pressure)
             {
                 result = &data;
             }));
+
+    Pressure pressure(*device, 0.01f, size, solver, velocity, solidPhi, liquidPhi, solidVelocity);
 
     LinearSolver::Parameters params(0);
     pressure.Solve(params);
@@ -292,14 +286,10 @@ TEST(PressureTest, LinearEquationSetup_Complex)
 
     Buffer p(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(LinearSolver::Data));
 
-    device->Queue().waitIdle();
-    CommandBuffer cmd(*device);
-    cmd.Record([&](vk::CommandBuffer commandBuffer)
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
         p.CopyFrom(commandBuffer, *result);
     });
-    cmd.Submit();
-    cmd.Wait();
 
     CheckDiagonal(size, p, sim, 1e-3); // FIXME can we reduce error tolerance?
     CheckWeights(size, p, sim, 1e-3); // FIXME can we reduce error tolerance?
@@ -335,32 +325,27 @@ TEST(PressureTest, Project_Simple)
     }
     computedPressure.CopyFrom(computedPressureData);
 
-    Pressure pressure(*device, 0.01f, size, solver, velocity, solidPhi, liquidPhi, solidVelocity);
-
-    EXPECT_CALL(solver, Solve(_, _, _))
-        .WillOnce(Invoke([&](Buffer& pressure, Buffer& data, LinearSolver::Parameters& params)
+    EXPECT_CALL(solver, Init(_, _))
+        .WillOnce(Invoke([&](Buffer& data, Buffer& pressure)
         {
-            CommandBuffer cmd(*device);
-            cmd.Record([&](vk::CommandBuffer commandBuffer)
+            ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
             {
                 pressure.CopyFrom(commandBuffer, computedPressure);
             });
-            cmd.Submit();
-            cmd.Wait();
         }));
+
+
+    Pressure pressure(*device, 0.01f, size, solver, velocity, solidPhi, liquidPhi, solidVelocity);
 
     LinearSolver::Parameters params(0);
     pressure.Solve(params);
 
     Texture outputVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
 
-    CommandBuffer cmd(*device);
-    cmd.Record([&](vk::CommandBuffer commandBuffer)
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
         outputVelocity.CopyFrom(commandBuffer, velocity);
     });
-    cmd.Submit();
-    cmd.Wait();
 
     CheckVelocity(size, outputVelocity, sim);
 }
@@ -394,30 +379,24 @@ TEST(PressureTest, Project_Complex)
     }
     computedPressure.CopyFrom(computedPressureData);
 
-    Pressure pressure(*device, 0.01f, size, solver, velocity, solidPhi, liquidPhi, solidVelocity);
-
-    EXPECT_CALL(solver, Solve(_, _, _))
-        .WillOnce(Invoke([&](Buffer& pressure, Buffer& data, LinearSolver::Parameters& params)
+    EXPECT_CALL(solver, Init(_, _))
+        .WillOnce(Invoke([&](Buffer& data, Buffer& pressure)
         {
-            CommandBuffer cmd(*device);
-            cmd.Record([&](vk::CommandBuffer commandBuffer)
+            ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
             {
                 pressure.CopyFrom(commandBuffer, computedPressure);
             });
-            cmd.Submit();
-            cmd.Wait();
         }));
+
+    Pressure pressure(*device, 0.01f, size, solver, velocity, solidPhi, liquidPhi, solidVelocity);
 
     LinearSolver::Parameters params(0);
     pressure.Solve(params);
 
     Texture outputVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
 
-    CommandBuffer cmd(*device);
-    cmd.Record([&](vk::CommandBuffer commandBuffer)
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
         outputVelocity.CopyFrom(commandBuffer, velocity);
     });
-    cmd.Submit();
-    cmd.Wait();
 }

@@ -42,10 +42,12 @@ struct LinearSolver
 
     virtual ~LinearSolver() {}
 
+    virtual void Init(Renderer::Buffer& data, Renderer::Buffer& pressure) = 0;
+
     /**
      * @brief Solves the linear equations
      */
-    virtual void Solve(Renderer::Buffer& pressure, Renderer::Buffer& data, Parameters& params) = 0;
+    virtual void Solve(Parameters& params) = 0;
 };
 
 }}

@@ -8,6 +8,8 @@ file(GLOB LIB_SOURCES
     "Engine/LinearSolver/LinearSolver.cpp"
     "Engine/LinearSolver/Reduce.h"
     "Engine/LinearSolver/Reduce.cpp"
+    "Engine/LinearSolver/GaussSeidel.h"
+    "Engine/LinearSolver/GaussSeidel.cpp"
     "Renderer/*.cpp"
     "Renderer/*.h")
 
