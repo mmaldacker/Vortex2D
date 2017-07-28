@@ -82,8 +82,9 @@ Reduce::Reduce(const Renderer::Device& device,
 
     mCommandBuffer.Record([&](vk::CommandBuffer commandBuffer)
     {
-        input.Barrier(commandBuffer, vk::AccessFlagBits::eShaderRead);
-        mReduce.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite);
+        // TODO improve barriers
+        input.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        mReduce.Barrier(commandBuffer, vk::AccessFlagBits::eShaderRead, vk::AccessFlagBits::eShaderWrite);
 
         commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, *mPipeline);
 
@@ -91,8 +92,8 @@ Reduce::Reduce(const Renderer::Device& device,
         commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, *mPipelineLayout, 0, {*mDescriptorSet0}, {});
         commandBuffer.dispatch(workGroupSize0, 1, 1);
 
-        mReduce.Barrier(commandBuffer, vk::AccessFlagBits::eShaderRead);
-        output.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite);
+        mReduce.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        output.Barrier(commandBuffer, vk::AccessFlagBits::eShaderRead, vk::AccessFlagBits::eShaderWrite);
 
         commandBuffer.pushConstants(*mPipelineLayout, vk::ShaderStageFlagBits::eCompute, 0, 4, &workGroupSize0);
         commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, *mPipelineLayout, 0, {*mDescriptorSet1}, {});

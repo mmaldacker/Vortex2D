@@ -10,7 +10,6 @@ namespace Vortex2D { namespace Renderer {
 Buffer::Buffer(const Device& device, vk::BufferUsageFlags usageFlags, bool host, vk::DeviceSize deviceSize)
     : mDevice(device.Handle())
     , mSize(deviceSize)
-    , mAccess({}) // TODO should this be the initial access?
 {
     usageFlags |= vk::BufferUsageFlagBits::eTransferDst |
                   vk::BufferUsageFlagBits::eTransferSrc;
@@ -65,8 +64,9 @@ void Buffer::CopyFrom(vk::CommandBuffer commandBuffer, Buffer& srcBuffer)
         return;
     }
 
-    srcBuffer.Barrier(commandBuffer, vk::AccessFlagBits::eTransferRead);
-    Barrier(commandBuffer, vk::AccessFlagBits::eTransferWrite);
+    // TODO improve barriers
+    srcBuffer.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eTransferRead);
+    Barrier(commandBuffer, vk::AccessFlagBits::eShaderRead, vk::AccessFlagBits::eTransferWrite);
 
     auto region = vk::BufferCopy()
             .setSize(mSize);
@@ -74,16 +74,8 @@ void Buffer::CopyFrom(vk::CommandBuffer commandBuffer, Buffer& srcBuffer)
     commandBuffer.copyBuffer(srcBuffer, *mBuffer, region);
 }
 
-void Buffer::Barrier(vk::CommandBuffer commandBuffer, vk::AccessFlags newAccess)
+void Buffer::Barrier(vk::CommandBuffer commandBuffer, vk::AccessFlags oldAccess, vk::AccessFlags newAccess)
 {
-    if (newAccess == mAccess)
-    {
-        return;
-    }
-
-    vk::AccessFlags oldAccess = mAccess;
-    mAccess = newAccess;
-
     auto bufferMemoryBarriers = vk::BufferMemoryBarrier()
             .setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
             .setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)

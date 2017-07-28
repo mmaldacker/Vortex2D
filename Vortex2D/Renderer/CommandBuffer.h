@@ -19,7 +19,7 @@ class CommandBuffer
 public:
     using CommandFn = std::function<void(vk::CommandBuffer)>;
 
-    CommandBuffer(const Device& device);
+    CommandBuffer(const Device& device, bool synchronise = true);
     ~CommandBuffer();
 
     void Record(CommandFn commandFn);
@@ -28,6 +28,7 @@ public:
 
 private:
     const Device& mDevice;
+    bool mSynchronise;
     vk::CommandBuffer mCommandBuffer;
     vk::UniqueFence mFence;
 };

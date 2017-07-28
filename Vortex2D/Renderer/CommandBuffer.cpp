@@ -7,8 +7,9 @@
 
 namespace Vortex2D { namespace Renderer {
 
-CommandBuffer::CommandBuffer(const Device& device)
+CommandBuffer::CommandBuffer(const Device& device, bool synchronise)
     : mDevice(device)
+    , mSynchronise(synchronise)
     , mCommandBuffer(device.CreateCommandBuffers(1).at(0))
     , mFence(device.Handle().createFenceUnique({vk::FenceCreateFlagBits::eSignaled}))
 {
@@ -34,8 +35,11 @@ void CommandBuffer::Record(CommandBuffer::CommandFn commandFn)
 
 void CommandBuffer::Wait()
 {
-    mDevice.Handle().waitForFences({*mFence}, true, UINT64_MAX);
-    mDevice.Handle().resetFences({*mFence});
+    if (mSynchronise)
+    {
+        mDevice.Handle().waitForFences({*mFence}, true, UINT64_MAX);
+        mDevice.Handle().resetFences({*mFence});
+    }
 }
 
 void CommandBuffer::Submit()
@@ -44,7 +48,14 @@ void CommandBuffer::Submit()
             .setCommandBufferCount(1)
             .setPCommandBuffers(&mCommandBuffer);
 
-    mDevice.Queue().submit({submitInfo}, *mFence);
+    if (mSynchronise)
+    {
+        mDevice.Queue().submit({submitInfo}, *mFence);
+    }
+    else
+    {
+        mDevice.Queue().submit({submitInfo}, nullptr);
+    }
 }
 
 void ExecuteCommand(const Device& device, CommandBuffer::CommandFn commandFn)

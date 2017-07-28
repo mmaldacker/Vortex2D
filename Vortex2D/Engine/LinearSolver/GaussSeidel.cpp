@@ -16,7 +16,7 @@ GaussSeidel::GaussSeidel(const Renderer::Device& device, const glm::vec2& size)
                    {vk::DescriptorType::eStorageBuffer,
                     vk::DescriptorType::eStorageBuffer},
                    8)
-    , mGaussSeidelCmd(device)
+    , mGaussSeidelCmd(device, false)
 {
 }
 

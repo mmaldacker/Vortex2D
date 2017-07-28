@@ -53,7 +53,7 @@ public:
     operator vk::Buffer() const;
     vk::DeviceSize Size() const;
 
-    void Barrier(vk::CommandBuffer commandBuffer, vk::AccessFlags newAccess);
+    void Barrier(vk::CommandBuffer commandBuffer, vk::AccessFlags oldAccess, vk::AccessFlags newAccess);
 
     // TODO add clear function
 
@@ -62,7 +62,6 @@ private:
     vk::UniqueBuffer mBuffer;
     vk::UniqueDeviceMemory mMemory;
     vk::DeviceSize mSize;
-    vk::AccessFlags mAccess;
 };
 
 }}
