@@ -43,3 +43,13 @@ if (VORTEX2D_ENABLE_TESTS)
   add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
   add_subdirectory(Tests)
 endif ()
+
+if (VORTEX2D_ENABLE_PERFTESTS)
+  enable_testing()
+  download_project(PROJ                benchmark
+                   GIT_REPOSITORY      https://github.com/google/benchmark.git
+                   GIT_TAG             v1.2.0 
+                   ${UPDATE_DISCONNECTED_IF_AVAILABLE})
+
+	add_subdirectory(PerfTests)
+endif ()
