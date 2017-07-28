@@ -29,8 +29,10 @@ void GaussSeidel::Init(Renderer::Buffer& data, Renderer::Buffer& pressure)
         mGaussSeidelBound.PushConstant(commandBuffer, 8, mW);
         mGaussSeidelBound.PushConstant(commandBuffer, 12, 1);
         mGaussSeidelBound.Record(commandBuffer);
+        pressure.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         mGaussSeidelBound.PushConstant(commandBuffer, 12, 0);
         mGaussSeidelBound.Record(commandBuffer);
+        pressure.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
     });
 }
 

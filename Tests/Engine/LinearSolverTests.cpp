@@ -255,8 +255,9 @@ TEST(LinearSolverTests, Simple_SOR)
     solver.Init(data, pressure);
     solver.Solve(params);
 
-    PrintBuffer(size, pressure);
-    //CheckPressure(size, sim.pressure, data, 1e-4f);
+    device->Queue().waitIdle();
+
+    CheckPressure(size, sim.pressure, pressure, 1e-4f);
 
     std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
 }

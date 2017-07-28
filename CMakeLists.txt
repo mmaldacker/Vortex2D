@@ -4,6 +4,7 @@ project(Vortex2D)
 
 option(VORTEX2D_ENABLE_EXAMPLES "Build examples" OFF)
 option(VORTEX2D_ENABLE_TESTS "Build tests" OFF)
+option(VORTEX2D_ENABLE_PERFTESTS "Build performance tests" OFF)
 
 # Only do coverage builds for gcc for the moment
 if (CMAKE_COMPILER_IS_GNUCXX)
@@ -46,10 +47,11 @@ endif ()
 
 if (VORTEX2D_ENABLE_PERFTESTS)
   enable_testing()
+  set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
   download_project(PROJ                benchmark
                    GIT_REPOSITORY      https://github.com/google/benchmark.git
-                   GIT_TAG             v1.2.0 
+                   GIT_TAG             v1.2.0
                    ${UPDATE_DISCONNECTED_IF_AVAILABLE})
-
-	add_subdirectory(PerfTests)
+  add_subdirectory(${benchmark_SOURCE_DIR} ${benchmark_BINARY_DIR})
+  add_subdirectory(PerfTests)
 endif ()

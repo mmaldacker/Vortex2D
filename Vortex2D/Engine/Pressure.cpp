@@ -52,6 +52,7 @@ Pressure::Pressure(const Renderer::Device& device,
         // TODO barrier for liquidPhi, solidPhi, velocity and solidVelocity
         mBuildEquationDataBound.PushConstant(commandBuffer, 8, dt);
         mBuildEquationDataBound.Record(commandBuffer);
+        mData.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
     });
 
     mProjectCmd.Record([&](vk::CommandBuffer commandBuffer)
@@ -59,6 +60,11 @@ Pressure::Pressure(const Renderer::Device& device,
         // TODO barrier for pressure
         mProjectBound.PushConstant(commandBuffer, 8, dt);
         mProjectBound.Record(commandBuffer);
+        velocity.Barrier(commandBuffer,
+                         vk::ImageLayout::eGeneral,
+                         vk::AccessFlagBits::eShaderWrite,
+                         vk::ImageLayout::eGeneral,
+                         vk::AccessFlagBits::eShaderRead);
     });
 
     mSolver.Init(mData, mPressure);
