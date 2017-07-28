@@ -155,29 +155,6 @@ void Device::FreeCommandBuffers(vk::ArrayProxy<const vk::CommandBuffer> commandB
     mDevice->freeCommandBuffers(*mCommandPool, commandBuffers);
 }
 
-// TODO replace with command buffer ring
-// TODO use barrier instead of fence
-template<typename F>
-void ExecuteCommand(F f)
-{
-    vk::CommandBuffer cmd = CreateCommandBuffers(1).at(0);
-
-    auto cmdBeginInfo = vk::CommandBufferBeginInfo()
-            .setFlags(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
-
-    cmd.begin(cmdBeginInfo);
-    f(cmd);
-    cmd.end();
-
-    auto submitInfo = vk::SubmitInfo()
-            .setCommandBufferCount(1)
-            .setPCommandBuffers(&cmd);
-
-    mQueue.submit({submitInfo}, nullptr);
-    mQueue.waitIdle();
-    FreeCommandBuffers({cmd});
-}
-
 uint32_t Device::FindMemoryPropertiesIndex(uint32_t memoryTypeBits, vk::MemoryPropertyFlags properties) const
 {
     auto memoryProperties = mPhysicalDevice.getMemoryProperties();

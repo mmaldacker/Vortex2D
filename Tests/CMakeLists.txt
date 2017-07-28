@@ -32,7 +32,7 @@ compile_shader(TARGET vortex2d_tests SOURCES ${SHADER_TEST_SOURCES})
 
 target_compile_features(vortex2d_tests PRIVATE cxx_variadic_templates)
 target_link_libraries(vortex2d_tests vortex2d gtest gmock gmock_main Threads::Threads)
-target_include_directories(vortex2d_tests PRIVATE "./")
+target_include_directories(vortex2d_tests PRIVATE "./" "./variationalplusgfm")
 
 add_test(AllTests vortex2d_tests)
 
