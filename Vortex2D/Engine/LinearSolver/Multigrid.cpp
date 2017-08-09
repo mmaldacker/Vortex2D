@@ -6,35 +6,104 @@
 #include "Multigrid.h"
 
 namespace Vortex2D { namespace Fluid {
-/*
-Multigrid::Multigrid(glm::vec2 size)
-    : mDepths(0)
-    , mResidual(Renderer::Shader::TexturePositionVert, ResidualFrag)
-    , mDampedJacobi(Renderer::Shader::TexturePositionVert, DampedJacobiFrag)
-    , mIdentity(Renderer::Shader::TexturePositionVert, Renderer::Shader::TexturePositionFrag)
-    , mScale(ScaleVert, ScaleFrag)
-    , mBoundaryMask(Renderer::Shader::PositionVert, BoundaryMaskFrag)
-{
-    const float min_size = 4.0f;
 
+namespace
+{
+const float min_size = 10.0f;
+}
+
+Multigrid::Multigrid(const Renderer::Device& device, glm::vec2 size)
+    : mSize(size)
+    , mDepths(0)
+    , mResidualWork(device, size, "../Vortex2D/Residual.comp.spv",
+                    {vk::DescriptorType::eStorageBuffer,
+                    vk::DescriptorType::eStorageBuffer,
+                    vk::DescriptorType::eStorageBuffer,
+                    vk::DescriptorType::eStorageBuffer})
+    , mDampedJacobiWork(device, size, "../Vortex2D/DampedJacobi.comp.spv",
+                        {vk::DescriptorType::eStorageBuffer,
+                        vk::DescriptorType::eStorageBuffer,
+                        vk::DescriptorType::eStorageBuffer,
+                        vk::DescriptorType::eStorageBuffer})
+    , mTransfer(device)
+    , mCmd(device, false)
+{
     while (size.x > min_size && size.y > min_size)
     {
-        size = glm::ceil(size/glm::vec2(2.0f));
+        int width = size.x;
+        int height = size.y;
+        assert(width % 2 == 0);
+        assert(height % 2 == 0);
 
-        mDatas.emplace_back(size);
+        size = (size - glm::vec2(2)) / glm::vec2(2) + glm::vec2(2);
 
-        mLiquidPhis.emplace_back(size, 1);
-        mSolidPhis.emplace_back(glm::vec2(2)*size, 1);
-
-        mSolidPhis.back().BorderColour(glm::vec4(-1.0f));
-        mLiquidPhis.back().BorderColour(glm::vec4(-1.0f));
+        mMatrices.emplace_back(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(Data));
+        mPressures.emplace_back(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
+        mResiduals.emplace_back(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
+        mSolidPhis.emplace_back(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
+        mLiquidPhis.emplace_back(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
 
         mDepths++;
     }
-
-    mGaussSeidel.SetW(1.0f);
 }
 
+void Multigrid::Init(Renderer::Buffer& matrix, Renderer::Buffer& b, Renderer::Buffer& pressure)
+{
+    mResidualWorkBound.push_back(mResidualWork.Bind(mSize, {pressure, matrix, b, mResiduals[0]}));
+
+    auto size = mSize;
+    while (size.x > min_size && size.y > min_size)
+    {
+
+        size = (size - glm::vec2(2)) / glm::vec2(2) + glm::vec2(2);
+
+        //mTransfer.Init(size,        )
+    };
+
+    mCmd.Record([&](vk::CommandBuffer commandBuffer)
+    {
+        int numIterations = 4;
+        int numBorderIterations = 2;
+
+        pressure.Clear(commandBuffer);
+
+        //Smoother(data, numIterations);
+        //BorderSmoother(data, numBorderIterations, true);
+
+        if (mDepths > 0)
+        {
+            for (int i = 0 ; i < mDepths - 1 ; i++)
+            {
+                numIterations *= 2;
+
+                //Smoother(x, 4);
+                //BorderSmoother(x, numBorderIterations, true);
+
+                mResidualWorkBound[i].Record(commandBuffer);
+                mResiduals[i].Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+                mTransfer.Restrict(i);
+                mPressures[i].Clear(commandBuffer);
+            }
+
+            //Smoother(mDatas.back(), numIterations * 2);
+
+            for (int i = mDepths - 2 ; i >= 0 ; --i)
+            {
+                mTransfer.Prolongate(i);
+
+                //BorderSmoother(x, numBorderIterations, false);
+                //Smoother(x, numIterations);
+
+                numIterations /= 2;
+            }
+        }
+
+        //BorderSmoother(data, numBorderIterations, false);
+        //Smoother(data, numIterations);
+    });
+}
+
+/*
 void Multigrid::Smoother(Data& data, int iterations)
 {
     for (int i = 0; i < iterations; i++)
@@ -78,69 +147,11 @@ void Multigrid::Build(Renderer::Work& buildEquation,
         x.Weights = weights(mSolidPhis[i], mLiquidPhis[i]);
     }
 }
-
-void Multigrid::Init(LinearSolver::Data& data)
-{
-    RenderMask(data.Pressure, data);
-    RenderBoundaryMask(data, data.Diagonal);
-
-    for (int i = 0; i < mDepths; i++)
-    {
-        //mDatas[i].Pressure.Clear(glm::vec4(0.0f));
-        RenderMask(mDatas[i].Pressure, mDatas[i]);
-        RenderBoundaryMask(mDatas[i], mDatas[i].Diagonal);
-    }
-}
+*/
 
 void Multigrid::Solve(Parameters&)
 {
-    int numIterations = 2;
-
-    Smoother(data, numIterations);
-    //BorderSmoother(data, numIterations, true);
-
-    if (mDepths > 0)
-    {
-        data.Pressure.Swap();
-        data.Pressure = mResidual(Back(data.Pressure), data.Weights, data.Diagonal);
-
-        mDatas[0].Pressure = mTransfer.Restrict(data.Pressure);
-
-        for (int i = 0 ; i < mDepths - 1 ; i++)
-        {
-            numIterations *= 2;
-            auto& x = mDatas[i];
-
-            Smoother(x, numIterations);
-            //BorderSmoother(x, numIterations, true);
-
-            x.Pressure.Swap();
-            x.Pressure = mResidual(Back(x.Pressure), x.Weights, x.Diagonal);
-
-            mDatas[i + 1].Pressure = mTransfer.Restrict(x.Pressure);
-        }
-
-        Smoother(mDatas.back(), numIterations * 2);
-
-        for (int i = mDepths - 2 ; i >= 0 ; --i)
-        {
-            auto& x = mDatas[i];
-
-            x.Pressure.Swap();
-            x.Pressure = mTransfer.Prolongate(mDatas[i + 1].Pressure, Back(x.Pressure));
-
-            //BorderSmoother(x, numIterations, false);
-            Smoother(x, numIterations);
-
-            numIterations /= 2;
-        }
-
-        data.Pressure.Swap();
-        data.Pressure = mTransfer.Prolongate(mDatas[0].Pressure, Back(data.Pressure));
-    }
-
-    //BorderSmoother(data, numIterations, false);
-    Smoother(data, numIterations);
+    mCmd.Submit();
 }
-*/
+
 }}
