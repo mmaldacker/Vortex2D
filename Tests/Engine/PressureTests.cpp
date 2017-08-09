@@ -23,7 +23,7 @@ struct LinearSolverMock : LinearSolver
     MOCK_METHOD1(Solve, void(Parameters& params));
 };
 
-void PrintDiv(const glm::vec2& size, Buffer& buffer)
+void PrintDiv(const glm::ivec2& size, Buffer& buffer)
 {
     std::vector<float> pixels(size.x * size.y);
     buffer.CopyTo(pixels);
@@ -39,7 +39,7 @@ void PrintDiv(const glm::vec2& size, Buffer& buffer)
     }
 }
 
-void PrintDiagonal(const glm::vec2& size, Buffer& buffer)
+void PrintDiagonal(const glm::ivec2& size, Buffer& buffer)
 {
     std::vector<LinearSolver::Data> pixels(size.x * size.y);
     buffer.CopyTo(pixels);
@@ -56,13 +56,13 @@ void PrintDiagonal(const glm::vec2& size, Buffer& buffer)
     std::cout << std::endl;
 }
 
-void PrintWeights(const glm::vec2& size, FluidSim& sim)
+void PrintWeights(const glm::ivec2& size, FluidSim& sim)
 {
-    for (std::size_t j = 1; j < size.y - 1; j++)
+    for (int j = 1; j < size.y - 1; j++)
     {
-        for (std::size_t i = 1; i < size.x - 1; i++)
+        for (int i = 1; i < size.x - 1; i++)
         {
-            std::size_t index = i + size.x * j;
+            int index = i + size.x * j;
             std::cout << "(" <<  sim.matrix(index + 1, index) << ","
                       << sim.matrix(index - 1, index) << ","
                       << sim.matrix(index, index + size.x) << ","
@@ -73,7 +73,7 @@ void PrintWeights(const glm::vec2& size, FluidSim& sim)
     std::cout << std::endl;
 }
 
-void PrintDiagonal(const glm::vec2& size, FluidSim& sim)
+void PrintDiagonal(const glm::ivec2& size, FluidSim& sim)
 {
     for (std::size_t j = 0; j < size.y; j++)
     {
@@ -86,7 +86,7 @@ void PrintDiagonal(const glm::vec2& size, FluidSim& sim)
     }
 }
 
-void CheckDiagonal(const glm::vec2& size, Buffer& buffer, FluidSim& sim, float error = 1e-6)
+void CheckDiagonal(const glm::ivec2& size, Buffer& buffer, FluidSim& sim, float error = 1e-6)
 {
     std::vector<LinearSolver::Data> pixels(size.x * size.y);
     buffer.CopyTo(pixels);
@@ -101,7 +101,7 @@ void CheckDiagonal(const glm::vec2& size, Buffer& buffer, FluidSim& sim, float e
     }
 }
 
-void CheckWeights(const glm::vec2& size, Buffer& buffer, FluidSim& sim, float error = 1e-6)
+void CheckWeights(const glm::ivec2& size, Buffer& buffer, FluidSim& sim, float error = 1e-6)
 {
     std::vector<LinearSolver::Data> pixels(size.x * size.y);
     buffer.CopyTo(pixels);
@@ -119,7 +119,7 @@ void CheckWeights(const glm::vec2& size, Buffer& buffer, FluidSim& sim, float er
     }
 }
 
-void CheckDiv(const glm::vec2& size, Buffer& buffer, FluidSim& sim, float error = 1e-6)
+void CheckDiv(const glm::ivec2& size, Buffer& buffer, FluidSim& sim, float error = 1e-6)
 {
     std::vector<float> pixels(size.x * size.y);
     buffer.CopyTo(pixels);
@@ -134,7 +134,7 @@ void CheckDiv(const glm::vec2& size, Buffer& buffer, FluidSim& sim, float error 
     }
 }
 
-void CheckVelocity(const glm::vec2& size, Vortex2D::Renderer::Texture& buffer, FluidSim& sim, float error = 1e-6)
+void CheckVelocity(const glm::ivec2& size, Vortex2D::Renderer::Texture& buffer, FluidSim& sim, float error = 1e-6)
 {
     std::vector<glm::vec2> pixels(size.x * size.y);
     buffer.CopyTo(pixels);
@@ -151,7 +151,7 @@ void CheckVelocity(const glm::vec2& size, Vortex2D::Renderer::Texture& buffer, F
     }
 }
 
-void PrintVelocity(const glm::vec2& size, Texture& buffer)
+void PrintVelocity(const glm::ivec2& size, Texture& buffer)
 {
     std::vector<glm::vec2> pixels(size.x * size.y);
     buffer.CopyTo(pixels);
@@ -168,7 +168,7 @@ void PrintVelocity(const glm::vec2& size, Texture& buffer)
     std::cout << std::endl;
 }
 
-void PrintVelocity(const glm::vec2& size, FluidSim& sim)
+void PrintVelocity(const glm::ivec2& size, FluidSim& sim)
 {
     for (std::size_t j = 0; j < size.y; j++)
     {
@@ -181,7 +181,7 @@ void PrintVelocity(const glm::vec2& size, FluidSim& sim)
     std::cout << std::endl;
 }
 
-void BuildInputs(const glm::vec2& size, FluidSim& sim, Texture& velocity, Texture& solidPhi, Texture& liquidPhi)
+void BuildInputs(const glm::ivec2& size, FluidSim& sim, Texture& velocity, Texture& solidPhi, Texture& liquidPhi)
 {
     Texture inputVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
     SetVelocity(size, inputVelocity, sim);
@@ -204,7 +204,7 @@ void BuildInputs(const glm::vec2& size, FluidSim& sim, Texture& velocity, Textur
 
 TEST(PressureTest, LinearEquationSetup_Simple)
 {
-    glm::vec2 size(50);
+    glm::ivec2 size(50);
 
     FluidSim sim;
     sim.initialize(1.0f, size.x, size.y);
@@ -249,14 +249,14 @@ TEST(PressureTest, LinearEquationSetup_Simple)
         divOutput.CopyFrom(commandBuffer, *divResult);
     });
 
-    CheckDiagonal(size, matrixOutput, sim, 1e-3); // FIXME can we reduce error tolerance?
-    CheckWeights(size, matrixOutput, sim, 1e-3); // FIXME can we reduce error tolerance?
+    CheckDiagonal(size, matrixOutput, sim, 1e-3f); // FIXME can we reduce error tolerance?
+    CheckWeights(size, matrixOutput, sim, 1e-3f); // FIXME can we reduce error tolerance?
     CheckDiv(size, divOutput, sim);
 }
 
 TEST(PressureTest, LinearEquationSetup_Complex)
 {
-    glm::vec2 size(50);
+    glm::ivec2 size(50);
 
     FluidSim sim;
     sim.initialize(1.0f, size.x, size.y);
@@ -301,14 +301,14 @@ TEST(PressureTest, LinearEquationSetup_Complex)
         divOutput.CopyFrom(commandBuffer, *divResult);
     });
 
-    CheckDiagonal(size, matrixOutput, sim, 1e-3); // FIXME can we reduce error tolerance?
-    CheckWeights(size, matrixOutput, sim, 1e-3); // FIXME can we reduce error tolerance?
+    CheckDiagonal(size, matrixOutput, sim, 1e-3f); // FIXME can we reduce error tolerance?
+    CheckWeights(size, matrixOutput, sim, 1e-3f); // FIXME can we reduce error tolerance?
     CheckDiv(size, divOutput, sim);
 }
 
 TEST(PressureTest, Project_Simple)
 {
-    glm::vec2 size(50);
+    glm::ivec2 size(50);
 
     FluidSim sim;
     sim.initialize(1.0f, size.x, size.y);
@@ -331,7 +331,7 @@ TEST(PressureTest, Project_Simple)
     std::vector<float> computedPressureData(size.x*size.y, 0.0f);
     for (std::size_t i = 0; i < computedPressureData.size(); i++)
     {
-        computedPressureData[i] = sim.pressure[i];
+        computedPressureData[i] = (float)sim.pressure[i];
     }
     computedPressure.CopyFrom(computedPressureData);
 
@@ -362,7 +362,7 @@ TEST(PressureTest, Project_Simple)
 
 TEST(PressureTest, Project_Complex)
 {
-    glm::vec2 size(50);
+    glm::ivec2 size(50);
 
     FluidSim sim;
     sim.initialize(1.0f, size.x, size.y);
@@ -385,7 +385,7 @@ TEST(PressureTest, Project_Complex)
     std::vector<float> computedPressureData(size.x*size.y, 0.0f);
     for (std::size_t i = 0; i < computedPressureData.size(); i++)
     {
-        computedPressureData[i] = sim.pressure[i];
+        computedPressureData[i] = (float)sim.pressure[i];
     }
     computedPressure.CopyFrom(computedPressureData);
 

@@ -20,7 +20,7 @@ namespace Vortex2D { namespace Fluid {
 class LevelSet : public Renderer::RenderTexture
 {
 public:
-    LevelSet(const Renderer::Device& device, const glm::vec2& size, int reinitializeIterations = 50);
+    LevelSet(const Renderer::Device& device, const glm::ivec2& size, int reinitializeIterations = 50);
 
     void Extrapolate(Renderer::Buffer& solidPhi);
 

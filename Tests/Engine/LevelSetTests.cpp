@@ -41,7 +41,7 @@ void CheckDifference(Texture& texture, float (*phi)(const Vec2f&))
         {
             Vec2f pos(i,j);
             pos += Vec2f(1.0f);
-            pos /= texture.GetWidth();
+            pos /= (float)texture.GetWidth();
             float value = texture.GetWidth() * phi(pos);
 
             float readerValue = pixels[i + j * texture.GetWidth()];
@@ -54,13 +54,13 @@ void CheckDifference(Texture& texture, float (*phi)(const Vec2f&))
 
 TEST(LevelSetTests, SimpleCircle)
 {
-    glm::vec2 size(20.0f);
+    glm::ivec2 size(20);
 
     LevelSet levelSet(*device, size, 500);
     Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
 
-    Ellipse circle(*device, glm::vec2{rad0} * size, glm::vec4(0.5f));
-    circle.Position = glm::vec2(c0[0], c0[1]) * size;
+    Ellipse circle(*device, glm::vec2{rad0} * glm::vec2(size), glm::vec4(0.5f));
+    circle.Position = glm::vec2(c0[0], c0[1]) * glm::vec2(size);
 
     circle.Initialize({levelSet});
     circle.Update(levelSet.Orth, glm::mat4());
@@ -87,20 +87,20 @@ TEST(LevelSetTests, SimpleCircle)
 
 TEST(LevelSetTests, ComplexCircles)
 {
-    glm::vec2 size(50.0f);
+    glm::ivec2 size(50);
 
     LevelSet levelSet(*device, size, 2000);
     Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
 
-    Ellipse circle0(*device, glm::vec2{rad0} * size, glm::vec4(1.0f));
-    Ellipse circle1(*device, glm::vec2{rad1} * size, glm::vec4(-1.0f));
-    Ellipse circle2(*device, glm::vec2{rad2} * size, glm::vec4(-1.0f));
-    Ellipse circle3(*device, glm::vec2{rad3} * size, glm::vec4(-1.0f));
+    Ellipse circle0(*device, glm::vec2{rad0} * glm::vec2(size), glm::vec4(1.0f));
+    Ellipse circle1(*device, glm::vec2{rad1} * glm::vec2(size), glm::vec4(-1.0f));
+    Ellipse circle2(*device, glm::vec2{rad2} * glm::vec2(size), glm::vec4(-1.0f));
+    Ellipse circle3(*device, glm::vec2{rad3} * glm::vec2(size), glm::vec4(-1.0f));
 
-    circle0.Position = glm::vec2(c0[0], c0[1]) * size;
-    circle1.Position = glm::vec2(c1[0], c1[1]) * size;
-    circle2.Position = glm::vec2(c2[0], c2[1]) * size;
-    circle3.Position = glm::vec2(c3[0], c3[1]) * size;
+    circle0.Position = glm::vec2(c0[0], c0[1]) * glm::vec2(size);
+    circle1.Position = glm::vec2(c1[0], c1[1]) * glm::vec2(size);
+    circle2.Position = glm::vec2(c2[0], c2[1]) * glm::vec2(size);
+    circle3.Position = glm::vec2(c3[0], c3[1]) * glm::vec2(size);
 
     circle0.Initialize({levelSet});
     circle1.Initialize({levelSet});

@@ -12,7 +12,7 @@ namespace
 const float min_size = 10.0f;
 }
 
-Multigrid::Multigrid(const Renderer::Device& device, glm::vec2 size)
+Multigrid::Multigrid(const Renderer::Device& device, glm::ivec2 size)
     : mSize(size)
     , mDepths(0)
     , mResidualWork(device, size, "../Vortex2D/Residual.comp.spv",
@@ -35,7 +35,7 @@ Multigrid::Multigrid(const Renderer::Device& device, glm::vec2 size)
         assert(width % 2 == 0);
         assert(height % 2 == 0);
 
-        size = (size - glm::vec2(2)) / glm::vec2(2) + glm::vec2(2);
+        size = (size - glm::ivec2(2)) / glm::ivec2(2) + glm::ivec2(2);
 
         mMatrices.emplace_back(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(Data));
         mPressures.emplace_back(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
@@ -55,7 +55,7 @@ void Multigrid::Init(Renderer::Buffer& matrix, Renderer::Buffer& b, Renderer::Bu
     while (size.x > min_size && size.y > min_size)
     {
 
-        size = (size - glm::vec2(2)) / glm::vec2(2) + glm::vec2(2);
+        size = (size - glm::ivec2(2)) / glm::ivec2(2) + glm::ivec2(2);
 
         //mTransfer.Init(size,        )
     };

@@ -54,10 +54,10 @@ PipelineLayoutBuilder& PipelineLayoutBuilder::PushConstantRange(vk::PushConstant
 vk::UniquePipelineLayout PipelineLayoutBuilder::Create(vk::Device device)
 {
     auto pipelineLayoutInfo = vk::PipelineLayoutCreateInfo()
-            .setSetLayoutCount(mLayouts.size())
+            .setSetLayoutCount((uint32_t)mLayouts.size())
             .setPSetLayouts(mLayouts.data())
             .setPPushConstantRanges(mPushConstantRanges.data())
-            .setPushConstantRangeCount(mPushConstantRanges.size());
+            .setPushConstantRangeCount((uint32_t)mPushConstantRanges.size());
 
     return device.createPipelineLayoutUnique(pipelineLayoutInfo);
 }
@@ -124,9 +124,9 @@ GraphicsPipeline::Builder& GraphicsPipeline::Builder::Layout(vk::PipelineLayout 
 vk::UniquePipeline GraphicsPipeline::Builder::Create(vk::Device device, const RenderState& renderState)
 {
     auto vertexInputInfo = vk::PipelineVertexInputStateCreateInfo()
-            .setVertexBindingDescriptionCount(mVertexBindingDescriptions.size())
+            .setVertexBindingDescriptionCount((uint32_t)mVertexBindingDescriptions.size())
             .setPVertexBindingDescriptions(mVertexBindingDescriptions.data())
-            .setVertexAttributeDescriptionCount(mVertexAttributeDescriptions.size())
+            .setVertexAttributeDescriptionCount((uint32_t)mVertexAttributeDescriptions.size())
             .setPVertexAttributeDescriptions(mVertexAttributeDescriptions.data());
 
     auto viewPort = vk::Viewport(0, 0, renderState.Width, renderState.Height, 0.0f, 1.0f);
@@ -143,7 +143,7 @@ vk::UniquePipeline GraphicsPipeline::Builder::Create(vk::Device device, const Re
             .setPAttachments(&renderState.ColorBlend);
 
     auto pipelineInfo = vk::GraphicsPipelineCreateInfo()
-            .setStageCount(mShaderStages.size())
+            .setStageCount((uint32_t)mShaderStages.size())
             .setPStages(mShaderStages.data())
             .setPVertexInputState(&vertexInputInfo)
             .setPInputAssemblyState(&mInputAssembly)

@@ -114,11 +114,11 @@ RenderpassBuilder& RenderpassBuilder::DependencyDstAccessMask(vk::AccessFlags va
 vk::UniqueRenderPass RenderpassBuilder::Create(vk::Device device)
 {
     auto renderPassInfo = vk::RenderPassCreateInfo()
-            .setAttachmentCount(mAttachementDescriptions.size())
+            .setAttachmentCount((uint32_t)mAttachementDescriptions.size())
             .setPAttachments(mAttachementDescriptions.data())
-            .setSubpassCount(mSubpassDescriptions.size())
+            .setSubpassCount((uint32_t)mSubpassDescriptions.size())
             .setPSubpasses(mSubpassDescriptions.data())
-            .setDependencyCount(mSubpassDependencies.size())
+            .setDependencyCount((uint32_t)mSubpassDependencies.size())
             .setPDependencies(mSubpassDependencies.data());
 
     return device.createRenderPassUnique(renderPassInfo);

@@ -84,13 +84,13 @@ Device::Device(vk::PhysicalDevice physicalDevice, int familyIndex, bool validati
             .setQueueCreateInfoCount(1)
             .setPQueueCreateInfos(&deviceQueueInfo)
             .setPEnabledFeatures(&deviceFeatures)
-            .setEnabledExtensionCount(deviceExtensions.size())
+            .setEnabledExtensionCount((uint32_t)deviceExtensions.size())
             .setPpEnabledExtensionNames(deviceExtensions.data());
 
     // add the validation layer if necessary
     if (validation)
     {
-        deviceInfo.setEnabledLayerCount(validationLayers.size());
+        deviceInfo.setEnabledLayerCount((uint32_t)validationLayers.size());
         deviceInfo.setPpEnabledLayerNames(validationLayers.data());
     }
 
@@ -115,7 +115,7 @@ Device::Device(vk::PhysicalDevice physicalDevice, int familyIndex, bool validati
     vk::DescriptorPoolCreateInfo descriptorPoolInfo{};
     descriptorPoolInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
     descriptorPoolInfo.maxSets = 256;
-    descriptorPoolInfo.poolSizeCount = poolSizes.size();
+    descriptorPoolInfo.poolSizeCount = (uint32_t)poolSizes.size();
     descriptorPoolInfo.pPoolSizes = poolSizes.data();
     mDescriptorPool = mDevice->createDescriptorPoolUnique(descriptorPoolInfo);
 }

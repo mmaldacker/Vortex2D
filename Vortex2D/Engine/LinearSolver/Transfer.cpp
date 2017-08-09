@@ -9,19 +9,19 @@ namespace Vortex2D { namespace Fluid {
 
 Transfer::Transfer(const Renderer::Device& device)
     : mDevice(device)
-    , mProlongateWork(device, glm::vec2(2), "../Vortex2D/Prolongate.comp.spv",
+    , mProlongateWork(device, glm::ivec2(2), "../Vortex2D/Prolongate.comp.spv",
                       {vk::DescriptorType::eStorageBuffer,
                        vk::DescriptorType::eStorageBuffer})
-    , mRestrictWork(device, glm::vec2(2), "../Vortex2D/Restrict.comp.spv",
+    , mRestrictWork(device, glm::ivec2(2), "../Vortex2D/Restrict.comp.spv",
                     {vk::DescriptorType::eStorageBuffer,
                      vk::DescriptorType::eStorageBuffer})
 {
 
 }
 
-void Transfer::Init(const glm::vec2& coarseSize, Renderer::Buffer& coarse, Renderer::Buffer& fine)
+void Transfer::Init(const glm::ivec2& coarseSize, Renderer::Buffer& coarse, Renderer::Buffer& fine)
 {
-    glm::vec2 fineSize = glm::vec2(2) * (coarseSize - glm::vec2(2)) + glm::vec2(2);
+    glm::ivec2 fineSize = glm::ivec2(2) * (coarseSize - glm::ivec2(2)) + glm::ivec2(2);
 
     mProlongateBound.push_back(mProlongateWork.Bind(fineSize, {coarse, fine}));
     auto& prolongateBound = mProlongateBound.back();

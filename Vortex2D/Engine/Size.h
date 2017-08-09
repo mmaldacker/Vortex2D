@@ -21,10 +21,10 @@ struct Dimensions
      * @param size the size at which we will draw boundaries, forces, etc
      * @param scale the scale of the actual grid
      */
-    Dimensions(const glm::vec2 & size, const float scale);
+    Dimensions(const glm::ivec2 & size, const float scale);
 
     const float Scale;
-    const glm::vec2 Size;
+    const glm::ivec2 Size;
     const glm::mat4 InvScale;
 };
 

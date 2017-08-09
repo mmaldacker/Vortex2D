@@ -54,7 +54,7 @@ static void AddParticles(const glm::vec2& size, FluidSim& sim, float (*phi)(cons
     }
 }
 
-static void SetVelocity(const glm::vec2& size, Vortex2D::Renderer::Texture& buffer, FluidSim& sim)
+static void SetVelocity(const glm::ivec2& size, Vortex2D::Renderer::Texture& buffer, FluidSim& sim)
 {
     std::vector<glm::vec2> velocityData(size.x * size.y, glm::vec2(0.0f));
     for (int i = 0; i < size.x; i++)
@@ -70,7 +70,7 @@ static void SetVelocity(const glm::vec2& size, Vortex2D::Renderer::Texture& buff
     buffer.CopyFrom(velocityData);
 }
 
-static void SetSolidPhi(const glm::vec2& size, Vortex2D::Renderer::Texture& buffer, FluidSim& sim)
+static void SetSolidPhi(const glm::ivec2& size, Vortex2D::Renderer::Texture& buffer, FluidSim& sim)
 {
     std::vector<float> phi(size.x * size.y, 0.0f);
     for (int i = 0; i < size.x; i++)
@@ -85,7 +85,7 @@ static void SetSolidPhi(const glm::vec2& size, Vortex2D::Renderer::Texture& buff
     buffer.CopyFrom(phi);
 }
 
-static void SetLiquidPhi(const glm::vec2& size, Vortex2D::Renderer::Texture& buffer, FluidSim& sim)
+static void SetLiquidPhi(const glm::ivec2& size, Vortex2D::Renderer::Texture& buffer, FluidSim& sim)
 {
     std::vector<float> phi(size.x * size.y, 0.0f);
     for (int i = 0; i < size.x; i++)

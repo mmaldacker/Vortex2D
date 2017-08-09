@@ -56,13 +56,13 @@ void Instance::Create(const std::string& name, std::vector<const char*> extensio
     vk::InstanceCreateInfo instanceInfo;
     instanceInfo
             .setPApplicationInfo(&appInfo)
-            .setEnabledExtensionCount(extensions.size())
+            .setEnabledExtensionCount((uint32_t)extensions.size())
             .setPpEnabledExtensionNames(extensions.data());
 
     // add the validation layer if necessary
     if (validation)
     {
-        instanceInfo.setEnabledLayerCount(validationLayers.size());
+        instanceInfo.setEnabledLayerCount((uint32_t)validationLayers.size());
         instanceInfo.setPpEnabledLayerNames(validationLayers.data());
     }
 

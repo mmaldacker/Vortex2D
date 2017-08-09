@@ -16,7 +16,7 @@ namespace
         return (n + (localSize * 2 - 1)) / (localSize * 2);
     }
 
-    int GetBufferSize(const glm::vec2& size)
+    int GetBufferSize(const glm::ivec2& size)
     {
         int localSize = Renderer::GetLocalSize(size.x * size.y, 1).x;
         return GetWorkGroupSize(size.x * size.y, localSize);
@@ -25,7 +25,7 @@ namespace
 
 Reduce::Reduce(const Renderer::Device& device,
                const std::string& fileName,
-               const glm::vec2& size,
+               const glm::ivec2& size,
                Renderer::Buffer& input,
                Renderer::Buffer& output)
     : mCommandBuffer(device)
@@ -68,12 +68,12 @@ Reduce::Reduce(const Renderer::Device& device,
     // TODO fix and do recursive loop
     assert(workGroupSize1 == 1);
 
-    std::array<int, 2> constants = {{localSize.x, localSize.x}};
+    std::array<uint32_t, 2> constants = {{localSize.x, localSize.x}};
 
     std::vector<vk::SpecializationMapEntry> mapEntries = {{1, 0, 4}, {2, 0, 4}};
 
     auto specialisationConst = vk::SpecializationInfo()
-            .setMapEntryCount(mapEntries.size())
+            .setMapEntryCount((uint32_t)mapEntries.size())
             .setPMapEntries(mapEntries.data())
             .setDataSize(8)
             .setPData(constants.data());
@@ -107,7 +107,7 @@ void Reduce::Submit()
 }
 
 ReduceSum::ReduceSum(const Renderer::Device& device,
-                     const glm::vec2& size,
+                     const glm::ivec2& size,
                      Renderer::Buffer& input,
                      Renderer::Buffer& output)
     : Reduce(device, "../Vortex2D/Sum.comp.spv", size, input, output)
@@ -116,7 +116,7 @@ ReduceSum::ReduceSum(const Renderer::Device& device,
 }
 
 ReduceMax::ReduceMax(const Renderer::Device& device,
-                     const glm::vec2& size,
+                     const glm::ivec2& size,
                      Renderer::Buffer& input,
                      Renderer::Buffer& output)
     : Reduce(device, "../Vortex2D/Max.comp.spv", size, input, output)

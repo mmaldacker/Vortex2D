@@ -25,8 +25,8 @@ extern Device* device;
 
 TEST(LinearSolverTests, ReduceSum)
 {
-    glm::vec2 size(10, 15);
-    float n = size.x * size.y;
+    glm::ivec2 size(10, 15);
+    int n = size.x * size.y;
     Buffer input(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float) * n);
     Buffer output(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float));
 
@@ -52,8 +52,8 @@ TEST(LinearSolverTests, ReduceSum)
 
 TEST(LinearSolverTests, ReduceBigSum)
 {
-    glm::vec2 size(500, 500);
-    float n = size.x * size.y; // 1 million
+    glm::ivec2 size(500, 500);
+    int n = size.x * size.y; // 1 million
 
     Buffer input(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float) * n);
     Buffer output(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float));
@@ -80,8 +80,8 @@ TEST(LinearSolverTests, ReduceBigSum)
 
 TEST(LinearSolverTests, ReduceMax)
 {
-    glm::vec2 size(10, 15);
-    float n = size.x * size.y;
+    glm::ivec2 size(10, 15);
+    int n = size.x * size.y;
 
     Buffer input(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float) * n);
     Buffer output(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float));
@@ -108,8 +108,8 @@ TEST(LinearSolverTests, ReduceMax)
 
 TEST(LinearSolverTests, Transfer_Prolongate)
 {
-    glm::vec2 coarseSize(4);
-    glm::vec2 fineSize(6);
+    glm::ivec2 coarseSize(4);
+    glm::ivec2 fineSize(6);
 
     Transfer t(*device);
 
@@ -143,8 +143,8 @@ TEST(LinearSolverTests, Transfer_Prolongate)
 
 TEST(LinearSolverTests, Transfer_Restrict)
 {
-    glm::vec2 coarseSize(3);
-    glm::vec2 fineSize(4);
+    glm::ivec2 coarseSize(3);
+    glm::ivec2 fineSize(4);
 
     Transfer t(*device);
 
@@ -170,22 +170,22 @@ TEST(LinearSolverTests, Transfer_Restrict)
     EXPECT_FLOAT_EQ(total, outputData[1 + 3 * 1]);
 }
 
-void BuildLinearEquation(const glm::vec2& size, Buffer& matrix, Buffer& div, FluidSim& sim)
+void BuildLinearEquation(const glm::ivec2& size, Buffer& matrix, Buffer& div, FluidSim& sim)
 {
     std::vector<LinearSolver::Data> matrixData(size.x * size.y);
     std::vector<float> divData(size.x * size.y);
 
-    for (std::size_t i = 1; i < size.x - 1; i++)
+    for (int i = 1; i < size.x - 1; i++)
     {
-        for (std::size_t j = 1; j < size.y - 1; j++)
+        for (int j = 1; j < size.y - 1; j++)
         {
-            std::size_t index = i + size.x * j;
-            divData[index] = sim.rhs[index];
-            matrixData[index].Diagonal = sim.matrix(index, index);
-            matrixData[index].Weights.x = sim.matrix(index + 1, index);
-            matrixData[index].Weights.y = sim.matrix(index - 1, index);
-            matrixData[index].Weights.z = sim.matrix(index, index + size.x);
-            matrixData[index].Weights.w = sim.matrix(index, index - size.x);
+            unsigned index = i + size.x * j;
+            divData[index] = (float)sim.rhs[index];
+            matrixData[index].Diagonal = (float)sim.matrix(index, index);
+            matrixData[index].Weights.x = (float)sim.matrix(index + 1, index);
+            matrixData[index].Weights.y = (float)sim.matrix(index - 1, index);
+            matrixData[index].Weights.z = (float)sim.matrix(index, index + size.x);
+            matrixData[index].Weights.w = (float)sim.matrix(index, index - size.x);
         }
     }
 
@@ -193,7 +193,7 @@ void BuildLinearEquation(const glm::vec2& size, Buffer& matrix, Buffer& div, Flu
     div.CopyFrom(divData);
 }
 
-void CheckPressure(const glm::vec2& size, const std::vector<double>& pressure, Buffer& bufferPressure, float error)
+void CheckPressure(const glm::ivec2& size, const std::vector<double>& pressure, Buffer& bufferPressure, float error)
 {
     std::vector<float> bufferPressureData(size.x * size.y);
     bufferPressure.CopyTo(bufferPressureData);
@@ -203,7 +203,7 @@ void CheckPressure(const glm::vec2& size, const std::vector<double>& pressure, B
         for (int j = 0; j < size.y; j++)
         {
             std::size_t index = i + j * size.x;
-            float value = pressure[index];
+            float value = (float)pressure[index];
             EXPECT_NEAR(value, bufferPressureData[index], error) << "Mismatch at " << i << ", " << j << "\n";
         }
     }
@@ -211,7 +211,7 @@ void CheckPressure(const glm::vec2& size, const std::vector<double>& pressure, B
 
 TEST(LinearSolverTests, Simple_SOR)
 {
-    glm::vec2 size(50);
+    glm::ivec2 size(50);
 
     FluidSim sim;
     sim.initialize(1.0f, size.x, size.y);
@@ -243,7 +243,7 @@ TEST(LinearSolverTests, Simple_SOR)
 
 TEST(LinearSolverTests, Complex_SOR)
 {
-    glm::vec2 size(50);
+    glm::ivec2 size(50);
 
     FluidSim sim;
     sim.initialize(1.0f, size.x, size.y);

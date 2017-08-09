@@ -21,7 +21,7 @@ namespace Vortex2D { namespace Fluid {
 class Extrapolation
 {
 public:
-    Extrapolation(const glm::vec2& size,
+    Extrapolation(const glm::ivec2& size,
                   Renderer::Buffer& velocity,
                   Renderer::Buffer& solidPhi);
 

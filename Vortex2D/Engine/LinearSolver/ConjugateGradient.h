@@ -19,7 +19,7 @@ namespace Vortex2D { namespace Fluid {
 class ConjugateGradient : public LinearSolver
 {
 public:
-    ConjugateGradient(const glm::vec2& size);
+    ConjugateGradient(const glm::ivec2& size);
     virtual ~ConjugateGradient();
 
 

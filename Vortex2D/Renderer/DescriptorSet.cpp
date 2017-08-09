@@ -23,7 +23,7 @@ DescriptorSetLayoutBuilder& DescriptorSetLayoutBuilder::Binding(uint32_t binding
 vk::DescriptorSetLayout DescriptorSetLayoutBuilder::Create(const Device& device)
 {
     auto descriptorSetLayoutInfo = vk::DescriptorSetLayoutCreateInfo()
-            .setBindingCount(mDescriptorSetLayoutBindings.size())
+            .setBindingCount((uint32_t)mDescriptorSetLayoutBindings.size())
             .setPBindings(mDescriptorSetLayoutBindings.data());
 
     return device.CreateDescriptorSetLayout(descriptorSetLayoutInfo);

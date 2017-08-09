@@ -17,7 +17,7 @@ namespace Vortex2D { namespace Fluid {
 class Multigrid : public LinearSolver
 {
 public:
-    Multigrid(const Renderer::Device& device, glm::vec2 size);
+    Multigrid(const Renderer::Device& device, glm::ivec2 size);
 
     void Build(Renderer::Work& buildMatrix,
                Renderer::Buffer& solidPhi,
@@ -31,7 +31,7 @@ private:
     void Smoother(Data& data, int iterations);
     void BorderSmoother(Data& data, int iterations, bool up);
 
-    glm::vec2 mSize;
+    glm::ivec2 mSize;
     int mDepths;
     Renderer::Work mResidualWork;
     Renderer::Work mDampedJacobiWork;

@@ -9,7 +9,7 @@ namespace Vortex2D { namespace Fluid {
 
 Pressure::Pressure(const Renderer::Device& device,
                    float dt,
-                   const glm::vec2& size,
+                   const glm::ivec2& size,
                    LinearSolver& solver,
                    Renderer::Texture& velocity,
                    Renderer::Texture& solidPhi,

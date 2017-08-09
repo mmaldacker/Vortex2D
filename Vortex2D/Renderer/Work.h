@@ -47,7 +47,7 @@ public:
 
     // TODO make size optional
     Work(const Device& device,
-         const glm::vec2& size,
+         const glm::ivec2& size,
          const std::string& shader,
          const std::vector<vk::DescriptorType>& bindings,
          const uint32_t pushConstantExtraSize = 0);
@@ -81,7 +81,7 @@ public:
     };
 
     Bound Bind(const std::vector<Input>& inputs);
-    Bound Bind(const glm::vec2& size, const std::vector<Input>& inputs);
+    Bound Bind(const glm::ivec2& size, const std::vector<Input>& inputs);
 
 private:
     uint32_t mWidth, mHeight;

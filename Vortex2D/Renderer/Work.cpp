@@ -27,7 +27,7 @@ Work::Input::Input(vk::Sampler sampler, Renderer::Texture& texture)
 
 
 Work::Work(const Device& device,
-           const glm::vec2& size,
+           const glm::ivec2& size,
            const std::string& shader,
            const std::vector<vk::DescriptorType>& binding,
            const uint32_t pushConstantExtraSize)
@@ -59,7 +59,7 @@ Work::Bound Work::Bind(const std::vector<Input>& inputs)
     return Bind({mWidth, mHeight}, inputs);
 }
 
-Work::Bound Work::Bind(const glm::vec2& size, const std::vector<Input>& inputs)
+Work::Bound Work::Bind(const glm::ivec2& size, const std::vector<Input>& inputs)
 {
     assert(inputs.size() == mBindings.size());
 

@@ -22,7 +22,7 @@ public:
 protected:
     Reduce(const Renderer::Device& device,
            const std::string& fileName,
-           const glm::vec2& size,
+           const glm::ivec2& size,
            Renderer::Buffer& input,
            Renderer::Buffer& output);
 
@@ -40,7 +40,7 @@ class ReduceSum : public Reduce
 {
 public:
     ReduceSum(const Renderer::Device& device,
-              const glm::vec2& size,
+              const glm::ivec2& size,
               Renderer::Buffer& input,
               Renderer::Buffer& output);
 };
@@ -49,7 +49,7 @@ class ReduceMax : public Reduce
 {
 public:
     ReduceMax(const Renderer::Device& device,
-              const glm::vec2& size,
+              const glm::ivec2& size,
               Renderer::Buffer& input,
               Renderer::Buffer& output);
 };

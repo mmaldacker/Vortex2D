@@ -19,7 +19,7 @@ namespace Vortex2D { namespace Fluid {
 class LineIntegralConvolution : public Renderer::Drawable
 {
 public:
-    LineIntegralConvolution(const glm::vec2& size);
+    LineIntegralConvolution(const glm::ivec2& size);
     virtual ~LineIntegralConvolution();
 
     void Calculate(Renderer::Buffer & velocity);

@@ -15,7 +15,7 @@
 
 namespace Vortex2D { namespace Renderer {
 
-class RenderTarget;
+struct RenderTarget;
 
 class Sprite : public Drawable, public Transformable
 {

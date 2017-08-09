@@ -10,7 +10,7 @@
 namespace Vortex2D { namespace Fluid {
 
 
-GaussSeidel::GaussSeidel(const Renderer::Device& device, const glm::vec2& size)
+GaussSeidel::GaussSeidel(const Renderer::Device& device, const glm::ivec2& size)
     : mW(2.0f/(1.0f+std::sin(glm::pi<float>()/std::sqrt(size.x*size.y))))
     , mGaussSeidel(device, size, "../Vortex2D/GaussSeidel.comp.spv",
                    {vk::DescriptorType::eStorageBuffer,

@@ -29,9 +29,9 @@ static void PrintTexture(Vortex2D::Renderer::Texture& texture)
     std::vector<float> pixels(texture.GetWidth() * texture.GetHeight());
     texture.CopyTo(pixels);
 
-    for (int j = 0; j < texture.GetHeight(); j++)
+    for (uint32_t j = 0; j < texture.GetHeight(); j++)
     {
-        for (int i = 0; i < texture.GetWidth(); i++)
+        for (uint32_t i = 0; i < texture.GetWidth(); i++)
         {
             float value = pixels[i + j * texture.GetWidth()];
             std::cout << "(" << value << ")";
@@ -41,7 +41,7 @@ static void PrintTexture(Vortex2D::Renderer::Texture& texture)
     std::cout << std::endl;
 }
 
-static void PrintBuffer(const glm::vec2& size, Vortex2D::Renderer::Buffer& buffer)
+static void PrintBuffer(const glm::ivec2& size, Vortex2D::Renderer::Buffer& buffer)
 {
     std::vector<float> pixels(size.x * size.y);
     buffer.CopyTo(pixels);
@@ -64,9 +64,9 @@ void CheckTexture(const std::vector<T>& data, Vortex2D::Renderer::Texture& textu
     std::vector<T> pixels(data.size());
     texture.CopyTo(pixels);
 
-    for (int i = 0; i < texture.GetWidth(); i++)
+    for (uint32_t i = 0; i < texture.GetWidth(); i++)
     {
-        for (int j = 0; j < texture.GetHeight(); j++)
+        for (uint32_t j = 0; j < texture.GetHeight(); j++)
         {
             T expectedValue = data[i + j * texture.GetWidth()];
             T value = pixels[i + j * texture.GetWidth()];

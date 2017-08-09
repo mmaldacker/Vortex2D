@@ -18,7 +18,7 @@ namespace Vortex2D { namespace Fluid {
 class GaussSeidel : public LinearSolver
 {
 public:
-    GaussSeidel(const Renderer::Device& device, const glm::vec2& size);
+    GaussSeidel(const Renderer::Device& device, const glm::ivec2& size);
 
     void Init(Renderer::Buffer& A, Renderer::Buffer& b, Renderer::Buffer& pressure) override;
 

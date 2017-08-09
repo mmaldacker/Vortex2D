@@ -16,7 +16,7 @@ glm::vec4 green = glm::vec4(35.0f, 163.0f, 143.0f, 255.0f)/glm::vec4(255.0f);
 glm::vec4 gray = glm::vec4(182.0f,172.0f,164.0f, 255.0f)/glm::vec4(255.0f);
 glm::vec4 blue = glm::vec4(99.0f, 155.0f, 188.0f, 255.0f)/glm::vec4(255.0f);
 
-glm::vec2 size = {1000,1000};
+glm::ivec2 size = {1000,1000};
 
 std::unique_ptr<Vortex2D::Renderer::Drawable> example;
 
