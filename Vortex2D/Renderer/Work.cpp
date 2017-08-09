@@ -56,6 +56,11 @@ Work::Work(const Device& device,
 
 Work::Bound Work::Bind(const std::vector<Input>& inputs)
 {
+    return Bind({mWidth, mHeight}, inputs);
+}
+
+Work::Bound Work::Bind(const glm::vec2& size, const std::vector<Input>& inputs)
+{
     assert(inputs.size() == mBindings.size());
 
     vk::UniqueDescriptorSet descriptor = MakeDescriptorSet(mDevice, mDescriptorLayout);
@@ -81,7 +86,7 @@ Work::Bound Work::Bind(const std::vector<Input>& inputs)
     }
     updater.Update(mDevice.Handle());
 
-    return Bound(mWidth, mHeight, *mLayout, *mPipeline, std::move(descriptor));
+    return Bound(size.x, size.y, *mLayout, *mPipeline, std::move(descriptor));
 }
 
 Work::Bound::Bound(uint32_t width,

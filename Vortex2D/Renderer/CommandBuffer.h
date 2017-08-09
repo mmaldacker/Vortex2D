@@ -22,6 +22,9 @@ public:
     CommandBuffer(const Device& device, bool synchronise = true);
     ~CommandBuffer();
 
+    CommandBuffer(CommandBuffer&&);
+    CommandBuffer& operator=(CommandBuffer&&);
+
     void Record(CommandFn commandFn);
     void Wait();
     void Submit();

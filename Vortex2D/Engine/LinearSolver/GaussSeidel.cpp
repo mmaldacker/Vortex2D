@@ -17,6 +17,7 @@ GaussSeidel::GaussSeidel(const Renderer::Device& device, const glm::vec2& size)
                     vk::DescriptorType::eStorageBuffer},
                    8)
     , mGaussSeidelCmd(device, false)
+    , mInitCmd(device, false)
 {
 }
 
@@ -34,12 +35,19 @@ void GaussSeidel::Init(Renderer::Buffer& data, Renderer::Buffer& pressure)
         mGaussSeidelBound.Record(commandBuffer);
         pressure.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
     });
+
+    mInitCmd.Record([&](vk::CommandBuffer commandBuffer)
+    {
+        pressure.Clear(commandBuffer);
+    });
 }
 
 void GaussSeidel::Solve(Parameters& params)
 {
     // FIXME implement solving within error tolerance
     assert(params.Iterations > 0);
+
+    mInitCmd.Submit();
 
     for (unsigned i  = 0; !params.IsFinished(i, 0.0f); ++i)
     {

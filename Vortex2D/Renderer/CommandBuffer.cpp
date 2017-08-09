@@ -18,7 +18,31 @@ CommandBuffer::CommandBuffer(const Device& device, bool synchronise)
 
 CommandBuffer::~CommandBuffer()
 {
-    mDevice.FreeCommandBuffers({mCommandBuffer});
+    if (mCommandBuffer != vk::CommandBuffer(nullptr))
+    {
+        mDevice.FreeCommandBuffers({mCommandBuffer});
+    }
+}
+
+CommandBuffer::CommandBuffer(CommandBuffer&& other)
+    : mDevice(other.mDevice)
+    , mSynchronise(other.mSynchronise)
+    , mCommandBuffer(other.mCommandBuffer)
+    , mFence(std::move(other.mFence))
+{
+    other.mCommandBuffer = nullptr;
+}
+
+CommandBuffer& CommandBuffer::operator=(CommandBuffer&& other)
+{
+    assert(mDevice.Handle() == other.mDevice.Handle());
+    mSynchronise = other.mSynchronise;
+    mCommandBuffer = other.mCommandBuffer;
+    mFence = std::move(other.mFence);
+
+    other.mCommandBuffer = nullptr;
+
+    return *this;
 }
 
 void CommandBuffer::Record(CommandBuffer::CommandFn commandFn)

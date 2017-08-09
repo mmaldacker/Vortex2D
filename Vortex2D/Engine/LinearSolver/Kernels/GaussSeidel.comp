@@ -1,7 +1,7 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-layout (local_size_x = 16, local_size_y = 16) in;
+layout (local_size_x_id = 1, local_size_y_id = 2) in;
 
 layout(push_constant) uniform Consts
 {
@@ -21,7 +21,6 @@ struct Data
   vec4 weights;
   float diagonal;
   float div;
-  int red;
 };
 
 layout(std430, binding = 1) buffer EquationData
@@ -38,22 +37,18 @@ void main()
     int index = pos.x + pos.y * consts.width;
     if ((pos.x + pos.y) % 2 == consts.red)
     {
-      float oldPressure = pressure.value[index];
       Data data = equation.data[index];
-
-      vec4 p;
-      p.x = pressure.value[index + 1];
-      p.y = pressure.value[index - 1];
-      p.z = pressure.value[index + consts.width];
-      p.w = pressure.value[index - consts.width];
-
       if (data.diagonal != 0.0)
       {
+        float oldPressure = pressure.value[index];
+
+        vec4 p;
+        p.x = pressure.value[index + 1];
+        p.y = pressure.value[index - 1];
+        p.z = pressure.value[index + consts.width];
+        p.w = pressure.value[index - consts.width];
+
         pressure.value[index] = mix(oldPressure, (data.div - dot(p, data.weights)) / data.diagonal, consts.w);
-      }
-      else
-      {
-        pressure.value[index] = 0.0;
       }
     }
   }

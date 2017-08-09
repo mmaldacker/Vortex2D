@@ -6,31 +6,30 @@
 #ifndef Transfer_h
 #define Transfer_h
 
-#include <Vortex2D/Renderer/Data.h>
-#include <Vortex2D/Renderer/Operator.h>
+#include <Vortex2D/Renderer/Work.h>
+#include <Vortex2D/Renderer/CommandBuffer.h>
 
 namespace Vortex2D { namespace Fluid {
 
 class Transfer
 {
 public:
-    Transfer();
+    Transfer(const Renderer::Device& device);
 
-    template<typename T1, typename T2>
-    Renderer::OperatorContext Prolongate(T1&& input, T2&& pressure)
-    {
-        return prolongate(std::forward<T1>(input),
-                          std::forward<T2>(pressure));
-    }
+    void Init(const glm::vec2& coarseSize, Renderer::Buffer& coarse, Renderer::Buffer& fine);
 
-    template<typename T>
-    Renderer::OperatorContext Restrict(T&& input)
-    {
-        return restrict(std::forward<T>(input));
-    }
+    void Prolongate(int level);
+    void Restrict(int level);
 
 private:
-    Renderer::Operator prolongate, restrict;
+    const Renderer::Device& mDevice;
+    Renderer::Work mProlongateWork;
+    std::vector<Renderer::Work::Bound> mProlongateBound;
+    std::vector<Renderer::CommandBuffer> mProlongateCmd;
+
+    Renderer::Work mRestrictWork;
+    std::vector<Renderer::Work::Bound> mRestrictBound;
+    std::vector<Renderer::CommandBuffer> mRestrictCmd;
 };
 
 }}

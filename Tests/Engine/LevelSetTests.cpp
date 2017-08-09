@@ -4,6 +4,7 @@
 //
 
 #include "VariationalHelpers.h"
+#include "Verify.h"
 
 #include <Vortex2D/Renderer/Shapes.h>
 #include <Vortex2D/Engine/LevelSet.h>

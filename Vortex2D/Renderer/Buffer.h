@@ -55,7 +55,7 @@ public:
 
     void Barrier(vk::CommandBuffer commandBuffer, vk::AccessFlags oldAccess, vk::AccessFlags newAccess);
 
-    // TODO add clear function
+    void Clear(vk::CommandBuffer commandBuffer);
 
 private:
     vk::Device mDevice;

@@ -9,6 +9,7 @@
 #include <Vortex2D/Renderer/DescriptorSet.h>
 #include <Vortex2D/Renderer/Work.h>
 #include <Vortex2D/Renderer/CommandBuffer.h>
+#include <Vortex2D/Renderer/Timer.h>
 
 #include "Verify.h"
 
@@ -181,4 +182,33 @@ TEST(ComputeTests, Work)
     }
 
     CheckBuffer(expectedOutput, buffer);
+}
+
+TEST(ComputeTests, Timer)
+{
+    glm::vec2 size(500, 500);
+
+    Buffer buffer(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(float)*size.x*size.y);
+    Work work(*device, size, "Work.comp.spv", {vk::DescriptorType::eStorageBuffer});
+
+    auto boundWork = work.Bind({buffer});
+
+    CommandBuffer cmd(*device);
+    cmd.Record([&](vk::CommandBuffer commandBuffer)
+    {
+        boundWork.Record(commandBuffer);
+    });
+
+    Timer timer(*device);
+
+    timer.Start();
+    cmd.Submit();
+    timer.Stop();
+
+    cmd.Wait();
+
+    auto time = timer.GetElapsedNs();
+    ASSERT_NE(uint64_t(-1), time);
+
+    std::cout << "Elapsed time: " << time << std::endl;
 }

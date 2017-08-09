@@ -10,6 +10,12 @@ file(GLOB LIB_SOURCES
     "Engine/LinearSolver/Reduce.cpp"
     "Engine/LinearSolver/GaussSeidel.h"
     "Engine/LinearSolver/GaussSeidel.cpp"
+    #"Engine/LinearSolver/ConjugateGradient.h"
+    #"Engine/LinearSolver/ConjugateGradient.cpp"
+    #"Engine/LinearSolver/Multigrid.h"
+    #"Engine/LinearSolver/Multigrid.cpp"
+    "Engine/LinearSolver/Transfer.h"
+    "Engine/LinearSolver/Transfer.cpp"
     "Renderer/*.cpp"
     "Renderer/*.h")
 

@@ -32,6 +32,7 @@ private:
     Renderer::Work mGaussSeidel;
     Renderer::Work::Bound mGaussSeidelBound;
     Renderer::CommandBuffer mGaussSeidelCmd;
+    Renderer::CommandBuffer mInitCmd;
 };
 
 }}

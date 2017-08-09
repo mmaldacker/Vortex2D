@@ -36,6 +36,8 @@ Buffer::Buffer(const Device& device, vk::BufferUsageFlags usageFlags, bool host,
 
     mMemory = device.Handle().allocateMemoryUnique(memoryInfo);
     device.Handle().bindBufferMemory(*mBuffer, *mMemory, 0);
+
+
 }
 
 void Buffer::Flush()
@@ -90,6 +92,14 @@ void Buffer::Barrier(vk::CommandBuffer commandBuffer, vk::AccessFlags oldAccess,
                                   nullptr,
                                   bufferMemoryBarriers,
                                   nullptr);
+}
+
+void Buffer::Clear(vk::CommandBuffer commandBuffer)
+{
+
+    Barrier(commandBuffer, vk::AccessFlagBits::eShaderRead, vk::AccessFlagBits::eTransferWrite);
+    commandBuffer.fillBuffer(*mBuffer, 0, mSize, 0);
+    Barrier(commandBuffer, vk::AccessFlagBits::eTransferWrite, vk::AccessFlagBits::eShaderRead);
 }
 
 }}

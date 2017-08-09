@@ -7,118 +7,6 @@
 
 namespace Vortex2D { namespace Fluid {
 
-namespace
-{
-
-const char * DivideFrag = GLSL(
-    in vec2 v_texCoord;
-    out vec4 colour_out;
-
-    uniform sampler2D u_x;
-    uniform sampler2D u_y;
-
-    void main()
-    {
-        float x = texture(u_x, v_texCoord).x;
-        float y = texture(u_y, v_texCoord).x;
-
-        colour_out = vec4(x / y, 0.0, 0.0, 0.0);
-    }
-);
-
-const char * MultiplyAddFrag = GLSL(
-    in vec2 v_texCoord;
-    out vec4 colour_out;
-
-    uniform sampler2D u_x;
-    uniform sampler2D u_y;
-    uniform sampler2D u_scalar;
-
-
-    void main()
-    {
-        float x = texture(u_x, v_texCoord).x;
-        float y = texture(u_y, v_texCoord).x;
-        float alpha = texture(u_scalar, vec2(0.5)).x;
-
-        colour_out = vec4(x + alpha * y, 0.0, 0.0, 0.0);
-    }
-);
-
-const char * MultiplyMatrixFrag = GLSL(
-    in vec2 v_texCoord;
-    out vec4 colour_out;
-
-    uniform sampler2D u_texture;
-    uniform sampler2D u_weights;
-    uniform sampler2D u_diagonals;
-
-    void main()
-    {
-        float x = texture(u_texture, v_texCoord).x;
-        float d = texture(u_diagonals, v_texCoord).x;
-
-        vec4 p;
-        p.x = textureOffset(u_texture, v_texCoord, ivec2(1,0)).x;
-        p.y = textureOffset(u_texture, v_texCoord, ivec2(-1,0)).x;
-        p.z = textureOffset(u_texture, v_texCoord, ivec2(0,1)).x;
-        p.w = textureOffset(u_texture, v_texCoord, ivec2(0,-1)).x;
-
-        vec4 weights = texture(u_weights, v_texCoord);
-
-        float multiply = d * x + dot(p, weights);
-
-        colour_out = vec4(multiply, 0.0, 0.0, 0.0);
-    }
-);
-
-const char * MultiplySubFrag = GLSL(
-    in vec2 v_texCoord;
-    out vec4 colour_out;
-
-    uniform sampler2D u_x;
-    uniform sampler2D u_y;
-    uniform sampler2D u_scalar;
-
-    void main()
-    {
-        float x = texture(u_x, v_texCoord).x;
-        float y = texture(u_y, v_texCoord).x;
-        float alpha = texture(u_scalar, vec2(0.5)).x;
-
-        colour_out = vec4(x - alpha * y, 0.0, 0.0, 0.0);
-    }
-);
-
-const char * ResidualFrag = GLSL(
-    in vec2 v_texCoord;
-    out vec4 colour_out;
-
-    uniform sampler2D u_texture;
-
-    void main()
-    {
-        float div = texture(u_texture, v_texCoord).y;
-        colour_out = vec4(div, 0.0, 0.0, 0.0);
-    }
-);
-
-const char* SwizzleFrag = GLSL(
-    in vec2 v_texCoord;
-    out vec4 colour_out;
-
-    uniform sampler2D u_texture;
-
-    void main()
-    {
-        float div = texture(u_texture, v_texCoord).x;
-        colour_out = vec4(0.0, div, 0.0, 0.0);
-    }
-);
-}
-
-using Renderer::Back;
-
 ConjugateGradient::ConjugateGradient(const glm::vec2& size)
     : r(size, 1, true)
     , s(size, 1, true)
@@ -147,23 +35,12 @@ ConjugateGradient::~ConjugateGradient()
 {
 }
 
-void ConjugateGradient::Build(Data&,
-                              Renderer::Operator& diagonals,
-                              Renderer::Operator& weights,
-                              Renderer::Buffer& solidPhi,
-                              Renderer::Buffer& liquidPhi)
+void ConjugateGradient::Init(Renderer::Buffer& data, Renderer::Buffer& pressure)
 {
-    preconditioner.Build(z, diagonals, weights, solidPhi, liquidPhi);
+    // TODO clear z and other?
 }
 
-void ConjugateGradient::Init(Data& data)
-{
-    //z.Pressure.Clear(glm::vec4(0.0f));
-    RenderMask(z.Pressure, data);
-    preconditioner.Init(z);
-}
-
-void ConjugateGradient::Solve(Data& data, Parameters& params)
+void ConjugateGradient::Solve(Parameters& params)
 {
     // r = b
     r = residual(data.Pressure);
@@ -238,7 +115,7 @@ void ConjugateGradient::Solve(Data& data, Parameters& params)
     }
 }
 
-void ConjugateGradient::NormalSolve(Data& data, Parameters& params)
+void ConjugateGradient::NormalSolve(Parameters& params)
 {
     // r = b
     r = residual(data.Pressure);
@@ -305,12 +182,6 @@ void ConjugateGradient::NormalSolve(Data& data, Parameters& params)
 
 void ConjugateGradient::ApplyPreconditioner(Data& data)
 {
-    z.Pressure = scalarDivision(r, data.Diagonal);
-
-    /*
-    z.Pressure = swizzle(r);
-    preconditioner.Solve(z, Parameters(0));
-    */
 }
 
 void ConjugateGradient::InnerProduct(Renderer::Buffer& output, Renderer::Buffer& input1, Renderer::Buffer& input2)

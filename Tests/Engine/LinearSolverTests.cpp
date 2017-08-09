@@ -7,11 +7,11 @@
 #include "VariationalHelpers.h"
 #include <Vortex2D/Engine/LinearSolver/Reduce.h>
 #include <Vortex2D/Engine/LinearSolver/GaussSeidel.h>
+#include <Vortex2D/Engine/LinearSolver/Transfer.h>
 
 /*
 #include <Vortex2D/Engine/LinearSolver/ConjugateGradient.h>
 #include <Vortex2D/Engine/LinearSolver/Multigrid.h>
-#include <Vortex2D/Engine/LinearSolver/Transfer.h>
 #include <Vortex2D/Engine/Pressure.h>
 */
 #include <algorithm>
@@ -106,94 +106,69 @@ TEST(LinearSolverTests, ReduceMax)
     ASSERT_EQ(150.0f, outputData[0]);
 }
 
-/*
 TEST(LinearSolverTests, Transfer_Prolongate)
 {
-    Disable d(GL_BLEND);
+    glm::vec2 coarseSize(4);
+    glm::vec2 fineSize(6);
 
-    glm::vec2 size(2);
+    Transfer t(*device);
 
-    Transfer t;
+    Buffer input(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float)*coarseSize.x*coarseSize.y);
+    Buffer output(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float)*fineSize.x*fineSize.y);
 
-    Buffer pressure(size, 2);
-    pressure.Clear(glm::vec4(0.0f));
-
-    Buffer input(size, 1), output(glm::vec2(2) * size, 2);
-
-    std::vector<float> data(size.x * size.y, 0.0f);
+    std::vector<float> data(coarseSize.x * coarseSize.y, 0.0f);
     std::iota(data.begin(), data.end(), 1.0f);
-    Writer(input).Write(data);
+    input.CopyFrom(data);
 
-    output = t.Prolongate(input, pressure);
+    t.Init(coarseSize, input, output);
+    t.Prolongate(0);
+    device->Queue().waitIdle();
+
+    std::vector<float> outputData(fineSize.x*fineSize.y, 0.0f);
+    output.CopyTo(outputData);
 
     float total;
+    total = (9*6 + 3*7 + 3*10 + 1*11) / 16.0f;
+    EXPECT_FLOAT_EQ(total, outputData[1 + 6 * 1]);
 
-    total = (9*1 + 3*2 + 3*3 + 1*4) / 16.0f;
-    EXPECT_FLOAT_EQ(total, Reader(output).Read().GetVec2(1, 1).x);
+    total = (9*7 + 3*6 + 3*11 + 1*10) / 16.0f;
+    EXPECT_FLOAT_EQ(total, outputData[2 + 6 * 1]);
 
-    total = (9*2 + 3*1 + 3*4 + 1*3) / 16.0f;
-    EXPECT_FLOAT_EQ(total, Reader(output).Read().GetVec2(2, 1).x);
+    total = (9*10 + 3*6 + 3*11 + 1*7) / 16.0f;
+    EXPECT_FLOAT_EQ(total, outputData[1 + 6 * 2]);
 
-    total = (9*3 + 3*1 + 3*4 + 1*2) / 16.0f;
-    EXPECT_FLOAT_EQ(total, Reader(output).Read().GetVec2(1, 2).x);
-
-    total = (9*4 + 3*2 + 3*3 + 1*1) / 16.0f;
-    EXPECT_FLOAT_EQ(total, Reader(output).Read().GetVec2(2, 2).x);
+    total = (9*11 + 3*7 + 3*10 + 1*6) / 16.0f;
+    EXPECT_FLOAT_EQ(total, outputData[2 + 6 * 2]);
 }
 
 TEST(LinearSolverTests, Transfer_Restrict)
 {
-    Disable d(GL_BLEND);
+    glm::vec2 coarseSize(3);
+    glm::vec2 fineSize(4);
 
-    glm::vec2 size(3);
+    Transfer t(*device);
 
-    Transfer t;
+    Buffer input(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float)*fineSize.x*fineSize.y);
+    Buffer output(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float)*coarseSize.x*coarseSize.y);
 
-    Buffer input(glm::vec2(2) * size, 1), output(size, 2);
-
-    std::vector<float> data(size.x * size.y * 4, 1.0f);
+    std::vector<float> data(fineSize.x * fineSize.y, 1.0f);
     std::iota(data.begin(), data.end(), 1.0f);
-    Writer(input).Write(data);
+    input.CopyFrom(data);
 
-    output = t.Restrict(input);
+    t.Init(coarseSize, output, input);
+    t.Restrict(0);
+    device->Queue().waitIdle();
 
-    float total = (1*8 + 3*9 + 3*10 + 1*11 +
-            3*14 + 9*15 + 9*16 + 3*17 +
-            3*20 + 9*21 + 9*22 + 3*23 +
-            1*26 + 3*27 + 3*28 + 1*29) / 64.0f;
+    float total = (1*1 + 3*2 + 3*3 + 1*4 +
+                   3*5 + 9*6 + 9*7 + 3*8 +
+                   3*9 + 9*10 + 9*11 + 3*12 +
+                   1*13 + 3*14 + 3*15 + 1*16) / 64.0f;
 
-    EXPECT_FLOAT_EQ(total, Reader(output).Read().GetVec2(1, 1).y);
+    std::vector<float> outputData(coarseSize.x*coarseSize.y, 0.0f);
+    output.CopyTo(outputData);
+
+    EXPECT_FLOAT_EQ(total, outputData[1 + 3 * 1]);
 }
-
-TEST(LinearSolverTests, RenderMask)
-{
-    Disable d(GL_BLEND);
-
-    glm::vec2 size(10);
-
-    Buffer buffer(size, 1, true, true);
-    LinearSolver::Data data(size);
-
-    std::vector<float> dataData(size.x * size.y, 0.0f);
-    dataData[15] = 1.0f;
-    Writer(data.Diagonal).Write(dataData);
-
-    NiceMock<MockLinearSolver> solver;
-    solver.RenderMask(buffer, data);
-
-    Reader reader(buffer);
-    reader.ReadStencil();
-
-    for (std::size_t i = 0; i < size.x; i++)
-    {
-        for (std::size_t j = 0; j < size.y; j++)
-        {
-            uint8_t value = dataData[i + j * size.x];
-            EXPECT_EQ(value, reader.GetStencil(i, j)) << "Value not equal at " << i << ", " << j;
-        }
-    }
-}
-*/
 
 void BuildLinearEquation(const glm::vec2& size, Buffer& data, FluidSim& sim)
 {
@@ -203,12 +178,12 @@ void BuildLinearEquation(const glm::vec2& size, Buffer& data, FluidSim& sim)
         for (std::size_t j = 1; j < size.y - 1; j++)
         {
             std::size_t index = i + size.x * j;
-        equationData[index].Div = sim.rhs[index];
-        equationData[index].Diagonal = sim.matrix(index, index);
-        equationData[index].Weights.x = sim.matrix(index + 1, index);
-        equationData[index].Weights.y = sim.matrix(index - 1, index);
-        equationData[index].Weights.z = sim.matrix(index, index + size.x);
-        equationData[index].Weights.w = sim.matrix(index, index - size.x);
+            equationData[index].Div = sim.rhs[index];
+            equationData[index].Diagonal = sim.matrix(index, index);
+            equationData[index].Weights.x = sim.matrix(index + 1, index);
+            equationData[index].Weights.y = sim.matrix(index - 1, index);
+            equationData[index].Weights.z = sim.matrix(index, index + size.x);
+            equationData[index].Weights.w = sim.matrix(index, index - size.x);
         }
     }
 
@@ -262,11 +237,8 @@ TEST(LinearSolverTests, Simple_SOR)
     std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
 }
 
-/*
 TEST(LinearSolverTests, Complex_SOR)
 {
-    Disable d(GL_BLEND);
-
     glm::vec2 size(50);
 
     FluidSim sim;
@@ -278,20 +250,25 @@ TEST(LinearSolverTests, Complex_SOR)
     sim.add_force(0.01f);
     sim.project(0.01f);
 
-    LinearSolver::Data data(size);
+    Buffer data(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(LinearSolver::Data));
+    Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+
     BuildLinearEquation(size, data, sim);
 
     LinearSolver::Parameters params(200);
-    GaussSeidel solver(size);
+    GaussSeidel solver(*device, size);
 
-    solver.Init(data);
-    solver.Solve(data, params);
+    solver.Init(data, pressure);
+    solver.Solve(params);
 
-    CheckPressure(size, sim.pressure, data, 1e-4f);
+    device->Queue().waitIdle();
+
+    CheckPressure(size, sim.pressure, pressure, 1e-4f);
 
     std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
 }
 
+/*
 TEST(LinearSolverTests, Simple_CG)
 {
     Disable d(GL_BLEND);
