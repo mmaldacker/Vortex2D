@@ -19,13 +19,11 @@ struct LinearSolver
      * @brief The data of the linear solver.
      * In Ax = b,
      * A is Weights + Diagonals,
-     * b is Div
      */
     struct Data
     {
         alignas(16) glm::vec4 Weights;
         alignas(4)  float Diagonal;
-        alignas(4)  float Div;
     };
 
     struct Parameters
@@ -42,7 +40,7 @@ struct LinearSolver
 
     virtual ~LinearSolver() {}
 
-    virtual void Init(Renderer::Buffer& data, Renderer::Buffer& pressure) = 0;
+    virtual void Init(Renderer::Buffer& A, Renderer::Buffer& b, Renderer::Buffer& x) = 0;
 
     /**
      * @brief Solves the linear equations

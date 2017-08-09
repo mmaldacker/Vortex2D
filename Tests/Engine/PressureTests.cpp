@@ -19,13 +19,13 @@ extern Device* device;
 
 struct LinearSolverMock : LinearSolver
 {
-    MOCK_METHOD2(Init, void(Buffer& data, Buffer& pressure));
+    MOCK_METHOD3(Init, void(Buffer& maxtrix, Buffer& b, Buffer& pressure));
     MOCK_METHOD1(Solve, void(Parameters& params));
 };
 
 void PrintDiv(const glm::vec2& size, Buffer& buffer)
 {
-    std::vector<LinearSolver::Data> pixels(size.x * size.y);
+    std::vector<float> pixels(size.x * size.y);
     buffer.CopyTo(pixels);
 
     for (std::size_t j = 0; j < size.y; j++)
@@ -33,7 +33,7 @@ void PrintDiv(const glm::vec2& size, Buffer& buffer)
         for (std::size_t i = 0; i < size.x; i++)
         {
             std::size_t index = i + size.x * j;
-            std::cout << "(" <<  pixels[index].Div << ")";
+            std::cout << "(" <<  pixels[index] << ")";
         }
         std::cout << std::endl;
     }
@@ -121,7 +121,7 @@ void CheckWeights(const glm::vec2& size, Buffer& buffer, FluidSim& sim, float er
 
 void CheckDiv(const glm::vec2& size, Buffer& buffer, FluidSim& sim, float error = 1e-6)
 {
-    std::vector<LinearSolver::Data> pixels(size.x * size.y);
+    std::vector<float> pixels(size.x * size.y);
     buffer.CopyTo(pixels);
 
     for (std::size_t i = 0; i < size.x; i++)
@@ -129,7 +129,7 @@ void CheckDiv(const glm::vec2& size, Buffer& buffer, FluidSim& sim, float error 
         for (std::size_t j = 0; j < size.y; j++)
         {
             std::size_t index = i + size.x * j;
-            EXPECT_NEAR(sim.rhs[index], pixels[index].Div, error);
+            EXPECT_NEAR(sim.rhs[index], pixels[index], error);
         }
     }
 }
@@ -223,11 +223,13 @@ TEST(PressureTest, LinearEquationSetup_Simple)
 
     BuildInputs(size, sim, velocity, solidPhi, liquidPhi);
 
-    Buffer* result = nullptr;
-    EXPECT_CALL(solver, Init(_, _))
-            .WillOnce(Invoke([&](Buffer& data, Buffer& pressure)
+    Buffer* matrixResult = nullptr;
+    Buffer* divResult = nullptr;
+    EXPECT_CALL(solver, Init(_, _, _))
+            .WillOnce(Invoke([&](Buffer& matrix, Buffer& b, Buffer& pressure)
             {
-                result = &data;
+                matrixResult = &matrix;
+                divResult = &b;
             }));
 
     Pressure pressure(*device, 0.01f, size, solver, velocity, solidPhi, liquidPhi, solidVelocity);
@@ -235,18 +237,21 @@ TEST(PressureTest, LinearEquationSetup_Simple)
     LinearSolver::Parameters params(0);
     pressure.Solve(params);
 
-    ASSERT_TRUE(result != nullptr);
+    ASSERT_TRUE(matrixResult != nullptr);
+    ASSERT_TRUE(divResult != nullptr);
 
-    Buffer p(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(LinearSolver::Data));
+    Buffer matrixOutput(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(LinearSolver::Data));
+    Buffer divOutput(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
 
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
-        p.CopyFrom(commandBuffer, *result);
+        matrixOutput.CopyFrom(commandBuffer, *matrixResult);
+        divOutput.CopyFrom(commandBuffer, *divResult);
     });
 
-    CheckDiagonal(size, p, sim, 1e-3); // FIXME can we reduce error tolerance?
-    CheckWeights(size, p, sim, 1e-3); // FIXME can we reduce error tolerance?
-    CheckDiv(size, p, sim);
+    CheckDiagonal(size, matrixOutput, sim, 1e-3); // FIXME can we reduce error tolerance?
+    CheckWeights(size, matrixOutput, sim, 1e-3); // FIXME can we reduce error tolerance?
+    CheckDiv(size, divOutput, sim);
 }
 
 TEST(PressureTest, LinearEquationSetup_Complex)
@@ -270,11 +275,13 @@ TEST(PressureTest, LinearEquationSetup_Complex)
 
     BuildInputs(size, sim, velocity, solidPhi, liquidPhi);
 
-    Buffer* result = nullptr;
-    EXPECT_CALL(solver, Init(_, _))
-            .WillOnce(Invoke([&](Buffer& data, Buffer& pressure)
+    Buffer* matrixResult = nullptr;
+    Buffer* divResult = nullptr;
+    EXPECT_CALL(solver, Init(_, _, _))
+            .WillOnce(Invoke([&](Buffer& matrix, Buffer& b, Buffer& pressure)
             {
-                result = &data;
+                matrixResult = &matrix;
+                divResult = &b;
             }));
 
     Pressure pressure(*device, 0.01f, size, solver, velocity, solidPhi, liquidPhi, solidVelocity);
@@ -282,18 +289,21 @@ TEST(PressureTest, LinearEquationSetup_Complex)
     LinearSolver::Parameters params(0);
     pressure.Solve(params);
 
-    ASSERT_TRUE(result != nullptr);
+    ASSERT_TRUE(matrixResult != nullptr);
+    ASSERT_TRUE(divResult != nullptr);
 
-    Buffer p(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(LinearSolver::Data));
+    Buffer matrixOutput(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(LinearSolver::Data));
+    Buffer divOutput(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
 
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
-        p.CopyFrom(commandBuffer, *result);
+        matrixOutput.CopyFrom(commandBuffer, *matrixResult);
+        divOutput.CopyFrom(commandBuffer, *divResult);
     });
 
-    CheckDiagonal(size, p, sim, 1e-3); // FIXME can we reduce error tolerance?
-    CheckWeights(size, p, sim, 1e-3); // FIXME can we reduce error tolerance?
-    CheckDiv(size, p, sim);
+    CheckDiagonal(size, matrixOutput, sim, 1e-3); // FIXME can we reduce error tolerance?
+    CheckWeights(size, matrixOutput, sim, 1e-3); // FIXME can we reduce error tolerance?
+    CheckDiv(size, divOutput, sim);
 }
 
 TEST(PressureTest, Project_Simple)
@@ -325,8 +335,8 @@ TEST(PressureTest, Project_Simple)
     }
     computedPressure.CopyFrom(computedPressureData);
 
-    EXPECT_CALL(solver, Init(_, _))
-        .WillOnce(Invoke([&](Buffer& data, Buffer& pressure)
+    EXPECT_CALL(solver, Init(_, _, _))
+        .WillOnce(Invoke([&](Buffer& data, Buffer& div, Buffer& pressure)
         {
             ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
             {
@@ -379,8 +389,8 @@ TEST(PressureTest, Project_Complex)
     }
     computedPressure.CopyFrom(computedPressureData);
 
-    EXPECT_CALL(solver, Init(_, _))
-        .WillOnce(Invoke([&](Buffer& data, Buffer& pressure)
+    EXPECT_CALL(solver, Init(_, _, _))
+        .WillOnce(Invoke([&](Buffer& data, Buffer& b, Buffer& pressure)
         {
             ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
             {

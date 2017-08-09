@@ -9,7 +9,7 @@
 #include <Vortex2D/Engine/LinearSolver/LinearSolver.h>
 #include <Vortex2D/Engine/LinearSolver/Transfer.h>
 #include <Vortex2D/Engine/LinearSolver/GaussSeidel.h>
-#include <Vortex2D/Renderer/Data.h>
+#include <Vortex2D/Renderer/Work.h>
 
 namespace Vortex2D { namespace Fluid {
 
@@ -18,33 +18,25 @@ class Multigrid : public LinearSolver
 public:
     Multigrid(glm::vec2 size);
 
-    void Build(Data& data,
-               Renderer::Operator& diagonals,
-               Renderer::Operator& weights,
+    void Build(Renderer::Work& buildEquation,
                Renderer::Buffer& solidPhi,
-               Renderer::Buffer& liquidPhi) override;
+               Renderer::Buffer& liquidPhi);
 
-    void Init(Data& data) override;
+    void Init(Renderer::Buffer& matrix, Renderer::Buffer& b, Renderer::Buffer& pressure) override;
 
-    void Solve(Data& data, Parameters& params) override;
+    void Solve(Parameters& params) override;
 
 private:
     void Smoother(Data& data, int iterations);
     void BorderSmoother(Data& data, int iterations, bool up);
 
-    void RenderBoundaryMask(Data& data, Renderer::Buffer& buffer);
-
     int mDepths;
-    Renderer::Operator mResidual;
-    Renderer::Operator mDampedJacobi;
-    Renderer::Operator mIdentity;
-    Renderer::Operator mScale;
-    Renderer::Operator mBoundaryMask;
-
-    Transfer mTransfer;
-    GaussSeidel mGaussSeidel;
+    Renderer::Work mResidualWork;
+    Renderer::Work mDampedJacobiWork;
 
     std::vector<Data> mDatas;
+    std::vector<Renderer::Buffer> mPressures;
+    std::vector<Renderer::Buffer> mResiduals;
     std::vector<Renderer::Buffer> mSolidPhis;
     std::vector<Renderer::Buffer> mLiquidPhis;
 };

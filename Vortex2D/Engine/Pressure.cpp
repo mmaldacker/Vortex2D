@@ -16,26 +16,37 @@ Pressure::Pressure(const Renderer::Device& device,
                    Renderer::Texture& liquidPhi,
                    Renderer::Texture& solidVelocity)
     : mSolver(solver)
-    , mData(device,
+    , mMatrix(device,
             vk::BufferUsageFlagBits::eStorageBuffer,
             false,
             size.x*size.y*sizeof(LinearSolver::Data))
+    , mDiv(device,
+           vk::BufferUsageFlagBits::eStorageBuffer,
+           false,
+           size.x*size.y*sizeof(float))
     , mPressure(device,
                 vk::BufferUsageFlagBits::eStorageBuffer,
                 false,
                 size.x*size.y*sizeof(float))
-    , mBuildEquationData(device, size, "../Vortex2D/BuildEquationData.comp.spv",
-                        {vk::DescriptorType::eStorageBuffer,
-                         vk::DescriptorType::eStorageImage,
-                         vk::DescriptorType::eStorageImage,
-                         vk::DescriptorType::eStorageImage,
-                         vk::DescriptorType::eStorageImage},
-                         4)
-    , mBuildEquationDataBound(mBuildEquationData.Bind({mData,
-                                                       liquidPhi,
-                                                       solidPhi,
-                                                       velocity,
-                                                       solidVelocity}))
+    , mBuildMatrix(device, size, "../Vortex2D/BuildMatrix.comp.spv",
+                   {vk::DescriptorType::eStorageBuffer,
+                   vk::DescriptorType::eStorageImage,
+                   vk::DescriptorType::eStorageImage},
+                   4)
+    , mBuildMatrixBound(mBuildMatrix.Bind({mMatrix,
+                                           liquidPhi,
+                                           solidPhi}))
+    , mBuildDiv(device, size, "../Vortex2D/BuildDiv.comp.spv",
+                {vk::DescriptorType::eStorageBuffer,
+                vk::DescriptorType::eStorageImage,
+                vk::DescriptorType::eStorageImage,
+                vk::DescriptorType::eStorageImage,
+                vk::DescriptorType::eStorageImage})
+    , mBuildDivBound(mBuildDiv.Bind({mDiv,
+                                     liquidPhi,
+                                     solidPhi,
+                                     velocity,
+                                     solidVelocity}))
     , mProject(device, size, "../Vortex2D/Project.comp.spv",
               {vk::DescriptorType::eStorageBuffer,
                vk::DescriptorType::eStorageImage,
@@ -49,10 +60,11 @@ Pressure::Pressure(const Renderer::Device& device,
 {
     mBuildEquationCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
-        // TODO barrier for liquidPhi, solidPhi, velocity and solidVelocity
-        mBuildEquationDataBound.PushConstant(commandBuffer, 8, dt);
-        mBuildEquationDataBound.Record(commandBuffer);
-        mData.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        mBuildMatrixBound.PushConstant(commandBuffer, 8, dt);
+        mBuildMatrixBound.Record(commandBuffer);
+        mMatrix.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        mBuildDivBound.Record(commandBuffer);
+        mDiv.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
     });
 
     mProjectCmd.Record([&](vk::CommandBuffer commandBuffer)
@@ -67,7 +79,7 @@ Pressure::Pressure(const Renderer::Device& device,
                          vk::AccessFlagBits::eShaderRead);
     });
 
-    mSolver.Init(mData, mPressure);
+    mSolver.Init(mMatrix, mDiv, mPressure);
 }
 
 void Pressure::Solve(LinearSolver::Parameters& params)

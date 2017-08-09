@@ -6,143 +6,7 @@
 #include "Multigrid.h"
 
 namespace Vortex2D { namespace Fluid {
-
-namespace
-{
-
-const char * DampedJacobiFrag = GLSL(
-    in vec2 v_texCoord;
-    out vec4 out_color;
-
-    uniform sampler2D u_texture; // this is the pressure
-    uniform sampler2D u_weights;
-    uniform sampler2D u_diagonals;
-
-    const float w = 2.0/3.0;
-
-    void main()
-    {
-        // cell.x is pressure and cell.y is div
-        vec2 cell = texture(u_texture, v_texCoord).xy;
-
-        vec4 p;
-        p.x = textureOffset(u_texture, v_texCoord, ivec2(1,0)).x;
-        p.y = textureOffset(u_texture, v_texCoord, ivec2(-1,0)).x;
-        p.z = textureOffset(u_texture, v_texCoord, ivec2(0,1)).x;
-        p.w = textureOffset(u_texture, v_texCoord, ivec2(0,-1)).x;
-
-        vec4 c = texture(u_weights, v_texCoord);
-        float d = texture(u_diagonals, v_texCoord).x;
-
-        float pressure = mix(cell.x, (cell.y - dot(p, c)) / d, w);
-
-        out_color = vec4(pressure, cell.y, 0.0, 0.0);
-    }
-);
-
-const char * ResidualFrag = GLSL(
-    in vec2 v_texCoord;
-    out vec4 colour_out;
-
-    uniform sampler2D u_texture;
-    uniform sampler2D u_weights;
-    uniform sampler2D u_diagonals;
-
-    void main()
-    {
-        // cell.x is pressure and cell.y is div
-        vec2 cell = texture(u_texture, v_texCoord).xy;
-
-        vec4 p;
-        p.x = textureOffset(u_texture, v_texCoord, ivec2(1,0)).x;
-        p.y = textureOffset(u_texture, v_texCoord, ivec2(-1,0)).x;
-        p.z = textureOffset(u_texture, v_texCoord, ivec2(0,1)).x;
-        p.w = textureOffset(u_texture, v_texCoord, ivec2(0,-1)).x;
-
-        vec4 c = texture(u_weights, v_texCoord);
-        float d = texture(u_diagonals, v_texCoord).x;
-
-        float residual = cell.y - (dot(p, c) + d * cell.x);
-        colour_out = vec4(residual, cell.y, 0.0, 0.0);
-    }
-);
-
-const char* ScaleVert = GLSL(
-    in vec2 a_Position;
-    in vec2 a_TexCoords;
-    out vec2 v_texCoord;
-
-    uniform mat4 u_Projection;
-    uniform sampler2D u_texture;
-
-    const vec2 off = vec2(0.5);
-
-    void main()
-    {
-        gl_Position = u_Projection * vec4(a_Position, 0.0, 1.0);
-
-        vec2 h = textureSize(u_texture, 0);
-        vec2 k = ceil(h/vec2(2.0));
-
-        v_texCoord = (vec2(2.0) * (a_TexCoords * k - off) + off) / h;
-    }
-);
-
-const char* ScaleFrag = GLSL(
-    in vec2 v_texCoord;
-    out vec4 colour_out;
-
-    uniform sampler2D u_texture;
-
-    void main()
-    {
-        vec4 value;
-        value.x = texture(u_texture, v_texCoord).x;
-        value.y = textureOffset(u_texture, v_texCoord, ivec2(1,0)).x;
-        value.z = textureOffset(u_texture, v_texCoord, ivec2(0,1)).x;
-        value.w = textureOffset(u_texture, v_texCoord, ivec2(1,1)).x;
-
-        colour_out = vec4(0.125 * dot(value, vec4(1.0)), 0.0, 0.0, 0.0);
-    }
-);
-
-const char* BoundaryMaskFrag = GLSL(
-
-    uniform sampler2D u_texture;
-    uniform float u_eveness;
-
-    void main()
-    {
-        ivec2 pos = ivec2(gl_FragCoord.xy - 0.5);
-
-        float value = 1.0f;
-        for (int i = -1; i <= 1; i++)
-        {
-            for (int j = -1; j <= 1; j++)
-            {
-                value *= texelFetch(u_texture, pos + ivec2(i,j), 0).x;
-            }
-        }
-
-        if (value == 0.0)
-        {
-            if (mod(gl_FragCoord.x + gl_FragCoord.y, 2.0) == u_eveness)
-            {
-                discard;
-            }
-        }
-        else
-        {
-            discard;
-        }
-    }
-
-);
-
-}
-
-using Renderer::Back;
-
+/*
 Multigrid::Multigrid(glm::vec2 size)
     : mDepths(0)
     , mResidual(Renderer::Shader::TexturePositionVert, ResidualFrag)
@@ -182,28 +46,9 @@ void Multigrid::Smoother(Data& data, int iterations)
 
 void Multigrid::BorderSmoother(Data& data, int iterations, bool up)
 {
-    for (int i = 0; i < iterations; i++)
-    {
-        if (up)
-        {
-            mGaussSeidel.Step(data, 0x02, 0x05);
-            mGaussSeidel.Step(data, 0x04, 0x03);
-        }
-        else
-        {
-            mGaussSeidel.Step(data, 0x04, 0x03);
-            mGaussSeidel.Step(data, 0x02, 0x05);
-        }
-    }
 }
 
-void Multigrid::RenderBoundaryMask(Data& data, Renderer::Buffer& buffer)
-{
-}
-
-void Multigrid::Build(Data& data,
-                      Renderer::Operator& diagonals,
-                      Renderer::Operator& weights,
+void Multigrid::Build(Renderer::Work& buildEquation,
                       Renderer::Buffer& solidPhi,
                       Renderer::Buffer& liquidPhi)
 {
@@ -247,7 +92,7 @@ void Multigrid::Init(LinearSolver::Data& data)
     }
 }
 
-void Multigrid::Solve(LinearSolver::Data& data, Parameters&)
+void Multigrid::Solve(Parameters&)
 {
     int numIterations = 2;
 
@@ -297,5 +142,5 @@ void Multigrid::Solve(LinearSolver::Data& data, Parameters&)
     //BorderSmoother(data, numIterations, false);
     Smoother(data, numIterations);
 }
-
+*/
 }}

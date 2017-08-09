@@ -7,20 +7,12 @@ layout(push_constant) uniform Consts
 {
   int width;
   int height;
-  float delta;
 }consts;
 
-struct Data
+layout(std430, binding = 0) buffer Div
 {
-  vec4 weights;
-  float diagonal;
-  float div;
-};
-
-layout(std430, binding = 0) buffer EquationData
-{
-  Data data[];
-}equation;
+  float value[];
+}div;
 
 layout(binding = 1, r32f) uniform image2D FluidLevelSet;
 layout(binding = 2, r32f) uniform image2D SolidLevelSet;
@@ -87,49 +79,18 @@ void main()
       float wxp = get_weightxp(pos).x;
       float wyp = get_weightyp(pos).y;
 
-      float div = (wuv.x * uv.x - wxp * uxp + wuv.y * uv.y - wyp * vyp) * consts.width;
+      float b = (wuv.x * uv.x - wxp * uxp + wuv.y * uv.y - wyp * vyp) * consts.width;
       vec2 solid_uv = imageLoad(SolidLevelSetVelocity, pos).xy;
       float solid_uxp = imageLoad(SolidLevelSetVelocity, pos + ivec2(1,0)).x;
       float solid_vyp = imageLoad(SolidLevelSetVelocity, pos + ivec2(0,1)).y;
 
-      div += ((1.0 - wxp) * solid_uxp - (1.0 - wuv.x) * solid_uv.x + (1.0 - wyp) * solid_vyp - (1.0 - wuv.y) * solid_uv.y) * consts.width;
+      b += ((1.0 - wxp) * solid_uxp - (1.0 - wuv.x) * solid_uv.x + (1.0 - wyp) * solid_vyp - (1.0 - wuv.y) * solid_uv.y) * consts.width;
 
-      equation.data[pos.x + pos.y * consts.width].div = div;
-
-      float pxp = imageLoad(FluidLevelSet, pos + ivec2(1,0)).x;
-      float pxn = imageLoad(FluidLevelSet, pos + ivec2(-1,0)).x;
-      float pyp = imageLoad(FluidLevelSet, pos + ivec2(0,1)).x;
-      float pyn = imageLoad(FluidLevelSet, pos + ivec2(0,-1)).x;
-
-      vec4 weights;
-      weights.x = pxp >= 0.0 ? 0.0 : -wxp;
-      weights.y = pxn >= 0.0 ? 0.0 : -wuv.x;
-      weights.z = pyp >= 0.0 ? 0.0 : -wyp;
-      weights.w = pyn >= 0.0 ? 0.0 : -wuv.y;
-
-      equation.data[pos.x + pos.y * consts.width].weights = consts.delta * weights * consts.width * consts.width;
-
-      vec4 diagonalWeights;
-      diagonalWeights.x = wxp;
-      diagonalWeights.y = wuv.x;
-      diagonalWeights.z = wyp;
-      diagonalWeights.w = wuv.y;
-
-      vec4 theta;
-      theta.x = pxp < 0.0 ? 1.0 : fraction_inside(liquid_phi, pxp);
-      theta.y = pxn < 0.0 ? 1.0 : fraction_inside(liquid_phi, pxn);
-      theta.z = pyp < 0.0 ? 1.0 : fraction_inside(liquid_phi, pyp);
-      theta.w = pyn < 0.0 ? 1.0 : fraction_inside(liquid_phi, pyn);
-
-      diagonalWeights /= max(theta, 0.01);
-
-      equation.data[pos.x + pos.y * consts.width].diagonal = consts.delta * dot(diagonalWeights, vec4(1.0)) * consts.width * consts.width;
+      div.value[pos.x + pos.y * consts.width] = b;
     }
     else
     {
-      equation.data[pos.x + pos.y * consts.width].weights = vec4(0.0);
-      equation.data[pos.x + pos.y * consts.width].diagonal = 0.0;
-      equation.data[pos.x + pos.y * consts.width].div = 0.0;
+      div.value[pos.x + pos.y * consts.width] = 0.0;
     }
   }
 }

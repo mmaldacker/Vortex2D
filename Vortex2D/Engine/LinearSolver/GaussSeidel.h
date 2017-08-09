@@ -20,7 +20,7 @@ class GaussSeidel : public LinearSolver
 public:
     GaussSeidel(const Renderer::Device& device, const glm::vec2& size);
 
-    void Init(Renderer::Buffer& data, Renderer::Buffer& pressure) override;
+    void Init(Renderer::Buffer& A, Renderer::Buffer& b, Renderer::Buffer& pressure) override;
 
     /**
      * @brief Iterative solving of the linear equations in data

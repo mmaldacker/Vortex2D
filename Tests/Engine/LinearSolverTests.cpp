@@ -170,24 +170,27 @@ TEST(LinearSolverTests, Transfer_Restrict)
     EXPECT_FLOAT_EQ(total, outputData[1 + 3 * 1]);
 }
 
-void BuildLinearEquation(const glm::vec2& size, Buffer& data, FluidSim& sim)
+void BuildLinearEquation(const glm::vec2& size, Buffer& matrix, Buffer& div, FluidSim& sim)
 {
-    std::vector<LinearSolver::Data> equationData(size.x * size.y);
+    std::vector<LinearSolver::Data> matrixData(size.x * size.y);
+    std::vector<float> divData(size.x * size.y);
+
     for (std::size_t i = 1; i < size.x - 1; i++)
     {
         for (std::size_t j = 1; j < size.y - 1; j++)
         {
             std::size_t index = i + size.x * j;
-            equationData[index].Div = sim.rhs[index];
-            equationData[index].Diagonal = sim.matrix(index, index);
-            equationData[index].Weights.x = sim.matrix(index + 1, index);
-            equationData[index].Weights.y = sim.matrix(index - 1, index);
-            equationData[index].Weights.z = sim.matrix(index, index + size.x);
-            equationData[index].Weights.w = sim.matrix(index, index - size.x);
+            divData[index] = sim.rhs[index];
+            matrixData[index].Diagonal = sim.matrix(index, index);
+            matrixData[index].Weights.x = sim.matrix(index + 1, index);
+            matrixData[index].Weights.y = sim.matrix(index - 1, index);
+            matrixData[index].Weights.z = sim.matrix(index, index + size.x);
+            matrixData[index].Weights.w = sim.matrix(index, index - size.x);
         }
     }
 
-    data.CopyFrom(equationData);
+    matrix.CopyFrom(matrixData);
+    div.CopyFrom(divData);
 }
 
 void CheckPressure(const glm::vec2& size, const std::vector<double>& pressure, Buffer& bufferPressure, float error)
@@ -219,15 +222,16 @@ TEST(LinearSolverTests, Simple_SOR)
     sim.add_force(0.01f);
     sim.project(0.01f);
 
-    Buffer data(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(LinearSolver::Data));
+    Buffer matrix(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(LinearSolver::Data));
+    Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
     Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
 
-    BuildLinearEquation(size, data, sim);
+    BuildLinearEquation(size, matrix, div, sim);
 
     LinearSolver::Parameters params(200);
     GaussSeidel solver(*device, size);
 
-    solver.Init(data, pressure);
+    solver.Init(matrix, div, pressure);
     solver.Solve(params);
 
     device->Queue().waitIdle();
@@ -250,15 +254,16 @@ TEST(LinearSolverTests, Complex_SOR)
     sim.add_force(0.01f);
     sim.project(0.01f);
 
-    Buffer data(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(LinearSolver::Data));
+    Buffer matrix(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(LinearSolver::Data));
+    Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
     Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
 
-    BuildLinearEquation(size, data, sim);
+    BuildLinearEquation(size, matrix, div, sim);
 
     LinearSolver::Parameters params(200);
     GaussSeidel solver(*device, size);
 
-    solver.Init(data, pressure);
+    solver.Init(matrix, div, pressure);
     solver.Solve(params);
 
     device->Queue().waitIdle();
@@ -526,54 +531,5 @@ TEST(LinearSolverTests, Simple_Multigrid)
     {
         PrintData(size.x, size.y, sim.pressure);
     }
-}
-
-TEST(LinearSolverTests, PerformanceMeasurements)
-{
-    Disable d(GL_BLEND);
-
-    glm::vec2 size(100);
-
-    FluidSim sim;
-    sim.initialize(1.0f, size.x, size.y);
-    sim.set_boundary(boundary_phi);
-
-    AddParticles(size, sim, boundary_phi);
-
-    sim.add_force(0.01f);
-
-    Buffer velocity1(size, 2, true);
-    SetVelocity(velocity1, sim);
-
-    Buffer velocity2(size, 2, true);
-    SetVelocity(velocity2, sim);
-
-    sim.project(0.01f);
-
-    Buffer solidPhi(glm::vec2(2)*size, 1);
-    SetSolidPhi(solidPhi, sim);
-
-    Buffer liquidPhi(size, 1);
-    SetLiquidPhi(liquidPhi, sim);
-
-    Buffer solidVelocity(size, 2);
-    // leave empty
-
-    LinearSolver::Data data(size);
-
-    LinearSolver::Parameters params(1000, 1e-5f);
-    ConjugateGradient solver(size);
-
-    Pressure pressure(0.01f, size, solver, data, velocity1, solidPhi, liquidPhi, solidVelocity);
-
-    auto start = std::chrono::system_clock::now();
-
-    pressure.Solve(params);
-
-    auto end = std::chrono::system_clock::now();
-    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-
-    std::cout << "Total Solved time: " << elapsed.count() << std::endl;
-    std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
 }
 */

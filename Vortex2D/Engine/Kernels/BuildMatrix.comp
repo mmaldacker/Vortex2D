@@ -1,0 +1,118 @@
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+layout (local_size_x_id = 1, local_size_y_id = 2) in;
+
+layout(push_constant) uniform Consts
+{
+  int width;
+  int height;
+  float delta;
+}consts;
+
+struct Data
+{
+  vec4 weights;
+  float diagonal;
+};
+
+layout(std430, binding = 0) buffer Matrix
+{
+  Data data[];
+}matrix;
+
+layout(binding = 1, r32f) uniform image2D FluidLevelSet;
+layout(binding = 2, r32f) uniform image2D SolidLevelSet;
+
+float fraction_inside(float a, float b)
+{
+    if(a < 0.0 && b < 0.0)
+        return 1.0;
+    if(a < 0.0 && b >= 0.0)
+        return a / (a - b);
+    if(a >= 0.0 && b < 0.0)
+        return b / (b - a);
+    return 0.0;
+}
+
+vec2 get_weight(ivec2 pos)
+{
+  vec2 weight;
+  weight.x = 1.0 - fraction_inside(imageLoad(SolidLevelSet, pos + ivec2(0,1)).x,
+                                   imageLoad(SolidLevelSet, pos + ivec2(0,0)).x);
+  weight.y = 1.0 - fraction_inside(imageLoad(SolidLevelSet, pos + ivec2(1,0)).x,
+                                   imageLoad(SolidLevelSet, pos + ivec2(0,0)).x);
+
+  return clamp(weight, vec2(0.0), vec2(1.0));
+}
+
+vec2 get_weightxp(ivec2 pos)
+{
+  vec2 weight;
+  weight.x = 1.0 - fraction_inside(imageLoad(SolidLevelSet, pos + ivec2(1,1)).x,
+                                   imageLoad(SolidLevelSet, pos + ivec2(1,0)).x);
+  weight.y = 1.0 - fraction_inside(imageLoad(SolidLevelSet, pos + ivec2(2,0)).x,
+                                   imageLoad(SolidLevelSet, pos + ivec2(1,0)).x);
+
+  return clamp(weight, vec2(0.0), vec2(1.0));
+}
+
+vec2 get_weightyp(ivec2 pos)
+{
+  vec2 weight;
+  weight.x = 1.0 - fraction_inside(imageLoad(SolidLevelSet, pos + ivec2(0,2)).x,
+                                   imageLoad(SolidLevelSet, pos + ivec2(0,1)).x);
+  weight.y = 1.0 - fraction_inside(imageLoad(SolidLevelSet, pos + ivec2(1,1)).x,
+                                   imageLoad(SolidLevelSet, pos + ivec2(0,1)).x);
+
+  return clamp(weight, vec2(0.0), vec2(1.0));
+}
+
+void main()
+{
+  ivec2 pos = ivec2(gl_GlobalInvocationID);
+  if (pos.x > 0 && pos.y > 0 && pos.x < consts.width - 1 && pos.y < consts.height - 1)
+  {
+    float liquid_phi = imageLoad(FluidLevelSet, pos).x;
+    if (liquid_phi < 0.0)
+    {
+      vec2 wuv = get_weight(pos);
+      float wxp = get_weightxp(pos).x;
+      float wyp = get_weightyp(pos).y;
+
+      float pxp = imageLoad(FluidLevelSet, pos + ivec2(1,0)).x;
+      float pxn = imageLoad(FluidLevelSet, pos + ivec2(-1,0)).x;
+      float pyp = imageLoad(FluidLevelSet, pos + ivec2(0,1)).x;
+      float pyn = imageLoad(FluidLevelSet, pos + ivec2(0,-1)).x;
+
+      vec4 weights;
+      weights.x = pxp >= 0.0 ? 0.0 : -wxp;
+      weights.y = pxn >= 0.0 ? 0.0 : -wuv.x;
+      weights.z = pyp >= 0.0 ? 0.0 : -wyp;
+      weights.w = pyn >= 0.0 ? 0.0 : -wuv.y;
+
+      matrix.data[pos.x + pos.y * consts.width].weights = consts.delta * weights * consts.width * consts.width;
+
+      vec4 diagonalWeights;
+      diagonalWeights.x = wxp;
+      diagonalWeights.y = wuv.x;
+      diagonalWeights.z = wyp;
+      diagonalWeights.w = wuv.y;
+
+      vec4 theta;
+      theta.x = pxp < 0.0 ? 1.0 : fraction_inside(liquid_phi, pxp);
+      theta.y = pxn < 0.0 ? 1.0 : fraction_inside(liquid_phi, pxn);
+      theta.z = pyp < 0.0 ? 1.0 : fraction_inside(liquid_phi, pyp);
+      theta.w = pyn < 0.0 ? 1.0 : fraction_inside(liquid_phi, pyn);
+
+      diagonalWeights /= max(theta, 0.01);
+
+      matrix.data[pos.x + pos.y * consts.width].diagonal = consts.delta * dot(diagonalWeights, vec4(1.0)) * consts.width * consts.width;
+    }
+    else
+    {
+      matrix.data[pos.x + pos.y * consts.width].weights = vec4(0.0);
+      matrix.data[pos.x + pos.y * consts.width].diagonal = 0.0;
+    }
+  }
+}

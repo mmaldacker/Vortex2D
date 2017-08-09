@@ -15,7 +15,8 @@ static void SimpleSOR(benchmark::State& state)
 
     // TODO fill in data
 
-    Buffer data(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(LinearSolver::Data));
+    Buffer matrix(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(LinearSolver::Data));
+    Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
     Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
 
     LinearSolver::Parameters params(300);
@@ -23,7 +24,7 @@ static void SimpleSOR(benchmark::State& state)
 
     Timer timer(*device);
 
-    solver.Init(data, pressure);
+    solver.Init(matrix, div, pressure);
 
     while (state.KeepRunning())
     {

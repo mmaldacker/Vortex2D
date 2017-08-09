@@ -27,10 +27,13 @@ public:
 
 private:
     LinearSolver& mSolver;
-    Renderer::Buffer mData;
+    Renderer::Buffer mMatrix;
+    Renderer::Buffer mDiv;
     Renderer::Buffer mPressure;
-    Renderer::Work mBuildEquationData;
-    Renderer::Work::Bound mBuildEquationDataBound;
+    Renderer::Work mBuildMatrix;
+    Renderer::Work::Bound mBuildMatrixBound;
+    Renderer::Work mBuildDiv;
+    Renderer::Work::Bound mBuildDivBound;
     Renderer::Work mProject;
     Renderer::Work::Bound mProjectBound;
     Renderer::CommandBuffer mBuildEquationCmd;

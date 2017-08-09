@@ -14,6 +14,7 @@ GaussSeidel::GaussSeidel(const Renderer::Device& device, const glm::vec2& size)
     : mW(2.0f/(1.0f+std::sin(glm::pi<float>()/std::sqrt(size.x*size.y))))
     , mGaussSeidel(device, size, "../Vortex2D/GaussSeidel.comp.spv",
                    {vk::DescriptorType::eStorageBuffer,
+                    vk::DescriptorType::eStorageBuffer,
                     vk::DescriptorType::eStorageBuffer},
                    8)
     , mGaussSeidelCmd(device, false)
@@ -21,9 +22,9 @@ GaussSeidel::GaussSeidel(const Renderer::Device& device, const glm::vec2& size)
 {
 }
 
-void GaussSeidel::Init(Renderer::Buffer& data, Renderer::Buffer& pressure)
+void GaussSeidel::Init(Renderer::Buffer& matrix, Renderer::Buffer& div, Renderer::Buffer& pressure)
 {
-    mGaussSeidelBound = mGaussSeidel.Bind({pressure, data});
+    mGaussSeidelBound = mGaussSeidel.Bind({pressure, matrix, div});
     mGaussSeidelCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
         // TODO add barrier
