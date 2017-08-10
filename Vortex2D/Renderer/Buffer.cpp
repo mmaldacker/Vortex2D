@@ -37,7 +37,11 @@ Buffer::Buffer(const Device& device, vk::BufferUsageFlags usageFlags, bool host,
     mMemory = device.Handle().allocateMemoryUnique(memoryInfo);
     device.Handle().bindBufferMemory(*mBuffer, *mMemory, 0);
 
-
+		// TODO should we always clear in constructor
+    ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
+    {
+        Clear(commandBuffer);
+    };
 }
 
 void Buffer::Flush()
