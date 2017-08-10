@@ -108,8 +108,8 @@ TEST(LinearSolverTests, ReduceMax)
 
 TEST(LinearSolverTests, Transfer_Prolongate)
 {
-    glm::ivec2 coarseSize(4);
-    glm::ivec2 fineSize(6);
+    glm::ivec2 coarseSize(3);
+    glm::ivec2 fineSize(4);
 
     Transfer t(*device);
 
@@ -128,17 +128,17 @@ TEST(LinearSolverTests, Transfer_Prolongate)
     output.CopyTo(outputData);
 
     float total;
-    total = (9*6 + 3*7 + 3*10 + 1*11) / 16.0f;
-    EXPECT_FLOAT_EQ(total, outputData[1 + 6 * 1]);
+    total = (9*5 + 3*2 + 3*4 + 1*1) / 16.0f;
+    EXPECT_FLOAT_EQ(total, outputData[1 + fineSize.x * 1]);
 
-    total = (9*7 + 3*6 + 3*11 + 1*10) / 16.0f;
-    EXPECT_FLOAT_EQ(total, outputData[2 + 6 * 1]);
+    total = (9*5 + 3*2 + 3*6 + 1*3) / 16.0f;
+    EXPECT_FLOAT_EQ(total, outputData[2 + fineSize.x * 1]);
 
-    total = (9*10 + 3*6 + 3*11 + 1*7) / 16.0f;
-    EXPECT_FLOAT_EQ(total, outputData[1 + 6 * 2]);
+    total = (9*5 + 3*4 + 3*8 + 1*7) / 16.0f;
+    EXPECT_FLOAT_EQ(total, outputData[1 + fineSize.x * 2]);
 
-    total = (9*11 + 3*7 + 3*10 + 1*6) / 16.0f;
-    EXPECT_FLOAT_EQ(total, outputData[2 + 6 * 2]);
+    total = (9*5 + 3*6 + 3*8 + 1*9) / 16.0f;
+    EXPECT_FLOAT_EQ(total, outputData[2 + fineSize.x * 2]);
 }
 
 TEST(LinearSolverTests, Transfer_Restrict)
@@ -167,7 +167,7 @@ TEST(LinearSolverTests, Transfer_Restrict)
     std::vector<float> outputData(coarseSize.x*coarseSize.y, 0.0f);
     output.CopyTo(outputData);
 
-    EXPECT_FLOAT_EQ(total, outputData[1 + 3 * 1]);
+    EXPECT_FLOAT_EQ(total, outputData[1 + coarseSize.x * 1]);
 }
 
 void BuildLinearEquation(const glm::ivec2& size, Buffer& matrix, Buffer& div, FluidSim& sim)
