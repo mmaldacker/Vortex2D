@@ -25,10 +25,10 @@ void main()
   if (pos.x > 0 && pos.y > 0 && pos.x < consts.width - 1 && pos.y < consts.height - 1)
   {
     ivec2 t = ivec2(pos.x % 2 == 0 ? 1 : -1, pos.y % 2 == 0 ? 1 : -1);
-    //ivec2 t = 2 * (pos - 2 * (pos / 2)) - 1;
+    //ivec2 t = 1 - 2 * (pos - 2 * (pos / 2));
 
     ivec2 coarsePos = ivec2(1) + pos / ivec2(2);
-    int coarseWidth = 2 + (consts.width - 2) / 2;
+    int coarseWidth = 1 + consts.width / 2;
     int coarseIndex = coarsePos.x + coarsePos.y * coarseWidth;
 
     float p = 0.0;
