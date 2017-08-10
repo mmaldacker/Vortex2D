@@ -97,23 +97,52 @@ Texture::Texture(const Device& device, uint32_t width, uint32_t height, vk::Form
 
     // Transition to eGeneral and clear texture
     // TODO perhaps have initial color or data in the constructor?
-    // TODO put in clear command
     ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
     {
         Barrier(commandBuffer,
                 imageLayout,
                 vk::AccessFlagBits{},
                 vk::ImageLayout::eGeneral,
-                vk::AccessFlagBits::eMemoryRead);
+                vk::AccessFlagBits::eTransferWrite);
 
         auto clearValue = vk::ClearColorValue()
-                .setFloat32(std::array<float, 4>{{0.0f, 0.0f, 0.0f, 0.0f}});
+                .setFloat32({{0.0f, 0.0f, 0.0f, 0.0f}});
 
         commandBuffer.clearColorImage(*mImage,
                                       vk::ImageLayout::eGeneral,
                                       clearValue,
                                       vk::ImageSubresourceRange{vk::ImageAspectFlagBits::eColor, 0, 1, 0 ,1});
+                                      
+        Barrier(commandBuffer,
+                vk::ImageLayout::eGeneral,
+                vk::AccessFlagBits::eTransferWrite,
+                vk::ImageLayout::eGeneral,
+                vk::AccessFlagBits{});
     });
+}
+
+void Texture::Clear(vk::CommandBuffer commandBuffer, const std::array<float, 4>& colour)
+{
+  // TODO access flags wrong?
+        Barrier(commandBuffer,
+                vk::ImageLayout::eGeneral,
+                vk::AccessFlagBits{},
+                vk::ImageLayout::eGeneral,
+                vk::AccessFlagBits::eTransferWrite);
+
+        auto clearValue = vk::ClearColorValue()
+                .setFloat32(colour);
+
+        commandBuffer.clearColorImage(*mImage,
+                                      vk::ImageLayout::eGeneral,
+                                      clearValue,
+                                      vk::ImageSubresourceRange{vk::ImageAspectFlagBits::eColor, 0, 1, 0 ,1});
+                                      
+        Barrier(commandBuffer,
+                vk::ImageLayout::eGeneral,
+                vk::AccessFlagBits::eTransferWrite,
+                vk::ImageLayout::eGeneral,
+                vk::AccessFlagBits{});
 }
 
 void Texture::CopyFrom(const void* data, vk::DeviceSize bytesPerPixel)
