@@ -64,6 +64,7 @@ Multigrid::Multigrid(const Renderer::Device& device, const glm::ivec2& size)
     mPressuresBack.emplace_back(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
     mBs.emplace_back(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
 
+    // TODO need to clear with value -10 (or 10?) (or bigger?)
     mSolidPhis.emplace_back(device, size.x, size.y, vk::Format::eR32Sfloat, false);
     mLiquidPhis.emplace_back(device, size.x, size.y, vk::Format::eR32Sfloat, false);
   }
