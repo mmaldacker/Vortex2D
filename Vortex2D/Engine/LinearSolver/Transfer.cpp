@@ -19,9 +19,9 @@ Transfer::Transfer(const Renderer::Device& device)
 
 }
 
-void Transfer::Init(const glm::ivec2& coarseSize, Renderer::Buffer& coarse, Renderer::Buffer& fine)
+void Transfer::Init(const glm::ivec2& fineSize, Renderer::Buffer& fine, Renderer::Buffer& coarse)
 {
-    glm::ivec2 fineSize = glm::ivec2(2) * (coarseSize - glm::ivec2(2)) + glm::ivec2(2);
+    glm::ivec2 coarseSize =  glm::ivec2(2) + (fineSize - glm::ivec2(2)) / glm::ivec2(2);
 
     mProlongateBound.push_back(mProlongateWork.Bind(fineSize, {coarse, fine}));
     auto& prolongateBound = mProlongateBound.back();

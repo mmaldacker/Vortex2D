@@ -7,151 +7,173 @@
 
 namespace Vortex2D { namespace Fluid {
 
-namespace
+Depth::Depth(const glm::ivec2& size)
 {
-const float min_size = 10.0f;
+  auto s = size;
+  mDepths.push_back(s);
+
+  const float min_size = 10.0f;
+  while (s.x > min_size && s.y > min_size)
+  {
+    assert(s.x % 2 == 0);
+    assert(s.y % 2 == 0);
+
+    s = (s - glm::ivec2(2)) / glm::ivec2(2) + glm::ivec2(2);
+    mDepths.push_back(s);
+  }
 }
 
-Multigrid::Multigrid(const Renderer::Device& device, glm::ivec2 size)
-    : mSize(size)
-    , mDepths(0)
-    , mResidualWork(device, size, "../Vortex2D/Residual.comp.spv",
-                    {vk::DescriptorType::eStorageBuffer,
-                    vk::DescriptorType::eStorageBuffer,
-                    vk::DescriptorType::eStorageBuffer,
-                    vk::DescriptorType::eStorageBuffer})
-    , mDampedJacobiWork(device, size, "../Vortex2D/DampedJacobi.comp.spv",
-                        {vk::DescriptorType::eStorageBuffer,
-                        vk::DescriptorType::eStorageBuffer,
-                        vk::DescriptorType::eStorageBuffer,
-                        vk::DescriptorType::eStorageBuffer})
-    , mTransfer(device)
-    , mCmd(device, false)
+int Depth::GetMaxDepth() const
 {
-    while (size.x > min_size && size.y > min_size)
-    {
-        int width = size.x;
-        int height = size.y;
-        assert(width % 2 == 0);
-        assert(height % 2 == 0);
+  return mDepths.size() - 1;
+}
 
-        size = (size - glm::ivec2(2)) / glm::ivec2(2) + glm::ivec2(2);
+glm::ivec2 Depth::GetDepthSize(int i) const
+{
+  assert(i < mDepths.size());
+  return mDepths[i];
+}
 
-        mMatrices.emplace_back(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(Data));
-        mPressures.emplace_back(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
-        mResiduals.emplace_back(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
-        mSolidPhis.emplace_back(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
-        mLiquidPhis.emplace_back(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
+Multigrid::Multigrid(const Renderer::Device& device, const glm::ivec2& size)
+  : mDepth(size)
+  , mResidualWork(device, size, "../Vortex2D/Residual.comp.spv",
+                  {vk::DescriptorType::eStorageBuffer,
+                  vk::DescriptorType::eStorageBuffer,
+                  vk::DescriptorType::eStorageBuffer,
+                  vk::DescriptorType::eStorageBuffer})
+  , mDampedJacobiWork(device, size, "../Vortex2D/DampedJacobi.comp.spv",
+                      {vk::DescriptorType::eStorageBuffer,
+                      vk::DescriptorType::eStorageBuffer,
+                      vk::DescriptorType::eStorageBuffer,
+                      vk::DescriptorType::eStorageBuffer})
+  , mTransfer(device)
+  , mPressureBack(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float))
+  , mCoarseMinWork(device, size, "../Vortex2D/CoarseMin.comp.spv",
+    {vk::DescriptorType::eStorageImage,
+    vk::DescriptorType::eStorageImage})
+  , mCoarseMaxWork(device, size, "../Vortex2D/CoarseMax.comp.spv",
+    {vk::DescriptorType::eStorageImage,
+    vk::DescriptorType::eStorageImage})
+  , mCmd(device, false)
+{
+  for (int i = 1; i <= mDepth.GetMaxDepth(); i++)
+  {
+    mMatrices.emplace_back(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(Data));
+    mPressures.emplace_back(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
+    mPressuresBack.emplace_back(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
+    mBs.emplace_back(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
 
-        mDepths++;
-    }
+    mSolidPhis.emplace_back(device, size.x, size.y, vk::Format::eR32Sfloat, false);
+    mLiquidPhis.emplace_back(device, size.x, size.y, vk::Format::eR32Sfloat, false);
+  }
+
+  for (int i = 0; i < mDepth.GetMaxDepth(); i++)
+  {
+    mResiduals.emplace_back(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
+  }
 }
 
 void Multigrid::Init(Renderer::Buffer& matrix, Renderer::Buffer& b, Renderer::Buffer& pressure)
 {
-    mResidualWorkBound.push_back(mResidualWork.Bind(mSize, {pressure, matrix, b, mResiduals[0]}));
+  mPressure = &pressure;
 
-    auto size = mSize;
-    while (size.x > min_size && size.y > min_size)
+  mResidualWorkBound.push_back(
+        mResidualWork.Bind(mDepth.GetDepthSize(0), {pressure, matrix, b, mResiduals[0]}));
+  mDampedJacobiWorkBound.emplace_back(
+        mDampedJacobiWork.Bind(mDepth.GetDepthSize(0), {pressure, matrix, b, mPressureBack}),
+        mDampedJacobiWork.Bind(mDepth.GetDepthSize(0), {mPressureBack, matrix, b, pressure}));
+  mTransfer.Init(mDepth.GetDepthSize(0), mResiduals[0], mBs[0]);
+
+  for (int i = 1; i < mDepth.GetMaxDepth(); i++)
+  {
+    mResidualWorkBound.push_back(
+          mResidualWork.Bind(mDepth.GetDepthSize(i), {mPressures[i-1], mMatrices[i-1], mBs[i-1], mResiduals[i]}));
+    mTransfer.Init(mDepth.GetDepthSize(i), mResiduals[i], mBs[i]);
+
+  }
+
+  for (int i = 1; i <= mDepth.GetMaxDepth(); i++)
+  {
+    mDampedJacobiWorkBound.emplace_back(
+          mDampedJacobiWork.Bind(mDepth.GetDepthSize(i), {mPressures[i-1], mMatrices[i-1], mBs[i-1], mPressuresBack[i-1]}),
+          mDampedJacobiWork.Bind(mDepth.GetDepthSize(i), {mPressuresBack[i-1], mMatrices[i-1], mBs[i-1], mPressures[i-1]}));
+  }
+
+  mCmd.Record([&](vk::CommandBuffer commandBuffer)
+  {
+    int numIterations = 4;
+    int numBorderIterations = 2;
+    int numIterationsCoarse = 32;
+
+    pressure.Clear(commandBuffer);
+
+    for (int i = 0; i < mDepth.GetMaxDepth(); i++)
     {
+      numIterations *= 2;
 
-        size = (size - glm::ivec2(2)) / glm::ivec2(2) + glm::ivec2(2);
+      Smoother(commandBuffer, i, numIterations);
+      BorderSmoother(commandBuffer, i, numBorderIterations, true);
 
-        //mTransfer.Init(size,        )
-    };
-
-    mCmd.Record([&](vk::CommandBuffer commandBuffer)
-    {
-        int numIterations = 4;
-        int numBorderIterations = 2;
-
-        pressure.Clear(commandBuffer);
-
-        //Smoother(data, numIterations);
-        //BorderSmoother(data, numBorderIterations, true);
-
-        if (mDepths > 0)
-        {
-            for (int i = 0 ; i < mDepths - 1 ; i++)
-            {
-                numIterations *= 2;
-
-                //Smoother(x, 4);
-                //BorderSmoother(x, numBorderIterations, true);
-
-                mResidualWorkBound[i].Record(commandBuffer);
-                mResiduals[i].Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-                mTransfer.Restrict(i);
-                mPressures[i].Clear(commandBuffer);
-            }
-
-            //Smoother(mDatas.back(), numIterations * 2);
-
-            for (int i = mDepths - 2 ; i >= 0 ; --i)
-            {
-                mTransfer.Prolongate(i);
-
-                //BorderSmoother(x, numBorderIterations, false);
-                //Smoother(x, numIterations);
-
-                numIterations /= 2;
-            }
-        }
-
-        //BorderSmoother(data, numBorderIterations, false);
-        //Smoother(data, numIterations);
-    });
-}
-
-/*
-void Multigrid::Smoother(Data& data, int iterations)
-{
-    for (int i = 0; i < iterations; i++)
-    {
-        data.Pressure.Swap();
-        data.Pressure = mDampedJacobi(Back(data.Pressure), data.Weights, data.Diagonal);
-    }
-}
-
-void Multigrid::BorderSmoother(Data& data, int iterations, bool up)
-{
-}
-
-void Multigrid::Build(Renderer::Work& buildEquation,
-                      Renderer::Buffer& solidPhi,
-                      Renderer::Buffer& liquidPhi)
-{
-    data.Diagonal = diagonals(solidPhi, liquidPhi);
-    data.Weights = weights(solidPhi, liquidPhi);
-
-    mLiquidPhis[0] = mScale(liquidPhi);
-    mSolidPhis[0] = mScale(solidPhi);
-
-    for (int i = 1; i < mDepths; i++)
-    {
-        mLiquidPhis[i - 1].ClampToEdge();
-        mLiquidPhis[i] = mScale(mLiquidPhis[i - 1]);
-
-        mSolidPhis[i - 1].ClampToEdge();
-        mSolidPhis[i] = mScale(mSolidPhis[i - 1]);
+      mResidualWorkBound[i].Record(commandBuffer);
+      mResiduals[i].Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+      mTransfer.Restrict(i);
+      mPressures[i].Clear(commandBuffer);
     }
 
-    for (int i = 0; i < mDepths; i++)
+    Smoother(commandBuffer, mDepth.GetMaxDepth(), numIterationsCoarse);
+
+    for (int i = mDepth.GetMaxDepth() - 1; i >= 0; --i)
     {
-        auto& x = mDatas[i];
+      mTransfer.Prolongate(i);
 
-        mSolidPhis[i].ClampToBorder();
-        mLiquidPhis[i].ClampToBorder();
+      BorderSmoother(commandBuffer, i, numBorderIterations, false);
+      Smoother(commandBuffer, i, numIterations);
 
-        x.Diagonal = diagonals(mSolidPhis[i], mLiquidPhis[i]);
-        x.Weights = weights(mSolidPhis[i], mLiquidPhis[i]);
+      numIterations /= 2;
     }
+  });
 }
-*/
+
+void Multigrid::Smoother(vk::CommandBuffer commandBuffer, int n, int iterations)
+{
+  for (int i = 0; i < iterations; i++)
+  {
+    if (n == 0)
+    {
+      mDampedJacobiWorkBound[n].first.Record(commandBuffer);
+      mPressureBack.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+      mDampedJacobiWorkBound[n].first.Record(commandBuffer);
+      assert(mPressure);
+      mPressure->Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+    }
+    else
+    {
+      mDampedJacobiWorkBound[n].first.Record(commandBuffer);
+      mPressuresBack[n].Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+      mDampedJacobiWorkBound[n].first.Record(commandBuffer);
+      mPressures[n].Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+    }
+  }
+}
+
+void Multigrid::BorderSmoother(vk::CommandBuffer commandBuffer, int n, int iterations, bool up)
+{
+  for (int i = 0; i < iterations; i++)
+  {
+
+  }
+}
+
+void Multigrid::Build(Renderer::Work& buildMatrix,
+                      Renderer::Texture& solidPhi,
+                      Renderer::Texture& liquidPhi)
+{
+
+}
 
 void Multigrid::Solve(Parameters&)
 {
-    mCmd.Submit();
+  mCmd.Submit();
 }
 
 }}

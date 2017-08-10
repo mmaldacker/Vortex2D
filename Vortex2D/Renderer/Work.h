@@ -80,6 +80,7 @@ public:
         vk::UniqueDescriptorSet mDescriptor;
     };
 
+    // TODO save the bound inside the Work class and access with other method
     Bound Bind(const std::vector<Input>& inputs);
     Bound Bind(const glm::ivec2& size, const std::vector<Input>& inputs);
 

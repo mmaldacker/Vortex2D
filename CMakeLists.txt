@@ -22,11 +22,8 @@ download_project(PROJ                glm
 add_subdirectory(${glm_SOURCE_DIR} ${glm_BINARY_DIR})
 add_subdirectory(Vortex2D)
 
-if (VORTEX2D_ENABLE_EXAMPLES OR VORTEX2D_ENABLE_TESTS)
-  add_subdirectory(VulkanGLFW)
-endif ()
-
 if (VORTEX2D_ENABLE_EXAMPLES)
+  add_subdirectory(VulkanGLFW)
   add_subdirectory(Examples)
 endif ()
 

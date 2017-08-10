@@ -11,41 +11,70 @@
 #include <Vortex2D/Engine/LinearSolver/GaussSeidel.h>
 #include <Vortex2D/Renderer/Work.h>
 #include <Vortex2D/Renderer/CommandBuffer.h>
+#include <Vortex2D/Renderer/Texture.h>
 
 namespace Vortex2D { namespace Fluid {
+
+class Depth
+{
+public:
+  Depth(const glm::ivec2& size);
+
+  int GetMaxDepth() const;
+  glm::ivec2 GetDepthSize(int i) const;
+
+private:
+  std::vector<glm::ivec2> mDepths;
+};
 
 class Multigrid : public LinearSolver
 {
 public:
-    Multigrid(const Renderer::Device& device, glm::ivec2 size);
+    Multigrid(const Renderer::Device& device, const glm::ivec2& size);
 
     void Build(Renderer::Work& buildMatrix,
-               Renderer::Buffer& solidPhi,
-               Renderer::Buffer& liquidPhi);
+               Renderer::Texture& solidPhi,
+               Renderer::Texture& liquidPhi);
 
     void Init(Renderer::Buffer& matrix, Renderer::Buffer& b, Renderer::Buffer& pressure) override;
 
     void Solve(Parameters& params) override;
 
 private:
-    void Smoother(Data& data, int iterations);
-    void BorderSmoother(Data& data, int iterations, bool up);
+    void Smoother(vk::CommandBuffer commandBuffer, int n, int iterations);
+    void BorderSmoother(vk::CommandBuffer commandBuffer, int n, int iterations, bool up);
 
-    glm::ivec2 mSize;
-    int mDepths;
+    Depth mDepth;
     Renderer::Work mResidualWork;
     Renderer::Work mDampedJacobiWork;
 
     std::vector<Renderer::Work::Bound> mResidualWorkBound;
-    std::vector<Renderer::Work::Bound> mDampedJacobiWorkBound;
+    std::vector<std::pair<Renderer::Work::Bound, Renderer::Work::Bound>> mDampedJacobiWorkBound;
 
     Transfer mTransfer;
 
+    Renderer::Buffer* mPressure = nullptr;
+    Renderer::Buffer mPressureBack;
+
+    // mMatrices[0] is level 1
     std::vector<Renderer::Buffer> mMatrices;
+    // mPressures[0] and mPressuresBack[0] is level 1
     std::vector<Renderer::Buffer> mPressures;
+    std::vector<Renderer::Buffer> mPressuresBack;
+    // mBs[0] is level 1
+    std::vector<Renderer::Buffer> mBs;
+    // mResiduals[0] is level 0
     std::vector<Renderer::Buffer> mResiduals;
-    std::vector<Renderer::Buffer> mSolidPhis;
-    std::vector<Renderer::Buffer> mLiquidPhis;
+
+    Renderer::Work mCoarseMinWork;
+    Renderer::Work mCoarseMaxWork;
+
+    std::vector<Renderer::Work::Bound> mCoarseMinWorkBound;
+    std::vector<Renderer::Work::Bound> mCoarseMaxWorkBound;
+
+    // mSolidPhis[0] and mLiquidPhis[0] is level 1
+    std::vector<Renderer::Texture> mSolidPhis;
+    std::vector<Renderer::Texture> mLiquidPhis;
 
     Renderer::CommandBuffer mCmd;
 };

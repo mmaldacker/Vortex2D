@@ -120,7 +120,7 @@ TEST(LinearSolverTests, Transfer_Prolongate)
     std::iota(data.begin(), data.end(), 1.0f);
     input.CopyFrom(data);
 
-    t.Init(coarseSize, input, output);
+    t.Init(fineSize, output, input);
     t.Prolongate(0);
     device->Queue().waitIdle();
 
@@ -155,7 +155,7 @@ TEST(LinearSolverTests, Transfer_Restrict)
     std::iota(data.begin(), data.end(), 1.0f);
     input.CopyFrom(data);
 
-    t.Init(coarseSize, output, input);
+    t.Init(fineSize, input, output);
     t.Restrict(0);
     device->Queue().waitIdle();
 
