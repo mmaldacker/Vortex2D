@@ -80,6 +80,7 @@ Pressure::Pressure(const Renderer::Device& device,
     });
 
     mSolver.Init(mMatrix, mDiv, mPressure);
+    mSolver.Build(mBuildMatrix, solidPhi, liquidPhi);
 }
 
 void Pressure::Solve(LinearSolver::Parameters& params)

@@ -7,8 +7,6 @@ layout(push_constant) uniform Consts
 {
   int width;
   int height;
-  float w;
-  int red;
 }consts;
 
 layout(std430, binding = 0) buffer Pressure
@@ -57,7 +55,7 @@ void main()
       p.z = pressure.value[index + consts.width];
       p.w = pressure.value[index - consts.width];
 
-      outputPressure.value[index] = mix(oldPressure, (b.value[index] - dot(p, data.weights)) / data.diagonal, consts.w);
+      outputPressure.value[index] = mix(oldPressure, (b.value[index] - dot(p, data.weights)) / data.diagonal, w);
     }
   }
 }

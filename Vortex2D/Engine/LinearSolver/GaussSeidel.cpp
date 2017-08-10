@@ -43,6 +43,11 @@ void GaussSeidel::Init(Renderer::Buffer& matrix, Renderer::Buffer& div, Renderer
     });
 }
 
+void GaussSeidel::Build(Renderer::Work& buildMatrix, Renderer::Texture& solidPhi, Renderer::Texture& liquidPhi)
+{
+
+}
+
 void GaussSeidel::Solve(Parameters& params)
 {
     // FIXME implement solving within error tolerance

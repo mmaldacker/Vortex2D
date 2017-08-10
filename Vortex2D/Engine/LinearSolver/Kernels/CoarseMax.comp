@@ -9,15 +9,8 @@ layout(push_constant) uniform Consts
   int height;
 }consts;
 
-layout(std430, binding = 0) buffer Input
-{
-  float value[];
-}fine;
-
-layout(std430, binding = 1) buffer Output
-{
-  float value[];
-}coarse;
+layout(binding = 0, r32f) uniform image2D FineLevelSet;
+layout(binding = 1, r32f) uniform image2D CoarseLevelSet;
 
 void main()
 {
@@ -25,14 +18,9 @@ void main()
   if (pos.x > 0 && pos.y > 0 && pos.x < consts.width - 1 && pos.y < consts.height - 1)
   {
     ivec2 finePos = pos * ivec2(2) - ivec2(1);
-    int fineWidth = 2 + (consts.width - 2) * 2;
-    int fineIndex = finePos.x + finePos.y * fineWidth;
+    float value = max(max(imageLoad(FineLevelSet, finePos).x, imageLoad(FineLevelSet, finePos + ivec2(1, 0)).x),
+                      max(imageLoad(FineLevelSet, finePos + ivec2(0, 1)).x, imageLoad(FineLevelSet, finePos + ivec2(1, 1)).x));
 
-    float value = max(max(fine.value[fineIndex], fine.value[fineIndex + 1]),
-                      max(fine.value[fineIndex + fineWidth], fine.value[fineIndex + 1 + fineWidth]));
-
-    int index = pos.x + pos.y * consts.width;
-    coarse.value[index] = value * 0.5;
+    imageStore(CoarseLevelSet, pos, vec4(value * 0.5, 0.0, 0.0, 0.0));
   }
 }
-

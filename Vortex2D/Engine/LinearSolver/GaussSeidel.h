@@ -21,6 +21,7 @@ public:
     GaussSeidel(const Renderer::Device& device, const glm::ivec2& size);
 
     void Init(Renderer::Buffer& A, Renderer::Buffer& b, Renderer::Buffer& pressure) override;
+    void Build(Renderer::Work& buildMatrix, Renderer::Texture& solidPhi, Renderer::Texture& liquidPhi) override;
 
     /**
      * @brief Iterative solving of the linear equations in data

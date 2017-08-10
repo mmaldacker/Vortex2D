@@ -7,6 +7,8 @@
 #define Vortex2D_LinearSolver_h
 
 #include <Vortex2D/Renderer/Buffer.h>
+#include <Vortex2D/Renderer/Texture.h>
+#include <Vortex2D/Renderer/Work.h>
 
 namespace Vortex2D { namespace Fluid {
 
@@ -41,6 +43,8 @@ struct LinearSolver
     virtual ~LinearSolver() {}
 
     virtual void Init(Renderer::Buffer& A, Renderer::Buffer& b, Renderer::Buffer& x) = 0;
+
+    virtual void Build(Renderer::Work& buildMatrix, Renderer::Texture& solidPhi, Renderer::Texture& liquidPhi) = 0;
 
     /**
      * @brief Solves the linear equations

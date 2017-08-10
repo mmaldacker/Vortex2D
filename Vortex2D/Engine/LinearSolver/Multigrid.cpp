@@ -49,11 +49,11 @@ Multigrid::Multigrid(const Renderer::Device& device, const glm::ivec2& size)
   , mTransfer(device)
   , mPressureBack(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float))
   , mCoarseMinWork(device, size, "../Vortex2D/CoarseMin.comp.spv",
-    {vk::DescriptorType::eStorageImage,
-    vk::DescriptorType::eStorageImage})
+                   {vk::DescriptorType::eStorageImage,
+                    vk::DescriptorType::eStorageImage})
   , mCoarseMaxWork(device, size, "../Vortex2D/CoarseMax.comp.spv",
-    {vk::DescriptorType::eStorageImage,
-    vk::DescriptorType::eStorageImage})
+                   {vk::DescriptorType::eStorageImage,
+                    vk::DescriptorType::eStorageImage})
   , mBuildCmd(device, false)
   , mCmd(device, false)
 {
@@ -64,7 +64,7 @@ Multigrid::Multigrid(const Renderer::Device& device, const glm::ivec2& size)
     mPressuresBack.emplace_back(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
     mBs.emplace_back(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
 
-    // TODO need to clear with value -10 (or 10?) (or bigger?)
+    // TODO need to clear with value -0.5 (or 0.5?)
     mSolidPhis.emplace_back(device, size.x, size.y, vk::Format::eR32Sfloat, false);
     mLiquidPhis.emplace_back(device, size.x, size.y, vk::Format::eR32Sfloat, false);
   }
@@ -151,9 +151,9 @@ void Multigrid::Smoother(vk::CommandBuffer commandBuffer, int n, int iterations)
     else
     {
       mDampedJacobiWorkBound[n].first.Record(commandBuffer);
-      mPressuresBack[n].Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+      mPressuresBack[n-1].Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
       mDampedJacobiWorkBound[n].first.Record(commandBuffer);
-      mPressures[n].Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+      mPressures[n-1].Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
     }
   }
 }
@@ -181,19 +181,22 @@ void Multigrid::Build(Renderer::Work& buildMatrix,
     mMatrixBuildBound.push_back(buildMatrix.Bind({mMatrices[i-1], mLiquidPhis[i-1], mSolidPhis[i-1]}));
   }
 
+  int maxDepth = mDepth.GetMaxDepth();
+  mMatrixBuildBound.push_back(buildMatrix.Bind({mMatrices[maxDepth-1], mLiquidPhis[maxDepth-1], mSolidPhis[maxDepth-1]}));
+
   mBuildCmd.Record([&](vk::CommandBuffer commandBuffer)
   {
     for (int i = 0; i < mDepth.GetMaxDepth(); i++)
     {
       mCoarseMinWorkBound[i].Record(commandBuffer);
-      mLiquidPhis[i+1].Barrier(commandBuffer,
+      mLiquidPhis[i].Barrier(commandBuffer,
                                vk::ImageLayout::eGeneral,
                                vk::AccessFlagBits::eShaderWrite,
                                vk::ImageLayout::eGeneral,
                                vk::AccessFlagBits::eShaderRead);
 
       mCoarseMaxWorkBound[i].Record(commandBuffer);
-      mSolidPhis[i+1].Barrier(commandBuffer,
+      mSolidPhis[i].Barrier(commandBuffer,
                               vk::ImageLayout::eGeneral,
                               vk::AccessFlagBits::eShaderWrite,
                               vk::ImageLayout::eGeneral,

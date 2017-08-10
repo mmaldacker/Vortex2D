@@ -497,6 +497,8 @@ TEST(LinearSolverTests, Simple_Multigrid)
 
         Pressure pressure(*device, 0.01f, size, solver, velocity, solidPhi, liquidPhi, solidVelocity);
         pressure.Solve(params);
+
+        device->Queue().waitIdle();
     }
 
     // solution from SOR with only few iterations (to check multigrid is an improvement)
@@ -506,6 +508,8 @@ TEST(LinearSolverTests, Simple_Multigrid)
 
         Pressure pressure(*device, 0.01f, size, solver, velocity, solidPhi, liquidPhi, solidVelocity);
         pressure.Solve(params);
+
+        device->Queue().waitIdle();
     }
 
     // solution from FluidSim

@@ -20,6 +20,7 @@ extern Device* device;
 struct LinearSolverMock : LinearSolver
 {
     MOCK_METHOD3(Init, void(Buffer& maxtrix, Buffer& b, Buffer& pressure));
+    MOCK_METHOD3(Build, void(Work& buildMatrix, Texture& solidPhi, Texture& liquidPhi));
     MOCK_METHOD1(Solve, void(Parameters& params));
 };
 

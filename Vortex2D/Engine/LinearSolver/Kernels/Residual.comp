@@ -7,8 +7,6 @@ layout(push_constant) uniform Consts
 {
   int width;
   int height;
-  float w;
-  int red;
 }consts;
 
 layout(std430, binding = 0) buffer Pressure
