@@ -8,11 +8,11 @@
 #include <Vortex2D/Engine/LinearSolver/Reduce.h>
 #include <Vortex2D/Engine/LinearSolver/GaussSeidel.h>
 #include <Vortex2D/Engine/LinearSolver/Transfer.h>
+#include <Vortex2D/Engine/LinearSolver/Multigrid.h>
+#include <Vortex2D/Engine/Pressure.h>
 
 /*
 #include <Vortex2D/Engine/LinearSolver/ConjugateGradient.h>
-#include <Vortex2D/Engine/LinearSolver/Multigrid.h>
-#include <Vortex2D/Engine/Pressure.h>
 */
 #include <algorithm>
 #include <chrono>
@@ -469,12 +469,11 @@ TEST(LinearSolverTests, Zero_PCG)
         }
     }
 }
+*/
 
 TEST(LinearSolverTests, Simple_Multigrid)
 {
-    Disable d(GL_BLEND);
-
-    glm::vec2 size(16);
+    glm::ivec2 size(16);
 
     FluidSim sim;
     sim.initialize(1.0f, size.x, size.y);
@@ -484,47 +483,29 @@ TEST(LinearSolverTests, Simple_Multigrid)
 
     sim.add_force(0.01f);
 
-    Buffer velocity1(size, 2, true);
-    SetVelocity(velocity1, sim);
+    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
+    Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
+    Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
+    Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
 
-    Buffer velocity2(size, 2, true);
-    SetVelocity(velocity2, sim);
-
-    sim.project(0.01f);
-
-    Buffer solidPhi(glm::vec2(2)*size, 1);
-    SetSolidPhi(solidPhi, sim);
-
-    Buffer liquidPhi(size, 1);
-    SetLiquidPhi(liquidPhi, sim);
-
-    Buffer solidVelocity(size, 2);
-    // leave empty
+    BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
 
     // multigrid solver
     {
-        LinearSolver::Data data(size);
-
         LinearSolver::Parameters params(0);
-        Multigrid solver(size);
+        Multigrid solver(*device, size);
 
-        Pressure pressure(0.01f, size, solver, data, velocity1, solidPhi, liquidPhi, solidVelocity);
+        Pressure pressure(*device, 0.01f, size, solver, velocity, solidPhi, liquidPhi, solidVelocity);
         pressure.Solve(params);
-
-        Reader(data.Pressure).Read().Print();
     }
 
     // solution from SOR with only few iterations (to check multigrid is an improvement)
     {
-        LinearSolver::Data data(size);
-
         LinearSolver::Parameters params(4);
-        GaussSeidel solver(size);
+        GaussSeidel solver(*device, size);
 
-        Pressure pressure(0.01f, size, solver, data, velocity2, solidPhi, liquidPhi, solidVelocity);
+        Pressure pressure(*device, 0.01f, size, solver, velocity, solidPhi, liquidPhi, solidVelocity);
         pressure.Solve(params);
-
-        Reader(data.Pressure).Read().Print();
     }
 
     // solution from FluidSim
@@ -532,4 +513,3 @@ TEST(LinearSolverTests, Simple_Multigrid)
         PrintData(size.x, size.y, sim.pressure);
     }
 }
-*/

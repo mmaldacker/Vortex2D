@@ -76,6 +76,9 @@ private:
     std::vector<Renderer::Texture> mSolidPhis;
     std::vector<Renderer::Texture> mLiquidPhis;
 
+    std::vector<Renderer::Work::Bound> mMatrixBuildBound;
+
+    Renderer::CommandBuffer mBuildCmd;
     Renderer::CommandBuffer mCmd;
 };
 

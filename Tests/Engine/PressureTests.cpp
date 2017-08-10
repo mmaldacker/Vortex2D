@@ -181,27 +181,6 @@ void PrintVelocity(const glm::ivec2& size, FluidSim& sim)
     std::cout << std::endl;
 }
 
-void BuildInputs(const glm::ivec2& size, FluidSim& sim, Texture& velocity, Texture& solidPhi, Texture& liquidPhi)
-{
-    Texture inputVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
-    SetVelocity(size, inputVelocity, sim);
-
-    sim.project(0.01f);
-
-    Texture inputSolidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
-    SetSolidPhi(size, inputSolidPhi, sim);
-
-    Texture inputLiquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
-    SetLiquidPhi(size, inputLiquidPhi, sim);
-
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-       velocity.CopyFrom(commandBuffer, inputVelocity);
-       solidPhi.CopyFrom(commandBuffer, inputSolidPhi);
-       liquidPhi.CopyFrom(commandBuffer, inputLiquidPhi);
-    });
-}
-
 TEST(PressureTest, LinearEquationSetup_Simple)
 {
     glm::ivec2 size(50);
@@ -221,7 +200,7 @@ TEST(PressureTest, LinearEquationSetup_Simple)
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
     Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
 
-    BuildInputs(size, sim, velocity, solidPhi, liquidPhi);
+    BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
 
     Buffer* matrixResult = nullptr;
     Buffer* divResult = nullptr;
@@ -273,7 +252,7 @@ TEST(PressureTest, LinearEquationSetup_Complex)
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
     Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
 
-    BuildInputs(size, sim, velocity, solidPhi, liquidPhi);
+    BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
 
     Buffer* matrixResult = nullptr;
     Buffer* divResult = nullptr;
@@ -325,7 +304,7 @@ TEST(PressureTest, Project_Simple)
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
     Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
 
-    BuildInputs(size, sim, velocity, solidPhi, liquidPhi);
+    BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
 
     Buffer computedPressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
     std::vector<float> computedPressureData(size.x*size.y, 0.0f);
@@ -379,7 +358,7 @@ TEST(PressureTest, Project_Complex)
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
     Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
 
-    BuildInputs(size, sim, velocity, solidPhi, liquidPhi);
+    BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
 
     Buffer computedPressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
     std::vector<float> computedPressureData(size.x*size.y, 0.0f);

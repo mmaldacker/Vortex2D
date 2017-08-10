@@ -54,6 +54,7 @@ Multigrid::Multigrid(const Renderer::Device& device, const glm::ivec2& size)
   , mCoarseMaxWork(device, size, "../Vortex2D/CoarseMax.comp.spv",
     {vk::DescriptorType::eStorageImage,
     vk::DescriptorType::eStorageImage})
+  , mBuildCmd(device, false)
   , mCmd(device, false)
 {
   for (int i = 1; i <= mDepth.GetMaxDepth(); i++)
@@ -169,10 +170,44 @@ void Multigrid::Build(Renderer::Work& buildMatrix,
                       Renderer::Texture& liquidPhi)
 {
 
+  mCoarseMinWorkBound.push_back(mCoarseMinWork.Bind({liquidPhi, mLiquidPhis[0]}));
+  mCoarseMaxWorkBound.push_back(mCoarseMaxWork.Bind({solidPhi, mSolidPhis[0]}));
+
+  for (int i = 1; i < mDepth.GetMaxDepth(); i++)
+  {
+    mCoarseMinWorkBound.push_back(mCoarseMinWork.Bind({mLiquidPhis[i-1], mLiquidPhis[i]}));
+    mCoarseMaxWorkBound.push_back(mCoarseMaxWork.Bind({mSolidPhis[i-1], mSolidPhis[i]}));
+    mMatrixBuildBound.push_back(buildMatrix.Bind({mMatrices[i-1], mLiquidPhis[i-1], mSolidPhis[i-1]}));
+  }
+
+  mBuildCmd.Record([&](vk::CommandBuffer commandBuffer)
+  {
+    for (int i = 0; i < mDepth.GetMaxDepth(); i++)
+    {
+      mCoarseMinWorkBound[i].Record(commandBuffer);
+      mLiquidPhis[i+1].Barrier(commandBuffer,
+                               vk::ImageLayout::eGeneral,
+                               vk::AccessFlagBits::eShaderWrite,
+                               vk::ImageLayout::eGeneral,
+                               vk::AccessFlagBits::eShaderRead);
+
+      mCoarseMaxWorkBound[i].Record(commandBuffer);
+      mSolidPhis[i+1].Barrier(commandBuffer,
+                              vk::ImageLayout::eGeneral,
+                              vk::AccessFlagBits::eShaderWrite,
+                              vk::ImageLayout::eGeneral,
+                              vk::AccessFlagBits::eShaderRead);
+
+      // TODO need to set delta?
+      mMatrixBuildBound[i].Record(commandBuffer);
+      mMatrices[i].Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+    }
+  });
 }
 
 void Multigrid::Solve(Parameters&)
 {
+  mBuildCmd.Submit();
   mCmd.Submit();
 }
 

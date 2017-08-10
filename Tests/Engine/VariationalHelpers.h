@@ -10,6 +10,7 @@
 #include <glm/vec2.hpp>
 
 #include <Vortex2D/Renderer/Texture.h>
+#include <Vortex2D/Renderer/CommandBuffer.h>
 
 #include "variationalplusgfm/fluidsim.h"
 
@@ -100,3 +101,24 @@ static void SetLiquidPhi(const glm::ivec2& size, Vortex2D::Renderer::Texture& bu
     buffer.CopyFrom(phi);
 }
 
+static void BuildInputs(const Vortex2D::Renderer::Device& device, const glm::ivec2& size, FluidSim& sim, Vortex2D::Renderer::Texture& velocity, Vortex2D::Renderer::Texture& solidPhi, Vortex2D::Renderer::Texture& liquidPhi)
+{
+  //TODO do we need the copy here? can't we directly set the texture (create with host = true)?
+    Vortex2D::Renderer::Texture inputVelocity(device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
+    SetVelocity(size, inputVelocity, sim);
+
+    sim.project(0.01f);
+
+    Vortex2D::Renderer::Texture inputSolidPhi(device, size.x, size.y, vk::Format::eR32Sfloat, true);
+    SetSolidPhi(size, inputSolidPhi, sim);
+
+    Vortex2D::Renderer::Texture inputLiquidPhi(device, size.x, size.y, vk::Format::eR32Sfloat, true);
+    SetLiquidPhi(size, inputLiquidPhi, sim);
+
+    Vortex2D::Renderer::ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
+    {
+       velocity.CopyFrom(commandBuffer, inputVelocity);
+       solidPhi.CopyFrom(commandBuffer, inputSolidPhi);
+       liquidPhi.CopyFrom(commandBuffer, inputLiquidPhi);
+    });
+}

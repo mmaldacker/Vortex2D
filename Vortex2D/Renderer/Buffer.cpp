@@ -5,6 +5,8 @@
 
 #include "Buffer.h"
 
+#include <Vortex2D/Renderer/CommandBuffer.h>
+
 namespace Vortex2D { namespace Renderer {
 
 Buffer::Buffer(const Device& device, vk::BufferUsageFlags usageFlags, bool host, vk::DeviceSize deviceSize)
@@ -41,7 +43,7 @@ Buffer::Buffer(const Device& device, vk::BufferUsageFlags usageFlags, bool host,
     ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
     {
         Clear(commandBuffer);
-    };
+    });
 }
 
 void Buffer::Flush()
