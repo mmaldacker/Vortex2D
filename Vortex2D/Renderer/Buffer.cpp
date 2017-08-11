@@ -74,12 +74,13 @@ void Buffer::CopyFrom(vk::CommandBuffer commandBuffer, Buffer& srcBuffer)
 
     // TODO improve barriers
     srcBuffer.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eTransferRead);
-    Barrier(commandBuffer, vk::AccessFlagBits::eShaderRead, vk::AccessFlagBits::eTransferWrite);
 
     auto region = vk::BufferCopy()
             .setSize(mSize);
 
     commandBuffer.copyBuffer(srcBuffer, *mBuffer, region);
+
+    Barrier(commandBuffer, vk::AccessFlagBits::eTransferWrite, vk::AccessFlagBits::eShaderRead);
 }
 
 void Buffer::Barrier(vk::CommandBuffer commandBuffer, vk::AccessFlags oldAccess, vk::AccessFlags newAccess)
