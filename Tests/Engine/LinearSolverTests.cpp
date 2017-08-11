@@ -113,6 +113,10 @@ TEST(LinearSolverTests, Transfer_Prolongate)
 
     Transfer t(*device);
 
+    Buffer matrix(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, fineSize.x*fineSize.y*sizeof(LinearSolver::Data));
+    std::vector<LinearSolver::Data> matrixData(fineSize.x*fineSize.y, {{}, 1.0f});
+    matrix.CopyFrom(matrixData);
+
     Buffer input(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float)*coarseSize.x*coarseSize.y);
     Buffer output(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float)*fineSize.x*fineSize.y);
 
@@ -120,7 +124,7 @@ TEST(LinearSolverTests, Transfer_Prolongate)
     std::iota(data.begin(), data.end(), 1.0f);
     input.CopyFrom(data);
 
-    t.InitProlongate(fineSize, output, input);
+    t.InitProlongate(fineSize, output, input, matrix);
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
         t.Prolongate(commandBuffer, 0);
@@ -230,12 +234,18 @@ TEST(LinearSolverTests, Simple_SOR)
     Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
     Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
 
+    Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
+    Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
+    Work matrixBuild(*device, size, "../Vortex2D/BuildMatrix.comp.spv", {vk::DescriptorType::eStorageBuffer,
+                                                                         vk::DescriptorType::eStorageImage,
+                                                                         vk::DescriptorType::eStorageImage}, 4);
+
     BuildLinearEquation(size, matrix, div, sim);
 
     LinearSolver::Parameters params(200);
     GaussSeidel solver(*device, size);
 
-    solver.Init(matrix, div, pressure);
+    solver.Init(matrix, div, pressure, matrixBuild, solidPhi, liquidPhi);
     solver.Solve(params);
 
     device->Queue().waitIdle();
@@ -262,12 +272,18 @@ TEST(LinearSolverTests, Complex_SOR)
     Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
     Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
 
+    Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
+    Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
+    Work matrixBuild(*device, size, "../Vortex2D/BuildMatrix.comp.spv", {vk::DescriptorType::eStorageBuffer,
+                                                                         vk::DescriptorType::eStorageImage,
+                                                                         vk::DescriptorType::eStorageImage}, 4);
+
     BuildLinearEquation(size, matrix, div, sim);
 
     LinearSolver::Parameters params(200);
     GaussSeidel solver(*device, size);
 
-    solver.Init(matrix, div, pressure);
+    solver.Init(matrix, div, pressure, matrixBuild, liquidPhi, solidPhi);
     solver.Solve(params);
 
     device->Queue().waitIdle();
@@ -513,14 +529,14 @@ TEST(LinearSolverTests, Simple_Multigrid)
         });
 
         //PrintBuffer({9, 9}, coarseOut);
-        //PrintBuffer({16, 16}, fineOut);
+        PrintBuffer({16, 16}, fineOut);
 
         Texture fineOutTex(*device, 16, 16, vk::Format::eR32Sfloat, true);
         Texture coarseOutTex(*device, 9, 9, vk::Format::eR32Sfloat, true);
         ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
         {
-            fineOutTex.CopyFrom(commandBuffer, solidPhi);
-            coarseOutTex.CopyFrom(commandBuffer, solver.mSolidPhis[0]);
+            fineOutTex.CopyFrom(commandBuffer, liquidPhi);
+            coarseOutTex.CopyFrom(commandBuffer, solver.mLiquidPhis[0]);
         });
         PrintTexture(fineOutTex);
         PrintTexture(coarseOutTex);
@@ -549,6 +565,6 @@ TEST(LinearSolverTests, Simple_Multigrid)
 
     // solution from FluidSim
     {
-        //PrintData(size.x, size.y, sim.pressure);
+        PrintData(size.x, size.y, sim.pressure);
     }
 }

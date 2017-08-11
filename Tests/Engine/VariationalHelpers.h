@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <iostream>
+#include <random>
 
 #include <gmock/gmock.h>
 #include <glm/vec2.hpp>
@@ -46,11 +47,13 @@ static float complex_boundary_phi(const Vec2f& position)
 
 static void AddParticles(const glm::vec2& size, FluidSim& sim, float (*phi)(const Vec2f&))
 {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> dist(0.0f, 1.0f);
+
     for(int i = 0; i < 4*sqr(size.x); ++i)
     {
-        float x = randhashf(i*2, 0,1);
-        float y = randhashf(i*2+1, 0,1);
-        Vec2f pt(x,y);
+        Vec2f pt(dist(gen), dist(gen));
         if (phi(pt) > 0 && pt[0] > 0.5)
         {
             sim.add_particle(pt);
@@ -97,7 +100,7 @@ static void SetLiquidPhi(const glm::ivec2& size, Vortex2D::Renderer::Texture& bu
         for (int j = 0; j < size.y; j++)
         {
             int width = size.x;
-            phi[i + j * width] = sim.liquid_phi(i, j);
+            phi[i + j * width] = width * sim.liquid_phi(i, j);
         }
     }
 

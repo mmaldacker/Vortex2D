@@ -22,7 +22,12 @@ GaussSeidel::GaussSeidel(const Renderer::Device& device, const glm::ivec2& size)
 {
 }
 
-void GaussSeidel::Init(Renderer::Buffer& matrix, Renderer::Buffer& div, Renderer::Buffer& pressure)
+void GaussSeidel::Init(Renderer::Buffer& matrix,
+                       Renderer::Buffer& div,
+                       Renderer::Buffer& pressure,
+                       Renderer::Work& buildMatrix,
+                       Renderer::Texture& solidPhi,
+                       Renderer::Texture& liquidPhi)
 {
     mGaussSeidelBound = mGaussSeidel.Bind({pressure, matrix, div});
     mGaussSeidelCmd.Record([&](vk::CommandBuffer commandBuffer)
@@ -41,11 +46,6 @@ void GaussSeidel::Init(Renderer::Buffer& matrix, Renderer::Buffer& div, Renderer
     {
         pressure.Clear(commandBuffer);
     });
-}
-
-void GaussSeidel::Build(Renderer::Work& buildMatrix, Renderer::Texture& solidPhi, Renderer::Texture& liquidPhi)
-{
-
 }
 
 void GaussSeidel::Solve(Parameters& params)

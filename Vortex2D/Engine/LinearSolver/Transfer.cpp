@@ -11,6 +11,7 @@ Transfer::Transfer(const Renderer::Device& device)
     : mDevice(device)
     , mProlongateWork(device, glm::ivec2(2), "../Vortex2D/Prolongate.comp.spv",
                       {vk::DescriptorType::eStorageBuffer,
+                       vk::DescriptorType::eStorageBuffer,
                        vk::DescriptorType::eStorageBuffer})
     , mRestrictWork(device, glm::ivec2(2), "../Vortex2D/Restrict.comp.spv",
                     {vk::DescriptorType::eStorageBuffer,
@@ -19,9 +20,9 @@ Transfer::Transfer(const Renderer::Device& device)
 
 }
 
-void Transfer::InitProlongate(const glm::ivec2& fineSize, Renderer::Buffer& fine, Renderer::Buffer& coarse)
+void Transfer::InitProlongate(const glm::ivec2& fineSize, Renderer::Buffer& fine, Renderer::Buffer& coarse, Renderer::Buffer& matrix)
 {
-    mProlongateBound.push_back(mProlongateWork.Bind(fineSize, {coarse, fine}));
+    mProlongateBound.push_back(mProlongateWork.Bind(fineSize, {matrix, coarse, fine}));
     mProlongateBuffer.push_back(&fine);
 }
 

@@ -32,11 +32,12 @@ class Multigrid : public LinearSolver
 public:
     Multigrid(const Renderer::Device& device, const glm::ivec2& size, float delta);
 
-    void Build(Renderer::Work& buildMatrix,
-               Renderer::Texture& solidPhi,
-               Renderer::Texture& liquidPhi);
-
-    void Init(Renderer::Buffer& matrix, Renderer::Buffer& b, Renderer::Buffer& pressure) override;
+    void Init(Renderer::Buffer& matrix,
+              Renderer::Buffer& b,
+              Renderer::Buffer& pressure,
+              Renderer::Work& buildMatrix,
+              Renderer::Texture& solidPhi,
+              Renderer::Texture& liquidPhi) override;
 
     void Solve(Parameters& params) override;
 

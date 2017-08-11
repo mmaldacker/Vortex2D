@@ -9,12 +9,23 @@ layout(push_constant) uniform Consts
   int height;
 }consts;
 
-layout(std430, binding = 0) buffer Input
+struct Data
+{
+  vec4 weights;
+  float diagonal;
+};
+
+layout(std430, binding = 0) buffer Matrix
+{
+  Data data[];
+}matrix;
+
+layout(std430, binding = 1) buffer Input
 {
   float value[];
 }coarse;
 
-layout(std430, binding = 1) buffer Output
+layout(std430, binding = 2) buffer Output
 {
   float value[];
 }fine;
@@ -24,19 +35,22 @@ void main()
   ivec2 pos = ivec2(gl_GlobalInvocationID);
   if (pos.x > 0 && pos.y > 0 && pos.x < consts.width - 1 && pos.y < consts.height - 1)
   {
-    ivec2 t = 1 - 2 * (pos - 2 * (pos / 2));
-
-    ivec2 coarsePos = 1 + (pos - 1) / 2;
-    int coarseWidth = 1 + consts.width / 2;
-    int coarseIndex = coarsePos.x + coarsePos.y * coarseWidth;
-
-    float p = 0.0;
-    p += 9.0 * coarse.value[coarseIndex];
-    p += 3.0 * coarse.value[coarseIndex + t.x];
-    p += 3.0 * coarse.value[coarseIndex + t.y * coarseWidth];
-    p += 1.0 * coarse.value[coarseIndex + t.x + t.y * coarseWidth];
-
     int index = pos.x + pos.y * consts.width;
-    fine.value[index] += p * 0.0625;
+    if (matrix.data[index].diagonal != 0.0)
+    {
+        ivec2 t = 1 - 2 * (pos - 2 * (pos / 2));
+
+        ivec2 coarsePos = 1 + (pos - 1) / 2;
+        int coarseWidth = 1 + consts.width / 2;
+        int coarseIndex = coarsePos.x + coarsePos.y * coarseWidth;
+
+        float p = 0.0;
+        p += 9.0 * coarse.value[coarseIndex];
+        p += 3.0 * coarse.value[coarseIndex + t.x];
+        p += 3.0 * coarse.value[coarseIndex + t.y * coarseWidth];
+        p += 1.0 * coarse.value[coarseIndex + t.x + t.y * coarseWidth];
+
+        fine.value[index] += p * 0.0625;
+    }
   }
 }
