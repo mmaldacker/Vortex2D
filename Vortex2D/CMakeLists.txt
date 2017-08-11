@@ -33,7 +33,6 @@ function(compile_shader)
     set(multiValueArgs SOURCES)
 
     cmake_parse_arguments(SHADER "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
-    message("Compiling sources: ${SHADER_SOURCES}")
 
     # TODO this only works for Win32
     find_program(GLSL_VALIDATOR glslangValidator hints "$ENV{VULKAN_SDK}/Bin")
@@ -50,7 +49,31 @@ function(compile_shader)
     endforeach(SHADER_SOURCE)
 
     add_custom_target("${SHADER_TARGET}_SHADERS" DEPENDS ${SHADERS})
+    set_target_properties("${SHADER_TARGET}_SHADERS" PROPERTIES SHADERS_OUTPUT "${SHADERS}")
     add_dependencies(${SHADER_TARGET} "${SHADER_TARGET}_SHADERS")
+endfunction()
+
+function(copy_shader)
+  set(options "")
+  set(oneValueArgs TARGET)
+  set(multiValueArgs SOURCES)
+
+  cmake_parse_arguments(SHADER "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  foreach(SHADER_SOURCE ${SHADER_SOURCES})
+    get_target_property(SHADER_FILES "${SHADER_SOURCE}_SHADERS" SHADERS_OUTPUT)
+    foreach(SHADER_FILE ${SHADER_FILES})
+      get_filename_component(SHADER_FILENAME ${SHADER_FILE} NAME)
+      add_custom_command(
+        OUTPUT ${SHADER_FILENAME}
+        COMMAND ${CMAKE_COMMAND} -E copy ${SHADER_FILE} ${CMAKE_CURRENT_BINARY_DIR}
+        DEPENDS ${SHADER_FILE})
+      list(APPEND SHADERS "${CMAKE_CURRENT_BINARY_DIR}/${SHADER_FILENAME}")
+    endforeach()
+  endforeach(SHADER_SOURCE)
+
+  add_custom_target("${SHADER_TARGET}_SHADERS_COPY" DEPENDS ${SHADERS})
+  add_dependencies(${SHADER_TARGET} "${SHADER_TARGET}_SHADERS_COPY")
 endfunction()
 
 add_library(vortex2d STATIC ${LIB_SOURCES} ${SHADERS} ${SHADER_SOURCES})

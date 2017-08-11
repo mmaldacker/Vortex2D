@@ -4,14 +4,14 @@
 //
 
 #include "GaussSeidel.h"
-
+#include <cmath>
 #include <glm/gtc/constants.hpp>
 
 namespace Vortex2D { namespace Fluid {
 
 
 GaussSeidel::GaussSeidel(const Renderer::Device& device, const glm::ivec2& size)
-    : mW(2.0f/(1.0f+std::sinf(glm::pi<float>()/std::sqrtf((float)(size.x*size.y)))))
+    : mW(2.0f/(1.0f+std::sin(glm::pi<float>()/std::sqrt((float)(size.x*size.y)))))
     , mGaussSeidel(device, size, "../Vortex2D/GaussSeidel.comp.spv",
                    {vk::DescriptorType::eStorageBuffer,
                     vk::DescriptorType::eStorageBuffer,

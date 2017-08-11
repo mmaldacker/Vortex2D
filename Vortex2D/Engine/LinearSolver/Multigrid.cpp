@@ -49,10 +49,7 @@ Multigrid::Multigrid(const Renderer::Device& device, const glm::ivec2& size, flo
                         vk::DescriptorType::eStorageBuffer})
     , mTransfer(device)
     , mPressureBack(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float))
-    , mCoarseMinWork(device, size, "../Vortex2D/CoarseMin.comp.spv",
-                    {vk::DescriptorType::eStorageImage,
-                     vk::DescriptorType::eStorageImage})
-    , mCoarseMaxWork(device, size, "../Vortex2D/CoarseMax.comp.spv",
+    , mPhiScaleWork(device, size, "../Vortex2D/PhiScale.comp.spv",
                     {vk::DescriptorType::eStorageImage,
                      vk::DescriptorType::eStorageImage})
     , mBuildCmd(device, false)
@@ -187,14 +184,14 @@ void Multigrid::Build(Renderer::Work& buildMatrix,
 {
 
     auto s = mDepth.GetDepthSize(1);
-    mCoarseMinWorkBound.push_back(mCoarseMinWork.Bind(s, {liquidPhi, mLiquidPhis[0]}));
-    mCoarseMaxWorkBound.push_back(mCoarseMaxWork.Bind(s, {solidPhi, mSolidPhis[0]}));
+    mLiquidPhiScaleWorkBound.push_back(mPhiScaleWork.Bind(s, {liquidPhi, mLiquidPhis[0]}));
+    mSolidPhiScaleWorkBound.push_back(mPhiScaleWork.Bind(s, {solidPhi, mSolidPhis[0]}));
 
     for (int i = 1; i < mDepth.GetMaxDepth(); i++)
     {
         auto s1 = mDepth.GetDepthSize(i + 1);
-        mCoarseMinWorkBound.push_back(mCoarseMinWork.Bind(s1, {mLiquidPhis[i-1], mLiquidPhis[i]}));
-        mCoarseMaxWorkBound.push_back(mCoarseMaxWork.Bind(s1, {mSolidPhis[i-1], mSolidPhis[i]}));
+        mLiquidPhiScaleWorkBound.push_back(mPhiScaleWork.Bind(s1, {mLiquidPhis[i-1], mLiquidPhis[i]}));
+        mSolidPhiScaleWorkBound.push_back(mPhiScaleWork.Bind(s1, {mSolidPhis[i-1], mSolidPhis[i]}));
 
         auto s0 = mDepth.GetDepthSize(i);
         mMatrixBuildBound.push_back(buildMatrix.Bind(s0, {mMatrices[i-1], mLiquidPhis[i-1], mSolidPhis[i-1]}));
@@ -207,14 +204,14 @@ void Multigrid::Build(Renderer::Work& buildMatrix,
     {
         for (int i = 0; i < mDepth.GetMaxDepth(); i++)
         {
-            mCoarseMinWorkBound[i].Record(commandBuffer);
+            mLiquidPhiScaleWorkBound[i].Record(commandBuffer);
             mLiquidPhis[i].Barrier(commandBuffer,
                                    vk::ImageLayout::eGeneral,
                                    vk::AccessFlagBits::eShaderWrite,
                                    vk::ImageLayout::eGeneral,
                                    vk::AccessFlagBits::eShaderRead);
 
-            mCoarseMaxWorkBound[i].Record(commandBuffer);
+            mSolidPhiScaleWorkBound[i].Record(commandBuffer);
             mSolidPhis[i].Barrier(commandBuffer,
                                   vk::ImageLayout::eGeneral,
                                   vk::AccessFlagBits::eShaderWrite,

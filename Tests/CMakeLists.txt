@@ -29,6 +29,7 @@ find_package(Threads REQUIRED)
 
 add_executable(vortex2d_tests ${RENDERER_TEST_SOURCES} ${ENGINE_TEST_SOURCES} ${VARIATIONAL_SOURCES} ${SHADER_TEST_SOURCES} "main.cpp" "Verify.h")
 compile_shader(TARGET vortex2d_tests SOURCES ${SHADER_TEST_SOURCES})
+copy_shader(TARGET vortex2d_tests SOURCES vortex2d)
 
 target_compile_features(vortex2d_tests PRIVATE cxx_variadic_templates)
 target_link_libraries(vortex2d_tests vortex2d gtest gmock gmock_main Threads::Threads)

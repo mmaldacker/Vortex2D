@@ -67,11 +67,9 @@ public:
     // mResiduals[0] is level 0
     std::vector<Renderer::Buffer> mResiduals;
 
-    Renderer::Work mCoarseMinWork;
-    Renderer::Work mCoarseMaxWork;
-
-    std::vector<Renderer::Work::Bound> mCoarseMinWorkBound;
-    std::vector<Renderer::Work::Bound> mCoarseMaxWorkBound;
+    Renderer::Work mPhiScaleWork;
+    std::vector<Renderer::Work::Bound> mSolidPhiScaleWorkBound;
+    std::vector<Renderer::Work::Bound> mLiquidPhiScaleWorkBound;
 
     // mSolidPhis[0] and mLiquidPhis[0] is level 1
     std::vector<Renderer::Texture> mSolidPhis;
