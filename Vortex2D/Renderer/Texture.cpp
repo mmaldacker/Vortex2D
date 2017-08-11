@@ -222,7 +222,7 @@ void Texture::CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcImage)
     auto region = vk::ImageCopy()
             .setSrcSubresource({vk::ImageAspectFlagBits::eColor, 0, 0, 1})
             .setDstSubresource({vk::ImageAspectFlagBits::eColor, 0, 0, 1})
-            .setExtent({mWidth, mHeight, 0});
+            .setExtent({mWidth, mHeight, 1});
 
     commandBuffer.copyImage(*srcImage.mImage,
                             vk::ImageLayout::eTransferSrcOptimal,
