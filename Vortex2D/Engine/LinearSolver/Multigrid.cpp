@@ -47,6 +47,12 @@ Multigrid::Multigrid(const Renderer::Device& device, const glm::ivec2& size, flo
                         vk::DescriptorType::eStorageBuffer,
                         vk::DescriptorType::eStorageBuffer,
                         vk::DescriptorType::eStorageBuffer})
+    , mBoundaryGaussSeidelWork(device, size, "../Vortex2D/BoundaryGaussSeidel.comp.spv",
+                              {vk::DescriptorType::eStorageImage,
+                               vk::DescriptorType::eStorageBuffer,
+                               vk::DescriptorType::eStorageBuffer,
+                               vk::DescriptorType::eStorageBuffer},
+                               8)
     , mTransfer(device)
     , mPressureBack(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float))
     , mPhiScaleWork(device, size, "../Vortex2D/PhiScale.comp.spv",
@@ -146,6 +152,9 @@ void Multigrid::Init(Renderer::Buffer& matrix,
                 mDampedJacobiWork.Bind({pressure, matrix, b, mPressureBack}),
                 mDampedJacobiWork.Bind({mPressureBack, matrix, b, pressure}));
 
+    mBoundaryGaussSeidelBound.emplace_back(
+                mBoundaryGaussSeidelWork.Bind({liquidPhi, pressure, matrix, b}));
+
     for (int i = 1; i < mDepth.GetMaxDepth(); i++)
     {
         auto s = mDepth.GetDepthSize(i);
@@ -158,11 +167,15 @@ void Multigrid::Init(Renderer::Buffer& matrix,
         mDampedJacobiWorkBound.emplace_back(
                     mDampedJacobiWork.Bind(s, {mPressures[i-1], mMatrices[i-1], mBs[i-1], mPressuresBack[i-1]}),
                     mDampedJacobiWork.Bind(s, {mPressuresBack[i-1], mMatrices[i-1], mBs[i-1], mPressures[i-1]}));
+        mBoundaryGaussSeidelBound.emplace_back(
+                    mBoundaryGaussSeidelWork.Bind(s, {mLiquidPhis[i-1], mPressures[i-1], mMatrices[i-1], mBs[i-1]}));
     }
 
     mDampedJacobiWorkBound.emplace_back(
                 mDampedJacobiWork.Bind(mDepth.GetDepthSize(maxDepth), {mPressures[maxDepth-1], mMatrices[maxDepth-1], mBs[maxDepth-1], mPressuresBack[maxDepth-1]}),
                 mDampedJacobiWork.Bind(mDepth.GetDepthSize(maxDepth), {mPressuresBack[maxDepth-1], mMatrices[maxDepth-1], mBs[maxDepth-1], mPressures[maxDepth-1]}));
+    mBoundaryGaussSeidelBound.emplace_back(
+                mBoundaryGaussSeidelWork.Bind(mDepth.GetDepthSize(maxDepth), {mLiquidPhis[maxDepth-1], mPressures[maxDepth-1], mMatrices[maxDepth-1], mBs[maxDepth-1]}));
 
     mCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
@@ -225,7 +238,27 @@ void Multigrid::BorderSmoother(vk::CommandBuffer commandBuffer, int n, int itera
 {
     for (int i = 0; i < iterations; i++)
     {
-
+        if (n == 0)
+        {
+            mBoundaryGaussSeidelBound[n].PushConstant(commandBuffer, 8, 1.0f);
+            mBoundaryGaussSeidelBound[n].PushConstant(commandBuffer, 12, 1);
+            mBoundaryGaussSeidelBound[n].Record(commandBuffer);
+            assert(mPressure);
+            mPressure->Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+            mBoundaryGaussSeidelBound[n].PushConstant(commandBuffer, 12, 0);
+            mBoundaryGaussSeidelBound[n].Record(commandBuffer);
+            mPressure->Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        }
+        else
+        {
+            mBoundaryGaussSeidelBound[n].PushConstant(commandBuffer, 8, 1.0f);
+            mBoundaryGaussSeidelBound[n].PushConstant(commandBuffer, 12, 1);
+            mBoundaryGaussSeidelBound[n].Record(commandBuffer);
+            mPressuresBack[n-1].Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+            mBoundaryGaussSeidelBound[n].PushConstant(commandBuffer, 12, 0);
+            mBoundaryGaussSeidelBound[n].Record(commandBuffer);
+            mPressuresBack[n-1].Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        }
     }
 }
 

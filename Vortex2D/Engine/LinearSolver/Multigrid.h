@@ -49,9 +49,11 @@ public:
     float mDelta;
     Renderer::Work mResidualWork;
     Renderer::Work mDampedJacobiWork;
+    Renderer::Work mBoundaryGaussSeidelWork;
 
     std::vector<Renderer::Work::Bound> mResidualWorkBound;
     std::vector<std::pair<Renderer::Work::Bound, Renderer::Work::Bound>> mDampedJacobiWorkBound;
+    std::vector<Renderer::Work::Bound> mBoundaryGaussSeidelBound;
 
     Transfer mTransfer;
 
