@@ -40,40 +40,6 @@ void PrintDiv(const glm::ivec2& size, Buffer& buffer)
     }
 }
 
-void PrintDiagonal(const glm::ivec2& size, Buffer& buffer)
-{
-    std::vector<LinearSolver::Data> pixels(size.x * size.y);
-    buffer.CopyTo(pixels);
-
-    for (std::size_t j = 0; j < size.y; j++)
-    {
-        for (std::size_t i = 0; i < size.x; i++)
-        {
-            std::size_t index = i + size.x * j;
-            std::cout << "(" <<  pixels[index].Diagonal << ")";
-        }
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
-}
-
-void PrintWeights(const glm::ivec2& size, FluidSim& sim)
-{
-    for (int j = 1; j < size.y - 1; j++)
-    {
-        for (int i = 1; i < size.x - 1; i++)
-        {
-            int index = i + size.x * j;
-            std::cout << "(" <<  sim.matrix(index + 1, index) << ","
-                      << sim.matrix(index - 1, index) << ","
-                      << sim.matrix(index, index + size.x) << ","
-                      << sim.matrix(index, index - size.x) << ")";
-        }
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
-}
-
 void PrintDiagonal(const glm::ivec2& size, FluidSim& sim)
 {
     for (std::size_t j = 0; j < size.y; j++)

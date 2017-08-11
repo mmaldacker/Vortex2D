@@ -39,7 +39,7 @@ Buffer::Buffer(const Device& device, vk::BufferUsageFlags usageFlags, bool host,
     mMemory = device.Handle().allocateMemoryUnique(memoryInfo);
     device.Handle().bindBufferMemory(*mBuffer, *mMemory, 0);
 
-		// TODO should we always clear in constructor
+        // TODO should we always clear in constructor
     ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
     {
         Clear(commandBuffer);
@@ -88,7 +88,7 @@ void Buffer::Barrier(vk::CommandBuffer commandBuffer, vk::AccessFlags oldAccess,
             .setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
             .setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
             .setBuffer(*mBuffer)
-            .setSize(mSize)
+            .setSize(VK_WHOLE_SIZE)
             .setSrcAccessMask(oldAccess)
             .setDstAccessMask(newAccess);
 

@@ -25,7 +25,7 @@ public:
 
     void Solve(LinearSolver::Parameters& params);
 
-private:
+//private:
     LinearSolver& mSolver;
     Renderer::Buffer mMatrix;
     Renderer::Buffer mDiv;

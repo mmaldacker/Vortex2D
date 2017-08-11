@@ -55,8 +55,8 @@ Pressure::Pressure(const Renderer::Device& device,
                vk::DescriptorType::eStorageImage},
                4)
     , mProjectBound(mProject.Bind({mPressure, liquidPhi, solidPhi, velocity, solidVelocity}))
-    , mBuildEquationCmd(device)
-    , mProjectCmd(device)
+    , mBuildEquationCmd(device, false)
+    , mProjectCmd(device, false)
 {
     mBuildEquationCmd.Record([&](vk::CommandBuffer commandBuffer)
     {

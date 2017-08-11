@@ -21,6 +21,6 @@ void main()
     float value = min(min(imageLoad(FineLevelSet, finePos).x, imageLoad(FineLevelSet, finePos + ivec2(1, 0)).x),
                       min(imageLoad(FineLevelSet, finePos + ivec2(0, 1)).x, imageLoad(FineLevelSet, finePos + ivec2(1, 1)).x));
 
-    imageStore(CoarseLevelSet, pos, vec4(value * 0.5, 0.0, 0.0, 0.0));
+    imageStore(CoarseLevelSet, pos, vec4(value, 0.0, 0.0, 0.0));
   }
 }

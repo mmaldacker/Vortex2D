@@ -30,7 +30,7 @@ private:
 class Multigrid : public LinearSolver
 {
 public:
-    Multigrid(const Renderer::Device& device, const glm::ivec2& size);
+    Multigrid(const Renderer::Device& device, const glm::ivec2& size, float delta);
 
     void Build(Renderer::Work& buildMatrix,
                Renderer::Texture& solidPhi,
@@ -40,11 +40,12 @@ public:
 
     void Solve(Parameters& params) override;
 
-private:
+//private:
     void Smoother(vk::CommandBuffer commandBuffer, int n, int iterations);
     void BorderSmoother(vk::CommandBuffer commandBuffer, int n, int iterations, bool up);
 
     Depth mDepth;
+    float mDelta;
     Renderer::Work mResidualWork;
     Renderer::Work mDampedJacobiWork;
 

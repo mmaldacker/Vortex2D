@@ -21,6 +21,7 @@ layout(std430, binding = 0) buffer Matrix
   Data data[];
 }matrix;
 
+// TODO use sampler
 layout(binding = 1, r32f) uniform image2D FluidLevelSet;
 layout(binding = 2, r32f) uniform image2D SolidLevelSet;
 

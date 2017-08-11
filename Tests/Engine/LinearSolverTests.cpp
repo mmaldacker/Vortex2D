@@ -120,9 +120,11 @@ TEST(LinearSolverTests, Transfer_Prolongate)
     std::iota(data.begin(), data.end(), 1.0f);
     input.CopyFrom(data);
 
-    t.Init(fineSize, output, input);
-    t.Prolongate(0);
-    device->Queue().waitIdle();
+    t.InitProlongate(fineSize, output, input);
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+        t.Prolongate(commandBuffer, 0);
+    });
 
     std::vector<float> outputData(fineSize.x*fineSize.y, 0.0f);
     output.CopyTo(outputData);
@@ -155,9 +157,11 @@ TEST(LinearSolverTests, Transfer_Restrict)
     std::iota(data.begin(), data.end(), 1.0f);
     input.CopyFrom(data);
 
-    t.Init(fineSize, input, output);
-    t.Restrict(0);
-    device->Queue().waitIdle();
+    t.InitRestrict(fineSize, input, output);
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+        t.Restrict(commandBuffer, 0);
+    });
 
     float total = (1*1 + 3*2 + 3*3 + 1*4 +
                    3*5 + 9*6 + 9*7 + 3*8 +
@@ -493,12 +497,43 @@ TEST(LinearSolverTests, Simple_Multigrid)
     // multigrid solver
     {
         LinearSolver::Parameters params(0);
-        Multigrid solver(*device, size);
+        Multigrid solver(*device, size, 0.01f);
 
         Pressure pressure(*device, 0.01f, size, solver, velocity, solidPhi, liquidPhi, solidVelocity);
         pressure.Solve(params);
 
         device->Queue().waitIdle();
+
+        Buffer fineOut(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, 16*16*sizeof(float));
+        Buffer coarseOut(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, 9*9*sizeof(float));
+        ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+        {
+           coarseOut.CopyFrom(commandBuffer, solver.mBs[0]);
+           fineOut.CopyFrom(commandBuffer, solver.mPressure[0]);
+        });
+
+        //PrintBuffer({9, 9}, coarseOut);
+        //PrintBuffer({16, 16}, fineOut);
+
+        Texture fineOutTex(*device, 16, 16, vk::Format::eR32Sfloat, true);
+        Texture coarseOutTex(*device, 9, 9, vk::Format::eR32Sfloat, true);
+        ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+        {
+            fineOutTex.CopyFrom(commandBuffer, solidPhi);
+            coarseOutTex.CopyFrom(commandBuffer, solver.mSolidPhis[0]);
+        });
+        PrintTexture(fineOutTex);
+        PrintTexture(coarseOutTex);
+
+        Buffer fineMatrixOut(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, 16*16*sizeof(LinearSolver::Data));
+        Buffer coarseMatrixOut(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, 9*9*sizeof(LinearSolver::Data));
+        ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+        {
+            fineMatrixOut.CopyFrom(commandBuffer, pressure.mMatrix);
+            coarseMatrixOut.CopyFrom(commandBuffer, solver.mMatrices[0]);
+        });
+        PrintDiagonal({16, 16}, fineMatrixOut);
+        PrintDiagonal({9, 9}, coarseMatrixOut);
     }
 
     // solution from SOR with only few iterations (to check multigrid is an improvement)
@@ -514,6 +549,6 @@ TEST(LinearSolverTests, Simple_Multigrid)
 
     // solution from FluidSim
     {
-        PrintData(size.x, size.y, sim.pressure);
+        //PrintData(size.x, size.y, sim.pressure);
     }
 }

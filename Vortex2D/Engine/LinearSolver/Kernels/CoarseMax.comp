@@ -18,9 +18,11 @@ void main()
   if (pos.x > 0 && pos.y > 0 && pos.x < consts.width - 1 && pos.y < consts.height - 1)
   {
     ivec2 finePos = pos * ivec2(2) - ivec2(1);
-    float value = max(max(imageLoad(FineLevelSet, finePos).x, imageLoad(FineLevelSet, finePos + ivec2(1, 0)).x),
-                      max(imageLoad(FineLevelSet, finePos + ivec2(0, 1)).x, imageLoad(FineLevelSet, finePos + ivec2(1, 1)).x));
+    float value = 0.5 * 0.25 * (imageLoad(FineLevelSet, finePos).x +
+                                imageLoad(FineLevelSet, finePos + ivec2(1, 0)).x +
+                                imageLoad(FineLevelSet, finePos + ivec2(0, 1)).x +
+                                imageLoad(FineLevelSet, finePos + ivec2(1, 1)).x);
 
-    imageStore(CoarseLevelSet, pos, vec4(value * 0.5, 0.0, 0.0, 0.0));
+    imageStore(CoarseLevelSet, pos, vec4(value, 0.0, 0.0, 0.0));
   }
 }

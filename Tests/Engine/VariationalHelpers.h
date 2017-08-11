@@ -10,7 +10,10 @@
 #include <glm/vec2.hpp>
 
 #include <Vortex2D/Renderer/Texture.h>
+#include <Vortex2D/Renderer/Buffer.h>
 #include <Vortex2D/Renderer/CommandBuffer.h>
+
+#include <Vortex2D/Engine/LinearSolver/LinearSolver.h>
 
 #include "variationalplusgfm/fluidsim.h"
 
@@ -79,7 +82,7 @@ static void SetSolidPhi(const glm::ivec2& size, Vortex2D::Renderer::Texture& buf
         for (int j = 0; j < size.y; j++)
         {
             int width = size.x;
-            phi[i + j * width] = sim.nodal_solid_phi(i, j);
+            phi[i + j * width] = width * sim.nodal_solid_phi(i, j);
         }
     }
 
@@ -121,4 +124,38 @@ static void BuildInputs(const Vortex2D::Renderer::Device& device, const glm::ive
        solidPhi.CopyFrom(commandBuffer, inputSolidPhi);
        liquidPhi.CopyFrom(commandBuffer, inputLiquidPhi);
     });
+}
+
+static void PrintDiagonal(const glm::ivec2& size, Vortex2D::Renderer::Buffer& buffer)
+{
+    std::vector<Vortex2D::Fluid::LinearSolver::Data> pixels(size.x * size.y);
+    buffer.CopyTo(pixels);
+
+    for (std::size_t j = 0; j < size.y; j++)
+    {
+        for (std::size_t i = 0; i < size.x; i++)
+        {
+            std::size_t index = i + size.x * j;
+            std::cout << "(" <<  pixels[index].Diagonal << ")";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+}
+
+static void PrintWeights(const glm::ivec2& size, FluidSim& sim)
+{
+    for (int j = 1; j < size.y - 1; j++)
+    {
+        for (int i = 1; i < size.x - 1; i++)
+        {
+            int index = i + size.x * j;
+            std::cout << "(" <<  sim.matrix(index + 1, index) << ","
+                      << sim.matrix(index - 1, index) << ","
+                      << sim.matrix(index, index + size.x) << ","
+                      << sim.matrix(index, index - size.x) << ")";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
 }

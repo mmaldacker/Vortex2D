@@ -16,20 +16,21 @@ class Transfer
 public:
     Transfer(const Renderer::Device& device);
 
-    void Init(const glm::ivec2& fineSize, Renderer::Buffer& fine, Renderer::Buffer& coarse);
+    void InitProlongate(const glm::ivec2& fineSize, Renderer::Buffer& fine, Renderer::Buffer& coarse);
+    void InitRestrict(const glm::ivec2& fineSize, Renderer::Buffer& fine, Renderer::Buffer& coarse);
 
-    void Prolongate(int level);
-    void Restrict(int level);
+    void Prolongate(vk::CommandBuffer commandBuffer, int level);
+    void Restrict(vk::CommandBuffer commandBuffer, int level);
 
 private:
     const Renderer::Device& mDevice;
     Renderer::Work mProlongateWork;
     std::vector<Renderer::Work::Bound> mProlongateBound;
-    std::vector<Renderer::CommandBuffer> mProlongateCmd;
+    std::vector<Renderer::Buffer*> mProlongateBuffer;
 
     Renderer::Work mRestrictWork;
     std::vector<Renderer::Work::Bound> mRestrictBound;
-    std::vector<Renderer::CommandBuffer> mRestrictCmd;
+    std::vector<Renderer::Buffer*> mRestrictBuffer;
 };
 
 }}
