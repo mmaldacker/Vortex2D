@@ -17,21 +17,39 @@ namespace Vortex2D { namespace Fluid {
 class Reduce
 {
 public:
-    void Submit();
+    class Bound
+    {
+    public:
+        void Record(vk::CommandBuffer commandBuffer);
+
+        friend class Reduce;
+
+    private:
+        Bound(int size,
+              vk::PipelineLayout layout,
+              vk::Pipeline pipeline,
+              const std::vector<Renderer::Buffer*>& buffers,
+              std::vector<vk::UniqueDescriptorSet>&& descriptorSets);
+
+        int mSize;
+        vk::PipelineLayout mLayout;
+        vk::Pipeline mPipeline;
+        std::vector<Renderer::Buffer*> mBuffers;
+        std::vector<vk::UniqueDescriptorSet> mDescriptorSets;
+    };
+
+    Reduce::Bound Bind(Renderer::Buffer& input, Renderer::Buffer& output);
 
 protected:
     Reduce(const Renderer::Device& device,
            const std::string& fileName,
-           const glm::ivec2& size,
-           Renderer::Buffer& input,
-           Renderer::Buffer& output);
+           const glm::ivec2& size);
 
 private:
-    Renderer::CommandBuffer mCommandBuffer;
+    const Renderer::Device& mDevice;
     int mSize;
     Renderer::Buffer mReduce;
-    vk::UniqueDescriptorSet mDescriptorSet0;
-    vk::UniqueDescriptorSet mDescriptorSet1;
+    vk::DescriptorSetLayout mDescriptorLayout;
     vk::UniquePipelineLayout mPipelineLayout;
     vk::UniquePipeline mPipeline;
 };
@@ -40,18 +58,14 @@ class ReduceSum : public Reduce
 {
 public:
     ReduceSum(const Renderer::Device& device,
-              const glm::ivec2& size,
-              Renderer::Buffer& input,
-              Renderer::Buffer& output);
+              const glm::ivec2& size);
 };
 
 class ReduceMax : public Reduce
 {
 public:
     ReduceMax(const Renderer::Device& device,
-              const glm::ivec2& size,
-              Renderer::Buffer& input,
-              Renderer::Buffer& output);
+              const glm::ivec2& size);
 };
 
 }}

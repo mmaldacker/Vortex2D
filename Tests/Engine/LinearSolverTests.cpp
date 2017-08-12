@@ -9,11 +9,9 @@
 #include <Vortex2D/Engine/LinearSolver/GaussSeidel.h>
 #include <Vortex2D/Engine/LinearSolver/Transfer.h>
 #include <Vortex2D/Engine/LinearSolver/Multigrid.h>
+#include <Vortex2D/Engine/LinearSolver/ConjugateGradient.h>
 #include <Vortex2D/Engine/Pressure.h>
 
-/*
-#include <Vortex2D/Engine/LinearSolver/ConjugateGradient.h>
-*/
 #include <algorithm>
 #include <chrono>
 #include <numeric>
@@ -30,7 +28,8 @@ TEST(LinearSolverTests, ReduceSum)
     Buffer input(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float) * n);
     Buffer output(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float));
 
-    ReduceSum reduce(*device, size, input, output);
+    ReduceSum reduce(*device, size);
+    auto reduceBound = reduce.Bind(input, output);
 
     std::vector<float> inputData(n);
 
@@ -41,8 +40,10 @@ TEST(LinearSolverTests, ReduceSum)
 
     input.CopyFrom(inputData);
 
-    reduce.Submit();
-    device->Handle().waitIdle();
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+       reduceBound.Record(commandBuffer);
+    });
 
     std::vector<float> outputData(1, 0.0f);
     output.CopyTo(outputData);
@@ -58,7 +59,8 @@ TEST(LinearSolverTests, ReduceBigSum)
     Buffer input(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float) * n);
     Buffer output(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float));
 
-    ReduceSum reduce(*device, size, input, output);
+    ReduceSum reduce(*device, size);
+    auto reduceBound = reduce.Bind(input, output);
 
     std::vector<float> inputData(n, 1.0f);
 
@@ -69,8 +71,10 @@ TEST(LinearSolverTests, ReduceBigSum)
 
     input.CopyFrom(inputData);
 
-    reduce.Submit();
-    device->Handle().waitIdle();
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+       reduceBound.Record(commandBuffer);
+    });
 
     std::vector<float> outputData(1, 0.0f);
     output.CopyTo(outputData);
@@ -86,7 +90,8 @@ TEST(LinearSolverTests, ReduceMax)
     Buffer input(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float) * n);
     Buffer output(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float));
 
-    ReduceMax reduce(*device, size, input, output);
+    ReduceMax reduce(*device, size);
+    auto reduceBound = reduce.Bind(input, output);
 
     std::vector<float> inputData(10*15);
 
@@ -97,8 +102,10 @@ TEST(LinearSolverTests, ReduceMax)
 
     input.CopyFrom(inputData);
 
-    reduce.Submit();
-    device->Handle().waitIdle();
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+       reduceBound.Record(commandBuffer);
+    });
 
     std::vector<float> outputData(1, 0.0f);
     output.CopyTo(outputData);
@@ -293,13 +300,10 @@ TEST(LinearSolverTests, Complex_SOR)
     std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
 }
 
-/*
 TEST(LinearSolverTests, Simple_CG)
 {
-    Disable d(GL_BLEND);
-
     // FIXME setting size 20 doesn't work???
-    glm::vec2 size(50);
+    glm::ivec2 size(16);
 
     FluidSim sim;
     sim.initialize(1.0f, size.x, size.y);
@@ -310,23 +314,34 @@ TEST(LinearSolverTests, Simple_CG)
     sim.add_force(0.01f);
     sim.project(0.01f);
 
-    LinearSolver::Data data(size);
-    BuildLinearEquation(size, data, sim);
+    Buffer matrix(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(LinearSolver::Data));
+    Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+    Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+
+    Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
+    Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
+    Work matrixBuild(*device, size, "../Vortex2D/BuildMatrix.comp.spv", {vk::DescriptorType::eStorageBuffer,
+                                                                         vk::DescriptorType::eStorageImage,
+                                                                         vk::DescriptorType::eStorageImage}, 4);
+
+    BuildLinearEquation(size, matrix, div, sim);
 
     // FIXME error tolerance doesn't work here
     LinearSolver::Parameters params(600);
-    ConjugateGradient solver(size);
-    solver.Init(data);
-    solver.NormalSolve(data, params);
+    ConjugateGradient solver(*device, size);
 
-    Reader reader(data.Pressure);
-    reader.Read();
+    solver.Init(matrix, div, pressure, matrixBuild, liquidPhi, solidPhi);
+    solver.NormalSolve(params);
 
-    CheckPressure(size, sim.pressure, data, 1e-4f);
+    device->Queue().waitIdle();
+
+    //CheckPressure(size, sim.pressure, pressure, 1e-4f);
+    PrintBuffer(size, pressure);
 
     std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
 }
 
+/*
 TEST(LinearSolverTests, Simple_PCG)
 {
     Disable d(GL_BLEND);

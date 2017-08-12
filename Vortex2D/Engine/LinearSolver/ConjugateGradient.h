@@ -9,6 +9,7 @@
 #include <Vortex2D/Engine/LinearSolver/LinearSolver.h>
 #include <Vortex2D/Engine/LinearSolver/Reduce.h>
 #include <Vortex2D/Renderer/Work.h>
+#include <Vortex2D/Renderer/CommandBuffer.h>
 
 namespace Vortex2D { namespace Fluid {
 
@@ -19,11 +20,14 @@ namespace Vortex2D { namespace Fluid {
 class ConjugateGradient : public LinearSolver
 {
 public:
-    ConjugateGradient(const glm::ivec2& size);
-    virtual ~ConjugateGradient();
+    ConjugateGradient(const Renderer::Device& device, const glm::ivec2& size);
 
-
-    void Init(Renderer::Buffer& data, Renderer::Buffer& pressure) override;
+    void Init(Renderer::Buffer& A,
+              Renderer::Buffer& b,
+              Renderer::Buffer& pressure,
+              Renderer::Work& buildMatrix,
+              Renderer::Texture& solidPhi,
+              Renderer::Texture& liquidPhi) override;
 
     /**
      * @brief Solve iteratively solve the linear equations in data
@@ -36,10 +40,23 @@ private:
     void ApplyPreconditioner(Data& data);
     void InnerProduct(Renderer::Buffer& output, Renderer::Buffer& intput1, Renderer::Buffer& input2);
 
-    Renderer::Buffer r, s, alpha, beta, rho, rho_new, sigma, error;
-    Renderer::Work matrixMultiply, scalarDivision, multiplyAdd, multiplySub, residual, identity;
+    Renderer::Buffer r, s, alpha, beta, rho, rho_new, sigma, error, errorLocal, inner, z;
+    Renderer::Work matrixMultiply, scalarDivision, scalarMultiply, multiplyAdd, multiplySub;
     ReduceSum reduceSum;
     ReduceMax reduceMax;
+
+    ReduceMax::Bound reduceMaxBound;
+    ReduceSum::Bound reduceSumRhoBound, reduceSumSigmaBound, reduceSumRhoNewBound;
+    Renderer::Work::Bound multiplyRBound, multiplyZBound;
+    Renderer::Work::Bound matrixMultiplyBound;
+    Renderer::Work::Bound divideRhoBound;
+    Renderer::Work::Bound divideRhoNewBound;
+    Renderer::Work::Bound multiplyAddPBound;
+    Renderer::Work::Bound multiplySubRBound;
+    Renderer::Work::Bound multiplyAddSBound;
+
+    Renderer::CommandBuffer mNormalSolveInit, mNormalSolve;
+    Renderer::CommandBuffer mErrorRead;
 };
 
 }}

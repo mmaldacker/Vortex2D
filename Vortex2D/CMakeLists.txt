@@ -10,8 +10,8 @@ file(GLOB LIB_SOURCES
     "Engine/LinearSolver/Reduce.cpp"
     "Engine/LinearSolver/GaussSeidel.h"
     "Engine/LinearSolver/GaussSeidel.cpp"
-    #"Engine/LinearSolver/ConjugateGradient.h"
-    #"Engine/LinearSolver/ConjugateGradient.cpp"
+    "Engine/LinearSolver/ConjugateGradient.h"
+    "Engine/LinearSolver/ConjugateGradient.cpp"
     "Engine/LinearSolver/Multigrid.h"
     "Engine/LinearSolver/Multigrid.cpp"
     "Engine/LinearSolver/Transfer.h"
@@ -78,7 +78,7 @@ endfunction()
 
 add_library(vortex2d STATIC ${LIB_SOURCES} ${SHADERS} ${SHADER_SOURCES})
 compile_shader(TARGET vortex2d SOURCES ${SHADER_SOURCES})
-target_link_libraries(vortex2d PUBLIC glm Vulkan::Vulkan) 
+target_link_libraries(vortex2d PUBLIC glm Vulkan::Vulkan)
 target_include_directories(vortex2d PUBLIC ../)
 
 target_compile_features(vortex2d PRIVATE cxx_variadic_templates)
