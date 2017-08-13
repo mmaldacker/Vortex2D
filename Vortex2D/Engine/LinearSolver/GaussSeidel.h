@@ -7,6 +7,7 @@
 #define Vortex2D_GaussSeidel_h
 
 #include <Vortex2D/Engine/LinearSolver/LinearSolver.h>
+#include <Vortex2D/Engine/LinearSolver/Preconditioner.h>
 #include <Vortex2D/Renderer/Work.h>
 #include <Vortex2D/Renderer/CommandBuffer.h>
 
@@ -15,7 +16,7 @@ namespace Vortex2D { namespace Fluid {
 /**
  * @brief An iterative black and red successive over relaxation linear solver.
  */
-class GaussSeidel : public LinearSolver
+class GaussSeidel : public LinearSolver, public Preconditioner
 {
 public:
     GaussSeidel(const Renderer::Device& device, const glm::ivec2& size);
@@ -32,12 +33,18 @@ public:
      */
     void Solve(Parameters& params) override;
 
+    void Record(vk::CommandBuffer commandBuffer) override;
+
+    void Record(vk::CommandBuffer commandBuffer, int iterations);
+    void SetW(float w);
+
 private:
     float mW;
     Renderer::Work mGaussSeidel;
     Renderer::Work::Bound mGaussSeidelBound;
     Renderer::CommandBuffer mGaussSeidelCmd;
     Renderer::CommandBuffer mInitCmd;
+    Renderer::Buffer* mPressure;
 };
 
 }}

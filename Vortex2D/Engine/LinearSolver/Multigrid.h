@@ -7,6 +7,7 @@
 #define Multigrid_h
 
 #include <Vortex2D/Engine/LinearSolver/LinearSolver.h>
+#include <Vortex2D/Engine/LinearSolver/Preconditioner.h>
 #include <Vortex2D/Engine/LinearSolver/Transfer.h>
 #include <Vortex2D/Engine/LinearSolver/GaussSeidel.h>
 #include <Vortex2D/Renderer/Work.h>
@@ -27,7 +28,7 @@ private:
   std::vector<glm::ivec2> mDepths;
 };
 
-class Multigrid : public LinearSolver
+class Multigrid : public LinearSolver, public Preconditioner
 {
 public:
     Multigrid(const Renderer::Device& device, const glm::ivec2& size, float delta);
@@ -40,6 +41,8 @@ public:
               Renderer::Texture& liquidPhi) override;
 
     void Solve(Parameters& params) override;
+
+    void Record(vk::CommandBuffer commandBuffer) override;
 
 //private:
     void Smoother(vk::CommandBuffer commandBuffer, int n, int iterations);

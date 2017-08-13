@@ -28,7 +28,7 @@ void main()
 {
     ivec2 pos = ivec2(gl_GlobalInvocationID);
 
-    if (pos.x > 0 && pos.y > 0 && pos.x < consts.width - 1 && pos.y < consts.height - 1)
+    if (pos.x*pos.y < consts.width*consts.height)
     {
         int index = pos.x + pos.y * consts.width;
         z.value[index] = x.value[index] / y.value[index];

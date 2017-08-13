@@ -6,6 +6,7 @@ file(GLOB LIB_SOURCES
     "Engine/Pressure.cpp"
     "Engine/LinearSolver/LinearSolver.h"
     "Engine/LinearSolver/LinearSolver.cpp"
+    "Engine/LinearSolver/Preconditioner.h"
     "Engine/LinearSolver/Reduce.h"
     "Engine/LinearSolver/Reduce.cpp"
     "Engine/LinearSolver/GaussSeidel.h"
@@ -16,6 +17,8 @@ file(GLOB LIB_SOURCES
     "Engine/LinearSolver/Multigrid.cpp"
     "Engine/LinearSolver/Transfer.h"
     "Engine/LinearSolver/Transfer.cpp"
+    "Engine/LinearSolver/Diagonal.h"
+    "Engine/LinearSolver/Diagonal.cpp"
     "Renderer/*.cpp"
     "Renderer/*.h")
 

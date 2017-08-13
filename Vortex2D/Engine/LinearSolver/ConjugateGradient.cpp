@@ -7,8 +7,11 @@
 
 namespace Vortex2D { namespace Fluid {
 
-ConjugateGradient::ConjugateGradient(const Renderer::Device& device, const glm::ivec2& size)
-    : r(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float))
+ConjugateGradient::ConjugateGradient(const Renderer::Device& device,
+                                     const glm::ivec2& size,
+                                     Preconditioner& preconditioner)
+    : mPreconditioner(preconditioner)
+    , r(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float))
     , s(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float))
     , alpha(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(float))
     , beta(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(float))
@@ -19,20 +22,25 @@ ConjugateGradient::ConjugateGradient(const Renderer::Device& device, const glm::
     , errorLocal(device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float))
     , inner(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float))
     , z(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float))
-    , matrixMultiply(device, size, "../Vortex2D/MultiplyMatrix.comp.spv", {vk::DescriptorType::eStorageBuffer,
+    , matrixMultiply(device, size, "../Vortex2D/MultiplyMatrix.comp.spv",
+                    {vk::DescriptorType::eStorageBuffer,
                      vk::DescriptorType::eStorageBuffer,
                      vk::DescriptorType::eStorageBuffer})
-    , scalarDivision(device, {1, 1}, "../Vortex2D/Divide.comp.spv", {vk::DescriptorType::eStorageBuffer,
+    , scalarDivision(device, {1, 1}, "../Vortex2D/Divide.comp.spv",
+                    {vk::DescriptorType::eStorageBuffer,
                      vk::DescriptorType::eStorageBuffer,
                      vk::DescriptorType::eStorageBuffer})
-    , scalarMultiply(device, {1, 1}, "../Vortex2D/Multiply.comp.spv", {vk::DescriptorType::eStorageBuffer,
+    , scalarMultiply(device, size, "../Vortex2D/Multiply.comp.spv",
+                    {vk::DescriptorType::eStorageBuffer,
                      vk::DescriptorType::eStorageBuffer,
                      vk::DescriptorType::eStorageBuffer})
-    , multiplyAdd(device, size, "../Vortex2D/MultiplyAdd.comp.spv", {vk::DescriptorType::eStorageBuffer,
+    , multiplyAdd(device, size, "../Vortex2D/MultiplyAdd.comp.spv",
+                 {vk::DescriptorType::eStorageBuffer,
                   vk::DescriptorType::eStorageBuffer,
                   vk::DescriptorType::eStorageBuffer,
                   vk::DescriptorType::eStorageBuffer})
-    , multiplySub(device, size, "../Vortex2D/MultiplySub.comp.spv", {vk::DescriptorType::eStorageBuffer,
+    , multiplySub(device, size, "../Vortex2D/MultiplySub.comp.spv",
+                 {vk::DescriptorType::eStorageBuffer,
                   vk::DescriptorType::eStorageBuffer,
                   vk::DescriptorType::eStorageBuffer,
                   vk::DescriptorType::eStorageBuffer})
@@ -43,13 +51,17 @@ ConjugateGradient::ConjugateGradient(const Renderer::Device& device, const glm::
     , reduceSumSigmaBound(reduceSum.Bind(inner, sigma))
     , reduceSumRhoNewBound(reduceSum.Bind(inner, rho_new))
     , multiplyRBound(scalarMultiply.Bind({r, r, inner}))
-    , multiplyZBound(scalarMultiply.Bind({z, s, inner}))
+    , multiplySBound(scalarMultiply.Bind({z, s, inner}))
+    , multiplyZBound(scalarMultiply.Bind({z, r, inner}))
     , divideRhoBound(scalarDivision.Bind({rho, sigma, alpha}))
     , divideRhoNewBound(scalarDivision.Bind({rho_new, rho, beta}))
     , multiplySubRBound(multiplySub.Bind({r, z, alpha, r}))
     , multiplyAddSBound(multiplyAdd.Bind({r, s, beta, s}))
+    , multiplyAddZBound(multiplyAdd.Bind({z, s, beta, s}))
     , mNormalSolveInit(device, false)
     , mNormalSolve(device, false)
+    , mSolveInit(device, false)
+    , mSolve(device, false)
     , mErrorRead(device)
 {
 
@@ -66,7 +78,7 @@ void ConjugateGradient::Init(Renderer::Buffer& A,
                              Renderer::Texture& solidPhi,
                              Renderer::Texture& liquidPhi)
 {
-    // TODO clear z and other?
+    mPreconditioner.Init(A, r, z, buildMatrix, solidPhi, liquidPhi);
 
     matrixMultiplyBound = matrixMultiply.Bind({A, s, z});
     multiplyAddPBound = multiplyAdd.Bind({pressure, s, alpha, pressure});
@@ -78,9 +90,11 @@ void ConjugateGradient::Init(Renderer::Buffer& A,
 
         // calculate error
         reduceMaxBound.Record(commandBuffer);
+        error.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
 
         // p = 0
         pressure.Clear(commandBuffer);
+
         // s = r
         s.CopyFrom(commandBuffer, r);
 
@@ -97,16 +111,18 @@ void ConjugateGradient::Init(Renderer::Buffer& A,
         matrixMultiplyBound.Record(commandBuffer);
         z.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
 
-        // alpha = rho / zTs
-        multiplyZBound.Record(commandBuffer);
+        // sigma = zTs
+        multiplySBound.Record(commandBuffer);
         inner.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         reduceSumSigmaBound.Record(commandBuffer);
         sigma.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+
+        // alpha = rho / sigma
         divideRhoBound.Record(commandBuffer);
         alpha.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
 
         // p = p + alpha * s
-        matrixMultiplyBound.Record(commandBuffer);
+        multiplyAddPBound.Record(commandBuffer);
         pressure.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
 
         // r = r - alpha * z
@@ -115,6 +131,7 @@ void ConjugateGradient::Init(Renderer::Buffer& A,
 
         // calculate max error
         reduceMaxBound.Record(commandBuffer);
+        error.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
 
         // rho_new = rTr
         multiplyRBound.Record(commandBuffer);
@@ -131,85 +148,108 @@ void ConjugateGradient::Init(Renderer::Buffer& A,
         s.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
 
         // rho = rho_new
-        rho_new.CopyFrom(commandBuffer, rho);
+        rho.CopyFrom(commandBuffer, rho_new);
+    });
+
+    mSolveInit.Record([&](vk::CommandBuffer commandBuffer)
+    {
+        // r = b
+        r.CopyFrom(commandBuffer, b);
+
+        // calculate error
+        reduceMaxBound.Record(commandBuffer);
+        error.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+
+        // p = 0
+        pressure.Clear(commandBuffer);
+
+        // z = M^-1 r
+        z.Clear(commandBuffer);
+        mPreconditioner.Record(commandBuffer);
+        z.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+
+        // s = z
+        s.CopyFrom(commandBuffer, z);
+
+        // rho = zTr
+        multiplyZBound.Record(commandBuffer);
+        inner.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        reduceSumRhoBound.Record(commandBuffer);
+        rho.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+    });
+
+    mSolve.Record([&](vk::CommandBuffer commandBuffer)
+    {
+        // z = As
+        matrixMultiplyBound.Record(commandBuffer);
+        z.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+
+        // sigma = zTs
+        multiplySBound.Record(commandBuffer);
+        inner.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        reduceSumSigmaBound.Record(commandBuffer);
+        sigma.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+
+        // alpha = rho / sigma
+        divideRhoBound.Record(commandBuffer);
+        alpha.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+
+        // p = p + alpha * s
+        multiplyAddPBound.Record(commandBuffer);
+        pressure.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+
+        // r = r - alpha * z
+        multiplySubRBound.Record(commandBuffer);
+        r.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+
+        // calculate max error
+        reduceMaxBound.Record(commandBuffer);
+        error.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+
+        // z = M^-1 r
+        z.Clear(commandBuffer);
+        mPreconditioner.Record(commandBuffer);
+        z.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+
+        // rho_new = zTr
+        multiplyZBound.Record(commandBuffer);
+        inner.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        reduceSumRhoNewBound.Record(commandBuffer);
+        rho_new.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+
+        // beta = rho_new / rho
+        divideRhoNewBound.Record(commandBuffer);
+        beta.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+
+        // s = z + beta * s
+        multiplyAddZBound.Record(commandBuffer);
+        s.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+
+        // rho = rho_new
+        rho.CopyFrom(commandBuffer, rho_new);
     });
 }
 
 void ConjugateGradient::Solve(Parameters& params)
 {
-    /*
-    // r = b
-    r = residual(data.Pressure);
+    mSolveInit.Submit();
+    mErrorRead.Submit();
 
-    // if r = 0, return
-    error = reduceMax(r);
-    // FIXME can use this value to improve tolerance checking as in pcg_solver.h
-    if (errorReader.Read().GetFloat(0, 0) == 0.0f)
+    for (unsigned i = 0;; ++i)
     {
-        return;
-    }
-
-    // p = 0
-    //data.Pressure.Clear(glm::vec4(0.0f));
-
-    // z = M^-1 r
-    ApplyPreconditioner(data);
-
-    // s = z
-    s = identity(z.Pressure);
-
-    // rho = zTr
-    InnerProduct(rho, z.Pressure, r);
-
-    for (unsigned i = 0 ;; ++i)
-    {
-        // z = As
-        z.Pressure = matrixMultiply(s, data.Weights, data.Diagonal);
-
-        // alpha = rho / zTs
-        InnerProduct(sigma, z.Pressure, s);
-        alpha = scalarDivision(rho, sigma);
-
-        // p = p + alpha * s
-        data.Pressure.Swap();
-        data.Pressure = multiplyAdd(Back(data.Pressure), s, alpha);
-
-        // r = r - alpha * z
-        r.Swap();
-        r = multiplySub(Back(r), z.Pressure, alpha);
-
-        // FIXME don't calculate if we don't do by error
-        // calculate max error
-        error = reduceMax(r);
-
         // exit condition
+        mErrorRead.Wait();
+
         params.OutIterations = i;
-        params.OutError = errorReader.GetFloat(0, 0);
+        errorLocal.CopyTo(params.OutError);
         if (params.IsFinished(i, params.OutError))
         {
             return;
         }
 
-        // async copy of error to client
-        errorReader.Read();
-
-        // z = M^-1 r
-        ApplyPreconditioner(data);
-
-        // rho_new = zTr
-        InnerProduct(rho_new, z.Pressure, r);
-
-        // beta = rho_new / rho
-        beta = scalarDivision(rho_new, rho);
-
-        // s = z + beta * s
-        s.Swap();
-        s = multiplyAdd(z.Pressure, Back(s), beta);
-
-        // rho = rho_new
-        rho = identity(rho_new);
+        mErrorRead.Submit();
+        mSolve.Submit();
     }
-    */
 }
 
 void ConjugateGradient::NormalSolve(Parameters& params)
@@ -219,9 +259,9 @@ void ConjugateGradient::NormalSolve(Parameters& params)
 
     for (unsigned i = 0 ;; ++i)
     {
+        // exit condition
         mErrorRead.Wait();
 
-        // exit condition
         params.OutIterations = i;
         errorLocal.CopyTo(params.OutError);
         if (params.IsFinished(i, params.OutError))
@@ -232,15 +272,6 @@ void ConjugateGradient::NormalSolve(Parameters& params)
         mErrorRead.Submit();
         mNormalSolve.Submit();
     }
-}
-
-void ConjugateGradient::ApplyPreconditioner(Data& data)
-{
-}
-
-void ConjugateGradient::InnerProduct(Renderer::Buffer& output, Renderer::Buffer& input1, Renderer::Buffer& input2)
-{
-    //output = reduceSum(input1, input2);
 }
 
 }}

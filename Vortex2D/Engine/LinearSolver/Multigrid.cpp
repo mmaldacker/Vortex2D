@@ -179,36 +179,7 @@ void Multigrid::Init(Renderer::Buffer& matrix,
 
     mCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
-        int numIterations = 2;
-        int numBorderIterations = 2;
-        int numIterationsCoarse = 32;
-
-        pressure.Clear(commandBuffer);
-
-        for (int i = 0; i < mDepth.GetMaxDepth(); i++)
-        {
-            Smoother(commandBuffer, i, numIterations);
-            BorderSmoother(commandBuffer, i, numBorderIterations, true);
-
-            numIterations *= 2;
-
-            mResidualWorkBound[i].Record(commandBuffer);
-            mResiduals[i].Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-            mTransfer.Restrict(commandBuffer, i);
-            mPressures[i].Clear(commandBuffer);
-        }
-
-        Smoother(commandBuffer, mDepth.GetMaxDepth(), numIterationsCoarse);
-
-        for (int i = mDepth.GetMaxDepth() - 1; i >= 0; --i)
-        {
-            mTransfer.Prolongate(commandBuffer, i);
-
-            numIterations /= 2;
-
-            BorderSmoother(commandBuffer, i, numBorderIterations, false);
-            Smoother(commandBuffer, i, numIterations);
-        }
+        Record(commandBuffer);
     });
 }
 
@@ -241,21 +212,21 @@ void Multigrid::BorderSmoother(vk::CommandBuffer commandBuffer, int n, int itera
         if (n == 0)
         {
             mBoundaryGaussSeidelBound[n].PushConstant(commandBuffer, 8, 1.0f);
-            mBoundaryGaussSeidelBound[n].PushConstant(commandBuffer, 12, 1);
+            mBoundaryGaussSeidelBound[n].PushConstant(commandBuffer, 12, up ? 1 : 0);
             mBoundaryGaussSeidelBound[n].Record(commandBuffer);
             assert(mPressure);
             mPressure->Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-            mBoundaryGaussSeidelBound[n].PushConstant(commandBuffer, 12, 0);
+            mBoundaryGaussSeidelBound[n].PushConstant(commandBuffer, 12, up ? 0 : 1);
             mBoundaryGaussSeidelBound[n].Record(commandBuffer);
             mPressure->Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         }
         else
         {
             mBoundaryGaussSeidelBound[n].PushConstant(commandBuffer, 8, 1.0f);
-            mBoundaryGaussSeidelBound[n].PushConstant(commandBuffer, 12, 1);
+            mBoundaryGaussSeidelBound[n].PushConstant(commandBuffer, 12, up ? 1 : 0);
             mBoundaryGaussSeidelBound[n].Record(commandBuffer);
             mPressuresBack[n-1].Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-            mBoundaryGaussSeidelBound[n].PushConstant(commandBuffer, 12, 0);
+            mBoundaryGaussSeidelBound[n].PushConstant(commandBuffer, 12, up ? 0 : 1);
             mBoundaryGaussSeidelBound[n].Record(commandBuffer);
             mPressuresBack[n-1].Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         }
@@ -267,5 +238,41 @@ void Multigrid::Solve(Parameters&)
     mBuildCmd.Submit();
     mCmd.Submit();
 }
+
+void Multigrid::Record(vk::CommandBuffer commandBuffer)
+{
+    int numIterations = 2;
+    int numBorderIterations = 2;
+    int numIterationsCoarse = 32;
+
+    assert(mPressure != nullptr);
+    mPressure->Clear(commandBuffer);
+
+    for (int i = 0; i < mDepth.GetMaxDepth(); i++)
+    {
+        Smoother(commandBuffer, i, numIterations);
+        BorderSmoother(commandBuffer, i, numBorderIterations, true);
+
+        numIterations *= 2;
+
+        mResidualWorkBound[i].Record(commandBuffer);
+        mResiduals[i].Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        mTransfer.Restrict(commandBuffer, i);
+        mPressures[i].Clear(commandBuffer);
+    }
+
+    Smoother(commandBuffer, mDepth.GetMaxDepth(), numIterationsCoarse);
+
+    for (int i = mDepth.GetMaxDepth() - 1; i >= 0; --i)
+    {
+        mTransfer.Prolongate(commandBuffer, i);
+
+        numIterations /= 2;
+
+        BorderSmoother(commandBuffer, i, numBorderIterations, false);
+        Smoother(commandBuffer, i, numIterations);
+    }
+}
+
 
 }}

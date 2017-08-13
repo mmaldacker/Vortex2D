@@ -22,6 +22,11 @@ GaussSeidel::GaussSeidel(const Renderer::Device& device, const glm::ivec2& size)
 {
 }
 
+void GaussSeidel::SetW(float w)
+{
+    mW = w;
+}
+
 void GaussSeidel::Init(Renderer::Buffer& matrix,
                        Renderer::Buffer& div,
                        Renderer::Buffer& pressure,
@@ -29,17 +34,12 @@ void GaussSeidel::Init(Renderer::Buffer& matrix,
                        Renderer::Texture& solidPhi,
                        Renderer::Texture& liquidPhi)
 {
+    mPressure = &pressure;
+
     mGaussSeidelBound = mGaussSeidel.Bind({pressure, matrix, div});
     mGaussSeidelCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
-        // TODO add barrier
-        mGaussSeidelBound.PushConstant(commandBuffer, 8, mW);
-        mGaussSeidelBound.PushConstant(commandBuffer, 12, 1);
-        mGaussSeidelBound.Record(commandBuffer);
-        pressure.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-        mGaussSeidelBound.PushConstant(commandBuffer, 12, 0);
-        mGaussSeidelBound.Record(commandBuffer);
-        pressure.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        Record(commandBuffer, 1);
     });
 
     mInitCmd.Record([&](vk::CommandBuffer commandBuffer)
@@ -59,6 +59,26 @@ void GaussSeidel::Solve(Parameters& params)
     {
         mGaussSeidelCmd.Submit();
         params.OutIterations = i;
+    }
+}
+
+void GaussSeidel::Record(vk::CommandBuffer commandBuffer)
+{
+    assert(mPressure != nullptr);
+    Record(commandBuffer, 4);
+}
+
+void GaussSeidel::Record(vk::CommandBuffer commandBuffer, int iterations)
+{
+    for (unsigned i  = 0; i < iterations; ++i)
+    {
+        mGaussSeidelBound.PushConstant(commandBuffer, 8, mW);
+        mGaussSeidelBound.PushConstant(commandBuffer, 12, 1);
+        mGaussSeidelBound.Record(commandBuffer);
+        mPressure->Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        mGaussSeidelBound.PushConstant(commandBuffer, 12, 0);
+        mGaussSeidelBound.Record(commandBuffer);
+        mPressure->Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
     }
 }
 

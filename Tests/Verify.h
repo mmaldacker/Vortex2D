@@ -7,6 +7,7 @@
 
 #include <Vortex2D/Renderer/Texture.h>
 #include <Vortex2D/Renderer/Buffer.h>
+#include <Vortex2D/Engine/LinearSolver/LinearSolver.h>
 #include <vector>
 
 template<typename T>
@@ -52,6 +53,27 @@ static void PrintBuffer(const glm::ivec2& size, Vortex2D::Renderer::Buffer& buff
         {
             float value = pixels[i + j * size.x];
             std::cout << "(" << value << ")";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+}
+
+static void PrintWeights(const glm::ivec2& size, Vortex2D::Renderer::Buffer& buffer)
+{
+    std::vector<Vortex2D::Fluid::LinearSolver::Data> pixels(size.x * size.y);
+    buffer.CopyTo(pixels);
+
+    for (int j = 0; j < size.x; j++)
+    {
+        for (int i = 0; i < size.y; i++)
+        {
+            glm::vec4 value = pixels[i + j * size.x].Weights;
+            std::cout << "("
+                      << value.x << ","
+                      << value.y << ","
+                      << value.z << ","
+                      << value.w << ")";
         }
         std::cout << std::endl;
     }

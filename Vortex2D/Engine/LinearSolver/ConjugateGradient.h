@@ -7,6 +7,7 @@
 #define Vertex2D_ConjugateGradient_h
 
 #include <Vortex2D/Engine/LinearSolver/LinearSolver.h>
+#include <Vortex2D/Engine/LinearSolver/Preconditioner.h>
 #include <Vortex2D/Engine/LinearSolver/Reduce.h>
 #include <Vortex2D/Renderer/Work.h>
 #include <Vortex2D/Renderer/CommandBuffer.h>
@@ -20,7 +21,7 @@ namespace Vortex2D { namespace Fluid {
 class ConjugateGradient : public LinearSolver
 {
 public:
-    ConjugateGradient(const Renderer::Device& device, const glm::ivec2& size);
+    ConjugateGradient(const Renderer::Device& device, const glm::ivec2& size, Preconditioner& preconditioner);
 
     void Init(Renderer::Buffer& A,
               Renderer::Buffer& b,
@@ -36,9 +37,8 @@ public:
 
     void NormalSolve(Parameters& params);
 
-private:
-    void ApplyPreconditioner(Data& data);
-    void InnerProduct(Renderer::Buffer& output, Renderer::Buffer& intput1, Renderer::Buffer& input2);
+//private:
+    Preconditioner& mPreconditioner;
 
     Renderer::Buffer r, s, alpha, beta, rho, rho_new, sigma, error, errorLocal, inner, z;
     Renderer::Work matrixMultiply, scalarDivision, scalarMultiply, multiplyAdd, multiplySub;
@@ -47,15 +47,14 @@ private:
 
     ReduceMax::Bound reduceMaxBound;
     ReduceSum::Bound reduceSumRhoBound, reduceSumSigmaBound, reduceSumRhoNewBound;
-    Renderer::Work::Bound multiplyRBound, multiplyZBound;
+    Renderer::Work::Bound multiplyRBound, multiplySBound, multiplyZBound;
     Renderer::Work::Bound matrixMultiplyBound;
     Renderer::Work::Bound divideRhoBound;
     Renderer::Work::Bound divideRhoNewBound;
-    Renderer::Work::Bound multiplyAddPBound;
-    Renderer::Work::Bound multiplySubRBound;
-    Renderer::Work::Bound multiplyAddSBound;
+    Renderer::Work::Bound multiplyAddPBound, multiplySubRBound, multiplyAddSBound, multiplyAddZBound;
 
     Renderer::CommandBuffer mNormalSolveInit, mNormalSolve;
+    Renderer::CommandBuffer mSolveInit, mSolve;
     Renderer::CommandBuffer mErrorRead;
 };
 

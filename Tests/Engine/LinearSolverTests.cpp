@@ -10,6 +10,7 @@
 #include <Vortex2D/Engine/LinearSolver/Transfer.h>
 #include <Vortex2D/Engine/LinearSolver/Multigrid.h>
 #include <Vortex2D/Engine/LinearSolver/ConjugateGradient.h>
+#include <Vortex2D/Engine/LinearSolver/Diagonal.h>
 #include <Vortex2D/Engine/Pressure.h>
 
 #include <algorithm>
@@ -302,8 +303,7 @@ TEST(LinearSolverTests, Complex_SOR)
 
 TEST(LinearSolverTests, Simple_CG)
 {
-    // FIXME setting size 20 doesn't work???
-    glm::ivec2 size(16);
+    glm::ivec2 size(66);
 
     FluidSim sim;
     sim.initialize(1.0f, size.x, size.y);
@@ -326,27 +326,24 @@ TEST(LinearSolverTests, Simple_CG)
 
     BuildLinearEquation(size, matrix, div, sim);
 
-    // FIXME error tolerance doesn't work here
-    LinearSolver::Parameters params(600);
-    ConjugateGradient solver(*device, size);
+    Diagonal preconditioner(*device, size);
+
+    LinearSolver::Parameters params(1000, 1e-5f);
+    ConjugateGradient solver(*device, size, preconditioner);
 
     solver.Init(matrix, div, pressure, matrixBuild, liquidPhi, solidPhi);
     solver.NormalSolve(params);
 
     device->Queue().waitIdle();
 
-    //CheckPressure(size, sim.pressure, pressure, 1e-4f);
-    PrintBuffer(size, pressure);
+    CheckPressure(size, sim.pressure, pressure, 1e-4f); // TODO somehow error is bigger than 1e-5
 
     std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
 }
 
-/*
-TEST(LinearSolverTests, Simple_PCG)
+TEST(LinearSolverTests, Diagonal_Simple_PCG)
 {
-    Disable d(GL_BLEND);
-
-    glm::vec2 size(50);
+    glm::ivec2 size(66);
 
     FluidSim sim;
     sim.initialize(1.0f, size.x, size.y);
@@ -355,48 +352,77 @@ TEST(LinearSolverTests, Simple_PCG)
     AddParticles(size, sim, boundary_phi);
 
     sim.add_force(0.01f);
-
-    Buffer velocity1(size, 2, true);
-    SetVelocity(velocity1, sim);
-
-    Buffer velocity2(size, 2, true);
-    SetVelocity(velocity2, sim);
-
     sim.project(0.01f);
 
-    Buffer solidPhi(glm::vec2(2)*size, 1);
-    SetSolidPhi(solidPhi, sim);
+    Buffer matrix(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(LinearSolver::Data));
+    Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+    Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
 
-    Buffer liquidPhi(size, 1);
-    SetLiquidPhi(liquidPhi, sim);
+    Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
+    Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
+    Work matrixBuild(*device, size, "../Vortex2D/BuildMatrix.comp.spv", {vk::DescriptorType::eStorageBuffer,
+                                                                         vk::DescriptorType::eStorageImage,
+                                                                         vk::DescriptorType::eStorageImage}, 4);
 
-    Buffer solidVelocity(size, 2);
-    // leave empty
+    BuildLinearEquation(size, matrix, div, sim);
 
-    LinearSolver::Data data(size);
+    Diagonal preconditioner(*device, size);
 
     LinearSolver::Parameters params(1000, 1e-5f);
-    ConjugateGradient solver(size);
+    ConjugateGradient solver(*device, size, preconditioner);
 
-    Pressure pressure(0.01f, size, solver, data, velocity1, solidPhi, liquidPhi, solidVelocity);
+    solver.Init(matrix, div, pressure, matrixBuild, liquidPhi, solidPhi);
+    solver.Solve(params);
 
-    auto start = std::chrono::system_clock::now();
+    device->Queue().waitIdle();
 
-    pressure.Solve(params);
+    CheckPressure(size, sim.pressure, pressure, 1e-5f);
 
-    auto end = std::chrono::system_clock::now();
-    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-
-    Reader reader(data.Pressure);
-    reader.Read();
-
-    // FIXME error tolerance doesn't work here (see comment in CG)
-    CheckPressure(size, sim.pressure, data, 1e-3f);
-
-    std::cout << "Solved in time: " << elapsed.count() << std::endl;
     std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
 }
 
+TEST(LinearSolverTests, SOR_Simple_PCG)
+{
+    glm::ivec2 size(66);
+
+    FluidSim sim;
+    sim.initialize(1.0f, size.x, size.y);
+    sim.set_boundary(boundary_phi);
+
+    AddParticles(size, sim, boundary_phi);
+
+    sim.add_force(0.01f);
+    sim.project(0.01f);
+
+    Buffer matrix(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(LinearSolver::Data));
+    Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+    Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+
+    Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
+    Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
+    Work matrixBuild(*device, size, "../Vortex2D/BuildMatrix.comp.spv", {vk::DescriptorType::eStorageBuffer,
+                                                                         vk::DescriptorType::eStorageImage,
+                                                                         vk::DescriptorType::eStorageImage}, 4);
+
+    BuildLinearEquation(size, matrix, div, sim);
+
+    GaussSeidel preconditioner(*device, size);
+    preconditioner.SetW(1.0f);
+
+    LinearSolver::Parameters params(1000, 1e-5f);
+    ConjugateGradient solver(*device, size, preconditioner);
+
+    solver.Init(matrix, div, pressure, matrixBuild, liquidPhi, solidPhi);
+    solver.Solve(params);
+
+    device->Queue().waitIdle();
+
+    CheckPressure(size, sim.pressure, pressure, 1e-5f);
+
+    std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
+}
+
+/*
 TEST(LinearSolverTests, Complex_PCG)
 {
     Disable d(GL_BLEND);
@@ -506,7 +532,7 @@ TEST(LinearSolverTests, Zero_PCG)
 }
 */
 
-TEST(LinearSolverTests, Simple_Multigrid)
+TEST(LinearSolverTests, DISABLED_Simple_Multigrid)
 {
     glm::ivec2 size(16);
 
@@ -582,4 +608,44 @@ TEST(LinearSolverTests, Simple_Multigrid)
     {
         PrintData(size.x, size.y, sim.pressure);
     }
+}
+
+TEST(LinearSolverTests, Multigrid_Simple_PCG)
+{
+    glm::ivec2 size(66);
+
+    FluidSim sim;
+    sim.initialize(1.0f, size.x, size.y);
+    sim.set_boundary(boundary_phi);
+
+    AddParticles(size, sim, boundary_phi);
+
+    sim.add_force(0.01f);
+    sim.project(0.01f);
+
+    Buffer matrix(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(LinearSolver::Data));
+    Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+    Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+
+    Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
+    Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
+    Work matrixBuild(*device, size, "../Vortex2D/BuildMatrix.comp.spv", {vk::DescriptorType::eStorageBuffer,
+                                                                         vk::DescriptorType::eStorageImage,
+                                                                         vk::DescriptorType::eStorageImage}, 4);
+
+    BuildLinearEquation(size, matrix, div, sim);
+
+    Multigrid preconditioner(*device, size, 0.01f);
+
+    LinearSolver::Parameters params(1000, 1e-5f);
+    ConjugateGradient solver(*device, size, preconditioner);
+
+    solver.Init(matrix, div, pressure, matrixBuild, liquidPhi, solidPhi);
+    solver.Solve(params);
+
+    device->Queue().waitIdle();
+
+    CheckPressure(size, sim.pressure, pressure, 1e-5f);
+
+    std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
 }
