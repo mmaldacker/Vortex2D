@@ -25,6 +25,7 @@ public:
               Renderer::Texture& solidPhi,
               Renderer::Texture& liquidPhi) override;
 
+    void RecordInit(vk::CommandBuffer commandBuffer) override;
     void Record(vk::CommandBuffer ) override;
 
 private:

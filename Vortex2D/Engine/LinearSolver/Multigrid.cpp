@@ -58,7 +58,6 @@ Multigrid::Multigrid(const Renderer::Device& device, const glm::ivec2& size, flo
     , mPhiScaleWork(device, size, "../Vortex2D/PhiScale.comp.spv",
                     {vk::DescriptorType::eStorageImage,
                      vk::DescriptorType::eStorageImage})
-    , mBuildCmd(device, false)
     , mCmd(device, false)
 {
     for (int i = 1; i <= mDepth.GetMaxDepth(); i++)
@@ -112,35 +111,6 @@ void Multigrid::Init(Renderer::Buffer& matrix,
     int maxDepth = mDepth.GetMaxDepth();
     mMatrixBuildBound.push_back(buildMatrix.Bind(mDepth.GetDepthSize(maxDepth), {mMatrices[maxDepth-1], mLiquidPhis[maxDepth-1], mSolidPhis[maxDepth-1]}));
 
-    mBuildCmd.Record([&](vk::CommandBuffer commandBuffer)
-    {
-        for (int i = 0; i < mDepth.GetMaxDepth(); i++)
-        {
-            mLiquidPhiScaleWorkBound[i].Record(commandBuffer);
-            mLiquidPhis[i].Barrier(commandBuffer,
-                                   vk::ImageLayout::eGeneral,
-                                   vk::AccessFlagBits::eShaderWrite,
-                                   vk::ImageLayout::eGeneral,
-                                   vk::AccessFlagBits::eShaderRead);
-
-            mSolidPhiScaleWorkBound[i].Record(commandBuffer);
-            mSolidPhis[i].Barrier(commandBuffer,
-                                  vk::ImageLayout::eGeneral,
-                                  vk::AccessFlagBits::eShaderWrite,
-                                  vk::ImageLayout::eGeneral,
-                                  vk::AccessFlagBits::eShaderRead);
-
-            mMatrixBuildBound[i].PushConstant(commandBuffer, 8, mDelta);
-            mMatrixBuildBound[i].Record(commandBuffer);
-            mMatrices[i].Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-        }
-
-        int maxDepth = mDepth.GetMaxDepth();
-        mMatrixBuildBound[maxDepth - 1].PushConstant(commandBuffer, 8, mDelta);
-        mMatrixBuildBound[maxDepth - 1].Record(commandBuffer);
-        mMatrices[maxDepth - 1].Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-    });
-
     mPressure = &pressure;
     mResidualWorkBound.push_back(
                 mResidualWork.Bind({pressure, matrix, b, mResiduals[0]}));
@@ -179,6 +149,7 @@ void Multigrid::Init(Renderer::Buffer& matrix,
 
     mCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
+        RecordInit(commandBuffer);
         Record(commandBuffer);
     });
 }
@@ -235,8 +206,37 @@ void Multigrid::BorderSmoother(vk::CommandBuffer commandBuffer, int n, int itera
 
 void Multigrid::Solve(Parameters&)
 {
-    mBuildCmd.Submit();
     mCmd.Submit();
+}
+
+void Multigrid::RecordInit(vk::CommandBuffer commandBuffer)
+{
+    for (int i = 0; i < mDepth.GetMaxDepth(); i++)
+    {
+        mLiquidPhiScaleWorkBound[i].Record(commandBuffer);
+        mLiquidPhis[i].Barrier(commandBuffer,
+                               vk::ImageLayout::eGeneral,
+                               vk::AccessFlagBits::eShaderWrite,
+                               vk::ImageLayout::eGeneral,
+                               vk::AccessFlagBits::eShaderRead);
+
+        mSolidPhiScaleWorkBound[i].Record(commandBuffer);
+        mSolidPhis[i].Barrier(commandBuffer,
+                              vk::ImageLayout::eGeneral,
+                              vk::AccessFlagBits::eShaderWrite,
+                              vk::ImageLayout::eGeneral,
+                              vk::AccessFlagBits::eShaderRead);
+
+        mMatrixBuildBound[i].PushConstant(commandBuffer, 8, mDelta);
+        mMatrixBuildBound[i].Record(commandBuffer);
+        mMatrices[i].Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+    }
+
+    int maxDepth = mDepth.GetMaxDepth();
+    mMatrixBuildBound[maxDepth - 1].PushConstant(commandBuffer, 8, mDelta);
+    mMatrixBuildBound[maxDepth - 1].Record(commandBuffer);
+    mMatrices[maxDepth - 1].Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+
 }
 
 void Multigrid::Record(vk::CommandBuffer commandBuffer)

@@ -62,6 +62,11 @@ void GaussSeidel::Solve(Parameters& params)
     }
 }
 
+void GaussSeidel::RecordInit(vk::CommandBuffer commandBuffer)
+{
+
+}
+
 void GaussSeidel::Record(vk::CommandBuffer commandBuffer)
 {
     assert(mPressure != nullptr);

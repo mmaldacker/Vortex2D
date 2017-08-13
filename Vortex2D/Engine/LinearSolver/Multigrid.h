@@ -42,6 +42,7 @@ public:
 
     void Solve(Parameters& params) override;
 
+    void RecordInit(vk::CommandBuffer commandBuffer) override;
     void Record(vk::CommandBuffer commandBuffer) override;
 
 //private:
@@ -83,7 +84,6 @@ public:
 
     std::vector<Renderer::Work::Bound> mMatrixBuildBound;
 
-    Renderer::CommandBuffer mBuildCmd;
     Renderer::CommandBuffer mCmd;
 };
 

@@ -26,7 +26,8 @@ struct Preconditioner
                       Renderer::Texture& solidPhi,
                       Renderer::Texture& liquidPhi) = 0;
 
-    virtual void Record(vk::CommandBuffer ) = 0;
+    virtual void RecordInit(vk::CommandBuffer commandBuffer) = 0;
+    virtual void Record(vk::CommandBuffer commandBuffer) = 0;
 };
 
 }}
