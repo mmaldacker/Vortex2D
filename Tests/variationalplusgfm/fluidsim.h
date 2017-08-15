@@ -62,6 +62,7 @@ public:
 
    void project(float dt);
    void compute_weights();
+   void compute_linear_equations(float dt);
    void solve_pressure(float dt);
 
    void constrain_velocity();

@@ -36,9 +36,11 @@ public:
 
     void Record(vk::CommandBuffer commandBuffer, int iterations);
     void SetW(float w);
+    void SetPreconditionerIterations(int iterations);
 
 private:
     float mW;
+    int mPreconditionerIterations;
 
     Renderer::Buffer mResidual, mError, mErrorLocal;
 

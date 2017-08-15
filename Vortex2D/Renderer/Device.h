@@ -23,6 +23,7 @@ public:
     vk::Queue Queue() const;
     vk::DescriptorPool DescriptorPool() const;
     vk::PhysicalDevice GetPhysicalDevice() const;
+    int GetFamilyIndex() const;
     std::vector<vk::CommandBuffer> CreateCommandBuffers(uint32_t size) const;
     void FreeCommandBuffers(vk::ArrayProxy<const vk::CommandBuffer> commandBuffers) const;
     uint32_t FindMemoryPropertiesIndex(uint32_t memoryTypeBits, vk::MemoryPropertyFlags properties) const;
@@ -35,6 +36,7 @@ public:
 
 private:
     vk::PhysicalDevice mPhysicalDevice;
+    int mFamilyIndex;
     vk::UniqueDevice mDevice;
     vk::Queue mQueue;
     vk::UniqueCommandPool mCommandPool;

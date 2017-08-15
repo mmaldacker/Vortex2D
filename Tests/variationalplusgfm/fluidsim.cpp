@@ -235,6 +235,7 @@ void FluidSim::project(float dt) {
    compute_weights();
 
    //Set up and solve the variational pressure solve.
+   compute_linear_equations(dt);
    solve_pressure(dt);
 
 }
@@ -287,7 +288,7 @@ void FluidSim::compute_weights() {
 }
 
 //An implementation of the variational pressure projection solve for static geometry
-void FluidSim::solve_pressure(float dt) {
+void FluidSim::compute_linear_equations(float dt) {
 
    //This linear system could be simplified, but I've left it as is for clarity
    //and consistency with the standard naive discretization
@@ -369,7 +370,10 @@ void FluidSim::solve_pressure(float dt) {
          }
       }
    }
+}
 
+
+void FluidSim::solve_pressure(float dt) {
    //Solve the system using Robert Bridson's incomplete Cholesky PCG solver
 
    double tolerance;

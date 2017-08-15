@@ -51,7 +51,7 @@ static void AddParticles(const glm::vec2& size, FluidSim& sim, float (*phi)(cons
     std::mt19937 gen(rd());
     std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 
-    for(int i = 0; i < 4*sqr(size.x); ++i)
+    for(int i = 0; i < 16*sqr(size.x); ++i)
     {
         Vec2f pt(dist(gen), dist(gen));
         if (phi(pt) > 0 && pt[0] > 0.5)
@@ -109,7 +109,7 @@ static void SetLiquidPhi(const glm::ivec2& size, Vortex2D::Renderer::Texture& bu
 
 static void BuildInputs(const Vortex2D::Renderer::Device& device, const glm::ivec2& size, FluidSim& sim, Vortex2D::Renderer::Texture& velocity, Vortex2D::Renderer::Texture& solidPhi, Vortex2D::Renderer::Texture& liquidPhi)
 {
-  //TODO do we need the copy here? can't we directly set the texture (create with host = true)?
+    //TODO do we need the copy here? can't we directly set the texture (create with host = true)?
     Vortex2D::Renderer::Texture inputVelocity(device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
     SetVelocity(size, inputVelocity, sim);
 
@@ -123,10 +123,33 @@ static void BuildInputs(const Vortex2D::Renderer::Device& device, const glm::ive
 
     Vortex2D::Renderer::ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
     {
-       velocity.CopyFrom(commandBuffer, inputVelocity);
-       solidPhi.CopyFrom(commandBuffer, inputSolidPhi);
-       liquidPhi.CopyFrom(commandBuffer, inputLiquidPhi);
+        velocity.CopyFrom(commandBuffer, inputVelocity);
+        solidPhi.CopyFrom(commandBuffer, inputSolidPhi);
+        liquidPhi.CopyFrom(commandBuffer, inputLiquidPhi);
     });
+}
+
+static void BuildLinearEquation(const glm::ivec2& size, Vortex2D::Renderer::Buffer& matrix, Vortex2D::Renderer::Buffer& div, FluidSim& sim)
+{
+    std::vector<Vortex2D::Fluid::LinearSolver::Data> matrixData(size.x * size.y);
+    std::vector<float> divData(size.x * size.y);
+
+    for (int i = 1; i < size.x - 1; i++)
+    {
+        for (int j = 1; j < size.y - 1; j++)
+        {
+            unsigned index = i + size.x * j;
+            divData[index] = (float)sim.rhs[index];
+            matrixData[index].Diagonal = (float)sim.matrix(index, index);
+            matrixData[index].Weights.x = (float)sim.matrix(index + 1, index);
+            matrixData[index].Weights.y = (float)sim.matrix(index - 1, index);
+            matrixData[index].Weights.z = (float)sim.matrix(index, index + size.x);
+            matrixData[index].Weights.w = (float)sim.matrix(index, index - size.x);
+        }
+    }
+
+    matrix.CopyFrom(matrixData);
+    div.CopyFrom(divData);
 }
 
 static void PrintDiagonal(const glm::ivec2& size, Vortex2D::Renderer::Buffer& buffer)

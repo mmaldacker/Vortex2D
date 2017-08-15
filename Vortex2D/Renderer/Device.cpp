@@ -10,7 +10,7 @@
 namespace Vortex2D { namespace Renderer {
 
 // TODO two functions below are duplicated
-int GetFamilyIndex(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
+int ComputeFamilyIndex(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
 {
     int index = -1;
     const auto& familyProperties = physicalDevice.getQueueFamilyProperties();
@@ -33,7 +33,7 @@ int GetFamilyIndex(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
     return index;
 }
 
-int GetFamilyIndex(vk::PhysicalDevice physicalDevice)
+int ComputeFamilyIndex(vk::PhysicalDevice physicalDevice)
 {
     int index = -1;
     const auto& familyProperties = physicalDevice.getQueueFamilyProperties();
@@ -56,17 +56,18 @@ int GetFamilyIndex(vk::PhysicalDevice physicalDevice)
 }
 
 Device::Device(vk::PhysicalDevice physicalDevice, bool validation)
-    : Device(physicalDevice, GetFamilyIndex(physicalDevice), validation)
+    : Device(physicalDevice, ComputeFamilyIndex(physicalDevice), validation)
 {
 }
 
 Device::Device(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface, bool validation)
-    : Device(physicalDevice, GetFamilyIndex(physicalDevice, surface), validation)
+    : Device(physicalDevice, ComputeFamilyIndex(physicalDevice, surface), validation)
 {
 }
 
 Device::Device(vk::PhysicalDevice physicalDevice, int familyIndex, bool validation)
     : mPhysicalDevice(physicalDevice)
+    , mFamilyIndex(familyIndex)
 {
     float queuePriority = 1.0f;
     auto deviceQueueInfo = vk::DeviceQueueCreateInfo()
@@ -138,6 +139,11 @@ vk::DescriptorPool Device::DescriptorPool() const
 vk::PhysicalDevice Device::GetPhysicalDevice() const
 {
     return mPhysicalDevice;
+}
+
+int Device::GetFamilyIndex() const
+{
+    return mFamilyIndex;
 }
 
 std::vector<vk::CommandBuffer> Device::CreateCommandBuffers(uint32_t size) const

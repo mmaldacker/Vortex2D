@@ -112,29 +112,6 @@ TEST(LinearSolverTests, ReduceMax)
     ASSERT_EQ(150.0f, outputData[0]);
 }
 
-void BuildLinearEquation(const glm::ivec2& size, Buffer& matrix, Buffer& div, FluidSim& sim)
-{
-    std::vector<LinearSolver::Data> matrixData(size.x * size.y);
-    std::vector<float> divData(size.x * size.y);
-
-    for (int i = 1; i < size.x - 1; i++)
-    {
-        for (int j = 1; j < size.y - 1; j++)
-        {
-            unsigned index = i + size.x * j;
-            divData[index] = (float)sim.rhs[index];
-            matrixData[index].Diagonal = (float)sim.matrix(index, index);
-            matrixData[index].Weights.x = (float)sim.matrix(index + 1, index);
-            matrixData[index].Weights.y = (float)sim.matrix(index - 1, index);
-            matrixData[index].Weights.z = (float)sim.matrix(index, index + size.x);
-            matrixData[index].Weights.w = (float)sim.matrix(index, index - size.x);
-        }
-    }
-
-    matrix.CopyFrom(matrixData);
-    div.CopyFrom(divData);
-}
-
 void CheckPressure(const glm::ivec2& size, const std::vector<double>& pressure, Buffer& bufferPressure, float error)
 {
     std::vector<float> bufferPressureData(size.x * size.y);
@@ -283,7 +260,7 @@ TEST(LinearSolverTests, Diagonal_Simple_PCG)
     std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
 }
 
-TEST(LinearSolverTests, SOR_Simple_PCG)
+TEST(LinearSolverTests, GaussSeidel_Simple_PCG)
 {
     glm::ivec2 size(50);
 

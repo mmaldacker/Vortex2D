@@ -48,7 +48,7 @@ uint64_t Timer::GetElapsedNs()
 
     const uint64_t invalidTime = -1;
 
-    uint64_t timestamps[2];
+    uint64_t timestamps[2] = {0};
     auto result = mDevice.Handle().getQueryPoolResults(*mPool, 0, 2, sizeof(timestamps), timestamps, 0,
                                                        vk::QueryResultFlagBits::eWait | vk::QueryResultFlagBits::e64);
 
@@ -59,15 +59,16 @@ uint64_t Timer::GetElapsedNs()
 
     if (result == vk::Result::eSuccess)
     {
+        int familyIndex = mDevice.GetFamilyIndex();
+        auto properties = mDevice.GetPhysicalDevice().getProperties();
+        assert(properties.limits.timestampComputeAndGraphics);
+
+        double period = properties.limits.timestampPeriod;
+
         auto queueProperties = mDevice.GetPhysicalDevice().getQueueFamilyProperties();
-        // TODO should choose the right queue
-        auto validBits = queueProperties[0].timestampValidBits;
+        auto validBits = queueProperties[familyIndex].timestampValidBits;
 
-        auto mask = invalidTime >> (64 - validBits);
-
-        auto period = mDevice.GetPhysicalDevice().getProperties().limits.timestampPeriod;
-
-        return ((timestamps[1] & mask) - (timestamps[0] & mask)) * period;
+        return ((timestamps[1] & invalidTime) - (timestamps[0] & invalidTime)) * period;
     }
     else
     {

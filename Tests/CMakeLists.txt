@@ -1,5 +1,4 @@
-file(GLOB ENGINE_TEST_SOURCES "Engine/VariationalHelpers.h"
-                              "Engine/LevelSetTests.cpp"
+file(GLOB ENGINE_TEST_SOURCES "Engine/LevelSetTests.cpp"
                               "Engine/LinearSolverTests.cpp"
                               #"Engine/ShaderTests.cpp"
                               "Engine/PressureTests.cpp")
@@ -10,7 +9,8 @@ file(GLOB ENGINE_TEST_SOURCES "Engine/VariationalHelpers.h"
                               #"Engine/DensityTests.cpp"
                               #"Engine/Helpers.h")
 
-file(GLOB VARIATIONAL_SOURCES "variationalplusgfm/*.h"
+file(GLOB VARIATIONAL_SOURCES "Engine/VariationalHelpers.h"
+                              "variationalplusgfm/*.h"
                               "variationalplusgfm/*.cpp"
                               "variationalplusgfm/pcgsolver/*.h")
 
@@ -27,13 +27,16 @@ file(GLOB SHADER_TEST_SOURCES "Kernels/Image.comp"
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
-add_executable(vortex2d_tests ${RENDERER_TEST_SOURCES} ${ENGINE_TEST_SOURCES} ${VARIATIONAL_SOURCES} ${SHADER_TEST_SOURCES} "main.cpp" "Verify.h")
+add_library(vortex2d_tests_lib STATIC  ${VARIATIONAL_SOURCES})
+target_compile_features(vortex2d_tests_lib PRIVATE cxx_variadic_templates)
+target_link_libraries(vortex2d_tests_lib vortex2d gtest gmock gmock_main Threads::Threads)
+target_include_directories(vortex2d_tests_lib PUBLIC "./" "./variationalplusgfm")
+
+add_executable(vortex2d_tests ${ENGINE_TEST_SOURCES} ${RENDERER_TEST_SOURCES} ${SHADER_TEST_SOURCES} "main.cpp" "Verify.h")
+target_link_libraries(vortex2d_tests vortex2d_tests_lib)
+
 compile_shader(TARGET vortex2d_tests SOURCES ${SHADER_TEST_SOURCES})
 copy_shader(TARGET vortex2d_tests SOURCES vortex2d)
-
-target_compile_features(vortex2d_tests PRIVATE cxx_variadic_templates)
-target_link_libraries(vortex2d_tests vortex2d gtest gmock gmock_main Threads::Threads)
-target_include_directories(vortex2d_tests PRIVATE "./" "./variationalplusgfm")
 
 add_test(AllTests vortex2d_tests)
 

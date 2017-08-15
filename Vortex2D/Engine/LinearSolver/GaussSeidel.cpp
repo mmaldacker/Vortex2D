@@ -12,6 +12,7 @@ namespace Vortex2D { namespace Fluid {
 
 GaussSeidel::GaussSeidel(const Renderer::Device& device, const glm::ivec2& size)
     : mW(2.0f/(1.0f+std::sin(glm::pi<float>()/std::sqrt((float)(size.x*size.y)))))
+    , mPreconditionerIterations(1)
     , mResidual(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float))
     , mError(device,  vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(float))
     , mErrorLocal(device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float))
@@ -36,6 +37,11 @@ GaussSeidel::GaussSeidel(const Renderer::Device& device, const glm::ivec2& size)
 void GaussSeidel::SetW(float w)
 {
     mW = w;
+}
+
+void GaussSeidel::SetPreconditionerIterations(int iterations)
+{
+    mPreconditionerIterations = iterations;
 }
 
 void GaussSeidel::Init(Renderer::Buffer& matrix,
@@ -102,7 +108,7 @@ void GaussSeidel::RecordInit(vk::CommandBuffer commandBuffer)
 void GaussSeidel::Record(vk::CommandBuffer commandBuffer)
 {
     assert(mPressure != nullptr);
-    Record(commandBuffer, 4);
+    Record(commandBuffer, mPreconditionerIterations);
 }
 
 void GaussSeidel::Record(vk::CommandBuffer commandBuffer, int iterations)

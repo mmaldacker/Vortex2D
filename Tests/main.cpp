@@ -4,6 +4,13 @@
 
 Vortex2D::Renderer::Device* device;
 
+TEST(Vulkan, Init)
+{
+    auto physicalDevice = device->GetPhysicalDevice();
+    auto properties = physicalDevice.getProperties();
+    std::cout << "Device name: " << properties.deviceName << std::endl;
+}
+
 int main(int argc, char **argv)
 {
     std::vector<const char*> extensions;
