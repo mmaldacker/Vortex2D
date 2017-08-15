@@ -12,13 +12,24 @@ namespace Vortex2D { namespace Fluid {
 
 GaussSeidel::GaussSeidel(const Renderer::Device& device, const glm::ivec2& size)
     : mW(2.0f/(1.0f+std::sin(glm::pi<float>()/std::sqrt((float)(size.x*size.y)))))
+    , mResidual(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float))
+    , mError(device,  vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(float))
+    , mErrorLocal(device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float))
     , mGaussSeidel(device, size, "../Vortex2D/GaussSeidel.comp.spv",
                    {vk::DescriptorType::eStorageBuffer,
                     vk::DescriptorType::eStorageBuffer,
                     vk::DescriptorType::eStorageBuffer},
                    8)
+    , mResidualWork(device, size, "../Vortex2D/Residual.comp.spv",
+                   {vk::DescriptorType::eStorageBuffer,
+                    vk::DescriptorType::eStorageBuffer,
+                    vk::DescriptorType::eStorageBuffer,
+                    vk::DescriptorType::eStorageBuffer})
+    , mReduceMax(device, size)
+    , mReduceMaxBound(mReduceMax.Bind(mResidual, mError))
     , mGaussSeidelCmd(device, false)
     , mInitCmd(device, false)
+    , mErrorCmd(device)
 {
 }
 
@@ -43,6 +54,19 @@ void GaussSeidel::Init(Renderer::Buffer& matrix,
     {
         pressure.Clear(commandBuffer);
     });
+
+    mResidualBound = mResidualWork.Bind({pressure, matrix, div, mResidual});
+
+    mErrorCmd.Record([&](vk::CommandBuffer commandBuffer)
+    {
+        mResidualBound.Record(commandBuffer);
+        mResidual.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+
+        mReduceMaxBound.Record(commandBuffer);
+        mError.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+
+        mErrorLocal.CopyFrom(commandBuffer, mError);
+    });
 }
 
 void GaussSeidel::Solve(Parameters& params)
@@ -51,11 +75,22 @@ void GaussSeidel::Solve(Parameters& params)
     assert(params.Iterations > 0);
 
     mInitCmd.Submit();
+    mErrorCmd.Submit();
 
-    for (unsigned i  = 0; !params.IsFinished(i, 0.0f); ++i)
+    for (unsigned i  = 0;; ++i)
     {
-        mGaussSeidelCmd.Submit();
+        // exit condition
+        mErrorCmd.Wait();
+
         params.OutIterations = i;
+        mErrorLocal.CopyTo(params.OutError);
+        if (params.IsFinished(i, params.OutError))
+        {
+            return;
+        }
+
+        mErrorCmd.Submit();
+        mGaussSeidelCmd.Submit();
     }
 }
 

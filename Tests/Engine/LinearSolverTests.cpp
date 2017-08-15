@@ -170,7 +170,7 @@ TEST(LinearSolverTests, Simple_SOR)
 
     BuildLinearEquation(size, matrix, div, sim);
 
-    LinearSolver::Parameters params(200);
+    LinearSolver::Parameters params(1000, 1e-4f);
     GaussSeidel solver(*device, size);
 
     solver.Init(matrix, div, pressure);
@@ -202,7 +202,7 @@ TEST(LinearSolverTests, Complex_SOR)
 
     BuildLinearEquation(size, matrix, div, sim);
 
-    LinearSolver::Parameters params(200);
+    LinearSolver::Parameters params(1000, 1e-4f);
     GaussSeidel solver(*device, size);
 
     solver.Init(matrix, div, pressure);
@@ -217,7 +217,7 @@ TEST(LinearSolverTests, Complex_SOR)
 
 TEST(LinearSolverTests, Simple_CG)
 {
-    glm::ivec2 size(66);
+    glm::ivec2 size(50);
 
     FluidSim sim;
     sim.initialize(1.0f, size.x, size.y);
@@ -251,7 +251,7 @@ TEST(LinearSolverTests, Simple_CG)
 
 TEST(LinearSolverTests, Diagonal_Simple_PCG)
 {
-    glm::ivec2 size(66);
+    glm::ivec2 size(50);
 
     FluidSim sim;
     sim.initialize(1.0f, size.x, size.y);
@@ -285,7 +285,7 @@ TEST(LinearSolverTests, Diagonal_Simple_PCG)
 
 TEST(LinearSolverTests, SOR_Simple_PCG)
 {
-    glm::ivec2 size(66);
+    glm::ivec2 size(50);
 
     FluidSim sim;
     sim.initialize(1.0f, size.x, size.y);
@@ -318,112 +318,62 @@ TEST(LinearSolverTests, SOR_Simple_PCG)
     std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
 }
 
-/*
-TEST(LinearSolverTests, Complex_PCG)
-{
-    Disable d(GL_BLEND);
-
-    glm::vec2 size(50);
-
-    FluidSim sim;
-    sim.initialize(1.0f, size.x, size.y);
-    sim.set_boundary(boundary_phi);
-
-    AddParticles(size, sim, boundary_phi);
-
-    sim.add_force(0.01f);
-
-    Buffer velocity1(size, 2, true);
-    SetVelocity(velocity1, sim);
-
-    Buffer velocity2(size, 2, true);
-    SetVelocity(velocity2, sim);
-
-    sim.project(0.01f);
-
-    Buffer solidPhi(glm::vec2(2)*size, 1);
-    SetSolidPhi(solidPhi, sim);
-
-    Buffer liquidPhi(size, 1);
-    SetLiquidPhi(liquidPhi, sim);
-
-    Buffer solidVelocity(size, 2);
-    // leave empty
-
-    LinearSolver::Data data(size);
-
-    LinearSolver::Parameters params(1000, 1e-5f);
-    ConjugateGradient solver(size);
-
-    Pressure pressure(0.01f, size, solver, data, velocity1, solidPhi, liquidPhi, solidVelocity);
-
-    auto start = std::chrono::system_clock::now();
-
-    pressure.Solve(params);
-
-    auto end = std::chrono::system_clock::now();
-    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-
-    Reader reader(data.Pressure);
-    reader.Read().Print();
-
-    // FIXME error tolerance doesn't work here (see comment in CG)
-    CheckPressure(size, sim.pressure, data, 1e-3f);
-
-    std::cout << "Solved in time: " << elapsed.count() << std::endl;
-    std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
-}
-
 TEST(LinearSolverTests, Zero_CG)
 {
-    Disable d(GL_BLEND);
-
     glm::vec2 size(50);
 
-    LinearSolver::Data data(size);
-    data.Pressure.Clear(glm::vec4(0.0f));
+    Buffer matrix(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(LinearSolver::Data));
+    Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+    Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+
+    Diagonal preconditioner(*device, size);
 
     LinearSolver::Parameters params(1000, 1e-5f);
-    ConjugateGradient solver(size);
-    solver.Init(data);
-    solver.NormalSolve(data, params);
+    ConjugateGradient solver(*device, size, preconditioner);
 
-    Reader reader(data.Pressure);
-    reader.Read();
+    solver.Init(matrix, div, pressure);
+    solver.NormalSolve(params);
+
+    device->Queue().waitIdle();
+
+    std::vector<float> data(size.x*size.y, 1.0f);
+    pressure.CopyTo(data);
 
     for (int i = 0; i < size.x; i++)
     {
         for (int j = 0; j < size.y; j++)
         {
-            EXPECT_FLOAT_EQ(0.0f, reader.GetVec2(i, j).x);
+            EXPECT_FLOAT_EQ(0.0f, data[i + size.x * j]);
         }
     }
 }
-
 
 TEST(LinearSolverTests, Zero_PCG)
 {
-    Disable d(GL_BLEND);
-
     glm::vec2 size(50);
 
-    LinearSolver::Data data(size);
-    data.Pressure.Clear(glm::vec4(0.0f));
+    Buffer matrix(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(LinearSolver::Data));
+    Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+    Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+
+    Diagonal preconditioner(*device, size);
 
     LinearSolver::Parameters params(1000, 1e-5f);
-    ConjugateGradient solver(size);
-    solver.Init(data);
-    solver.Solve(data, params);
+    ConjugateGradient solver(*device, size, preconditioner);
 
-    Reader reader(data.Pressure);
-    reader.Read();
+    solver.Init(matrix, div, pressure);
+    solver.Solve(params);
+
+    device->Queue().waitIdle();
+
+    std::vector<float> data(size.x*size.y, 1.0f);
+    pressure.CopyTo(data);
 
     for (int i = 0; i < size.x; i++)
     {
         for (int j = 0; j < size.y; j++)
         {
-            EXPECT_FLOAT_EQ(0.0f, reader.GetVec2(i, j).x);
+            EXPECT_FLOAT_EQ(0.0f, data[i + size.x * j]);
         }
     }
 }
-*/

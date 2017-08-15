@@ -378,6 +378,9 @@ void FluidSim::solve_pressure(float dt) {
    if(!success) {
       printf("WARNING: Pressure solve failed!************************************************\n");
    }
+   else {
+      printf("Solved in %d\n", iterations);
+   }
 
    //Apply the velocity update
    u_valid.assign(0);

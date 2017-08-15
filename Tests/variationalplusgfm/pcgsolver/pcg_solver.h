@@ -228,7 +228,7 @@ struct PCGSolver
 {
    PCGSolver(void)
    {
-      set_solver_parameters(1e-5, 100, 0.97, 0.25);
+      set_solver_parameters(1e-5, 1000, 0.97, 0.25);
    }
 
    void set_solver_parameters(T tolerance_factor_, int max_iterations_, T modified_incomplete_cholesky_parameter_=0.97, T min_diagonal_ratio_=0.25)
@@ -240,7 +240,7 @@ struct PCGSolver
       min_diagonal_ratio=min_diagonal_ratio_;
    }
 
-   bool solve(const SparseMatrix<T> &matrix, const std::vector<T> &rhs, std::vector<T> &result, T &residual_out, int &iterations_out) 
+   bool solve(const SparseMatrix<T> &matrix, const std::vector<T> &rhs, std::vector<T> &result, T &residual_out, int &iterations_out)
    {
       unsigned int n=matrix.n;
       if(m.size()!=n){ m.resize(n); s.resize(n); z.resize(n); r.resize(n); }
@@ -272,7 +272,7 @@ struct PCGSolver
          residual_out=BLAS::abs_max(r);
          if(residual_out<=tol) {
             iterations_out=iteration+1;
-            return true; 
+            return true;
          }
          apply_preconditioner(r, z);
          double rho_new=BLAS::dot(z, r);
