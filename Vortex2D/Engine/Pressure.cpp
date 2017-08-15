@@ -79,7 +79,7 @@ Pressure::Pressure(const Renderer::Device& device,
                          vk::AccessFlagBits::eShaderRead);
     });
 
-    mSolver.Init(mMatrix, mDiv, mPressure, mBuildMatrix, solidPhi, liquidPhi);
+    mSolver.Init(mMatrix, mDiv, mPressure);
 }
 
 void Pressure::Solve(LinearSolver::Parameters& params)

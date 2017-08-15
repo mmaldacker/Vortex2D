@@ -44,10 +44,7 @@ struct LinearSolver
 
     virtual void Init(Renderer::Buffer& A,
                       Renderer::Buffer& b,
-                      Renderer::Buffer& x,
-                      Renderer::Work& buildMatrix,
-                      Renderer::Texture& solidPhi,
-                      Renderer::Texture& liquidPhi) = 0;
+                      Renderer::Buffer& x) = 0;
 
     /**
      * @brief Solves the linear equations

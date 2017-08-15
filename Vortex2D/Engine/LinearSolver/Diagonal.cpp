@@ -18,10 +18,7 @@ Diagonal::Diagonal(const Renderer::Device& device, const glm::ivec2& size)
 
 void Diagonal::Init(Renderer::Buffer& A,
           Renderer::Buffer& b,
-          Renderer::Buffer& pressure,
-          Renderer::Work& buildMatrix,
-          Renderer::Texture& solidPhi,
-          Renderer::Texture& liquidPhi)
+          Renderer::Buffer& pressure)
 {
     mDiagonalBound = mDiagonal.Bind({A, b, pressure});
 }

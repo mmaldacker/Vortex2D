@@ -25,10 +25,7 @@ public:
 
     void Init(Renderer::Buffer& A,
               Renderer::Buffer& b,
-              Renderer::Buffer& pressure,
-              Renderer::Work& buildMatrix,
-              Renderer::Texture& solidPhi,
-              Renderer::Texture& liquidPhi) override;
+              Renderer::Buffer& pressure) override;
 
     /**
      * @brief Solve iteratively solve the linear equations in data

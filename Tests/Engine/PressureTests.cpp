@@ -19,7 +19,7 @@ extern Device* device;
 
 struct LinearSolverMock : LinearSolver
 {
-    MOCK_METHOD6(Init, void(Buffer& maxtrix, Buffer& b, Buffer& pressure, Work& buildMatrix, Texture& solidPhi, Texture& liquidPhi));
+    MOCK_METHOD3(Init, void(Buffer& maxtrix, Buffer& b, Buffer& pressure));
     MOCK_METHOD1(Solve, void(Parameters& params));
 };
 
@@ -170,8 +170,8 @@ TEST(PressureTest, LinearEquationSetup_Simple)
 
     Buffer* matrixResult = nullptr;
     Buffer* divResult = nullptr;
-    EXPECT_CALL(solver, Init(_, _, _, _, _, _))
-            .WillOnce(Invoke([&](Buffer& matrix, Buffer& b, Buffer& pressure, Work& buildMatrix, Texture& solidPhi, Texture& liquidPhi)
+    EXPECT_CALL(solver, Init(_, _, _))
+            .WillOnce(Invoke([&](Buffer& matrix, Buffer& b, Buffer& pressure)
             {
                 matrixResult = &matrix;
                 divResult = &b;
@@ -222,8 +222,8 @@ TEST(PressureTest, LinearEquationSetup_Complex)
 
     Buffer* matrixResult = nullptr;
     Buffer* divResult = nullptr;
-    EXPECT_CALL(solver, Init(_, _, _, _, _, _))
-            .WillOnce(Invoke([&](Buffer& matrix, Buffer& b, Buffer& pressure, Work& buildMatrix, Texture& solidPhi, Texture& liquidPhi)
+    EXPECT_CALL(solver, Init(_, _, _))
+            .WillOnce(Invoke([&](Buffer& matrix, Buffer& b, Buffer& pressure)
             {
                 matrixResult = &matrix;
                 divResult = &b;
@@ -280,8 +280,8 @@ TEST(PressureTest, Project_Simple)
     }
     computedPressure.CopyFrom(computedPressureData);
 
-    EXPECT_CALL(solver, Init(_, _, _, _, _, _))
-        .WillOnce(Invoke([&](Buffer& data, Buffer& div, Buffer& pressure, Work& buildMatrix, Texture& solidPhi, Texture& liquidPhi)
+    EXPECT_CALL(solver, Init(_, _, _))
+        .WillOnce(Invoke([&](Buffer& data, Buffer& div, Buffer& pressure)
         {
             ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
             {
@@ -334,8 +334,8 @@ TEST(PressureTest, Project_Complex)
     }
     computedPressure.CopyFrom(computedPressureData);
 
-    EXPECT_CALL(solver, Init(_, _, _, _, _, _))
-        .WillOnce(Invoke([&](Buffer& data, Buffer& b, Buffer& pressure, Work& buildMatrix, Texture& solidPhi, Texture& liquidPhi)
+    EXPECT_CALL(solver, Init(_, _, _))
+        .WillOnce(Invoke([&](Buffer& data, Buffer& b, Buffer& pressure)
         {
             ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
             {

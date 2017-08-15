@@ -73,12 +73,9 @@ ConjugateGradient::ConjugateGradient(const Renderer::Device& device,
 
 void ConjugateGradient::Init(Renderer::Buffer& A,
                              Renderer::Buffer& b,
-                             Renderer::Buffer& pressure,
-                             Renderer::Work& buildMatrix,
-                             Renderer::Texture& solidPhi,
-                             Renderer::Texture& liquidPhi)
+                             Renderer::Buffer& pressure)
 {
-    mPreconditioner.Init(A, r, z, buildMatrix, solidPhi, liquidPhi);
+    mPreconditioner.Init(A, r, z);
 
     matrixMultiplyBound = matrixMultiply.Bind({A, s, z});
     multiplyAddPBound = multiplyAdd.Bind({pressure, s, alpha, pressure});

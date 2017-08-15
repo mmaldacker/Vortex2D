@@ -29,10 +29,7 @@ void GaussSeidel::SetW(float w)
 
 void GaussSeidel::Init(Renderer::Buffer& matrix,
                        Renderer::Buffer& div,
-                       Renderer::Buffer& pressure,
-                       Renderer::Work& buildMatrix,
-                       Renderer::Texture& solidPhi,
-                       Renderer::Texture& liquidPhi)
+                       Renderer::Buffer& pressure)
 {
     mPressure = &pressure;
 

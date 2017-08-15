@@ -110,7 +110,7 @@ Device::Device(vk::PhysicalDevice physicalDevice, int familyIndex, bool validati
     poolSizes.emplace_back(vk::DescriptorType::eUniformBuffer, 128);
     poolSizes.emplace_back(vk::DescriptorType::eCombinedImageSampler, 128);
     poolSizes.emplace_back(vk::DescriptorType::eStorageImage, 128);
-    poolSizes.emplace_back(vk::DescriptorType::eStorageBuffer, 128);
+    poolSizes.emplace_back(vk::DescriptorType::eStorageBuffer, 256);
 
     vk::DescriptorPoolCreateInfo descriptorPoolInfo{};
     descriptorPoolInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;

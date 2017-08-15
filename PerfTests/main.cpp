@@ -19,18 +19,12 @@ static void SimpleSOR(benchmark::State& state)
     Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
     Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
 
-    Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
-    Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
-    Work matrixBuild(*device, size, "../Vortex2D/BuildMatrix.comp.spv", {vk::DescriptorType::eStorageBuffer,
-                                                                         vk::DescriptorType::eStorageImage,
-                                                                         vk::DescriptorType::eStorageImage}, 4);
-
     LinearSolver::Parameters params(300);
     GaussSeidel solver(*device, size);
 
     Timer timer(*device);
 
-    solver.Init(matrix, div, pressure, matrixBuild, solidPhi, liquidPhi);
+    solver.Init(matrix, div, pressure);
 
     while (state.KeepRunning())
     {

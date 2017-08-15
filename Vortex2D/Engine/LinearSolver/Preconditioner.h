@@ -21,10 +21,7 @@ struct Preconditioner
 
     virtual void Init(Renderer::Buffer& A,
                       Renderer::Buffer& b,
-                      Renderer::Buffer& x,
-                      Renderer::Work& buildMatrix,
-                      Renderer::Texture& solidPhi,
-                      Renderer::Texture& liquidPhi) = 0;
+                      Renderer::Buffer& x) = 0;
 
     virtual void RecordInit(vk::CommandBuffer commandBuffer) = 0;
     virtual void Record(vk::CommandBuffer commandBuffer) = 0;
