@@ -7,6 +7,7 @@
 #include <Vortex2D/Engine/LinearSolver/GaussSeidel.h>
 #include <Vortex2D/Engine/LinearSolver/ConjugateGradient.h>
 #include <Vortex2D/Engine/LinearSolver/Diagonal.h>
+#include <Vortex2D/Engine/LinearSolver/IncompletePoisson.h>
 
 #include <Tests/Engine/VariationalHelpers.h>
 
@@ -56,7 +57,7 @@ static void SOR(benchmark::State& state)
 
         device->Queue().waitIdle();
 
-        state.SetIterationTime(timer.GetElapsedNs());
+        //state.SetIterationTime(timer.GetElapsedNs());
     }
 
     state.counters["SolveIterations"] = params.OutIterations;
@@ -87,7 +88,7 @@ static void CG(benchmark::State& state)
 
         device->Queue().waitIdle();
 
-        state.SetIterationTime(timer.GetElapsedNs());
+        //state.SetIterationTime(timer.GetElapsedNs());
     }
 
     state.counters["SolveIterations"] = params.OutIterations;
@@ -118,7 +119,38 @@ static void DiagonalCG(benchmark::State& state)
 
         device->Queue().waitIdle();
 
-        state.SetIterationTime(timer.GetElapsedNs());
+        //state.SetIterationTime(timer.GetElapsedNs());
+    }
+
+    state.counters["SolveIterations"] = params.OutIterations;
+}
+
+static void IncompletePoissonCG(benchmark::State& state)
+{
+    Buffer matrix(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(LinearSolver::Data));
+    Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
+    Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
+
+    BuildDeviceLocalLinearEquations(size, matrix, div, sim);
+
+    IncompletePoisson preconditioner(*device, size);
+
+    LinearSolver::Parameters params(10000, 1e-4f);
+    ConjugateGradient solver(*device, size, preconditioner);
+
+    Timer timer(*device);
+
+    solver.Init(matrix, div, pressure);
+
+    while (state.KeepRunning())
+    {
+        timer.Start();
+        solver.Solve(params);
+        timer.Stop();
+
+        device->Queue().waitIdle();
+
+        //state.SetIterationTime(timer.GetElapsedNs());
     }
 
     state.counters["SolveIterations"] = params.OutIterations;
@@ -151,7 +183,7 @@ static void GaussSeidelCG(benchmark::State& state)
 
         device->Queue().waitIdle();
 
-        state.SetIterationTime(timer.GetElapsedNs());
+        //state.SetIterationTime(timer.GetElapsedNs());
     }
 
     state.counters["SolveIterations"] = params.OutIterations;
@@ -160,6 +192,7 @@ static void GaussSeidelCG(benchmark::State& state)
 BENCHMARK(SOR)->Unit(benchmark::kMillisecond);
 BENCHMARK(CG)->Unit(benchmark::kMillisecond);
 BENCHMARK(DiagonalCG)->Unit(benchmark::kMillisecond);
+BENCHMARK(IncompletePoissonCG)->Unit(benchmark::kMillisecond);
 BENCHMARK(GaussSeidelCG)->RangeMultiplier(2)->Range(1, 64)->Unit(benchmark::kMillisecond);
 
 int main(int argc, char** argv)
