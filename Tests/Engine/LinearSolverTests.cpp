@@ -193,7 +193,7 @@ TEST(LinearSolverTests, Complex_SOR)
     std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
 }
 
-TEST(LinearSolverTests, DISABLED_Simple_CG)
+TEST(LinearSolverTests, Simple_CG)
 {
     glm::ivec2 size(50);
 
@@ -280,40 +280,6 @@ TEST(LinearSolverTests, GaussSeidel_Simple_PCG)
 
     BuildLinearEquation(size, matrix, div, sim);
 
-    IncompletePoisson preconditioner(*device, size);
-
-    LinearSolver::Parameters params(1000, 1e-5f);
-    ConjugateGradient solver(*device, size, preconditioner);
-
-    solver.Init(matrix, div, pressure);
-    solver.Solve(params);
-
-    device->Queue().waitIdle();
-
-    //CheckPressure(size, sim.pressure, pressure, 1e-5f);
-
-    std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
-}
-
-TEST(LinearSolverTests, DISABLED_GaussSeidel_Simple_PCG)
-{
-    glm::ivec2 size(50);
-
-    FluidSim sim;
-    sim.initialize(1.0f, size.x, size.y);
-    sim.set_boundary(boundary_phi);
-
-    AddParticles(size, sim, boundary_phi);
-
-    sim.add_force(0.01f);
-    sim.project(0.01f);
-
-    Buffer matrix(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(LinearSolver::Data));
-    Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
-    Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
-
-    BuildLinearEquation(size, matrix, div, sim);
-
     GaussSeidel preconditioner(*device, size);
     preconditioner.SetW(1.0f);
 
@@ -325,7 +291,7 @@ TEST(LinearSolverTests, DISABLED_GaussSeidel_Simple_PCG)
 
     device->Queue().waitIdle();
 
-    CheckPressure(size, sim.pressure, pressure, 1e-5f);
+    CheckPressure(size, sim.pressure, pressure, 1e-4f);
 
     std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
 }
@@ -358,21 +324,9 @@ TEST(LinearSolverTests, IncompletePoisson_Simple_PCG)
     solver.Solve(params);
 
     device->Queue().waitIdle();
-/*
-    Buffer output1(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
-    Buffer output2(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-        output1.CopyFrom(commandBuffer, solver.z);
-        output2.CopyFrom(commandBuffer, solver.r);
-    });
+    CheckPressure(size, sim.pressure, pressure, 1e-5f);
 
-    //CheckPressure(size, sim.pressure, pressure, 1e-5f);
-    PrintBuffer(size, output1);
-    PrintBuffer(size, output2);
-    PrintBuffer(size, pressure);
-*/
     std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
 }
 

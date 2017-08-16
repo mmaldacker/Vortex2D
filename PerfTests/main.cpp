@@ -57,7 +57,7 @@ static void SOR(benchmark::State& state)
 
         device->Queue().waitIdle();
 
-        //state.SetIterationTime(timer.GetElapsedNs());
+        state.SetIterationTime(timer.GetElapsedNs());
     }
 
     state.counters["SolveIterations"] = params.OutIterations;
@@ -88,7 +88,7 @@ static void CG(benchmark::State& state)
 
         device->Queue().waitIdle();
 
-        //state.SetIterationTime(timer.GetElapsedNs());
+        state.SetIterationTime(timer.GetElapsedNs());
     }
 
     state.counters["SolveIterations"] = params.OutIterations;
@@ -119,7 +119,7 @@ static void DiagonalCG(benchmark::State& state)
 
         device->Queue().waitIdle();
 
-        //state.SetIterationTime(timer.GetElapsedNs());
+        state.SetIterationTime(timer.GetElapsedNs());
     }
 
     state.counters["SolveIterations"] = params.OutIterations;
@@ -150,7 +150,7 @@ static void IncompletePoissonCG(benchmark::State& state)
 
         device->Queue().waitIdle();
 
-        //state.SetIterationTime(timer.GetElapsedNs());
+        state.SetIterationTime(timer.GetElapsedNs());
     }
 
     state.counters["SolveIterations"] = params.OutIterations;
@@ -183,7 +183,7 @@ static void GaussSeidelCG(benchmark::State& state)
 
         device->Queue().waitIdle();
 
-        //state.SetIterationTime(timer.GetElapsedNs());
+        state.SetIterationTime(timer.GetElapsedNs());
     }
 
     state.counters["SolveIterations"] = params.OutIterations;
