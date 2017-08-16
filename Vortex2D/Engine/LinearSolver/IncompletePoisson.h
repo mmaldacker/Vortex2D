@@ -12,7 +12,6 @@
 
 namespace Vortex2D { namespace Fluid {
 
-
 class IncompletePoisson : public Preconditioner
 {
 public:

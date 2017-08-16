@@ -15,6 +15,8 @@ file(GLOB LIB_SOURCES
     "Engine/LinearSolver/ConjugateGradient.cpp"
     "Engine/LinearSolver/Diagonal.h"
     "Engine/LinearSolver/Diagonal.cpp"
+    "Engine/LinearSolver/IncompletePoisson.h"
+    "Engine/LinearSolver/IncompletePoisson.cpp"
     "Renderer/*.cpp"
     "Renderer/*.h")
 

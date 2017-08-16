@@ -30,40 +30,43 @@ layout(std430, binding = 2) buffer Input2
   float value[];
 }z;
 
+const float w = 1.1;
+
 void main()
 {
     ivec2 pos = ivec2(gl_GlobalInvocationID);
+
     if (pos.x > 0 && pos.y > 0 && pos.x < consts.width - 1 && pos.y < consts.height - 1)
     {
         int index = pos.x + pos.y * consts.width;
 
-        vec4 diagonalWeights;
-        diagonalWeights.x = -matrix.data[index + 1].diagonal;
-        diagonalWeights.y = -matrix.data[index - 1].diagonal;
-        diagonalWeights.z = -matrix.data[index + consts.width].diagonal;
-        diagonalWeights.w = -matrix.data[index - consts.width].diagonal;
-
-        vec4 weights = matrix.data[index].weights;
-        vec4 kWeights;
-        kWeights.x = diagonalWeights.x == 0.0 ? 0.0 : weights.x / diagonalWeights.x;
-        kWeights.y = diagonalWeights.y == 0.0 ? 0.0 : weights.y / diagonalWeights.y;
-        kWeights.z = diagonalWeights.z == 0.0 ? 0.0 : weights.z / diagonalWeights.z;
-        kWeights.w = diagonalWeights.w == 0.0 ? 0.0 : weights.w / diagonalWeights.w;
-
-        float diagonal = matrix.data[index].diagonal;
-
-        if (diagonal != 0.0)
+        float centreDiagonal = matrix.data[index].diagonal;
+        if (centreDiagonal != 0.0)
         {
-        float centre = dot(weights.yw, kWeights.yw) / diagonal;
+          vec4 weights = matrix.data[index].weights;
 
-        vec4 p;
-        p.x = pressure.value[index + 1];
-        p.y = pressure.value[index - 1];
-        p.z = pressure.value[index + consts.width];
-        p.w = pressure.value[index - consts.width];
+          vec4 diagonalWeights;
+          diagonalWeights.x = -matrix.data[index + 1].diagonal;
+          diagonalWeights.y = -matrix.data[index - 1].diagonal;
+          diagonalWeights.z = -matrix.data[index + consts.width].diagonal;
+          diagonalWeights.w = -matrix.data[index - consts.width].diagonal;
 
-        float x = pressure.value[index];
-        z.value[index] = x * centre + dot(p, kWeights);
+          weights.x = diagonalWeights.x == 0.0 ? 0.0 : weights.x / diagonalWeights.x;
+          weights.y = diagonalWeights.y == 0.0 ? 0.0 : weights.y / diagonalWeights.y;
+          weights.z = diagonalWeights.z == 0.0 ? 0.0 : weights.z / diagonalWeights.z;
+          weights.w = diagonalWeights.w == 0.0 ? 0.0 : weights.w / diagonalWeights.w;
+
+          float diagonal = 1.0 + dot(weights.yw, weights.yw);
+
+          float oldPressure = pressure.value[index];
+
+          vec4 p;
+          p.x = pressure.value[index + 1];
+          p.y = pressure.value[index - 1];
+          p.z = pressure.value[index + consts.width];
+          p.w = pressure.value[index - consts.width];
+
+          z.value[index] = (2.0 - w) * w * (oldPressure * diagonal + dot(p, weights)) / centreDiagonal;
         }
     }
 }
