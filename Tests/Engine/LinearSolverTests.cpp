@@ -298,7 +298,7 @@ TEST(LinearSolverTests, GaussSeidel_Simple_PCG)
 
 TEST(LinearSolverTests, IncompletePoisson_Simple_PCG)
 {
-    glm::ivec2 size(500);
+    glm::ivec2 size(50);
 
     FluidSim sim;
     sim.initialize(1.0f, size.x, size.y);
