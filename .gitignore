@@ -9,3 +9,7 @@ Vortex2D.includes
 CMakeLists.txt.user
 vs-build/
 qt-creator-build-release/
+
+*.json
+
+*.svg
