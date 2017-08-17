@@ -36,6 +36,7 @@ Texture::Texture(const Device& device, uint32_t width, uint32_t height, vk::Form
     , mDevice(device.Handle())
     , mWidth(width)
     , mHeight(height)
+    , mFormat(format)
 {
     auto formatProperties = device.GetPhysicalDevice().getFormatProperties(format);
     assert(formatProperties.optimalTilingFeatures & vk::FormatFeatureFlagBits::eStorageImage);
@@ -112,7 +113,7 @@ Texture::Texture(const Device& device, uint32_t width, uint32_t height, vk::Form
                                       vk::ImageLayout::eGeneral,
                                       clearValue,
                                       vk::ImageSubresourceRange{vk::ImageAspectFlagBits::eColor, 0, 1, 0 ,1});
-                                      
+
         Barrier(commandBuffer,
                 vk::ImageLayout::eGeneral,
                 vk::AccessFlagBits::eTransferWrite,
@@ -137,7 +138,7 @@ void Texture::Clear(vk::CommandBuffer commandBuffer, const std::array<float, 4>&
                                       vk::ImageLayout::eGeneral,
                                       clearValue,
                                       vk::ImageSubresourceRange{vk::ImageAspectFlagBits::eColor, 0, 1, 0 ,1});
-                                      
+
         Barrier(commandBuffer,
                 vk::ImageLayout::eGeneral,
                 vk::AccessFlagBits::eTransferWrite,
@@ -171,6 +172,10 @@ void Texture::CopyFrom(const void* data, vk::DeviceSize bytesPerPixel)
         }
         mDevice.unmapMemory(*mMemory);
     }
+    else
+    {
+        throw std::runtime_error("Texture is not host texture");
+    }
 }
 
 void Texture::CopyTo(void* data, vk::DeviceSize bytesPerPixel)
@@ -197,13 +202,17 @@ void Texture::CopyTo(void* data, vk::DeviceSize bytesPerPixel)
         }
         mDevice.unmapMemory(*mMemory);
     }
+    else
+    {
+        throw std::runtime_error("Texture is not host texture");
+    }
 }
 
 void Texture::CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcImage)
 {
-    if (mWidth != srcImage.mWidth || mHeight != srcImage.mHeight)
+    if(!(mWidth == srcImage.mWidth && mHeight == srcImage.mHeight && mFormat == srcImage.mFormat))
     {
-        return;
+        throw std::runtime_error("Invalid source texture to copy");
     }
 
     // TODO too many barrier maybe?
@@ -281,6 +290,11 @@ uint32_t Texture::GetWidth() const
 uint32_t Texture::GetHeight() const
 {
     return mHeight;
+}
+
+vk::Format Texture::GetFormat() const
+{
+    return mFormat;
 }
 
 }}

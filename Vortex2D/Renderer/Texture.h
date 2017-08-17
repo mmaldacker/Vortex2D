@@ -54,8 +54,11 @@ public:
 
     uint32_t GetWidth() const;
     uint32_t GetHeight() const;
-    
+    vk::Format GetFormat() const;
+
     void Clear(vk::CommandBuffer commandBuffer, const std::array<float, 4>& colour);
+
+    friend class Buffer;
 
 private:
     void CopyFrom(const void* data, vk::DeviceSize bytesPerPixel);
@@ -65,6 +68,7 @@ private:
     vk::Device mDevice;
     uint32_t mWidth;
     uint32_t mHeight;
+    vk::Format mFormat;
     vk::UniqueImage mImage;
     vk::UniqueDeviceMemory mMemory;
     vk::UniqueImageView mImageView;

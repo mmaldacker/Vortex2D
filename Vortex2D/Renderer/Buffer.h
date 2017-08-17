@@ -11,6 +11,8 @@
 
 namespace Vortex2D { namespace Renderer {
 
+class Texture;
+
 class Buffer
 {
 public:
@@ -57,6 +59,7 @@ public:
     }
 
     void CopyFrom(vk::CommandBuffer commandBuffer, Buffer& srcBuffer);
+    void CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcTexture);
 
     void Flush();
 

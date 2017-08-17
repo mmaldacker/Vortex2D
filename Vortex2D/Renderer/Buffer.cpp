@@ -6,6 +6,7 @@
 #include "Buffer.h"
 
 #include <Vortex2D/Renderer/CommandBuffer.h>
+#include <Vortex2D/Renderer/Texture.h>
 
 namespace Vortex2D { namespace Renderer {
 
@@ -69,7 +70,7 @@ void Buffer::CopyFrom(vk::CommandBuffer commandBuffer, Buffer& srcBuffer)
 {
     if (mSize != srcBuffer.mSize)
     {
-        return;
+        throw std::runtime_error("Cannot copy buffers of different sizes");
     }
 
     // TODO improve barriers
@@ -79,6 +80,34 @@ void Buffer::CopyFrom(vk::CommandBuffer commandBuffer, Buffer& srcBuffer)
             .setSize(mSize);
 
     commandBuffer.copyBuffer(srcBuffer, *mBuffer, region);
+
+    Barrier(commandBuffer, vk::AccessFlagBits::eTransferWrite, vk::AccessFlagBits::eShaderRead);
+}
+
+void Buffer::CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcTexture)
+{
+    // TODO check if it can be copied
+
+    srcTexture.Barrier(commandBuffer,
+                       vk::ImageLayout::eGeneral,
+                       vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eColorAttachmentRead,
+                       vk::ImageLayout::eTransferSrcOptimal,
+                       vk::AccessFlagBits::eTransferRead);
+
+    auto info = vk::BufferImageCopy()
+            .setImageSubresource({vk::ImageAspectFlagBits::eColor, 0, 0 ,1})
+            .setImageExtent({srcTexture.GetWidth(), srcTexture.GetHeight()});
+
+    commandBuffer.copyImageToBuffer(*srcTexture.mImage,
+                                    vk::ImageLayout::eTransferSrcOptimal,
+                                    *mBuffer,
+                                    info);
+
+    srcTexture.Barrier(commandBuffer,
+                       vk::ImageLayout::eTransferSrcOptimal,
+                       vk::AccessFlagBits::eTransferRead,
+                       vk::ImageLayout::eGeneral,
+                       vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eColorAttachmentRead);
 
     Barrier(commandBuffer, vk::AccessFlagBits::eTransferWrite, vk::AccessFlagBits::eShaderRead);
 }
