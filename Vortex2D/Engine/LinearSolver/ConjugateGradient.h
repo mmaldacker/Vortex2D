@@ -34,7 +34,7 @@ public:
 
     void NormalSolve(Parameters& params);
 
-//private:
+private:
     Preconditioner& mPreconditioner;
 
     Renderer::Buffer r, s, alpha, beta, rho, rho_new, sigma, error, errorLocal, inner, z;
