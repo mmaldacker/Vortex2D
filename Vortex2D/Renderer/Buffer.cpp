@@ -96,7 +96,7 @@ void Buffer::CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcTexture)
 
     auto info = vk::BufferImageCopy()
             .setImageSubresource({vk::ImageAspectFlagBits::eColor, 0, 0 ,1})
-            .setImageExtent({srcTexture.GetWidth(), srcTexture.GetHeight()});
+            .setImageExtent({srcTexture.GetWidth(), srcTexture.GetHeight(), 1});
 
     commandBuffer.copyImageToBuffer(*srcTexture.mImage,
                                     vk::ImageLayout::eTransferSrcOptimal,
