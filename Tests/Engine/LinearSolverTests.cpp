@@ -282,6 +282,7 @@ TEST(LinearSolverTests, GaussSeidel_Simple_PCG)
 
     GaussSeidel preconditioner(*device, size);
     preconditioner.SetW(1.0f);
+    preconditioner.SetPreconditionerIterations(8);
 
     LinearSolver::Parameters params(1000, 1e-5f);
     ConjugateGradient solver(*device, size, preconditioner);

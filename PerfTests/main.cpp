@@ -165,7 +165,7 @@ static void GaussSeidelCG(benchmark::State& state)
     BuildDeviceLocalLinearEquations(size, matrix, div, sim);
 
     GaussSeidel preconditioner(*device, size);
-    preconditioner.SetW(1.0f);
+    preconditioner.SetW(1.5f);
     preconditioner.SetPreconditionerIterations(state.range(0));
 
     LinearSolver::Parameters params(10000, 1e-4f);
