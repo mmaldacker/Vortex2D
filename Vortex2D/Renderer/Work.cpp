@@ -40,6 +40,19 @@ ComputeSize::ComputeSize(const glm::ivec2& size)
 {
 }
 
+ComputeSize MakeStencilComputeSize(const glm::ivec2& size, int radius)
+{
+    ComputeSize computeSize;
+
+    auto localSize = ComputeSize::GetLocalSize2D();
+    computeSize.DomainSize = size;
+    computeSize.LocalSize = localSize;
+    computeSize.WorkSize = glm::ceil(glm::vec2(size) / glm::vec2(localSize - glm::ivec2(2 * radius)));
+
+    return computeSize;
+}
+
+
 Work::Input::Input(Renderer::Buffer& buffer)
     : Buffer(&buffer)
 {

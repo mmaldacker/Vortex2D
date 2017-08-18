@@ -28,6 +28,8 @@ struct ComputeSize
     glm::ivec2 LocalSize;
 };
 
+ComputeSize MakeStencilComputeSize(const glm::ivec2& size, int radius);
+
 class Work
 {
 public:

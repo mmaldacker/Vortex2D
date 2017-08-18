@@ -191,10 +191,7 @@ TEST(ComputeTests, Stencil)
     Buffer input(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float)*size.x*size.y);
     Buffer output(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float)*size.x*size.y);
 
-    ComputeSize computeSize(size);
-    computeSize.DomainSize = size;
-    computeSize.LocalSize = ComputeSize::GetLocalSize2D();
-    computeSize.WorkSize = glm::ceil(glm::vec2(computeSize.DomainSize) / glm::vec2(computeSize.LocalSize - glm::ivec2(2)));
+    auto computeSize = MakeStencilComputeSize(size, 1);
 
     Work work(*device, computeSize, "Stencil.comp.spv", {vk::DescriptorType::eStorageBuffer, vk::DescriptorType::eStorageBuffer});
 
