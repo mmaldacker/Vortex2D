@@ -13,6 +13,45 @@
 
 namespace Vortex2D { namespace Renderer {
 
+struct ComputeSize
+{
+    static glm::ivec2 GetLocalSize2D()
+    {
+        return {16, 16};
+    }
+
+    static int GetLocalSize1D()
+    {
+        return 256;
+    }
+
+    static glm::ivec2 GetWorkSize(const glm::ivec2& size)
+    {
+        auto localSize = GetLocalSize2D();
+        return  {1 + size.x / localSize.x, 1 + size.y / localSize.y};
+    }
+
+    ComputeSize()
+        : DomainSize(0)
+        , WorkSize(0)
+        , LocalSize(0)
+    {
+
+    }
+
+    ComputeSize(const glm::ivec2& size)
+        : DomainSize(size)
+        , WorkSize(GetWorkSize(size))
+        , LocalSize(GetLocalSize2D())
+    {
+
+    }
+
+    glm::ivec2 DomainSize;
+    glm::ivec2 WorkSize;
+    glm::ivec2 LocalSize;
+};
+
 class Work
 {
 public:
@@ -45,9 +84,8 @@ public:
         };
     };
 
-    // TODO make size optional
     Work(const Device& device,
-         const glm::ivec2& size,
+         const ComputeSize& computeSize,
          const std::string& shader,
          const std::vector<vk::DescriptorType>& bindings,
          const uint32_t pushConstantExtraSize = 0);
@@ -68,13 +106,12 @@ public:
         friend class Work;
 
     private:
-        Bound(uint32_t widht,
-              uint32_t height,
+        Bound(const ComputeSize& computeSize,
               vk::PipelineLayout layout,
               vk::Pipeline pipeline,
               vk::UniqueDescriptorSet descriptor);
 
-        uint32_t mWidth = 0, mHeight = 0;
+        ComputeSize mComputeSize;
         vk::PipelineLayout mLayout;
         vk::Pipeline mPipeline;
         vk::UniqueDescriptorSet mDescriptor;
@@ -82,10 +119,9 @@ public:
 
     // TODO save the bound inside the Work class and access with other method
     Bound Bind(const std::vector<Input>& inputs);
-    Bound Bind(const glm::ivec2& size, const std::vector<Input>& inputs);
 
 private:
-    uint32_t mWidth, mHeight;
+    ComputeSize mComputeSize;
     const Device& mDevice;
     vk::DescriptorSetLayout mDescriptorLayout;
     vk::UniquePipelineLayout mLayout;

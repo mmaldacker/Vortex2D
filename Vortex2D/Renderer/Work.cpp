@@ -25,14 +25,12 @@ Work::Input::Input(vk::Sampler sampler, Renderer::Texture& texture)
 {
 }
 
-
 Work::Work(const Device& device,
-           const glm::ivec2& size,
+           const ComputeSize& computeSize,
            const std::string& shader,
            const std::vector<vk::DescriptorType>& binding,
            const uint32_t pushConstantExtraSize)
-    : mWidth(size.x)
-    , mHeight(size.y)
+    : mComputeSize(computeSize)
     , mDevice(device)
     , mBindings(binding)
 {
@@ -50,18 +48,15 @@ Work::Work(const Device& device,
             .PushConstantRange({vk::ShaderStageFlagBits::eCompute, 0, 8 + pushConstantExtraSize})
             .Create(device.Handle());
 
-    auto localSize = GetLocalSize(mWidth, mHeight);
-    mPipeline = MakeComputePipeline(device.Handle(), shaderModule, *mLayout, localSize.x, localSize.y);
+    mPipeline = MakeComputePipeline(device.Handle(), shaderModule, *mLayout, mComputeSize.LocalSize.x, mComputeSize.LocalSize.y);
 }
 
 Work::Bound Work::Bind(const std::vector<Input>& inputs)
 {
-    return Bind({mWidth, mHeight}, inputs);
-}
-
-Work::Bound Work::Bind(const glm::ivec2& size, const std::vector<Input>& inputs)
-{
-    assert(inputs.size() == mBindings.size());
+    if (inputs.size() != mBindings.size())
+    {
+        throw std::runtime_error("Unmatched inputs and bindings");
+    }
 
     vk::UniqueDescriptorSet descriptor = MakeDescriptorSet(mDevice, mDescriptorLayout);
 
@@ -86,16 +81,14 @@ Work::Bound Work::Bind(const glm::ivec2& size, const std::vector<Input>& inputs)
     }
     updater.Update(mDevice.Handle());
 
-    return Bound(size.x, size.y, *mLayout, *mPipeline, std::move(descriptor));
+    return Bound(mComputeSize, *mLayout, *mPipeline, std::move(descriptor));
 }
 
-Work::Bound::Bound(uint32_t width,
-                   uint32_t height,
+Work::Bound::Bound(const ComputeSize& computeSize,
                    vk::PipelineLayout layout,
                    vk::Pipeline pipeline,
                    vk::UniqueDescriptorSet descriptor)
-    : mWidth(width)
-    , mHeight(height)
+    : mComputeSize(computeSize)
     , mLayout(layout)
     , mPipeline(pipeline)
     , mDescriptor(std::move(descriptor))
@@ -105,13 +98,12 @@ Work::Bound::Bound(uint32_t width,
 
 void Work::Bound::Record(vk::CommandBuffer commandBuffer)
 {
-    commandBuffer.pushConstants(mLayout, vk::ShaderStageFlagBits::eCompute, 0, 4, &mWidth);
-    commandBuffer.pushConstants(mLayout, vk::ShaderStageFlagBits::eCompute, 4, 4, &mHeight);
+    commandBuffer.pushConstants(mLayout, vk::ShaderStageFlagBits::eCompute, 0, 4, &mComputeSize.DomainSize.x);
+    commandBuffer.pushConstants(mLayout, vk::ShaderStageFlagBits::eCompute, 4, 4, &mComputeSize.DomainSize.y);
     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, mLayout, 0, {*mDescriptor}, {});
     commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, mPipeline);
 
-    auto workSize = GetWorkSize(mWidth, mHeight);
-    commandBuffer.dispatch(workSize.x, workSize.y, 1);
+    commandBuffer.dispatch(mComputeSize.WorkSize.x, mComputeSize.WorkSize.y, 1);
 }
 
 }}

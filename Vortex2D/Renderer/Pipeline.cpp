@@ -9,36 +9,6 @@
 
 namespace Vortex2D { namespace Renderer {
 
-namespace
-{
-    const uint32_t DefaultLocalX = 16;
-    const uint32_t DefaultLocalY = 16;
-}
-
-Size GetLocalSize(uint32_t width, uint32_t height)
-{
-    if (height == 1)
-    {
-        return {DefaultLocalX * DefaultLocalY, 1};
-    }
-    else
-    {
-        return {DefaultLocalX, DefaultLocalY};
-    }
-}
-
-Size GetWorkSize(uint32_t width, uint32_t height)
-{
-    if (height == 1)
-    {
-        return {1 + width / (DefaultLocalX * DefaultLocalY), 1};
-    }
-    else
-    {
-        return {1 + width / DefaultLocalX, 1 + height / DefaultLocalY};
-    }
-}
-
 PipelineLayoutBuilder& PipelineLayoutBuilder::DescriptorSetLayout(vk::DescriptorSetLayout layout)
 {
     mLayouts.push_back(layout);
@@ -194,14 +164,14 @@ vk::UniquePipeline MakeComputePipeline(vk::Device device,
                                        uint32_t localX,
                                        uint32_t localY)
 {
-    Size localSize{localX, localY};
-    std::vector<vk::SpecializationMapEntry> mapEntries = {{1, offsetof(Size, x), sizeof(Size::x)},
-                                                          {2, offsetof(Size, y), sizeof(Size::y)}};
+    glm::uvec2 localSize(localX, localY);
+    std::vector<vk::SpecializationMapEntry> mapEntries = {{1, offsetof(glm::uvec2, x), sizeof(glm::uvec2::x)},
+                                                          {2, offsetof(glm::uvec2, y), sizeof(glm::uvec2::y)}};
 
     auto specialisationConst = vk::SpecializationInfo()
             .setMapEntryCount(mapEntries.size())
             .setPMapEntries(mapEntries.data())
-            .setDataSize(sizeof(Size))
+            .setDataSize(sizeof(glm::uvec2))
             .setPData(&localSize);
 
     return MakeComputePipeline(device, shader, layout, specialisationConst);

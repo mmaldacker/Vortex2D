@@ -26,7 +26,7 @@ ConjugateGradient::ConjugateGradient(const Renderer::Device& device,
                     {vk::DescriptorType::eStorageBuffer,
                      vk::DescriptorType::eStorageBuffer,
                      vk::DescriptorType::eStorageBuffer})
-    , scalarDivision(device, {1, 1}, "../Vortex2D/Divide.comp.spv",
+    , scalarDivision(device, glm::ivec2(1), "../Vortex2D/Divide.comp.spv",
                     {vk::DescriptorType::eStorageBuffer,
                      vk::DescriptorType::eStorageBuffer,
                      vk::DescriptorType::eStorageBuffer})

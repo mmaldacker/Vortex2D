@@ -6,6 +6,7 @@
 #include "Reduce.h"
 
 #include <Vortex2D/Renderer/DescriptorSet.h>
+#include <Vortex2D/Renderer/Work.h>
 
 namespace Vortex2D { namespace Fluid {
 
@@ -18,7 +19,7 @@ namespace
 
     int GetBufferSize(const glm::ivec2& size)
     {
-        int localSize = Renderer::GetLocalSize(size.x * size.y, 1).x;
+        int localSize = Renderer::ComputeSize::GetLocalSize1D();
         return GetWorkGroupSize(size.x * size.y, localSize);
     }
 }
@@ -41,9 +42,9 @@ Reduce::Reduce(const Renderer::Device& device,
     vk::ShaderModule sumShader = device.GetShaderModule(fileName);
 
     int n = size.x * size.y;
-    auto localSize = Renderer::GetLocalSize(n, 1);
-    int workGroupSize0 = GetWorkGroupSize(n, localSize.x);
-    int workGroupSize1 = GetWorkGroupSize(workGroupSize0, localSize.x);
+    auto localSize = Renderer::ComputeSize::GetLocalSize1D();
+    int workGroupSize0 = GetWorkGroupSize(n, localSize);
+    int workGroupSize1 = GetWorkGroupSize(workGroupSize0, localSize);
 
     // TODO fix and do recursive loop
     assert(workGroupSize1 == 1);
@@ -53,7 +54,7 @@ Reduce::Reduce(const Renderer::Device& device,
             .PushConstantRange({vk::ShaderStageFlagBits::eCompute, 0, 4})
             .Create(device.Handle());
 
-    std::array<uint32_t, 2> constants = {{localSize.x, localSize.x}};
+    std::array<uint32_t, 2> constants = {{localSize, localSize}};
 
     std::vector<vk::SpecializationMapEntry> mapEntries = {{1, 0, 4}, {2, 0, 4}};
 
@@ -101,9 +102,9 @@ Reduce::Bound::Bound(int size,
 
 void Reduce::Bound::Record(vk::CommandBuffer commandBuffer)
 {
-    auto localSize = Renderer::GetLocalSize(mSize, 1);
-    int workGroupSize0 = GetWorkGroupSize(mSize, localSize.x);
-    int workGroupSize1 = GetWorkGroupSize(workGroupSize0, localSize.x);
+    auto localSize = Renderer::ComputeSize::GetLocalSize1D();
+    int workGroupSize0 = GetWorkGroupSize(mSize, localSize);
+    int workGroupSize1 = GetWorkGroupSize(workGroupSize0, localSize);
 
     // TODO fix and do recursive loop
     assert(workGroupSize1 == 1);
