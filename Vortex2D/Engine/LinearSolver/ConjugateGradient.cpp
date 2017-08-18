@@ -13,6 +13,8 @@ ConjugateGradient::ConjugateGradient(const Renderer::Device& device,
     : mPreconditioner(preconditioner)
     , r(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float))
     , s(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float))
+    , z(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float))
+    , inner(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float))
     , alpha(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(float))
     , beta(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(float))
     , rho(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(float))
@@ -20,8 +22,6 @@ ConjugateGradient::ConjugateGradient(const Renderer::Device& device,
     , sigma(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(float))
     , error(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(float))
     , errorLocal(device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float))
-    , inner(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float))
-    , z(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float))
     , matrixMultiply(device, size, "../Vortex2D/MultiplyMatrix.comp.spv",
                     {vk::DescriptorType::eStorageBuffer,
                      vk::DescriptorType::eStorageBuffer,
