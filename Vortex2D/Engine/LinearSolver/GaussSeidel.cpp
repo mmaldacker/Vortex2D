@@ -16,7 +16,7 @@ GaussSeidel::GaussSeidel(const Renderer::Device& device, const glm::ivec2& size)
     , mResidual(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float))
     , mError(device,  vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(float))
     , mErrorLocal(device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float))
-    , mGaussSeidel(device, size, "../Vortex2D/GaussSeidel.comp.spv",
+    , mGaussSeidel(device, Renderer::MakeCheckerboardComputeSize(size), "../Vortex2D/GaussSeidel.comp.spv",
                    {vk::DescriptorType::eStorageBuffer,
                     vk::DescriptorType::eStorageBuffer,
                     vk::DescriptorType::eStorageBuffer},

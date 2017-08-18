@@ -210,6 +210,40 @@ TEST(ComputeTests, Stencil)
     CheckBuffer(expectedOutput, output);
 }
 
+TEST(ComputeTests, Checkerboard)
+{
+    glm::ivec2 size(20);
+
+    Buffer buffer(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float)*size.x*size.y);
+
+    ComputeSize computeSize = MakeCheckerboardComputeSize(size);
+
+    Work work(*device, computeSize, "Checkerboard.comp.spv", {vk::DescriptorType::eStorageBuffer}, 4);
+
+    auto boundWork = work.Bind({buffer});
+
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+        boundWork.PushConstant(commandBuffer, 8, 1);
+        boundWork.Record(commandBuffer);
+    });
+
+    std::vector<float> expectedOutput(size.x*size.y, 0.0f);
+    for (int i = 0; i < size.x; i ++)
+    {
+        for (int j = 0; j < size.y; j++)
+        {
+            if ((i + j) % 2 == 1)
+            {
+                expectedOutput[i + j * size.x] = 1.0f;
+            }
+        }
+    }
+
+    CheckBuffer(expectedOutput, buffer);
+    PrintBuffer(size, buffer);
+}
+
 TEST(ComputeTests, Timer)
 {
     glm::ivec2 size(500);

@@ -29,6 +29,7 @@ struct ComputeSize
 };
 
 ComputeSize MakeStencilComputeSize(const glm::ivec2& size, int radius);
+ComputeSize MakeCheckerboardComputeSize(const glm::ivec2& size);
 
 class Work
 {

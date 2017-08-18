@@ -52,6 +52,17 @@ ComputeSize MakeStencilComputeSize(const glm::ivec2& size, int radius)
     return computeSize;
 }
 
+ComputeSize MakeCheckerboardComputeSize(const glm::ivec2& size)
+{
+    auto localSize = ComputeSize::GetLocalSize2D() * glm::ivec2(1, 2);
+
+    ComputeSize computeSize;
+    computeSize.DomainSize = size;
+    computeSize.LocalSize = localSize;
+    computeSize.WorkSize = glm::ceil(glm::vec2(size) / (glm::vec2(localSize) * glm::vec2(2.0f, 1.0f)));
+
+    return computeSize;
+}
 
 Work::Input::Input(Renderer::Buffer& buffer)
     : Buffer(&buffer)
