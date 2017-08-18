@@ -16,12 +16,6 @@ namespace
     {
         return (n + (localSize * 2 - 1)) / (localSize * 2);
     }
-
-    int GetBufferSize(const glm::ivec2& size)
-    {
-        int localSize = Renderer::ComputeSize::GetLocalSize1D();
-        return GetWorkGroupSize(size.x * size.y, localSize);
-    }
 }
 
 Reduce::Reduce(const Renderer::Device& device,
@@ -29,10 +23,6 @@ Reduce::Reduce(const Renderer::Device& device,
                const glm::ivec2& size)
     : mDevice(device)
     , mSize(size.x * size.y)
-    , mReduce(device,
-              vk::BufferUsageFlagBits::eStorageBuffer,
-              true,
-              sizeof(float) * GetBufferSize(size))
 {
     mDescriptorLayout = Renderer::DescriptorSetLayoutBuilder()
             .Binding(0, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute, 1)
@@ -43,11 +33,14 @@ Reduce::Reduce(const Renderer::Device& device,
 
     int n = size.x * size.y;
     auto localSize = Renderer::ComputeSize::GetLocalSize1D();
-    int workGroupSize0 = GetWorkGroupSize(n, localSize);
-    int workGroupSize1 = GetWorkGroupSize(workGroupSize0, localSize);
 
-    // TODO fix and do recursive loop
-    assert(workGroupSize1 == 1);
+    int workGroupSize = n;
+    while ((workGroupSize = GetWorkGroupSize(workGroupSize, localSize)) > 1)
+    {
+        mBuffers.emplace_back(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(float) * workGroupSize);
+    }
+
+    assert(workGroupSize);
 
     mPipelineLayout = Renderer::PipelineLayoutBuilder()
             .DescriptorSetLayout(mDescriptorLayout)
@@ -70,20 +63,27 @@ Reduce::Reduce(const Renderer::Device& device,
 Reduce::Bound Reduce::Bind(Renderer::Buffer& input, Renderer::Buffer& output)
 {
     std::vector<vk::UniqueDescriptorSet> descriptorSets;
-    descriptorSets.emplace_back(Renderer::MakeDescriptorSet(mDevice, mDescriptorLayout));
-    descriptorSets.emplace_back(Renderer::MakeDescriptorSet(mDevice, mDescriptorLayout));
 
-    Renderer::DescriptorSetUpdater(*descriptorSets[0])
-            .WriteBuffers(0, 0, vk::DescriptorType::eStorageBuffer).Buffer(input)
-            .WriteBuffers(1, 0, vk::DescriptorType::eStorageBuffer).Buffer(mReduce)
-            .Update(mDevice.Handle());
+    // set buffer pointers to be able to call barrier on it later
+    std::vector<Renderer::Buffer*> buffers;
+    buffers.push_back(&input);
+    for (auto& buffer: mBuffers)
+    {
+        buffers.push_back(&buffer);
+    }
+    buffers.push_back(&output);
 
-    Renderer::DescriptorSetUpdater(*descriptorSets[1])
-            .WriteBuffers(0, 0, vk::DescriptorType::eStorageBuffer).Buffer(mReduce)
-            .WriteBuffers(1, 0, vk::DescriptorType::eStorageBuffer).Buffer(output)
-            .Update(mDevice.Handle());
+    // create and set descriptors
+    for (int i = 0; i < buffers.size() - 1; i++)
+    {
+        descriptorSets.emplace_back(Renderer::MakeDescriptorSet(mDevice, mDescriptorLayout));
 
-    std::vector<Renderer::Buffer*> buffers = {&mReduce, &output};
+        Renderer::DescriptorSetUpdater(*descriptorSets.back())
+                .WriteBuffers(0, 0, vk::DescriptorType::eStorageBuffer).Buffer(*buffers[i])
+                .WriteBuffers(1, 0, vk::DescriptorType::eStorageBuffer).Buffer(*buffers[i+1])
+                .Update(mDevice.Handle());
+    }
+
     return Bound(mSize, *mPipelineLayout, *mPipeline, buffers, std::move(descriptorSets));
 }
 
@@ -103,24 +103,20 @@ Reduce::Bound::Bound(int size,
 void Reduce::Bound::Record(vk::CommandBuffer commandBuffer)
 {
     auto localSize = Renderer::ComputeSize::GetLocalSize1D();
-    int workGroupSize0 = GetWorkGroupSize(mSize, localSize);
-    int workGroupSize1 = GetWorkGroupSize(workGroupSize0, localSize);
-
-    // TODO fix and do recursive loop
-    assert(workGroupSize1 == 1);
 
     commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, mPipeline);
 
-    commandBuffer.pushConstants(mLayout, vk::ShaderStageFlagBits::eCompute, 0, 4, &mSize);
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, mLayout, 0, {*mDescriptorSets[0]}, {});
-    commandBuffer.dispatch(workGroupSize0, 1, 1);
+    int workGroupSize = mSize;
+    for (int i = 0; i < mDescriptorSets.size(); i++)
+    {
+        commandBuffer.pushConstants(mLayout, vk::ShaderStageFlagBits::eCompute, 0, 4, &workGroupSize);
+        workGroupSize = GetWorkGroupSize(workGroupSize, localSize);
 
-    mBuffers[0]->Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-    mBuffers[1]->Barrier(commandBuffer, vk::AccessFlagBits::eShaderRead, vk::AccessFlagBits::eShaderWrite);
+        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, mLayout, 0, {*mDescriptorSets[i]}, {});
+        commandBuffer.dispatch(workGroupSize, 1, 1);
 
-    commandBuffer.pushConstants(mLayout, vk::ShaderStageFlagBits::eCompute, 0, 4, &workGroupSize0);
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, mLayout, 0, {*mDescriptorSets[1]}, {});
-    commandBuffer.dispatch(workGroupSize1, 1, 1);
+        mBuffers[i + 1]->Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+    }
 }
 
 ReduceSum::ReduceSum(const Renderer::Device& device,

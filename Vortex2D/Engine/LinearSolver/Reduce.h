@@ -48,7 +48,7 @@ protected:
 private:
     const Renderer::Device& mDevice;
     int mSize;
-    Renderer::Buffer mReduce;
+    std::vector<Renderer::Buffer> mBuffers;
     vk::DescriptorSetLayout mDescriptorLayout;
     vk::UniquePipelineLayout mPipelineLayout;
     vk::UniquePipeline mPipeline;
