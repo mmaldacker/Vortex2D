@@ -15,37 +15,13 @@ namespace Vortex2D { namespace Renderer {
 
 struct ComputeSize
 {
-    static glm::ivec2 GetLocalSize2D()
-    {
-        return {16, 16};
-    }
+    static glm::ivec2 GetLocalSize2D();
+    static int GetLocalSize1D();
 
-    static int GetLocalSize1D()
-    {
-        return 256;
-    }
+    static glm::ivec2 GetWorkSize(const glm::ivec2& size);
 
-    static glm::ivec2 GetWorkSize(const glm::ivec2& size)
-    {
-        auto localSize = GetLocalSize2D();
-        return  {1 + size.x / localSize.x, 1 + size.y / localSize.y};
-    }
-
-    ComputeSize()
-        : DomainSize(0)
-        , WorkSize(0)
-        , LocalSize(0)
-    {
-
-    }
-
-    ComputeSize(const glm::ivec2& size)
-        : DomainSize(size)
-        , WorkSize(GetWorkSize(size))
-        , LocalSize(GetLocalSize2D())
-    {
-
-    }
+    ComputeSize();
+    ComputeSize(const glm::ivec2& size);
 
     glm::ivec2 DomainSize;
     glm::ivec2 WorkSize;
@@ -63,15 +39,8 @@ public:
 
         struct DescriptorImage
         {
-            DescriptorImage(vk::Sampler sampler, Renderer::Texture& texture)
-                : Sampler(sampler)
-                , Texture(&texture)
-            {}
-
-            DescriptorImage(Renderer::Texture& texture)
-                : Sampler()
-                , Texture(&texture)
-            {}
+            DescriptorImage(vk::Sampler sampler, Renderer::Texture& texture);
+            DescriptorImage(Renderer::Texture& texture);
 
             vk::Sampler Sampler;
             Renderer::Texture* Texture;

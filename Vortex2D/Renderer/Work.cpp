@@ -10,6 +10,36 @@
 
 namespace Vortex2D { namespace Renderer {
 
+glm::ivec2 ComputeSize::GetLocalSize2D()
+{
+    return {16, 16};
+}
+
+int ComputeSize::GetLocalSize1D()
+{
+    return 256;
+}
+
+glm::ivec2 ComputeSize::GetWorkSize(const glm::ivec2& size)
+{
+    glm::vec2 localSize = GetLocalSize2D();
+    return glm::ceil(glm::vec2(size) / localSize);
+}
+
+ComputeSize::ComputeSize()
+    : DomainSize(0)
+    , WorkSize(0)
+    , LocalSize(0)
+{
+}
+
+ComputeSize::ComputeSize(const glm::ivec2& size)
+    : DomainSize(size)
+    , WorkSize(GetWorkSize(size))
+    , LocalSize(GetLocalSize2D())
+{
+}
+
 Work::Input::Input(Renderer::Buffer& buffer)
     : Buffer(&buffer)
 {
@@ -22,6 +52,18 @@ Work::Input::Input(Renderer::Texture& texture)
 
 Work::Input::Input(vk::Sampler sampler, Renderer::Texture& texture)
     : Image(sampler, texture)
+{
+}
+
+Work::Input::DescriptorImage::DescriptorImage(vk::Sampler sampler, Renderer::Texture& texture)
+    : Sampler(sampler)
+    , Texture(&texture)
+{
+}
+
+Work::Input::DescriptorImage::DescriptorImage(Renderer::Texture& texture)
+    : Sampler()
+    , Texture(&texture)
 {
 }
 
