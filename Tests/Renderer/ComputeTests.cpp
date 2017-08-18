@@ -156,7 +156,7 @@ TEST(ComputeTests, ImageCompute)
 TEST(ComputeTests, Work)
 {
     Buffer buffer(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float)*16*16);
-    Work work(*device, {16, 16}, "Work.comp.spv", {vk::DescriptorType::eStorageBuffer});
+    Work work(*device, glm::ivec2(16), "Work.comp.spv", {vk::DescriptorType::eStorageBuffer});
 
     auto boundWork = work.Bind({buffer});
 
@@ -184,9 +184,38 @@ TEST(ComputeTests, Work)
     CheckBuffer(expectedOutput, buffer);
 }
 
+TEST(ComputeTests, Stencil)
+{
+    glm::ivec2 size(500);
+
+    Buffer input(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float)*size.x*size.y);
+    Buffer output(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float)*size.x*size.y);
+
+    ComputeSize computeSize(size);
+    computeSize.DomainSize = size;
+    computeSize.LocalSize = ComputeSize::GetLocalSize2D();
+    computeSize.WorkSize = glm::ceil(glm::vec2(computeSize.DomainSize) / glm::vec2(computeSize.LocalSize - glm::ivec2(2)));
+
+    Work work(*device, computeSize, "Stencil.comp.spv", {vk::DescriptorType::eStorageBuffer, vk::DescriptorType::eStorageBuffer});
+
+    auto boundWork = work.Bind({input, output});
+
+    std::vector<float> inputData(size.x*size.y, 1.0f);
+
+    input.CopyFrom(inputData);
+
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+        boundWork.Record(commandBuffer);
+    });
+
+    std::vector<float> expectedOutput(size.x*size.y, 5.0f);
+    CheckBuffer(expectedOutput, output);
+}
+
 TEST(ComputeTests, Timer)
 {
-    glm::vec2 size(500, 500);
+    glm::ivec2 size(500);
 
     Buffer buffer(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(float)*size.x*size.y);
     Work work(*device, size, "Work.comp.spv", {vk::DescriptorType::eStorageBuffer});

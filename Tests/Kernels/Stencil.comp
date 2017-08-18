@@ -1,0 +1,57 @@
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+layout (local_size_x_id = 1, local_size_y_id = 2) in;
+layout(constant_id = 1) const int blockWidth = 16;
+layout(constant_id = 2) const int blockHeight = 16;
+
+layout(push_constant) uniform Consts
+{
+  int width;
+  int height;
+}consts;
+
+
+layout(std430, binding = 0) buffer Input1
+{
+  float value[];
+}a;
+
+layout(std430, binding = 1) buffer Input2
+{
+  float value[];
+}b;
+
+const int blockSizeX = blockWidth - 2;
+const int blockSizeY = blockHeight - 2;
+shared float sdata[blockWidth * blockHeight];
+
+void main()
+{
+    ivec2 pos;
+    pos.x = int(gl_WorkGroupID.x) * blockSizeX + int(gl_LocalInvocationID.x) - 1;
+    pos.y = int(gl_WorkGroupID.y) * blockSizeY + int(gl_LocalInvocationID.y) - 1;
+
+    pos = min(max(ivec2(0), pos), ivec2(consts.width - 1, consts.height - 1));
+
+    uint index = pos.x + pos.y * consts.width;
+    uint bindex = gl_LocalInvocationIndex;
+
+    sdata[bindex] = a.value[index];
+
+    memoryBarrierShared();
+    barrier();
+
+    if (gl_LocalInvocationID.x >= 1 && gl_LocalInvocationID.x < blockWidth - 1 &&
+        gl_LocalInvocationID.y >= 1 && gl_LocalInvocationID.y < blockHeight - 1)
+    {
+        float x = sdata[bindex];
+        vec4 p;
+        p.x = sdata[bindex + 1];
+        p.y = sdata[bindex - 1];
+        p.z = sdata[bindex + blockWidth];
+        p.w = sdata[bindex - blockWidth];
+
+        b.value[index] = x + dot(p, vec4(1.0));
+    }
+}
