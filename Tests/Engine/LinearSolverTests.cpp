@@ -53,7 +53,7 @@ TEST(LinearSolverTests, ReduceSum)
 
 TEST(LinearSolverTests, ReduceBigSum)
 {
-    glm::ivec2 size(500, 500);
+    glm::ivec2 size(500);
     int n = size.x * size.y; // 1 million
 
     Buffer input(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float) * n);

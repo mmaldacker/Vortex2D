@@ -237,7 +237,7 @@ void FluidSim::project(float dt) {
    //Set up and solve the variational pressure solve.
    compute_linear_equations(dt);
    solve_pressure(dt);
-
+   apply_pressure(dt);
 }
 
 
@@ -382,9 +382,9 @@ void FluidSim::solve_pressure(float dt) {
    if(!success) {
       printf("WARNING: Pressure solve failed!************************************************\n");
    }
-   else {
-      printf("Solved in %d\n", iterations);
-   }
+}
+
+void FluidSim::apply_pressure(float dt) {
 
    //Apply the velocity update
    u_valid.assign(0);
