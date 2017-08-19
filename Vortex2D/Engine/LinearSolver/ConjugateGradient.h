@@ -57,6 +57,9 @@ private:
     Renderer::CommandBuffer mNormalSolveInit, mNormalSolve;
     Renderer::CommandBuffer mSolveInit, mSolve;
     Renderer::CommandBuffer mErrorRead;
+
+    bool mEnableStatistics;
+    Renderer::Statistics mStatistics;
 };
 
 }}
