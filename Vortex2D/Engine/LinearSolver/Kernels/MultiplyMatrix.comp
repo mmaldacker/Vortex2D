@@ -9,23 +9,22 @@ layout(push_constant) uniform Consts
   int height;
 }consts;
 
-struct A
+layout(std430, binding = 0) buffer Diagonal
 {
-  vec4 weights;
-  float diagonal;
-};
+  float value[];
+}diagonal;
 
-layout(std430, binding = 0) buffer Matrix
+layout(std430, binding = 1) buffer Lower
 {
-  A data[];
-}matrix;
+  vec2 value[];
+}lower;
 
-layout(std430, binding = 1) buffer Input1
+layout(std430, binding = 2) buffer Input1
 {
   float value[];
 }pressure;
 
-layout(std430, binding = 2) buffer Input2
+layout(std430, binding = 3) buffer Input2
 {
   float value[];
 }z;
@@ -40,14 +39,18 @@ void main()
 
         float x = pressure.value[index];
 
+        vec4 weights;
+        weights.yw = lower.value[index];
+        weights.x = lower.value[index + 1].x;
+        weights.z = lower.value[index + consts.width].y;
+
         vec4 p;
         p.x = pressure.value[index + 1];
         p.y = pressure.value[index - 1];
         p.z = pressure.value[index + consts.width];
         p.w = pressure.value[index - consts.width];
 
-        float d = matrix.data[index].diagonal;
-        vec4 weights = matrix.data[index].weights;
+        float d = diagonal.value[index];
 
         z.value[index] = d * x + dot(p, weights);
     }

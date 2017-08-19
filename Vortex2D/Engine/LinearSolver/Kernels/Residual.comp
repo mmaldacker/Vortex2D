@@ -14,23 +14,22 @@ layout(std430, binding = 0) buffer Pressure
   float value[];
 }pressure;
 
-struct A
+layout(std430, binding = 1) buffer Diagonal
 {
-  vec4 weights;
-  float diagonal;
-};
+  float value[];
+}diagonal;
 
-layout(std430, binding = 1) buffer Matrix
+layout(std430, binding = 2) buffer Lower
 {
-  A data[];
-}matrix;
+  vec2 value[];
+}lower;
 
-layout(std430, binding = 2) buffer B
+layout(std430, binding = 3) buffer B
 {
   float value[];
 }b;
 
-layout(std430, binding = 3) buffer Output
+layout(std430, binding = 4) buffer Output
 {
   float value[];
 }residual;
@@ -41,7 +40,12 @@ void main()
   if (pos.x > 0 && pos.y > 0 && pos.x < consts.width - 1 && pos.y < consts.height - 1)
   {
     int index = pos.x + pos.y * consts.width;
-    A data = matrix.data[index];
+    float d = diagonal.value[index];
+
+    vec4 weights;
+    weights.yw = lower.value[index];
+    weights.x = lower.value[index + 1].x;
+    weights.z = lower.value[index + consts.width].y;
 
     vec4 p;
     p.x = pressure.value[index + 1];
@@ -49,6 +53,6 @@ void main()
     p.z = pressure.value[index + consts.width];
     p.w = pressure.value[index - consts.width];
 
-    residual.value[index] = b.value[index] - (dot(p, data.weights) + data.diagonal * pressure.value[index]);
+    residual.value[index] = b.value[index] - (dot(p, weights) + d * pressure.value[index]);
   }
 }

@@ -16,10 +16,14 @@ Pressure::Pressure(const Renderer::Device& device,
                    Renderer::Texture& liquidPhi,
                    Renderer::Texture& solidVelocity)
     : mSolver(solver)
-    , mMatrix(device,
+    , mDiagonal(device,
             vk::BufferUsageFlagBits::eStorageBuffer,
             false,
-            size.x*size.y*sizeof(LinearSolver::Data))
+            size.x*size.y*sizeof(float))
+    , mLower(device,
+            vk::BufferUsageFlagBits::eStorageBuffer,
+            false,
+            size.x*size.y*sizeof(glm::vec2))
     , mDiv(device,
            vk::BufferUsageFlagBits::eStorageBuffer,
            false,
@@ -30,10 +34,12 @@ Pressure::Pressure(const Renderer::Device& device,
                 size.x*size.y*sizeof(float))
     , mBuildMatrix(device, size, "../Vortex2D/BuildMatrix.comp.spv",
                    {vk::DescriptorType::eStorageBuffer,
+                   vk::DescriptorType::eStorageBuffer,
                    vk::DescriptorType::eStorageImage,
                    vk::DescriptorType::eStorageImage},
                    4)
-    , mBuildMatrixBound(mBuildMatrix.Bind({mMatrix,
+    , mBuildMatrixBound(mBuildMatrix.Bind({mDiagonal,
+                                           mLower,
                                            liquidPhi,
                                            solidPhi}))
     , mBuildDiv(device, size, "../Vortex2D/BuildDiv.comp.spv",
@@ -62,7 +68,8 @@ Pressure::Pressure(const Renderer::Device& device,
     {
         mBuildMatrixBound.PushConstant(commandBuffer, 8, dt);
         mBuildMatrixBound.Record(commandBuffer);
-        mMatrix.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        mDiagonal.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        mLower.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         mBuildDivBound.Record(commandBuffer);
         mDiv.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
     });
@@ -78,7 +85,7 @@ Pressure::Pressure(const Renderer::Device& device,
                          vk::AccessFlagBits::eShaderRead);
     });
 
-    mSolver.Init(mMatrix, mDiv, mPressure);
+    mSolver.Init(mDiagonal, mLower, mDiv, mPressure);
 }
 
 void Pressure::Solve(LinearSolver::Parameters& params)

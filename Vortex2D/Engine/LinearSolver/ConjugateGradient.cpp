@@ -9,7 +9,8 @@ namespace Vortex2D { namespace Fluid {
 
 ConjugateGradient::ConjugateGradient(const Renderer::Device& device,
                                      const glm::ivec2& size,
-                                     Preconditioner& preconditioner)
+                                     Preconditioner& preconditioner,
+                                     bool statistics)
     : mPreconditioner(preconditioner)
     , r(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float))
     , s(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float))
@@ -24,6 +25,7 @@ ConjugateGradient::ConjugateGradient(const Renderer::Device& device,
     , errorLocal(device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float))
     , matrixMultiply(device, size, "../Vortex2D/MultiplyMatrix.comp.spv",
                     {vk::DescriptorType::eStorageBuffer,
+                     vk::DescriptorType::eStorageBuffer,
                      vk::DescriptorType::eStorageBuffer,
                      vk::DescriptorType::eStorageBuffer})
     , scalarDivision(device, glm::ivec2(1), "../Vortex2D/Divide.comp.spv",
@@ -71,13 +73,14 @@ ConjugateGradient::ConjugateGradient(const Renderer::Device& device,
     });
 }
 
-void ConjugateGradient::Init(Renderer::Buffer& A,
+void ConjugateGradient::Init(Renderer::Buffer& d,
+                             Renderer::Buffer& l,
                              Renderer::Buffer& b,
                              Renderer::Buffer& pressure)
 {
-    mPreconditioner.Init(A, r, z);
+    mPreconditioner.Init(d, l, r, z);
 
-    matrixMultiplyBound = matrixMultiply.Bind({A, s, z});
+    matrixMultiplyBound = matrixMultiply.Bind({d, l, s, z});
     multiplyAddPBound = multiplyAdd.Bind({pressure, s, alpha, pressure});
 
     mNormalSolveInit.Record([&](vk::CommandBuffer commandBuffer)

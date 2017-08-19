@@ -15,10 +15,10 @@ struct A
   float diagonal;
 };
 
-layout(std430, binding = 0) buffer Matrix
+layout(std430, binding = 0) buffer Diagonal
 {
-  A data[];
-}matrix;
+  float value[];
+}diagonal;
 
 layout(std430, binding = 1) buffer Input1
 {
@@ -37,7 +37,7 @@ void main()
     if (pos.x > 0 && pos.y > 0 && pos.x < consts.width - 1 && pos.y < consts.height - 1)
     {
         int index = pos.x + pos.y * consts.width;
-        float d = matrix.data[index].diagonal;
+        float d = diagonal.value[index];
         if (d != 0.0)
         {
             float x = pressure.value[index];

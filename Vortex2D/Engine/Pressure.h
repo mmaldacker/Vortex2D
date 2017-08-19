@@ -27,7 +27,8 @@ public:
 
 private:
     LinearSolver& mSolver;
-    Renderer::Buffer mMatrix;
+    Renderer::Buffer mDiagonal;
+    Renderer::Buffer mLower;
     Renderer::Buffer mDiv;
     Renderer::Buffer mPressure;
     Renderer::Work mBuildMatrix;

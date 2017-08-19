@@ -61,19 +61,17 @@ static void PrintBuffer(const glm::ivec2& size, Vortex2D::Renderer::Buffer& buff
 
 static void PrintWeights(const glm::ivec2& size, Vortex2D::Renderer::Buffer& buffer)
 {
-    std::vector<Vortex2D::Fluid::LinearSolver::Data> pixels(size.x * size.y);
+    std::vector<glm::vec2> pixels(size.x * size.y);
     buffer.CopyTo(pixels);
 
     for (int j = 0; j < size.x; j++)
     {
         for (int i = 0; i < size.y; i++)
         {
-            glm::vec4 value = pixels[i + j * size.x].Weights;
+            glm::vec2 value = pixels[i + j * size.x];
             std::cout << "("
                       << value.x << ","
-                      << value.y << ","
-                      << value.z << ","
-                      << value.w << ")";
+                      << value.y << ")";
         }
         std::cout << std::endl;
     }

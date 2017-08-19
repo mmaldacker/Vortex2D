@@ -20,34 +20,45 @@ const glm::ivec2 size = glm::ivec2(500);
 
 FluidSim sim;
 
-void BuildDeviceLocalLinearEquations(const glm::ivec2& size, Vortex2D::Renderer::Buffer& matrix, Vortex2D::Renderer::Buffer& div, FluidSim& sim)
+void BuildDeviceLocalLinearEquations(const glm::ivec2& size, Vortex2D::Renderer::Buffer& diagonal, Vortex2D::Renderer::Buffer& lower, Vortex2D::Renderer::Buffer& div, FluidSim& sim)
 {
-    Buffer hostMatrix(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(LinearSolver::Data));
+    Buffer hostDiagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+    Buffer hostLower(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::vec2));
     Buffer hostDiv(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
 
-    BuildLinearEquation(size, hostMatrix, hostDiv, sim);
+    BuildLinearEquation(size, hostDiagonal, hostLower, hostDiv, sim);
 
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
-        matrix.CopyFrom(commandBuffer, hostMatrix);
+        diagonal.CopyFrom(commandBuffer, hostDiagonal);
+        lower.CopyFrom(commandBuffer, hostLower);
         div.CopyFrom(commandBuffer, hostDiv);
     });
 }
 
+static void ICCG(benchmark::State& state)
+{
+    while (state.KeepRunning())
+    {
+        sim.solve_pressure(0.01f);
+    }
+}
+
 static void SOR(benchmark::State& state)
 {
-    Buffer matrix(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(LinearSolver::Data));
+    Buffer diagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
+    Buffer lower(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(glm::vec2));
     Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
     Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
 
-    BuildDeviceLocalLinearEquations(size, matrix, div, sim);
+    BuildDeviceLocalLinearEquations(size, diagonal, lower, div, sim);
 
     LinearSolver::Parameters params(10000, 1e-4f);
     GaussSeidel solver(*device, size);
 
     Timer timer(*device);
 
-    solver.Init(matrix, div, pressure);
+    solver.Init(diagonal, lower, div, pressure);
 
     while (state.KeepRunning())
     {
@@ -65,11 +76,12 @@ static void SOR(benchmark::State& state)
 
 static void CG(benchmark::State& state)
 {
-    Buffer matrix(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(LinearSolver::Data));
+    Buffer diagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
+    Buffer lower(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(glm::vec2));
     Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
     Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
 
-    BuildDeviceLocalLinearEquations(size, matrix, div, sim);
+    BuildDeviceLocalLinearEquations(size, diagonal, lower, div, sim);
 
     Diagonal preconditioner(*device, size);
 
@@ -78,7 +90,7 @@ static void CG(benchmark::State& state)
 
     Timer timer(*device);
 
-    solver.Init(matrix, div, pressure);
+    solver.Init(diagonal, lower, div, pressure);
 
     while (state.KeepRunning())
     {
@@ -96,11 +108,12 @@ static void CG(benchmark::State& state)
 
 static void DiagonalCG(benchmark::State& state)
 {
-    Buffer matrix(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(LinearSolver::Data));
+    Buffer diagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
+    Buffer lower(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(glm::vec2));
     Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
     Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
 
-    BuildDeviceLocalLinearEquations(size, matrix, div, sim);
+    BuildDeviceLocalLinearEquations(size, diagonal, lower, div, sim);
 
     Diagonal preconditioner(*device, size);
 
@@ -109,7 +122,7 @@ static void DiagonalCG(benchmark::State& state)
 
     Timer timer(*device);
 
-    solver.Init(matrix, div, pressure);
+    solver.Init(diagonal, lower, div, pressure);
 
     while (state.KeepRunning())
     {
@@ -127,11 +140,12 @@ static void DiagonalCG(benchmark::State& state)
 
 static void IncompletePoissonCG(benchmark::State& state)
 {
-    Buffer matrix(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(LinearSolver::Data));
+    Buffer diagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
+    Buffer lower(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(glm::vec2));
     Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
     Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
 
-    BuildDeviceLocalLinearEquations(size, matrix, div, sim);
+    BuildDeviceLocalLinearEquations(size, diagonal, lower, div, sim);
 
     IncompletePoisson preconditioner(*device, size);
 
@@ -140,7 +154,7 @@ static void IncompletePoissonCG(benchmark::State& state)
 
     Timer timer(*device);
 
-    solver.Init(matrix, div, pressure);
+    solver.Init(diagonal, lower, div, pressure);
 
     while (state.KeepRunning())
     {
@@ -153,16 +167,23 @@ static void IncompletePoissonCG(benchmark::State& state)
         state.SetIterationTime(timer.GetElapsedNs());
     }
 
+    auto statistics = solver.GetStatistics();
+    for (auto statistic: statistics)
+    {
+        std::cout << statistic.first << ": " << (float)statistic.second / 1000 << std::endl;
+    }
+
     state.counters["SolveIterations"] = params.OutIterations;
 }
 
 static void GaussSeidelCG(benchmark::State& state)
 {
-    Buffer matrix(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(LinearSolver::Data));
+    Buffer diagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
+    Buffer lower(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(glm::vec2));
     Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
     Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float));
 
-    BuildDeviceLocalLinearEquations(size, matrix, div, sim);
+    BuildDeviceLocalLinearEquations(size, diagonal, lower, div, sim);
 
     GaussSeidel preconditioner(*device, size);
     preconditioner.SetW(1.5f);
@@ -173,7 +194,7 @@ static void GaussSeidelCG(benchmark::State& state)
 
     Timer timer(*device);
 
-    solver.Init(matrix, div, pressure);
+    solver.Init(diagonal, lower, div, pressure);
 
     while (state.KeepRunning())
     {
@@ -186,9 +207,16 @@ static void GaussSeidelCG(benchmark::State& state)
         state.SetIterationTime(timer.GetElapsedNs());
     }
 
+    auto statistics = solver.GetStatistics();
+    for (auto statistic: statistics)
+    {
+        std::cout << statistic.first << ": " << (float)statistic.second / 1000 << std::endl;
+    }
+
     state.counters["SolveIterations"] = params.OutIterations;
 }
 
+BENCHMARK(ICCG)->Unit(benchmark::kMillisecond);
 BENCHMARK(SOR)->Unit(benchmark::kMillisecond);
 BENCHMARK(CG)->Unit(benchmark::kMillisecond);
 BENCHMARK(DiagonalCG)->Unit(benchmark::kMillisecond);

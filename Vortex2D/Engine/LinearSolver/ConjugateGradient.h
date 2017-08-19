@@ -11,6 +11,7 @@
 #include <Vortex2D/Engine/LinearSolver/Reduce.h>
 #include <Vortex2D/Renderer/Work.h>
 #include <Vortex2D/Renderer/CommandBuffer.h>
+#include <Vortex2D/Renderer/Timer.h>
 
 namespace Vortex2D { namespace Fluid {
 
@@ -21,9 +22,10 @@ namespace Vortex2D { namespace Fluid {
 class ConjugateGradient : public LinearSolver
 {
 public:
-    ConjugateGradient(const Renderer::Device& device, const glm::ivec2& size, Preconditioner& preconditioner);
+    ConjugateGradient(const Renderer::Device& device, const glm::ivec2& size, Preconditioner& preconditioner, bool statistics = false);
 
-    void Init(Renderer::Buffer& A,
+    void Init(Renderer::Buffer& d,
+              Renderer::Buffer& l,
               Renderer::Buffer& b,
               Renderer::Buffer& pressure) override;
 
@@ -34,10 +36,12 @@ public:
 
     void NormalSolve(Parameters& params);
 
+    Renderer::Statistics::Timestamps GetStatistics();
+
 private:
     Preconditioner& mPreconditioner;
 
-    Renderer::Buffer r, s, alpha, beta, rho, rho_new, sigma, error, errorLocal, inner, z;
+    Renderer::Buffer r, s, z, inner, alpha, beta, rho, rho_new, sigma, error, errorLocal;
     Renderer::Work matrixMultiply, scalarDivision, scalarMultiply, multiplyAdd, multiplySub;
     ReduceSum reduceSum;
     ReduceMax reduceMax;

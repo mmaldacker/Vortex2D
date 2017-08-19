@@ -16,18 +16,17 @@ layout(std430, binding = 0) buffer Pressure
   float value[];
 }pressure;
 
-struct A
+layout(std430, binding = 1) buffer Diagonal
 {
-  vec4 weights;
-  float diagonal;
-};
+  float value[];
+}diagonal;
 
-layout(std430, binding = 1) buffer Matrix
+layout(std430, binding = 2) buffer Lower
 {
-  A data[];
-}matrix;
+  vec2 value[];
+}lower;
 
-layout(std430, binding = 2) buffer B
+layout(std430, binding = 3) buffer B
 {
   float value[];
 }b;
@@ -40,10 +39,15 @@ void main()
     int offset = (pos.y & 1) ^ consts.red;
     int index = pos.y * consts.width + 2 * pos.x + offset;
 
-    A data = matrix.data[index];
-    if (data.diagonal != 0.0)
+    float d = diagonal.value[index];
+    if (d != 0.0)
     {
-      float oldPressure = pressure.value[index];
+      float x = pressure.value[index];
+
+      vec4 weights;
+      weights.yw = lower.value[index];
+      weights.x = lower.value[index + 1].x;
+      weights.z = lower.value[index + consts.width].y;
 
       vec4 p;
       p.x = pressure.value[index + 1];
@@ -51,7 +55,7 @@ void main()
       p.z = pressure.value[index + consts.width];
       p.w = pressure.value[index - consts.width];
 
-      pressure.value[index] = mix(oldPressure, (b.value[index] - dot(p, data.weights)) / data.diagonal, consts.w);
+      pressure.value[index] = mix(x, (b.value[index] - dot(p, weights)) / d, consts.w);
     }
   }
 }

@@ -10,20 +10,19 @@ layout(push_constant) uniform Consts
   float delta;
 }consts;
 
-struct Data
+layout(std430, binding = 0) buffer Diagonal
 {
-  vec4 weights;
-  float diagonal;
-};
+  float value[];
+}diagonal;
 
-layout(std430, binding = 0) buffer Matrix
+layout(std430, binding = 1) buffer Lower
 {
-  Data data[];
-}matrix;
+  vec2 value[];
+}lower;
 
 // TODO use sampler
-layout(binding = 1, r32f) uniform image2D FluidLevelSet;
-layout(binding = 2, r32f) uniform image2D SolidLevelSet;
+layout(binding = 2, r32f) uniform image2D FluidLevelSet;
+layout(binding = 3, r32f) uniform image2D SolidLevelSet;
 
 float fraction_inside(float a, float b)
 {
@@ -86,13 +85,11 @@ void main()
       float pyp = imageLoad(FluidLevelSet, pos + ivec2(0,1)).x;
       float pyn = imageLoad(FluidLevelSet, pos + ivec2(0,-1)).x;
 
-      vec4 weights;
-      weights.x = pxp >= 0.0 ? 0.0 : -wxp;
-      weights.y = pxn >= 0.0 ? 0.0 : -wuv.x;
-      weights.z = pyp >= 0.0 ? 0.0 : -wyp;
-      weights.w = pyn >= 0.0 ? 0.0 : -wuv.y;
+      vec2 weights;
+      weights.x = pxn >= 0.0 ? 0.0 : -wuv.x;
+      weights.y = pyn >= 0.0 ? 0.0 : -wuv.y;
 
-      matrix.data[pos.x + pos.y * consts.width].weights = consts.delta * weights * consts.width * consts.width;
+      lower.value[pos.x + pos.y * consts.width] = consts.delta * weights * consts.width * consts.width;
 
       vec4 diagonalWeights;
       diagonalWeights.x = wxp;
@@ -108,12 +105,12 @@ void main()
 
       diagonalWeights /= max(theta, 0.01);
 
-      matrix.data[pos.x + pos.y * consts.width].diagonal = consts.delta * dot(diagonalWeights, vec4(1.0)) * consts.width * consts.width;
+      diagonal.value[pos.x + pos.y * consts.width] = consts.delta * dot(diagonalWeights, vec4(1.0)) * consts.width * consts.width;
     }
     else
     {
-      matrix.data[pos.x + pos.y * consts.width].weights = vec4(0.0);
-      matrix.data[pos.x + pos.y * consts.width].diagonal = 0.0;
+      diagonal.value[pos.x + pos.y * consts.width] = 0.0;
+      lower.value[pos.x + pos.y * consts.width] = vec2(0.0);
     }
   }
 }

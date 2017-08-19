@@ -129,9 +129,10 @@ static void BuildInputs(const Vortex2D::Renderer::Device& device, const glm::ive
     });
 }
 
-static void BuildLinearEquation(const glm::ivec2& size, Vortex2D::Renderer::Buffer& matrix, Vortex2D::Renderer::Buffer& div, FluidSim& sim)
+static void BuildLinearEquation(const glm::ivec2& size, Vortex2D::Renderer::Buffer& d, Vortex2D::Renderer::Buffer& l, Vortex2D::Renderer::Buffer& div, FluidSim& sim)
 {
-    std::vector<Vortex2D::Fluid::LinearSolver::Data> matrixData(size.x * size.y);
+    std::vector<float> diagonalData(size.x * size.y);
+    std::vector<glm::vec2> lowerData(size.x * size.y);
     std::vector<float> divData(size.x * size.y);
 
     for (int i = 1; i < size.x - 1; i++)
@@ -140,21 +141,20 @@ static void BuildLinearEquation(const glm::ivec2& size, Vortex2D::Renderer::Buff
         {
             unsigned index = i + size.x * j;
             divData[index] = (float)sim.rhs[index];
-            matrixData[index].Diagonal = (float)sim.matrix(index, index);
-            matrixData[index].Weights.x = (float)sim.matrix(index + 1, index);
-            matrixData[index].Weights.y = (float)sim.matrix(index - 1, index);
-            matrixData[index].Weights.z = (float)sim.matrix(index, index + size.x);
-            matrixData[index].Weights.w = (float)sim.matrix(index, index - size.x);
+            diagonalData[index] = (float)sim.matrix(index, index);
+            lowerData[index].x = (float)sim.matrix(index - 1, index);
+            lowerData[index].y = (float)sim.matrix(index, index - size.x);
         }
     }
 
-    matrix.CopyFrom(matrixData);
+    d.CopyFrom(diagonalData);
+    l.CopyFrom(lowerData);
     div.CopyFrom(divData);
 }
 
 static void PrintDiagonal(const glm::ivec2& size, Vortex2D::Renderer::Buffer& buffer)
 {
-    std::vector<Vortex2D::Fluid::LinearSolver::Data> pixels(size.x * size.y);
+    std::vector<float> pixels(size.x * size.y);
     buffer.CopyTo(pixels);
 
     for (std::size_t j = 0; j < size.y; j++)
@@ -162,7 +162,7 @@ static void PrintDiagonal(const glm::ivec2& size, Vortex2D::Renderer::Buffer& bu
         for (std::size_t i = 0; i < size.x; i++)
         {
             std::size_t index = i + size.x * j;
-            std::cout << "(" <<  pixels[index].Diagonal << ")";
+            std::cout << "(" <<  pixels[index] << ")";
         }
         std::cout << std::endl;
     }

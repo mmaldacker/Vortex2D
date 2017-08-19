@@ -17,17 +17,6 @@ namespace Vortex2D { namespace Fluid {
  */
 struct LinearSolver
 {
-    /**
-     * @brief The data of the linear solver.
-     * In Ax = b,
-     * A is Weights + Diagonals,
-     */
-    struct Data
-    {
-        alignas(16) glm::vec4 Weights;
-        alignas(4)  float Diagonal;
-    };
-
     struct Parameters
     {
         Parameters(unsigned iterations, float errorTolerance = 0.0f);
@@ -42,7 +31,8 @@ struct LinearSolver
 
     virtual ~LinearSolver() {}
 
-    virtual void Init(Renderer::Buffer& A,
+    virtual void Init(Renderer::Buffer& d,
+                      Renderer::Buffer& l,
                       Renderer::Buffer& b,
                       Renderer::Buffer& x) = 0;
 

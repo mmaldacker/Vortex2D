@@ -16,11 +16,12 @@ Diagonal::Diagonal(const Renderer::Device& device, const glm::ivec2& size)
 
 }
 
-void Diagonal::Init(Renderer::Buffer& A,
-          Renderer::Buffer& b,
-          Renderer::Buffer& pressure)
+void Diagonal::Init(Renderer::Buffer& d,
+                    Renderer::Buffer& l,
+                    Renderer::Buffer& b,
+                    Renderer::Buffer& pressure)
 {
-    mDiagonalBound = mDiagonal.Bind({A, b, pressure});
+    mDiagonalBound = mDiagonal.Bind({d, b, pressure});
 }
 
 void Diagonal::RecordInit(vk::CommandBuffer commandBuffer)

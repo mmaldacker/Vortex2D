@@ -17,7 +17,8 @@ class IncompletePoisson : public Preconditioner
 public:
     IncompletePoisson(const Renderer::Device& device, const glm::ivec2& size);
 
-    void Init(Renderer::Buffer& A,
+    void Init(Renderer::Buffer& d,
+              Renderer::Buffer& l,
               Renderer::Buffer& b,
               Renderer::Buffer& pressure) override;
 

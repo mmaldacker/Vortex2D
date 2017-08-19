@@ -19,10 +19,12 @@ GaussSeidel::GaussSeidel(const Renderer::Device& device, const glm::ivec2& size)
     , mGaussSeidel(device, Renderer::MakeCheckerboardComputeSize(size), "../Vortex2D/GaussSeidel.comp.spv",
                    {vk::DescriptorType::eStorageBuffer,
                     vk::DescriptorType::eStorageBuffer,
+                    vk::DescriptorType::eStorageBuffer,
                     vk::DescriptorType::eStorageBuffer},
                    8)
     , mResidualWork(device, size, "../Vortex2D/Residual.comp.spv",
                    {vk::DescriptorType::eStorageBuffer,
+                    vk::DescriptorType::eStorageBuffer,
                     vk::DescriptorType::eStorageBuffer,
                     vk::DescriptorType::eStorageBuffer,
                     vk::DescriptorType::eStorageBuffer})
@@ -44,13 +46,14 @@ void GaussSeidel::SetPreconditionerIterations(int iterations)
     mPreconditionerIterations = iterations;
 }
 
-void GaussSeidel::Init(Renderer::Buffer& matrix,
+void GaussSeidel::Init(Renderer::Buffer& d,
+                       Renderer::Buffer& l,
                        Renderer::Buffer& div,
                        Renderer::Buffer& pressure)
 {
     mPressure = &pressure;
 
-    mGaussSeidelBound = mGaussSeidel.Bind({pressure, matrix, div});
+    mGaussSeidelBound = mGaussSeidel.Bind({pressure, d, l, div});
     mGaussSeidelCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
         Record(commandBuffer, 1);
@@ -61,7 +64,7 @@ void GaussSeidel::Init(Renderer::Buffer& matrix,
         pressure.Clear(commandBuffer);
     });
 
-    mResidualBound = mResidualWork.Bind({pressure, matrix, div, mResidual});
+    mResidualBound = mResidualWork.Bind({pressure, d, l, div, mResidual});
 
     mErrorCmd.Record([&](vk::CommandBuffer commandBuffer)
     {

@@ -142,16 +142,17 @@ TEST(LinearSolverTests, Simple_SOR)
     sim.add_force(0.01f);
     sim.project(0.01f);
 
-    Buffer matrix(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(LinearSolver::Data));
+    Buffer diagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+    Buffer lower(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::vec2));
     Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
     Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
 
-    BuildLinearEquation(size, matrix, div, sim);
+    BuildLinearEquation(size, diagonal, lower, div, sim);
 
     LinearSolver::Parameters params(1000, 1e-4f);
     GaussSeidel solver(*device, size);
 
-    solver.Init(matrix, div, pressure);
+    solver.Init(diagonal, lower, div, pressure);
     solver.Solve(params);
 
     device->Queue().waitIdle();
@@ -174,16 +175,17 @@ TEST(LinearSolverTests, Complex_SOR)
     sim.add_force(0.01f);
     sim.project(0.01f);
 
-    Buffer matrix(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(LinearSolver::Data));
+    Buffer diagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+    Buffer lower(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::vec2));
     Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
     Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
 
-    BuildLinearEquation(size, matrix, div, sim);
+    BuildLinearEquation(size, diagonal, lower, div, sim);
 
     LinearSolver::Parameters params(1000, 1e-4f);
     GaussSeidel solver(*device, size);
 
-    solver.Init(matrix, div, pressure);
+    solver.Init(diagonal, lower, div, pressure);
     solver.Solve(params);
 
     device->Queue().waitIdle();
@@ -206,18 +208,19 @@ TEST(LinearSolverTests, Simple_CG)
     sim.add_force(0.01f);
     sim.project(0.01f);
 
-    Buffer matrix(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(LinearSolver::Data));
+    Buffer diagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+    Buffer lower(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::vec2));
     Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
     Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
 
-    BuildLinearEquation(size, matrix, div, sim);
+    BuildLinearEquation(size, diagonal, lower, div, sim);
 
     Diagonal preconditioner(*device, size);
 
     LinearSolver::Parameters params(1000, 1e-5f);
     ConjugateGradient solver(*device, size, preconditioner);
 
-    solver.Init(matrix, div, pressure);
+    solver.Init(diagonal, lower, div, pressure);
     solver.NormalSolve(params);
 
     device->Queue().waitIdle();
@@ -240,18 +243,19 @@ TEST(LinearSolverTests, Diagonal_Simple_PCG)
     sim.add_force(0.01f);
     sim.project(0.01f);
 
-    Buffer matrix(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(LinearSolver::Data));
+    Buffer diagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+    Buffer lower(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::vec2));
     Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
     Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
 
-    BuildLinearEquation(size, matrix, div, sim);
+    BuildLinearEquation(size, diagonal, lower, div, sim);
 
     Diagonal preconditioner(*device, size);
 
     LinearSolver::Parameters params(1000, 1e-5f);
     ConjugateGradient solver(*device, size, preconditioner);
 
-    solver.Init(matrix, div, pressure);
+    solver.Init(diagonal, lower, div, pressure);
     solver.Solve(params);
 
     device->Queue().waitIdle();
@@ -274,11 +278,12 @@ TEST(LinearSolverTests, GaussSeidel_Simple_PCG)
     sim.add_force(0.01f);
     sim.project(0.01f);
 
-    Buffer matrix(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(LinearSolver::Data));
+    Buffer diagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+    Buffer lower(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::vec2));
     Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
     Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
 
-    BuildLinearEquation(size, matrix, div, sim);
+    BuildLinearEquation(size, diagonal, lower, div, sim);
 
     GaussSeidel preconditioner(*device, size);
     preconditioner.SetW(1.0f);
@@ -287,7 +292,7 @@ TEST(LinearSolverTests, GaussSeidel_Simple_PCG)
     LinearSolver::Parameters params(1000, 1e-5f);
     ConjugateGradient solver(*device, size, preconditioner);
 
-    solver.Init(matrix, div, pressure);
+    solver.Init(diagonal, lower, div, pressure);
     solver.Solve(params);
 
     device->Queue().waitIdle();
@@ -310,18 +315,19 @@ TEST(LinearSolverTests, IncompletePoisson_Simple_PCG)
     sim.add_force(0.01f);
     sim.project(0.01f);
 
-    Buffer matrix(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(LinearSolver::Data));
+    Buffer diagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+    Buffer lower(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::vec2));
     Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
     Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
 
-    BuildLinearEquation(size, matrix, div, sim);
+    BuildLinearEquation(size, diagonal, lower, div, sim);
 
     IncompletePoisson preconditioner(*device, size);
 
     LinearSolver::Parameters params(1000, 1e-5f);
     ConjugateGradient solver(*device, size, preconditioner);
 
-    solver.Init(matrix, div, pressure);
+    solver.Init(diagonal, lower, div, pressure);
     solver.Solve(params);
 
     device->Queue().waitIdle();
@@ -335,7 +341,8 @@ TEST(LinearSolverTests, Zero_CG)
 {
     glm::vec2 size(50);
 
-    Buffer matrix(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(LinearSolver::Data));
+    Buffer diagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+    Buffer lower(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::vec2));
     Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
     Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
 
@@ -344,7 +351,7 @@ TEST(LinearSolverTests, Zero_CG)
     LinearSolver::Parameters params(1000, 1e-5f);
     ConjugateGradient solver(*device, size, preconditioner);
 
-    solver.Init(matrix, div, pressure);
+    solver.Init(diagonal, lower, div, pressure);
     solver.NormalSolve(params);
 
     device->Queue().waitIdle();
@@ -365,7 +372,8 @@ TEST(LinearSolverTests, Zero_PCG)
 {
     glm::vec2 size(50);
 
-    Buffer matrix(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(LinearSolver::Data));
+    Buffer diagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+    Buffer lower(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::vec2));
     Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
     Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
 
@@ -374,7 +382,7 @@ TEST(LinearSolverTests, Zero_PCG)
     LinearSolver::Parameters params(1000, 1e-5f);
     ConjugateGradient solver(*device, size, preconditioner);
 
-    solver.Init(matrix, div, pressure);
+    solver.Init(diagonal, lower, div, pressure);
     solver.Solve(params);
 
     device->Queue().waitIdle();
