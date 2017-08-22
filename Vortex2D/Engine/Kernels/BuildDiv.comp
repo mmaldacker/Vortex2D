@@ -19,49 +19,7 @@ layout(binding = 2, r32f) uniform image2D SolidLevelSet;
 layout(binding = 3, rg32f) uniform image2D Velocity;
 layout(binding = 4, rg32f) uniform image2D SolidLevelSetVelocity;
 
-float fraction_inside(float a, float b)
-{
-    if(a < 0.0 && b < 0.0)
-        return 1.0;
-    if(a < 0.0 && b >= 0.0)
-        return a / (a - b);
-    if(a >= 0.0 && b < 0.0)
-        return b / (b - a);
-    return 0.0;
-}
-
-vec2 get_weight(ivec2 pos)
-{
-  vec2 weight;
-  weight.x = 1.0 - fraction_inside(imageLoad(SolidLevelSet, pos + ivec2(0,1)).x,
-                                   imageLoad(SolidLevelSet, pos + ivec2(0,0)).x);
-  weight.y = 1.0 - fraction_inside(imageLoad(SolidLevelSet, pos + ivec2(1,0)).x,
-                                   imageLoad(SolidLevelSet, pos + ivec2(0,0)).x);
-
-  return clamp(weight, vec2(0.0), vec2(1.0));
-}
-
-vec2 get_weightxp(ivec2 pos)
-{
-  vec2 weight;
-  weight.x = 1.0 - fraction_inside(imageLoad(SolidLevelSet, pos + ivec2(1,1)).x,
-                                   imageLoad(SolidLevelSet, pos + ivec2(1,0)).x);
-  weight.y = 1.0 - fraction_inside(imageLoad(SolidLevelSet, pos + ivec2(2,0)).x,
-                                   imageLoad(SolidLevelSet, pos + ivec2(1,0)).x);
-
-  return clamp(weight, vec2(0.0), vec2(1.0));
-}
-
-vec2 get_weightyp(ivec2 pos)
-{
-  vec2 weight;
-  weight.x = 1.0 - fraction_inside(imageLoad(SolidLevelSet, pos + ivec2(0,2)).x,
-                                   imageLoad(SolidLevelSet, pos + ivec2(0,1)).x);
-  weight.y = 1.0 - fraction_inside(imageLoad(SolidLevelSet, pos + ivec2(1,1)).x,
-                                   imageLoad(SolidLevelSet, pos + ivec2(0,1)).x);
-
-  return clamp(weight, vec2(0.0), vec2(1.0));
-}
+#include "CommonProject.comp"
 
 void main()
 {

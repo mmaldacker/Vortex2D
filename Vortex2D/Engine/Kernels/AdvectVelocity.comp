@@ -1,0 +1,54 @@
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+layout (local_size_x_id = 1, local_size_y_id = 2) in;
+
+layout(push_constant) uniform Consts
+{
+  int width;
+  int height;
+  float delta;
+}consts;
+
+layout(binding = 0, rg32f) uniform image2D Velocity;
+
+#include "CommonAdvect.comp"
+
+vec4[16] get_samples(ivec2 ij)
+{
+   vec4 t[16];
+   for(int j = 0 ; j < 4 ; ++j)
+   {
+       for(int i = 0 ; i < 4 ; ++i)
+       {
+           t[i + 4*j] = imageLoad(Velocity, ij + ivec2(i,j));
+       }
+   }
+   return t;
+}
+
+vec4 interpolate(vec2 xy)
+{
+   ivec2 ij = ivec2(floor(xy)) - 1;
+   vec2 f = xy - (ij + 1);
+
+   return bicubic(get_samples(ij), f);
+}
+
+const float a = 2.0/9.0;
+const float b = 3.0/9.0;
+const float c = 4.0/9.0;
+
+void main(void)
+{
+    ivec2 pos = ivec2(gl_GlobalInvocationID);
+    if (pos.x > 0 && pos.y > 0 && pos.x < consts.width - 1 && pos.y < consts.height - 1)
+    {
+        vec2 k1 = imageLoad(Velocity, pos).xy;
+        vec2 k2 = interpolate(pos - 0.5*consts.delta*k1).xy;
+        vec2 k3 = interpolate(pos - 0.75*consts.delta*k2).xy;
+
+        vec2 value = interpolate(pos - a*consts.delta*k1 - b*consts.delta*k2 - c*consts.delta*k3).xy;
+        imageStore(Velocity, pos, vec4(value, 0.0, 0.0));
+    }
+}

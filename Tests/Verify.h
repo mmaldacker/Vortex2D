@@ -108,18 +108,3 @@ void CheckBuffer(const std::vector<T>& data, Vortex2D::Renderer::Buffer& buffer)
         EXPECT_FLOAT_EQ(expectedValue, value) << "Value not equal at " << i;
     }
 }
-
-/*
-static void CheckData(int i, int j, float value, Reader& reader)
-{
-    EXPECT_FLOAT_EQ(value, reader.GetFloat(i, j)) << "Value not equal at " << i << ", " << j;
-}
-
-static void CheckData(int i, int j, const glm::vec4& value, Reader& reader)
-{
-    EXPECT_FLOAT_EQ(value.x, reader.GetVec4(i, j).x) << "Value not equal at " << i << ", " << j;
-    EXPECT_FLOAT_EQ(value.y, reader.GetVec4(i, j).y) << "Value not equal at " << i << ", " << j;
-    EXPECT_FLOAT_EQ(value.z, reader.GetVec4(i, j).z) << "Value not equal at " << i << ", " << j;
-    EXPECT_FLOAT_EQ(value.w, reader.GetVec4(i, j).w) << "Value not equal at " << i << ", " << j;
-}
-*/

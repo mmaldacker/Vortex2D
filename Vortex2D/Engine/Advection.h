@@ -3,25 +3,28 @@
 //  Vortex
 //
 
-#include <Vortex2D/Renderer/Common.h>
-#include <Vortex2D/Renderer/Data.h>
-#include <Vortex2D/Renderer/Operator.h>
+#include <Vortex2D/Renderer/Buffer.h>
+#include <Vortex2D/Renderer/Work.h>
+#include <Vortex2D/Renderer/CommandBuffer.h>
 
 namespace Vortex2D { namespace Fluid {
 
 class Advection
 {
 public:
-    Advection(float dt, Renderer::Buffer& velocity);
+    Advection(const Renderer::Device& device, const glm::ivec2& size, float dt, Renderer::Texture& velocity);
 
     void Advect();
     void Advect(Renderer::Buffer& buffer);
 
 private:
-    Renderer::Buffer& mVelocity;
+    Renderer::Texture& mVelocity;
+    Renderer::Work mVelocityAdvect;
+    Renderer::Work::Bound mVelocityAdvectBound;
+    Renderer::Work mAdvect;
+    Renderer::Work::Bound mAdvectBound;
 
-    Renderer::Operator mVelocityAdvect;
-    Renderer::Operator mAdvect;
+    Renderer::CommandBuffer mAdvecVelocityCmd;
 };
 
 

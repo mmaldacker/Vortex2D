@@ -61,7 +61,7 @@ static void AddParticles(const glm::vec2& size, FluidSim& sim, float (*phi)(cons
     }
 }
 
-static void SetVelocity(const glm::ivec2& size, Vortex2D::Renderer::Texture& buffer, FluidSim& sim)
+static void SetVelocity(const glm::ivec2& size, Vortex2D::Renderer::Texture& texture, FluidSim& sim)
 {
     std::vector<glm::vec2> velocityData(size.x * size.y, glm::vec2(0.0f));
     for (int i = 0; i < size.x; i++)
@@ -74,7 +74,7 @@ static void SetVelocity(const glm::ivec2& size, Vortex2D::Renderer::Texture& buf
         }
     }
 
-    buffer.CopyFrom(velocityData);
+    texture.CopyFrom(velocityData);
 }
 
 static void SetSolidPhi(const glm::ivec2& size, Vortex2D::Renderer::Texture& buffer, FluidSim& sim)
@@ -184,4 +184,21 @@ static void PrintWeights(const glm::ivec2& size, FluidSim& sim)
         std::cout << std::endl;
     }
     std::cout << std::endl;
+}
+
+static void CheckVelocity(const glm::ivec2& size, Vortex2D::Renderer::Texture& buffer, FluidSim& sim, float error = 1e-6)
+{
+    std::vector<glm::vec2> pixels(size.x * size.y);
+    buffer.CopyTo(pixels);
+
+    // FIXME need to check the entire velocity buffer
+    for (std::size_t i = 1; i < size.x; i++)
+    {
+        for (std::size_t j = 1; j < size.y; j++)
+        {
+            auto uv = pixels[i + j * size.x];
+            EXPECT_NEAR(sim.u(i, j), uv.x, error) << "Mismatch at " << i << "," << j;
+            EXPECT_NEAR(sim.v(i, j), uv.y, error) << "Mismatch at " << i << "," << j;
+        }
+    }
 }

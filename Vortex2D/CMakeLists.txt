@@ -4,6 +4,8 @@ file(GLOB LIB_SOURCES
     "Engine/LevelSet.cpp"
     "Engine/Pressure.h"
     "Engine/Pressure.cpp"
+    "Engine/Advection.h"
+    "Engine/Advection.cpp"
     "Engine/LinearSolver/LinearSolver.h"
     "Engine/LinearSolver/LinearSolver.cpp"
     "Engine/LinearSolver/Preconditioner.h"
@@ -23,7 +25,13 @@ file(GLOB LIB_SOURCES
 file(GLOB SHADER_SOURCES
     "Renderer/Kernels/*.vert"
     "Renderer/Kernels/*.frag"
-    "Engine/Kernels/*.comp"
+    "Engine/Kernels/Advect.comp"
+    "Engine/Kernels/AdvectVelocity.comp"
+    "Engine/Kernels/BuildDiv.comp"
+    "Engine/Kernels/BuildMatrix.comp"
+    "Engine/Kernels/Extrapolate.comp"
+    "Engine/Kernels/Project.comp"
+    "Engine/Kernels/Redistance.comp"
     "Engine/LinearSolver/Kernels/*.comp")
 
 find_package(Vulkan)
@@ -36,7 +44,7 @@ function(compile_shader)
     cmake_parse_arguments(SHADER "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     # TODO this only works for Win32
-    find_program(GLSL_VALIDATOR glslangValidator hints "$ENV{VULKAN_SDK}/Bin")
+    find_program(GLSL_VALIDATOR glslc hints "$ENV{VULKAN_SDK}/Bin")
     message("Using compiler: ${GLSL_VALIDATOR}")
 
     foreach(SHADER_SOURCE ${SHADER_SOURCES})
@@ -44,7 +52,7 @@ function(compile_shader)
         set(SHADER "${CMAKE_CURRENT_BINARY_DIR}/${SHADER_FILENAME}.spv")
         add_custom_command(
             OUTPUT ${SHADER}
-            COMMAND ${GLSL_VALIDATOR} -V ${SHADER_SOURCE} -o ${SHADER}
+            COMMAND ${GLSL_VALIDATOR} -c ${SHADER_SOURCE} -o ${SHADER}
             DEPENDS ${SHADER_SOURCE})
         list(APPEND SHADERS ${SHADER})
     endforeach(SHADER_SOURCE)
@@ -77,7 +85,7 @@ function(copy_shader)
   add_dependencies(${SHADER_TARGET} "${SHADER_TARGET}_SHADERS_COPY")
 endfunction()
 
-add_library(vortex2d STATIC ${LIB_SOURCES} ${SHADERS} ${SHADER_SOURCES})
+add_library(vortex2d STATIC ${LIB_SOURCES} ${SHADERS} ${SHADER_SOURCES} "Engine/Kernels/CommonAdvect.comp" "Engine/Kernels/CommonProject.comp")
 compile_shader(TARGET vortex2d SOURCES ${SHADER_SOURCES})
 target_link_libraries(vortex2d PUBLIC glm Vulkan::Vulkan)
 target_include_directories(vortex2d PUBLIC ../)

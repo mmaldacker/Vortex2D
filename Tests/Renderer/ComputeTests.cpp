@@ -241,7 +241,6 @@ TEST(ComputeTests, Checkerboard)
     }
 
     CheckBuffer(expectedOutput, buffer);
-    PrintBuffer(size, buffer);
 }
 
 TEST(ComputeTests, Timer)

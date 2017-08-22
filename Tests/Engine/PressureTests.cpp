@@ -98,23 +98,6 @@ void CheckDiv(const glm::ivec2& size, Buffer& buffer, FluidSim& sim, float error
     }
 }
 
-void CheckVelocity(const glm::ivec2& size, Vortex2D::Renderer::Texture& buffer, FluidSim& sim, float error = 1e-6)
-{
-    std::vector<glm::vec2> pixels(size.x * size.y);
-    buffer.CopyTo(pixels);
-
-    // FIXME need to check the entire velocity buffer
-    for (std::size_t i = 1; i < size.x; i++)
-    {
-        for (std::size_t j = 1; j < size.y; j++)
-        {
-            auto uv = pixels[i + j * size.x];
-            EXPECT_NEAR(sim.u(i, j), uv.x, error) << "Mismatch at " << i << "," << j;
-            EXPECT_NEAR(sim.v(i, j), uv.y, error) << "Mismatch at " << i << "," << j;
-        }
-    }
-}
-
 void PrintVelocity(const glm::ivec2& size, Texture& buffer)
 {
     std::vector<glm::vec2> pixels(size.x * size.y);
