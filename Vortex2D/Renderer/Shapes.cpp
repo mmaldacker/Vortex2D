@@ -82,15 +82,20 @@ Ellipse::Ellipse(const Device& device, const glm::vec2& radius, const glm::vec4&
     , mRadius(radius)
     , mMVPBuffer(device, vk::BufferUsageFlagBits::eUniformBuffer, true, sizeof(glm::mat4))
     , mColourBuffer(device, vk::BufferUsageFlagBits::eUniformBuffer, true, sizeof(glm::vec4))
-    , mVertexBuffer(device, vk::BufferUsageFlagBits::eVertexBuffer, true, sizeof(glm::vec2))
+    , mVertexBuffer(device, vk::BufferUsageFlagBits::eVertexBuffer, true, 6*sizeof(glm::vec2))
     , mSizeBuffer(device, vk::BufferUsageFlagBits::eUniformBuffer, true, sizeof(Size))
 {
     mColourBuffer.CopyFrom(colour);
-    mVertexBuffer.CopyFrom(glm::vec2(0.0f, 0.0f));
+    mVertexBuffer.CopyFrom(std::vector<glm::vec2>{{-radius.x, -radius.y},
+                            {radius.x, -radius.y},
+                            {-radius.x, radius.y},
+                            {radius.x, -radius.y},
+                            {radius.x, radius.y},
+                            {-radius.x, radius.y}});
 
     static vk::DescriptorSetLayout descriptorLayout = DescriptorSetLayoutBuilder()
             .Binding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
-            .Binding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eVertex, 1)
+            .Binding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment, 1)
             .Binding(2, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment, 1)
             .Create(device);
 
@@ -115,7 +120,6 @@ Ellipse::Ellipse(const Device& device, const glm::vec2& radius, const glm::vec4&
             .Shader(fragShader, vk::ShaderStageFlagBits::eFragment)
             .VertexAttribute(0, 0, vk::Format::eR32G32Sfloat, 0)
             .VertexBinding(0, sizeof(glm::vec2))
-            .Topology(vk::PrimitiveTopology::ePointList)
             .Layout(*mPipelineLayout);
 }
 
@@ -136,8 +140,6 @@ void Ellipse::Update(const glm::mat4& model, const glm::mat4& view)
     size.rotation[0] = rotation4[0];
     size.rotation[1] = rotation4[1];
 
-    size.size = std::max(size.radius.x, size.radius.y);
-
     mSizeBuffer.CopyFrom(size);
 }
 
@@ -146,7 +148,7 @@ void Ellipse::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderSta
     mPipeline.Bind(commandBuffer, renderState);
     commandBuffer.bindVertexBuffers(0, {mVertexBuffer}, {0ul});
     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *mPipelineLayout, 0, {*mDescriptorSet}, {});
-    commandBuffer.draw(1, 1, 0, 0);
+    commandBuffer.draw(6, 1, 0, 0);
 }
 
 Clear::Clear(uint32_t width, uint32_t height, const glm::vec4& colour)

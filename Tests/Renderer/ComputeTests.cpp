@@ -186,7 +186,7 @@ TEST(ComputeTests, Work)
 
 TEST(ComputeTests, Stencil)
 {
-    glm::ivec2 size(500);
+    glm::ivec2 size(50);
 
     Buffer input(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float)*size.x*size.y);
     Buffer output(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float)*size.x*size.y);
@@ -212,7 +212,7 @@ TEST(ComputeTests, Stencil)
 
 TEST(ComputeTests, Checkerboard)
 {
-    glm::ivec2 size(20);
+    glm::ivec2 size(50);
 
     Buffer buffer(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float)*size.x*size.y);
 

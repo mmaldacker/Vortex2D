@@ -68,7 +68,6 @@ private:
     // std140 aligned structure
     struct Size
     {
-        alignas(4) float size;
         alignas(8) glm::vec2 radius;
         // matrices are represented as arrays of columns, each of size 16
         alignas(16) glm::mat2x4 rotation;
