@@ -132,8 +132,7 @@ TEST(ShapeTests, Circle)
        outTexture.CopyFrom(commandBuffer, texture);
     });
 
-    PrintTexture(outTexture);
-    //CheckTexture(data, outTexture);
+    CheckTexture(data, outTexture);
 }
 
 TEST(ShapeTests, Ellipse)

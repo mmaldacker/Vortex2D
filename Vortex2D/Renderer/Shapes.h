@@ -29,7 +29,7 @@ public:
     Shape(const Device& device, const std::vector<glm::vec2>& vertices, const glm::vec4& colour);
 
     void Initialize(const RenderState& renderState) override;
-    void Update(const glm::mat4& model, const glm::mat4& view) override;
+    void Update(const glm::mat4& projection, const glm::mat4& view) override;
     void Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState) override;
 
 private:
@@ -61,13 +61,14 @@ public:
     Ellipse(const Device& device, const glm::vec2& radius, const glm::vec4& colour);
 
     void Initialize(const RenderState& renderState) override;
-    void Update(const glm::mat4& model, const glm::mat4& view) override;
+    void Update(const glm::mat4& projection, const glm::mat4& view) override;
     void Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState) override;
 
 private:
     // std140 aligned structure
     struct Size
     {
+        alignas(8) glm::vec2 position;
         alignas(8) glm::vec2 radius;
         // matrices are represented as arrays of columns, each of size 16
         alignas(16) glm::mat2x4 rotation;

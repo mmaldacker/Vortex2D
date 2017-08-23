@@ -54,9 +54,9 @@ void Shape::Initialize(const RenderState& renderState)
     mPipeline.Create(mDevice, renderState);
 }
 
-void Shape::Update(const glm::mat4& model, const glm::mat4& view)
+void Shape::Update(const glm::mat4& projection, const glm::mat4& view)
 {
-    mMVPBuffer.CopyFrom(model * view * GetTransform());
+    mMVPBuffer.CopyFrom(projection * view * GetTransform());
 }
 
 void Shape::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState)
@@ -128,17 +128,20 @@ void Ellipse::Initialize(const RenderState& renderState)
     mPipeline.Create(mDevice, renderState);
 }
 
-void Ellipse::Update(const glm::mat4& model, const glm::mat4& view)
+void Ellipse::Update(const glm::mat4& projection, const glm::mat4& view)
 {
-    mMVPBuffer.CopyFrom(model * view * GetTransform());
+    mMVPBuffer.CopyFrom(projection * view * GetTransform());
 
     Size size;
     glm::vec2 transformScale(glm::length(view[0]), glm::length(view[1]));
     size.radius = mRadius * (glm::vec2)Scale * transformScale;
 
-    glm::mat4 rotation4 = glm::rotate(glm::radians((float)Rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+    glm::mat4 rotation4 = glm::rotate(-glm::radians((float)Rotation), glm::vec3(0.0f, 0.0f, 1.0f));
     size.rotation[0] = rotation4[0];
     size.rotation[1] = rotation4[1];
+
+    size.position.x = 1.0f / projection[0][0];
+    size.position.y = 1.0f / projection[1][1];
 
     mSizeBuffer.CopyFrom(size);
 }

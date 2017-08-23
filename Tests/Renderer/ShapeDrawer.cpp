@@ -16,8 +16,8 @@ void DrawEllipse(int width,
     {
         for (int j = 0; j < height; j++)
         {
-            glm::vec2 pos(i, j);
-            pos = glm::rotate(pos - centre + glm::vec2(1.0f), glm::radians(rotation));
+            glm::vec2 pos(i + 0.5f, j + 0.5f);
+            pos = glm::rotate(pos - centre, -glm::radians(rotation));
             if (glm::dot(pos / radius, pos / radius) <= 1.0f)
             {
                 data[i + j * width] = 1.0f;
