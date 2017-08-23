@@ -87,11 +87,11 @@ Ellipse::Ellipse(const Device& device, const glm::vec2& radius, const glm::vec4&
 {
     mColourBuffer.CopyFrom(colour);
     mVertexBuffer.CopyFrom(std::vector<glm::vec2>{{-radius.x, -radius.y},
-                            {radius.x, -radius.y},
-                            {-radius.x, radius.y},
-                            {radius.x, -radius.y},
-                            {radius.x, radius.y},
-                            {-radius.x, radius.y}});
+                            {radius.x + 1.0f, -radius.y},
+                            {-radius.x, radius.y + 1.0f},
+                            {radius.x + 1.0f, -radius.y},
+                            {radius.x + 1.0f, radius.y + 1.0f},
+                            {-radius.x, radius.y + 1.0f}});
 
     static vk::DescriptorSetLayout descriptorLayout = DescriptorSetLayoutBuilder()
             .Binding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
@@ -140,8 +140,8 @@ void Ellipse::Update(const glm::mat4& projection, const glm::mat4& view)
     size.rotation[0] = rotation4[0];
     size.rotation[1] = rotation4[1];
 
-    size.position.x = 1.0f / projection[0][0];
-    size.position.y = 1.0f / projection[1][1];
+    size.view.x = 1.0f / projection[0][0];
+    size.view.y = 1.0f / projection[1][1];
 
     mSizeBuffer.CopyFrom(size);
 }
