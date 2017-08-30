@@ -6,11 +6,8 @@
 #ifndef Extrapolation_h
 #define Extrapolation_h
 
-#include <Vortex2D/Renderer/Operator.h>
-#include <Vortex2D/Renderer/Data.h>
-#include <Vortex2D/Renderer/Shapes.h>
-
-#include <Vortex2D/Engine/Size.h>
+#include <Vortex2D/Renderer/CommandBuffer.h>
+#include <Vortex2D/Renderer/Work.h>
 #include <Vortex2D/Engine/LevelSet.h>
 
 namespace Vortex2D { namespace Fluid {
@@ -21,9 +18,11 @@ namespace Vortex2D { namespace Fluid {
 class Extrapolation
 {
 public:
-    Extrapolation(const glm::ivec2& size,
-                  Renderer::Buffer& velocity,
-                  Renderer::Buffer& solidPhi);
+    Extrapolation(const Renderer::Device& device,
+                  const glm::ivec2& size,
+                  Renderer::Buffer& valid,
+                  Renderer::Texture& velocity,
+                  Renderer::Texture& solidPhi);
 
     /**
      * @brief Will extrapolate values from buffer into the dirichlet and neumann boundaries
@@ -35,16 +34,16 @@ public:
 
 
 private:
-    Renderer::Buffer& mVelocity;
-    Renderer::Buffer& mSolidPhi;
+    Renderer::Buffer mValid;
+    Renderer::Texture mVelocity;
 
-    Renderer::Buffer mExtrapolateValid;
+    Renderer::Work mExtrapolateVelocity;
+    Renderer::Work::Bound mExtrapolateVelocityFrontBound, mExtrapolateVelocityBackBound;
+    Renderer::Work mConstrainVelocity;
+    Renderer::Work::Bound mConstrainVelocityBound;
 
-    Renderer::Operator mIdentity;
-    Renderer::Operator mExtrapolate;
-    Renderer::Operator mValidExtrapolate;
-    Renderer::Operator mValidVelocities;
-    Renderer::Operator mConstrainVelocity;
+    Renderer::CommandBuffer mExtrapolateCmd;
+    Renderer::CommandBuffer mConstrainCmd;
 };
 
 }}

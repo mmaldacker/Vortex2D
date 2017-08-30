@@ -85,7 +85,7 @@ static void SetSolidPhi(const glm::ivec2& size, Vortex2D::Renderer::Texture& buf
         for (int j = 0; j < size.y; j++)
         {
             int width = size.x;
-            phi[i + j * width] = width * sim.nodal_solid_phi(i, j);
+            phi[i + j * width] = sim.nodal_solid_phi(i, j);
         }
     }
 
@@ -100,7 +100,7 @@ static void SetLiquidPhi(const glm::ivec2& size, Vortex2D::Renderer::Texture& bu
         for (int j = 0; j < size.y; j++)
         {
             int width = size.x;
-            phi[i + j * width] = width * sim.liquid_phi(i, j);
+            phi[i + j * width] = sim.liquid_phi(i, j);
         }
     }
 
@@ -186,15 +186,45 @@ static void PrintWeights(const glm::ivec2& size, FluidSim& sim)
     std::cout << std::endl;
 }
 
+static void PrintVelocity(const glm::ivec2& size, Vortex2D::Renderer::Texture& buffer)
+{
+    std::vector<glm::vec2> pixels(size.x * size.y);
+    buffer.CopyTo(pixels);
+
+    for (std::size_t j = 0; j < size.y; j++)
+    {
+        for (std::size_t i = 0; i < size.x; i++)
+        {
+            std::size_t index = i + size.x * j;
+            std::cout << "(" <<  pixels[index].x << "," << pixels[index].y << ")";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+}
+
+static void PrintVelocity(const glm::ivec2& size, FluidSim& sim)
+{
+    for (std::size_t j = 0; j < size.y; j++)
+    {
+        for (std::size_t i = 0; i < size.x; i++)
+        {
+            std::cout << "(" << sim.u(i, j) << "," << sim.v(i, j) << ")";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+}
+
 static void CheckVelocity(const glm::ivec2& size, Vortex2D::Renderer::Texture& buffer, FluidSim& sim, float error = 1e-6)
 {
     std::vector<glm::vec2> pixels(size.x * size.y);
     buffer.CopyTo(pixels);
 
     // FIXME need to check the entire velocity buffer
-    for (std::size_t i = 1; i < size.x; i++)
+    for (std::size_t i = 1; i < size.x - 1; i++)
     {
-        for (std::size_t j = 1; j < size.y; j++)
+        for (std::size_t j = 1; j < size.y - 1; j++)
         {
             auto uv = pixels[i + j * size.x];
             EXPECT_NEAR(sim.u(i, j), uv.x, error) << "Mismatch at " << i << "," << j;

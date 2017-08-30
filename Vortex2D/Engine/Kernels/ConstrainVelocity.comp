@@ -1,0 +1,65 @@
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+layout (local_size_x_id = 1, local_size_y_id = 2) in;
+
+layout(push_constant) uniform Consts
+{
+  int width;
+  int height;
+}consts;
+
+layout(binding = 0, r32f) uniform image2D SolidLevelSet;
+layout(binding = 1, rg32f) uniform image2D Velocity;
+layout(binding = 2, rg32f) uniform image2D OutVelocity;
+
+#include "CommonProject.comp"
+
+void main()
+{
+    ivec2 pos = ivec2(gl_GlobalInvocationID);
+    vec2 uv = imageLoad(Velocity, pos).xy;
+
+    float v00 = imageLoad(SolidLevelSet, pos).x;
+    float v10 = imageLoad(SolidLevelSet, pos + ivec2(1,0)).x;
+    float v01 = imageLoad(SolidLevelSet, pos + ivec2(0,1)).x;
+    float v11 = imageLoad(SolidLevelSet, pos + ivec2(1,1)).x;
+
+    vec2 constrained = vec2(0.0);
+    vec2 wuv = get_weight(pos);
+
+    if (wuv.x == 0.0)
+    {
+        vec2 grad = vec2(mix(v10 - v00, v11 - v01, 0.5), v01 - v00);
+        vec2 normal = normalize(grad);
+
+        float vn = imageLoad(Velocity, pos + ivec2(-1, 0)).y;
+        float vp = imageLoad(Velocity, pos + ivec2(-1, 1)).y;
+        float up = imageLoad(Velocity, pos + ivec2(0, 1)).y;
+
+        float v = (vn + uv.y + vp + up) * 0.25;
+
+        float perp_component = dot(normal, vec2(uv.x, v));
+
+        constrained.x = normal.x * perp_component;
+    }
+
+    if (wuv.y == 0.0)
+    {
+        vec2 grad = vec2(v10 - v00, mix(v01 - v00, v11 - v10, 0.5));
+        vec2 normal = normalize(grad);
+
+        float vn = imageLoad(Velocity, pos + ivec2(0, -1)).x;
+        float vp = imageLoad(Velocity, pos + ivec2(1, -1)).x;
+        float up = imageLoad(Velocity, pos + ivec2(1, 0)).x;
+
+        float u = (vn + uv.x + vp + up) * 0.25;
+
+        float perp_component = dot(normal, vec2(u, uv.y));
+
+        constrained.y = normal.y * perp_component;
+    }
+
+    // FIXME need to set the obstacle velocity (means we don't have to set it in project?)
+    imageStore(OutVelocity, pos, vec4(uv - constrained, 0.0, 0.0));
+}

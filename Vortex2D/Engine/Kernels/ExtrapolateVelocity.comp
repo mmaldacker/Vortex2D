@@ -1,0 +1,76 @@
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+layout (local_size_x_id = 1, local_size_y_id = 2) in;
+
+layout(push_constant) uniform Consts
+{
+  int width;
+  int height;
+}consts;
+
+layout(std430, binding = 0) buffer OldValid
+{
+  ivec2 value[];
+}oldValid;
+
+layout(std430, binding = 1) buffer Valid
+{
+  ivec2 value[];
+}valid;
+
+layout(binding = 2, rg32f) uniform image2D Velocity;
+
+void Extrapolate(ivec2 pos, int i, inout float value)
+{
+    int index = pos.x + pos.y * consts.width;
+    if (oldValid.value[index][i] == 0)
+    {
+        float sum = 0.0;
+        float count = 0.0;
+
+        if (oldValid.value[index + 1][i] == 1)
+        {
+            sum += imageLoad(Velocity, pos + ivec2(1,0))[i];
+            count += 1.0;
+        }
+        if (oldValid.value[index + consts.width][i] == 1)
+        {
+            sum += imageLoad(Velocity, pos + ivec2(0,1))[i];
+            count += 1.0;
+        }
+        if (oldValid.value[index - 1][i] == 1)
+        {
+            sum += imageLoad(Velocity, pos + ivec2(-1,0))[i];
+            count += 1.0;
+        }
+        if (oldValid.value[index - consts.width][i] == 1)
+        {
+            sum += imageLoad(Velocity, pos + ivec2(0,-1))[i];
+            count += 1.0;
+        }
+
+        if (count > 0.0)
+        {
+            valid.value[index][i] = 1;
+            value = sum / count;
+        }
+    }
+}
+
+void main()
+{
+    ivec2 pos = ivec2(gl_GlobalInvocationID);
+    if (pos.x > 0 && pos.y > 0 && pos.x < consts.width - 1 && pos.y < consts.height - 1)
+    {
+        int index = pos.x + pos.y * consts.width;
+        vec2 extrapolated_velocity = imageLoad(Velocity, pos).xy;
+
+        valid.value[index] = oldValid.value[index];
+
+        Extrapolate(pos, 0, extrapolated_velocity.x);
+        Extrapolate(pos, 1, extrapolated_velocity.y);
+
+        imageStore(Velocity, pos, vec4(extrapolated_velocity, 0.0, 0.0));
+    }
+}

@@ -98,36 +98,6 @@ void CheckDiv(const glm::ivec2& size, Buffer& buffer, FluidSim& sim, float error
     }
 }
 
-void PrintVelocity(const glm::ivec2& size, Texture& buffer)
-{
-    std::vector<glm::vec2> pixels(size.x * size.y);
-    buffer.CopyTo(pixels);
-
-    for (std::size_t j = 0; j < size.y; j++)
-    {
-        for (std::size_t i = 0; i < size.x; i++)
-        {
-            std::size_t index = i + size.x * j;
-            std::cout << "(" <<  pixels[index].x << "," << pixels[index].y << ")";
-        }
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
-}
-
-void PrintVelocity(const glm::ivec2& size, FluidSim& sim)
-{
-    for (std::size_t j = 0; j < size.y; j++)
-    {
-        for (std::size_t i = 0; i < size.x; i++)
-        {
-            std::cout << "(" << sim.u(i, j) << "," << sim.v(i, j) << ")";
-        }
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
-}
-
 TEST(PressureTest, LinearEquationSetup_Simple)
 {
     glm::ivec2 size(50);

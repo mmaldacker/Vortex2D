@@ -1,8 +1,8 @@
 file(GLOB ENGINE_TEST_SOURCES "Engine/LevelSetTests.cpp"
                               "Engine/LinearSolverTests.cpp"
                               "Engine/PressureTests.cpp"
-                              "Engine/AdvectionTests.cpp")
-                              #"Engine/ExtrapolateTests.cpp"
+                              "Engine/AdvectionTests.cpp"
+                              "Engine/ExtrapolateTests.cpp")
                               #"Engine/BoundariesTests.cpp"
                               #"Engine/WorldTests.cpp"
                               #"Engine/DensityTests.cpp")

@@ -6,6 +6,8 @@ file(GLOB LIB_SOURCES
     "Engine/Pressure.cpp"
     "Engine/Advection.h"
     "Engine/Advection.cpp"
+    "Engine/Extrapolation.h"
+    "Engine/Extrapolation.cpp"
     "Engine/LinearSolver/LinearSolver.h"
     "Engine/LinearSolver/LinearSolver.cpp"
     "Engine/LinearSolver/Preconditioner.h"
@@ -32,6 +34,8 @@ file(GLOB SHADER_SOURCES
     "Engine/Kernels/Extrapolate.comp"
     "Engine/Kernels/Project.comp"
     "Engine/Kernels/Redistance.comp"
+    "Engine/Kernels/ConstrainVelocity.comp"
+    "Engine/Kernels/ExtrapolateVelocity.comp"
     "Engine/LinearSolver/Kernels/*.comp")
 
 find_package(Vulkan)
