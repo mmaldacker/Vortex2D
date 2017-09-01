@@ -18,7 +18,8 @@ public:
     void Advect(Renderer::Buffer& buffer);
 
 private:
-    Renderer::Texture& mVelocity;
+    // TODO use a common temp velocity texture
+    Renderer::Texture mVelocity;
     Renderer::Work mVelocityAdvect;
     Renderer::Work::Bound mVelocityAdvectBound;
     Renderer::Work mAdvect;

@@ -5,9 +5,9 @@ vec4 cubic(vec4 f1, vec4 f2, vec4 f3, vec4 f4, float xd)
    float xd3 = xd2 * xd;
 
    return f1*(     - 0.5*xd  +     xd2 - 0.5*xd3) +
-   f2*( 1.0           - 2.5*xd2 + 1.5*xd3) +
-   f3*(       0.5*xd  + 2.0*xd2 - 1.5*xd3) +
-   f4*(               - 0.5*xd2 + 0.5*xd3);
+          f2*( 1.0           - 2.5*xd2 + 1.5*xd3) +
+          f3*(       0.5*xd  + 2.0*xd2 - 1.5*xd3) +
+          f4*(               - 0.5*xd2 + 0.5*xd3);
 }
 
 vec4 bicubic(vec4 t[16], vec2 f)
@@ -27,33 +27,45 @@ vec4 bicubic(vec4 t[16], vec2 f)
    return clamp(x, minValue, maxValue);
 }
 
-vec2 get_velocity(ivec2 pos)
-{
-   vec2 uv = imageLoad(Velocity, pos).xy;
-   float up = imageLoad(Velocity, pos + ivec2(1,0)).x;
-   float vp = imageLoad(Velocity, pos + ivec2(0,1)).y;
-
-   return vec2(uv.x + up, uv.y + vp) * 0.5;
-}
-
-vec4[16] get_velocity_samples(ivec2 ij)
+vec4[16] get_samples(ivec2 ij)
 {
    vec4 t[16];
    for(int j = 0 ; j < 4 ; ++j)
    {
        for(int i = 0 ; i < 4 ; ++i)
        {
-           t[i + 4*j] = vec4(get_velocity(ij + ivec2(i,j)), 0.0, 0.0);
+           t[i + 4*j] = imageLoad(Velocity, ij + ivec2(i,j));
        }
    }
-
    return t;
 }
 
-vec2 interpolate_velocity(vec2 xy)
+// TODO use cubic interpolation instead
+float interpolate_value_u(vec2 xy)
 {
-   ivec2 ij = ivec2(floor(xy)) - 1;
-   vec2 f = xy - (ij + 1);
+    ivec2 ij = ivec2(floor(xy));
+    vec2 f = xy - vec2(ij);
 
-   return bicubic(get_velocity_samples(ij), f).xy;
+    return mix(mix(imageLoad(Velocity, ij + ivec2(0, 0)).x, imageLoad(Velocity, ij + ivec2(1, 0)).x, f.x),
+               mix(imageLoad(Velocity, ij + ivec2(0, 1)).x, imageLoad(Velocity, ij + ivec2(1, 1)).x, f.x),
+               f.y);
+}
+
+// TODO use cubic interpolation instead
+float interpolate_value_v(vec2 xy)
+{
+    ivec2 ij = ivec2(floor(xy));
+    vec2 f = xy - vec2(ij);
+
+    return mix(mix(imageLoad(Velocity, ij + ivec2(0, 0)).y, imageLoad(Velocity, ij + ivec2(1, 0)).y, f.x),
+               mix(imageLoad(Velocity, ij + ivec2(0, 1)).y, imageLoad(Velocity, ij + ivec2(1, 1)).y, f.x),
+               f.y);
+}
+
+vec2 get_velocity(vec2 xy)
+{
+    float u = interpolate_value_u(xy - vec2(0.0, 0.5));
+    float v = interpolate_value_v(xy - vec2(0.5, 0.0));
+
+    return vec2(u, v);
 }

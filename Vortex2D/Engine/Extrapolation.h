@@ -35,6 +35,7 @@ public:
 
 private:
     Renderer::Buffer mValid;
+    // TODO use a common temp velocity texture
     Renderer::Texture mVelocity;
 
     Renderer::Work mExtrapolateVelocity;

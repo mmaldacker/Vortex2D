@@ -57,8 +57,7 @@ public:
         std::memcpy(&dst, mapped, mSize);
         mDevice.unmapMemory(*mMemory);
     }
-
-    void CopyFrom(vk::CommandBuffer commandBuffer, Buffer& srcBuffer);
+ void CopyFrom(vk::CommandBuffer commandBuffer, Buffer& srcBuffer);
     void CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcTexture);
 
     void Flush();

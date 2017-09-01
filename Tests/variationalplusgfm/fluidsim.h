@@ -47,7 +47,7 @@ public:
    Vec2f get_velocity(const Vec2f& position);
    void add_particle(const Vec2f& position);
 
-   Vec2f trace_rk2(const Vec2f& position, float dt);
+   Vec2f trace_rk3(const Vec2f& position, float dt);
 
    void advect_particles(float dt);
 

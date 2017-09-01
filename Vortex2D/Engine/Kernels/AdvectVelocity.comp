@@ -11,44 +11,40 @@ layout(push_constant) uniform Consts
 }consts;
 
 layout(binding = 0, rg32f) uniform image2D Velocity;
+layout(binding = 1, rg32f) uniform image2D OutVelocity;
 
 #include "CommonAdvect.comp"
-
-vec4[16] get_samples(ivec2 ij)
-{
-   vec4 t[16];
-   for(int j = 0 ; j < 4 ; ++j)
-   {
-       for(int i = 0 ; i < 4 ; ++i)
-       {
-           t[i + 4*j] = imageLoad(Velocity, ij + ivec2(i,j));
-       }
-   }
-   return t;
-}
-
-vec4 interpolate(vec2 xy)
-{
-   ivec2 ij = ivec2(floor(xy)) - 1;
-   vec2 f = xy - (ij + 1);
-
-   return bicubic(get_samples(ij), f);
-}
 
 const float a = 2.0/9.0;
 const float b = 3.0/9.0;
 const float c = 4.0/9.0;
 
+vec2 trace_rk3(vec2 pos)
+{
+    vec2 k1 = get_velocity(pos);
+    vec2 k2 = get_velocity(pos - 0.5 * consts.width * consts.delta * k1);
+    vec2 k3 = get_velocity(pos - 0.75 * consts.width * consts.delta * k2);
+    return pos - a * consts.width * consts.delta * k1
+               - b * consts.width * consts.delta * k2
+               - c * consts.width * consts.delta * k3;
+}
+
 void main(void)
 {
     ivec2 pos = ivec2(gl_GlobalInvocationID);
-    if (pos.x > 0 && pos.y > 0 && pos.x < consts.width - 1 && pos.y < consts.height - 1)
+    if (pos.x >= 0 && pos.y >= 0 && pos.x < consts.width && pos.y < consts.height)
     {
-        vec2 k1 = imageLoad(Velocity, pos).xy;
-        vec2 k2 = interpolate(pos - 0.5*consts.delta*k1).xy;
-        vec2 k3 = interpolate(pos - 0.75*consts.delta*k2).xy;
+        vec2 value;
 
-        vec2 value = interpolate(pos - a*consts.delta*k1 - b*consts.delta*k2 - c*consts.delta*k3).xy;
-        imageStore(Velocity, pos, vec4(value, 0.0, 0.0));
+        // u
+        vec2 upos = trace_rk3(vec2(pos) + vec2(0.0, 0.5));
+        value.x = get_velocity(upos).x;
+
+        // v
+        vec2 vpos = trace_rk3(vec2(pos) + vec2(0.5, 0.0));
+        value.y = get_velocity(vpos).y;
+
+        // store result
+        imageStore(OutVelocity, pos, vec4(value, 0.0, 0.0));
     }
 }

@@ -138,14 +138,14 @@ void FluidSim::advect(float dt) {
    //semi-Lagrangian advection on u-component of velocity
    for(int j = 0; j < nj; ++j) for(int i = 0; i < ni+1; ++i) {
       Vec2f pos(i*dx, (j+0.5f)*dx);
-      pos = trace_rk2(pos, -dt);
+      pos = trace_rk3(pos, -dt);
       temp_u(i,j) = get_velocity(pos)[0];
    }
 
    //semi-Lagrangian advection on v-component of velocity
    for(int j = 0; j < nj+1; ++j) for(int i = 0; i < ni; ++i) {
       Vec2f pos((i+0.5f)*dx, j*dx);
-      pos = trace_rk2(pos, -dt);
+      pos = trace_rk3(pos, -dt);
       temp_v(i,j) = get_velocity(pos)[1];
    }
 
@@ -241,12 +241,18 @@ void FluidSim::project(float dt) {
 }
 
 
-//Apply RK2 to advect a point in the domain.
-Vec2f FluidSim::trace_rk2(const Vec2f& position, float dt) {
+//Apply RK3 to advect a point in the domain.
+Vec2f FluidSim::trace_rk3(const Vec2f& position, float dt) {
    Vec2f input = position;
-   Vec2f velocity = get_velocity(input);
-   velocity = get_velocity(input + 0.5f*dt*velocity);
-   input += dt*velocity;
+   Vec2f k1 = get_velocity(input);
+   Vec2f k2 = get_velocity(input + 0.5f*dt*k1);
+   Vec2f k3 = get_velocity(input + 0.75f*dt*k2);
+
+   const float a = 2.0f/9.0f;
+   const float b = 3.0f/9.0f;
+   const float c = 4.0f/9.0f;
+
+   input += a*dt*k1 + b*dt*k2 + c*dt*k3;
    return input;
 }
 
@@ -276,6 +282,7 @@ float fraction_inside(float phi_left, float phi_right) {
 //Compute finite-volume style face-weights for fluid from nodal signed distances
 void FluidSim::compute_weights() {
 
+    // TODO need to swap the +1
    for(int j = 0; j < u_weights.nj; ++j) for(int i = 0; i < u_weights.ni; ++i) {
       u_weights(i,j) = 1 - fraction_inside(nodal_solid_phi(i,j+1), nodal_solid_phi(i,j));
       u_weights(i,j) = clamp(u_weights(i,j), 0.0f, 1.0f);

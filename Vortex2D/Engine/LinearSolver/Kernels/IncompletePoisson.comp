@@ -29,8 +29,6 @@ layout(std430, binding = 3) buffer Input2
   float value[];
 }z;
 
-const float w = 1.1;
-
 void main()
 {
     ivec2 pos = ivec2(gl_GlobalInvocationID);
@@ -68,7 +66,7 @@ void main()
           p.z = pressure.value[index + consts.width];
           p.w = pressure.value[index - consts.width];
 
-          z.value[index] = (2.0 - w) * w * (oldPressure * diagonal + dot(p, weights)) / centreDiagonal;
+          z.value[index] = (oldPressure * diagonal + dot(p, weights)) / centreDiagonal;
         }
     }
 }

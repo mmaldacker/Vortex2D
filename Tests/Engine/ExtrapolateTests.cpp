@@ -145,8 +145,6 @@ TEST(ExtrapolateTest, Constrain)
     Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
     SetVelocity(size, outputVelocity, sim);
 
-    PrintVelocity(size, outputVelocity);
-
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
         velocity.CopyFrom(commandBuffer, outputVelocity);
@@ -164,6 +162,5 @@ TEST(ExtrapolateTest, Constrain)
         outputVelocity.CopyFrom(commandBuffer, velocity);
     });
 
-    PrintVelocity(size, outputVelocity);
     CheckVelocity(size, outputVelocity, sim, 1e-5f);
 }
