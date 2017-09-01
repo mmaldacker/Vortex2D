@@ -26,9 +26,9 @@ LevelSet::LevelSet(const Renderer::Device& device, const glm::ivec2& size, int r
                   4)
     , mRedistanceFront(mRedistance.Bind({{*mSampler, mLevelSet0}, {*mSampler, *this}, mLevelSetBack}))
     , mRedistanceBack(mRedistance.Bind({{*mSampler, mLevelSet0}, {*mSampler, mLevelSetBack}, *this}))
-    , mExtrapolateCmd(device)
-    , mReinitialiseCmd(device)
-    , mRedistanceCmd(device)
+    , mExtrapolateCmd(device, false)
+    , mReinitialiseCmd(device, false)
+    , mRedistanceCmd(device, false)
 {
     mRedistanceCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
@@ -74,13 +74,17 @@ LevelSet::LevelSet(const Renderer::Device& device, const glm::ivec2& size, int r
     });
 }
 
-void LevelSet::Extrapolate(Renderer::Buffer& solidPhi)
+void LevelSet::ExtrapolateInit(Renderer::Texture& solidPhi)
 {
     mExtrapolateBound = mExtrapolate.Bind({solidPhi, *this});
     mExtrapolateCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
-        // TODO add barrier
         mExtrapolateBound.Record(commandBuffer);
+        Barrier(commandBuffer,
+                vk::ImageLayout::eGeneral,
+                vk::AccessFlagBits::eShaderWrite,
+                vk::ImageLayout::eGeneral,
+                vk::AccessFlagBits::eShaderRead);
     });
 }
 
