@@ -36,7 +36,7 @@ TEST(AdvectionTests, AdvectVelocity_Simple)
     sim.advect(0.01f);
 
     Advection advection(*device, size, 0.01f, velocity);
-    advection.Advect();
+    advection.AdvectVelocity();
 
     device->Queue().waitIdle();
 
@@ -73,7 +73,7 @@ TEST(AdvectionTests, AdvectVelocity_Complex)
     sim.advect(0.01f);
 
     Advection advection(*device, size, 0.01f, velocity);
-    advection.Advect();
+    advection.AdvectVelocity();
 
     device->Queue().waitIdle();
 
@@ -85,33 +85,67 @@ TEST(AdvectionTests, AdvectVelocity_Complex)
     CheckVelocity(size, output, sim, 1e-5f);
 }
 
-/*
-TEST(AdvectionTests, Advect)
+void PrintRGBA8(Texture& texture)
 {
-    Disable d(GL_BLEND);
+    std::vector<glm::u8vec4> pixels(texture.GetWidth() * texture.GetHeight());
+    texture.CopyTo(pixels);
 
-    glm::vec2 size(10);
-
-    Buffer velocity(size, 2, true);
-
-    std::vector<glm::vec2> velocityData(size.x * size.y, glm::vec2(0.0f));
-    velocityData[3 + size.x * 4] = glm::vec2(1.0f, 0.0f);
-    Writer(velocity).Write(velocityData);
-
-    Reader(velocity).Read().Print();
-
-    Buffer buffer(size, 1, true);
-
-    std::vector<float> bufferData(size.x * size.y, 0.0f);
-    bufferData[3 + size.x * 4] = 1.0f;
-    Writer(buffer).Write(bufferData);
-
-    Advection advection(1.0f, velocity);
-    advection.Advect(buffer);
-
-    Reader(buffer).Read().Print();
-
-    // FIXME assert on something
+    for (uint32_t j = 0; j < texture.GetHeight(); j++)
+    {
+        for (uint32_t i = 0; i < texture.GetWidth(); i++)
+        {
+            uint8_t value = pixels[i + j * texture.GetWidth()].x;
+            std::cout << "(" << (int)value << ")";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
 }
 
-*/
+TEST(AdvectionTests, Advect)
+{
+    glm::ivec2 size(10);
+
+    glm::vec2 vel(3.0f, 1.0f);
+    glm::ivec2 pos(3, 4);
+
+    Texture velocityInput(*device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
+    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
+
+    std::vector<glm::vec2> velocityData(size.x * size.y, vel / glm::vec2(size));
+    velocityInput.CopyFrom(velocityData);
+
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+        velocity.CopyFrom(commandBuffer, velocityInput);
+    });
+
+    Texture fieldInput(*device, size.x, size.y, vk::Format::eB8G8R8A8Unorm, true);
+    Texture field(*device, size.x, size.y, vk::Format::eB8G8R8A8Unorm, false);
+
+    std::vector<glm::u8vec4> fieldData(size.x * size.y);
+    fieldData[pos.x + size.x * pos.y].x = 128;
+    fieldInput.CopyFrom(fieldData);
+
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+        field.CopyFrom(commandBuffer, fieldInput);
+    });
+
+    Advection advection(*device, size, 1.0f, velocity);
+    advection.AdvectInit(field);
+    advection.Advect();
+
+    device->Handle().waitIdle();
+
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+        fieldInput.CopyFrom(commandBuffer, field);
+    });
+
+    std::vector<glm::u8vec4> pixels(fieldInput.GetWidth() * fieldInput.GetHeight());
+    fieldInput.CopyTo(pixels);
+
+    pos += glm::ivec2(vel);
+    ASSERT_EQ(128, pixels[pos.x + size.x * pos.y].x);
+}

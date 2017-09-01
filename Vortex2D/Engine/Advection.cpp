@@ -8,39 +8,58 @@
 namespace Vortex2D { namespace Fluid {
 
 Advection::Advection(const Renderer::Device& device, const glm::ivec2& size, float dt, Renderer::Texture& velocity)
-    : mVelocity(device, size.x, size.y, vk::Format::eR32G32Sfloat, false)
+    : mDt(dt)
+    , mVelocity(velocity)
+    , mTmpVelocity(device, size.x, size.y, vk::Format::eR32G32Sfloat, false)
+    , mField(device, size.x, size.y, vk::Format::eB8G8R8A8Unorm, false)
     , mVelocityAdvect(device, size, "../Vortex2D/AdvectVelocity.comp.spv",
                      {vk::DescriptorType::eStorageImage,
                       vk::DescriptorType::eStorageImage}, 4)
-    , mVelocityAdvectBound(mVelocityAdvect.Bind({velocity, mVelocity}))
-    , mAdvect(device, size, "../Vortex2D/Advect.comp.spv", {vk::DescriptorType::eStorageImage,
-                                                            vk::DescriptorType::eStorageImage}, 4)
-    , mAdvecVelocityCmd(device, false)
+    , mVelocityAdvectBound(mVelocityAdvect.Bind({velocity, mTmpVelocity}))
+    , mAdvect(device, size, "../Vortex2D/Advect.comp.spv",
+             {vk::DescriptorType::eStorageImage,
+              vk::DescriptorType::eStorageImage,
+              vk::DescriptorType::eStorageImage}, 4)
+    , mAdvectVelocityCmd(device, false)
+    , mAdvectCmd(device, false)
 {
-    mAdvecVelocityCmd.Record([&](vk::CommandBuffer commandBuffer)
+    mAdvectVelocityCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
         mVelocityAdvectBound.PushConstant(commandBuffer, 8, dt);
         mVelocityAdvectBound.Record(commandBuffer);
-        mVelocity.Barrier(commandBuffer,
-                              vk::ImageLayout::eGeneral,
-                              vk::AccessFlagBits::eShaderWrite,
-                              vk::ImageLayout::eGeneral,
-                              vk::AccessFlagBits::eShaderRead);
-        velocity.CopyFrom(commandBuffer, mVelocity);
+        mTmpVelocity.Barrier(commandBuffer,
+                          vk::ImageLayout::eGeneral,
+                          vk::AccessFlagBits::eShaderWrite,
+                          vk::ImageLayout::eGeneral,
+                          vk::AccessFlagBits::eShaderRead);
+        velocity.CopyFrom(commandBuffer, mTmpVelocity);
+    });
+}
+
+void Advection::AdvectVelocity()
+{
+    mAdvectVelocityCmd.Submit();
+}
+
+void Advection::AdvectInit(Renderer::Texture& field)
+{
+    mAdvectBound = mAdvect.Bind({mVelocity, field, mField});
+    mAdvectCmd.Record([&](vk::CommandBuffer commandBuffer)
+    {
+        mAdvectBound.PushConstant(commandBuffer, 8, mDt);
+        mAdvectBound.Record(commandBuffer);
+        mField.Barrier(commandBuffer,
+                      vk::ImageLayout::eGeneral,
+                      vk::AccessFlagBits::eShaderWrite,
+                      vk::ImageLayout::eGeneral,
+                      vk::AccessFlagBits::eShaderRead);
+        field.CopyFrom(commandBuffer, mField);
     });
 }
 
 void Advection::Advect()
 {
-    mAdvecVelocityCmd.Submit();
-}
-
-void Advection::Advect(Renderer::Buffer& buffer)
-{
-    /*
-    buffer.Swap();
-    buffer = mAdvect(Back(buffer), mVelocity);
-    */
+    mAdvectCmd.Submit();
 }
 
 }}

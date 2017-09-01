@@ -14,18 +14,28 @@ class Advection
 public:
     Advection(const Renderer::Device& device, const glm::ivec2& size, float dt, Renderer::Texture& velocity);
 
+    void AdvectVelocity();
+
+    // TODO can only advect one field, need to be able to do as many as we want
+    // also can only advect RGBA8
+    void AdvectInit(Renderer::Texture& field);
     void Advect();
-    void Advect(Renderer::Buffer& buffer);
 
 private:
+    float mDt;
+    Renderer::Texture& mVelocity;
     // TODO use a common temp velocity texture
-    Renderer::Texture mVelocity;
+    Renderer::Texture mTmpVelocity;
+    // TODO currently only accepts RGBA8
+    Renderer::Texture mField;
+
     Renderer::Work mVelocityAdvect;
     Renderer::Work::Bound mVelocityAdvectBound;
     Renderer::Work mAdvect;
     Renderer::Work::Bound mAdvectBound;
 
-    Renderer::CommandBuffer mAdvecVelocityCmd;
+    Renderer::CommandBuffer mAdvectVelocityCmd;
+    Renderer::CommandBuffer mAdvectCmd;
 };
 
 
