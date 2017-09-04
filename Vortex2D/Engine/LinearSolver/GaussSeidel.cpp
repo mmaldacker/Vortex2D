@@ -80,9 +80,6 @@ void GaussSeidel::Init(Renderer::Buffer& d,
 
 void GaussSeidel::Solve(Parameters& params)
 {
-    // FIXME implement solving within error tolerance
-    assert(params.Iterations > 0);
-
     mInitCmd.Submit();
     mErrorCmd.Submit();
 
@@ -101,11 +98,6 @@ void GaussSeidel::Solve(Parameters& params)
         mErrorCmd.Submit();
         mGaussSeidelCmd.Submit();
     }
-}
-
-void GaussSeidel::RecordInit(vk::CommandBuffer commandBuffer)
-{
-
 }
 
 void GaussSeidel::Record(vk::CommandBuffer commandBuffer)

@@ -24,7 +24,6 @@ struct Preconditioner
                       Renderer::Buffer& b,
                       Renderer::Buffer& x) = 0;
 
-    virtual void RecordInit(vk::CommandBuffer commandBuffer) = 0;
     virtual void Record(vk::CommandBuffer commandBuffer) = 0;
 };
 

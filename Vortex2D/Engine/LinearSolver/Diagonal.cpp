@@ -24,11 +24,6 @@ void Diagonal::Init(Renderer::Buffer& d,
     mDiagonalBound = mDiagonal.Bind({d, b, pressure});
 }
 
-void Diagonal::RecordInit(vk::CommandBuffer commandBuffer)
-{
-
-}
-
 void Diagonal::Record(vk::CommandBuffer commandBuffer)
 {
     mDiagonalBound.Record(commandBuffer);

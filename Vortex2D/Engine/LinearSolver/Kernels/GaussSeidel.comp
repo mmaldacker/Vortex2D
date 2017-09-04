@@ -44,18 +44,12 @@ void main()
     {
       float x = pressure.value[index];
 
-      vec4 weights;
-      weights.yw = lower.value[index];
-      weights.x = lower.value[index + 1].x;
-      weights.z = lower.value[index + consts.width].y;
+      float newx = (b.value[index] - pressure.value[index + 1] * lower.value[index + 1].x
+                                   - pressure.value[index - 1] * lower.value[index].x
+                                   - pressure.value[index + consts.width] * lower.value[index + consts.width].y
+                                   - pressure.value[index - consts.width] * lower.value[index].y) / d;
 
-      vec4 p;
-      p.x = pressure.value[index + 1];
-      p.y = pressure.value[index - 1];
-      p.z = pressure.value[index + consts.width];
-      p.w = pressure.value[index - consts.width];
-
-      pressure.value[index] = mix(x, (b.value[index] - dot(p, weights)) / d, consts.w);
+      pressure.value[index] = mix(x, newx, consts.w);
     }
   }
 }
