@@ -12,7 +12,7 @@ namespace Vortex2D { namespace Renderer {
 Sprite::Sprite(const Device& device, const Texture& texture)
     : mDevice(device.Handle())
     , mMVPBuffer(device, vk::BufferUsageFlagBits::eUniformBuffer, true, sizeof(glm::mat4))
-    , mVertexBuffer(device, vk::BufferUsageFlagBits::eVertexBuffer, true, sizeof(glm::vec2) * 6)
+    , mVertexBuffer(device, vk::BufferUsageFlagBits::eVertexBuffer, true, sizeof(Vertex) * 6)
 {
     Vertex vertices[] = {
         {{0.0f, 0.0f}, {0.0f, 0.0f}},
@@ -33,7 +33,7 @@ Sprite::Sprite(const Device& device, const Texture& texture)
     mDescriptorSet = MakeDescriptorSet(device, descriptorLayout);
 
     // TODO add as parameter
-    mSampler = SamplerBuilder().Create(device.Handle());
+    mSampler = SamplerBuilder().Filter(vk::Filter::eLinear).Create(device.Handle());
 
     DescriptorSetUpdater(*mDescriptorSet)
             .WriteBuffers(0, 0, vk::DescriptorType::eUniformBuffer).Buffer(mMVPBuffer)
@@ -45,8 +45,8 @@ Sprite::Sprite(const Device& device, const Texture& texture)
             .DescriptorSetLayout(descriptorLayout)
             .Create(device.Handle());
 
-    vk::ShaderModule vertexShader = device.GetShaderModule("../TexturePosition.vert.spv");
-    vk::ShaderModule fragShader = device.GetShaderModule("../TexturePosition.frag.spv");
+    vk::ShaderModule vertexShader = device.GetShaderModule("../Vortex2D/TexturePosition.vert.spv");
+    vk::ShaderModule fragShader = device.GetShaderModule("../Vortex2D/TexturePosition.frag.spv");
 
     mPipeline = GraphicsPipeline::Builder()
             .Shader(vertexShader, vk::ShaderStageFlagBits::eVertex)

@@ -87,3 +87,8 @@ bool GLFWApp::ShoudCloseWindow() const
     return glfwWindowShouldClose(mWindow);
 }
 
+GLFWwindow* GLFWApp::GetWindow()
+{
+    return mWindow;
+}
+

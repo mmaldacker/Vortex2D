@@ -16,6 +16,7 @@ public:
     SamplerBuilder();
 
     SamplerBuilder& AddressMode(vk::SamplerAddressMode mode);
+    SamplerBuilder& Filter(vk::Filter filter);
 
     vk::UniqueSampler Create(vk::Device device);
 

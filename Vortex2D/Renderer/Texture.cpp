@@ -26,6 +26,14 @@ SamplerBuilder& SamplerBuilder::AddressMode(vk::SamplerAddressMode mode)
     return *this;
 }
 
+SamplerBuilder& SamplerBuilder::Filter(vk::Filter filter)
+{
+    mSamplerInfo
+            .setMagFilter(filter)
+            .setMinFilter(filter);
+    return *this;
+}
+
 vk::UniqueSampler SamplerBuilder::Create(vk::Device device)
 {
     return device.createSamplerUnique(mSamplerInfo);

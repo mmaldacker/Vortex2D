@@ -28,6 +28,8 @@ public:
 
     bool ShoudCloseWindow() const;
 
+    GLFWwindow* GetWindow();
+
 private:
     uint32_t mWidth, mHeight;
     GLFWwindow* mWindow;
