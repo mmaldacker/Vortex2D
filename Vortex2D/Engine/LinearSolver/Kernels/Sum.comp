@@ -52,21 +52,36 @@ void main()
   barrier();
 
   // do reduction in shared mem
-  for (int s = blockSize / 2; s > 0; s >>= 1)
+  for (int s = blockSize / 2; s > 32; s >>= 1)
   {
     if (tid < s)
     {
-      sum += sdata[tid + s];
-      sdata[tid] = sum;
+      sdata[tid] += sdata[tid + s];
     }
 
     memoryBarrierShared();
     barrier();
   }
+  
+  if ( tid < 32 )
+  { 
+    sdata[tid] += sdata[tid + 32];
+    memoryBarrierShared();
+    sdata[tid] += sdata[tid + 16];
+    memoryBarrierShared();    
+    sdata[tid] += sdata[tid + 8];
+    memoryBarrierShared();    
+    sdata[tid] += sdata[tid + 4];
+    memoryBarrierShared();    
+    sdata[tid] += sdata[tid + 2];
+    memoryBarrierShared();    
+    sdata[tid] += sdata[tid + 1];
+    memoryBarrierShared();    
+  }
 
   // write result for this block to global mem
   if (tid == 0)
   {
-    outputs[gl_WorkGroupID.x] = sum;
+    outputs[gl_WorkGroupID.x] = sdata[0];
   }
 }
