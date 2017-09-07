@@ -9,103 +9,62 @@
 
 namespace Vortex2D { namespace Fluid {
 
-namespace
-{
-
-const char * FluidFrag = GLSL(
-    in vec2 v_texCoord;
-    uniform sampler2D u_texture;
-    uniform vec4 u_Colour;
-
-    out vec4 out_color;
-
-    void main()
-    {
-        float x = texture(u_texture, v_texCoord).x;
-        if(x < 0.0)
-        {
-            out_color = u_Colour;
-        }
-        else
-        {
-            out_color = vec4(0.0);
-        }
-    }
-);
-
-}
-
-using Renderer::Back;
-
-World::World(Dimensions dimensions, float dt)
+World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
     : mDimensions(dimensions)
-    , mData(dimensions.Size)
-    , mLinearSolver(dimensions.Size)
-    , mVelocity(dimensions.Size, 2, true)
-    , mBoundariesVelocity(dimensions.Size, 2)
-    , mFluidLevelSet(dimensions.Size)
-    , mObstacleLevelSet(glm::vec2(2.0f)*dimensions.Size)
-    , mAdvection(dt, mVelocity)
-    , mPressure(dt, dimensions.Size, mLinearSolver, mData, mVelocity, mObstacleLevelSet, mFluidLevelSet, mBoundariesVelocity)
-    , mExtrapolation(dimensions.Size, mVelocity, mObstacleLevelSet)
-    , mVelocityReader(mVelocity)
+    , mDiagonal(device, vk::BufferUsageFlagBits::eStorageBuffer, false, dimensions.Size.x*dimensions.Size.y*sizeof(float))
+    , mLower(device, vk::BufferUsageFlagBits::eStorageBuffer, false, dimensions.Size.x*dimensions.Size.y*sizeof(glm::vec2))
+    , mDiv(device, vk::BufferUsageFlagBits::eStorageBuffer, false, dimensions.Size.x*dimensions.Size.y*sizeof(float))
+    , mPressure(device, vk::BufferUsageFlagBits::eStorageBuffer, false, dimensions.Size.x*dimensions.Size.y*sizeof(float))
+    , mPreconditioner(device, dimensions.Size)
+    , mLinearSolver(device, dimensions.Size, mPreconditioner)
+    , mVelocity(device, dimensions.Size.x, dimensions.Size.y, vk::Format::eR32G32Sfloat)
+    , mBoundariesVelocity(device, dimensions.Size.x, dimensions.Size.y, vk::Format::eR32G32Sfloat)
+    , mFluidLevelSet(device, dimensions.Size)
+    , mObstacleLevelSet(device, dimensions.Size)
+    , mValid(device, vk::BufferUsageFlagBits::eStorageBuffer, false, dimensions.Size.x*dimensions.Size.y*sizeof(glm::ivec2))
+    , mAdvection(device, dimensions.Size, dt, mVelocity)
+    , mProjection(device, dt, dimensions.Size, mLinearSolver, mVelocity, mObstacleLevelSet, mFluidLevelSet, mBoundariesVelocity)
+    , mExtrapolation(device, dimensions.Size, mValid, mVelocity, mObstacleLevelSet)
 {
-    //mVelocity.Clear(glm::vec4(0.0));
-    //mBoundariesVelocity.Clear(glm::vec4(0.0));
+    mPreconditioner.SetW(1.5f);
+    mPreconditioner.SetPreconditionerIterations(16);
 }
 
-Boundaries World::DrawBoundaries()
+void World::InitField(Renderer::Texture& field)
 {
-    return Boundaries(mDimensions, mFluidLevelSet, mObstacleLevelSet);
+    mAdvection.AdvectInit(field);
 }
 
-void World::Solve()
+void World::SolveStatic(vk::Semaphore signalSemaphore)
 {
-    mFluidLevelSet.Extrapolate(mObstacleLevelSet);
-
-    LinearSolver::Parameters params(300, 1e-5f);
-    mPressure.Solve(params);
-
-    mFluidLevelSet.Swap();
+    LinearSolver::Parameters params(300, 1e-3f);
+    mProjection.Solve(params);
 
     mExtrapolation.Extrapolate();
     mExtrapolation.ConstrainVelocity();
 
-    mAdvection.Advect();
+    mAdvection.AdvectVelocity();
+    mAdvection.Advect(signalSemaphore);
 }
 
-void World::RenderForce(Renderer::Drawable& object)
+void World::SolveDynamic()
 {
-    //Renderer::BlendState s(GL_FUNC_ADD, GL_ONE, GL_ONE);
 
-    //mVelocity.Render(object, mDimensions.InvScale);
 }
 
-void World::Render(const Renderer::Device& device, Renderer::RenderTarget & target)
+Renderer::RenderTexture& World::Velocity()
 {
-    /*
-    auto & sprite = mFluidLevelSet.Sprite();
-    sprite.SetProgram(mFluidProgram);
-    mFluidProgram.Use();
-    target.Render(sprite, glm::scale(glm::vec3(mDimensions.Scale, mDimensions.Scale, 1.0))*transform);
-    */
+    return mVelocity;
 }
 
-void World::Advect()
+LevelSet& World::LiquidPhi()
 {
-    mAdvection.Advect(mFluidLevelSet);
-    mFluidLevelSet.Redistance(2);
+    return mFluidLevelSet;
 }
 
-void World::Advect(Renderer::Buffer& buffer)
+LevelSet& World::SolidPhi()
 {
-    mAdvection.Advect(buffer);
-}
-
-Renderer::Reader& World::GetVelocityReader()
-{
-    mVelocityReader.Read();
-    return mVelocityReader;
+    return mObstacleLevelSet;
 }
 
 }}

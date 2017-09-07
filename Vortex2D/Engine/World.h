@@ -8,15 +8,13 @@
 
 #include <Vortex2D/Renderer/Drawable.h>
 #include <Vortex2D/Renderer/Shapes.h>
-#include <Vortex2D/Renderer/Operator.h>
-#include <Vortex2D/Renderer/Reader.h>
 
 #include <Vortex2D/Engine/LinearSolver/LinearSolver.h>
 #include <Vortex2D/Engine/LinearSolver/ConjugateGradient.h>
+#include <Vortex2D/Engine/LinearSolver/GaussSeidel.h>
 #include <Vortex2D/Engine/Size.h>
 #include <Vortex2D/Engine/Extrapolation.h>
 #include <Vortex2D/Engine/LevelSet.h>
-#include <Vortex2D/Engine/Boundaries.h>
 #include <Vortex2D/Engine/Pressure.h>
 #include <Vortex2D/Engine/Advection.h>
 
@@ -29,66 +27,45 @@ namespace Vortex2D { namespace Fluid {
  * is used to set forces, define boundaries, solve the incompressbility equations and do the
  * advection.
  */
-class World : public Renderer::Drawable
+class World
 {
 public:
     /**
      * @brief Construct an Engine with a size, linear solver and time step.
      */
-    World(Dimensions dimensions, float dt);
+    World(const Renderer::Device& device, Dimensions dimensions, float dt);
 
+    void InitField(Renderer::Texture& field);
 
-    Boundaries DrawBoundaries();
+    void SolveStatic(vk::Semaphore signalSemaphore);
 
-    /**
-     * @brief Render a force in the fluid. For example heat pushing the fluid up or gravity pushing the water down.
-     * @param object Drawable needs to draw with colour (x,y,0,0) where (x,y) is the force
-     */
-    void RenderForce(Renderer::Drawable & object);
+    void SolveDynamic();
 
-    /**
-     * @brief Advances by one time step. This solver the incompressible equation and does the advection.
-     */
-    void Solve();
+    Renderer::RenderTexture& Velocity();
+    LevelSet& LiquidPhi();
+    LevelSet& SolidPhi();
 
-    /**
-     * @brief Renders the fluid region
-     */
-    void Render(const Renderer::Device& device, Renderer::RenderTarget & target) override;
-
-    /**
-     * @brief Advect the fluid region, this is used to simulate water.
-     */
-    void Advect();
-
-    Renderer::Reader& GetVelocityReader();
-
-    /**
-     * @brief the Colour to render the fluid region in
-     */
-    glm::vec4 Colour;
-
-    friend class Density;
 private:
-    void Advect(Renderer::Buffer& buffer);
-
     Dimensions mDimensions;
 
-    LinearSolver::Data mData;
+    Renderer::Buffer mDiagonal;
+    Renderer::Buffer mLower;
+    Renderer::Buffer mDiv;
+    Renderer::Buffer mPressure;
+
+    GaussSeidel mPreconditioner;
     ConjugateGradient mLinearSolver;
 
-    Renderer::Buffer mVelocity;
-    Renderer::Buffer mBoundariesVelocity;
+    Renderer::RenderTexture mVelocity;
+    Renderer::RenderTexture mBoundariesVelocity;
     LevelSet mFluidLevelSet;
     LevelSet mObstacleLevelSet;
 
+    Renderer::Buffer mValid;
+
     Advection mAdvection;
-    Pressure mPressure;
+    Pressure mProjection;
     Extrapolation mExtrapolation;
-
-    Renderer::Reader mVelocityReader;
-
-    Renderer::Program mFluidProgram;
 };
 
 }}
