@@ -66,11 +66,13 @@ void CommandBuffer::Wait()
     }
 }
 
-void CommandBuffer::Submit()
+void CommandBuffer::Submit(std::initializer_list<vk::Semaphore> signalSemaphore)
 {
     auto submitInfo = vk::SubmitInfo()
             .setCommandBufferCount(1)
-            .setPCommandBuffers(&mCommandBuffer);
+            .setPCommandBuffers(&mCommandBuffer)
+            .setSignalSemaphoreCount(signalSemaphore.size())
+            .setPSignalSemaphores(signalSemaphore.begin());
 
     if (mSynchronise)
     {

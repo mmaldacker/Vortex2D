@@ -20,7 +20,8 @@ public:
 
     ~RenderWindow();
 
-    void Submit() override;
+    void Submit(std::initializer_list<vk::Semaphore> waitSemaphore = {},
+                std::initializer_list<vk::Semaphore> signalSemaphore = {}) override;
 
     void Record(CommandFn commandFn) override;
 

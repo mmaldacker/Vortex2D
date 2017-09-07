@@ -9,6 +9,7 @@
 #include <Vortex2D/Renderer/Common.h>
 
 #include <functional>
+#include <initializer_list>
 
 namespace Vortex2D { namespace Renderer {
 
@@ -26,7 +27,8 @@ struct RenderTarget
     virtual ~RenderTarget();
 
     virtual void Record(CommandFn) = 0;
-    virtual void Submit() = 0;
+    virtual void Submit(std::initializer_list<vk::Semaphore> waitSemaphore,
+                        std::initializer_list<vk::Semaphore> signalSemaphore) = 0;
 
     uint32_t Width;
     uint32_t Height;

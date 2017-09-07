@@ -11,6 +11,7 @@
 
 #include <vector>
 #include <functional>
+#include <initializer_list>
 
 namespace Vortex2D { namespace Renderer {
 
@@ -27,7 +28,7 @@ public:
 
     void Record(CommandFn commandFn);
     void Wait();
-    void Submit();
+    void Submit(std::initializer_list<vk::Semaphore> signalSemaphore = {});
 
 private:
     const Device& mDevice;

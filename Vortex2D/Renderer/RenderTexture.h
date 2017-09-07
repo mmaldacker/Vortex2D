@@ -21,13 +21,13 @@ public:
     ~RenderTexture();
 
     void Record(CommandFn commandFn) override;
-    void Submit() override;
+    void Submit(std::initializer_list<vk::Semaphore> waitSemaphore = {},
+                std::initializer_list<vk::Semaphore> signalSemaphore = {}) override;
 
 private:
     const Device& mDevice;
     vk::UniqueFramebuffer mFramebuffer;
     vk::CommandBuffer mCmd;
-    vk::UniqueFence mFence;
 };
 
 }}

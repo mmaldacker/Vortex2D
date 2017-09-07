@@ -122,7 +122,8 @@ RenderWindow::~RenderWindow()
     mDevice.FreeCommandBuffers({mCmdBuffers});
 }
 
-void RenderWindow::Submit()
+void RenderWindow::Submit(std::initializer_list<vk::Semaphore> waitSemaphore,
+                          std::initializer_list<vk::Semaphore> signalSemaphore)
 {
     uint32_t imageIndex;
     auto result = mDevice.Handle().acquireNextImageKHR(*mSwapChain, UINT64_MAX, *mImageAvailableSemaphore, nullptr);
@@ -135,28 +136,34 @@ void RenderWindow::Submit()
         throw std::runtime_error("Acquire error " + vk::to_string(result.result));
     }
 
-    vk::Semaphore waitSemaphors[] = {*mImageAvailableSemaphore};
-    vk::Semaphore signalSemaphors[] = {*mRenderFinishedSemaphore};
-    vk::PipelineStageFlags waitStages[] = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
+    std::vector<vk::Semaphore> waitSemaphores = waitSemaphore;
+    waitSemaphores.push_back(*mImageAvailableSemaphore);
+
+    std::vector<vk::Semaphore> signalSemaphores = signalSemaphore;
+    signalSemaphores.push_back(*mRenderFinishedSemaphore);
+
+    std::vector<vk::PipelineStageFlags> waitStages(waitSemaphores.size(), vk::PipelineStageFlagBits::eAllCommands);
 
     auto submitInfo = vk::SubmitInfo()
             .setCommandBufferCount(1)
             .setPCommandBuffers(&mCmdBuffers[imageIndex])
-            .setWaitSemaphoreCount(1)
-            .setPWaitSemaphores(waitSemaphors)
-            .setSignalSemaphoreCount(1)
-            .setPSignalSemaphores(signalSemaphors)
-            .setPWaitDstStageMask(waitStages);
+            .setWaitSemaphoreCount(waitSemaphores.size())
+            .setPWaitSemaphores(waitSemaphores.data())
+            .setSignalSemaphoreCount(signalSemaphores.size())
+            .setPSignalSemaphores(signalSemaphores.data())
+            .setPWaitDstStageMask(waitStages.data());
 
     mDevice.Queue().submit({submitInfo}, nullptr);
 
     vk::SwapchainKHR swapChain[] = {*mSwapChain};
 
+    vk::Semaphore presentSemaphore[] = {*mRenderFinishedSemaphore};
+
     auto presentInfo = vk::PresentInfoKHR()
             .setSwapchainCount(1)
             .setPSwapchains(swapChain)
             .setPImageIndices(&imageIndex)
-            .setPWaitSemaphores(signalSemaphors)
+            .setPWaitSemaphores(presentSemaphore)
             .setWaitSemaphoreCount(1);
 
     mDevice.Queue().presentKHR(presentInfo);

@@ -44,12 +44,6 @@ RenderTexture::RenderTexture(const Device& device, uint32_t width, uint32_t heig
 
     // Create Command Buffer
     mCmd = mDevice.CreateCommandBuffers(1).at(0);
-
-    // Create fence
-    auto fenceInfo = vk::FenceCreateInfo()
-            .setFlags(vk::FenceCreateFlagBits::eSignaled);
-
-    mFence = mDevice.Handle().createFenceUnique(fenceInfo);
 }
 
 RenderTexture::~RenderTexture()
@@ -59,9 +53,6 @@ RenderTexture::~RenderTexture()
 
 void RenderTexture::Record(CommandFn commandFn)
 {
-    mDevice.Handle().waitForFences({*mFence}, true, UINT64_MAX);
-    mDevice.Handle().resetFences({*mFence});
-
     auto bufferBegin = vk::CommandBufferBeginInfo()
             .setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse);
 
@@ -80,13 +71,21 @@ void RenderTexture::Record(CommandFn commandFn)
     mCmd.end();
 }
 
-void RenderTexture::Submit()
+void RenderTexture::Submit(std::initializer_list<vk::Semaphore> waitSemaphore,
+                           std::initializer_list<vk::Semaphore> signalSemaphore)
 {
+    std::vector<vk::PipelineStageFlags> waitStages(waitSemaphore.size(), vk::PipelineStageFlagBits::eAllCommands);
+
     auto submitInfo = vk::SubmitInfo()
             .setCommandBufferCount(1)
-            .setPCommandBuffers(&mCmd);
+            .setPCommandBuffers(&mCmd)
+            .setWaitSemaphoreCount(waitSemaphore.size())
+            .setPWaitSemaphores(waitSemaphore.begin())
+            .setSignalSemaphoreCount(signalSemaphore.size())
+            .setPSignalSemaphores(signalSemaphore.begin())
+            .setPWaitDstStageMask(waitStages.data());
 
-    mDevice.Queue().submit({submitInfo}, *mFence);
+    mDevice.Queue().submit({submitInfo}, nullptr);
 }
 
 }}
