@@ -76,6 +76,7 @@ Pressure::Pressure(const Renderer::Device& device,
 
     mProjectCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
+        // TODO need to set the valid buffer too
         mProjectBound.PushConstant(commandBuffer, 8, dt);
         mProjectBound.Record(commandBuffer);
         velocity.Barrier(commandBuffer,

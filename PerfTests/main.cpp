@@ -186,7 +186,7 @@ static void GaussSeidelCG(benchmark::State& state)
     BuildDeviceLocalLinearEquations(size, diagonal, lower, div, sim);
 
     GaussSeidel preconditioner(*device, size);
-    preconditioner.SetW(1.5f);
+    preconditioner.SetW(1.9f);
     preconditioner.SetPreconditionerIterations(state.range(0));
 
     LinearSolver::Parameters params(10000, 1e-4f);
@@ -221,7 +221,7 @@ BENCHMARK(SOR)->Unit(benchmark::kMillisecond);
 BENCHMARK(CG)->Unit(benchmark::kMillisecond);
 BENCHMARK(DiagonalCG)->Unit(benchmark::kMillisecond);
 BENCHMARK(IncompletePoissonCG)->Unit(benchmark::kMillisecond);
-BENCHMARK(GaussSeidelCG)->RangeMultiplier(2)->Range(1, 64)->Unit(benchmark::kMillisecond);
+BENCHMARK(GaussSeidelCG)->RangeMultiplier(2)->Range(1, 128)->Unit(benchmark::kMillisecond);
 
 int main(int argc, char** argv)
 {

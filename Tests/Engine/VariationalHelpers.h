@@ -109,7 +109,6 @@ static void SetLiquidPhi(const glm::ivec2& size, Vortex2D::Renderer::Texture& bu
 
 static void BuildInputs(const Vortex2D::Renderer::Device& device, const glm::ivec2& size, FluidSim& sim, Vortex2D::Renderer::Texture& velocity, Vortex2D::Renderer::Texture& solidPhi, Vortex2D::Renderer::Texture& liquidPhi)
 {
-    //TODO do we need the copy here? can't we directly set the texture (create with host = true)?
     Vortex2D::Renderer::Texture inputVelocity(device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
     SetVelocity(size, inputVelocity, sim);
 

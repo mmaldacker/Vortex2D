@@ -24,7 +24,7 @@ lambda_visitor<Lambdas...> make_lambda_visitor(Lambdas... lambdas)
 
 glm::ivec2 ComputeSize::GetLocalSize2D()
 {
-    return {16, 16};
+    return {64, 4};
 }
 
 int ComputeSize::GetLocalSize1D()
