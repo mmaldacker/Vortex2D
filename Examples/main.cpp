@@ -5,10 +5,12 @@
 #include <Vortex2D/Renderer/RenderWindow.h>
 
 #include "RenderExample.h"
+#include "SmokeExample.h"
 
 #include <iostream>
 #include <memory>
 #include <functional>
+#include <chrono>
 
 using namespace Vortex2D;
 
@@ -17,10 +19,13 @@ glm::vec4 gray = glm::vec4(182.0f,172.0f,164.0f, 255.0f)/glm::vec4(255.0f);
 glm::vec4 blue = glm::vec4(99.0f, 155.0f, 188.0f, 255.0f)/glm::vec4(255.0f);
 
 glm::ivec2 size = {1000,1000};
+float scale = 4;
 
-std::unique_ptr<Vortex2D::Renderer::Drawable> example;
+Vortex2D::Renderer::Device* device;
+Vortex2D::Renderer::RenderTarget* target;
 
-/*
+std::unique_ptr<Example> example;
+
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if (action != GLFW_PRESS) return;
@@ -28,22 +33,41 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     switch (key)
     {
         case GLFW_KEY_1:
-            example.reset(new SmokeExample(size, 0.033f));
+            //example.reset(new RenderExample(*device, size));
             break;
         case GLFW_KEY_2:
-            example.reset(new ObstacleSmokeExample(size, 0.033f));
+            example.reset(new SmokeExample(*device, {size, scale}, 0.033f));
             break;
         case GLFW_KEY_3:
-            example.reset(new WaterExample(size, 0.033f));
+            //example.reset(new ObstacleSmokeExample(size, 0.033f));
             break;
         case GLFW_KEY_4:
-            example.reset(new ScaleWaterExample(size, 0.033f));
+            //example.reset(new WaterExample(size, 0.033f));
+            break;
+        case GLFW_KEY_5:
+            //example.reset(new ScaleWaterExample(size, 0.033f));
         default:
             break;
     }
 
+    Vortex2D::Renderer::RenderState t(*target);
+    t.ColorBlend
+            .setBlendEnable(true)
+            .setAlphaBlendOp(vk::BlendOp::eAdd)
+            .setColorBlendOp(vk::BlendOp::eAdd)
+            .setSrcColorBlendFactor(vk::BlendFactor::eSrcAlpha)
+            .setSrcAlphaBlendFactor(vk::BlendFactor::eOne)
+            .setDstColorBlendFactor(vk::BlendFactor::eOneMinusSrcAlpha)
+            .setDstAlphaBlendFactor(vk::BlendFactor::eZero);
+
+    example->Initialize(t);
+
+    target->Record([&](vk::CommandBuffer commandBuffer)
+    {
+        Renderer::Clear(size.x, size.y, {0.5f, 0.5f, 0.5f, 1.0f}).Draw(commandBuffer);
+        example->Draw(commandBuffer, t);
+    });
 }
-*/
 
 int main()
 {
@@ -53,30 +77,51 @@ int main()
 
         GLFWApp mainWindow(size.x, size.y);
 
-        Renderer::Device device(mainWindow.GetPhysicalDevice(),
-                                mainWindow.GetSurface());
+        glfwSetKeyCallback(mainWindow.GetWindow(), key_callback);
 
-        Renderer::RenderWindow window(device, mainWindow.GetSurface(), size.x, size.y);
+        Renderer::Device device_(mainWindow.GetPhysicalDevice(),
+                                 mainWindow.GetSurface());
+        device = &device_;
 
-        example.reset(new RenderExample(device, size));
+        Renderer::RenderWindow window(device_, mainWindow.GetSurface(), size.x, size.y);
+        target = &window;
 
-        example->Initialize({window});
+        example.reset(new SmokeExample(device_, {size, scale}, 0.033f));
 
-        example->Update(window.Orth, glm::mat4());
+        Vortex2D::Renderer::RenderState t(window);
+        t.ColorBlend
+                .setBlendEnable(true)
+                .setAlphaBlendOp(vk::BlendOp::eAdd)
+                .setColorBlendOp(vk::BlendOp::eAdd)
+                .setSrcColorBlendFactor(vk::BlendFactor::eSrcAlpha)
+                .setSrcAlphaBlendFactor(vk::BlendFactor::eOne)
+                .setDstColorBlendFactor(vk::BlendFactor::eOneMinusSrcAlpha)
+                .setDstAlphaBlendFactor(vk::BlendFactor::eZero);
+
+        example->Initialize(t);
 
         window.Record([&](vk::CommandBuffer commandBuffer)
         {
             Renderer::Clear(size.x, size.y, {0.5f, 0.5f, 0.5f, 1.0f}).Draw(commandBuffer);
-            example->Draw(commandBuffer, {window});
+            example->Draw(commandBuffer, t);
         });
 
         while(!mainWindow.ShoudCloseWindow())
         {
             glfwPollEvents();
-            window.Submit();
+
+            auto start = std::chrono::system_clock::now();
+
+            example->Update(window.Orth, glm::mat4());
+            window.Submit({example->Semaphore()});
+
+            auto end = std::chrono::system_clock::now();
+            auto duration = end - start;
+            auto title = std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(duration).count()) + "ms";
+            glfwSetWindowTitle(mainWindow.GetWindow(), title.c_str());
         }
 
-        device.Handle().waitIdle();
+        device_.Handle().waitIdle();
 
         example.reset();
     }

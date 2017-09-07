@@ -35,7 +35,7 @@ void World::InitField(Renderer::Texture& field)
     mAdvection.AdvectInit(field);
 }
 
-void World::SolveStatic(vk::Semaphore signalSemaphore)
+void World::SolveStatic()
 {
     LinearSolver::Parameters params(300, 1e-3f);
     mProjection.Solve(params);
@@ -44,7 +44,7 @@ void World::SolveStatic(vk::Semaphore signalSemaphore)
     mExtrapolation.ConstrainVelocity();
 
     mAdvection.AdvectVelocity();
-    mAdvection.Advect(signalSemaphore);
+    mAdvection.Advect();
 }
 
 void World::SolveDynamic()

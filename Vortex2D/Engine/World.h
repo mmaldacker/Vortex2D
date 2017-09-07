@@ -37,7 +37,7 @@ public:
 
     void InitField(Renderer::Texture& field);
 
-    void SolveStatic(vk::Semaphore signalSemaphore);
+    void SolveStatic();
 
     void SolveDynamic();
 
