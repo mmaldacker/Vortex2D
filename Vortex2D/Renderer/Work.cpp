@@ -10,6 +10,18 @@
 
 namespace Vortex2D { namespace Renderer {
 
+template <typename... Lambdas>
+struct lambda_visitor : Lambdas...
+{
+    lambda_visitor(Lambdas... lambdas) : Lambdas(lambdas)... {}
+};
+
+template <typename... Lambdas>
+lambda_visitor<Lambdas...> make_lambda_visitor(Lambdas... lambdas)
+{
+    return { lambdas... };
+}
+
 glm::ivec2 ComputeSize::GetLocalSize2D()
 {
     return {16, 16};
@@ -65,17 +77,17 @@ ComputeSize MakeCheckerboardComputeSize(const glm::ivec2& size)
 }
 
 Work::Input::Input(Renderer::Buffer& buffer)
-    : Buffer(&buffer)
+    : Bind(&buffer)
 {
 }
 
 Work::Input::Input(Renderer::Texture& texture)
-    : Image(texture)
+    : Bind(DescriptorImage(texture))
 {
 }
 
 Work::Input::Input(vk::Sampler sampler, Renderer::Texture& texture)
-    : Image(sampler, texture)
+    : Bind(DescriptorImage(sampler, texture))
 {
 }
 
@@ -129,21 +141,26 @@ Work::Bound Work::Bind(const std::vector<Input>& inputs)
     DescriptorSetUpdater updater(*descriptor);
     for (int i = 0; i < inputs.size(); i++)
     {
-        if (mBindings[i] == vk::DescriptorType::eStorageBuffer)
+        auto visitor = make_lambda_visitor(
+        [&](Renderer::Buffer* buffer)
         {
-            updater.WriteBuffers(i, 0, mBindings[i]).Buffer(*inputs[i].Buffer);
-        }
-        else if (mBindings[i] == vk::DescriptorType::eStorageImage ||
-                 mBindings[i] == vk::DescriptorType::eCombinedImageSampler)
+            if (mBindings[i] != vk::DescriptorType::eStorageBuffer) throw std::runtime_error("Binding not a storage buffer");
+
+            updater.WriteBuffers(i, 0, mBindings[i]).Buffer(*buffer);
+        },
+        [&](Input::DescriptorImage image)
         {
-            updater.WriteImages(i, 0, mBindings[i]).Image(inputs[i].Image.Sampler,
-                                                          *inputs[i].Image.Texture,
-                                                          vk::ImageLayout::eGeneral);
-        }
-        else
+            if (mBindings[i] != vk::DescriptorType::eStorageImage &&
+                mBindings[i] != vk::DescriptorType::eCombinedImageSampler) throw std::runtime_error("Binding not an image");
+
+            updater.WriteImages(i, 0, mBindings[i]).Image(image.Sampler, *image.Texture, vk::ImageLayout::eGeneral);
+        },
+        [&](auto& other)
         {
-            assert(false);
-        }
+            throw std::runtime_error("Binding not supported");
+        });
+
+        std::visit(visitor, inputs[i].Bind);
     }
     updater.Update(mDevice.Handle());
 

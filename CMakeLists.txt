@@ -15,6 +15,15 @@ endif ()
 include(Dependencies/DownloadProject.cmake)
 set(UPDATE_DISCONNECTED_IF_AVAILABLE "UPDATE_DISCONNECTED 1")
 
+# TODO Hack to enable variant
+if (MSVC_VERSION GREATER_EQUAL "1900")
+    include(CheckCXXCompilerFlag)
+    CHECK_CXX_COMPILER_FLAG("/std:c++latest" _cpp_latest_flag_supported)
+    if (_cpp_latest_flag_supported)
+        add_compile_options("/std:c++latest")
+    endif()
+endif()
+
 download_project(PROJ                glm
                  GIT_REPOSITORY      https://github.com/g-truc/glm.git
                  GIT_TAG             0.9.8.4
@@ -37,6 +46,9 @@ if (VORTEX2D_ENABLE_TESTS)
   # Prevent GoogleTest from overriding our compiler/linker options
   # when building with Visual Studio
   set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+
+  # Modern compilers have <tupple> so we don't need to use the std::tr1::tuple
+  add_definitions(-DGTEST_ENV_HAS_STD_TUPLE_)
 
   add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
   add_subdirectory(Tests)

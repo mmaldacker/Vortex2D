@@ -11,6 +11,8 @@
 #include <Vortex2D/Renderer/Buffer.h>
 #include <Vortex2D/Renderer/Texture.h>
 
+#include <variant>
+
 namespace Vortex2D { namespace Renderer {
 
 struct ComputeSize
@@ -49,11 +51,7 @@ public:
             Renderer::Texture* Texture;
         };
 
-        union
-        {
-            Renderer::Buffer* Buffer;
-            DescriptorImage Image;
-        };
+        std::variant<Renderer::Buffer*, DescriptorImage> Bind;
     };
 
     Work(const Device& device,
