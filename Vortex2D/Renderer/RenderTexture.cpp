@@ -88,4 +88,9 @@ void RenderTexture::Submit(std::initializer_list<vk::Semaphore> waitSemaphore,
     mDevice.Queue().submit({submitInfo}, nullptr);
 }
 
+bool RenderTexture::operator==(const RenderTexture& other) const
+{
+    return *mFramebuffer == *other.mFramebuffer;
+}
+
 }}

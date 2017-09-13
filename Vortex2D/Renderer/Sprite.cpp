@@ -9,7 +9,7 @@
 
 namespace Vortex2D { namespace Renderer {
 
-Sprite::Sprite(const Device& device, const Texture& texture)
+AbstractSprite::AbstractSprite(const Device& device, const std::string& fragShaderName, const Texture& texture)
     : mDevice(device.Handle())
     , mMVPBuffer(device, vk::BufferUsageFlagBits::eUniformBuffer, true, sizeof(glm::mat4))
     , mVertexBuffer(device, vk::BufferUsageFlagBits::eVertexBuffer, true, sizeof(Vertex) * 6)
@@ -46,7 +46,7 @@ Sprite::Sprite(const Device& device, const Texture& texture)
             .Create(device.Handle());
 
     vk::ShaderModule vertexShader = device.GetShaderModule("../Vortex2D/TexturePosition.vert.spv");
-    vk::ShaderModule fragShader = device.GetShaderModule("../Vortex2D/TexturePosition.frag.spv");
+    vk::ShaderModule fragShader = device.GetShaderModule(fragShaderName);
 
     mPipeline = GraphicsPipeline::Builder()
             .Shader(vertexShader, vk::ShaderStageFlagBits::eVertex)
@@ -58,22 +58,28 @@ Sprite::Sprite(const Device& device, const Texture& texture)
 
 }
 
-void Sprite::Update(const glm::mat4& model, const glm::mat4& view)
+void AbstractSprite::Update(const glm::mat4& model, const glm::mat4& view)
 {
     mMVPBuffer.CopyFrom(model * view * GetTransform());
 }
 
-void Sprite::Initialize(const RenderState& renderState)
+void AbstractSprite::Initialize(const RenderState& renderState)
 {
     mPipeline.Create(mDevice, renderState);
 }
 
-void Sprite::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState)
+void AbstractSprite::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState)
 {
     mPipeline.Bind(commandBuffer, renderState);
     commandBuffer.bindVertexBuffers(0, {mVertexBuffer}, {0ul});
     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *mPipelineLayout, 0, {*mDescriptorSet}, {});
     commandBuffer.draw(6, 1, 0, 0);
+}
+
+Sprite::Sprite(const Device& device, const Texture& texture)
+    : AbstractSprite(device, "../Vortex2D/TexturePosition.frag.spv", texture)
+{
+
 }
 
 }}

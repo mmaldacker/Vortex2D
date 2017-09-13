@@ -17,10 +17,10 @@ namespace Vortex2D { namespace Renderer {
 
 struct RenderTarget;
 
-class Sprite : public Drawable, public Transformable
+class AbstractSprite : public Drawable, public Transformable
 {
 public:
-    Sprite(const Device& device, const Texture& texture);
+    AbstractSprite(const Device& device, const std::string& fragShaderName, const Texture& texture);
 
     void Initialize(const RenderState& renderState) override;
     void Update(const glm::mat4& model, const glm::mat4& view) override;
@@ -40,6 +40,12 @@ private:
     vk::UniqueDescriptorSet mDescriptorSet;
     vk::UniquePipelineLayout mPipelineLayout;
     GraphicsPipeline mPipeline;
+};
+
+class Sprite : public AbstractSprite
+{
+public:
+    Sprite(const Device& device, const Texture& texture);
 };
 
 }}

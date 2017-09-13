@@ -35,24 +35,20 @@ public:
         source1.Position = force1.Position = {250.0f, 100.0f};
         source2.Position = force2.Position = {750.0f, 100.0f};
 
+        // TODO could be shorter
         Vortex2D::Renderer::Rectangle area(device, dimensions.Size - glm::ivec2(2.0f), glm::vec4(1.0f));
         area.Position = glm::vec2(1.0f);
 
         area.Initialize(world.LiquidPhi());
 
-        // TODO not very short to clear and draw as square
-        // also don't like the waitIdle
-        ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
-        {
-            world.LiquidPhi().Clear(commandBuffer, {{-1.0f, 0.0f, 0.0f, 0.0f}});
-        });
-
         world.LiquidPhi().Record([&](vk::CommandBuffer commandBuffer)
         {
+            Vortex2D::Renderer::Clear(dimensions.Size.x, dimensions.Size.y, {-1.0f, 0.0f, 0.0f, 0.0f})
+                    .Draw(commandBuffer);
             area.Draw(commandBuffer, {world.LiquidPhi()});
         });
         world.LiquidPhi().Submit();
-        device.Handle().waitIdle();
+        device.Handle().waitIdle(); // needed since it needs to be finished before the area object is destroyed
 
         source1.Initialize({density});
         source2.Initialize({density});
@@ -63,8 +59,8 @@ public:
         force1.Initialize({world.Velocity()});
         force2.Initialize({world.Velocity()});
 
-        force1.Update(density.Orth, dimensions.InvScale);
-        force2.Update(density.Orth, dimensions.InvScale);
+        force1.Update(world.Velocity().Orth, dimensions.InvScale);
+        force2.Update(world.Velocity().Orth, dimensions.InvScale);
 
         world.InitField(density);
 

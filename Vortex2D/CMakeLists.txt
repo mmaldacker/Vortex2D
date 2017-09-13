@@ -12,6 +12,8 @@ file(GLOB LIB_SOURCES
     "Engine/World.cpp"
     "Engine/Size.h"
     "Engine/Size.cpp"
+    "Engine/Boundaries.h"
+    "Engine/Boundaries.cpp"
     "Engine/LinearSolver/LinearSolver.h"
     "Engine/LinearSolver/LinearSolver.cpp"
     "Engine/LinearSolver/Preconditioner.h"
@@ -40,6 +42,10 @@ file(GLOB SHADER_SOURCES
     "Engine/Kernels/Redistance.comp"
     "Engine/Kernels/ConstrainVelocity.comp"
     "Engine/Kernels/ExtrapolateVelocity.comp"
+    "Engine/Kernels/PolygonMin.comp"
+    "Engine/Kernels/PolygonMax.comp"
+    "Engine/Kernels/UpdateVertices.comp"
+    "Engine/Kernels/DistanceField.frag"
     "Engine/LinearSolver/Kernels/*.comp")
 
 find_package(Vulkan)

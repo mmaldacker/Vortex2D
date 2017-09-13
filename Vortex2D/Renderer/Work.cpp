@@ -38,11 +38,10 @@ glm::ivec2 ComputeSize::GetWorkSize(const glm::ivec2& size)
     return glm::ceil(glm::vec2(size) / localSize);
 }
 
-ComputeSize::ComputeSize()
-    : DomainSize(0)
-    , WorkSize(0)
-    , LocalSize(0)
+glm::ivec2 ComputeSize::GetWorkSize(int size)
 {
+    glm::vec2 localSize(GetLocalSize1D(), 1);
+    return glm::ceil(glm::vec2(size, 1) / localSize);
 }
 
 ComputeSize::ComputeSize(const glm::ivec2& size)
@@ -52,9 +51,27 @@ ComputeSize::ComputeSize(const glm::ivec2& size)
 {
 }
 
+ComputeSize::ComputeSize(int size)
+    : DomainSize({size, 1})
+    , WorkSize(GetWorkSize(size))
+    , LocalSize({GetLocalSize1D(), 1})
+{
+
+}
+
+ComputeSize ComputeSize::Default2D()
+{
+    return ComputeSize({1, 1});
+}
+
+ComputeSize ComputeSize::Default1D()
+{
+    return ComputeSize(1);
+}
+
 ComputeSize MakeStencilComputeSize(const glm::ivec2& size, int radius)
 {
-    ComputeSize computeSize;
+    ComputeSize computeSize(ComputeSize::Default2D());
 
     auto localSize = ComputeSize::GetLocalSize2D();
     computeSize.DomainSize = size;
@@ -68,7 +85,7 @@ ComputeSize MakeCheckerboardComputeSize(const glm::ivec2& size)
 {
     auto localSize = ComputeSize::GetLocalSize2D() * glm::ivec2(1, 2);
 
-    ComputeSize computeSize;
+    ComputeSize computeSize(ComputeSize::Default2D());
     computeSize.DomainSize = size;
     computeSize.LocalSize = localSize;
     computeSize.WorkSize = glm::ceil(glm::vec2(size) / (glm::vec2(localSize) * glm::vec2(2.0f, 1.0f)));
@@ -126,10 +143,11 @@ Work::Work(const Device& device,
             .PushConstantRange({vk::ShaderStageFlagBits::eCompute, 0, 8 + pushConstantExtraSize})
             .Create(device.Handle());
 
+    assert(mComputeSize.LocalSize.x > 0 && mComputeSize.LocalSize.y > 0);
     mPipeline = MakeComputePipeline(device.Handle(), shaderModule, *mLayout, mComputeSize.LocalSize.x, mComputeSize.LocalSize.y);
 }
 
-Work::Bound Work::Bind(const std::vector<Input>& inputs)
+Work::Bound Work::Bind(ComputeSize computeSize, const std::vector<Input>& inputs)
 {
     if (inputs.size() != mBindings.size())
     {
@@ -164,7 +182,20 @@ Work::Bound Work::Bind(const std::vector<Input>& inputs)
     }
     updater.Update(mDevice.Handle());
 
-    return Bound(mComputeSize, *mLayout, *mPipeline, std::move(descriptor));
+    return Bound(computeSize, *mLayout, *mPipeline, std::move(descriptor));
+}
+
+Work::Bound Work::Bind(const std::vector<Input>& inputs)
+{
+    return Bind(mComputeSize, inputs);
+}
+
+Work::Bound::Bound()
+    : mComputeSize(ComputeSize::Default2D())
+    , mLayout(nullptr)
+    , mPipeline(nullptr)
+{
+
 }
 
 Work::Bound::Bound(const ComputeSize& computeSize,

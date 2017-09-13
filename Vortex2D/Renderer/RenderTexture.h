@@ -24,6 +24,8 @@ public:
     void Submit(std::initializer_list<vk::Semaphore> waitSemaphore = {},
                 std::initializer_list<vk::Semaphore> signalSemaphore = {}) override;
 
+    bool operator==(const RenderTexture& other) const;
+
 private:
     const Device& mDevice;
     vk::UniqueFramebuffer mFramebuffer;

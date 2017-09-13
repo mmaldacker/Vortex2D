@@ -21,9 +21,13 @@ struct ComputeSize
     static int GetLocalSize1D();
 
     static glm::ivec2 GetWorkSize(const glm::ivec2& size);
+    static glm::ivec2 GetWorkSize(int size);
 
-    ComputeSize();
+    static ComputeSize Default2D();
+    static ComputeSize Default1D();
+
     ComputeSize(const glm::ivec2& size);
+    ComputeSize(int size);
 
     glm::ivec2 DomainSize;
     glm::ivec2 WorkSize;
@@ -63,7 +67,7 @@ public:
     class Bound
     {
     public:
-        Bound() = default;
+        Bound();
 
         template<typename T>
         void PushConstant(vk::CommandBuffer commandBuffer, uint32_t offset, const T& data)
@@ -89,6 +93,7 @@ public:
 
     // TODO save the bound inside the Work class and access with other method
     Bound Bind(const std::vector<Input>& inputs);
+    Bound Bind(ComputeSize computeSize, const std::vector<Input>& inputs);
 
 private:
     ComputeSize mComputeSize;

@@ -47,7 +47,7 @@ if (VORTEX2D_ENABLE_TESTS)
   # when building with Visual Studio
   set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
-  # Modern compilers have <tupple> so we don't need to use the std::tr1::tuple
+  # Modern compilers have <tuple> so we don't need to use the std::tr1::tuple
   add_definitions(-DGTEST_ENV_HAS_STD_TUPLE_)
 
   add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
