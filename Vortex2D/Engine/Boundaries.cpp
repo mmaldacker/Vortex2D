@@ -32,7 +32,7 @@ Polygon::Polygon(const Renderer::Device& device, std::vector<glm::vec2> points, 
     , mVertexBuffer(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(glm::vec2) * points.size())
     , mTransformedVertices(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(glm::vec2) * points.size())
     , mUpdateCmd(device, false)
-    , mRender(device, Renderer::ComputeSize::Default2D(), inverse ? "../Vortex2D/PolygonMax.comp.spv" : "../Vortex2D/PolygonMin.comp.spv",
+    , mRender(device, Renderer::ComputeSize::Default2D(), inverse ? "../Vortex2D/PolygonMin.comp.spv" : "../Vortex2D/PolygonMax.comp.spv",
              {vk::DescriptorType::eStorageImage,
               vk::DescriptorType::eStorageBuffer}, 4)
     , mUpdate(device, {(int)points.size()}, "../Vortex2D/UpdateVertices.comp.spv",
@@ -43,12 +43,13 @@ Polygon::Polygon(const Renderer::Device& device, std::vector<glm::vec2> points, 
 {
     Renderer::Buffer localVertexBuffer(device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(glm::vec2) * points.size());
 
-    assert(IsClockwise(points));
+    assert(!IsClockwise(points));
 
     if (inverse)
     {
         std::reverse(points.begin(), points.end());
     }
+
     localVertexBuffer.CopyFrom(points);
 
     Renderer::ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
@@ -92,7 +93,7 @@ void Polygon::Draw(vk::CommandBuffer commandBuffer, LevelSet& levelSet)
 }
 
 Rectangle::Rectangle(const Renderer::Device& device, const glm::vec2& size, bool inverse)
-    : Polygon(device, {{0.0f, size.y}, {size.x, size.y}, {size.x, 0.0f}, {0.0f, 0.0f}}, inverse)
+    : Polygon(device, {{0.0f, 0.0f}, {size.x, 0.0f}, {size.x, size.y}, {0.0f, size.y}}, inverse)
 {
 }
 

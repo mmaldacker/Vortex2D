@@ -54,44 +54,9 @@ TEST(BoundariesTests, Square)
 {
     glm::ivec2 size(20);
 
-    std::vector<glm::vec2> points = {{0.0f, 4.0f}, {4.0f, 4.0f}, {4.0f, 0.0f}, {0.0f, 0.0f}};
-
-    Polygon square(*device, points);
-    square.Position = glm::vec2(5.0f, 10.0f);
-
-    float maxDist = std::max(size.x, size.y);
-    std::vector<float> data(size.x*size.y, maxDist);
-    DrawSignedSquareMin(size, points, data, square.Position);
-
-    LevelSet levelSet(*device, size);
-
-    square.Initialize(levelSet);
-    square.Update({});
-
-    device->Handle().waitIdle();
-
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-        levelSet.Clear(commandBuffer, {{maxDist, 0.0f, 0.0f, 0.0f}});
-        square.Draw(commandBuffer, levelSet);
-    });
-
-    Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-       outTexture.CopyFrom(commandBuffer, levelSet);
-    });
-
-    CheckTexture(data, outTexture);
-}
-
-TEST(BoundariesTests, InverseSquare)
-{
-    glm::ivec2 size(20);
-
     std::vector<glm::vec2> points = {{0.0f, 0.0f}, {4.0f, 0.0f}, {4.0f, 4.0f}, {0.0f, 4.0f}};
 
-    Rectangle square(*device, {4.0f, 4.0f}, true);
+    Polygon square(*device, points);
     square.Position = glm::vec2(5.0f, 10.0f);
 
     float maxDist = std::max(size.x, size.y);
@@ -117,6 +82,43 @@ TEST(BoundariesTests, InverseSquare)
        outTexture.CopyFrom(commandBuffer, levelSet);
     });
 
+    PrintTexture(outTexture);
+    CheckTexture(data, outTexture);
+}
+
+TEST(BoundariesTests, InverseSquare)
+{
+    glm::ivec2 size(20);
+
+    std::vector<glm::vec2> points = {{0.0f, 4.0f}, {4.0f, 4.0f}, {4.0f, 0.0f}, {0.0f, 0.0f}};
+
+    Rectangle square(*device, {4.0f, 4.0f}, true);
+    square.Position = glm::vec2(5.0f, 10.0f);
+
+    float maxDist = std::max(size.x, size.y);
+    std::vector<float> data(size.x*size.y, maxDist);
+    DrawSignedSquareMin(size, points, data, square.Position);
+
+    LevelSet levelSet(*device, size);
+
+    square.Initialize(levelSet);
+    square.Update({});
+
+    device->Handle().waitIdle();
+
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+        levelSet.Clear(commandBuffer, {{maxDist, 0.0f, 0.0f, 0.0f}});
+        square.Draw(commandBuffer, levelSet);
+    });
+
+    Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+       outTexture.CopyFrom(commandBuffer, levelSet);
+    });
+
+    PrintTexture(outTexture);
     CheckTexture(data, outTexture);
 }
 

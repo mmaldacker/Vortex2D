@@ -6,6 +6,7 @@
 
 #include "RenderExample.h"
 #include "SmokeExample.h"
+#include "ObstacleSmokeExample.h"
 
 #include <iostream>
 #include <memory>
@@ -40,7 +41,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             example.reset(new SmokeExample(*device, {size, scale}, 0.033f));
             break;
         case GLFW_KEY_3:
-            //example.reset(new ObstacleSmokeExample(size, 0.033f));
+            example.reset(new ObstacleSmokeExample(*device, {size, scale}, 0.033f));
             break;
         case GLFW_KEY_4:
             //example.reset(new WaterExample(size, 0.033f));
