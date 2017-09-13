@@ -47,17 +47,7 @@ Reduce::Reduce(const Renderer::Device& device,
             .PushConstantRange({vk::ShaderStageFlagBits::eCompute, 0, 4})
             .Create(device.Handle());
 
-    std::array<uint32_t, 2> constants = {{localSize, localSize}};
-
-    std::vector<vk::SpecializationMapEntry> mapEntries = {{1, 0, 4}, {2, 0, 4}};
-
-    auto specialisationConst = vk::SpecializationInfo()
-            .setMapEntryCount((uint32_t)mapEntries.size())
-            .setPMapEntries(mapEntries.data())
-            .setDataSize(8)
-            .setPData(constants.data());
-
-    mPipeline = Renderer::MakeComputePipeline(device.Handle(), sumShader, *mPipelineLayout, specialisationConst);
+    mPipeline = Renderer::MakeComputePipeline(device.Handle(), sumShader, *mPipelineLayout, localSize);
 }
 
 Reduce::Bound Reduce::Bind(Renderer::Buffer& input, Renderer::Buffer& output)

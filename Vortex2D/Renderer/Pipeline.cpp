@@ -174,19 +174,11 @@ vk::UniquePipeline MakeComputePipeline(vk::Device device,
             .setDataSize(sizeof(glm::uvec2))
             .setPData(&localSize);
 
-    return MakeComputePipeline(device, shader, layout, specialisationConst);
-}
-
-vk::UniquePipeline MakeComputePipeline(vk::Device device,
-                                       vk::ShaderModule shader,
-                                       vk::PipelineLayout layout,
-                                       vk::SpecializationInfo specializationInfo)
-{
     auto stageInfo = vk::PipelineShaderStageCreateInfo()
             .setModule(shader)
             .setPName("main")
             .setStage(vk::ShaderStageFlagBits::eCompute)
-            .setPSpecializationInfo(&specializationInfo);
+            .setPSpecializationInfo(&specialisationConst);
 
     auto pipelineInfo = vk::ComputePipelineCreateInfo()
             .setStage(stageInfo)
