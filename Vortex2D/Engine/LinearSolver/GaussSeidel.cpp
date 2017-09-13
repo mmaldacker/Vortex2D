@@ -21,7 +21,7 @@ GaussSeidel::GaussSeidel(const Renderer::Device& device, const glm::ivec2& size)
                     vk::DescriptorType::eStorageBuffer,
                     vk::DescriptorType::eStorageBuffer,
                     vk::DescriptorType::eStorageBuffer},
-                   8)
+                   Renderer::PushConstantsSize<float, int>())
     , mResidualWork(device, size, "../Vortex2D/Residual.comp.spv",
                    {vk::DescriptorType::eStorageBuffer,
                     vk::DescriptorType::eStorageBuffer,

@@ -5,6 +5,8 @@
 
 #include "Advection.h"
 
+#include <Vortex2D/Renderer/Pipeline.h>
+
 namespace Vortex2D { namespace Fluid {
 
 Advection::Advection(const Renderer::Device& device, const glm::ivec2& size, float dt, Renderer::Texture& velocity)
@@ -14,12 +16,14 @@ Advection::Advection(const Renderer::Device& device, const glm::ivec2& size, flo
     , mField(device, size.x, size.y, vk::Format::eB8G8R8A8Unorm, false)
     , mVelocityAdvect(device, size, "../Vortex2D/AdvectVelocity.comp.spv",
                      {vk::DescriptorType::eStorageImage,
-                      vk::DescriptorType::eStorageImage}, 4)
+                      vk::DescriptorType::eStorageImage},
+                      Renderer::PushConstantsSize<float>())
     , mVelocityAdvectBound(mVelocityAdvect.Bind({velocity, mTmpVelocity}))
     , mAdvect(device, size, "../Vortex2D/Advect.comp.spv",
              {vk::DescriptorType::eStorageImage,
               vk::DescriptorType::eStorageImage,
-              vk::DescriptorType::eStorageImage}, 4)
+              vk::DescriptorType::eStorageImage},
+              Renderer::PushConstantsSize<float>())
     , mAdvectVelocityCmd(device, false)
     , mAdvectCmd(device, false)
 {

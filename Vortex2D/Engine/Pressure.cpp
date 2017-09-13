@@ -5,6 +5,8 @@
 
 #include "Pressure.h"
 
+#include <Vortex2D/Renderer/Pipeline.h>
+
 namespace Vortex2D { namespace Fluid {
 
 Pressure::Pressure(const Renderer::Device& device,
@@ -37,7 +39,7 @@ Pressure::Pressure(const Renderer::Device& device,
                    vk::DescriptorType::eStorageBuffer,
                    vk::DescriptorType::eStorageImage,
                    vk::DescriptorType::eStorageImage},
-                   4)
+                   Renderer::PushConstantsSize<float>())
     , mBuildMatrixBound(mBuildMatrix.Bind({mDiagonal,
                                            mLower,
                                            liquidPhi,
@@ -59,7 +61,7 @@ Pressure::Pressure(const Renderer::Device& device,
                vk::DescriptorType::eStorageImage,
                vk::DescriptorType::eStorageImage,
                vk::DescriptorType::eStorageImage},
-               4)
+               Renderer::PushConstantsSize<float>())
     , mProjectBound(mProject.Bind({mPressure, liquidPhi, solidPhi, velocity, solidVelocity}))
     , mBuildEquationCmd(device, false)
     , mProjectCmd(device, false)

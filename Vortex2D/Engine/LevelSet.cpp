@@ -23,7 +23,7 @@ LevelSet::LevelSet(const Renderer::Device& device, const glm::ivec2& size, int r
                   {vk::DescriptorType::eCombinedImageSampler,
                    vk::DescriptorType::eCombinedImageSampler,
                    vk::DescriptorType::eStorageImage},
-                  4)
+                  Renderer::PushConstantsSize<float>())
     , mRedistanceFront(mRedistance.Bind({{*mSampler, mLevelSet0}, {*mSampler, *this}, mLevelSetBack}))
     , mRedistanceBack(mRedistance.Bind({{*mSampler, mLevelSet0}, {*mSampler, mLevelSetBack}, *this}))
     , mExtrapolateCmd(device, false)

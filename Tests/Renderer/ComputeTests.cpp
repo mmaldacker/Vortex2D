@@ -45,6 +45,12 @@ TEST(ComputeTests, BufferCopy)
     CheckBuffer(data, outBuffer);
 }
 
+TEST(ComputeTests, PushConstantsSize)
+{
+    auto size = PushConstantsSize<int, float, uint8_t>();
+    ASSERT_EQ(9, size);
+}
+
 struct Particle
 {
     alignas(8) glm::vec2 position;
@@ -218,7 +224,7 @@ TEST(ComputeTests, Checkerboard)
 
     ComputeSize computeSize = MakeCheckerboardComputeSize(size);
 
-    Work work(*device, computeSize, "Checkerboard.comp.spv", {vk::DescriptorType::eStorageBuffer}, 4);
+    Work work(*device, computeSize, "Checkerboard.comp.spv", {vk::DescriptorType::eStorageBuffer}, PushConstantsSize<int>());
 
     auto boundWork = work.Bind({buffer});
 
