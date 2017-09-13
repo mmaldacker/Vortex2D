@@ -97,9 +97,16 @@ Rectangle::Rectangle(const Renderer::Device& device, const glm::vec2& size, bool
 {
 }
 
-DistanceField::DistanceField(const Renderer::Device& device, LevelSet& levelSet)
-    : Renderer::AbstractSprite(device, "../Vortex2D/DistanceField.frag.spv", levelSet)
+DistanceField::DistanceField(const Renderer::Device& device, LevelSet& levelSet, float scale)
+    : Renderer::AbstractSprite(device, "../Vortex2D/DistanceField.frag.spv", levelSet, 4)
+    , mScale(scale)
 {
+}
+
+void DistanceField::Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState)
+{
+    PushConstant(commandBuffer, 0, mScale);
+    AbstractSprite::Draw(commandBuffer, renderState);
 }
 
 }}

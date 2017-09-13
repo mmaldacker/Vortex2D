@@ -9,7 +9,7 @@
 
 namespace Vortex2D { namespace Renderer {
 
-AbstractSprite::AbstractSprite(const Device& device, const std::string& fragShaderName, const Texture& texture)
+AbstractSprite::AbstractSprite(const Device& device, const std::string& fragShaderName, const Texture& texture, const uint32_t pushConstantExtraSize)
     : mDevice(device.Handle())
     , mMVPBuffer(device, vk::BufferUsageFlagBits::eUniformBuffer, true, sizeof(glm::mat4))
     , mVertexBuffer(device, vk::BufferUsageFlagBits::eVertexBuffer, true, sizeof(Vertex) * 6)
@@ -40,10 +40,15 @@ AbstractSprite::AbstractSprite(const Device& device, const std::string& fragShad
             .WriteImages(1, 0, vk::DescriptorType::eCombinedImageSampler).Image(*mSampler, texture, vk::ImageLayout::eShaderReadOnlyOptimal)
             .Update(device.Handle());
 
-    // TODO should be static?
-    mPipelineLayout = PipelineLayoutBuilder()
-            .DescriptorSetLayout(descriptorLayout)
-            .Create(device.Handle());
+    auto pipelineLayoutBuilder = PipelineLayoutBuilder()
+            .DescriptorSetLayout(descriptorLayout);
+
+    if (pushConstantExtraSize > 0)
+    {
+        pipelineLayoutBuilder.PushConstantRange({vk::ShaderStageFlagBits::eFragment, 0, pushConstantExtraSize});
+    }
+
+    mPipelineLayout = pipelineLayoutBuilder.Create(device.Handle());
 
     vk::ShaderModule vertexShader = device.GetShaderModule("../Vortex2D/TexturePosition.vert.spv");
     vk::ShaderModule fragShader = device.GetShaderModule(fragShaderName);

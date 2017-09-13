@@ -20,11 +20,17 @@ struct RenderTarget;
 class AbstractSprite : public Drawable, public Transformable
 {
 public:
-    AbstractSprite(const Device& device, const std::string& fragShaderName, const Texture& texture);
+    AbstractSprite(const Device& device, const std::string& fragShaderName, const Texture& texture, const uint32_t pushConstantExtraSize = 0);
 
     void Initialize(const RenderState& renderState) override;
     void Update(const glm::mat4& model, const glm::mat4& view) override;
     void Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState) override;
+
+    template<typename T>
+    void PushConstant(vk::CommandBuffer commandBuffer, uint32_t offset, const T& data)
+    {
+        commandBuffer.pushConstants(*mPipelineLayout, vk::ShaderStageFlagBits::eFragment, offset, sizeof(T), &data);
+    }
 
 private:
     struct Vertex

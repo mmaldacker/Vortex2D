@@ -59,7 +59,12 @@ public:
 class DistanceField : public Renderer::AbstractSprite
 {
 public:
-    DistanceField(const Renderer::Device& device, LevelSet& levelSet);
+    DistanceField(const Renderer::Device& device, LevelSet& levelSet, float scale = 1.0f);
+
+    void Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState) override;
+
+private:
+    float mScale;
 };
 
 }}
