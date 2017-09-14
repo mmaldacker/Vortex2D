@@ -23,7 +23,6 @@ public:
         void Record(vk::CommandBuffer commandBuffer);
 
         friend class Reduce;
-
     private:
         Bound(int size,
               vk::PipelineLayout layout,

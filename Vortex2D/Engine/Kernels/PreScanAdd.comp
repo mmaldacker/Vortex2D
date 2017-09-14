@@ -1,0 +1,50 @@
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
+#extension GL_GOOGLE_include_directive : enable
+
+layout (local_size_x_id = 1, local_size_y_id = 2) in;
+layout (constant_id = 1) const int blockSize = 256; // same as gl_WorkGroupSize.x or local_size_x
+
+layout(push_constant) uniform Consts
+{
+  int width;
+  int height;
+}consts;
+
+layout(std430, binding = 0) buffer Input
+{
+  int value[];
+}i;
+
+layout(std430, binding = 1) buffer Output
+{
+  int value[];
+}o;
+
+shared int sdata[blockSize];
+
+void main()
+{
+    const uint local_id = gl_LocalInvocationID.x;
+    const uint group_id = gl_WorkGroupID.x;
+    const uint group_size = gl_WorkGroupSize.x;
+
+    if (local_id == 0)
+    {
+        sdata[0] = i.value[group_id];
+    }
+
+    memoryBarrierShared();
+    barrier();
+
+    uint address = group_id * group_size * 2 + local_id;
+
+    if (address < consts.width)
+    {
+        o.value[address] += sdata[0];
+        if (address + group_size < consts.width)
+        {
+            o.value[address + group_size] += sdata[0];
+        }
+    }
+}

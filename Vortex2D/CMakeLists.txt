@@ -14,6 +14,8 @@ file(GLOB LIB_SOURCES
     "Engine/Size.cpp"
     "Engine/Boundaries.h"
     "Engine/Boundaries.cpp"
+    "Engine/PrefixScan.h"
+    "Engine/PrefixScan.cpp"
     "Engine/LinearSolver/LinearSolver.h"
     "Engine/LinearSolver/LinearSolver.cpp"
     "Engine/LinearSolver/Preconditioner.h"
@@ -46,6 +48,9 @@ file(GLOB SHADER_SOURCES
     "Engine/Kernels/PolygonMax.comp"
     "Engine/Kernels/UpdateVertices.comp"
     "Engine/Kernels/DistanceField.frag"
+    "Engine/Kernels/PreScanAdd.comp"
+    "Engine/Kernels/PreScan.comp"
+    "Engine/Kernels/PreScanStoreSum.comp"
     "Engine/LinearSolver/Kernels/*.comp")
 
 find_package(Vulkan)
@@ -99,7 +104,7 @@ function(copy_shader)
   add_dependencies(${SHADER_TARGET} "${SHADER_TARGET}_SHADERS_COPY")
 endfunction()
 
-add_library(vortex2d STATIC ${LIB_SOURCES} ${SHADERS} ${SHADER_SOURCES} "Engine/Kernels/CommonAdvect.comp" "Engine/Kernels/CommonProject.comp")
+add_library(vortex2d STATIC ${LIB_SOURCES} ${SHADERS} ${SHADER_SOURCES} "Engine/Kernels/CommonAdvect.comp" "Engine/Kernels/CommonProject.comp" "Engine/Kernels/CommonPreScan.comp")
 compile_shader(TARGET vortex2d SOURCES ${SHADER_SOURCES})
 target_link_libraries(vortex2d PUBLIC glm Vulkan::Vulkan)
 target_include_directories(vortex2d PUBLIC ../)

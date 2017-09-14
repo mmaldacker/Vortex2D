@@ -1,0 +1,59 @@
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
+#extension GL_GOOGLE_include_directive : enable
+
+layout (local_size_x_id = 1, local_size_y_id = 2) in;
+layout (constant_id = 1) const int blockSize = 256; // same as gl_WorkGroupSize.x or local_size_x
+
+layout(push_constant) uniform Consts
+{
+  int width;
+  int height;
+}consts;
+
+layout(std430, binding = 0) buffer Input
+{
+  int value[];
+}i;
+
+layout(std430, binding = 1) buffer Output
+{
+  int value[];
+}o;
+
+shared int sdata[2 * blockSize + 2 * blockSize / 16];
+
+#include "CommonPreScan.comp"
+
+void ClearLastElement()
+{
+    const uint local_id = gl_LocalInvocationID.x;
+    const uint group_size = gl_WorkGroupSize.x;
+
+    if (local_id == 0)
+    {
+        uint index = (group_size * 2) - 1;
+        index += MEMORY_BANK_OFFSET(index);
+        sdata[index] = 0;
+    }
+}
+
+void PreScanGroup()
+{
+    uint stride = BuildPartialSum();
+    ClearLastElement();
+    ScanRootToLeaves(stride);
+}
+
+void main()
+{
+    const uint group_id = gl_WorkGroupID.x;
+    const uint group_size = gl_WorkGroupSize.x;
+
+    uint local_index = group_id * group_size * 2;
+    uvec4 address_pair = GetAddressMapping(local_index);
+
+    LoadLocalFromGlobal(address_pair);
+    PreScanGroup();
+    StoreLocalToGlobal(address_pair);
+}

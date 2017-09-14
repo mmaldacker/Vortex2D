@@ -3,7 +3,8 @@ file(GLOB ENGINE_TEST_SOURCES "Engine/LevelSetTests.cpp"
                               "Engine/PressureTests.cpp"
                               "Engine/AdvectionTests.cpp"
                               "Engine/ExtrapolateTests.cpp"
-                              "Engine/BoundariesTests.cpp")
+                              "Engine/BoundariesTests.cpp"
+                              "Engine/ParticleTests.cpp")
 
 file(GLOB VARIATIONAL_SOURCES "Engine/VariationalHelpers.h"
                               "variationalplusgfm/*.h"

@@ -1,0 +1,128 @@
+#define MEMORY_BANK_COUNT       (16)  // Adjust to your architecture
+#define LOG2_MEMORY_BANK_COUNT   (4)  // Set to log2(MEMORY_BANK_COUNT)
+#define ELIMINATE_CONFLICTS      (0)  // Enable for slow address calculation, but zero bank conflicts
+
+#if (ELIMINATE_CONFLICTS)
+#define MEMORY_BANK_OFFSET(index) ((index) >> LOG2_MEMORY_BANK_COUNT + (index) >> (2*LOG2_MEMORY_BANK_COUNT))
+#else
+#define MEMORY_BANK_OFFSET(index) ((index) >> LOG2_MEMORY_BANK_COUNT)
+#endif
+
+uvec4 GetAddressMapping(uint index)
+{
+    const uint local_id = gl_LocalInvocationID.x;
+    const uint group_size = gl_WorkGroupSize.x;
+
+    uvec2 global_index;
+    global_index.x = index + local_id;
+    global_index.y = global_index.x + group_size;
+
+    uvec2 local_index;
+    local_index.x = local_id;
+    local_index.y = local_id + group_size;
+
+    return uvec4(global_index, local_index);
+}
+
+void LoadLocalFromGlobal(const uvec4 address_pair)
+{
+    const uint global_index_a = address_pair.x;
+    const uint global_index_b = address_pair.y;
+
+    uint local_index_a = address_pair.z;
+    uint local_index_b = address_pair.w;
+
+    local_index_a += MEMORY_BANK_OFFSET(local_index_a);
+    local_index_b += MEMORY_BANK_OFFSET(local_index_b);
+
+    sdata[local_index_a] = (global_index_a < consts.width) ? i.value[global_index_a] : 0;
+    sdata[local_index_b] = (global_index_b < consts.width) ? i.value[global_index_b] : 0;
+
+    memoryBarrierShared();
+    barrier();
+}
+
+void StoreLocalToGlobal(const uvec4 address_pair)
+{
+    memoryBarrierShared();
+    barrier();
+
+    const uint global_index_a = address_pair.x;
+    const uint global_index_b = address_pair.y;
+
+    uint local_index_a = address_pair.z;
+    uint local_index_b = address_pair.w;
+
+    local_index_a += MEMORY_BANK_OFFSET(local_index_a);
+    local_index_b += MEMORY_BANK_OFFSET(local_index_b);
+
+    if (global_index_a < consts.width)
+    {
+        o.value[global_index_a] = sdata[local_index_a];
+    }
+
+    if (global_index_b < consts.width)
+    {
+        o.value[global_index_b] = sdata[local_index_b];
+    }
+}
+
+uint BuildPartialSum()
+{
+    const uint local_id = gl_LocalInvocationID.x;
+    const uint group_size = gl_WorkGroupSize.x;
+
+    uint stride = 1;
+
+    for (uint j = group_size; j > 0; j >>= 1)
+    {
+        if (local_id < j)
+        {
+            uint i = 2 * stride * local_id;
+
+            uint local_index_a = i + stride - 1;
+            uint local_index_b = local_index_a + stride;
+
+            local_index_a += MEMORY_BANK_OFFSET(local_index_a);
+            local_index_b += MEMORY_BANK_OFFSET(local_index_b);
+
+            sdata[local_index_b] += sdata[local_index_a];
+        }
+
+        memoryBarrierShared();
+        barrier();
+
+        stride <<= 1;
+    }
+
+    return stride;
+}
+
+void ScanRootToLeaves(uint stride)
+{
+    const uint local_id = gl_LocalInvocationID.x;
+    const uint group_size = gl_WorkGroupSize.x;
+
+    for (uint j = 1; j <= group_size; j <<= 1)
+    {
+        stride >>= 1;
+
+        memoryBarrierShared();
+        barrier();
+
+        if (local_id < j)
+        {
+            uint i  = 2 * stride * local_id;
+
+            uint local_index_a = i + stride - 1;
+            uint local_index_b = local_index_a + stride;
+
+            local_index_a += MEMORY_BANK_OFFSET(local_index_a);
+            local_index_b += MEMORY_BANK_OFFSET(local_index_b);
+
+            int t = sdata[local_index_a];
+            sdata[local_index_a] = sdata[local_index_b];
+            sdata[local_index_b] += t;
+        }
+    }
+}
