@@ -10,16 +10,35 @@
 
 namespace Vortex2D { namespace Renderer {
 
-template <typename... Lambdas>
-struct lambda_visitor : Lambdas...
+namespace
 {
-    lambda_visitor(Lambdas... lambdas) : Lambdas(lambdas)... {}
+
+template <class... Fs>
+struct overload;
+
+template <class F0, class... Frest>
+struct overload<F0, Frest...> : F0, overload<Frest...>
+{
+    overload(F0 f0, Frest... rest) : F0(f0), overload<Frest...>(rest...) {}
+
+    using F0::operator();
+    using overload<Frest...>::operator();
 };
 
-template <typename... Lambdas>
-lambda_visitor<Lambdas...> make_lambda_visitor(Lambdas... lambdas)
+template <class F0>
+struct overload<F0> : F0
 {
-    return { lambdas... };
+    overload(F0 f0) : F0(f0) {}
+
+    using F0::operator();
+};
+
+template <class... Fs>
+auto make_visitor(Fs... fs)
+{
+    return overload<Fs...>(fs...);
+}
+
 }
 
 glm::ivec2 ComputeSize::GetLocalSize2D()
@@ -159,7 +178,7 @@ Work::Bound Work::Bind(ComputeSize computeSize, const std::vector<Input>& inputs
     DescriptorSetUpdater updater(*descriptor);
     for (int i = 0; i < inputs.size(); i++)
     {
-        auto visitor = make_lambda_visitor(
+        auto visitor = make_visitor(
         [&](Renderer::Buffer* buffer)
         {
             if (mBindings[i] != vk::DescriptorType::eStorageBuffer) throw std::runtime_error("Binding not a storage buffer");
@@ -172,13 +191,9 @@ Work::Bound Work::Bind(ComputeSize computeSize, const std::vector<Input>& inputs
                 mBindings[i] != vk::DescriptorType::eCombinedImageSampler) throw std::runtime_error("Binding not an image");
 
             updater.WriteImages(i, 0, mBindings[i]).Image(image.Sampler, *image.Texture, vk::ImageLayout::eGeneral);
-        },
-        [&](auto& other)
-        {
-            throw std::runtime_error("Binding not supported");
         });
 
-        std::visit(visitor, inputs[i].Bind);
+        mpark::visit(visitor, inputs[i].Bind);
     }
     updater.Update(mDevice.Handle());
 

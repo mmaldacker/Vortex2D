@@ -11,7 +11,7 @@
 #include <Vortex2D/Renderer/Buffer.h>
 #include <Vortex2D/Renderer/Texture.h>
 
-#include <variant>
+#include <Vortex2D/Utils/variant.hpp>
 
 namespace Vortex2D { namespace Renderer {
 
@@ -55,7 +55,7 @@ public:
             Renderer::Texture* Texture;
         };
 
-        std::variant<Renderer::Buffer*, DescriptorImage> Bind;
+        mpark::variant<Renderer::Buffer*, DescriptorImage> Bind;
     };
 
     Work(const Device& device,

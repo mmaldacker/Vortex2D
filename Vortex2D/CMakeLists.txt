@@ -30,7 +30,8 @@ file(GLOB LIB_SOURCES
     "Engine/LinearSolver/IncompletePoisson.h"
     "Engine/LinearSolver/IncompletePoisson.cpp"
     "Renderer/*.cpp"
-    "Renderer/*.h")
+    "Renderer/*.h"
+    "Utils/variant.hpp")
 
 file(GLOB SHADER_SOURCES
     "Renderer/Kernels/*.vert"
@@ -109,4 +110,4 @@ compile_shader(TARGET vortex2d SOURCES ${SHADER_SOURCES})
 target_link_libraries(vortex2d PUBLIC glm Vulkan::Vulkan)
 target_include_directories(vortex2d PUBLIC ../)
 
-target_compile_features(vortex2d PRIVATE cxx_variadic_templates)
+target_compile_features(vortex2d PRIVATE cxx_variadic_templates cxx_generic_lambdas)
