@@ -1,0 +1,40 @@
+#version 450
+
+#extension GL_ARB_separate_shader_objects : enable
+
+layout(std430, binding = 0) buffer Pos
+{
+    float numbers[];
+}pos;
+
+layout (local_size_x_id = 1, local_size_y_id = 2) in;
+
+layout(push_constant) uniform PushConsts
+{
+    int width;
+    int height;
+} consts;
+
+layout(std430, binding = 0) buffer Data
+{
+  float value[];
+}data;
+
+struct DispatchParams
+{
+    uint x;
+    uint y;
+    uint z;
+    uint count;
+};
+
+layout(std430, binding = 1) buffer Params
+{
+    DispatchParams params;
+};
+
+void main()
+{
+    uint index = gl_GlobalInvocationID.x;
+    data.value[index] = 1.0;
+}

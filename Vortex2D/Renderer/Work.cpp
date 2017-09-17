@@ -112,6 +112,12 @@ ComputeSize MakeCheckerboardComputeSize(const glm::ivec2& size)
     return computeSize;
 }
 
+DispatchParams::DispatchParams(int count)
+    : workSize(std::ceil((float)count / Renderer::ComputeSize::GetLocalSize1D()), 1, 1)
+    , count(count)
+{
+}
+
 Work::Input::Input(Renderer::Buffer& buffer)
     : Bind(&buffer)
 {
@@ -233,6 +239,17 @@ void Work::Bound::Record(vk::CommandBuffer commandBuffer)
     commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, mPipeline);
 
     commandBuffer.dispatch(mComputeSize.WorkSize.x, mComputeSize.WorkSize.y, 1);
+}
+
+void Work::Bound::RecordIndirect(vk::CommandBuffer commandBuffer, Buffer& dispatchParams)
+{
+    // TODO push constant should not be necessary
+    commandBuffer.pushConstants(mLayout, vk::ShaderStageFlagBits::eCompute, 0, 4, &mComputeSize.DomainSize.x);
+    commandBuffer.pushConstants(mLayout, vk::ShaderStageFlagBits::eCompute, 4, 4, &mComputeSize.DomainSize.y);
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, mLayout, 0, {*mDescriptor}, {});
+    commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, mPipeline);
+
+    commandBuffer.dispatchIndirect(dispatchParams, 0);
 }
 
 }}

@@ -37,6 +37,13 @@ struct ComputeSize
 ComputeSize MakeStencilComputeSize(const glm::ivec2& size, int radius);
 ComputeSize MakeCheckerboardComputeSize(const glm::ivec2& size);
 
+struct DispatchParams
+{
+    DispatchParams(int count);
+    alignas(16) vk::DispatchIndirectCommand workSize;
+    alignas(4) uint32_t count;
+};
+
 class Work
 {
 public:
@@ -76,6 +83,7 @@ public:
         }
 
         void Record(vk::CommandBuffer commandBuffer);
+        void RecordIndirect(vk::CommandBuffer commandBuffer, Buffer& dispatchParams);
 
         friend class Work;
 

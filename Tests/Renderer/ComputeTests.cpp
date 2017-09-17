@@ -190,6 +190,48 @@ TEST(ComputeTests, Work)
     CheckBuffer(expectedOutput, buffer);
 }
 
+TEST(ComputeTests, WorkIndirect)
+{
+    glm::ivec2 size(16, 1);
+
+    // create bigger buffer than size to check the indirect buffer is correct
+    Buffer buffer(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, 100*sizeof(float)*size.x*size.y);
+    Buffer dispatchParams(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(DispatchParams));
+
+    DispatchParams params(1);
+    params.workSize.x = 2;
+    params.count = 16;
+
+    dispatchParams.CopyFrom(params);
+
+    ComputeSize computeSize(16);
+    computeSize.DomainSize.x = 16;
+    computeSize.WorkSize.x = 2;
+    computeSize.LocalSize.x = 8;
+
+    Work work(*device, computeSize, "WorkIndirect.comp.spv",
+             {vk::DescriptorType::eStorageBuffer,
+              vk::DescriptorType::eStorageBuffer});
+
+    auto bound = work.Bind({buffer, dispatchParams});
+
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+       bound.RecordIndirect(commandBuffer, dispatchParams);
+    });
+
+    std::vector<float> bufferData(100*size.x*size.y);
+    for (int i = 0; i < 16; i++)
+    {
+        bufferData[i] = 1.0f;
+    }
+
+    std::vector<float> outputData(100*size.x*size.y);
+    buffer.CopyTo(outputData);
+
+    ASSERT_EQ(outputData, bufferData);
+}
+
 TEST(ComputeTests, Stencil)
 {
     glm::ivec2 size(50);

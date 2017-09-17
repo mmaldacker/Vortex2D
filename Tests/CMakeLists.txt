@@ -20,6 +20,7 @@ file(GLOB RENDERER_TEST_SOURCES  "Renderer/ShapeDrawer.h"
 file(GLOB SHADER_TEST_SOURCES "Kernels/Image.comp"
                               "Kernels/Buffer.comp"
                               "Kernels/Work.comp"
+                              "Kernels/WorkIndirect.comp"
                               "Kernels/Stencil.comp"
                               "Kernels/Checkerboard.comp")
 

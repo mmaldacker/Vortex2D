@@ -3,6 +3,9 @@
 //  Vortex
 //
 
+#ifndef Vortex2d_Advection_h
+#define Vortex2d_Advection_h
+
 #include <Vortex2D/Renderer/Buffer.h>
 #include <Vortex2D/Renderer/Work.h>
 #include <Vortex2D/Renderer/CommandBuffer.h>
@@ -40,3 +43,5 @@ private:
 
 
 }}
+
+#endif
