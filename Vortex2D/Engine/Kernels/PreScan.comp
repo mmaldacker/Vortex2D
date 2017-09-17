@@ -21,6 +21,19 @@ layout(std430, binding = 1) buffer Output
   int value[];
 }o;
 
+struct DispatchParams
+{
+    uint x;
+    uint y;
+    uint z;
+    uint count;
+};
+
+layout(std430, binding = 2) buffer Params
+{
+    DispatchParams params;
+};
+
 shared int sdata[2 * blockSize + 2 * blockSize / 16];
 
 #include "CommonPreScan.comp"
@@ -34,6 +47,12 @@ void ClearLastElement()
     {
         uint index = (group_size * 2) - 1;
         index += MEMORY_BANK_OFFSET(index);
+
+        params.count = sdata[index];
+        params.x = int(ceil(float(params.count) / float(blockSize)));
+        params.y = 1;
+        params.z = 1;
+
         sdata[index] = 0;
     }
 }

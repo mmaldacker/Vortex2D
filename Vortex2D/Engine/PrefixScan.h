@@ -30,13 +30,14 @@ public:
 
     PrefixScan(const Renderer::Device& device, const glm::ivec2& size);
 
-    Bound Bind(Renderer::Buffer& input, Renderer::Buffer& output);
+    Bound Bind(Renderer::Buffer& input, Renderer::Buffer& output, Renderer::Buffer& dispatchParams);
 
 private:
     void BindRecursive(std::vector<Renderer::CommandBuffer::CommandFn>& bufferBarriers,
                        std::vector<Renderer::Work::Bound>& bound,
                        Renderer::Buffer& input,
                        Renderer::Buffer& output,
+                       Renderer::Buffer& dispatchParams,
                        Renderer::ComputeSize computeSize,
                        int level);
 

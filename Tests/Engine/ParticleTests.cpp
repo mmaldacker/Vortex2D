@@ -72,11 +72,12 @@ TEST(ParticleTests, PrefixScan)
 
     Buffer input(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(int));
     Buffer output(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(int));
+    Buffer dispatchParams(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(DispatchParams));
 
     std::vector<int> inputData = GenerateInput(size.x*size.y);
     input.CopyFrom(inputData);
 
-    auto bound = prefixScan.Bind(input, output);
+    auto bound = prefixScan.Bind(input, output, dispatchParams);
 
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
@@ -85,6 +86,15 @@ TEST(ParticleTests, PrefixScan)
 
     auto outputData = CalculatePrefixScan(inputData);
     CheckBuffer(outputData, output);
+
+    DispatchParams params(0);
+    dispatchParams.CopyTo(params);
+
+    int total = outputData.back() + inputData.back();
+    ASSERT_EQ(params.count, total);
+    ASSERT_EQ(params.workSize.x, std::ceil((float)total / 256));
+    ASSERT_EQ(params.workSize.y, 1);
+    ASSERT_EQ(params.workSize.z, 1);
 }
 
 TEST(ParticleTests, PrefixScanBig)
@@ -95,11 +105,12 @@ TEST(ParticleTests, PrefixScanBig)
 
     Buffer input(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(int));
     Buffer output(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(int));
+    Buffer dispatchParams(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(DispatchParams));
 
     std::vector<int> inputData = GenerateInput(size.x*size.y);
     input.CopyFrom(inputData);
 
-    auto bound = prefixScan.Bind(input, output);
+    auto bound = prefixScan.Bind(input, output, dispatchParams);
 
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
@@ -108,4 +119,14 @@ TEST(ParticleTests, PrefixScanBig)
 
     auto outputData = CalculatePrefixScan(inputData);
     CheckBuffer(outputData, output);
+
+    DispatchParams params(0);
+    dispatchParams.CopyTo(params);
+
+    int total = outputData.back() + inputData.back();
+    ASSERT_EQ(params.count, total);
+    ASSERT_EQ(params.workSize.x, std::ceil((float)total / 256));
+    ASSERT_EQ(params.workSize.y, 1);
+    ASSERT_EQ(params.workSize.z, 1);
+}
 }

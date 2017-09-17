@@ -34,6 +34,7 @@ PrefixScan::PrefixScan(const Renderer::Device& device, const glm::ivec2& size)
        vk::DescriptorType::eStorageBuffer})
     , mPreScanWork(device, Renderer::ComputeSize::Default1D(), "../Vortex2D/PreScan.comp.spv",
       {vk::DescriptorType::eStorageBuffer,
+       vk::DescriptorType::eStorageBuffer,
        vk::DescriptorType::eStorageBuffer})
     , mPreScanStoreSumWork(device, Renderer::ComputeSize::Default1D(), "../Vortex2D/PreScanStoreSum.comp.spv",
      {vk::DescriptorType::eStorageBuffer,
@@ -56,6 +57,7 @@ void PrefixScan::BindRecursive(std::vector<Renderer::CommandBuffer::CommandFn>& 
                                std::vector<Renderer::Work::Bound>& bound,
                                Renderer::Buffer& input,
                                Renderer::Buffer& output,
+                               Renderer::Buffer& dispatchParams,
                                Renderer::ComputeSize computeSize,
                                int level)
 {
@@ -75,6 +77,7 @@ void PrefixScan::BindRecursive(std::vector<Renderer::CommandBuffer::CommandFn>& 
                       bound,
                       partialSums,
                       partialSums,
+                      dispatchParams,
                       MakeComputeSize(computeSize.WorkSize.x),
                       level + 1);
 
@@ -86,7 +89,7 @@ void PrefixScan::BindRecursive(std::vector<Renderer::CommandBuffer::CommandFn>& 
     }
     else
     {
-        bound.emplace_back(mPreScanWork.Bind(computeSize, {input, output}));
+        bound.emplace_back(mPreScanWork.Bind(computeSize, {input, output, dispatchParams}));
         bufferBarriers.emplace_back([&](vk::CommandBuffer commandBuffer)
         {
             output.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
@@ -94,7 +97,7 @@ void PrefixScan::BindRecursive(std::vector<Renderer::CommandBuffer::CommandFn>& 
     }
 }
 
-PrefixScan::Bound PrefixScan::Bind(Renderer::Buffer& input, Renderer::Buffer& output)
+PrefixScan::Bound PrefixScan::Bind(Renderer::Buffer& input, Renderer::Buffer& output, Renderer::Buffer& dispatchParams)
 {
     std::vector<Renderer::CommandBuffer::CommandFn> bufferBarriers;
     std::vector<Renderer::Work::Bound> bounds;
@@ -103,6 +106,7 @@ PrefixScan::Bound PrefixScan::Bind(Renderer::Buffer& input, Renderer::Buffer& ou
                   bounds,
                   input,
                   output,
+                  dispatchParams,
                   MakeComputeSize(mSize),
                   0);
 

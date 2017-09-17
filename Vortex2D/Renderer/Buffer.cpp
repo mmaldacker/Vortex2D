@@ -90,7 +90,7 @@ void Buffer::CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcTexture)
 
     srcTexture.Barrier(commandBuffer,
                        vk::ImageLayout::eGeneral,
-                       vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eColorAttachmentRead,
+                       vk::AccessFlagBits::eShaderWrite | vk::AccessFlagBits::eColorAttachmentWrite,
                        vk::ImageLayout::eTransferSrcOptimal,
                        vk::AccessFlagBits::eTransferRead);
 
