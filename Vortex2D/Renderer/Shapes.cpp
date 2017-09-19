@@ -11,7 +11,10 @@
 
 namespace Vortex2D { namespace Renderer {
 
-Shape::Shape(const Device& device, const std::vector<glm::vec2>& vertices, const glm::vec4& colour)
+AbstractShape::AbstractShape(const Device& device,
+                             const std::string& fragName,
+                             const std::vector<glm::vec2>& vertices,
+                             const glm::vec4& colour)
     : mDevice(device.Handle())
     , mMVPBuffer(device, vk::BufferUsageFlagBits::eUniformBuffer, true, sizeof(glm::mat4))
     , mColourBuffer(device, vk::BufferUsageFlagBits::eUniformBuffer, true, sizeof(glm::vec4))
@@ -33,13 +36,12 @@ Shape::Shape(const Device& device, const std::vector<glm::vec2>& vertices, const
             .WriteBuffers(1, 0, vk::DescriptorType::eUniformBuffer).Buffer(mColourBuffer)
             .Update(device.Handle());
 
-    // TODO should be static?
     mPipelineLayout = PipelineLayoutBuilder()
             .DescriptorSetLayout(descriptorLayout)
             .Create(device.Handle());
 
     vk::ShaderModule vertexShader = device.GetShaderModule("../Vortex2D/Position.vert.spv");
-    vk::ShaderModule fragShader = device.GetShaderModule("../Vortex2D/Position.frag.spv");
+    vk::ShaderModule fragShader = device.GetShaderModule(fragName);
 
     mPipeline = GraphicsPipeline::Builder()
             .Shader(vertexShader, vk::ShaderStageFlagBits::eVertex)
@@ -49,17 +51,17 @@ Shape::Shape(const Device& device, const std::vector<glm::vec2>& vertices, const
             .Layout(*mPipelineLayout);
 }
 
-void Shape::Initialize(const RenderState& renderState)
+void AbstractShape::Initialize(const RenderState& renderState)
 {
     mPipeline.Create(mDevice, renderState);
 }
 
-void Shape::Update(const glm::mat4& projection, const glm::mat4& view)
+void AbstractShape::Update(const glm::mat4& projection, const glm::mat4& view)
 {
     mMVPBuffer.CopyFrom(projection * view * GetTransform());
 }
 
-void Shape::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState)
+void AbstractShape::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState)
 {
     mPipeline.Bind(commandBuffer, renderState);
     commandBuffer.bindVertexBuffers(0, {mVertexBuffer}, {0ul});
@@ -68,14 +70,30 @@ void Shape::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState
 }
 
 Rectangle::Rectangle(const Device& device, const glm::vec2& size, const glm::vec4& colour)
-    : Shape(device, {{0.0f, 0.0f},
+    : AbstractShape(device, "../Vortex2D/Position.frag.spv",
+                    {{0.0f, 0.0f},
                      {size.x, 0.0f},
                      {0.0f, size.y},
                      {size.x, 0.0f,},
                      {size.x, size.y},
-                     {0.0f, size.y}}, colour)
+                     {0.0f, size.y}},
+                    colour)
 {
 }
+
+IntRectangle::IntRectangle(const Device& device, const glm::vec2& size, const glm::ivec4& colour)
+    : AbstractShape(device, "../Vortex2D/IntPosition.frag.spv",
+                    {{0.0f, 0.0f},
+                     {size.x, 0.0f},
+                     {0.0f, size.y},
+                     {size.x, 0.0f,},
+                     {size.x, size.y},
+                     {0.0f, size.y}},
+                    colour)
+{
+    mColourBuffer.CopyFrom(colour);
+}
+
 
 Ellipse::Ellipse(const Device& device, const glm::vec2& radius, const glm::vec4& colour)
     : mDevice(device.Handle())
@@ -107,7 +125,6 @@ Ellipse::Ellipse(const Device& device, const glm::vec2& radius, const glm::vec4&
             .WriteBuffers(2, 0, vk::DescriptorType::eUniformBuffer).Buffer(mColourBuffer)
             .Update(device.Handle());
 
-    // TODO should be static?
     mPipelineLayout = PipelineLayoutBuilder()
             .DescriptorSetLayout(descriptorLayout)
             .Create(device.Handle());

@@ -25,16 +25,17 @@ void PrintData(int width, int height, const std::vector<T>& data)
     std::cout << std::endl;
 }
 
-static void PrintTexture(Vortex2D::Renderer::Texture& texture)
+template<typename T>
+void PrintTexture(Vortex2D::Renderer::Texture& texture)
 {
-    std::vector<float> pixels(texture.GetWidth() * texture.GetHeight());
+    std::vector<T> pixels(texture.GetWidth() * texture.GetHeight());
     texture.CopyTo(pixels);
 
     for (uint32_t j = 0; j < texture.GetHeight(); j++)
     {
         for (uint32_t i = 0; i < texture.GetWidth(); i++)
         {
-            float value = pixels[i + j * texture.GetWidth()];
+            T value = pixels[i + j * texture.GetWidth()];
             std::cout << "(" << value << ")";
         }
         std::cout << std::endl;

@@ -21,18 +21,22 @@ namespace Vortex2D { namespace Renderer {
 typedef std::vector<glm::vec2> Path;
 struct RenderTarget;
 
-class Shape : public Drawable, public Transformable
+// TODO all buffer are host local, not the most performant...
+class AbstractShape : public Drawable, public Transformable
 {
 public:
     // TODO have colour has member variable and updated in the Update function
     // do this also for Ellipse
-    Shape(const Device& device, const std::vector<glm::vec2>& vertices, const glm::vec4& colour);
+    AbstractShape(const Device& device,
+                  const std::string& fragShader,
+                  const std::vector<glm::vec2>& vertices,
+                  const glm::vec4& colour);
 
     void Initialize(const RenderState& renderState) override;
     void Update(const glm::mat4& projection, const glm::mat4& view) override;
     void Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState) override;
 
-private:
+protected:
     vk::Device mDevice;
     Buffer mMVPBuffer;
     Buffer mColourBuffer;
@@ -46,10 +50,16 @@ private:
 /**
  * @brief A solid colour rectangle defined by two triangles. Implements the Drawable interface and Transformable interface.
  */
-class Rectangle : public Shape
+class Rectangle : public AbstractShape
 {
 public:
     Rectangle(const Device& device, const glm::vec2& size, const glm::vec4& colour);
+};
+
+class IntRectangle : public AbstractShape
+{
+public:
+    IntRectangle(const Device& device, const glm::vec2& size, const glm::ivec4& colour);
 };
 
 /**

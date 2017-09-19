@@ -82,7 +82,7 @@ TEST(BoundariesTests, Square)
        outTexture.CopyFrom(commandBuffer, levelSet);
     });
 
-    PrintTexture(outTexture);
+    PrintTexture<float>(outTexture);
     CheckTexture(data, outTexture);
 }
 
@@ -118,7 +118,7 @@ TEST(BoundariesTests, InverseSquare)
        outTexture.CopyFrom(commandBuffer, levelSet);
     });
 
-    PrintTexture(outTexture);
+    PrintTexture<float>(outTexture);
     CheckTexture(data, outTexture);
 }
 

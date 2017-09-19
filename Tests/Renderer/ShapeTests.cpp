@@ -53,6 +53,39 @@ TEST(ShapeTests, Square)
     CheckTexture(data, outTexture);
 }
 
+TEST(ShapeTests, IntSquare)
+{
+    glm::vec2 size = {10.0f, 20.0f};
+
+    IntRectangle rect(*device, size, glm::ivec4(1));
+    rect.Position = glm::vec2(5.0f, 7.0f);
+
+    RenderTexture texture(*device, 50, 50, vk::Format::eR32Sint);
+    Texture outTexture(*device, 50, 50, vk::Format::eR32Sint, true);
+
+    rect.Initialize({texture});
+    rect.Update(texture.Orth, glm::mat4());
+
+    texture.Record([&](vk::CommandBuffer commandBuffer)
+    {
+        rect.Draw(commandBuffer, {texture});
+    });
+
+    texture.Submit();
+    device->Queue().waitIdle();
+
+    std::vector<int> data(50*50, 0.0f);
+    DrawSquare(50, 50, data, rect.Position, size, 1);
+
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+        outTexture.CopyFrom(commandBuffer, texture);
+
+    });
+
+    CheckTexture(data, outTexture);
+}
+
 TEST(ShapeTests, MultipleSquares)
 {
     glm::vec2 size = {10.0f, 20.0f};
