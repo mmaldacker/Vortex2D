@@ -1,0 +1,68 @@
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+layout (local_size_x_id = 1, local_size_y_id = 2) in;
+layout (constant_id = 1) const int blockSize = 256; // same as gl_WorkGroupSize.x or local_size_x
+
+layout(push_constant) uniform Consts
+{
+  int width;
+  int height;
+}consts;
+
+struct Particle
+{
+  vec2 Position;
+};
+
+layout(std430, binding = 0) buffer Particles
+{
+  Particle value[];
+}particles;
+
+layout(std430, binding = 1) buffer NewParticles
+{
+  Particle value[];
+}newParticles;
+
+layout(std430, binding = 2) buffer Index
+{
+  int value[];
+}scanIndex;
+
+layout(std430, binding = 3) buffer Count
+{
+  int value[];
+}count;
+
+struct DispatchParams
+{
+    uint x;
+    uint y;
+    uint z;
+    uint count;
+};
+
+layout(std430, binding = 4) buffer Params
+{
+    DispatchParams params;
+};
+
+shared int test;
+
+void main()
+{
+    uint index = gl_GlobalInvocationID.x;
+    // TODO also check is within bounds with width/height?
+    if (index < params.count)
+    {
+        ivec2 pos = ivec2(particles.value[index].Position);
+        int particleIndex = pos.x + pos.y * consts.width;
+
+        int particleCount = atomicAdd(count.value[particleIndex], -1) - 1;
+        if (particleCount >= 0)
+        {
+            newParticles.value[scanIndex.value[particleIndex] + particleCount] = particles.value[index];
+        }
+    }
+}

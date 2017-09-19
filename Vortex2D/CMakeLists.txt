@@ -16,6 +16,8 @@ file(GLOB LIB_SOURCES
     "Engine/Boundaries.cpp"
     "Engine/PrefixScan.h"
     "Engine/PrefixScan.cpp"
+    "Engine/Particles.h"
+    "Engine/Particles.cpp"
     "Engine/LinearSolver/LinearSolver.h"
     "Engine/LinearSolver/LinearSolver.cpp"
     "Engine/LinearSolver/Preconditioner.h"
@@ -52,6 +54,9 @@ file(GLOB SHADER_SOURCES
     "Engine/Kernels/PreScanAdd.comp"
     "Engine/Kernels/PreScan.comp"
     "Engine/Kernels/PreScanStoreSum.comp"
+    "Engine/Kernels/ParticleCount.comp"
+    "Engine/Kernels/ParticleSpawn.comp"
+    "Engine/Kernels/ParticleBucket.comp"
     "Engine/LinearSolver/Kernels/*.comp")
 
 find_package(Vulkan)

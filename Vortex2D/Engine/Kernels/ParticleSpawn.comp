@@ -1,0 +1,78 @@
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+layout (local_size_x_id = 1, local_size_y_id = 2) in;
+layout (constant_id = 1) const int blockSize = 256; // same as gl_WorkGroupSize.x or local_size_x
+
+layout(push_constant) uniform Consts
+{
+  int width;
+  int height;
+}consts;
+
+struct Particle
+{
+  vec2 Position;
+};
+
+layout(std430, binding = 0) buffer Particles
+{
+  Particle value[];
+}particles;
+
+layout(std430, binding = 1) buffer Index
+{
+    int value[];
+}index;
+
+layout(binding = 1, r32i) uniform iimage2D ParticleCount;
+
+uint hash( uint x )
+{
+    x += ( x << 10u );
+    x ^= ( x >>  6u );
+    x += ( x <<  3u );
+    x ^= ( x >> 11u );
+    x += ( x << 15u );
+    return x;
+}
+
+float random(float f)
+{
+    const uint mantissaMask = 0x007FFFFFu;
+    const uint one          = 0x3F800000u;
+
+    uint h = hash( floatBitsToUint( f ) );
+    h &= mantissaMask;
+    h |= one;
+
+    float  r2 = uintBitsToFloat( h );
+    return r2 - 1.0;
+}
+
+/*
+uint hash( uvec2 v ) {
+    return hash( v.x ^ hash(v.y) );
+}
+
+uint hash( uvec3 v ) {
+    return hash( v.x ^ hash(v.y) ^ hash(v.z) );
+}
+
+uint hash( uvec4 v ) {
+    return hash( v.x ^ hash(v.y) ^ hash(v.z) ^ hash(v.w) );
+}
+*/
+
+void main()
+{
+/*
+    ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
+    int offset = imageAtomicAdd(ParticleCount, pos, -1);
+    if (count >= 0)
+    {
+        int pIndex = index.count[pos.x + pos.y * consts.width] + offset - 1;
+        Particle p = particles.value[pIndex];
+    }
+*/
+}

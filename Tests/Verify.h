@@ -43,16 +43,17 @@ void PrintTexture(Vortex2D::Renderer::Texture& texture)
     std::cout << std::endl;
 }
 
-static void PrintBuffer(const glm::ivec2& size, Vortex2D::Renderer::Buffer& buffer)
+template<typename T>
+void PrintBuffer(const glm::ivec2& size, Vortex2D::Renderer::Buffer& buffer)
 {
-    std::vector<float> pixels(size.x * size.y);
+    std::vector<T> pixels(size.x * size.y);
     buffer.CopyTo(pixels);
 
     for (int j = 0; j < size.x; j++)
     {
         for (int i = 0; i < size.y; i++)
         {
-            float value = pixels[i + j * size.x];
+            T value = pixels[i + j * size.x];
             std::cout << "(" << value << ")";
         }
         std::cout << std::endl;
