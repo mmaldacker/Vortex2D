@@ -28,13 +28,15 @@ public:
     void Count();
     void Scan();
 
-//private:
+    int GetCount();
+
+private:
     Renderer::Buffer mNewParticles;
     Renderer::Buffer mCount;
     Renderer::Buffer mIndex;
     Renderer::Buffer mSeeds, mLocalSeeds;
 
-    Renderer::Buffer mDispatchParams, mNewDispatchParams;
+    Renderer::Buffer mDispatchParams, mNewDispatchParams, mLocalDispatchParams;
 
     Renderer::Work mParticleCountWork;
     Renderer::Work::Bound mParticleCountBound;
@@ -47,6 +49,7 @@ public:
 
     Renderer::CommandBuffer mCountWork;
     Renderer::CommandBuffer mScanWork;
+    Renderer::CommandBuffer mDispatchCountWork;
 };
 
 }}

@@ -130,7 +130,19 @@ Texture::Texture(const Device& device, uint32_t width, uint32_t height, vk::Form
     });
 }
 
+void Texture::Clear(vk::CommandBuffer commandBuffer, const std::array<int, 4>& colour)
+{
+    vk::ClearColorValue colourValue(colour);
+    Clear(commandBuffer, colourValue);
+}
+
 void Texture::Clear(vk::CommandBuffer commandBuffer, const std::array<float, 4>& colour)
+{
+    vk::ClearColorValue colourValue(colour);
+    Clear(commandBuffer, colourValue);
+}
+
+void Texture::Clear(vk::CommandBuffer commandBuffer, vk::ClearColorValue colour)
 {
   // TODO access flags wrong?
         Barrier(commandBuffer,
@@ -139,12 +151,9 @@ void Texture::Clear(vk::CommandBuffer commandBuffer, const std::array<float, 4>&
                 vk::ImageLayout::eGeneral,
                 vk::AccessFlagBits::eTransferWrite);
 
-        auto clearValue = vk::ClearColorValue()
-                .setFloat32(colour);
-
         commandBuffer.clearColorImage(*mImage,
                                       vk::ImageLayout::eGeneral,
-                                      clearValue,
+                                      colour,
                                       vk::ImageSubresourceRange{vk::ImageAspectFlagBits::eColor, 0, 1, 0 ,1});
 
         Barrier(commandBuffer,

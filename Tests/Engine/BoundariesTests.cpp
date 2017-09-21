@@ -72,7 +72,7 @@ TEST(BoundariesTests, Square)
 
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
-        levelSet.Clear(commandBuffer, {{-maxDist, 0.0f, 0.0f, 0.0f}});
+        levelSet.Clear(commandBuffer, std::array<float, 4>{-maxDist, 0.0f, 0.0f, 0.0f});
         square.Draw(commandBuffer, levelSet);
     });
 
@@ -108,7 +108,7 @@ TEST(BoundariesTests, InverseSquare)
 
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
-        levelSet.Clear(commandBuffer, {{maxDist, 0.0f, 0.0f, 0.0f}});
+        levelSet.Clear(commandBuffer, std::array<float, 4>{maxDist, 0.0f, 0.0f, 0.0f});
         square.Draw(commandBuffer, levelSet);
     });
 

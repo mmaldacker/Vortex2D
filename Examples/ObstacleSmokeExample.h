@@ -72,7 +72,7 @@ public:
         obstacle.Update(dimensions.InvScale);
         Vortex2D::Renderer::ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
         {
-            world.SolidPhi().Clear(commandBuffer, {-1000.0f, 0.0f, 0.0f, 0.0f});
+            world.SolidPhi().Clear(commandBuffer, std::array<float, 4>{-1000.0f, 0.0f, 0.0f, 0.0f});
             obstacle.Draw(commandBuffer, world.SolidPhi());
         });
     }

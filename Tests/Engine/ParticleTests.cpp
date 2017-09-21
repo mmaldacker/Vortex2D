@@ -90,7 +90,7 @@ TEST(ParticleTests, PrefixScan)
     auto outputData = CalculatePrefixScan(inputData);
     CheckBuffer(outputData, output);
 
-    DispatchParams params;
+    DispatchParams params(0);
     dispatchParams.CopyTo(params);
 
     int total = outputData.back() + inputData.back();
@@ -123,7 +123,7 @@ TEST(ParticleTests, PrefixScanBig)
     auto outputData = CalculatePrefixScan(inputData);
     CheckBuffer(outputData, output);
 
-    DispatchParams params;
+    DispatchParams params(0);
     dispatchParams.CopyTo(params);
 
     int total = outputData.back() + inputData.back();
@@ -202,6 +202,9 @@ TEST(ParticleTests, ParticleDelete)
     particle.Scan();
     device->Queue().waitIdle();
 
+    ASSERT_EQ(2, particle.GetCount());
+
+    // Read particles
     std::vector<Particle> outParticlesData(size.x*size.y*8);
     particles.CopyTo(outParticlesData);
 
@@ -236,6 +239,9 @@ TEST(ParticleTests, ParticleSpawn)
     particle.Scan();
     device->Queue().waitIdle();
 
+    ASSERT_EQ(4, particle.GetCount());
+
+    // Read particles
     std::vector<Particle> outParticlesData(size.x*size.y*8);
     particles.CopyTo(outParticlesData);
 
@@ -253,4 +259,59 @@ TEST(ParticleTests, ParticleSpawn)
               [](const auto& left, const auto&right) { return std::tie(left.x, left.y) < std::tie(right.x, right.y); });
     auto it = std::adjacent_find(outParticles.begin(), outParticles.end());
     ASSERT_EQ(it, outParticles.end());
+}
+
+TEST(ParticleTests, ParticleAddDelete)
+{
+
+    glm::ivec2 size(20, 20);
+
+    Buffer particles(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, 8*size.x*size.y*sizeof(Particle));
+    Particles particle(*device, size, particles);
+
+    // Add some particles
+    IntRectangle rectAdd(*device, {2, 4}, glm::ivec4(1));
+    rectAdd.Position = glm::vec2(10.0f, 10.0f);
+    rectAdd.Initialize(particle);
+    rectAdd.Update(particle.Orth, {});
+
+    particle.Record([&](vk::CommandBuffer commandBuffer)
+    {
+        rectAdd.Draw(commandBuffer, {particle});
+    });
+    particle.Submit();
+    device->Queue().waitIdle();
+
+    // Now scan and spawn them
+    particle.Scan();
+    particle.Count();
+    device->Queue().waitIdle();
+
+    // Remove some particles
+    IntRectangle rectRemove(*device, {1, 4}, glm::ivec4(0));
+    rectRemove.Position = glm::vec2(10.0f, 10.0f);
+    rectRemove.Initialize(particle);
+    rectRemove.Update(particle.Orth, {});
+
+    particle.Record([&](vk::CommandBuffer commandBuffer)
+    {
+        rectRemove.Draw(commandBuffer, {particle});
+    });
+    particle.Submit();
+    device->Queue().waitIdle();
+
+    // Scan again
+    particle.Scan();
+    device->Queue().waitIdle();
+
+    // Read particles
+    std::vector<Particle> outParticlesData(size.x*size.y*8);
+    particles.CopyTo(outParticlesData);
+
+    ASSERT_EQ(4, particle.GetCount());
+
+    EXPECT_EQ(glm::ivec2(outParticlesData[0].Position), glm::ivec2(11, 10));
+    EXPECT_EQ(glm::ivec2(outParticlesData[1].Position), glm::ivec2(11, 11));
+    EXPECT_EQ(glm::ivec2(outParticlesData[2].Position), glm::ivec2(11, 12));
+    EXPECT_EQ(glm::ivec2(outParticlesData[3].Position), glm::ivec2(11, 13));
 }

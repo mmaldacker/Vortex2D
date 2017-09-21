@@ -57,11 +57,14 @@ public:
     uint32_t GetHeight() const;
     vk::Format GetFormat() const;
 
+    void Clear(vk::CommandBuffer commandBuffer, const std::array<int, 4>& colour);
     void Clear(vk::CommandBuffer commandBuffer, const std::array<float, 4>& colour);
 
     friend class Buffer;
 
 private:
+    void Clear(vk::CommandBuffer commandBuffer, vk::ClearColorValue colourValue);
+
     void CopyFrom(const void* data, vk::DeviceSize bytesPerPixel);
     void CopyTo(void* data, vk::DeviceSize bytesPerPixel);
 

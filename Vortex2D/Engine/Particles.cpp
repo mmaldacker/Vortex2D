@@ -21,6 +21,7 @@ Particles::Particles(const Renderer::Device& device,
     , mLocalSeeds(device, vk::BufferUsageFlagBits::eStorageBuffer, true, 4*sizeof(glm::ivec2))
     , mDispatchParams(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(params))
     , mNewDispatchParams(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(params))
+    , mLocalDispatchParams(device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(params))
     , mParticleCountWork(device, Renderer::ComputeSize::Default1D(), "../Vortex2D/ParticleCount.comp.spv",
                          {vk::DescriptorType::eStorageBuffer,
                           vk::DescriptorType::eStorageBuffer,
@@ -47,6 +48,7 @@ Particles::Particles(const Renderer::Device& device,
     , mParticleSpawnBound(mParticleSpawnWork.Bind({mNewParticles, mIndex, mCount, mSeeds}))
     , mCountWork(device, false)
     , mScanWork(device, false)
+    , mDispatchCountWork(device)
 {
     Renderer::Buffer localDispathParams(device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(params));
     localDispathParams.CopyFrom(params);
@@ -57,6 +59,7 @@ Particles::Particles(const Renderer::Device& device,
 
     mCountWork.Record([&](vk::CommandBuffer commandBuffer)
     {
+        Clear(commandBuffer, std::array<int, 4>{0, 0, 0, 0});
         mParticleCountBound.RecordIndirect(commandBuffer, mDispatchParams);
         Barrier(commandBuffer,
                 vk::ImageLayout::eGeneral, vk::AccessFlagBits::eShaderWrite,
@@ -75,6 +78,11 @@ Particles::Particles(const Renderer::Device& device,
         mNewParticles.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         particles.CopyFrom(commandBuffer, mNewParticles);
         mDispatchParams.CopyFrom(commandBuffer, mNewDispatchParams);
+    });
+
+    mDispatchCountWork.Record([&](vk::CommandBuffer commandBuffer)
+    {
+        mLocalDispatchParams.CopyFrom(commandBuffer, mDispatchParams);
     });
 }
 
@@ -98,5 +106,14 @@ void Particles::Scan()
     mScanWork.Submit();
 }
 
+int Particles::GetCount()
+{
+    mDispatchCountWork.Submit();
+    mDispatchCountWork.Wait();
+
+    Renderer::DispatchParams params(0);
+    mLocalDispatchParams.CopyTo(params);
+    return params.count;
+}
 
 }}
