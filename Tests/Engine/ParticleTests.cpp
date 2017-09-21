@@ -6,6 +6,7 @@
 #include "Verify.h"
 
 #include <random>
+#include <glm/gtx/io.hpp>
 
 #include <Vortex2D/Renderer/Shapes.h>
 #include <Vortex2D/Engine/PrefixScan.h>
@@ -89,14 +90,14 @@ TEST(ParticleTests, PrefixScan)
     auto outputData = CalculatePrefixScan(inputData);
     CheckBuffer(outputData, output);
 
-    DispatchParams params(0);
+    DispatchParams params;
     dispatchParams.CopyTo(params);
 
     int total = outputData.back() + inputData.back();
-    ASSERT_EQ(params.count, total);
-    ASSERT_EQ(params.workSize.x, std::ceil((float)total / 256));
-    ASSERT_EQ(params.workSize.y, 1);
-    ASSERT_EQ(params.workSize.z, 1);
+    EXPECT_EQ(params.count, total);
+    EXPECT_EQ(params.workSize.x, std::ceil((float)total / 256));
+    EXPECT_EQ(params.workSize.y, 1);
+    EXPECT_EQ(params.workSize.z, 1);
 }
 
 TEST(ParticleTests, PrefixScanBig)
@@ -122,13 +123,14 @@ TEST(ParticleTests, PrefixScanBig)
     auto outputData = CalculatePrefixScan(inputData);
     CheckBuffer(outputData, output);
 
-    DispatchParams params(0);
+    DispatchParams params;
     dispatchParams.CopyTo(params);
 
     int total = outputData.back() + inputData.back();
-    ASSERT_EQ(params.count, total); ASSERT_EQ(params.workSize.x, std::ceil((float)total / 256));
-    ASSERT_EQ(params.workSize.y, 1);
-    ASSERT_EQ(params.workSize.z, 1);
+    EXPECT_EQ(params.count, total);
+    EXPECT_EQ(params.workSize.x, std::ceil((float)total / 256));
+    EXPECT_EQ(params.workSize.y, 1);
+    EXPECT_EQ(params.workSize.z, 1);
 }
 
 TEST(ParticleTests, ParticleCount)
@@ -160,8 +162,8 @@ TEST(ParticleTests, ParticleCount)
 
     glm::ivec2 pos1(3, 2);
     glm::ivec2 pos2(5, 6);
-    ASSERT_EQ(2, outData[pos1.x + pos1.y * size.x]);
-    ASSERT_EQ(1, outData[pos2.x + pos2.y * size.x]);
+    EXPECT_EQ(2, outData[pos1.x + pos1.y * size.x]);
+    EXPECT_EQ(1, outData[pos2.x + pos2.y * size.x]);
 }
 
 TEST(ParticleTests, ParticleDelete)
@@ -203,22 +205,52 @@ TEST(ParticleTests, ParticleDelete)
     std::vector<Particle> outParticlesData(size.x*size.y*8);
     particles.CopyTo(outParticlesData);
 
-    Buffer localCount(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(int));
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-        localCount.CopyFrom(commandBuffer, particle.mCount);
-    });
-
-    PrintBuffer<int>(size, localCount);
-
     // We don't know the order of particles in the same grid position
-    ASSERT_TRUE(outParticlesData[0].Position == particlesData[0].Position ||
+    EXPECT_TRUE(outParticlesData[0].Position == particlesData[0].Position ||
                 outParticlesData[0].Position == particlesData[2].Position);
-    ASSERT_TRUE(outParticlesData[1].Position == particlesData[0].Position ||
+    EXPECT_TRUE(outParticlesData[1].Position == particlesData[0].Position ||
                 outParticlesData[1].Position == particlesData[2].Position);
 }
 
 TEST(ParticleTests, ParticleSpawn)
 {
+    glm::ivec2 size(20, 20);
 
+    Buffer particles(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, 8*size.x*size.y*sizeof(Particle));
+    Particles particle(*device, size, particles);
+
+    // Add some particles
+    IntRectangle rect(*device, {1, 1}, glm::ivec4(4));
+    rect.Position = glm::vec2(10.0f, 10.0f);
+    rect.Initialize(particle);
+    rect.Update(particle.Orth, {});
+
+    particle.Record([&](vk::CommandBuffer commandBuffer)
+    {
+        rect.Draw(commandBuffer, {particle});
+    });
+    particle.Submit();
+    device->Queue().waitIdle();
+
+    // Now scan and spawn them
+    particle.Scan();
+    device->Queue().waitIdle();
+
+    std::vector<Particle> outParticlesData(size.x*size.y*8);
+    particles.CopyTo(outParticlesData);
+
+    glm::ivec2 particlePos(10, 10);
+    EXPECT_EQ(glm::ivec2(outParticlesData[0].Position), particlePos);
+    EXPECT_EQ(glm::ivec2(outParticlesData[1].Position), particlePos);
+    EXPECT_EQ(glm::ivec2(outParticlesData[2].Position), particlePos);
+    EXPECT_EQ(glm::ivec2(outParticlesData[3].Position), particlePos);
+
+    std::vector<glm::vec2> outParticles = {outParticlesData[0].Position,
+                                          outParticlesData[1].Position,
+                                          outParticlesData[2].Position,
+                                          outParticlesData[3].Position};
+    std::sort(outParticles.begin(), outParticles.end(),
+              [](const auto& left, const auto&right) { return std::tie(left.x, left.y) < std::tie(right.x, right.y); });
+    auto it = std::adjacent_find(outParticles.begin(), outParticles.end());
+    ASSERT_EQ(it, outParticles.end());
 }

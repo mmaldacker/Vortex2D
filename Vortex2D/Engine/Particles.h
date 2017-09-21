@@ -32,6 +32,7 @@ public:
     Renderer::Buffer mNewParticles;
     Renderer::Buffer mCount;
     Renderer::Buffer mIndex;
+    Renderer::Buffer mSeeds, mLocalSeeds;
 
     Renderer::Buffer mDispatchParams, mNewDispatchParams;
 
@@ -41,6 +42,8 @@ public:
     PrefixScan::Bound mPrefixScanBound;
     Renderer::Work mParticleBucketWork;
     Renderer::Work::Bound mParticleBucketBound;
+    Renderer::Work mParticleSpawnWork;
+    Renderer::Work::Bound mParticleSpawnBound;
 
     Renderer::CommandBuffer mCountWork;
     Renderer::CommandBuffer mScanWork;
