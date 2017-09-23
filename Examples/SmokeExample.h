@@ -30,6 +30,7 @@ public:
         , densitySprite(device, density)
         , world(device, dimensions, dt)
     {
+        // TODO should set the view and not the scale
         densitySprite.Scale = (glm::vec2)dimensions.Scale;
 
         source1.Position = force1.Position = {250.0f, 100.0f};

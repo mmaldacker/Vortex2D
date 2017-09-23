@@ -11,7 +11,6 @@ namespace Vortex2D { namespace Fluid {
 
 namespace
 {
-
     bool IsClockwise(const std::vector<glm::vec2>& points)
     {
         float total = 0.0f;
@@ -22,7 +21,6 @@ namespace
 
         return total > 0.0;
     }
-
 }
 
 Polygon::Polygon(const Renderer::Device& device, std::vector<glm::vec2> points, bool inverse)
@@ -109,6 +107,62 @@ void DistanceField::Draw(vk::CommandBuffer commandBuffer, const Renderer::Render
 {
     PushConstant(commandBuffer, 0, mScale);
     AbstractSprite::Draw(commandBuffer, renderState);
+}
+
+ParticleCloud::ParticleCloud(const Renderer::Device& device, const std::vector<glm::vec2>& particles, const glm::vec4& colour)
+    : mDevice(device.Handle())
+    , mMVPBuffer(device, vk::BufferUsageFlagBits::eUniformBuffer, true, sizeof(glm::mat4))
+    , mColourBuffer(device, vk::BufferUsageFlagBits::eUniformBuffer, true, sizeof(glm::vec4))
+    , mVertexBuffer(device, vk::BufferUsageFlagBits::eVertexBuffer, true, sizeof(glm::vec2) * particles.size())
+    , mNumVertices(particles.size())
+{
+    mColourBuffer.CopyFrom(colour);
+    mVertexBuffer.CopyFrom(particles);
+
+    static vk::DescriptorSetLayout descriptorLayout = Renderer::DescriptorSetLayoutBuilder()
+            .Binding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
+            .Binding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment, 1)
+            .Create(device);
+
+    mDescriptorSet = MakeDescriptorSet(device, descriptorLayout);
+
+    Renderer::DescriptorSetUpdater(*mDescriptorSet)
+            .WriteBuffers(0, 0, vk::DescriptorType::eUniformBuffer).Buffer(mMVPBuffer)
+            .WriteBuffers(1, 0, vk::DescriptorType::eUniformBuffer).Buffer(mColourBuffer)
+            .Update(device.Handle());
+
+    mPipelineLayout = Renderer::PipelineLayoutBuilder()
+            .DescriptorSetLayout(descriptorLayout)
+            .Create(device.Handle());
+
+    vk::ShaderModule vertexShader = device.GetShaderModule("../Vortex2D/ParticleCloud.vert.spv");
+    vk::ShaderModule fragShader = device.GetShaderModule("../Vortex2D/ParticleCloud.frag.spv");
+
+    mPipeline = Renderer::GraphicsPipeline::Builder()
+            .Topology(vk::PrimitiveTopology::ePointList)
+            .Shader(vertexShader, vk::ShaderStageFlagBits::eVertex)
+            .Shader(fragShader, vk::ShaderStageFlagBits::eFragment)
+            .VertexAttribute(0, 0, vk::Format::eR32G32Sfloat, 0)
+            .VertexBinding(0, sizeof(glm::vec2))
+            .Layout(*mPipelineLayout);
+}
+
+void ParticleCloud::Initialize(const Renderer::RenderState& renderState)
+{
+    mPipeline.Create(mDevice, renderState);
+}
+
+void ParticleCloud::Update(const glm::mat4& projection, const glm::mat4& view)
+{
+    mMVPBuffer.CopyFrom(projection * view * GetTransform());
+}
+
+void ParticleCloud::Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState)
+{
+    mPipeline.Bind(commandBuffer, renderState);
+    commandBuffer.bindVertexBuffers(0, {mVertexBuffer}, {0ul});
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *mPipelineLayout, 0, {*mDescriptorSet}, {});
+    commandBuffer.draw(mNumVertices, 1, 0, 0);
 }
 
 }}

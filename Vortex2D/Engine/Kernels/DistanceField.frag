@@ -16,5 +16,6 @@ void main()
     float value = texture(u_texture, v_texCoord).x;
     float alpha = 1.0 - clamp(consts.scale * value + 0.5, 0.0, 1.0);
 
+    // TODO colour needs to be configurable
     out_color = vec4(0.0, 0.9, 0.5, alpha);
 }

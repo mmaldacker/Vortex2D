@@ -5,6 +5,8 @@
 
 #include <Vortex2D/Vortex2D.h>
 #include <Vortex2D/Renderer/Drawable.h>
+#include <Vortex2D/Engine/World.h>
+#include <Vortex2D/Engine/Boundaries.h>
 
 #include <functional>
 #include <vector>
@@ -17,56 +19,88 @@ extern glm::vec4 blue;
 class WaterExample : public Vortex2D::Renderer::Drawable
 {
 public:
-    WaterExample(const Vortex2D::Renderer::Device& device, const glm::vec2& size, float dt)
-        : gravity(device, size)
-        , obstacle1(device, {100,100}), obstacle2(device, {100,100})
-        , dimensions(size, 1.0f)
-        , world(dimensions, dt)
+    WaterExample(const Vortex2D::Renderer::Device& device,
+                 const Vortex2D::Fluid::Dimensions& dimensions,
+                 float dt)
+        : gravity(device, dimensions.Size, {0.0f, -0.5f, 0.0f, 0.0f})
+        , world(device, dimensions, dt)
+        , solidPhi(device, world.SolidPhi(), dimensions.Scale)
+        , particleCloud(device, GenerateParticles({200.0f, 100.0f}, {600.0f, 200.0f}), blue)
     {
-        gravity.Colour = {0.0f, -0.5f, 0.0f, 0.0f};
+        // TODO should set the view and not the scale
+        solidPhi.Scale = (glm::vec2)dimensions.Scale;
 
-        obstacle1.Position = {150.0f, 100.0f};
+        // Add particles
+
+        // Draw solid boundaries
+        Vortex2D::Renderer::Rectangle obstacle1(device, {200.0f, 100.0f}, glm::vec4(-1.0f));
+        Vortex2D::Renderer::Rectangle obstacle2(device, {200.0f, 100.0f}, glm::vec4(-1.0f));
+        Vortex2D::Renderer::Rectangle area(device, dimensions.Scale * glm::vec2(dimensions.Size) - glm::vec2(8.0f), glm::vec4(1.0f));
+
+        area.Position = glm::vec2(4.0f);
+
+        obstacle1.Position = {300.0f, 600.0f};
         obstacle1.Rotation = 45.0f;
-        obstacle1.Colour = green;
 
-        obstacle2.Position = {350.0f, 100.0f};
+        obstacle2.Position = {700.0f, 600.0f};
         obstacle2.Rotation = 30.0f;
-        obstacle2.Colour = green;
 
-        world.Colour = blue;
+        area.Initialize(world.SolidPhi());
+        obstacle1.Initialize(world.SolidPhi());
+        obstacle2.Initialize(world.SolidPhi());
 
-        auto boundaries = world.DrawBoundaries();
+        area.Update(world.SolidPhi().Orth, dimensions.InvScale);
+        obstacle1.Update(world.SolidPhi().Orth, dimensions.InvScale);
+        obstacle2.Update(world.SolidPhi().Orth, dimensions.InvScale);
 
-        Vortex2D::Renderer::Rectangle source(device, {300,100});
-        source.Position = {100,350};
-        source.Colour = glm::vec4(1.0f);
-        boundaries.DrawLiquid(source);
+        world.SolidPhi().Record([&](vk::CommandBuffer commandBuffer)
+        {
+            Vortex2D::Renderer::Clear(dimensions.Size.x, dimensions.Size.y, {-1.0f, 0.0f, 0.0f, 0.0f}).Draw(commandBuffer);
+            area.Draw(commandBuffer, world.SolidPhi());
+            obstacle1.Draw(commandBuffer, world.SolidPhi());
+            obstacle2.Draw(commandBuffer, world.SolidPhi());
+        });
+        world.SolidPhi().Submit();
 
-        Vortex2D::Renderer::Rectangle area(device, size - glm::vec2(2.0f));
-        area.Position = glm::vec2(1.0f);
-        area.Colour = glm::vec4(1.0f);
-
-        boundaries.DrawSolid(area, true);
-        boundaries.DrawSolid(obstacle1);
-        boundaries.DrawSolid(obstacle2);
+        world.SolidPhi().Reinitialise();
+        device.Handle().waitIdle();
     }
 
-    void Render(const Vortex2D::Renderer::Device& device, Vortex2D::Renderer::RenderTarget & target) override
+    void Initialize(const Vortex2D::Renderer::RenderState& renderState) override
     {
-        /*
-        world.RenderForce(gravity);
-        world.Solve();
-        world.Advect();
+        solidPhi.Initialize(renderState);
+        particleCloud.Initialize(renderState);
+    }
 
-        target.Render(world);
-        target.Render(obstacle1);
-        target.Render(obstacle2);
-        */
+    void Update(const glm::mat4& projection, const glm::mat4& view) override
+    {
+        solidPhi.Update(projection, view);
+        particleCloud.Update(projection, view);
+    }
+
+    void Draw(vk::CommandBuffer commandBuffer, const Vortex2D::Renderer::RenderState& renderState) override
+    {
+        solidPhi.Draw(commandBuffer, renderState);
+        particleCloud.Draw(commandBuffer, renderState);
+    }
+
+    std::vector<glm::vec2> GenerateParticles(const glm::vec2& pos, const glm::vec2& size)
+    {
+        std::vector<glm::vec2> particles;
+        for (int i = pos.x; i < pos.x+size.x; i+=4)
+        {
+            for (int j = pos.y; j < pos.y+size.y; j+=4)
+            {
+                particles.push_back(glm::vec2(i, j));
+            }
+        }
+
+        return particles;
     }
 
 private:
     Vortex2D::Renderer::Rectangle gravity;
-    Vortex2D::Renderer::Rectangle obstacle1, obstacle2;
-    Vortex2D::Fluid::Dimensions dimensions;
     Vortex2D::Fluid::World world;
+    Vortex2D::Fluid::DistanceField solidPhi;
+    Vortex2D::Fluid::ParticleCloud particleCloud;
 };

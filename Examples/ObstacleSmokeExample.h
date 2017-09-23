@@ -31,6 +31,7 @@ public:
         , world(device, dimensions, dt)
         , solidPhi(device, world.SolidPhi(), dimensions.Scale)
     {
+        // TODO should set the view and not the scale
         solidPhi.Scale = densitySprite.Scale = (glm::vec2)dimensions.Scale;
 
         force.Position = source.Position = {200.0f, 100.0f};

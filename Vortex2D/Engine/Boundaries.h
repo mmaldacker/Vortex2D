@@ -67,6 +67,26 @@ private:
     float mScale;
 };
 
+class ParticleCloud : public Renderer::Drawable, public Renderer::Transformable
+{
+public:
+    ParticleCloud(const Renderer::Device& device, const std::vector<glm::vec2>& particles, const glm::vec4& colour);
+
+    void Initialize(const Renderer::RenderState& renderState) override;
+    void Update(const glm::mat4& projection, const glm::mat4& view) override;
+    void Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState) override;
+
+private:
+    vk::Device mDevice;
+    Renderer::Buffer mMVPBuffer;
+    Renderer::Buffer mColourBuffer;
+    Renderer::Buffer mVertexBuffer;
+    vk::UniqueDescriptorSet mDescriptorSet;
+    vk::UniquePipelineLayout mPipelineLayout;
+    Renderer::GraphicsPipeline mPipeline;
+    uint32_t mNumVertices;
+};
+
 }}
 
 #endif

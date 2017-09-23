@@ -7,6 +7,7 @@
 #include "RenderExample.h"
 #include "SmokeExample.h"
 #include "ObstacleSmokeExample.h"
+#include "WaterExample.h"
 
 #include <iostream>
 #include <memory>
@@ -44,12 +45,12 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             example.reset(new ObstacleSmokeExample(*device, {size, scale}, 0.033f));
             break;
         case GLFW_KEY_4:
-            //example.reset(new WaterExample(size, 0.033f));
+            example.reset(new WaterExample(*device, {size, scale}, 0.033f));
             break;
         case GLFW_KEY_5:
             //example.reset(new ScaleWaterExample(size, 0.033f));
         default:
-            break;
+            return;
     }
 
     Vortex2D::Renderer::RenderState t(*target);

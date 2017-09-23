@@ -57,6 +57,8 @@ file(GLOB SHADER_SOURCES
     "Engine/Kernels/ParticleCount.comp"
     "Engine/Kernels/ParticleSpawn.comp"
     "Engine/Kernels/ParticleBucket.comp"
+    "Engine/Kernels/ParticleCloud.vert"
+    "Engine/Kernels/ParticleCloud.frag"
     "Engine/LinearSolver/Kernels/*.comp")
 
 find_package(Vulkan)
