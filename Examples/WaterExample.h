@@ -24,11 +24,12 @@ public:
                  float dt)
         : gravity(device, dimensions.Size, {0.0f, -0.5f, 0.0f, 0.0f})
         , world(device, dimensions, dt)
-        , solidPhi(device, world.SolidPhi(), dimensions.Scale)
+        , solidPhi(device, world.SolidPhi(), green, dimensions.Scale)
+        , liquidPhi(device, world.LiquidPhi(), blue, dimensions.Scale, true)
         , particleCloud(device, world.Particles(), 0, blue)
     {
         // TODO should set the view and not the scale
-        particleCloud.Scale = solidPhi.Scale = (glm::vec2)dimensions.Scale;
+        particleCloud.Scale = liquidPhi.Scale = solidPhi.Scale = (glm::vec2)dimensions.Scale;
 
         // Add particles
         Vortex2D::Renderer::IntRectangle fluid(device, {600.0f, 200.0f}, glm::ivec4(4));
@@ -84,18 +85,21 @@ public:
     void Initialize(const Vortex2D::Renderer::RenderState& renderState) override
     {
         solidPhi.Initialize(renderState);
+        liquidPhi.Initialize(renderState);
         particleCloud.Initialize(renderState);
     }
 
     void Update(const glm::mat4& projection, const glm::mat4& view) override
     {
         solidPhi.Update(projection, view);
+        liquidPhi.Update(projection, view);
         particleCloud.Update(projection, view);
     }
 
     void Draw(vk::CommandBuffer commandBuffer, const Vortex2D::Renderer::RenderState& renderState) override
     {
         solidPhi.Draw(commandBuffer, renderState);
+        liquidPhi.Draw(commandBuffer, renderState);
         particleCloud.Draw(commandBuffer, renderState);
     }
 
@@ -116,6 +120,6 @@ public:
 private:
     Vortex2D::Renderer::Rectangle gravity;
     Vortex2D::Fluid::World world;
-    Vortex2D::Fluid::DistanceField solidPhi;
+    Vortex2D::Fluid::DistanceField solidPhi, liquidPhi;
     Vortex2D::Fluid::ParticleCloud particleCloud;
 };

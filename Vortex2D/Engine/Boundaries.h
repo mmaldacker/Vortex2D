@@ -56,14 +56,20 @@ public:
     Rectangle(const Renderer::Device& device, const glm::vec2& size, bool inverse = false);
 };
 
+// TODO have colour has member variable and updated in the Update function
 class DistanceField : public Renderer::AbstractSprite
 {
 public:
-    DistanceField(const Renderer::Device& device, LevelSet& levelSet, float scale = 1.0f);
+    DistanceField(const Renderer::Device& device,
+                  LevelSet& levelSet,
+                  const glm::vec4& colour,
+                  float scale = 1.0f,
+                  bool inverse = false);
 
     void Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState) override;
 
 private:
+    glm::vec4 mColour;
     float mScale;
 };
 

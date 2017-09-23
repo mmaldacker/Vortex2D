@@ -29,7 +29,7 @@ public:
         , density(device, dimensions.Size.x, dimensions.Size.y, vk::Format::eB8G8R8A8Unorm)
         , densitySprite(device, density)
         , world(device, dimensions, dt)
-        , solidPhi(device, world.SolidPhi(), dimensions.Scale)
+        , solidPhi(device, world.SolidPhi(), green, dimensions.Scale)
     {
         // TODO should set the view and not the scale
         solidPhi.Scale = densitySprite.Scale = (glm::vec2)dimensions.Scale;

@@ -98,14 +98,23 @@ Rectangle::Rectangle(const Renderer::Device& device, const glm::vec2& size, bool
 {
 }
 
-DistanceField::DistanceField(const Renderer::Device& device, LevelSet& levelSet, float scale)
-    : Renderer::AbstractSprite(device, "../Vortex2D/DistanceField.frag.spv", levelSet, Renderer::PushConstantsSize<int>())
+DistanceField::DistanceField(const Renderer::Device& device,
+                             LevelSet& levelSet,
+                             const glm::vec4& colour,
+                             float scale,
+                             bool inverse)
+    : Renderer::AbstractSprite(device,
+                               inverse ? "../Vortex2D/DistanceFieldInverse.frag.spv" : "../Vortex2D/DistanceField.frag.spv",
+                               levelSet,
+                               Renderer::PushConstantsSize<int, glm::vec4>())
+    , mColour(colour)
     , mScale(scale)
 {
 }
 
 void DistanceField::Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState)
 {
+    PushConstant(commandBuffer, 4, mColour);
     PushConstant(commandBuffer, 0, mScale);
     AbstractSprite::Draw(commandBuffer, renderState);
 }

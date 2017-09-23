@@ -49,8 +49,8 @@ vec2 random(ivec2 pos, ivec2 seed)
     const uint mantissaMask = 0x007FFFFFu;
     const uint one          = 0x3F800000u;
 
-    uvec2 h = uvec2(pos.x ^ hash(pos.y) ^ hash(seed.x),
-                    pos.x ^ hash(pos.y) ^ hash(seed.y));
+    uvec2 h = uvec2(hash(pos.x) ^ hash(pos.y) ^ hash(seed.x),
+                    hash(pos.x) ^ hash(pos.y) ^ hash(seed.y));
     h &= mantissaMask;
     h |= one;
 
