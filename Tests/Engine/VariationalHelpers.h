@@ -51,7 +51,7 @@ static void AddParticles(const glm::vec2& size, FluidSim& sim, float (*phi)(cons
     std::mt19937 gen(rd());
     std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 
-    for(int i = 0; i < 16*sqr(size.x); ++i)
+    for(int i = 0; i < 4*sqr(size.x); ++i)
     {
         Vec2f pt(dist(gen), dist(gen));
         if (phi(pt) > 0 && pt[0] > 0.5)

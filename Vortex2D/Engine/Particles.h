@@ -12,6 +12,8 @@
 
 namespace Vortex2D { namespace Fluid {
 
+class LevelSet;
+
 struct Particle
 {
   alignas(8) glm::vec2 Position;
@@ -30,7 +32,11 @@ public:
 
     int GetCount();
 
+    void InitLevelSet(LevelSet& levelSet);
+    void Phi();
+
 private:
+    Renderer::Buffer& mParticles;
     Renderer::Buffer mNewParticles;
     Renderer::Buffer mCount;
     Renderer::Buffer mIndex;
@@ -46,10 +52,13 @@ private:
     Renderer::Work::Bound mParticleBucketBound;
     Renderer::Work mParticleSpawnWork;
     Renderer::Work::Bound mParticleSpawnBound;
+    Renderer::Work mParticlePhiWork;
+    Renderer::Work::Bound mParticlePhiBound;
 
     Renderer::CommandBuffer mCountWork;
     Renderer::CommandBuffer mScanWork;
     Renderer::CommandBuffer mDispatchCountWork;
+    Renderer::CommandBuffer mParticlePhi;
 };
 
 }}

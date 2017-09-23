@@ -5,6 +5,8 @@
 
 #include "Particles.h"
 
+#include <Vortex2D/Engine/LevelSet.h>
+
 #include <random>
 
 namespace Vortex2D { namespace Fluid {
@@ -14,6 +16,7 @@ ParticleCount::ParticleCount(const Renderer::Device& device,
                      Renderer::Buffer& particles,
                      const Renderer::DispatchParams& params)
     : Renderer::RenderTexture(device, size.x, size.y, vk::Format::eR32Sint)
+    , mParticles(particles)
     , mNewParticles(device, vk::BufferUsageFlagBits::eStorageBuffer, false, 8*size.x*size.y*sizeof(Particle))
     , mCount(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(int))
     , mIndex(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(int))
@@ -46,9 +49,15 @@ ParticleCount::ParticleCount(const Renderer::Device& device,
                          vk::DescriptorType::eStorageBuffer,
                          vk::DescriptorType::eStorageBuffer})
     , mParticleSpawnBound(mParticleSpawnWork.Bind({mNewParticles, mIndex, mCount, mSeeds}))
+    , mParticlePhiWork(device, size, "../Vortex2D/ParticlePhi.comp.spv",
+                       {vk::DescriptorType::eStorageImage,
+                       vk::DescriptorType::eStorageBuffer,
+                       vk::DescriptorType::eStorageBuffer,
+                       vk::DescriptorType::eStorageImage})
     , mCountWork(device, false)
     , mScanWork(device, false)
     , mDispatchCountWork(device)
+    , mParticlePhi(device, false)
 {
     Renderer::Buffer localDispathParams(device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(params));
     localDispathParams.CopyFrom(params);
@@ -95,7 +104,7 @@ void ParticleCount::Scan()
 {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(1, 1000000);
+    std::uniform_int_distribution<> dis;
 
     glm::ivec2 seeds[] = {{dis(gen), dis(gen)},
                           {dis(gen), dis(gen)},
@@ -114,6 +123,24 @@ int ParticleCount::GetCount()
     Renderer::DispatchParams params(0);
     mLocalDispatchParams.CopyTo(params);
     return params.count;
+}
+
+void ParticleCount::InitLevelSet(LevelSet& levelSet)
+{
+    mParticlePhiBound = mParticlePhiWork.Bind({*this, mParticles, mIndex, levelSet});
+    mParticlePhi.Record([&](vk::CommandBuffer commandBuffer)
+    {
+        levelSet.Clear(commandBuffer, std::array<float, 4>{3.0f, 0.0f, 0.0f, 0.0f});
+        mParticlePhiBound.Record(commandBuffer);
+        levelSet.Barrier(commandBuffer,
+                         vk::ImageLayout::eGeneral, vk::AccessFlagBits::eShaderWrite,
+                         vk::ImageLayout::eGeneral, vk::AccessFlagBits::eShaderRead);
+    });
+}
+
+void ParticleCount::Phi()
+{
+    mParticlePhi.Submit();
 }
 
 }}

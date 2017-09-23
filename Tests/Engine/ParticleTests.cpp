@@ -4,6 +4,7 @@
 //
 
 #include "Verify.h"
+#include "VariationalHelpers.h"
 
 #include <random>
 #include <glm/gtx/io.hpp>
@@ -11,6 +12,7 @@
 #include <Vortex2D/Renderer/Shapes.h>
 #include <Vortex2D/Engine/PrefixScan.h>
 #include <Vortex2D/Engine/Particles.h>
+#include <Vortex2D/Engine/LevelSet.h>
 
 using namespace Vortex2D::Renderer;
 using namespace Vortex2D::Fluid;
@@ -69,7 +71,7 @@ void PrintPrefixVector(const std::vector<int>& data)
 
 TEST(ParticleTests, PrefixScan)
 {
-    glm::ivec2 size(20, 20);
+    glm::ivec2 size(20);
 
     PrefixScan prefixScan(*device, size);
 
@@ -102,7 +104,7 @@ TEST(ParticleTests, PrefixScan)
 
 TEST(ParticleTests, PrefixScanBig)
 {
-    glm::ivec2 size(100, 100);
+    glm::ivec2 size(100);
 
     PrefixScan prefixScan(*device, size);
 
@@ -135,7 +137,7 @@ TEST(ParticleTests, PrefixScanBig)
 
 TEST(ParticleTests, ParticleCounting)
 {
-    glm::ivec2 size(20, 20);
+    glm::ivec2 size(20);
 
     std::vector<Particle> particlesData(size.x*size.y*8);
     particlesData[0].Position = glm::vec2(3.4f, 2.3f);
@@ -168,7 +170,7 @@ TEST(ParticleTests, ParticleCounting)
 
 TEST(ParticleTests, ParticleDelete)
 {
-    glm::ivec2 size(20, 20);
+    glm::ivec2 size(20);
 
     std::vector<Particle> particlesData(size.x*size.y*8);
     particlesData[0].Position = glm::vec2(3.4f, 2.3f);
@@ -217,7 +219,7 @@ TEST(ParticleTests, ParticleDelete)
 
 TEST(ParticleTests, ParticleSpawn)
 {
-    glm::ivec2 size(20, 20);
+    glm::ivec2 size(20);
 
     Buffer particles(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, 8*size.x*size.y*sizeof(Particle));
     ParticleCount particleCount(*device, size, particles);
@@ -263,8 +265,7 @@ TEST(ParticleTests, ParticleSpawn)
 
 TEST(ParticleTests, ParticleAddDelete)
 {
-
-    glm::ivec2 size(20, 20);
+    glm::ivec2 size(20);
 
     Buffer particles(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, 8*size.x*size.y*sizeof(Particle));
     ParticleCount particleCount(*device, size, particles);
@@ -314,4 +315,81 @@ TEST(ParticleTests, ParticleAddDelete)
     EXPECT_EQ(glm::ivec2(outParticlesData[1].Position), glm::ivec2(11, 11));
     EXPECT_EQ(glm::ivec2(outParticlesData[2].Position), glm::ivec2(11, 12));
     EXPECT_EQ(glm::ivec2(outParticlesData[3].Position), glm::ivec2(11, 13));
+}
+
+void PrintLiquidPhi(const glm::ivec2& size, FluidSim& sim)
+{
+    for (int i = 0; i < sim.liquid_phi.ni; i++)
+    {
+        for (int j = 0; j < sim.liquid_phi.nj; j++)
+        {
+            std::cout << "(" << size.x * sim.liquid_phi(j, i) << ")";
+        }
+
+        std::cout << std::endl;
+    }
+
+    std::cout << std::endl;
+}
+
+void SamePhiSign(const glm::ivec2& size, FluidSim& sim, Texture& phi)
+{
+    std::vector<float> pixels(size.x*size.y);
+    phi.CopyTo(pixels);
+
+    for (int i = 0; i < size.x; i++)
+    {
+        for (int j = 0; j < size.y; j++)
+        {
+            int index = i + j * size.x;
+            float value = pixels[index];
+            EXPECT_GT(value * sim.liquid_phi(i, j), 0.0);
+        }
+    }
+}
+
+TEST(ParticleTests, Phi)
+{
+    glm::ivec2 size(20, 20);
+
+    FluidSim sim;
+    sim.initialize(1.0f, size.x, size.y);
+    sim.set_boundary(boundary_phi);
+
+    AddParticles(size, sim, boundary_phi);
+    sim.compute_phi();
+
+    Buffer particles(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, 8*size.x*size.y*sizeof(Particle));
+
+    std::vector<Particle> particlesData;
+    for (auto& p: sim.particles)
+    {
+        Particle particle;
+        particle.Position = glm::vec2(p[0] * size.x, p[1] * size.x);
+        particlesData.push_back(particle);
+    }
+    particlesData.resize(8*size.x*size.y);
+    particles.CopyFrom(particlesData);
+
+    ParticleCount particleCount(*device, size, particles, {(int)sim.particles.size()});
+
+    particleCount.Count();
+    particleCount.Scan();
+    device->Handle().waitIdle();
+
+    LevelSet phi(*device, size);
+
+    particleCount.InitLevelSet(phi);
+    particleCount.Phi();
+    device->Handle().waitIdle();
+
+    Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+       outTexture.CopyFrom(commandBuffer, phi);
+    });
+
+    PrintLiquidPhi(size, sim);
+    PrintTexture<float>(outTexture);
+    SamePhiSign(size, sim, outTexture);
 }

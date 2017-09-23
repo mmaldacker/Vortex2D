@@ -1,0 +1,58 @@
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+layout (local_size_x_id = 1, local_size_y_id = 2) in;
+
+layout(push_constant) uniform Consts
+{
+  int width;
+  int height;
+}consts;
+
+struct Particle
+{
+  vec2 Position;
+};
+
+layout(binding = 0, r32i) uniform iimage2D ParticleCount;
+
+layout(std430, binding = 1) buffer Particles
+{
+  Particle value[];
+}particles;
+
+layout(std430, binding = 2) buffer Index
+{
+  int value[];
+}scanIndex;
+
+layout(binding = 3, r32f) uniform image2D LevelSet;
+
+const float particle_radius = 1.0 / sqrt(2.0);
+const int off = 3;
+
+void main()
+{
+    ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
+    if (pos.x < consts.width && pos.y < consts.height)
+    {
+        for (int i = -off; i <= off; i++)
+        {
+            for (int j = -off; j <= off; j++)
+            {
+                ivec2 newPos = ivec2(pos) + ivec2(i, j);
+                int index = newPos.x + newPos.y * consts.width;
+                int count = imageLoad(ParticleCount, newPos).x;
+
+                for (int k = 0; k < count; k++)
+                {
+                    Particle p = particles.value[scanIndex.value[index] + k];
+                    float phi_temp = distance(pos, p.Position) - 1.02 * particle_radius;
+
+                    float phi = imageLoad(LevelSet, pos).x;
+                    imageStore(LevelSet, pos, vec4(min(phi, phi_temp), 0.0, 0.0, 0.0));
+                }
+            }
+        }
+    }
+}
