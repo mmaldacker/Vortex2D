@@ -15,6 +15,8 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
     , mLower(device, vk::BufferUsageFlagBits::eStorageBuffer, false, dimensions.Size.x*dimensions.Size.y*sizeof(glm::vec2))
     , mDiv(device, vk::BufferUsageFlagBits::eStorageBuffer, false, dimensions.Size.x*dimensions.Size.y*sizeof(float))
     , mPressure(device, vk::BufferUsageFlagBits::eStorageBuffer, false, dimensions.Size.x*dimensions.Size.y*sizeof(float))
+    , mParticles(device, vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eVertexBuffer, false, 8*dimensions.Size.x*dimensions.Size.y*sizeof(Particle))
+    , mParticleCount(device, dimensions.Size, mParticles)
     , mPreconditioner(device, dimensions.Size)
     , mLinearSolver(device, dimensions.Size, mPreconditioner)
     , mVelocity(device, dimensions.Size.x, dimensions.Size.y, vk::Format::eR32G32Sfloat)
@@ -65,6 +67,16 @@ LevelSet& World::LiquidPhi()
 LevelSet& World::SolidPhi()
 {
     return mObstacleLevelSet;
+}
+
+Renderer::Buffer& World::Particles()
+{
+    return mParticles;
+}
+
+ParticleCount& World::Count()
+{
+    return mParticleCount;
 }
 
 }}

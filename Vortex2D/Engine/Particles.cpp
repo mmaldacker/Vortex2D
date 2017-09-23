@@ -9,7 +9,7 @@
 
 namespace Vortex2D { namespace Fluid {
 
-Particles::Particles(const Renderer::Device& device,
+ParticleCount::ParticleCount(const Renderer::Device& device,
                      const glm::ivec2& size,
                      Renderer::Buffer& particles,
                      const Renderer::DispatchParams& params)
@@ -86,12 +86,12 @@ Particles::Particles(const Renderer::Device& device,
     });
 }
 
-void Particles::Count()
+void ParticleCount::Count()
 {
     mCountWork.Submit();
 }
 
-void Particles::Scan()
+void ParticleCount::Scan()
 {
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -106,7 +106,7 @@ void Particles::Scan()
     mScanWork.Submit();
 }
 
-int Particles::GetCount()
+int ParticleCount::GetCount()
 {
     mDispatchCountWork.Submit();
     mDispatchCountWork.Wait();

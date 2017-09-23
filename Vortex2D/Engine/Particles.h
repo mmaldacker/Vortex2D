@@ -17,10 +17,10 @@ struct Particle
   alignas(8) glm::vec2 Position;
 };
 
-class Particles : public Renderer::RenderTexture
+class ParticleCount : public Renderer::RenderTexture
 {
 public:
-    Particles(const Renderer::Device& device,
+    ParticleCount(const Renderer::Device& device,
               const glm::ivec2& size,
               Renderer::Buffer& particles,
               const Renderer::DispatchParams& params = {0});

@@ -6,6 +6,7 @@
 #include "Boundaries.h"
 
 #include <Vortex2D/Engine/LevelSet.h>
+#include <Vortex2D/Engine/Particles.h>
 
 namespace Vortex2D { namespace Fluid {
 
@@ -109,15 +110,14 @@ void DistanceField::Draw(vk::CommandBuffer commandBuffer, const Renderer::Render
     AbstractSprite::Draw(commandBuffer, renderState);
 }
 
-ParticleCloud::ParticleCloud(const Renderer::Device& device, const std::vector<glm::vec2>& particles, const glm::vec4& colour)
+ParticleCloud::ParticleCloud(const Renderer::Device& device, Renderer::Buffer& particles, int numParticles, const glm::vec4& colour)
     : mDevice(device.Handle())
     , mMVPBuffer(device, vk::BufferUsageFlagBits::eUniformBuffer, true, sizeof(glm::mat4))
     , mColourBuffer(device, vk::BufferUsageFlagBits::eUniformBuffer, true, sizeof(glm::vec4))
-    , mVertexBuffer(device, vk::BufferUsageFlagBits::eVertexBuffer, true, sizeof(glm::vec2) * particles.size())
-    , mNumVertices(particles.size())
+    , mVertexBuffer(particles)
+    , mNumVertices(numParticles)
 {
     mColourBuffer.CopyFrom(colour);
-    mVertexBuffer.CopyFrom(particles);
 
     static vk::DescriptorSetLayout descriptorLayout = Renderer::DescriptorSetLayoutBuilder()
             .Binding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
@@ -142,9 +142,14 @@ ParticleCloud::ParticleCloud(const Renderer::Device& device, const std::vector<g
             .Topology(vk::PrimitiveTopology::ePointList)
             .Shader(vertexShader, vk::ShaderStageFlagBits::eVertex)
             .Shader(fragShader, vk::ShaderStageFlagBits::eFragment)
-            .VertexAttribute(0, 0, vk::Format::eR32G32Sfloat, 0)
-            .VertexBinding(0, sizeof(glm::vec2))
+            .VertexAttribute(0, 0, vk::Format::eR32G32Sfloat, offsetof(Particle, Position))
+            .VertexBinding(0, sizeof(Particle))
             .Layout(*mPipelineLayout);
+}
+
+void ParticleCloud::SetNumParticles(int numParticles)
+{
+    mNumVertices = numParticles;
 }
 
 void ParticleCloud::Initialize(const Renderer::RenderState& renderState)

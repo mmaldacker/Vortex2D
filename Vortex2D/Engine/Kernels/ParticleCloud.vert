@@ -18,5 +18,5 @@ void main()
 {
     gl_Position = u.mvp * vec4(position, 0.0, 1.0);
     // TODO size needs to be configurable
-    gl_PointSize = 2.0;
+    gl_PointSize = 1.0;
 }

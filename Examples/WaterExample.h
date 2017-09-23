@@ -25,12 +25,27 @@ public:
         : gravity(device, dimensions.Size, {0.0f, -0.5f, 0.0f, 0.0f})
         , world(device, dimensions, dt)
         , solidPhi(device, world.SolidPhi(), dimensions.Scale)
-        , particleCloud(device, GenerateParticles({200.0f, 100.0f}, {600.0f, 200.0f}), blue)
+        , particleCloud(device, world.Particles(), 0, blue)
     {
         // TODO should set the view and not the scale
-        solidPhi.Scale = (glm::vec2)dimensions.Scale;
+        particleCloud.Scale = solidPhi.Scale = (glm::vec2)dimensions.Scale;
 
         // Add particles
+        Vortex2D::Renderer::IntRectangle fluid(device, {600.0f, 200.0f}, glm::ivec4(4));
+        fluid.Position = {200.0f, 100.0f};
+
+        fluid.Initialize(world.Count());
+        fluid.Update(world.Count().Orth, dimensions.InvScale);
+
+        world.Count().Record([&](vk::CommandBuffer commandBuffer)
+        {
+            fluid.Draw(commandBuffer, {world.Count()});
+        });
+        world.Count().Submit();
+        device.Handle().waitIdle();
+
+        world.Count().Scan();
+        particleCloud.SetNumParticles(world.Count().GetCount());
 
         // Draw solid boundaries
         Vortex2D::Renderer::Rectangle obstacle1(device, {200.0f, 100.0f}, glm::vec4(-1.0f));

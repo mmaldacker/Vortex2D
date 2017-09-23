@@ -17,6 +17,7 @@
 #include <Vortex2D/Engine/LevelSet.h>
 #include <Vortex2D/Engine/Pressure.h>
 #include <Vortex2D/Engine/Advection.h>
+#include <Vortex2D/Engine/Particles.h>
 
 #include <vector>
 
@@ -44,6 +45,8 @@ public:
     Renderer::RenderTexture& Velocity();
     LevelSet& LiquidPhi();
     LevelSet& SolidPhi();
+    Renderer::Buffer& Particles();
+    ParticleCount& Count();
 
 private:
     Dimensions mDimensions;
@@ -52,6 +55,9 @@ private:
     Renderer::Buffer mLower;
     Renderer::Buffer mDiv;
     Renderer::Buffer mPressure;
+
+    Renderer::Buffer mParticles;
+    ParticleCount mParticleCount;
 
     GaussSeidel mPreconditioner;
     ConjugateGradient mLinearSolver;
