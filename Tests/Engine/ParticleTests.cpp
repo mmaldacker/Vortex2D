@@ -332,18 +332,20 @@ void PrintLiquidPhi(const glm::ivec2& size, FluidSim& sim)
     std::cout << std::endl;
 }
 
-void SamePhiSign(const glm::ivec2& size, FluidSim& sim, Texture& phi)
+void CheckPhi(const glm::ivec2& size, FluidSim& sim, Texture& phi)
 {
     std::vector<float> pixels(size.x*size.y);
     phi.CopyTo(pixels);
 
-    for (int i = 0; i < size.x; i++)
+    // TODO should check whole texture
+    const int off = 3;
+    for (int i = off; i < size.x - off; i++)
     {
-        for (int j = 0; j < size.y; j++)
+        for (int j = off; j < size.y - off; j++)
         {
             int index = i + j * size.x;
             float value = pixels[index];
-            EXPECT_GT(value * sim.liquid_phi(i, j), 0.0);
+            EXPECT_NEAR(value, size.x * sim.liquid_phi(i, j), 1e-5f) << "Mismatch at " << i << "," << j;
         }
     }
 }
@@ -391,5 +393,5 @@ TEST(ParticleTests, Phi)
 
     PrintLiquidPhi(size, sim);
     PrintTexture<float>(outTexture);
-    SamePhiSign(size, sim, outTexture);
+    CheckPhi(size, sim, outTexture);
 }

@@ -47,7 +47,7 @@ void main()
                 for (int k = 0; k < count; k++)
                 {
                     Particle p = particles.value[scanIndex.value[index] + k];
-                    float phi_temp = distance(pos, p.Position) - 1.02 * particle_radius;
+                    float phi_temp = distance(pos + 0.5, p.Position) - 1.02 * particle_radius;
 
                     float phi = imageLoad(LevelSet, pos).x;
                     imageStore(LevelSet, pos, vec4(min(phi, phi_temp), 0.0, 0.0, 0.0));
