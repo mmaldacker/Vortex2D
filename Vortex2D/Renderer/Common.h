@@ -9,7 +9,6 @@
 #include <vulkan/vulkan.hpp>
 
 #define GLM_ENABLE_EXPERIMENTAL
-#define GLM_FORCE_SWIZZLE
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
 #include <glm/mat2x2.hpp>

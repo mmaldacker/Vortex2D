@@ -33,7 +33,7 @@ target_link_libraries(vortex2d_tests_lib vortex2d gtest gmock gmock_main Threads
 target_include_directories(vortex2d_tests_lib PUBLIC "./" "./variationalplusgfm")
 
 add_executable(vortex2d_tests ${ENGINE_TEST_SOURCES} ${RENDERER_TEST_SOURCES} ${SHADER_TEST_SOURCES} "main.cpp" "Verify.h")
-target_compile_features(vortex2d_tests PRIVATE cxx_variadic_templates)
+target_compile_features(vortex2d_tests PRIVATE cxx_variadic_templates cxx_generic_lambdas)
 target_link_libraries(vortex2d_tests vortex2d_tests_lib)
 
 compile_shader(TARGET vortex2d_tests SOURCES ${SHADER_TEST_SOURCES})
