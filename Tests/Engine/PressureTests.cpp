@@ -130,7 +130,9 @@ TEST(PressureTest, LinearEquationSetup_Simple)
                 divResult = &b;
             }));
 
-    Pressure pressure(*device, 0.01f, size, solver, velocity, solidPhi, liquidPhi, solidVelocity);
+    Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::ivec2));
+
+    Pressure pressure(*device, 0.01f, size, solver, velocity, solidPhi, liquidPhi, solidVelocity, valid);
 
     LinearSolver::Parameters params(0);
     pressure.Solve(params);
@@ -187,7 +189,9 @@ TEST(PressureTest, LinearEquationSetup_Complex)
                 divResult = &b;
             }));
 
-    Pressure pressure(*device, 0.01f, size, solver, velocity, solidPhi, liquidPhi, solidVelocity);
+    Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::ivec2));
+
+    Pressure pressure(*device, 0.01f, size, solver, velocity, solidPhi, liquidPhi, solidVelocity, valid);
 
     LinearSolver::Parameters params(0);
     pressure.Solve(params);
@@ -250,8 +254,9 @@ TEST(PressureTest, Project_Simple)
             });
         }));
 
+    Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::ivec2));
 
-    Pressure pressure(*device, 0.01f, size, solver, velocity, solidPhi, liquidPhi, solidVelocity);
+    Pressure pressure(*device, 0.01f, size, solver, velocity, solidPhi, liquidPhi, solidVelocity, valid);
 
     LinearSolver::Parameters params(0);
     pressure.Solve(params);
@@ -264,6 +269,7 @@ TEST(PressureTest, Project_Simple)
     });
 
     CheckVelocity(size, outputVelocity, sim);
+    CheckValid(size, sim, valid);
 }
 
 TEST(PressureTest, Project_Complex)
@@ -304,7 +310,9 @@ TEST(PressureTest, Project_Complex)
             });
         }));
 
-    Pressure pressure(*device, 0.01f, size, solver, velocity, solidPhi, liquidPhi, solidVelocity);
+    Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::ivec2));
+
+    Pressure pressure(*device, 0.01f, size, solver, velocity, solidPhi, liquidPhi, solidVelocity, valid);
 
     LinearSolver::Parameters params(0);
     pressure.Solve(params);
@@ -315,4 +323,7 @@ TEST(PressureTest, Project_Complex)
     {
         outputVelocity.CopyFrom(commandBuffer, velocity);
     });
+
+    CheckVelocity(size, outputVelocity, sim);
+    CheckValid(size, sim, valid);
 }

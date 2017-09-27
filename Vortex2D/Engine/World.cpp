@@ -25,7 +25,13 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
     , mObstacleLevelSet(device, dimensions.Size)
     , mValid(device, vk::BufferUsageFlagBits::eStorageBuffer, false, dimensions.Size.x*dimensions.Size.y*sizeof(glm::ivec2))
     , mAdvection(device, dimensions.Size, dt, mVelocity)
-    , mProjection(device, dt, dimensions.Size, mLinearSolver, mVelocity, mObstacleLevelSet, mFluidLevelSet, mBoundariesVelocity)
+    , mProjection(device, dt, dimensions.Size,
+                  mLinearSolver,
+                  mVelocity,
+                  mObstacleLevelSet,
+                  mFluidLevelSet,
+                  mBoundariesVelocity,
+                  mValid)
     , mExtrapolation(device, dimensions.Size, mValid, mVelocity, mObstacleLevelSet)
 {
     mPreconditioner.SetW(1.5f);

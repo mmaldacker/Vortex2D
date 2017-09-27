@@ -16,7 +16,8 @@ Pressure::Pressure(const Renderer::Device& device,
                    Renderer::Texture& velocity,
                    Renderer::Texture& solidPhi,
                    Renderer::Texture& liquidPhi,
-                   Renderer::Texture& solidVelocity)
+                   Renderer::Texture& solidVelocity,
+                   Renderer::Buffer& valid)
     : mSolver(solver)
     , mDiagonal(device,
             vk::BufferUsageFlagBits::eStorageBuffer,
@@ -60,9 +61,9 @@ Pressure::Pressure(const Renderer::Device& device,
                vk::DescriptorType::eStorageImage,
                vk::DescriptorType::eStorageImage,
                vk::DescriptorType::eStorageImage,
-               vk::DescriptorType::eStorageImage},
+               vk::DescriptorType::eStorageBuffer},
                Renderer::PushConstantsSize<float>())
-    , mProjectBound(mProject.Bind({mPressure, liquidPhi, solidPhi, velocity, solidVelocity}))
+    , mProjectBound(mProject.Bind({mPressure, liquidPhi, solidPhi, velocity, valid}))
     , mBuildEquationCmd(device, false)
     , mProjectCmd(device, false)
 {
@@ -78,14 +79,12 @@ Pressure::Pressure(const Renderer::Device& device,
 
     mProjectCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
-        // TODO need to set the valid buffer too
+        valid.Clear(commandBuffer);
         mProjectBound.PushConstant(commandBuffer, 8, dt);
         mProjectBound.Record(commandBuffer);
         velocity.Barrier(commandBuffer,
-                         vk::ImageLayout::eGeneral,
-                         vk::AccessFlagBits::eShaderWrite,
-                         vk::ImageLayout::eGeneral,
-                         vk::AccessFlagBits::eShaderRead);
+                         vk::ImageLayout::eGeneral, vk::AccessFlagBits::eShaderWrite,
+                         vk::ImageLayout::eGeneral, vk::AccessFlagBits::eShaderRead);
     });
 
     mSolver.Init(mDiagonal, mLower, mDiv, mPressure);

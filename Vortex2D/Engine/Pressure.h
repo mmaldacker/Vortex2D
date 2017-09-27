@@ -21,7 +21,8 @@ public:
              Renderer::Texture& velocity,
              Renderer::Texture& solidPhi,
              Renderer::Texture& liquidPhi,
-             Renderer::Texture& solidVelocity);
+             Renderer::Texture& solidVelocity,
+             Renderer::Buffer& valid);
 
     void Solve(LinearSolver::Parameters& params);
 

@@ -231,3 +231,19 @@ static void CheckVelocity(const glm::ivec2& size, Vortex2D::Renderer::Texture& b
         }
     }
 }
+
+static void CheckValid(const glm::ivec2& size, FluidSim& sim, Vortex2D::Renderer::Buffer& valid)
+{
+    std::vector<glm::ivec2> validData(size.x*size.y);
+    valid.CopyTo(validData);
+
+    for (int i = 0; i < size.x - 1; i++)
+    {
+        for (int j = 0; j < size.y - 1; j++)
+        {
+            std::size_t index = i + j * size.x;
+            EXPECT_FLOAT_EQ(validData[index].x, sim.u_valid(i, j)) << "Mismatch at " << i << "," << j;
+            EXPECT_FLOAT_EQ(validData[index].y, sim.v_valid(i, j)) << "Mismatch at " << i << "," << j;
+        }
+    }
+}

@@ -18,7 +18,11 @@ layout(std430, binding = 0) buffer Pressure
 layout(binding = 1, r32f) uniform image2D FluidLevelSet;
 layout(binding = 2, r32f) uniform image2D SolidLevelSet;
 layout(binding = 3, rg32f) uniform image2D Velocity;
-layout(binding = 4, rg32f) uniform image2D SolidVelocity;
+
+layout(std430, binding = 4) buffer Valid
+{
+  ivec2 value[];
+}valid;
 
 #include "CommonProject.comp"
 
@@ -42,22 +46,21 @@ void main()
     vec2 theta = vec2(fraction_inside(phixn, phi), fraction_inside(phiyn, phi));
     pGrad /= max(theta, 0.01);
 
-    vec2 mask = vec2(1.0);
-    vec2 obsV = vec2(0.0);
+    vec2 mask = vec2(0.0);
 
     vec2 wuv = get_weight(pos);
-    if (wuv.x <= 0.0 || (phi >= 0.0 && phixn >= 0.0))
+    if (wuv.x > 0.0 && (phi < 0.0 || phixn < 0.0))
     {
-      mask.x = 0.0;
-      obsV.x = imageLoad(SolidVelocity, pos).x;
+      mask.x = 1.0;
+      valid.value[pos.x + pos.y * consts.width].x = 1;
     }
-    if (wuv.y <= 0.0|| (phi >= 0.0 && phiyn >= 0.0))
+    if (wuv.y > 0.0 && (phi < 0.0 || phiyn < 0.0))
     {
-      mask.y = 0.0;
-      obsV.y = imageLoad(SolidVelocity, pos).y;
+      mask.y = 1.0;
+      valid.value[pos.x + pos.y * consts.width].y = 1;
     }
 
     vec2 new_cell = cell - consts.delta * pGrad * consts.width;
-    imageStore(Velocity, pos, vec4(mask * new_cell + obsV, 0.0, 0.0));
+    imageStore(Velocity, pos, vec4(mask * new_cell, 0.0, 0.0));
   }
 }
