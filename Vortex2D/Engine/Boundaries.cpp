@@ -101,10 +101,9 @@ Rectangle::Rectangle(const Renderer::Device& device, const glm::vec2& size, bool
 DistanceField::DistanceField(const Renderer::Device& device,
                              LevelSet& levelSet,
                              const glm::vec4& colour,
-                             float scale,
-                             bool inverse)
+                             float scale)
     : Renderer::AbstractSprite(device,
-                               inverse ? "../Vortex2D/DistanceFieldInverse.frag.spv" : "../Vortex2D/DistanceField.frag.spv",
+                               "../Vortex2D/DistanceField.frag.spv",
                                levelSet,
                                Renderer::PushConstantsSize<int, glm::vec4>())
     , mColour(colour)

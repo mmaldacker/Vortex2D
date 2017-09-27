@@ -63,8 +63,7 @@ public:
     DistanceField(const Renderer::Device& device,
                   LevelSet& levelSet,
                   const glm::vec4& colour,
-                  float scale = 1.0f,
-                  bool inverse = false);
+                  float scale = 1.0f);
 
     void Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState) override;
 

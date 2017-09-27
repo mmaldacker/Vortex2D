@@ -51,7 +51,6 @@ file(GLOB SHADER_SOURCES
     "Engine/Kernels/PolygonMax.comp"
     "Engine/Kernels/UpdateVertices.comp"
     "Engine/Kernels/DistanceField.frag"
-    "Engine/Kernels/DistanceFieldInverse.frag"
     "Engine/Kernels/PreScanAdd.comp"
     "Engine/Kernels/PreScan.comp"
     "Engine/Kernels/PreScanStoreSum.comp"
