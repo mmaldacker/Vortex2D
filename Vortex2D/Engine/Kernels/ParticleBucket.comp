@@ -48,8 +48,6 @@ layout(std430, binding = 4) buffer Params
     DispatchParams params;
 };
 
-shared int test;
-
 void main()
 {
     uint index = gl_GlobalInvocationID.x;

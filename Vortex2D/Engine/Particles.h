@@ -61,12 +61,15 @@ private:
     Renderer::Work::Bound mParticlePhiBound;
     Renderer::Work mParticleToGridWork;
     Renderer::Work::Bound mParticleToGridBound;
+    Renderer::Work mParticleFromGridWork;
+    Renderer::Work::Bound mParticleFromGridBound;
 
     Renderer::CommandBuffer mCountWork;
     Renderer::CommandBuffer mScanWork;
     Renderer::CommandBuffer mDispatchCountWork;
     Renderer::CommandBuffer mParticlePhi;
     Renderer::CommandBuffer mParticleToGrid;
+    Renderer::CommandBuffer mParticleFromGrid;
 };
 
 }}

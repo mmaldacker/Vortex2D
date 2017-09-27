@@ -23,11 +23,11 @@ void main(void)
         vec2 value;
 
         // u
-        vec2 upos = trace_rk3(vec2(pos) + vec2(0.0, 0.5));
+        vec2 upos = trace_rk3(vec2(pos) + vec2(0.0, 0.5), consts.delta);
         value.x = get_velocity(upos).x;
 
         // v
-        vec2 vpos = trace_rk3(vec2(pos) + vec2(0.5, 0.0));
+        vec2 vpos = trace_rk3(vec2(pos) + vec2(0.5, 0.0), consts.delta);
         value.y = get_velocity(vpos).y;
 
         // store result

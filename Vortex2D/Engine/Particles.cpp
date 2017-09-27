@@ -59,11 +59,16 @@ ParticleCount::ParticleCount(const Renderer::Device& device,
                            vk::DescriptorType::eStorageBuffer,
                            vk::DescriptorType::eStorageBuffer,
                            vk::DescriptorType::eStorageImage})
+    , mParticleFromGridWork(device, Renderer::ComputeSize::Default1D(), "../Vortex2D/ParticleFromGrid.comp.spv",
+                            {vk::DescriptorType::eStorageBuffer,
+                            vk::DescriptorType::eStorageBuffer,
+                            vk::DescriptorType::eStorageImage})
     , mCountWork(device, false)
     , mScanWork(device, false)
     , mDispatchCountWork(device)
     , mParticlePhi(device, false)
     , mParticleToGrid(device, false)
+    , mParticleFromGrid(device, false)
 {
     Renderer::Buffer localDispathParams(device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(params));
     localDispathParams.CopyFrom(params);
@@ -160,6 +165,13 @@ void ParticleCount::InitVelocities(Renderer::Texture& velocity)
                          vk::ImageLayout::eGeneral, vk::AccessFlagBits::eShaderWrite,
                          vk::ImageLayout::eGeneral, vk::AccessFlagBits::eShaderRead);
     });
+
+    mParticleFromGridBound = mParticleFromGridWork.Bind({mParticles, mDispatchParams, velocity});
+    mParticleFromGrid.Record([&](vk::CommandBuffer commandBuffer)
+    {
+       mParticleFromGridBound.RecordIndirect(commandBuffer, mDispatchParams);
+       mParticles.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+    });
 }
 
 void ParticleCount::TransferToGrid()
@@ -169,7 +181,7 @@ void ParticleCount::TransferToGrid()
 
 void ParticleCount::TransferFromGrid()
 {
-
+    mParticleFromGrid.Submit();
 }
 
 }}

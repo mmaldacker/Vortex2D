@@ -352,6 +352,7 @@ void CheckPhi(const glm::ivec2& size, FluidSim& sim, Texture& phi)
 
 TEST(ParticleTests, Phi)
 {
+    // FIXME Cannot use higher size because of weird float conversions in FluidSim
     glm::ivec2 size(20);
 
     FluidSim sim;
@@ -391,14 +392,92 @@ TEST(ParticleTests, Phi)
        outTexture.CopyFrom(commandBuffer, phi);
     });
 
-    PrintLiquidPhi(size, sim);
-    PrintTexture<float>(outTexture);
     CheckPhi(size, sim, outTexture);
+}
+
+TEST(ParticleTests, FromGrid)
+{
+   // Small size otherwise test is too slow (due to O(n^2) search)
+   glm::ivec2 size(20);
+
+   // setup FluidSim
+   FluidSim sim;
+   sim.initialize(1.0f, size.x, size.y);
+   sim.set_boundary(boundary_phi);
+
+   AddParticles(size, sim, boundary_phi);
+
+   sim.advance(0.01f);
+   sim.update_from_grid();
+
+   // setup ParticleCount
+   Buffer particles(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, 8*size.x*size.y*sizeof(Particle));
+
+   std::vector<Particle> particlesData;
+   for (std::size_t p = 0; p < sim.particles.size(); p++)
+   {
+       Particle particle;
+       particle.Position = glm::vec2(sim.particles[p][0] * size.x, sim.particles[p][1] * size.x);
+       particlesData.push_back(particle);
+   }
+   particlesData.resize(8*size.x*size.y);
+   particles.CopyFrom(particlesData);
+
+   ParticleCount particleCount(*device, size, particles, {(int)sim.particles.size()});
+
+   particleCount.Count();
+   particleCount.Scan();
+   device->Handle().waitIdle();
+
+   ASSERT_EQ(sim.particles.size(), particleCount.GetCount());
+
+   // FromGrid test
+   Texture output(*device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
+   Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
+
+   SetVelocity(size, output, sim);
+   ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+   {
+       velocity.CopyFrom(commandBuffer, output);
+   });
+
+   particleCount.InitVelocities(velocity);
+   particleCount.TransferFromGrid();
+   device->Handle().waitIdle();
+
+   ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+   {
+       output.CopyFrom(commandBuffer, velocity);
+   });
+
+   // Verify particle velocities
+
+   std::vector<Particle> outParticlesData(size.x*size.y*8);
+   particles.CopyTo(outParticlesData);
+
+   for (int i = 0; i < sim.particles.size(); i++)
+   {
+       int index = -1;
+       for (int j = 0; j < sim.particles.size(); j++)
+       {
+           glm::vec2 pos(sim.particles[j][0] * size.x, sim.particles[j][1] * size.x);
+           if (pos == outParticlesData[i].Position)
+           {
+               index = j;
+           }
+       }
+
+       ASSERT_NE(-1, index);
+
+       glm::vec2 vel(sim.particles_velocity[index][0], sim.particles_velocity[index][1]);
+       EXPECT_NEAR(vel.x, outParticlesData[i].Velocity.x, 1e-5f);
+       EXPECT_NEAR(vel.y, outParticlesData[i].Velocity.y, 1e-5f);
+   }
 }
 
 TEST(ParticleTests, ToGrid)
 {
-   glm::ivec2 size(20);
+   glm::ivec2 size(50);
 
    // setup FluidSim
    FluidSim sim;
@@ -435,14 +514,6 @@ TEST(ParticleTests, ToGrid)
    ASSERT_EQ(sim.particles.size(), particleCount.GetCount());
 
    // ToGrid test
-   Texture count(*device, size.x, size.y, vk::Format::eR32Sint, true);
-   ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-   {
-        count.CopyFrom(commandBuffer, particleCount);
-   });
-
-   PrintTexture<int>(count);
-
    Texture output(*device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
 
@@ -455,7 +526,5 @@ TEST(ParticleTests, ToGrid)
        output.CopyFrom(commandBuffer, velocity);
    });
 
-   PrintVelocity(size, sim);
-   PrintVelocity(size, output);
    CheckVelocity(size, output, sim, 1e-5f);
 }

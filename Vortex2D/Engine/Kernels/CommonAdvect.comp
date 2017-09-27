@@ -74,12 +74,12 @@ const float a = 2.0/9.0;
 const float b = 3.0/9.0;
 const float c = 4.0/9.0;
 
-vec2 trace_rk3(vec2 pos)
+vec2 trace_rk3(vec2 pos, float delta)
 {
     vec2 k1 = get_velocity(pos);
-    vec2 k2 = get_velocity(pos - 0.5 * consts.width * consts.delta * k1);
-    vec2 k3 = get_velocity(pos - 0.75 * consts.width * consts.delta * k2);
-    return pos - a * consts.width * consts.delta * k1
-               - b * consts.width * consts.delta * k2
-               - c * consts.width * consts.delta * k3;
+    vec2 k2 = get_velocity(pos - 0.5 * consts.width * delta * k1);
+    vec2 k3 = get_velocity(pos - 0.75 * consts.width * delta * k2);
+    return pos - a * consts.width * delta * k1
+               - b * consts.width * delta * k2
+               - c * consts.width * delta * k3;
 }
