@@ -432,13 +432,13 @@ TEST(ParticleTests, FromGrid)
    ASSERT_EQ(sim.particles.size(), particleCount.GetCount());
 
    // FromGrid test
-   Texture output(*device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
+   Texture input(*device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
 
-   SetVelocity(size, output, sim);
+   SetVelocity(size, input, sim);
    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
    {
-       velocity.CopyFrom(commandBuffer, output);
+       velocity.CopyFrom(commandBuffer, input);
    });
 
    particleCount.InitVelocities(velocity);
@@ -447,7 +447,7 @@ TEST(ParticleTests, FromGrid)
 
    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
    {
-       output.CopyFrom(commandBuffer, velocity);
+       input.CopyFrom(commandBuffer, velocity);
    });
 
    // Verify particle velocities

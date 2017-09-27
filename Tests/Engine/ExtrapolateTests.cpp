@@ -87,14 +87,7 @@ TEST(ExtrapolateTest, Extrapolate)
         velocity.CopyFrom(commandBuffer, outputVelocity);
     });
 
-    Texture outputSolidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
-    SetSolidPhi(size, outputSolidPhi, sim);
-
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-        solidPhi.CopyFrom(commandBuffer, outputSolidPhi);
-    });
 
     extrapolate(sim.u, sim.u_valid);
     extrapolate(sim.v, sim.v_valid);
@@ -131,6 +124,7 @@ TEST(ExtrapolateTest, Constrain)
 
     Texture outputSolidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
+    // FIXME should set the scale to size.x
     SetSolidPhi(size, outputSolidPhi, sim);
 
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)

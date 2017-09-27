@@ -11,6 +11,7 @@ namespace Vortex2D { namespace Fluid {
 
 Advection::Advection(const Renderer::Device& device, const glm::ivec2& size, float dt, Renderer::Texture& velocity)
     : mDt(dt)
+    , mSize(size)
     , mVelocity(velocity)
     , mTmpVelocity(device, size.x, size.y, vk::Format::eR32G32Sfloat, false)
     , mField(device, size.x, size.y, vk::Format::eB8G8R8A8Unorm, false)
@@ -24,8 +25,15 @@ Advection::Advection(const Renderer::Device& device, const glm::ivec2& size, flo
               vk::DescriptorType::eStorageImage,
               vk::DescriptorType::eStorageImage},
               Renderer::PushConstantsSize<float>())
+    , mAdvectParticles(device, Renderer::ComputeSize::Default1D(), "../Vortex2D/AdvectParticles.comp.spv",
+                       {vk::DescriptorType::eStorageBuffer,
+                        vk::DescriptorType::eStorageBuffer,
+                        vk::DescriptorType::eStorageImage,
+                        vk::DescriptorType::eStorageImage},
+                       Renderer::PushConstantsSize<float>())
     , mAdvectVelocityCmd(device, false)
     , mAdvectCmd(device, false)
+    , mAdvectParticlesCmd(device, false)
 {
     mAdvectVelocityCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
@@ -64,6 +72,24 @@ void Advection::AdvectInit(Renderer::Texture& field)
 void Advection::Advect()
 {
     mAdvectCmd.Submit();
+}
+
+void Advection::AdvectParticleInit(Renderer::Buffer& particles,
+                                   Renderer::Texture& levelSet,
+                                   Renderer::Buffer& dispatchParams)
+{
+    mAdvectParticlesBound = mAdvectParticles.Bind(mSize, {particles, dispatchParams, mVelocity, levelSet});
+    mAdvectParticlesCmd.Record([&](vk::CommandBuffer commandBuffer)
+    {
+       mAdvectParticlesBound.PushConstant(commandBuffer, 8, mDt);
+       mAdvectParticlesBound.RecordIndirect(commandBuffer, dispatchParams);
+       particles.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+    });
+}
+
+void Advection::AdvectParticles()
+{
+    mAdvectParticlesCmd.Submit();
 }
 
 }}

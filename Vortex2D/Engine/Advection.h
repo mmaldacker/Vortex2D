@@ -24,8 +24,14 @@ public:
     void AdvectInit(Renderer::Texture& field);
     void Advect();
 
+    void AdvectParticleInit(Renderer::Buffer& particles,
+                            Renderer::Texture& levelSet,
+                            Renderer::Buffer& dispatchParams);
+    void AdvectParticles();
+
 private:
     float mDt;
+    glm::ivec2 mSize;
     Renderer::Texture& mVelocity;
     // TODO use a common temp velocity texture
     Renderer::Texture mTmpVelocity;
@@ -36,9 +42,12 @@ private:
     Renderer::Work::Bound mVelocityAdvectBound;
     Renderer::Work mAdvect;
     Renderer::Work::Bound mAdvectBound;
+    Renderer::Work mAdvectParticles;
+    Renderer::Work::Bound mAdvectParticlesBound;
 
     Renderer::CommandBuffer mAdvectVelocityCmd;
     Renderer::CommandBuffer mAdvectCmd;
+    Renderer::CommandBuffer mAdvectParticlesCmd;
 };
 
 

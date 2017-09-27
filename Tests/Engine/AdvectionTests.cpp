@@ -6,6 +6,7 @@
 #include "Verify.h"
 #include "VariationalHelpers.h"
 #include <Vortex2D/Engine/Advection.h>
+#include <Vortex2D/Engine/Particles.h>
 
 using namespace Vortex2D::Renderer;
 using namespace Vortex2D::Fluid;
@@ -148,4 +149,141 @@ TEST(AdvectionTests, Advect)
 
     pos += glm::ivec2(vel);
     ASSERT_EQ(128, pixels[pos.x + size.x * pos.y].x);
+}
+
+TEST(AdvectionTests, ParticleAdvect)
+{
+    glm::ivec2 size(50);
+
+    FluidSim sim;
+    sim.initialize(1.0f, size.x, size.y);
+    sim.set_boundary(boundary_phi);
+
+    AddParticles(size, sim, boundary_phi);
+
+    sim.advance(0.01f);
+
+    // setup particles
+    Buffer particles(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, 8*size.x*size.y*sizeof(Particle));
+    Buffer dispatchParams(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(DispatchParams));
+
+    DispatchParams params(sim.particles.size());
+    dispatchParams.CopyFrom(params);
+
+    std::vector<Particle> particlesData;
+    for (auto& p: sim.particles)
+    {
+        Particle particle;
+        particle.Position = glm::vec2(p[0] * size.x, p[1] * size.x);
+        particlesData.push_back(particle);
+    }
+    particlesData.resize(8*size.x*size.y);
+    particles.CopyFrom(particlesData);
+
+    // setup velocities
+    Texture input(*device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
+    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
+
+    SetVelocity(size, input, sim);
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+        velocity.CopyFrom(commandBuffer, input);
+    });
+
+    // setup level set
+    Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
+    Texture solidPhiInput(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
+    SetSolidPhi(size, solidPhiInput, sim, size.x);
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+        solidPhi.CopyFrom(commandBuffer, solidPhiInput);
+    });
+
+    // advection
+    Advection advection(*device, size, 0.01f, velocity);
+    advection.AdvectParticleInit(particles, solidPhi, dispatchParams);
+    advection.AdvectParticles();
+    device->Handle().waitIdle();
+
+    // test
+    sim.advect_particles(0.01f);
+
+    std::vector<Particle> outParticlesData(size.x*size.y*8);
+    particles.CopyTo(outParticlesData);
+
+    for (int i = 0; i < sim.particles.size(); i++)
+    {
+        glm::vec2 pos(sim.particles[i][0] * size.x, sim.particles[i][1] * size.x);
+
+        EXPECT_NEAR(pos.x, outParticlesData[i].Position.x, 1e-5f);
+        EXPECT_NEAR(pos.y, outParticlesData[i].Position.y, 1e-5f);
+    }
+}
+
+TEST(AdvectionTests, ParticleProject)
+{
+    glm::ivec2 size(50);
+
+    FluidSim sim;
+    sim.initialize(1.0f, size.x, size.y);
+    sim.set_boundary(boundary_phi);
+
+    Vec2f left(3.0f / size.x, 3.0f / size.y);
+    Vec2f right((size.x - 3.0f) / size.x, 3.0f / size.y);
+    Vec2f bottomLeft(3.0f / size.x, (size.y - 3.0f) / size.y);
+    Vec2f bottomRight((size.x - 3.0f) / size.x, (size.y - 3.0f) / size.y);
+
+    sim.add_particle(left);
+    sim.add_particle(right);
+    sim.add_particle(bottomLeft);
+    sim.add_particle(bottomRight);
+
+    // setup particles
+    Buffer particles(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, 8*size.x*size.y*sizeof(Particle));
+    Buffer dispatchParams(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(DispatchParams));
+
+    DispatchParams params(sim.particles.size());
+    dispatchParams.CopyFrom(params);
+
+    std::vector<Particle> particlesData;
+    for (auto& p: sim.particles)
+    {
+        Particle particle;
+        particle.Position = glm::vec2(p[0] * size.x, p[1] * size.x);
+        particlesData.push_back(particle);
+    }
+    particlesData.resize(8*size.x*size.y);
+    particles.CopyFrom(particlesData);
+
+    // setup velocities
+    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
+
+    // setup level set
+    Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
+    Texture input(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
+    SetSolidPhi(size, input, sim, size.x);
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+        solidPhi.CopyFrom(commandBuffer, input);
+    });
+
+    // advection
+    Advection advection(*device, size, 0.01f, velocity);
+    advection.AdvectParticleInit(particles, solidPhi, dispatchParams);
+    advection.AdvectParticles();
+    device->Handle().waitIdle();
+
+    // test
+    sim.advect_particles(0.01f);
+
+    std::vector<Particle> outParticlesData(size.x*size.y*8);
+    particles.CopyTo(outParticlesData);
+
+    for (int i = 0; i < sim.particles.size(); i++)
+    {
+        glm::vec2 pos(sim.particles[i][0] * size.x, sim.particles[i][1] * size.x);
+
+        EXPECT_NEAR(pos.x, outParticlesData[i].Position.x, 1e-5f);
+        EXPECT_NEAR(pos.y, outParticlesData[i].Position.y, 1e-5f);
+    }
 }

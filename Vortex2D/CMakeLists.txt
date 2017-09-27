@@ -63,6 +63,7 @@ file(GLOB SHADER_SOURCES
     "Engine/Kernels/ParticlePhi.comp"
     "Engine/Kernels/ParticleToGrid.comp"
     "Engine/Kernels/ParticleFromGrid.comp"
+    "Engine/Kernels/AdvectParticles.comp"
     "Engine/LinearSolver/Kernels/*.comp")
 
 find_package(Vulkan)

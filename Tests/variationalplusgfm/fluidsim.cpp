@@ -161,16 +161,10 @@ void FluidSim::advect_particles(float dt) {
 
    for(int p = 0; p < particles.size(); ++p) {
       Vec2f before = particles[p];
-      Vec2f start_velocity = get_velocity(before);
-      Vec2f midpoint = before + 0.5f*dt*start_velocity;
-      Vec2f mid_velocity = get_velocity(midpoint);
-      particles[p] += dt*mid_velocity;
+      particles[p] = trace_rk3(before, dt);
       Vec2f after = particles[p];
       if(dist(before,after) > 3*dx) {
          std::cout << "Before: " << before << " " << "After: " << after << std::endl;
-         std::cout << "Mid point: " << midpoint << std::endl;
-         std::cout << "Start velocity: " << start_velocity << "  Time step: " << dt << std::endl;
-         std::cout << "Mid velocity: " << mid_velocity << std::endl;
       }
 
       //Particles can still occasionally leave the domain due to truncation errors,

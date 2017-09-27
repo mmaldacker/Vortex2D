@@ -77,7 +77,7 @@ static void SetVelocity(const glm::ivec2& size, Vortex2D::Renderer::Texture& tex
     texture.CopyFrom(velocityData);
 }
 
-static void SetSolidPhi(const glm::ivec2& size, Vortex2D::Renderer::Texture& buffer, FluidSim& sim)
+static void SetSolidPhi(const glm::ivec2& size, Vortex2D::Renderer::Texture& buffer, FluidSim& sim, float scale = 1.0f)
 {
     std::vector<float> phi(size.x * size.y, 0.0f);
     for (int i = 0; i < size.x; i++)
@@ -85,7 +85,7 @@ static void SetSolidPhi(const glm::ivec2& size, Vortex2D::Renderer::Texture& buf
         for (int j = 0; j < size.y; j++)
         {
             int width = size.x;
-            phi[i + j * width] = sim.nodal_solid_phi(i, j);
+            phi[i + j * width] = scale * sim.nodal_solid_phi(i, j);
         }
     }
 
