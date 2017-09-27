@@ -72,6 +72,8 @@ private:
     Advection mAdvection;
     Pressure mProjection;
     Extrapolation mExtrapolation;
+
+    Renderer::CommandBuffer mClearVelocity;
 };
 
 }}

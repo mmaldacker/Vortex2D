@@ -33,9 +33,20 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
                   mBoundariesVelocity,
                   mValid)
     , mExtrapolation(device, dimensions.Size, mValid, mVelocity, mObstacleLevelSet)
+    , mClearVelocity(device, false)
 {
     mPreconditioner.SetW(1.5f);
     mPreconditioner.SetPreconditionerIterations(16);
+
+    mParticleCount.InitLevelSet(mFluidLevelSet);
+    mParticleCount.InitVelocities(mVelocity);
+    mFluidLevelSet.ExtrapolateInit(mObstacleLevelSet);
+    mAdvection.AdvectParticleInit(mParticles, mObstacleLevelSet, mParticleCount.GetDispatchParams());
+
+    mClearVelocity.Record([&](vk::CommandBuffer commandBuffer)
+    {
+        mVelocity.Clear(commandBuffer, std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f});
+    });
 }
 
 void World::InitField(Renderer::Texture& field)
@@ -66,6 +77,34 @@ void World::SolveDynamic()
      6) Update particle velocities with PIC/FLIP
      7) Advect particles
      */
+
+    // 1)
+    mParticleCount.Scan();
+    mParticleCount.Phi();
+
+    // 2)
+    mParticleCount.TransferToGrid();
+
+    // 3)
+    // transfer to grid adds to the velocity, so we can set the values before
+
+    // 4)
+    mFluidLevelSet.Extrapolate();
+
+    // 5)
+    LinearSolver::Parameters params(300, 1e-5f);
+    mProjection.Solve(params);
+
+    mExtrapolation.Extrapolate();
+    mExtrapolation.ConstrainVelocity();
+
+    // 6)
+    mParticleCount.TransferFromGrid();
+
+    // 7)
+    mAdvection.AdvectParticles();
+    mParticleCount.Count();
+    mClearVelocity;
 }
 
 Renderer::RenderTexture& World::Velocity()

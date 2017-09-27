@@ -18,11 +18,12 @@ using namespace Vortex2D;
 
 glm::vec4 green = glm::vec4(35.0f, 163.0f, 143.0f, 255.0f)/glm::vec4(255.0f);
 glm::vec4 gray = glm::vec4(182.0f,172.0f,164.0f, 255.0f)/glm::vec4(255.0f);
-glm::vec4 blue = glm::vec4(99.0f, 155.0f, 188.0f, 255.0f)/glm::vec4(255.0f);
+glm::vec4 blue = glm::vec4(188.0f, 155.0f, 99.0f, 255.0f)/glm::vec4(255.0f);
 glm::vec4 colour = glm::vec4{99.0f,96.0f,93.0f,255.0f} / glm::vec4(255.0f);
 
 glm::ivec2 size = {1000,1000};
 float scale = 4;
+float delta = 0.016f;
 
 Vortex2D::Renderer::Device* device;
 Vortex2D::Renderer::RenderTarget* target;
@@ -39,13 +40,13 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             example.reset(new RenderExample(*device, size));
             break;
         case GLFW_KEY_2:
-            example.reset(new SmokeExample(*device, {size, scale}, 0.033f));
+            example.reset(new SmokeExample(*device, {size, scale}, delta));
             break;
         case GLFW_KEY_3:
-            example.reset(new ObstacleSmokeExample(*device, {size, scale}, 0.033f));
+            example.reset(new ObstacleSmokeExample(*device, {size, scale}, delta));
             break;
         case GLFW_KEY_4:
-            example.reset(new WaterExample(*device, {size, scale}, 0.033f));
+            example.reset(new WaterExample(*device, {size, scale}, delta));
             break;
         case GLFW_KEY_5:
             //example.reset(new ScaleWaterExample(size, 0.033f));

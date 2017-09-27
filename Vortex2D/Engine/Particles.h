@@ -32,6 +32,7 @@ public:
     void Scan();
 
     int GetCount();
+    Renderer::Buffer& GetDispatchParams();
 
     void InitLevelSet(LevelSet& levelSet);
     void Phi();

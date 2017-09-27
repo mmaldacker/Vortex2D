@@ -3,10 +3,8 @@
 //  Vortex2D
 //
 
-#include "Helpers.h"
-
-#include <Vortex2D/Renderer/Disable.h>
-
+#include <gtest/gtest.h>
+#include "VariationalHelpers.h"
 #include <Vortex2D/Engine/World.h>
 
 #include <cmath>
@@ -14,123 +12,82 @@
 using namespace Vortex2D::Renderer;
 using namespace Vortex2D::Fluid;
 
+extern Device* device;
 
 TEST(WorldTests, Velocity)
 {
-    glm::vec2 size = {10.0f, 5.0f};
+    Dimensions size(glm::ivec2(20), 1.0f);
+    Vortex2D::Fluid::World world(*device, size, 0.01f);
 
-    Rectangle rect(size);
-    rect.Position = glm::vec2(5.0f, 7.0f);
-    rect.Colour = glm::vec4(0.5f);
+    // Add particles
+    Vortex2D::Renderer::IntRectangle fluidArea(*device, glm::vec2(5.0f), glm::ivec4(4));
+    fluidArea.Position = {5.0f, 5.0f};
 
-    Dimensions dimensions(glm::vec2(30.0f), 1.0f);
-    World world(dimensions, 0.01f);
+    fluidArea.Initialize(world.Count());
+    fluidArea.Update(world.Count().Orth, size.InvScale);
 
-    world.RenderForce(rect);
-
-    auto& reader = world.GetVelocityReader();
-
-    for (int i = 0; i < size.x; i++)
+    world.Count().Record([&](vk::CommandBuffer commandBuffer)
     {
-        for (int j = 0; j < size.y; j++)
-        {
-            EXPECT_FLOAT_EQ(0.5f, reader.GetVec2(i + 5.0f, j + 7.0f).x);
-            EXPECT_FLOAT_EQ(0.5f, reader.GetVec2(i + 5.0f, j + 7.0f).y);
-        }
-    }
-}
+        fluidArea.Draw(commandBuffer, {world.Count()});
+    });
+    world.Count().Submit();
+    device->Handle().waitIdle();
 
-TEST(WorldTests, RenderFluid)
-{
-    Dimensions dimensions(glm::vec2(30.0f), 1.0f);
-    World world(dimensions, 0.01f);
-
-    world.Colour = glm::vec4(1.0f);
-
-    glm::vec2 size(10.0f, 5.0f);
-    Rectangle area(size);
-    area.Position = glm::vec2(4.0f);
-    area.Colour = glm::vec4(1.0f);
-
+    // Draw obstacle
+    Vortex2D::Renderer::Rectangle obstacle(*device, {10.0f, 5.0f}, glm::vec4(-1.0f));
+    obstacle.Position = {5.0f, 7.0f};
+    obstacle.Initialize(world.SolidPhi());
+    obstacle.Update(world.SolidPhi().Orth, size.InvScale);
+    world.SolidPhi().Record([&](vk::CommandBuffer commandBuffer)
     {
-        auto boundaries = world.DrawBoundaries();
-        boundaries.DrawLiquid(area);
-    }
+        Vortex2D::Renderer::Clear(size.Size.x, size.Size.y, {-1.0f, 0.0f, 0.0f, 0.0f}).Draw(commandBuffer);
+        obstacle.Draw(commandBuffer, world.SolidPhi());
+    });
+    world.SolidPhi().Submit();
 
-    RenderTexture texture(30, 30, Texture::PixelFormat::RGBA8888);
-    world.Render(texture);
+    world.SolidPhi().Reinitialise();
+    device->Handle().waitIdle();
 
-    std::vector<glm::vec4> data(30*30, glm::vec4(0.0f));
-    DrawSquare(30, 30, data, area.Position, size, glm::vec4(1.0f));
+    // Draw gravity
+    Vortex2D::Renderer::Rectangle gravity(*device, size.Size, {0.0f, -0.5f, 0.0f, 0.0f});
 
-    CheckTexture(data, texture);
-}
+    gravity.Initialize(world.Velocity());
+    gravity.Update(world.Velocity().Orth, {});
 
-TEST(WorldTests, Solve)
-{
-    Dimensions dimensions(glm::vec2(30.0f), 2.0f);
-    World world(dimensions, 0.01f);
-
-    Rectangle area(glm::vec2(30.0f) - glm::vec2(2.0f));
-    area.Position = glm::vec2(1.0f);
-    area.Colour = glm::vec4(1.0f);
-
+    world.Velocity().Record([&](vk::CommandBuffer commandBuffer)
     {
-        auto boundaries = world.DrawBoundaries();
-        boundaries.DrawSolid(area, true);
-        boundaries.DrawLiquid(area);
-    }
+        gravity.Draw(commandBuffer, world.Velocity());
+    });
+    world.Velocity().Submit();
 
-    Rectangle rect(glm::vec2(5.0f));
-    rect.Position = glm::vec2(5.0f, 7.0f);
-    rect.Colour = glm::vec4(0.5f);
-    world.RenderForce(rect);
+    // Step
+    world.SolveDynamic();
+    device->Handle().waitIdle();
 
-    world.Solve();
-
-    auto& reader = world.GetVelocityReader();
-
-    for (int i = 0; i < 15.0f; i++)
+    // Verify
+    Texture output(*device, size.Size.x, size.Size.y, vk::Format::eR32G32Sfloat, true);
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
-        for (int j = 0; j < 15.0f; j++)
-        {
-            EXPECT_FALSE(std::isnan(reader.GetVec2(i, j).x));
-            EXPECT_FALSE(std::isnan(reader.GetVec2(i, j).y));
-        }
-    }
-}
+        output.CopyFrom(commandBuffer, world.Velocity());
+    });
 
-TEST(WorldTests, Water)
-{
-    glm::vec2 size(30.0f);
-    Dimensions dimensions(size, 1.0f);
-    World world(dimensions, 0.01f);
-    world.Colour = glm::vec4(1.0f);
+    PrintVelocity(size.Size, output);
 
-    Rectangle area(glm::vec2(10.0f, 5.0f));
-    area.Position = glm::vec2(4.0f);
-    area.Colour = glm::vec4(1.0f);
-
+    Buffer particles(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, 8*size.Size.x*size.Size.y*sizeof(Particle));
+    std::vector<Particle> particleData(8*size.Size.x*size.Size.y);
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
-        auto boundaries = world.DrawBoundaries();
-        boundaries.DrawLiquid(area);
-    }
+       particles.CopyFrom(commandBuffer, world.Particles());
+    });
 
-    Rectangle force(size);
-    force.Colour = glm::vec4(0.0f, -1.0f, 0.0f, 0.0f);
+    int particleCount = world.Count().GetCount();
+    std::cout << "Particle Count: " << particleCount << std::endl;
 
-    world.RenderForce(force);
-    world.Solve();
-    world.Advect();
-
-    auto& reader = world.GetVelocityReader();
-
-    for (int i = 0; i < 15.0f; i++)
+    particles.CopyTo(particleData);
+    for (int i = 0; i < particleCount; i++)
     {
-        for (int j = 0; j < 15.0f; j++)
-        {
-            EXPECT_FALSE(std::isnan(reader.GetVec2(i, j).x));
-            EXPECT_FALSE(std::isnan(reader.GetVec2(i, j).y));
-        }
+        std::cout << "(" << particleData[i].Position.x << "," << particleData[i].Position.y << ")"
+                  << "(" << particleData[i].Velocity.x << "," << particleData[i].Velocity.y << ")"
+                  << std::endl;
     }
 }

@@ -136,6 +136,11 @@ int ParticleCount::GetCount()
     return params.count;
 }
 
+Renderer::Buffer& ParticleCount::GetDispatchParams()
+{
+    return mDispatchParams;
+}
+
 void ParticleCount::InitLevelSet(LevelSet& levelSet)
 {
     mParticlePhiBound = mParticlePhiWork.Bind({*this, mParticles, mIndex, levelSet});
@@ -159,7 +164,6 @@ void ParticleCount::InitVelocities(Renderer::Texture& velocity)
     mParticleToGridBound = mParticleToGridWork.Bind({*this, mParticles, mIndex, velocity});
     mParticleToGrid.Record([&](vk::CommandBuffer commandBuffer)
     {
-        velocity.Clear(commandBuffer, std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f});
         mParticleToGridBound.Record(commandBuffer);
         velocity.Barrier(commandBuffer,
                          vk::ImageLayout::eGeneral, vk::AccessFlagBits::eShaderWrite,
