@@ -356,6 +356,8 @@ TEST(LinearSolverTests, Zero_CG)
 
     device->Queue().waitIdle();
 
+    ASSERT_EQ(0, params.OutIterations);
+
     std::vector<float> data(size.x*size.y, 1.0f);
     pressure.CopyTo(data);
 
@@ -386,6 +388,8 @@ TEST(LinearSolverTests, Zero_PCG)
     solver.Solve(params);
 
     device->Queue().waitIdle();
+
+    ASSERT_EQ(0, params.OutIterations);
 
     std::vector<float> data(size.x*size.y, 1.0f);
     pressure.CopyTo(data);

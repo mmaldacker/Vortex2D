@@ -5,6 +5,7 @@
 
 #include "VariationalHelpers.h"
 #include "Verify.h"
+#include "Renderer/ShapeDrawer.h"
 
 #include <Vortex2D/Engine/Pressure.h>
 #include <iostream>
@@ -214,6 +215,70 @@ TEST(PressureTest, LinearEquationSetup_Complex)
     CheckDiagonal(size, diagonalOutput, sim, 1e-3f); // FIXME can we reduce error tolerance?
     CheckWeights(size, lowerOutput, sim, 1e-3f); // FIXME can we reduce error tolerance?
     CheckDiv(size, divOutput, sim);
+}
+
+TEST(PressureTest, ZeroDivs)
+{
+    glm::ivec2 size(50);
+
+    NiceMock<LinearSolverMock> solver;
+
+    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
+    Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
+    Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
+    Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
+
+    Texture input(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
+    std::vector<float> inputData(size.x * size.y);
+    DrawSquare(size.x, size.y, inputData, {10.0f, 10.0f}, {30.0f, 30.0f}, -1.0f);
+    input.CopyFrom(inputData);
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+        liquidPhi.CopyFrom(commandBuffer, input);
+    });
+
+    Buffer* diagonalResult = nullptr;
+    Buffer* lowerResult = nullptr;
+    Buffer* divResult = nullptr;
+    EXPECT_CALL(solver, Init(_, _, _, _))
+            .WillOnce(Invoke([&](Buffer& d, Buffer& l, Buffer& b, Buffer& pressure)
+            {
+                diagonalResult = &d;
+                lowerResult = &l;
+                divResult = &b;
+            }));
+
+    Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::ivec2));
+
+    Pressure pressure(*device, 0.01f, size, solver, velocity, solidPhi, liquidPhi, solidVelocity, valid);
+
+    LinearSolver::Parameters params(0);
+    pressure.Solve(params);
+
+    ASSERT_TRUE(diagonalResult != nullptr);
+    ASSERT_TRUE(lowerResult != nullptr);
+    ASSERT_TRUE(divResult != nullptr);
+
+    Buffer diagonalOutput(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+    Buffer lowerOutput(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::vec2));
+    Buffer divOutput(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+        diagonalOutput.CopyFrom(commandBuffer, *diagonalResult);
+        lowerOutput.CopyFrom(commandBuffer, *lowerResult);
+        divOutput.CopyFrom(commandBuffer, *divResult);
+    });
+
+    std::vector<float> divOutputData(size.x*size.y);
+    divOutput.CopyTo(divOutputData);
+    for (int i = 0; i < size.x; i++)
+    {
+        for (int j = 0; j < size.y; j++)
+        {
+            EXPECT_EQ(0.0f, divOutputData[i + size.x * j]);
+        }
+    }
 }
 
 TEST(PressureTest, Project_Simple)
