@@ -31,7 +31,7 @@ void PrintLevelSet(int size, float (*phi)(const Vec2f&))
     std::cout << std::endl;
 }
 
-void CheckDifference(Texture& texture, float (*phi)(const Vec2f&))
+void CheckDifference(Texture& texture, float (*phi)(const Vec2f&), float error = 1.0f / std::sqrt(2.0f))
 {
     std::vector<float> pixels(texture.GetWidth() * texture.GetHeight());
     texture.CopyTo(pixels);
@@ -48,7 +48,7 @@ void CheckDifference(Texture& texture, float (*phi)(const Vec2f&))
             float readerValue = pixels[i + j * texture.GetWidth()];
             float diff = std::abs(value - readerValue);
 
-            EXPECT_LT(diff, 0.8f) << "Mismatch at " << i << ", " << j; // almost sqrt(0.5)
+            EXPECT_LT(diff, error) << "Mismatch at " << i << ", " << j; // almost sqrt(0.5)
         }
     }
 }
@@ -83,7 +83,8 @@ TEST(LevelSetTests, SimpleCircle)
        outTexture.CopyFrom(commandBuffer, levelSet);
     });
 
-    CheckDifference(outTexture, boundary_phi);
+    // NOTE difference should be at most 1 / sqrt(2)
+    CheckDifference(outTexture, boundary_phi, 1.0f);
 }
 
 TEST(LevelSetTests, ComplexCircles)
@@ -131,7 +132,8 @@ TEST(LevelSetTests, ComplexCircles)
         outTexture.CopyFrom(commandBuffer, levelSet);
     });
 
-    CheckDifference(outTexture, complex_boundary_phi);
+    // NOTE difference should be at most 1 / sqrt(2)
+    CheckDifference(outTexture, complex_boundary_phi, 1.0f);
 }
 
 TEST(LevelSetTests, Extrapolate)

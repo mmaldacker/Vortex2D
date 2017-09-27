@@ -51,7 +51,15 @@ void World::SolveStatic()
 
 void World::SolveDynamic()
 {
-
+    /*
+     1) From particles, construct fluid level set
+     2) Transfer velocities from particles to grid
+     3) Add forces to velocity (e.g. gravity)
+     4) Construct solid level set and solid velocity fields
+     5) Solve pressure, extrapolate and constrain velocities
+     6) Update particle velocities with PIC/FLIP
+     7) Advect particles
+     */
 }
 
 Renderer::RenderTexture& World::Velocity()

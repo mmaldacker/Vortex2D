@@ -144,23 +144,19 @@ void Texture::Clear(vk::CommandBuffer commandBuffer, const std::array<float, 4>&
 
 void Texture::Clear(vk::CommandBuffer commandBuffer, vk::ClearColorValue colour)
 {
-  // TODO access flags wrong?
-        Barrier(commandBuffer,
-                vk::ImageLayout::eGeneral,
-                vk::AccessFlagBits{},
-                vk::ImageLayout::eGeneral,
-                vk::AccessFlagBits::eTransferWrite);
+    // TODO access flags wrong?
+    Barrier(commandBuffer,
+            vk::ImageLayout::eGeneral, vk::AccessFlagBits{},
+            vk::ImageLayout::eGeneral, vk::AccessFlagBits::eTransferWrite);
 
-        commandBuffer.clearColorImage(*mImage,
-                                      vk::ImageLayout::eGeneral,
-                                      colour,
-                                      vk::ImageSubresourceRange{vk::ImageAspectFlagBits::eColor, 0, 1, 0 ,1});
+    commandBuffer.clearColorImage(*mImage,
+                                  vk::ImageLayout::eGeneral,
+                                  colour,
+                                  vk::ImageSubresourceRange{vk::ImageAspectFlagBits::eColor, 0, 1, 0 ,1});
 
-        Barrier(commandBuffer,
-                vk::ImageLayout::eGeneral,
-                vk::AccessFlagBits::eTransferWrite,
-                vk::ImageLayout::eGeneral,
-                vk::AccessFlagBits{});
+    Barrier(commandBuffer,
+            vk::ImageLayout::eGeneral, vk::AccessFlagBits::eTransferWrite,
+            vk::ImageLayout::eGeneral, vk::AccessFlagBits{});
 }
 
 void Texture::CopyFrom(const void* data, vk::DeviceSize bytesPerPixel)

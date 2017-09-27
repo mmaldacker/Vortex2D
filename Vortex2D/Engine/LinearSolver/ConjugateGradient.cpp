@@ -259,6 +259,7 @@ void ConjugateGradient::Solve(Parameters& params)
 
         params.OutIterations = i;
         errorLocal.CopyTo(params.OutError);
+        // TODO should divide by the initial error
         if (params.IsFinished(i, params.OutError))
         {
             return;
@@ -281,6 +282,7 @@ void ConjugateGradient::NormalSolve(Parameters& params)
 
         params.OutIterations = i;
         errorLocal.CopyTo(params.OutError);
+        // TODO should divide by the initial error
         if (params.IsFinished(i, params.OutError))
         {
             return;
