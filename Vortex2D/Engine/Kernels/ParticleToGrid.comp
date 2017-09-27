@@ -9,7 +9,7 @@ layout(push_constant) uniform Consts
   int height;
 }consts;
 
-
+// TODO should move this somewhere common since it's used in multiple places
 struct Particle
 {
   vec2 Position;
@@ -28,19 +28,31 @@ layout(std430, binding = 2) buffer Index
   int value[];
 }scanIndex;
 
-layout(binding = 3, r32f) uniform image2D LevelSet;
+layout(binding = 3, rg32f) uniform image2D Velocity;
 
-const float particle_radius = 1.0 / sqrt(2.0);
-const int off = 3;
+float hat(float t)
+{
+  return max(1.0 - abs(t), 0.0);
+}
+
+float get_weight(vec2 pos, ivec2 ipos)
+{
+    return hat(pos.x - ipos.x) * hat(pos.y - ipos.y);
+}
 
 void main()
 {
     ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
     if (pos.x < consts.width && pos.y < consts.height)
     {
-        for (int i = -off; i <= off; i++)
+        vec2 accum = vec2(0.0);
+        vec2 sum = vec2(0.0);
+        vec2 weight;
+        vec2 f;
+
+        for (int i = -1; i <= 1; i++)
         {
-            for (int j = -off; j <= off; j++)
+            for (int j = -1; j <= 1; j++)
             {
                 ivec2 newPos = ivec2(pos) + ivec2(i, j);
                 int index = newPos.x + newPos.y * consts.width;
@@ -49,12 +61,22 @@ void main()
                 for (int k = 0; k < count; k++)
                 {
                     Particle p = particles.value[scanIndex.value[index] + k];
-                    float phi_temp = distance(pos + 0.5, p.Position) - 1.02 * particle_radius;
 
-                    float phi = imageLoad(LevelSet, pos).x;
-                    imageStore(LevelSet, pos, vec4(min(phi, phi_temp), 0.0, 0.0, 0.0));
+                    vec2 up = p.Position - vec2(0.0, 0.5);
+                    vec2 vp = p.Position - vec2(0.5, 0.0);
+
+                    weight.x = get_weight(up, pos);
+                    weight.y = get_weight(vp, pos);
+
+                    accum += weight * p.Velocity;
+                    sum += weight;
                 }
             }
         }
+
+        vec2 value;
+        value.x = sum.x == 0.0 ? 0.0 : accum.x / sum.x;
+        value.y = sum.y == 0.0 ? 0.0 : accum.y / sum.y;
+        imageStore(Velocity, pos, vec4(value, 0.0, 0.0));
     }
 }

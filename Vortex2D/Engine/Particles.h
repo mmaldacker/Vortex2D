@@ -17,6 +17,7 @@ class LevelSet;
 struct Particle
 {
   alignas(8) glm::vec2 Position;
+  alignas(8) glm::vec2 Velocity;
 };
 
 class ParticleCount : public Renderer::RenderTexture
@@ -34,6 +35,10 @@ public:
 
     void InitLevelSet(LevelSet& levelSet);
     void Phi();
+
+    void InitVelocities(Renderer::Texture& velocity);
+    void TransferToGrid();
+    void TransferFromGrid();
 
 private:
     Renderer::Buffer& mParticles;
@@ -54,11 +59,14 @@ private:
     Renderer::Work::Bound mParticleSpawnBound;
     Renderer::Work mParticlePhiWork;
     Renderer::Work::Bound mParticlePhiBound;
+    Renderer::Work mParticleToGridWork;
+    Renderer::Work::Bound mParticleToGridBound;
 
     Renderer::CommandBuffer mCountWork;
     Renderer::CommandBuffer mScanWork;
     Renderer::CommandBuffer mDispatchCountWork;
     Renderer::CommandBuffer mParticlePhi;
+    Renderer::CommandBuffer mParticleToGrid;
 };
 
 }}

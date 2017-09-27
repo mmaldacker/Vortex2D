@@ -15,6 +15,7 @@ void FluidSim::initialize(float width, int ni_, int nj_) {
    v.resize(ni,nj+1); temp_v.resize(ni,nj+1); v_weights.resize(ni,nj+1); v_valid.resize(ni,nj+1);
    u.set_zero();
    v.set_zero();
+   sum.resize(ni+1,nj+1);
    nodal_solid_phi.resize(ni+1,nj+1);
    valid.resize(ni+1, nj+1);
    old_valid.resize(ni+1, nj+1);
@@ -130,6 +131,7 @@ void FluidSim::constrain_velocity() {
 //Add a tracer particle for visualization
 void FluidSim::add_particle(const Vec2f& position) {
    particles.push_back(position);
+   particles_velocity.push_back({0.0f, 0.0f});
 }
 
 //Basic first order semi-Lagrangian advection of velocities
@@ -183,9 +185,86 @@ void FluidSim::advect_particles(float dt) {
          particles[p] -= phi_value*normal;
       }
    }
-
 }
 
+void FluidSim::accumulate(Array2f& accum, float q, int i, int j, float fx, float fy)
+{
+    float weight;
+
+    weight=(1-fx)*(1-fy);
+    accum(i,j)+=weight*q;
+    sum(i,j)+=weight;
+
+    weight=fx*(1-fy);
+    accum(i+1,j)+=weight*q;
+    sum(i+1,j)+=weight;
+
+    weight=(1-fx)*fy;
+    accum(i,j+1)+=weight*q;
+    sum(i,j+1)+=weight;
+
+    weight=fx*fy;
+    accum(i+1,j+1)+=weight*q;
+    sum(i+1,j+1)+=weight;
+}
+
+void FluidSim::transfer_to_grid()
+{
+    u.set_zero();
+    sum.set_zero();
+    for(int p = 0; p < particles.size(); ++p)
+    {
+        Vec2f point = particles[p];
+        int i,j;
+        float fx,fy;
+
+        //determine containing cell;
+        get_barycentric((point[0])/dx, i, fx, 0, ni);
+        get_barycentric((point[1])/dx-0.5f, j, fy, 0, nj);
+
+        accumulate(u, particles_velocity[p][0], i, j, fx, fy);
+    }
+
+    for(int j = 0; j < u.nj; ++j) for(int i = 0; i < u.ni; ++i)
+    {
+        if(sum(i,j) != 0) u(i,j) /= sum(i,j);
+    }
+
+    v.set_zero();
+    sum.set_zero();
+    for(int p = 0; p < particles.size(); ++p)
+    {
+        Vec2f point = particles[p];
+        int i,j;
+        float fx,fy;
+
+        //determine containing cell;
+        get_barycentric((point[0])/dx-0.5f, i, fx, 0, ni);
+        get_barycentric((point[1])/dx, j, fy, 0, nj);
+
+        accumulate(v, particles_velocity[p][1], i, j, fx, fy);
+    }
+
+    for(int j = 0; j < v.nj; ++j) for(int i = 0; i < v.ni; ++i)
+    {
+        if(sum(i,j) != 0) v(i,j) /= sum(i,j);
+    }
+}
+
+void FluidSim::update_from_grid()
+{
+    for(int p = 0; p < particles.size(); ++p)
+    {
+        Vec2f point = particles[p];
+
+        // FLIP
+        //u[p]+=Vec2f(grid.du.bilerp(ui, j, ufx, fy), grid.dv.bilerp(i, vj, fx, vfy));
+
+        // PIC
+        particles_velocity[p] = get_velocity(point);
+        //u[p]=Vec2f(grid.u.bilerp(ui, j, ufx, fy), grid.v.bilerp(i, vj, fx, vfy));
+    }
+}
 
 void FluidSim::compute_phi() {
 

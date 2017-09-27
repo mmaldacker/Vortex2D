@@ -33,7 +33,9 @@ public:
    Array2f liquid_phi;
 
    std::vector<Vec2f> particles; //For marker particle simulation
+   std::vector<Vec2f> particles_velocity;
    float particle_radius;
+   Array2f sum;
 
    //Data arrays for extrapolation
    Array2c valid, old_valid;
@@ -50,6 +52,10 @@ public:
    Vec2f trace_rk3(const Vec2f& position, float dt);
 
    void advect_particles(float dt);
+
+   void accumulate(Array2f &accum, float q, int i, int j, float fx, float fy);
+   void transfer_to_grid();
+   void update_from_grid();
 
    void compute_phi();
    void extrapolate_phi();

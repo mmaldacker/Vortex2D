@@ -54,10 +54,16 @@ ParticleCount::ParticleCount(const Renderer::Device& device,
                        vk::DescriptorType::eStorageBuffer,
                        vk::DescriptorType::eStorageBuffer,
                        vk::DescriptorType::eStorageImage})
+    , mParticleToGridWork(device, size, "../Vortex2D/ParticleToGrid.comp.spv",
+                          {vk::DescriptorType::eStorageImage,
+                           vk::DescriptorType::eStorageBuffer,
+                           vk::DescriptorType::eStorageBuffer,
+                           vk::DescriptorType::eStorageImage})
     , mCountWork(device, false)
     , mScanWork(device, false)
     , mDispatchCountWork(device)
     , mParticlePhi(device, false)
+    , mParticleToGrid(device, false)
 {
     Renderer::Buffer localDispathParams(device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(params));
     localDispathParams.CopyFrom(params);
@@ -141,6 +147,29 @@ void ParticleCount::InitLevelSet(LevelSet& levelSet)
 void ParticleCount::Phi()
 {
     mParticlePhi.Submit();
+}
+
+void ParticleCount::InitVelocities(Renderer::Texture& velocity)
+{
+    mParticleToGridBound = mParticleToGridWork.Bind({*this, mParticles, mIndex, velocity});
+    mParticleToGrid.Record([&](vk::CommandBuffer commandBuffer)
+    {
+        velocity.Clear(commandBuffer, std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f});
+        mParticleToGridBound.Record(commandBuffer);
+        velocity.Barrier(commandBuffer,
+                         vk::ImageLayout::eGeneral, vk::AccessFlagBits::eShaderWrite,
+                         vk::ImageLayout::eGeneral, vk::AccessFlagBits::eShaderRead);
+    });
+}
+
+void ParticleCount::TransferToGrid()
+{
+    mParticleToGrid.Submit();
+}
+
+void ParticleCount::TransferFromGrid()
+{
+
 }
 
 }}

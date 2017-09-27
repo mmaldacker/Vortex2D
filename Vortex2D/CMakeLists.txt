@@ -61,6 +61,7 @@ file(GLOB SHADER_SOURCES
     "Engine/Kernels/ParticleCloud.vert"
     "Engine/Kernels/ParticleCloud.frag"
     "Engine/Kernels/ParticlePhi.comp"
+    "Engine/Kernels/ParticleToGrid.comp"
     "Engine/LinearSolver/Kernels/*.comp")
 
 find_package(Vulkan)
