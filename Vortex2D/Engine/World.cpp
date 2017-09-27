@@ -35,9 +35,6 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
     , mExtrapolation(device, dimensions.Size, mValid, mVelocity, mObstacleLevelSet)
     , mClearVelocity(device, false)
 {
-    mPreconditioner.SetW(1.5f);
-    mPreconditioner.SetPreconditionerIterations(16);
-
     mParticleCount.InitLevelSet(mFluidLevelSet);
     mParticleCount.InitVelocities(mVelocity);
     mFluidLevelSet.ExtrapolateInit(mObstacleLevelSet);
@@ -92,7 +89,7 @@ void World::SolveDynamic()
     mFluidLevelSet.Extrapolate();
 
     // 5)
-    LinearSolver::Parameters params(300, 1e-5f);
+    LinearSolver::Parameters params(1000, 1e-5f);
     mProjection.Solve(params);
 
     mExtrapolation.Extrapolate();
