@@ -113,8 +113,8 @@ DistanceField::DistanceField(const Renderer::Device& device,
 
 void DistanceField::Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState)
 {
-    PushConstant(commandBuffer, 4, mColour);
-    PushConstant(commandBuffer, 0, mScale);
+    PushConstant(commandBuffer, 0, mColour);
+    PushConstant(commandBuffer, 16, mScale);
     AbstractSprite::Draw(commandBuffer, renderState);
 }
 
