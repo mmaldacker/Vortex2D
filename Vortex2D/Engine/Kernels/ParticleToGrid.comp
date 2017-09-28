@@ -80,7 +80,7 @@ void main()
             }
         }
 
-        vec2 value;
+        vec2 value = vec2(0.0);
         if (sum.x != 0.0)
         {
             value.x = accum.x / sum.x;

@@ -492,6 +492,9 @@ TEST(ParticleTests, ToGrid)
    sim.advance(0.01f);
 
    sim.update_from_grid();
+   sim.v.set_zero();
+   sim.u.set_zero();
+
    sim.transfer_to_grid();
 
    // setup ParticleCount
