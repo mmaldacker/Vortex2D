@@ -30,6 +30,12 @@ layout(std430, binding = 2) buffer Index
 
 layout(binding = 3, rg32f) uniform image2D Velocity;
 
+layout(std430, binding = 4) buffer Valid
+{
+  ivec2 value[];
+}valid;
+
+
 float hat(float t)
 {
   return max(1.0 - abs(t), 0.0);
@@ -75,8 +81,17 @@ void main()
         }
 
         vec2 value;
-        value.x = sum.x == 0.0 ? 0.0 : accum.x / sum.x;
-        value.y = sum.y == 0.0 ? 0.0 : accum.y / sum.y;
+        if (sum.x != 0.0)
+        {
+            value.x = accum.x / sum.x;
+            valid.value[pos.x + pos.y * consts.width].x = 1;
+        }
+        if (sum.y != 0.0)
+        {
+            value.y = accum.y / sum.y;
+            valid.value[pos.x + pos.y * consts.width].y = 1;
+        }
+
         imageStore(Velocity, pos, vec4(value + imageLoad(Velocity, pos).xy, 0.0, 0.0));
     }
 }

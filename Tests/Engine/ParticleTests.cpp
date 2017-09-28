@@ -434,6 +434,7 @@ TEST(ParticleTests, FromGrid)
    // FromGrid test
    Texture input(*device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
+   Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::ivec2));
 
    SetVelocity(size, input, sim);
    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
@@ -441,7 +442,7 @@ TEST(ParticleTests, FromGrid)
        velocity.CopyFrom(commandBuffer, input);
    });
 
-   particleCount.InitVelocities(velocity);
+   particleCount.InitVelocities(velocity, valid);
    particleCount.TransferFromGrid();
    device->Handle().waitIdle();
 
@@ -451,6 +452,8 @@ TEST(ParticleTests, FromGrid)
    });
 
    // Verify particle velocities
+
+   // TODO check valid
 
    std::vector<Particle> outParticlesData(size.x*size.y*8);
    particles.CopyTo(outParticlesData);
@@ -516,10 +519,13 @@ TEST(ParticleTests, ToGrid)
    // ToGrid test
    Texture output(*device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
+   Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::ivec2));
 
-   particleCount.InitVelocities(velocity);
+   particleCount.InitVelocities(velocity, valid);
    particleCount.TransferToGrid();
    device->Handle().waitIdle();
+
+   // TODO check valid
 
    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
    {

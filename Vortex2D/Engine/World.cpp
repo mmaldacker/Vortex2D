@@ -36,7 +36,7 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
     , mClearVelocity(device, false)
 {
     mParticleCount.InitLevelSet(mFluidLevelSet);
-    mParticleCount.InitVelocities(mVelocity);
+    mParticleCount.InitVelocities(mVelocity, mValid);
     mFluidLevelSet.ExtrapolateInit(mObstacleLevelSet);
     mAdvection.AdvectParticleInit(mParticles, mObstacleLevelSet, mParticleCount.GetDispatchParams());
 
@@ -81,6 +81,7 @@ void World::SolveDynamic()
 
     // 2)
     mParticleCount.TransferToGrid();
+    mExtrapolation.Extrapolate();
 
     // 3)
     // transfer to grid adds to the velocity, so we can set the values before

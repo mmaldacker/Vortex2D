@@ -17,7 +17,7 @@ static void ErrorCallback(int error, const char* description)
                              std::string(description));
 }
 
-GLFWApp::GLFWApp(uint32_t width, uint32_t height, bool visible, bool validation)
+GLFWApp::GLFWApp(uint32_t width, uint32_t height, bool validation)
     : mWidth(width)
     , mHeight(height)
 {
@@ -30,7 +30,6 @@ GLFWApp::GLFWApp(uint32_t width, uint32_t height, bool visible, bool validation)
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-    glfwWindowHint(GLFW_VISIBLE, visible ? GLFW_TRUE : GLFW_FALSE);
 
     mWindow = glfwCreateWindow(width, height, "Vortex2D App", nullptr, nullptr);
     if (!mWindow)

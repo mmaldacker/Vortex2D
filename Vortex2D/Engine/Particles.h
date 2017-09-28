@@ -37,7 +37,7 @@ public:
     void InitLevelSet(LevelSet& levelSet);
     void Phi();
 
-    void InitVelocities(Renderer::Texture& velocity);
+    void InitVelocities(Renderer::Texture& velocity, Renderer::Buffer& valid);
     void TransferToGrid();
     void TransferFromGrid();
 

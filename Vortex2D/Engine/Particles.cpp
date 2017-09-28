@@ -58,7 +58,8 @@ ParticleCount::ParticleCount(const Renderer::Device& device,
                           {vk::DescriptorType::eStorageImage,
                            vk::DescriptorType::eStorageBuffer,
                            vk::DescriptorType::eStorageBuffer,
-                           vk::DescriptorType::eStorageImage})
+                           vk::DescriptorType::eStorageImage,
+                           vk::DescriptorType::eStorageBuffer})
     , mParticleFromGridWork(device, Renderer::ComputeSize::Default1D(), "../Vortex2D/ParticleFromGrid.comp.spv",
                             {vk::DescriptorType::eStorageBuffer,
                             vk::DescriptorType::eStorageBuffer,
@@ -159,11 +160,12 @@ void ParticleCount::Phi()
     mParticlePhi.Submit();
 }
 
-void ParticleCount::InitVelocities(Renderer::Texture& velocity)
+void ParticleCount::InitVelocities(Renderer::Texture& velocity, Renderer::Buffer& valid)
 {
-    mParticleToGridBound = mParticleToGridWork.Bind({*this, mParticles, mIndex, velocity});
+    mParticleToGridBound = mParticleToGridWork.Bind({*this, mParticles, mIndex, velocity, valid});
     mParticleToGrid.Record([&](vk::CommandBuffer commandBuffer)
     {
+        valid.Clear(commandBuffer);
         mParticleToGridBound.Record(commandBuffer);
         velocity.Barrier(commandBuffer,
                          vk::ImageLayout::eGeneral, vk::AccessFlagBits::eShaderWrite,

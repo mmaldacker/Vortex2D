@@ -15,7 +15,7 @@
 class GLFWApp
 {
 public:
-    GLFWApp(uint32_t width, uint32_t height, bool visible = true, bool validation = true);
+    GLFWApp(uint32_t width, uint32_t height, bool validation = true);
 
     ~GLFWApp();
 
