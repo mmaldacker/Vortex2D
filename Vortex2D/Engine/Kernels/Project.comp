@@ -43,18 +43,9 @@ void main()
     float phixn = imageLoad(FluidLevelSet, pos + ivec2(-1,0)).x;
     float phiyn = imageLoad(FluidLevelSet, pos + ivec2(0,-1)).x;
 
-    vec2 theta = vec2(1.0);
-    if (phi >= 0 || phixn >= 0)
-    {
-      theta.x = fraction_inside(phixn, phi);
-    }
-    
-    if (phi >= 0 || phiyn >= 0)
-    {
-      theta.y = fraction_inside(phiyn, phi);
-    }    
-
+    vec2 theta = vec2(fraction_inside(phixn, phi), fraction_inside(phiyn, phi));
     pGrad /= max(theta, 0.01);
+
     vec2 mask = vec2(0.0);
 
     vec2 wuv = get_weight(pos);
