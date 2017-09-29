@@ -31,6 +31,10 @@ file(GLOB LIB_SOURCES
     "Engine/LinearSolver/Diagonal.cpp"
     "Engine/LinearSolver/IncompletePoisson.h"
     "Engine/LinearSolver/IncompletePoisson.cpp"
+    "Engine/LinearSolver/Transfer.h"
+    "Engine/LinearSolver/Transfer.cpp"
+    "Engine/LinearSolver/Multigrid.h"
+    "Engine/LinearSolver/Multigrid.cpp"        
     "Renderer/*.cpp"
     "Renderer/*.h"
     "Utils/variant.hpp")
