@@ -12,7 +12,6 @@
 #include <Vortex2D/Engine/LinearSolver/LinearSolver.h>
 #include <Vortex2D/Engine/LinearSolver/ConjugateGradient.h>
 #include <Vortex2D/Engine/LinearSolver/IncompletePoisson.h>
-#include <Vortex2D/Engine/LinearSolver/Diagonal.h>
 #include <Vortex2D/Engine/Size.h>
 #include <Vortex2D/Engine/Extrapolation.h>
 #include <Vortex2D/Engine/LevelSet.h>
@@ -60,7 +59,7 @@ private:
     Renderer::Buffer mParticles;
     ParticleCount mParticleCount;
 
-    Diagonal mPreconditioner;
+    IncompletePoisson mPreconditioner;
     ConjugateGradient mLinearSolver;
 
     Renderer::RenderTexture mVelocity;
