@@ -22,6 +22,7 @@ public:
               Renderer::Buffer& b,
               Renderer::Buffer& pressure) override;
 
+    void RecordInit(vk::CommandBuffer commandBuffer) override;
     void Record(vk::CommandBuffer ) override;
 
 private:

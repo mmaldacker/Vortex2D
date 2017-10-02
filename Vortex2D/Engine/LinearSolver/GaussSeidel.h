@@ -32,6 +32,7 @@ public:
      */
     void Solve(Parameters& params) override;
 
+    void RecordInit(vk::CommandBuffer commandBuffer) override;
     void Record(vk::CommandBuffer commandBuffer) override;
 
     void Record(vk::CommandBuffer commandBuffer, int iterations);

@@ -164,6 +164,7 @@ void ConjugateGradient::Init(Renderer::Buffer& d,
 
         // p = 0
         pressure.Clear(commandBuffer);
+        mPreconditioner.RecordInit(commandBuffer);
 
         // z = M^-1 r
         z.Clear(commandBuffer);
