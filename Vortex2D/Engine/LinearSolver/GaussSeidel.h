@@ -11,6 +11,7 @@
 #include <Vortex2D/Engine/LinearSolver/Reduce.h>
 #include <Vortex2D/Renderer/Work.h>
 #include <Vortex2D/Renderer/CommandBuffer.h>
+#include <Vortex2D/Renderer/Pipeline.h>
 
 namespace Vortex2D { namespace Fluid {
 

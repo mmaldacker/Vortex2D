@@ -12,51 +12,46 @@ namespace Vortex2D { namespace Fluid {
 
 namespace
 {
-    int GetWorkGroupSize(int n, int localSize)
-    {
-        return (n + (localSize * 2 - 1)) / (localSize * 2);
-    }
+int GetWorkGroupSize(int n, int localSize)
+{
+    return (n + (localSize * 2 - 1)) / (localSize * 2);
+}
+
+Renderer::ComputeSize MakeComputeSize(int size)
+{
+    Renderer::ComputeSize computeSize(Renderer::ComputeSize::Default1D());
+
+    auto localSize = Renderer::ComputeSize::GetLocalSize1D();
+    computeSize.DomainSize = glm::ivec2(size, 1);
+    computeSize.LocalSize = glm::ivec2(localSize, 1);
+    computeSize.WorkSize = glm::ceil(glm::vec2(size, 1.0f) / (glm::vec2(localSize, 1.0f) * glm::vec2(2.0f, 1.0f)));
+
+    return computeSize;
+}
 }
 
 Reduce::Reduce(const Renderer::Device& device,
                const std::string& fileName,
                const glm::ivec2& size)
-    : mDevice(device)
-    , mSize(size.x * size.y)
+    : mSize(size.x*size.y)
+    , mReduce(device, Renderer::ComputeSize::Default1D(), fileName,
+             {vk::DescriptorType::eStorageBuffer,
+              vk::DescriptorType::eStorageBuffer})
 {
-    mDescriptorLayout = Renderer::DescriptorSetLayoutBuilder()
-            .Binding(0, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute, 1)
-            .Binding(1, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute, 1)
-            .Create(device);
-
-    vk::ShaderModule sumShader = device.GetShaderModule(fileName);
-
-    int n = size.x * size.y;
-    assert(n > 1);
     auto localSize = Renderer::ComputeSize::GetLocalSize1D();
+    int workGroupSize = mSize;
 
-    int workGroupSize = n;
     while ((workGroupSize = GetWorkGroupSize(workGroupSize, localSize)) > 1)
     {
         mBuffers.emplace_back(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(float) * workGroupSize);
     }
 
     assert(workGroupSize);
-
-    mPipelineLayout = Renderer::PipelineLayoutBuilder()
-            .DescriptorSetLayout(mDescriptorLayout)
-            .PushConstantRange({vk::ShaderStageFlagBits::eCompute, 0, 4})
-            .Create(device.Handle());
-
-    mPipeline = Renderer::MakeComputePipeline(device.Handle(), sumShader, *mPipelineLayout, localSize);
 }
 
-Reduce::Bound Reduce::Bind(Renderer::Buffer& input, Renderer::Buffer& output)
+Reduce::Bound Reduce::Bind(Renderer::Buffer& input,
+                           Renderer::Buffer& output)
 {
-    std::vector<vk::UniqueDescriptorSet> descriptorSets;
-    std::vector<Renderer::CommandBuffer::CommandFn> bufferBarriers;
-
-    // set buffer pointers to be able to call barrier on it later
     std::vector<Renderer::Buffer*> buffers;
     buffers.push_back(&input);
     for (auto& buffer: mBuffers)
@@ -65,15 +60,14 @@ Reduce::Bound Reduce::Bind(Renderer::Buffer& input, Renderer::Buffer& output)
     }
     buffers.push_back(&output);
 
-    // create and set descriptors
+    std::vector<Renderer::CommandBuffer::CommandFn> bufferBarriers;
+    std::vector<Renderer::Work::Bound> bounds;
+
+    auto computeSize = MakeComputeSize(mSize);
     for (int i = 0; i < buffers.size() - 1; i++)
     {
-        descriptorSets.emplace_back(Renderer::MakeDescriptorSet(mDevice, mDescriptorLayout));
-
-        Renderer::DescriptorSetUpdater(*descriptorSets.back())
-                .WriteBuffers(0, 0, vk::DescriptorType::eStorageBuffer).Buffer(*buffers[i])
-                .WriteBuffers(1, 0, vk::DescriptorType::eStorageBuffer).Buffer(*buffers[i+1])
-                .Update(mDevice.Handle());
+        bounds.emplace_back(mReduce.Bind(computeSize, {*buffers[i], *buffers[i+1]}));
+        computeSize = MakeComputeSize(computeSize.WorkSize.x);
 
         vk::Buffer buffer = *buffers[i+1];
         bufferBarriers.emplace_back([=](vk::CommandBuffer commandBuffer)
@@ -82,37 +76,21 @@ Reduce::Bound Reduce::Bind(Renderer::Buffer& input, Renderer::Buffer& output)
         });
     }
 
-    return Bound(mSize, *mPipelineLayout, *mPipeline, bufferBarriers, std::move(descriptorSets));
+    return Bound(bufferBarriers, std::move(bounds));
 }
 
-Reduce::Bound::Bound(int size,
-                     vk::PipelineLayout layout,
-                     vk::Pipeline pipeline,
-                     const std::vector<Renderer::CommandBuffer::CommandFn>& bufferBarriers,
-                     std::vector<vk::UniqueDescriptorSet>&& descriptorSets)
-    : mSize(size)
-    , mLayout(layout)
-    , mPipeline(pipeline)
-    , mBufferBarriers(bufferBarriers)
-    , mDescriptorSets(std::move(descriptorSets))
+Reduce::Bound::Bound(const std::vector<Renderer::CommandBuffer::CommandFn>& bufferBarriers,
+                     std::vector<Renderer::Work::Bound>&& bounds)
+    : mBufferBarriers(bufferBarriers)
+    , mBounds(std::move(bounds))
 {
 }
 
 void Reduce::Bound::Record(vk::CommandBuffer commandBuffer)
 {
-    auto localSize = Renderer::ComputeSize::GetLocalSize1D();
-
-    commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, mPipeline);
-
-    int workGroupSize = mSize;
-    for (int i = 0; i < mDescriptorSets.size(); i++)
+    for (int i = 0; i < mBounds.size(); i++)
     {
-        commandBuffer.pushConstants(mLayout, vk::ShaderStageFlagBits::eCompute, 0, 4, &workGroupSize);
-        workGroupSize = GetWorkGroupSize(workGroupSize, localSize);
-
-        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, mLayout, 0, {*mDescriptorSets[i]}, {});
-        commandBuffer.dispatch(workGroupSize, 1, 1);
-
+        mBounds[i].Record(commandBuffer);
         mBufferBarriers[i](commandBuffer);
     }
 }

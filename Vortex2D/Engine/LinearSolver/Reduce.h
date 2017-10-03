@@ -6,10 +6,7 @@
 #ifndef Vortex2D_Reduce_h
 #define Vortex2D_Reduce_h
 
-#include <Vortex2D/Renderer/Device.h>
-#include <Vortex2D/Renderer/Pipeline.h>
-#include <Vortex2D/Renderer/DescriptorSet.h>
-#include <Vortex2D/Renderer/Buffer.h>
+#include <Vortex2D/Renderer/Work.h>
 #include <Vortex2D/Renderer/CommandBuffer.h>
 
 namespace Vortex2D { namespace Fluid {
@@ -24,17 +21,11 @@ public:
 
         friend class Reduce;
     private:
-        Bound(int size,
-              vk::PipelineLayout layout,
-              vk::Pipeline pipeline,
-              const std::vector<Renderer::CommandBuffer::CommandFn>& bufferBarriers,
-              std::vector<vk::UniqueDescriptorSet>&& descriptorSets);
+        Bound(const std::vector<Renderer::CommandBuffer::CommandFn>& bufferBarriers,
+              std::vector<Renderer::Work::Bound>&& bounds);
 
-        int mSize;
-        vk::PipelineLayout mLayout;
-        vk::Pipeline mPipeline;
         std::vector<Renderer::CommandBuffer::CommandFn> mBufferBarriers;
-        std::vector<vk::UniqueDescriptorSet> mDescriptorSets;
+        std::vector<Renderer::Work::Bound> mBounds;
     };
 
     Reduce::Bound Bind(Renderer::Buffer& input, Renderer::Buffer& output);
@@ -45,12 +36,9 @@ protected:
            const glm::ivec2& size);
 
 private:
-    const Renderer::Device& mDevice;
     int mSize;
+    Renderer::Work mReduce;
     std::vector<Renderer::Buffer> mBuffers;
-    vk::DescriptorSetLayout mDescriptorLayout;
-    vk::UniquePipelineLayout mPipelineLayout;
-    vk::UniquePipeline mPipeline;
 };
 
 class ReduceSum : public Reduce
