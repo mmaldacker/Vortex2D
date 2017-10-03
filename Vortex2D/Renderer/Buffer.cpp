@@ -10,6 +10,24 @@
 
 namespace Vortex2D { namespace Renderer {
 
+void BufferBarrier(vk::Buffer buffer, vk::CommandBuffer commandBuffer, vk::AccessFlags oldAccess, vk::AccessFlags newAccess)
+{
+    auto bufferMemoryBarriers = vk::BufferMemoryBarrier()
+            .setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+            .setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+            .setBuffer(buffer)
+            .setSize(VK_WHOLE_SIZE)
+            .setSrcAccessMask(oldAccess)
+            .setDstAccessMask(newAccess);
+
+    commandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eAllCommands,
+                                  vk::PipelineStageFlagBits::eAllCommands,
+                                  {},
+                                  nullptr,
+                                  bufferMemoryBarriers,
+                                  nullptr);
+}
+
 Buffer::Buffer(const Device& device, vk::BufferUsageFlags usageFlags, bool host, vk::DeviceSize deviceSize)
     : mDevice(device.Handle())
     , mSize(deviceSize)
@@ -114,20 +132,7 @@ void Buffer::CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcTexture)
 
 void Buffer::Barrier(vk::CommandBuffer commandBuffer, vk::AccessFlags oldAccess, vk::AccessFlags newAccess)
 {
-    auto bufferMemoryBarriers = vk::BufferMemoryBarrier()
-            .setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-            .setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-            .setBuffer(*mBuffer)
-            .setSize(VK_WHOLE_SIZE)
-            .setSrcAccessMask(oldAccess)
-            .setDstAccessMask(newAccess);
-
-    commandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eAllCommands,
-                                  vk::PipelineStageFlagBits::eAllCommands,
-                                  {},
-                                  nullptr,
-                                  bufferMemoryBarriers,
-                                  nullptr);
+    BufferBarrier(*mBuffer, commandBuffer, oldAccess, newAccess);
 }
 
 void Buffer::Clear(vk::CommandBuffer commandBuffer)

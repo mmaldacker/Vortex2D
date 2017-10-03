@@ -32,6 +32,7 @@ Reduce::Reduce(const Renderer::Device& device,
     vk::ShaderModule sumShader = device.GetShaderModule(fileName);
 
     int n = size.x * size.y;
+    assert(n > 1);
     auto localSize = Renderer::ComputeSize::GetLocalSize1D();
 
     int workGroupSize = n;
@@ -53,6 +54,7 @@ Reduce::Reduce(const Renderer::Device& device,
 Reduce::Bound Reduce::Bind(Renderer::Buffer& input, Renderer::Buffer& output)
 {
     std::vector<vk::UniqueDescriptorSet> descriptorSets;
+    std::vector<Renderer::CommandBuffer::CommandFn> bufferBarriers;
 
     // set buffer pointers to be able to call barrier on it later
     std::vector<Renderer::Buffer*> buffers;
@@ -72,20 +74,26 @@ Reduce::Bound Reduce::Bind(Renderer::Buffer& input, Renderer::Buffer& output)
                 .WriteBuffers(0, 0, vk::DescriptorType::eStorageBuffer).Buffer(*buffers[i])
                 .WriteBuffers(1, 0, vk::DescriptorType::eStorageBuffer).Buffer(*buffers[i+1])
                 .Update(mDevice.Handle());
+
+        vk::Buffer buffer = *buffers[i+1];
+        bufferBarriers.emplace_back([=](vk::CommandBuffer commandBuffer)
+        {
+            Renderer::BufferBarrier(buffer, commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        });
     }
 
-    return Bound(mSize, *mPipelineLayout, *mPipeline, buffers, std::move(descriptorSets));
+    return Bound(mSize, *mPipelineLayout, *mPipeline, bufferBarriers, std::move(descriptorSets));
 }
 
 Reduce::Bound::Bound(int size,
                      vk::PipelineLayout layout,
                      vk::Pipeline pipeline,
-                     const std::vector<Renderer::Buffer*>& buffers,
+                     const std::vector<Renderer::CommandBuffer::CommandFn>& bufferBarriers,
                      std::vector<vk::UniqueDescriptorSet>&& descriptorSets)
     : mSize(size)
     , mLayout(layout)
     , mPipeline(pipeline)
-    , mBuffers(buffers)
+    , mBufferBarriers(bufferBarriers)
     , mDescriptorSets(std::move(descriptorSets))
 {
 }
@@ -105,7 +113,7 @@ void Reduce::Bound::Record(vk::CommandBuffer commandBuffer)
         commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, mLayout, 0, {*mDescriptorSets[i]}, {});
         commandBuffer.dispatch(workGroupSize, 1, 1);
 
-        mBuffers[i + 1]->Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        mBufferBarriers[i](commandBuffer);
     }
 }
 

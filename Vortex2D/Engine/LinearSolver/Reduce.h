@@ -27,13 +27,13 @@ public:
         Bound(int size,
               vk::PipelineLayout layout,
               vk::Pipeline pipeline,
-              const std::vector<Renderer::Buffer*>& buffers,
+              const std::vector<Renderer::CommandBuffer::CommandFn>& bufferBarriers,
               std::vector<vk::UniqueDescriptorSet>&& descriptorSets);
 
         int mSize;
         vk::PipelineLayout mLayout;
         vk::Pipeline mPipeline;
-        std::vector<Renderer::Buffer*> mBuffers;
+        std::vector<Renderer::CommandBuffer::CommandFn> mBufferBarriers;
         std::vector<vk::UniqueDescriptorSet> mDescriptorSets;
     };
 

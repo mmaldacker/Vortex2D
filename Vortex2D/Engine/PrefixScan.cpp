@@ -67,10 +67,13 @@ void PrefixScan::BindRecursive(std::vector<Renderer::CommandBuffer::CommandFn>& 
         auto& partialSums = mPartialSums[level];
 
         bound.emplace_back(mPreScanStoreSumWork.Bind(computeSize, {input, output, partialSums}));
-        bufferBarriers.emplace_back([&](vk::CommandBuffer commandBuffer)
+
+        vk::Buffer outputBuffer = output;
+        vk::Buffer partialSumsBuffer = partialSums;
+        bufferBarriers.emplace_back([=](vk::CommandBuffer commandBuffer)
         {
-            output.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-            partialSums.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+            Renderer::BufferBarrier(outputBuffer, commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+            Renderer::BufferBarrier(partialSumsBuffer, commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         });
 
         BindRecursive(bufferBarriers,
@@ -82,17 +85,18 @@ void PrefixScan::BindRecursive(std::vector<Renderer::CommandBuffer::CommandFn>& 
                       level + 1);
 
         bound.emplace_back(mAddWork.Bind(computeSize, {partialSums, output}));
-        bufferBarriers.emplace_back([&](vk::CommandBuffer commandBuffer)
+        bufferBarriers.emplace_back([=](vk::CommandBuffer commandBuffer)
         {
-            output.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+            Renderer::BufferBarrier(outputBuffer, commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         });
     }
     else
     {
         bound.emplace_back(mPreScanWork.Bind(computeSize, {input, output, dispatchParams}));
-        bufferBarriers.emplace_back([&](vk::CommandBuffer commandBuffer)
+        vk::Buffer outputBuffer = output;
+        bufferBarriers.emplace_back([=](vk::CommandBuffer commandBuffer)
         {
-            output.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+            Renderer::BufferBarrier(outputBuffer, commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         });
     }
 }

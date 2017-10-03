@@ -77,6 +77,8 @@ private:
     vk::DeviceSize mSize;
 };
 
+void BufferBarrier(vk::Buffer buffer, vk::CommandBuffer commandBuffer, vk::AccessFlags oldAccess, vk::AccessFlags newAccess);
+
 }}
 
 #endif
