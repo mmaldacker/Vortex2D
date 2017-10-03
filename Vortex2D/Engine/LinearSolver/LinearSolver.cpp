@@ -16,6 +16,15 @@ LinearSolver::Parameters::Parameters(unsigned iterations, float errorTolerance)
 
 }
 
+LinearSolver::Data::Data(const Renderer::Device& device, const glm::ivec2& size, bool host)
+    : Diagonal(device, vk::BufferUsageFlagBits::eStorageBuffer, host,  size.x*size.y*sizeof(float))
+    , Lower(device, vk::BufferUsageFlagBits::eStorageBuffer, host, size.x*size.y*sizeof(glm::vec2))
+    , B(device, vk::BufferUsageFlagBits::eStorageBuffer, host, size.x*size.y*sizeof(float))
+    , X(device, vk::BufferUsageFlagBits::eStorageBuffer, host, size.x*size.y*sizeof(float))
+{
+
+}
+
 bool LinearSolver::Parameters::IsFinished(unsigned iterations, float error) const
 {
     if (Iterations > 0)

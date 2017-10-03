@@ -18,12 +18,6 @@ using ::testing::_;
 
 extern Device* device;
 
-struct LinearSolverMock : LinearSolver
-{
-    MOCK_METHOD4(Init, void(Buffer& d, Buffer& l, Buffer& b, Buffer& pressure));
-    MOCK_METHOD1(Solve, void(Parameters& params));
-};
-
 void PrintDiv(const glm::ivec2& size, Buffer& buffer)
 {
     std::vector<float> pixels(size.x * size.y);
@@ -111,8 +105,6 @@ TEST(PressureTest, LinearEquationSetup_Simple)
 
     sim.add_force(0.01f);
 
-    NiceMock<LinearSolverMock> solver;
-
     Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
@@ -120,42 +112,18 @@ TEST(PressureTest, LinearEquationSetup_Simple)
 
     BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
 
-    Buffer* diagonalResult = nullptr;
-    Buffer* lowerResult = nullptr;
-    Buffer* divResult = nullptr;
-    EXPECT_CALL(solver, Init(_, _, _, _))
-            .WillOnce(Invoke([&](Buffer& d, Buffer& l, Buffer& b, Buffer& pressure)
-            {
-                diagonalResult = &d;
-                lowerResult = &l;
-                divResult = &b;
-            }));
+    LinearSolver::Data data(*device, size, true);
 
     Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::ivec2));
 
-    Pressure pressure(*device, 0.01f, size, solver, velocity, solidPhi, liquidPhi, solidVelocity, valid);
+    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, solidVelocity, valid);
 
-    LinearSolver::Parameters params(0);
-    pressure.Solve(params);
+    pressure.BuildLinearEquation();
+    device->Handle().waitIdle();
 
-    ASSERT_TRUE(diagonalResult != nullptr);
-    ASSERT_TRUE(lowerResult != nullptr);
-    ASSERT_TRUE(divResult != nullptr);
-
-    Buffer diagonalOutput(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
-    Buffer lowerOutput(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::vec2));
-    Buffer divOutput(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
-
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-        diagonalOutput.CopyFrom(commandBuffer, *diagonalResult);
-        lowerOutput.CopyFrom(commandBuffer, *lowerResult);
-        divOutput.CopyFrom(commandBuffer, *divResult);
-    });
-
-    CheckDiagonal(size, diagonalOutput, sim, 1e-3f); // FIXME can we reduce error tolerance?
-    CheckWeights(size, lowerOutput, sim, 1e-3f); // FIXME can we reduce error tolerance?
-    CheckDiv(size, divOutput, sim);
+    CheckDiagonal(size, data.Diagonal, sim, 1e-3f); // FIXME can we reduce error tolerance?
+    CheckWeights(size, data.Lower, sim, 1e-3f); // FIXME can we reduce error tolerance?
+    CheckDiv(size, data.B, sim);
 }
 
 TEST(PressureTest, LinearEquationSetup_Complex)
@@ -170,8 +138,6 @@ TEST(PressureTest, LinearEquationSetup_Complex)
 
     sim.add_force(0.01f);
 
-    NiceMock<LinearSolverMock> solver;
-
     Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
@@ -179,49 +145,23 @@ TEST(PressureTest, LinearEquationSetup_Complex)
 
     BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
 
-    Buffer* diagonalResult = nullptr;
-    Buffer* lowerResult = nullptr;
-    Buffer* divResult = nullptr;
-    EXPECT_CALL(solver, Init(_, _, _, _))
-            .WillOnce(Invoke([&](Buffer& d, Buffer& l, Buffer& b, Buffer& pressure)
-            {
-                diagonalResult = &d;
-                lowerResult = &l;
-                divResult = &b;
-            }));
+    LinearSolver::Data data(*device, size, true);
 
     Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::ivec2));
 
-    Pressure pressure(*device, 0.01f, size, solver, velocity, solidPhi, liquidPhi, solidVelocity, valid);
+    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, solidVelocity, valid);
 
-    LinearSolver::Parameters params(0);
-    pressure.Solve(params);
+    pressure.BuildLinearEquation();
+    device->Handle().waitIdle();
 
-    ASSERT_TRUE(diagonalResult != nullptr);
-    ASSERT_TRUE(lowerResult != nullptr);
-    ASSERT_TRUE(divResult != nullptr);
-
-    Buffer diagonalOutput(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
-    Buffer lowerOutput(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::vec2));
-    Buffer divOutput(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
-
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-        diagonalOutput.CopyFrom(commandBuffer, *diagonalResult);
-        lowerOutput.CopyFrom(commandBuffer, *lowerResult);
-        divOutput.CopyFrom(commandBuffer, *divResult);
-    });
-
-    CheckDiagonal(size, diagonalOutput, sim, 1e-3f); // FIXME can we reduce error tolerance?
-    CheckWeights(size, lowerOutput, sim, 1e-3f); // FIXME can we reduce error tolerance?
-    CheckDiv(size, divOutput, sim);
+    CheckDiagonal(size, data.Diagonal, sim, 1e-3f); // FIXME can we reduce error tolerance?
+    CheckWeights(size, data.Lower, sim, 1e-3f); // FIXME can we reduce error tolerance?
+    CheckDiv(size, data.B, sim);
 }
 
 TEST(PressureTest, ZeroDivs)
 {
     glm::ivec2 size(50);
-
-    NiceMock<LinearSolverMock> solver;
 
     Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
@@ -237,41 +177,17 @@ TEST(PressureTest, ZeroDivs)
         liquidPhi.CopyFrom(commandBuffer, input);
     });
 
-    Buffer* diagonalResult = nullptr;
-    Buffer* lowerResult = nullptr;
-    Buffer* divResult = nullptr;
-    EXPECT_CALL(solver, Init(_, _, _, _))
-            .WillOnce(Invoke([&](Buffer& d, Buffer& l, Buffer& b, Buffer& pressure)
-            {
-                diagonalResult = &d;
-                lowerResult = &l;
-                divResult = &b;
-            }));
+    LinearSolver::Data data(*device, size, true);
 
     Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::ivec2));
 
-    Pressure pressure(*device, 0.01f, size, solver, velocity, solidPhi, liquidPhi, solidVelocity, valid);
+    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, solidVelocity, valid);
 
-    LinearSolver::Parameters params(0);
-    pressure.Solve(params);
-
-    ASSERT_TRUE(diagonalResult != nullptr);
-    ASSERT_TRUE(lowerResult != nullptr);
-    ASSERT_TRUE(divResult != nullptr);
-
-    Buffer diagonalOutput(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
-    Buffer lowerOutput(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::vec2));
-    Buffer divOutput(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
-
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-        diagonalOutput.CopyFrom(commandBuffer, *diagonalResult);
-        lowerOutput.CopyFrom(commandBuffer, *lowerResult);
-        divOutput.CopyFrom(commandBuffer, *divResult);
-    });
+    pressure.BuildLinearEquation();
+    device->Handle().waitIdle();
 
     std::vector<float> divOutputData(size.x*size.y);
-    divOutput.CopyTo(divOutputData);
+    data.B.CopyTo(divOutputData);
     for (int i = 0; i < size.x; i++)
     {
         for (int j = 0; j < size.y; j++)
@@ -293,8 +209,6 @@ TEST(PressureTest, Project_Simple)
 
     sim.add_force(0.01f);
 
-    NiceMock<LinearSolverMock> solver;
-
     Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
@@ -302,29 +216,21 @@ TEST(PressureTest, Project_Simple)
 
     BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
 
-    Buffer computedPressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+    LinearSolver::Data data(*device, size, true);
+
     std::vector<float> computedPressureData(size.x*size.y, 0.0f);
     for (std::size_t i = 0; i < computedPressureData.size(); i++)
     {
         computedPressureData[i] = (float)sim.pressure[i];
     }
-    computedPressure.CopyFrom(computedPressureData);
-
-    EXPECT_CALL(solver, Init(_, _, _, _))
-        .WillOnce(Invoke([&](Buffer& d, Buffer& l, Buffer& div, Buffer& pressure)
-        {
-            ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-            {
-                pressure.CopyFrom(commandBuffer, computedPressure);
-            });
-        }));
+    data.X.CopyFrom(computedPressureData);
 
     Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::ivec2));
 
-    Pressure pressure(*device, 0.01f, size, solver, velocity, solidPhi, liquidPhi, solidVelocity, valid);
+    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, solidVelocity, valid);
 
-    LinearSolver::Parameters params(0);
-    pressure.Solve(params);
+    pressure.ApplyPressure();
+    device->Handle().waitIdle();
 
     Texture outputVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
 
@@ -349,8 +255,6 @@ TEST(PressureTest, Project_Complex)
 
     sim.add_force(0.01f);
 
-    NiceMock<LinearSolverMock> solver;
-
     Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
@@ -358,29 +262,21 @@ TEST(PressureTest, Project_Complex)
 
     BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
 
-    Buffer computedPressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+    LinearSolver::Data data(*device, size, true);
+
     std::vector<float> computedPressureData(size.x*size.y, 0.0f);
     for (std::size_t i = 0; i < computedPressureData.size(); i++)
     {
         computedPressureData[i] = (float)sim.pressure[i];
     }
-    computedPressure.CopyFrom(computedPressureData);
-
-    EXPECT_CALL(solver, Init(_, _, _, _))
-        .WillOnce(Invoke([&](Buffer& d, Buffer& l, Buffer& b, Buffer& pressure)
-        {
-            ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-            {
-                pressure.CopyFrom(commandBuffer, computedPressure);
-            });
-        }));
+    data.X.CopyFrom(computedPressureData);
 
     Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::ivec2));
 
-    Pressure pressure(*device, 0.01f, size, solver, velocity, solidPhi, liquidPhi, solidVelocity, valid);
+    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, solidVelocity, valid);
 
-    LinearSolver::Parameters params(0);
-    pressure.Solve(params);
+    pressure.ApplyPressure();
+    device->Handle().waitIdle();
 
     Texture outputVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
 

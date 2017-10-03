@@ -11,14 +11,11 @@ namespace Vortex2D { namespace Fluid {
 
 World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
     : mDimensions(dimensions)
-    , mDiagonal(device, vk::BufferUsageFlagBits::eStorageBuffer, false, dimensions.Size.x*dimensions.Size.y*sizeof(float))
-    , mLower(device, vk::BufferUsageFlagBits::eStorageBuffer, false, dimensions.Size.x*dimensions.Size.y*sizeof(glm::vec2))
-    , mDiv(device, vk::BufferUsageFlagBits::eStorageBuffer, false, dimensions.Size.x*dimensions.Size.y*sizeof(float))
-    , mPressure(device, vk::BufferUsageFlagBits::eStorageBuffer, false, dimensions.Size.x*dimensions.Size.y*sizeof(float))
     , mParticles(device, vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eVertexBuffer, false, 8*dimensions.Size.x*dimensions.Size.y*sizeof(Particle))
     , mParticleCount(device, dimensions.Size, mParticles)
     , mPreconditioner(device, dimensions.Size)
     , mLinearSolver(device, dimensions.Size, mPreconditioner)
+    , mData(device, dimensions.Size)
     , mVelocity(device, dimensions.Size.x, dimensions.Size.y, vk::Format::eR32G32Sfloat)
     , mBoundariesVelocity(device, dimensions.Size.x, dimensions.Size.y, vk::Format::eR32G32Sfloat)
     , mFluidLevelSet(device, dimensions.Size)
@@ -26,7 +23,7 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
     , mValid(device, vk::BufferUsageFlagBits::eStorageBuffer, false, dimensions.Size.x*dimensions.Size.y*sizeof(glm::ivec2))
     , mAdvection(device, dimensions.Size, dt, mVelocity)
     , mProjection(device, dt, dimensions.Size,
-                  mLinearSolver,
+                  mData,
                   mVelocity,
                   mObstacleLevelSet,
                   mFluidLevelSet,
@@ -44,6 +41,8 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
     {
         mVelocity.Clear(commandBuffer, std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f});
     });
+
+    mLinearSolver.Init(mData.Diagonal, mData.Lower, mData.B, mData.X);
 }
 
 void World::InitField(Renderer::Texture& field)
@@ -54,7 +53,9 @@ void World::InitField(Renderer::Texture& field)
 void World::SolveStatic()
 {
     LinearSolver::Parameters params(300, 1e-3f);
-    mProjection.Solve(params);
+    mProjection.BuildLinearEquation();
+    mLinearSolver.Solve(params);
+    mProjection.ApplyPressure();
 
     mExtrapolation.Extrapolate();
     mExtrapolation.ConstrainVelocity();
@@ -91,7 +92,9 @@ void World::SolveDynamic()
 
     // 5)
     LinearSolver::Parameters params(1000, 1e-5f);
-    mProjection.Solve(params);
+    mProjection.BuildLinearEquation();
+    mLinearSolver.Solve(params);
+    mProjection.ApplyPressure();
 
     mExtrapolation.Extrapolate();
     mExtrapolation.ConstrainVelocity();

@@ -17,21 +17,24 @@ public:
     Pressure(const Renderer::Device& device,
              float dt,
              const glm::ivec2& size,
-             LinearSolver& solver,
+             LinearSolver::Data& data,
              Renderer::Texture& velocity,
              Renderer::Texture& solidPhi,
              Renderer::Texture& liquidPhi,
              Renderer::Texture& solidVelocity,
              Renderer::Buffer& valid);
 
-    void Solve(LinearSolver::Parameters& params);
+    Renderer::Work::Bound BindMatrixBuild(const glm::ivec2& size,
+                                          Renderer::Buffer& diagonal,
+                                          Renderer::Buffer& lower,
+                                          Renderer::Texture& liquidPhi,
+                                          Renderer::Texture& solidPhi);
+
+    void BuildLinearEquation();
+    void ApplyPressure();
+
 
 private:
-    LinearSolver& mSolver;
-    Renderer::Buffer mDiagonal;
-    Renderer::Buffer mLower;
-    Renderer::Buffer mDiv;
-    Renderer::Buffer mPressure;
     Renderer::Work mBuildMatrix;
     Renderer::Work::Bound mBuildMatrixBound;
     Renderer::Work mBuildDiv;

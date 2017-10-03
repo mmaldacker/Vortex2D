@@ -51,17 +51,13 @@ public:
 private:
     Dimensions mDimensions;
 
-    Renderer::Buffer mDiagonal;
-    Renderer::Buffer mLower;
-    Renderer::Buffer mDiv;
-    Renderer::Buffer mPressure;
-
     Renderer::Buffer mParticles;
     ParticleCount mParticleCount;
 
     IncompletePoisson mPreconditioner;
     ConjugateGradient mLinearSolver;
 
+    LinearSolver::Data mData;
     Renderer::RenderTexture mVelocity;
     Renderer::RenderTexture mBoundariesVelocity;
     LevelSet mFluidLevelSet;

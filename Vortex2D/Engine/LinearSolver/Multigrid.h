@@ -28,55 +28,51 @@ private:
   std::vector<glm::ivec2> mDepths;
 };
 
-class Multigrid : public LinearSolver, public Preconditioner
+class Pressure;
+
+class Multigrid : public Preconditioner
 {
 public:
     Multigrid(const Renderer::Device& device, const glm::ivec2& size, float delta);
-    
+
     void Init(Renderer::Buffer& d,
               Renderer::Buffer& l,
               Renderer::Buffer& b,
-              Renderer::Buffer& pressure) override;
+              Renderer::Buffer& x) override;
 
-    void Build(Renderer::Buffer& d,
-               Renderer::Buffer& l,
-               Renderer::Buffer& b,
-               Renderer::Buffer& pressure,
-               Renderer::Work& buildMatrix,
+    void Build(Pressure& pressure,
                Renderer::Texture& solidPhi,
                Renderer::Texture& liquidPhi);
 
-    void Solve(Parameters& params) override;
-    
-    void RecordInit(vk::CommandBuffer commandBuffer);
+    void RecordInit(vk::CommandBuffer commandBuffer) override;
     void Record(vk::CommandBuffer commandBuffer) override;
 
 //private:
     void Smoother(vk::CommandBuffer commandBuffer, int n, int iterations);
-    void BorderSmoother(vk::CommandBuffer commandBuffer, int n, int iterations, bool up);
+
+    void BuildRecursive(Pressure& pressure, int depth);
 
     Depth mDepth;
     float mDelta;
     Renderer::Work mResidualWork;
-    Renderer::Work mDampedJacobiWork;
-    Renderer::Work mBoundaryGaussSeidelWork;
 
     std::vector<Renderer::Work::Bound> mResidualWorkBound;
-    std::vector<std::pair<Renderer::Work::Bound, Renderer::Work::Bound>> mDampedJacobiWorkBound;
-    std::vector<Renderer::Work::Bound> mBoundaryGaussSeidelBound;
 
     Transfer mTransfer;
 
     Renderer::Buffer* mPressure = nullptr;
-    Renderer::Buffer mPressureBack;
+    Renderer::Buffer* mDiagonal = nullptr;
 
-    // mMatrices[0] is level 1
-    std::vector<Renderer::Buffer> mMatrices;
+    // mDiagonal[0] and mLower[0] is level 1
+    std::vector<Renderer::Buffer> mDiagonals;
+    std::vector<Renderer::Buffer> mLowers;
+
     // mPressures[0] and mPressuresBack[0] is level 1
     std::vector<Renderer::Buffer> mPressures;
-    std::vector<Renderer::Buffer> mPressuresBack;
+
     // mBs[0] is level 1
     std::vector<Renderer::Buffer> mBs;
+
     // mResiduals[0] is level 0
     std::vector<Renderer::Buffer> mResiduals;
 
@@ -90,7 +86,7 @@ public:
 
     std::vector<Renderer::Work::Bound> mMatrixBuildBound;
 
-    Renderer::CommandBuffer mCmd;
+    std::vector<GaussSeidel> mSmoothers;
 };
 
 }}

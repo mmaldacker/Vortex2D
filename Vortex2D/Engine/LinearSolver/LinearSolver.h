@@ -29,6 +29,16 @@ struct LinearSolver
         float OutError;
     };
 
+    struct Data
+    {
+        Data(const Renderer::Device& device, const glm::ivec2& size, bool host = false);
+
+        Renderer::Buffer Diagonal;
+        Renderer::Buffer Lower;
+        Renderer::Buffer B;
+        Renderer::Buffer X;
+    };
+
     virtual ~LinearSolver() {}
 
     virtual void Init(Renderer::Buffer& d,
