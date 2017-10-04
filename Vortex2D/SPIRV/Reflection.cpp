@@ -5,7 +5,7 @@
 
 #include "Reflection.h"
 
-namespace Vortex2D { namespace Renderer {
+namespace Vortex2D { namespace SPIRV {
 
 
 Reflection::Reflection(const std::vector<uint32_t>& spirv)

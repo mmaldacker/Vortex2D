@@ -37,6 +37,8 @@ file(GLOB LIB_SOURCES
     "Engine/LinearSolver/Multigrid.cpp"        
     "Renderer/*.cpp"
     "Renderer/*.h"
+    "SPIRV/Reflection.h"
+    "SPIRV/Reflection.cpp"
     "Utils/variant.hpp")
 
 file(GLOB SHADER_SOURCES

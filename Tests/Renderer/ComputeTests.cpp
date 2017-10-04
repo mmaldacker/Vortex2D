@@ -11,11 +11,12 @@
 #include <Vortex2D/Renderer/Work.h>
 #include <Vortex2D/Renderer/CommandBuffer.h>
 #include <Vortex2D/Renderer/Timer.h>
-#include <Vortex2D/Renderer/Reflection.h>
+#include <Vortex2D/SPIRV/Reflection.h>
 
 #include "Verify.h"
 
 using namespace Vortex2D::Renderer;
+using namespace Vortex2D::SPIRV;
 
 extern Device* device;
 

@@ -10,7 +10,7 @@
 #include <spirv_cross.hpp>
 #include <map>
 
-namespace Vortex2D { namespace Renderer {
+namespace Vortex2D { namespace SPIRV {
 
 class Reflection
 {
