@@ -112,7 +112,10 @@ static void BuildInputs(const Vortex2D::Renderer::Device& device, const glm::ive
     Vortex2D::Renderer::Texture inputVelocity(device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
     SetVelocity(size, inputVelocity, sim);
 
-    sim.project(0.01f);
+    sim.compute_phi();
+    sim.extrapolate_phi();
+    sim.compute_weights();
+    sim.compute_linear_equations(0.01f);
 
     Vortex2D::Renderer::Texture inputSolidPhi(device, size.x, size.y, vk::Format::eR32Sfloat, true);
     SetSolidPhi(size, inputSolidPhi, sim);

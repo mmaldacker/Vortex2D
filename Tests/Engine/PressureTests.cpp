@@ -216,6 +216,9 @@ TEST(PressureTest, Project_Simple)
 
     BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
 
+    sim.solve_pressure(0.01f);
+    sim.apply_pressure(0.01f);
+
     LinearSolver::Data data(*device, size, true);
 
     std::vector<float> computedPressureData(size.x*size.y, 0.0f);
@@ -261,6 +264,9 @@ TEST(PressureTest, Project_Complex)
     Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
 
     BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
+
+    sim.solve_pressure(0.01f);
+    sim.apply_pressure(0.01f);
 
     LinearSolver::Data data(*device, size, true);
 

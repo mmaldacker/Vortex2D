@@ -50,28 +50,20 @@ public:
 //private:
     void Smoother(vk::CommandBuffer commandBuffer, int n, int iterations);
 
-    void BuildRecursive(Pressure& pressure, int depth);
+    void BuildRecursive(Pressure& pressure, std::size_t depth);
 
     Depth mDepth;
     float mDelta;
-    Renderer::Work mResidualWork;
 
+    Renderer::Work mResidualWork;
     std::vector<Renderer::Work::Bound> mResidualWorkBound;
 
     Transfer mTransfer;
 
     Renderer::Buffer* mPressure = nullptr;
-    Renderer::Buffer* mDiagonal = nullptr;
 
-    // mDiagonal[0] and mLower[0] is level 1
-    std::vector<Renderer::Buffer> mDiagonals;
-    std::vector<Renderer::Buffer> mLowers;
-
-    // mPressures[0] and mPressuresBack[0] is level 1
-    std::vector<Renderer::Buffer> mPressures;
-
-    // mBs[0] is level 1
-    std::vector<Renderer::Buffer> mBs;
+    // mDatas[0]  is level 1
+    std::vector<LinearSolver::Data> mDatas;
 
     // mResiduals[0] is level 0
     std::vector<Renderer::Buffer> mResiduals;

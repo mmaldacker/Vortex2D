@@ -29,6 +29,8 @@ void main()
   ivec2 pos = ivec2(gl_GlobalInvocationID);
   if (pos.x > 0 && pos.y > 0 && pos.x < consts.width - 1 && pos.y < consts.height - 1)
   {
+    // TODO need to check for diagonal != 0.0 ?
+
     ivec2 finePos = pos * ivec2(2) - ivec2(1);
     int fineWidth = consts.width * 2 - 2;
     int fineIndex = finePos.x + finePos.y * fineWidth;

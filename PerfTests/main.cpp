@@ -4,10 +4,13 @@
 #include <Vortex2D/Renderer/Device.h>
 #include <Vortex2D/Renderer/Timer.h>
 
+#include <Vortex2D/Engine/Pressure.h>
+
 #include <Vortex2D/Engine/LinearSolver/GaussSeidel.h>
 #include <Vortex2D/Engine/LinearSolver/ConjugateGradient.h>
 #include <Vortex2D/Engine/LinearSolver/Diagonal.h>
 #include <Vortex2D/Engine/LinearSolver/IncompletePoisson.h>
+#include <Vortex2D/Engine/LinearSolver/Multigrid.h>
 
 #include <Tests/Engine/VariationalHelpers.h>
 
@@ -16,7 +19,7 @@ using namespace Vortex2D::Fluid;
 
 Vortex2D::Renderer::Device* device;
 
-const glm::ivec2 size = glm::ivec2(500);
+const glm::ivec2 size = glm::ivec2(250);
 
 FluidSim sim;
 
@@ -186,8 +189,8 @@ static void GaussSeidelCG(benchmark::State& state)
     BuildDeviceLocalLinearEquations(size, diagonal, lower, div, sim);
 
     GaussSeidel preconditioner(*device, size);
-    preconditioner.SetW(1.9f);
-    preconditioner.SetPreconditionerIterations(state.range(0));
+    preconditioner.SetW(1.0f);
+    preconditioner.SetPreconditionerIterations(4);
 
     LinearSolver::Parameters params(10000, 1e-4f);
     ConjugateGradient solver(*device, size, preconditioner);
@@ -216,12 +219,59 @@ static void GaussSeidelCG(benchmark::State& state)
     state.counters["SolveIterations"] = params.OutIterations;
 }
 
+static void MultigridCG(benchmark::State& state)
+{
+    LinearSolver::Data data(*device, size);
+
+    BuildDeviceLocalLinearEquations(size, data.Diagonal, data.Lower, data.B, sim);
+
+    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
+    Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
+    Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
+    Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
+    Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(glm::ivec2));
+
+    BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
+
+    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, solidVelocity, valid);
+
+    Multigrid preconditioner(*device, size, 0.01f);
+    preconditioner.Build(pressure, solidPhi, liquidPhi);
+
+    LinearSolver::Parameters params(10000, 1e-4f);
+    ConjugateGradient solver(*device, size, preconditioner);
+
+    Timer timer(*device);
+
+    solver.Init(data.Diagonal, data.Lower, data.B, data.X);
+
+    while (state.KeepRunning())
+    {
+        timer.Start();
+        solver.Solve(params);
+        timer.Stop();
+
+        device->Queue().waitIdle();
+
+        state.SetIterationTime(timer.GetElapsedNs());
+    }
+
+    auto statistics = solver.GetStatistics();
+    for (auto statistic: statistics)
+    {
+        std::cout << statistic.first << ": " << (float)statistic.second / 1000 << std::endl;
+    }
+
+    state.counters["SolveIterations"] = params.OutIterations;
+}
+
 BENCHMARK(ICCG)->Unit(benchmark::kMillisecond);
 BENCHMARK(SOR)->Unit(benchmark::kMillisecond);
 BENCHMARK(CG)->Unit(benchmark::kMillisecond);
 BENCHMARK(DiagonalCG)->Unit(benchmark::kMillisecond);
 BENCHMARK(IncompletePoissonCG)->Unit(benchmark::kMillisecond);
-BENCHMARK(GaussSeidelCG)->RangeMultiplier(2)->Range(1, 128)->Unit(benchmark::kMillisecond);
+BENCHMARK(GaussSeidelCG)->Unit(benchmark::kMillisecond);
+BENCHMARK(MultigridCG)->Unit(benchmark::kMillisecond);
 
 int main(int argc, char** argv)
 {

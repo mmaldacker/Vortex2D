@@ -491,8 +491,9 @@ TEST(LinearSolverTests, Simple_Multigrid)
     AddParticles(size, sim, boundary_phi);
 
     sim.add_force(0.01f);
+    sim.project(0.01f);
 
-    LinearSolver::Data data(*device, size);
+    LinearSolver::Data data(*device, size, true);
 
     Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
@@ -501,6 +502,7 @@ TEST(LinearSolverTests, Simple_Multigrid)
     Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::ivec2));
 
     BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
+    BuildLinearEquation(size, data.Diagonal, data.Lower, data.B, sim);
 
     Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, solidVelocity, valid);
 
@@ -521,36 +523,7 @@ TEST(LinearSolverTests, Simple_Multigrid)
 
         device->Queue().waitIdle();
 
-        Buffer fineOut(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, 16*16*sizeof(float));
-        Buffer coarseOut(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, 9*9*sizeof(float));
-        ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-        {
-           coarseOut.CopyFrom(commandBuffer, solver.mBs[0]);
-           fineOut.CopyFrom(commandBuffer, solver.mPressure[0]);
-        });
-
-        //PrintBuffer({9, 9}, coarseOut);
-        PrintBuffer<float>({16, 16}, fineOut);
-
-        Texture fineOutTex(*device, 16, 16, vk::Format::eR32Sfloat, true);
-        Texture coarseOutTex(*device, 9, 9, vk::Format::eR32Sfloat, true);
-        ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-        {
-            fineOutTex.CopyFrom(commandBuffer, liquidPhi);
-            coarseOutTex.CopyFrom(commandBuffer, solver.mLiquidPhis[0]);
-        });
-        PrintTexture<float>(fineOutTex);
-        PrintTexture<float>(coarseOutTex);
-
-        Buffer fineMatrixOut(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, 16*16*sizeof(float));
-        Buffer coarseMatrixOut(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, 9*9*sizeof(float));
-        ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-        {
-            fineMatrixOut.CopyFrom(commandBuffer, *solver.mDiagonal);
-            coarseMatrixOut.CopyFrom(commandBuffer, solver.mDiagonals[0]);
-        });
-        PrintDiagonal({16, 16}, fineMatrixOut);
-        PrintDiagonal({9, 9}, coarseMatrixOut);
+        PrintBuffer<float>(size, data.X);
     }
 
     // solution from SOR with only few iterations (to check multigrid is an improvement)
@@ -571,7 +544,6 @@ TEST(LinearSolverTests, Simple_Multigrid)
 
 TEST(LinearSolverTests, Multigrid_Simple_PCG)
 {
-/*
     glm::ivec2 size(66);
 
     FluidSim sim;
@@ -583,30 +555,31 @@ TEST(LinearSolverTests, Multigrid_Simple_PCG)
     sim.add_force(0.01f);
     sim.project(0.01f);
 
-    Buffer matrix(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(LinearSolver::Data));
-    Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
-    Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+    LinearSolver::Data data(*device, size, true);
 
+    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
-    Work matrixBuild(*device, size, "../Vortex2D/BuildMatrix.comp.spv", {vk::DescriptorType::eStorageBuffer,
-                                                                         vk::DescriptorType::eStorageImage,
-                                                                         vk::DescriptorType::eStorageImage}, 4);
+    Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
+    Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::ivec2));
 
-    BuildLinearEquation(size, matrix, div, sim);
+    BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
+    BuildLinearEquation(size, data.Diagonal, data.Lower, data.B, sim);
+
+    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, solidVelocity, valid);
 
     Multigrid preconditioner(*device, size, 0.01f);
+    preconditioner.Build(pressure, solidPhi, liquidPhi);
 
     LinearSolver::Parameters params(1000, 1e-5f);
     ConjugateGradient solver(*device, size, preconditioner);
 
-    solver.Init(matrix, div, pressure, matrixBuild, liquidPhi, solidPhi);
+    solver.Init(data.Diagonal, data.Lower, data.B, data.X);
     solver.Solve(params);
 
     device->Queue().waitIdle();
 
-    CheckPressure(size, sim.pressure, pressure, 1e-5f);
+    CheckPressure(size, sim.pressure, data.X, 1e-5f);
 
     std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
-*/
 }

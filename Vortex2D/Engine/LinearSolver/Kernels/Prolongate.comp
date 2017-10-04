@@ -9,16 +9,10 @@ layout(push_constant) uniform Consts
   int height;
 }consts;
 
-struct Data
+layout(std430, binding = 0) buffer Diagonal
 {
-  vec4 weights;
-  float diagonal;
-};
-
-layout(std430, binding = 0) buffer Matrix
-{
-  Data data[];
-}matrix;
+  float value[];
+}diagonal;
 
 layout(std430, binding = 1) buffer Input
 {
@@ -36,7 +30,7 @@ void main()
   if (pos.x > 0 && pos.y > 0 && pos.x < consts.width - 1 && pos.y < consts.height - 1)
   {
     int index = pos.x + pos.y * consts.width;
-    if (matrix.data[index].diagonal != 0.0)
+    if (diagonal.value[index] != 0.0)
     {
         ivec2 t = 1 - 2 * (pos - 2 * (pos / 2));
 
