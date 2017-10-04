@@ -4,12 +4,14 @@
 //
 
 #include <gtest/gtest.h>
+#include <fstream>
 
 #include <Vortex2D/Renderer/Pipeline.h>
 #include <Vortex2D/Renderer/DescriptorSet.h>
 #include <Vortex2D/Renderer/Work.h>
 #include <Vortex2D/Renderer/CommandBuffer.h>
 #include <Vortex2D/Renderer/Timer.h>
+#include <Vortex2D/Renderer/Reflection.h>
 
 #include "Verify.h"
 
@@ -353,4 +355,43 @@ TEST(ComputeTests, Statistics)
     std::cout << "Timestamp " << timestamps[0].first << ": " << timestamps[0].second << std::endl;
     std::cout << "Timestamp " << timestamps[1].first << ": " << timestamps[1].second << std::endl;
     std::cout << "Timestamp " << timestamps[2].first << ": " << timestamps[2].second << std::endl;
+}
+
+std::vector<uint32_t> ReadFile(const std::string& filename)
+{
+    std::ifstream is(filename, std::ios::binary | std::ios::in | std::ios::ate);
+    std::vector<uint32_t> content;
+
+    size_t size = is.tellg();
+    is.seekg(0, std::ios::beg);
+    content.resize(size / 4);
+    is.read(reinterpret_cast<char*>(content.data()), size);
+    is.close();
+    
+    return content;
+}
+
+TEST(ComputeTests, Reflection)
+{
+  Reflection spirv1(ReadFile("Stencil.comp.spv"));
+  
+  auto descriptorTypes = spirv1.GetDescriptorTypes();
+  std::vector<vk::DescriptorType> expectedDescriptorTypes = {vk::DescriptorType::eStorageBuffer, vk::DescriptorType::eStorageBuffer};
+  
+  EXPECT_EQ(expectedDescriptorTypes, descriptorTypes);
+
+  Reflection spirv2(ReadFile("Image.comp.spv"));
+  
+  descriptorTypes = spirv2.GetDescriptorTypes();
+  expectedDescriptorTypes = {vk::DescriptorType::eStorageImage, vk::DescriptorType::eStorageImage};
+  
+  EXPECT_EQ(expectedDescriptorTypes, descriptorTypes);
+  
+  Reflection spirv3(ReadFile("Redistance.comp.spv"));
+  
+  descriptorTypes = spirv3.GetDescriptorTypes();
+  expectedDescriptorTypes = {vk::DescriptorType::eCombinedImageSampler, vk::DescriptorType::eCombinedImageSampler, vk::DescriptorType::eStorageImage};
+  
+  EXPECT_EQ(expectedDescriptorTypes, descriptorTypes);
+  EXPECT_EQ(12, spirv3.GetPushConstantsSize());
 }

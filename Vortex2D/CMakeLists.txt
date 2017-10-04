@@ -69,6 +69,12 @@ file(GLOB SHADER_SOURCES
     "Engine/Kernels/AdvectParticles.comp"
     "Engine/LinearSolver/Kernels/*.comp")
 
+download_project(PROJ                SPIRV_Cross
+                 GIT_REPOSITORY      https://github.com/KhronosGroup/SPIRV-Cross.git
+                 GIT_TAG             master
+                 ${UPDATE_DISCONNECTED_IF_AVAILABLE})
+add_subdirectory(${SPIRV_Cross_SOURCE_DIR} ${SPIRV_Cross_BINARY_DIR})
+
 find_package(Vulkan)
 
 function(compile_shader)
@@ -122,7 +128,7 @@ endfunction()
 
 add_library(vortex2d STATIC ${LIB_SOURCES} ${SHADERS} ${SHADER_SOURCES} "Engine/Kernels/CommonAdvect.comp" "Engine/Kernels/CommonProject.comp" "Engine/Kernels/CommonPreScan.comp")
 compile_shader(TARGET vortex2d SOURCES ${SHADER_SOURCES})
-target_link_libraries(vortex2d PUBLIC glm Vulkan::Vulkan)
+target_link_libraries(vortex2d PUBLIC glm Vulkan::Vulkan spirv-cross-core)
 target_include_directories(vortex2d PUBLIC ../)
 
 target_compile_features(vortex2d PRIVATE cxx_variadic_templates cxx_generic_lambdas)
