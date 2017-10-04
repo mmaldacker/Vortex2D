@@ -16,14 +16,8 @@ LevelSet::LevelSet(const Renderer::Device& device, const glm::ivec2& size, int r
     , mSampler(Renderer::SamplerBuilder()
                .AddressMode(vk::SamplerAddressMode::eClampToEdge)
                .Create(device.Handle()))
-    , mExtrapolate(device, size, "../Vortex2D/Extrapolate.comp.spv",
-                   {vk::DescriptorType::eStorageImage,
-                    vk::DescriptorType::eStorageImage})
-    , mRedistance(device, size, "../Vortex2D/Redistance.comp.spv",
-                  {vk::DescriptorType::eCombinedImageSampler,
-                   vk::DescriptorType::eCombinedImageSampler,
-                   vk::DescriptorType::eStorageImage},
-                  Renderer::PushConstantsSize<float>())
+    , mExtrapolate(device, size, "../Vortex2D/Extrapolate.comp.spv")
+    , mRedistance(device, size, "../Vortex2D/Redistance.comp.spv")
     , mRedistanceFront(mRedistance.Bind({{*mSampler, mLevelSet0}, {*mSampler, *this}, mLevelSetBack}))
     , mRedistanceBack(mRedistance.Bind({{*mSampler, mLevelSet0}, {*mSampler, mLevelSetBack}, *this}))
     , mExtrapolateCmd(device, false)

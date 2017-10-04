@@ -23,29 +23,11 @@ ConjugateGradient::ConjugateGradient(const Renderer::Device& device,
     , sigma(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(float))
     , error(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(float))
     , errorLocal(device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float))
-    , matrixMultiply(device, size, "../Vortex2D/MultiplyMatrix.comp.spv",
-                    {vk::DescriptorType::eStorageBuffer,
-                     vk::DescriptorType::eStorageBuffer,
-                     vk::DescriptorType::eStorageBuffer,
-                     vk::DescriptorType::eStorageBuffer})
-    , scalarDivision(device, glm::ivec2(1), "../Vortex2D/Divide.comp.spv",
-                    {vk::DescriptorType::eStorageBuffer,
-                     vk::DescriptorType::eStorageBuffer,
-                     vk::DescriptorType::eStorageBuffer})
-    , scalarMultiply(device, size, "../Vortex2D/Multiply.comp.spv",
-                    {vk::DescriptorType::eStorageBuffer,
-                     vk::DescriptorType::eStorageBuffer,
-                     vk::DescriptorType::eStorageBuffer})
-    , multiplyAdd(device, size, "../Vortex2D/MultiplyAdd.comp.spv",
-                 {vk::DescriptorType::eStorageBuffer,
-                  vk::DescriptorType::eStorageBuffer,
-                  vk::DescriptorType::eStorageBuffer,
-                  vk::DescriptorType::eStorageBuffer})
-    , multiplySub(device, size, "../Vortex2D/MultiplySub.comp.spv",
-                 {vk::DescriptorType::eStorageBuffer,
-                  vk::DescriptorType::eStorageBuffer,
-                  vk::DescriptorType::eStorageBuffer,
-                  vk::DescriptorType::eStorageBuffer})
+    , matrixMultiply(device, size, "../Vortex2D/MultiplyMatrix.comp.spv")
+    , scalarDivision(device, glm::ivec2(1), "../Vortex2D/Divide.comp.spv")
+    , scalarMultiply(device, size, "../Vortex2D/Multiply.comp.spv")
+    , multiplyAdd(device, size, "../Vortex2D/MultiplyAdd.comp.spv")
+    , multiplySub(device, size, "../Vortex2D/MultiplySub.comp.spv")
     , reduceSum(device, size)
     , reduceMax(device, size)
     , reduceMaxBound(reduceMax.Bind(r, error))

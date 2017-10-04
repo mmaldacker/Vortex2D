@@ -15,22 +15,10 @@ Advection::Advection(const Renderer::Device& device, const glm::ivec2& size, flo
     , mVelocity(velocity)
     , mTmpVelocity(device, size.x, size.y, vk::Format::eR32G32Sfloat, false)
     , mField(device, size.x, size.y, vk::Format::eB8G8R8A8Unorm, false)
-    , mVelocityAdvect(device, size, "../Vortex2D/AdvectVelocity.comp.spv",
-                     {vk::DescriptorType::eStorageImage,
-                      vk::DescriptorType::eStorageImage},
-                      Renderer::PushConstantsSize<float>())
+    , mVelocityAdvect(device, size, "../Vortex2D/AdvectVelocity.comp.spv")
     , mVelocityAdvectBound(mVelocityAdvect.Bind({velocity, mTmpVelocity}))
-    , mAdvect(device, size, "../Vortex2D/Advect.comp.spv",
-             {vk::DescriptorType::eStorageImage,
-              vk::DescriptorType::eStorageImage,
-              vk::DescriptorType::eStorageImage},
-              Renderer::PushConstantsSize<float>())
-    , mAdvectParticles(device, Renderer::ComputeSize::Default1D(), "../Vortex2D/AdvectParticles.comp.spv",
-                       {vk::DescriptorType::eStorageBuffer,
-                        vk::DescriptorType::eStorageBuffer,
-                        vk::DescriptorType::eStorageImage,
-                        vk::DescriptorType::eStorageImage},
-                       Renderer::PushConstantsSize<float>())
+    , mAdvect(device, size, "../Vortex2D/Advect.comp.spv")
+    , mAdvectParticles(device, Renderer::ComputeSize::Default1D(), "../Vortex2D/AdvectParticles.comp.spv")
     , mAdvectVelocityCmd(device, false)
     , mAdvectCmd(device, false)
     , mAdvectParticlesCmd(device, false)

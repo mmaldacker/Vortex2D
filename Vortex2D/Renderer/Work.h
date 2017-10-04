@@ -67,9 +67,7 @@ public:
 
     Work(const Device& device,
          const ComputeSize& computeSize,
-         const std::string& shader,
-         const std::vector<vk::DescriptorType>& bindings,
-         const uint32_t pushConstantExtraSize = 0);
+         const std::string& shader);
 
     class Bound
     {
@@ -79,7 +77,10 @@ public:
         template<typename T>
         void PushConstant(vk::CommandBuffer commandBuffer, uint32_t offset, const T& data)
         {
-            commandBuffer.pushConstants(mLayout, vk::ShaderStageFlagBits::eCompute, offset, sizeof(T), &data);
+            if (offset + sizeof(T) <= mPushConstantSize)
+            {
+                commandBuffer.pushConstants(mLayout, vk::ShaderStageFlagBits::eCompute, offset, sizeof(T), &data);
+            }
         }
 
         void Record(vk::CommandBuffer commandBuffer);
@@ -89,11 +90,13 @@ public:
 
     private:
         Bound(const ComputeSize& computeSize,
+              uint32_t pushConstantSize,
               vk::PipelineLayout layout,
               vk::Pipeline pipeline,
               vk::UniqueDescriptorSet descriptor);
 
         ComputeSize mComputeSize;
+        uint32_t mPushConstantSize;
         vk::PipelineLayout mLayout;
         vk::Pipeline mPipeline;
         vk::UniqueDescriptorSet mDescriptor;
@@ -105,6 +108,7 @@ public:
 
 private:
     ComputeSize mComputeSize;
+    uint32_t mPushConstantSize;
     const Device& mDevice;
     vk::DescriptorSetLayout mDescriptorLayout;
     vk::UniquePipelineLayout mLayout;

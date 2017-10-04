@@ -39,15 +39,9 @@ glm::ivec2 Depth::GetDepthSize(int i) const
 Multigrid::Multigrid(const Renderer::Device& device, const glm::ivec2& size, float delta)
     : mDepth(size)
     , mDelta(delta)
-    , mResidualWork(device, size, "../Vortex2D/Residual.comp.spv",
-                   {vk::DescriptorType::eStorageBuffer,
-                    vk::DescriptorType::eStorageBuffer,
-                    vk::DescriptorType::eStorageBuffer,
-                    vk::DescriptorType::eStorageBuffer})
+    , mResidualWork(device, size, "../Vortex2D/Residual.comp.spv")
     , mTransfer(device)
-    , mPhiScaleWork(device, size, "../Vortex2D/PhiScale.comp.spv",
-                    {vk::DescriptorType::eStorageImage,
-                     vk::DescriptorType::eStorageImage})
+    , mPhiScaleWork(device, size, "../Vortex2D/PhiScale.comp.spv")
 {
     for (int i = 1; i <= mDepth.GetMaxDepth(); i++)
     {

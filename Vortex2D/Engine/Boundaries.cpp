@@ -31,15 +31,8 @@ Polygon::Polygon(const Renderer::Device& device, std::vector<glm::vec2> points, 
     , mVertexBuffer(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(glm::vec2) * points.size())
     , mTransformedVertices(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(glm::vec2) * points.size())
     , mUpdateCmd(device, false)
-    , mRender(device, Renderer::ComputeSize::Default2D(), inverse ? "../Vortex2D/PolygonMin.comp.spv" : "../Vortex2D/PolygonMax.comp.spv",
-             {vk::DescriptorType::eStorageImage,
-              vk::DescriptorType::eStorageBuffer},
-              Renderer::PushConstantsSize<int>())
-    , mUpdate(device, {(int)points.size()}, "../Vortex2D/UpdateVertices.comp.spv",
-              {vk::DescriptorType::eStorageBuffer,
-               vk::DescriptorType::eStorageBuffer,
-               vk::DescriptorType::eStorageBuffer},
-              Renderer::PushConstantsSize<int>())
+    , mRender(device, Renderer::ComputeSize::Default2D(), inverse ? "../Vortex2D/PolygonMin.comp.spv" : "../Vortex2D/PolygonMax.comp.spv")
+    , mUpdate(device, {(int)points.size()}, "../Vortex2D/UpdateVertices.comp.spv")
     , mUpdateBound(mUpdate.Bind({mMVPBuffer, mVertexBuffer, mTransformedVertices}))
 {
     Renderer::Buffer localVertexBuffer(device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(glm::vec2) * points.size());
@@ -104,8 +97,7 @@ DistanceField::DistanceField(const Renderer::Device& device,
                              float scale)
     : Renderer::AbstractSprite(device,
                                "../Vortex2D/DistanceField.frag.spv",
-                               levelSet,
-                               Renderer::PushConstantsSize<int, glm::vec4>())
+                               levelSet)
     , mColour(colour)
     , mScale(scale)
 {

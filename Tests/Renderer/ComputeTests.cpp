@@ -48,12 +48,6 @@ TEST(ComputeTests, BufferCopy)
     CheckBuffer(data, outBuffer);
 }
 
-TEST(ComputeTests, PushConstantsSize)
-{
-    auto size = PushConstantsSize<int, float, uint8_t>();
-    ASSERT_EQ(9, size);
-}
-
 struct Particle
 {
     alignas(8) glm::vec2 position;
@@ -165,7 +159,7 @@ TEST(ComputeTests, ImageCompute)
 TEST(ComputeTests, Work)
 {
     Buffer buffer(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float)*16*16);
-    Work work(*device, glm::ivec2(16), "Work.comp.spv", {vk::DescriptorType::eStorageBuffer});
+    Work work(*device, glm::ivec2(16), "Work.comp.spv");
 
     auto boundWork = work.Bind({buffer});
 
@@ -212,9 +206,7 @@ TEST(ComputeTests, WorkIndirect)
     computeSize.WorkSize.x = 2;
     computeSize.LocalSize.x = 8;
 
-    Work work(*device, computeSize, "WorkIndirect.comp.spv",
-             {vk::DescriptorType::eStorageBuffer,
-              vk::DescriptorType::eStorageBuffer});
+    Work work(*device, computeSize, "WorkIndirect.comp.spv");
 
     auto bound = work.Bind({buffer, dispatchParams});
 
@@ -244,7 +236,7 @@ TEST(ComputeTests, Stencil)
 
     auto computeSize = MakeStencilComputeSize(size, 1);
 
-    Work work(*device, computeSize, "Stencil.comp.spv", {vk::DescriptorType::eStorageBuffer, vk::DescriptorType::eStorageBuffer});
+    Work work(*device, computeSize, "Stencil.comp.spv");
 
     auto boundWork = work.Bind({input, output});
 
@@ -269,7 +261,7 @@ TEST(ComputeTests, Checkerboard)
 
     ComputeSize computeSize = MakeCheckerboardComputeSize(size);
 
-    Work work(*device, computeSize, "Checkerboard.comp.spv", {vk::DescriptorType::eStorageBuffer}, PushConstantsSize<int>());
+    Work work(*device, computeSize, "Checkerboard.comp.spv");
 
     auto boundWork = work.Bind({buffer});
 
@@ -299,7 +291,7 @@ TEST(ComputeTests, Timer)
     glm::ivec2 size(500);
 
     Buffer buffer(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(float)*size.x*size.y);
-    Work work(*device, size, "Work.comp.spv", {vk::DescriptorType::eStorageBuffer});
+    Work work(*device, size, "Work.comp.spv");
 
     auto boundWork = work.Bind({buffer});
 

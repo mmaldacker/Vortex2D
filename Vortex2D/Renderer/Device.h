@@ -33,6 +33,7 @@ public:
     vk::DescriptorSetLayout CreateDescriptorSetLayout(vk::DescriptorSetLayoutCreateInfo layoutInfo) const;
 
     vk::ShaderModule GetShaderModule(const std::string& filename) const;
+    const std::vector<uint32_t> GetShaderSPIRV(const std::string& filename) const;
 
 private:
     vk::PhysicalDevice mPhysicalDevice;
@@ -41,7 +42,14 @@ private:
     vk::Queue mQueue;
     vk::UniqueCommandPool mCommandPool;
     vk::UniqueDescriptorPool mDescriptorPool;
-    mutable std::map<std::string, vk::UniqueShaderModule> mShaders;
+
+    struct SPIRVModule
+    {
+      std::vector<uint32_t> Binary;
+      vk::UniqueShaderModule Module;
+    };
+
+    mutable std::map<std::string, SPIRVModule> mShaders;
     mutable std::vector<vk::UniqueDescriptorSetLayout> mDescriptorSetLayouts;
 };
 

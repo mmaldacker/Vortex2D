@@ -25,45 +25,21 @@ ParticleCount::ParticleCount(const Renderer::Device& device,
     , mDispatchParams(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(params))
     , mNewDispatchParams(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(params))
     , mLocalDispatchParams(device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(params))
-    , mParticleCountWork(device, Renderer::ComputeSize::Default1D(), "../Vortex2D/ParticleCount.comp.spv",
-                         {vk::DescriptorType::eStorageBuffer,
-                          vk::DescriptorType::eStorageBuffer,
-                          vk::DescriptorType::eStorageImage})
+    , mParticleCountWork(device, Renderer::ComputeSize::Default1D(), "../Vortex2D/ParticleCount.comp.spv")
     , mParticleCountBound(mParticleCountWork.Bind({particles, mDispatchParams, *this}))
     , mPrefixScan(device, size)
     , mPrefixScanBound(mPrefixScan.Bind(mCount, mIndex, mNewDispatchParams))
-    , mParticleBucketWork(device, Renderer::ComputeSize::Default1D(), "../Vortex2D/ParticleBucket.comp.spv",
-                          {vk::DescriptorType::eStorageBuffer,
-                           vk::DescriptorType::eStorageBuffer,
-                           vk::DescriptorType::eStorageBuffer,
-                           vk::DescriptorType::eStorageBuffer,
-                           vk::DescriptorType::eStorageBuffer})
+    , mParticleBucketWork(device, Renderer::ComputeSize::Default1D(), "../Vortex2D/ParticleBucket.comp.spv")
     , mParticleBucketBound(mParticleBucketWork.Bind(size, {particles,
                                                            mNewParticles,
                                                            mIndex,
                                                            mCount,
                                                            mDispatchParams}))
-    , mParticleSpawnWork(device, size, "../Vortex2D/ParticleSpawn.comp.spv",
-                        {vk::DescriptorType::eStorageBuffer,
-                         vk::DescriptorType::eStorageBuffer,
-                         vk::DescriptorType::eStorageBuffer,
-                         vk::DescriptorType::eStorageBuffer})
+    , mParticleSpawnWork(device, size, "../Vortex2D/ParticleSpawn.comp.spv")
     , mParticleSpawnBound(mParticleSpawnWork.Bind({mNewParticles, mIndex, mCount, mSeeds}))
-    , mParticlePhiWork(device, size, "../Vortex2D/ParticlePhi.comp.spv",
-                       {vk::DescriptorType::eStorageImage,
-                       vk::DescriptorType::eStorageBuffer,
-                       vk::DescriptorType::eStorageBuffer,
-                       vk::DescriptorType::eStorageImage})
-    , mParticleToGridWork(device, size, "../Vortex2D/ParticleToGrid.comp.spv",
-                          {vk::DescriptorType::eStorageImage,
-                           vk::DescriptorType::eStorageBuffer,
-                           vk::DescriptorType::eStorageBuffer,
-                           vk::DescriptorType::eStorageImage,
-                           vk::DescriptorType::eStorageBuffer})
-    , mParticleFromGridWork(device, Renderer::ComputeSize::Default1D(), "../Vortex2D/ParticleFromGrid.comp.spv",
-                            {vk::DescriptorType::eStorageBuffer,
-                            vk::DescriptorType::eStorageBuffer,
-                            vk::DescriptorType::eStorageImage})
+    , mParticlePhiWork(device, size, "../Vortex2D/ParticlePhi.comp.spv")
+    , mParticleToGridWork(device, size, "../Vortex2D/ParticleToGrid.comp.spv")
+    , mParticleFromGridWork(device, Renderer::ComputeSize::Default1D(), "../Vortex2D/ParticleFromGrid.comp.spv")
     , mCountWork(device, false)
     , mScanWork(device, false)
     , mDispatchCountWork(device)

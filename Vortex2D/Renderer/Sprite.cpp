@@ -6,10 +6,11 @@
 #include "Sprite.h"
 
 #include <Vortex2D/Renderer/RenderTarget.h>
+#include <Vortex2D/SPIRV/Reflection.h>
 
 namespace Vortex2D { namespace Renderer {
 
-AbstractSprite::AbstractSprite(const Device& device, const std::string& fragShaderName, const Texture& texture, const uint32_t pushConstantExtraSize)
+AbstractSprite::AbstractSprite(const Device& device, const std::string& fragShaderName, const Texture& texture)
     : mDevice(device.Handle())
     , mMVPBuffer(device, vk::BufferUsageFlagBits::eUniformBuffer, true, sizeof(glm::mat4))
     , mVertexBuffer(device, vk::BufferUsageFlagBits::eVertexBuffer, true, sizeof(Vertex) * 6)
@@ -43,9 +44,11 @@ AbstractSprite::AbstractSprite(const Device& device, const std::string& fragShad
     auto pipelineLayoutBuilder = PipelineLayoutBuilder()
             .DescriptorSetLayout(descriptorLayout);
 
-    if (pushConstantExtraSize > 0)
+    SPIRV::Reflection reflection(device.GetShaderSPIRV(fragShaderName));
+    unsigned pushConstantSize = reflection.GetPushConstantsSize();
+    if (pushConstantSize > 0)
     {
-        pipelineLayoutBuilder.PushConstantRange({vk::ShaderStageFlagBits::eFragment, 0, pushConstantExtraSize});
+        pipelineLayoutBuilder.PushConstantRange({vk::ShaderStageFlagBits::eFragment, 0, pushConstantSize});
     }
 
     mPipelineLayout = pipelineLayoutBuilder.Create(device.Handle());

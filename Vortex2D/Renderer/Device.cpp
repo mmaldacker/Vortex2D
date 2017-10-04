@@ -185,7 +185,7 @@ vk::ShaderModule Device::GetShaderModule(const std::string& filename) const
     auto shaderIt = mShaders.find(filename);
     if (shaderIt != mShaders.end())
     {
-        return *shaderIt->second;
+        return *shaderIt->second.Module;
     }
 
     std::ifstream is(filename, std::ios::binary | std::ios::in | std::ios::ate);
@@ -194,19 +194,28 @@ vk::ShaderModule Device::GetShaderModule(const std::string& filename) const
         throw std::runtime_error("Couldn't open file:" + filename);
     }
 
-    std::vector<char> content;
+    std::vector<uint32_t> content;
 
     size_t size = is.tellg();
     is.seekg(0, std::ios::beg);
-    content.resize(size);
-    is.read(content.data(), size);
+    content.resize((size + 3) / 4);
+    is.read(reinterpret_cast<char*>(content.data()), size);
     is.close();
 
     auto shaderInfo = vk::ShaderModuleCreateInfo()
-            .setCodeSize(content.size())
-            .setPCode((const uint32_t*)content.data());
+            .setCodeSize(size)
+            .setPCode(content.data());
 
-    return *(mShaders[filename] = mDevice->createShaderModuleUnique(shaderInfo));
+    auto shaderModule = mDevice->createShaderModuleUnique(shaderInfo);
+    auto shader = *shaderModule;
+    mShaders[filename] = {content, std::move(shaderModule)};
+    return shader;
+}
+
+const std::vector<uint32_t> Device::GetShaderSPIRV(const std::string& filename) const
+{
+  GetShaderModule(filename);
+  return mShaders[filename].Binary;
 }
 
 }}

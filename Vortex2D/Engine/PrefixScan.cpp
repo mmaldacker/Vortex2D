@@ -29,17 +29,9 @@ namespace
 
 PrefixScan::PrefixScan(const Renderer::Device& device, const glm::ivec2& size)
     : mSize(size.x*size.y)
-    , mAddWork(device, Renderer::ComputeSize::Default1D(), "../Vortex2D/PreScanAdd.comp.spv",
-      {vk::DescriptorType::eStorageBuffer,
-       vk::DescriptorType::eStorageBuffer})
-    , mPreScanWork(device, Renderer::ComputeSize::Default1D(), "../Vortex2D/PreScan.comp.spv",
-      {vk::DescriptorType::eStorageBuffer,
-       vk::DescriptorType::eStorageBuffer,
-       vk::DescriptorType::eStorageBuffer})
-    , mPreScanStoreSumWork(device, Renderer::ComputeSize::Default1D(), "../Vortex2D/PreScanStoreSum.comp.spv",
-     {vk::DescriptorType::eStorageBuffer,
-      vk::DescriptorType::eStorageBuffer,
-      vk::DescriptorType::eStorageBuffer})
+    , mAddWork(device, Renderer::ComputeSize::Default1D(), "../Vortex2D/PreScanAdd.comp.spv")
+    , mPreScanWork(device, Renderer::ComputeSize::Default1D(), "../Vortex2D/PreScan.comp.spv")
+    , mPreScanStoreSumWork(device, Renderer::ComputeSize::Default1D(), "../Vortex2D/PreScanStoreSum.comp.spv")
 {
 
     auto localSize = Renderer::ComputeSize::GetLocalSize1D();

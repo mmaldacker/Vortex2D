@@ -20,7 +20,7 @@ struct RenderTarget;
 class AbstractSprite : public Drawable, public Transformable
 {
 public:
-    AbstractSprite(const Device& device, const std::string& fragShaderName, const Texture& texture, const uint32_t pushConstantExtraSize = 0);
+    AbstractSprite(const Device& device, const std::string& fragShaderName, const Texture& texture);
 
     void Initialize(const RenderState& renderState) override;
     void Update(const glm::mat4& model, const glm::mat4& view) override;

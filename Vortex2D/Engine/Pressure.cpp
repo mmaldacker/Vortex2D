@@ -18,34 +18,18 @@ Pressure::Pressure(const Renderer::Device& device,
                    Renderer::Texture& liquidPhi,
                    Renderer::Texture& solidVelocity,
                    Renderer::Buffer& valid)
-    : mBuildMatrix(device, size, "../Vortex2D/BuildMatrix.comp.spv",
-{vk::DescriptorType::eStorageBuffer,
-                   vk::DescriptorType::eStorageBuffer,
-                   vk::DescriptorType::eStorageImage,
-                   vk::DescriptorType::eStorageImage},
-                   Renderer::PushConstantsSize<float>())
+    : mBuildMatrix(device, size, "../Vortex2D/BuildMatrix.comp.spv")
     , mBuildMatrixBound(mBuildMatrix.Bind({data.Diagonal,
                                            data.Lower,
                                            liquidPhi,
                                            solidPhi}))
-    , mBuildDiv(device, size, "../Vortex2D/BuildDiv.comp.spv",
-{vk::DescriptorType::eStorageBuffer,
-                vk::DescriptorType::eStorageImage,
-                vk::DescriptorType::eStorageImage,
-                vk::DescriptorType::eStorageImage,
-                vk::DescriptorType::eStorageImage})
+    , mBuildDiv(device, size, "../Vortex2D/BuildDiv.comp.spv")
     , mBuildDivBound(mBuildDiv.Bind({data.B,
                                      liquidPhi,
                                      solidPhi,
                                      velocity,
                                      solidVelocity}))
-    , mProject(device, size, "../Vortex2D/Project.comp.spv",
-{vk::DescriptorType::eStorageBuffer,
-               vk::DescriptorType::eStorageImage,
-               vk::DescriptorType::eStorageImage,
-               vk::DescriptorType::eStorageImage,
-               vk::DescriptorType::eStorageBuffer},
-               Renderer::PushConstantsSize<float>())
+    , mProject(device, size, "../Vortex2D/Project.comp.spv")
     , mProjectBound(mProject.Bind({data.X, liquidPhi, solidPhi, velocity, valid}))
     , mBuildEquationCmd(device, false)
     , mProjectCmd(device, false)

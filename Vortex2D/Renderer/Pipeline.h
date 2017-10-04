@@ -73,27 +73,6 @@ vk::UniquePipeline MakeComputePipeline(vk::Device device,
                                        uint32_t localX = 16,
                                        uint32_t localY = 16);
 
-namespace Detail
-{
-    template <typename... Args>
-    struct PushConstantsSize
-    {
-        constexpr static std::size_t Size = 0;
-    };
-
-    template <typename Arg, typename... Args>
-    struct PushConstantsSize<Arg, Args...>
-    {
-        constexpr static std::size_t Size = sizeof(Arg) + PushConstantsSize<Args...>::Size;
-    };
-}
-
-template <typename... Args>
-std::size_t PushConstantsSize()
-{
-    return Detail::PushConstantsSize<Args...>::Size;
-}
-
 }}
 
 #endif

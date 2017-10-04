@@ -13,16 +13,10 @@ Extrapolation::Extrapolation(const Renderer::Device& device,
                              Renderer::Texture& solidPhi)
     : mValid(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(glm::ivec2))
     , mVelocity(device, size.x, size.y, vk::Format::eR32G32Sfloat, false)
-    , mExtrapolateVelocity(device, size, "../Vortex2D/ExtrapolateVelocity.comp.spv",
-                          {vk::DescriptorType::eStorageBuffer,
-                           vk::DescriptorType::eStorageBuffer,
-                           vk::DescriptorType::eStorageImage})
+    , mExtrapolateVelocity(device, size, "../Vortex2D/ExtrapolateVelocity.comp.spv")
     , mExtrapolateVelocityFrontBound(mExtrapolateVelocity.Bind({valid, mValid, velocity}))
     , mExtrapolateVelocityBackBound(mExtrapolateVelocity.Bind({mValid, valid, velocity}))
-    , mConstrainVelocity(device, size, "../Vortex2D/ConstrainVelocity.comp.spv",
-                         {vk::DescriptorType::eStorageImage,
-                          vk::DescriptorType::eStorageImage,
-                          vk::DescriptorType::eStorageImage})
+    , mConstrainVelocity(device, size, "../Vortex2D/ConstrainVelocity.comp.spv")
     , mConstrainVelocityBound(mConstrainVelocity.Bind({solidPhi, velocity, mVelocity}))
     , mExtrapolateCmd(device, false)
     , mConstrainCmd(device, false)

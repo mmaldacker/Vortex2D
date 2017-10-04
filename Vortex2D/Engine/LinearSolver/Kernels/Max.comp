@@ -21,7 +21,6 @@ layout (constant_id = 1) const int blockSize = 256; // same as gl_WorkGroupSize.
 layout(push_constant) uniform PushConsts
 {
   int n;
-  int ignore;
 } consts;
 
 shared float sdata[blockSize];

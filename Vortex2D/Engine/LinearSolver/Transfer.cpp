@@ -9,13 +9,8 @@ namespace Vortex2D { namespace Fluid {
 
 Transfer::Transfer(const Renderer::Device& device)
     : mDevice(device)
-    , mProlongateWork(device, glm::ivec2(2), "../Vortex2D/Prolongate.comp.spv",
-                      {vk::DescriptorType::eStorageBuffer,
-                       vk::DescriptorType::eStorageBuffer,
-                       vk::DescriptorType::eStorageBuffer})
-    , mRestrictWork(device, glm::ivec2(2), "../Vortex2D/Restrict.comp.spv",
-                    {vk::DescriptorType::eStorageBuffer,
-                     vk::DescriptorType::eStorageBuffer})
+    , mProlongateWork(device, Renderer::ComputeSize::Default2D(), "../Vortex2D/Prolongate.comp.spv")
+    , mRestrictWork(device, Renderer::ComputeSize::Default2D(), "../Vortex2D/Restrict.comp.spv")
 {
 
 }

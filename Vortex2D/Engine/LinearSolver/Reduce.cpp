@@ -34,9 +34,7 @@ Reduce::Reduce(const Renderer::Device& device,
                const std::string& fileName,
                const glm::ivec2& size)
     : mSize(size.x*size.y)
-    , mReduce(device, Renderer::ComputeSize::Default1D(), fileName,
-             {vk::DescriptorType::eStorageBuffer,
-              vk::DescriptorType::eStorageBuffer})
+    , mReduce(device, Renderer::ComputeSize::Default1D(), fileName)
 {
     auto localSize = Renderer::ComputeSize::GetLocalSize1D();
     int workGroupSize = mSize;

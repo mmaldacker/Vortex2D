@@ -7,6 +7,7 @@
 
 #include <Vortex2D/Renderer/DescriptorSet.h>
 #include <Vortex2D/Renderer/Pipeline.h>
+#include <Vortex2D/SPIRV/Reflection.h>
 
 namespace Vortex2D { namespace Renderer {
 
@@ -147,26 +148,31 @@ Work::Input::DescriptorImage::DescriptorImage(Renderer::Texture& texture)
 
 Work::Work(const Device& device,
            const ComputeSize& computeSize,
-           const std::string& shader,
-           const std::vector<vk::DescriptorType>& binding,
-           const uint32_t pushConstantExtraSize)
+           const std::string& shader)
     : mComputeSize(computeSize)
     , mDevice(device)
-    , mBindings(binding)
 {
     vk::ShaderModule shaderModule = device.GetShaderModule(shader);
+    SPIRV::Reflection reflection(device.GetShaderSPIRV(shader));
+    mBindings = reflection.GetDescriptorTypes();
+    mPushConstantSize = reflection.GetPushConstantsSize();
 
     DescriptorSetLayoutBuilder layoutBuilder;
-    for (int i = 0; i < binding.size(); i++)
+    for (int i = 0; i < mBindings.size(); i++)
     {
-        layoutBuilder.Binding(i, binding[i], vk::ShaderStageFlagBits::eCompute, 1);
+        layoutBuilder.Binding(i, mBindings[i], vk::ShaderStageFlagBits::eCompute, 1);
     }
     mDescriptorLayout = layoutBuilder.Create(device);
 
-    mLayout = PipelineLayoutBuilder()
-            .DescriptorSetLayout(mDescriptorLayout)
-            .PushConstantRange({vk::ShaderStageFlagBits::eCompute, 0, 8 + pushConstantExtraSize})
-            .Create(device.Handle());
+    auto pipelineLayoutBuilder = PipelineLayoutBuilder()
+        .DescriptorSetLayout(mDescriptorLayout);
+
+    if (mPushConstantSize > 0)
+    {
+      pipelineLayoutBuilder.PushConstantRange({vk::ShaderStageFlagBits::eCompute, 0, mPushConstantSize});
+    }
+
+    mLayout = pipelineLayoutBuilder.Create(device.Handle());
 
     assert(mComputeSize.LocalSize.x > 0 && mComputeSize.LocalSize.y > 0);
     mPipeline = MakeComputePipeline(device.Handle(), shaderModule, *mLayout, mComputeSize.LocalSize.x, mComputeSize.LocalSize.y);
@@ -203,7 +209,7 @@ Work::Bound Work::Bind(ComputeSize computeSize, const std::vector<Input>& inputs
     }
     updater.Update(mDevice.Handle());
 
-    return Bound(computeSize, *mLayout, *mPipeline, std::move(descriptor));
+    return Bound(computeSize, mPushConstantSize, *mLayout, *mPipeline, std::move(descriptor));
 }
 
 Work::Bound Work::Bind(const std::vector<Input>& inputs)
@@ -220,10 +226,12 @@ Work::Bound::Bound()
 }
 
 Work::Bound::Bound(const ComputeSize& computeSize,
+                   uint32_t pushConstantSize,
                    vk::PipelineLayout layout,
                    vk::Pipeline pipeline,
                    vk::UniqueDescriptorSet descriptor)
     : mComputeSize(computeSize)
+    , mPushConstantSize(pushConstantSize)
     , mLayout(layout)
     , mPipeline(pipeline)
     , mDescriptor(std::move(descriptor))
@@ -233,8 +241,8 @@ Work::Bound::Bound(const ComputeSize& computeSize,
 
 void Work::Bound::Record(vk::CommandBuffer commandBuffer)
 {
-    commandBuffer.pushConstants(mLayout, vk::ShaderStageFlagBits::eCompute, 0, 4, &mComputeSize.DomainSize.x);
-    commandBuffer.pushConstants(mLayout, vk::ShaderStageFlagBits::eCompute, 4, 4, &mComputeSize.DomainSize.y);
+    PushConstant(commandBuffer, 0, mComputeSize.DomainSize.x);
+    PushConstant(commandBuffer, 4, mComputeSize.DomainSize.y);
     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, mLayout, 0, {*mDescriptor}, {});
     commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, mPipeline);
 
@@ -243,8 +251,8 @@ void Work::Bound::Record(vk::CommandBuffer commandBuffer)
 
 void Work::Bound::RecordIndirect(vk::CommandBuffer commandBuffer, Buffer& dispatchParams)
 {
-    commandBuffer.pushConstants(mLayout, vk::ShaderStageFlagBits::eCompute, 0, 4, &mComputeSize.DomainSize.x);
-    commandBuffer.pushConstants(mLayout, vk::ShaderStageFlagBits::eCompute, 4, 4, &mComputeSize.DomainSize.y);
+    PushConstant(commandBuffer, 0, mComputeSize.DomainSize.x);
+    PushConstant(commandBuffer, 4, mComputeSize.DomainSize.y);
     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, mLayout, 0, {*mDescriptor}, {});
     commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, mPipeline);
 
