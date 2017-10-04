@@ -27,6 +27,7 @@ public:
     void Reinitialise();
     void Redistance();
     void Extrapolate();
+    void ExtrapolateRecord(vk::CommandBuffer commandBuffer);
 
 private:
     Renderer::Texture mLevelSet0;

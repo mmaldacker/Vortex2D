@@ -92,7 +92,7 @@ static void SetSolidPhi(const glm::ivec2& size, Vortex2D::Renderer::Texture& buf
     buffer.CopyFrom(phi);
 }
 
-static void SetLiquidPhi(const glm::ivec2& size, Vortex2D::Renderer::Texture& buffer, FluidSim& sim)
+static void SetLiquidPhi(const glm::ivec2& size, Vortex2D::Renderer::Texture& buffer, FluidSim& sim, float scale = 1.0f)
 {
     std::vector<float> phi(size.x * size.y, 0.0f);
     for (int i = 0; i < size.x; i++)
@@ -100,7 +100,7 @@ static void SetLiquidPhi(const glm::ivec2& size, Vortex2D::Renderer::Texture& bu
         for (int j = 0; j < size.y; j++)
         {
             int width = size.x;
-            phi[i + j * width] = sim.liquid_phi(i, j);
+            phi[i + j * width] = scale * sim.liquid_phi(i, j);
         }
     }
 

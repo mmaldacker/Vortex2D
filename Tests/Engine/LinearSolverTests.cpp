@@ -493,6 +493,9 @@ TEST(LinearSolverTests, Simple_Multigrid)
     sim.add_force(0.01f);
     sim.project(0.01f);
 
+    // solution from FluidSim
+    PrintData(size.x, size.y, sim.pressure);
+
     LinearSolver::Data data(*device, size, true);
 
     Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
@@ -501,45 +504,47 @@ TEST(LinearSolverTests, Simple_Multigrid)
     Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
     Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::ivec2));
 
-    BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
+    Texture inputSolidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
+    SetSolidPhi(size, inputSolidPhi, sim, size.x);
+
+    Texture inputLiquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
+    SetLiquidPhi(size, inputLiquidPhi, sim, size.x);
+
+    Vortex2D::Renderer::ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+        solidPhi.CopyFrom(commandBuffer, inputSolidPhi);
+        liquidPhi.CopyFrom(commandBuffer, inputLiquidPhi);
+    });
+
     BuildLinearEquation(size, data.Diagonal, data.Lower, data.B, sim);
 
     Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, solidVelocity, valid);
 
-    // multigrid solver
+    Multigrid multigrid(*device, size, 0.01f);
+    multigrid.Build(pressure, solidPhi, liquidPhi);
+    multigrid.Init(data.Diagonal, data.Lower, data.B, data.X);
+
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
-        LinearSolver::Parameters params(0);
-        Multigrid solver(*device, size, 0.01f);
+        multigrid.RecordInit(commandBuffer);
+        multigrid.Record(commandBuffer);
+    });
 
-        Multigrid multigrid(*device, size, 0.01f);
-        multigrid.Init(data.Diagonal, data.Lower, data.B, data.X);
-        multigrid.Build(pressure, solidPhi, liquidPhi);
+    device->Queue().waitIdle();
 
-        ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-        {
-            multigrid.RecordInit(commandBuffer);
-            multigrid.Record(commandBuffer);
-        });
+    Texture localLiquidPhi(*device, 16, 16, vk::Format::eR32Sfloat, true);
+    Texture localLiquidPhi2(*device, 9, 9, vk::Format::eR32Sfloat, true);
 
-        device->Queue().waitIdle();
-
-        PrintBuffer<float>(size, data.X);
-    }
-
-    // solution from SOR with only few iterations (to check multigrid is an improvement)
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
-        LinearSolver::Parameters params(4);
-        GaussSeidel solver(*device, size);
+        localLiquidPhi.CopyFrom(commandBuffer, liquidPhi);
+        localLiquidPhi2.CopyFrom(commandBuffer, multigrid.mLiquidPhis[0]);
+    });
 
-        // TODO solve with gauss seidel
+    PrintTexture<float>(localLiquidPhi);
+    PrintTexture<float>(localLiquidPhi2);
 
-        device->Queue().waitIdle();
-    }
-
-    // solution from FluidSim
-    {
-        PrintData(size.x, size.y, sim.pressure);
-    }
+    PrintBuffer<float>(size, data.X);
 }
 
 TEST(LinearSolverTests, Multigrid_Simple_PCG)
@@ -563,7 +568,18 @@ TEST(LinearSolverTests, Multigrid_Simple_PCG)
     Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
     Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::ivec2));
 
-    BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
+    Texture inputSolidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
+    SetSolidPhi(size, inputSolidPhi, sim, size.x);
+
+    Texture inputLiquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
+    SetLiquidPhi(size, inputLiquidPhi, sim, size.x);
+
+    Vortex2D::Renderer::ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+        solidPhi.CopyFrom(commandBuffer, inputSolidPhi);
+        liquidPhi.CopyFrom(commandBuffer, inputLiquidPhi);
+    });
+
     BuildLinearEquation(size, data.Diagonal, data.Lower, data.B, sim);
 
     Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, solidVelocity, valid);

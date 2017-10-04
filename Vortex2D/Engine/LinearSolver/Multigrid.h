@@ -10,9 +10,11 @@
 #include <Vortex2D/Engine/LinearSolver/Preconditioner.h>
 #include <Vortex2D/Engine/LinearSolver/Transfer.h>
 #include <Vortex2D/Engine/LinearSolver/GaussSeidel.h>
+#include <Vortex2D/Engine/LevelSet.h>
 #include <Vortex2D/Renderer/Work.h>
 #include <Vortex2D/Renderer/CommandBuffer.h>
 #include <Vortex2D/Renderer/Texture.h>
+#include <Vortex2D/Renderer/Timer.h>
 
 namespace Vortex2D { namespace Fluid {
 
@@ -33,7 +35,7 @@ class Pressure;
 class Multigrid : public Preconditioner
 {
 public:
-    Multigrid(const Renderer::Device& device, const glm::ivec2& size, float delta);
+    Multigrid(const Renderer::Device& device, const glm::ivec2& size, float delta, bool statistics = false);
 
     void Init(Renderer::Buffer& d,
               Renderer::Buffer& l,
@@ -46,6 +48,8 @@ public:
 
     void RecordInit(vk::CommandBuffer commandBuffer) override;
     void Record(vk::CommandBuffer commandBuffer) override;
+
+    Renderer::Statistics::Timestamps GetStatistics();
 
 //private:
     void Smoother(vk::CommandBuffer commandBuffer, int n, int iterations);
@@ -73,12 +77,15 @@ public:
     std::vector<Renderer::Work::Bound> mLiquidPhiScaleWorkBound;
 
     // mSolidPhis[0] and mLiquidPhis[0] is level 1
-    std::vector<Renderer::Texture> mSolidPhis;
-    std::vector<Renderer::Texture> mLiquidPhis;
+    std::vector<LevelSet> mSolidPhis;
+    std::vector<LevelSet> mLiquidPhis;
 
     std::vector<Renderer::Work::Bound> mMatrixBuildBound;
 
     std::vector<GaussSeidel> mSmoothers;
+
+    bool mEnableStatistics;
+    Renderer::Statistics mStatistics;
 };
 
 }}
