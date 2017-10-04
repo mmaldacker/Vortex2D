@@ -14,12 +14,18 @@ RenderTarget::RenderTarget(uint32_t width, uint32_t height)
     , Height(height)
     , Orth(glm::ortho(0.0f, (float)width, 0.0f, (float)height))
 {
+}
 
+RenderTarget::RenderTarget(RenderTarget&& other)
+    : Width(other.Width)
+    , Height(other.Height)
+    , Orth(other.Orth)
+    , RenderPass(std::move(other.RenderPass))
+{
 }
 
 RenderTarget::~RenderTarget()
 {
-
 }
 
 RenderpassBuilder& RenderpassBuilder::Attachement(vk::Format format)

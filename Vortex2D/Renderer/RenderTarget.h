@@ -24,6 +24,8 @@ struct RenderTarget
     using CommandFn = std::function<void(vk::CommandBuffer)>;
 
     RenderTarget(uint32_t width, uint32_t height);
+    RenderTarget(RenderTarget&& other);
+
     virtual ~RenderTarget();
 
     virtual void Record(CommandFn) = 0;
