@@ -41,6 +41,7 @@ Multigrid::Multigrid(const Renderer::Device& device, const glm::ivec2& size, flo
     , mResidualWork(device, size, "../Vortex2D/Residual.comp.spv")
     , mTransfer(device)
     , mPhiScaleWork(device, size, "../Vortex2D/PhiScale.comp.spv")
+    , mBuildHierarchies(device)
     , mEnableStatistics(statistics)
     , mStatistics(device)
 {
@@ -90,18 +91,51 @@ void Multigrid::Init(Renderer::Buffer& d,
     mSmoothers[0].Init(d, l, b, pressure);
 }
 
-void Multigrid::Build(Pressure& pressure,
-                      Renderer::Texture& solidPhi,
-                      Renderer::Texture& liquidPhi)
+void Multigrid::BuildHierarchiesInit(Pressure& pressure,
+                                     Renderer::Texture& solidPhi,
+                                     Renderer::Texture& liquidPhi)
 {
     auto s = mDepth.GetDepthSize(1);
     mLiquidPhiScaleWorkBound.push_back(mPhiScaleWork.Bind(s, {liquidPhi, mLiquidPhis[0]}));
     mSolidPhiScaleWorkBound.push_back(mPhiScaleWork.Bind(s, {solidPhi, mSolidPhis[0]}));
 
-    BuildRecursive(pressure, 1);
+    BindRecursive(pressure, 1);
+
+    mBuildHierarchies.Record([&](vk::CommandBuffer commandBuffer)
+    {
+        for (std::size_t i = 0; i < mDepth.GetMaxDepth(); i++)
+        {
+            mLiquidPhiScaleWorkBound[i].Record(commandBuffer);
+            mLiquidPhis[i].Barrier(commandBuffer,
+                                   vk::ImageLayout::eGeneral,
+                                   vk::AccessFlagBits::eShaderWrite,
+                                   vk::ImageLayout::eGeneral,
+                                   vk::AccessFlagBits::eShaderRead);
+
+            mSolidPhiScaleWorkBound[i].Record(commandBuffer);
+            mSolidPhis[i].Barrier(commandBuffer,
+                                  vk::ImageLayout::eGeneral,
+                                  vk::AccessFlagBits::eShaderWrite,
+                                  vk::ImageLayout::eGeneral,
+                                  vk::AccessFlagBits::eShaderRead);
+
+            mLiquidPhis[i].ExtrapolateRecord(commandBuffer);
+
+            mMatrixBuildBound[i].PushConstant(commandBuffer, 8, mDelta);
+            mMatrixBuildBound[i].Record(commandBuffer);
+            mDatas[i].Diagonal.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+            mDatas[i].Lower.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        }
+
+        std::size_t maxDepth = mDepth.GetMaxDepth();
+        mMatrixBuildBound[maxDepth - 1].PushConstant(commandBuffer, 8, mDelta);
+        mMatrixBuildBound[maxDepth - 1].Record(commandBuffer);
+        mDatas[maxDepth - 1].Diagonal.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        mDatas[maxDepth - 1].Lower.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+    });
 }
 
-void Multigrid::BuildRecursive(Pressure& pressure, std::size_t depth)
+void Multigrid::BindRecursive(Pressure& pressure, std::size_t depth)
 {
     auto s = mDepth.GetDepthSize(depth);
 
@@ -129,7 +163,7 @@ void Multigrid::BuildRecursive(Pressure& pressure, std::size_t depth)
                                  mDatas[depth].X,
                                  mDatas[depth].Diagonal);
 
-        BuildRecursive(pressure, depth+1);
+        BindRecursive(pressure, depth+1);
     }
 
     mMatrixBuildBound.push_back(
@@ -146,44 +180,16 @@ void Multigrid::BuildRecursive(Pressure& pressure, std::size_t depth)
                            mDatas[depth-1].X);
 }
 
+void Multigrid::BuildHierarchies()
+{
+    mBuildHierarchies.Submit();
+}
+
 void Multigrid::Smoother(vk::CommandBuffer commandBuffer, int n, int iterations)
 {
     mSmoothers[n].SetPreconditionerIterations(iterations);
     mSmoothers[n].SetW(1.0);
     mSmoothers[n].Record(commandBuffer);
-}
-
-void Multigrid::RecordInit(vk::CommandBuffer commandBuffer)
-{
-    for (std::size_t i = 0; i < mDepth.GetMaxDepth(); i++)
-    {
-        mLiquidPhiScaleWorkBound[i].Record(commandBuffer);
-        mLiquidPhis[i].Barrier(commandBuffer,
-                               vk::ImageLayout::eGeneral,
-                               vk::AccessFlagBits::eShaderWrite,
-                               vk::ImageLayout::eGeneral,
-                               vk::AccessFlagBits::eShaderRead);
-
-        mSolidPhiScaleWorkBound[i].Record(commandBuffer);
-        mSolidPhis[i].Barrier(commandBuffer,
-                              vk::ImageLayout::eGeneral,
-                              vk::AccessFlagBits::eShaderWrite,
-                              vk::ImageLayout::eGeneral,
-                              vk::AccessFlagBits::eShaderRead);
-
-        mLiquidPhis[i].ExtrapolateRecord(commandBuffer);
-
-        mMatrixBuildBound[i].PushConstant(commandBuffer, 8, mDelta);
-        mMatrixBuildBound[i].Record(commandBuffer);
-        mDatas[i].Diagonal.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-        mDatas[i].Lower.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-    }
-
-    std::size_t maxDepth = mDepth.GetMaxDepth();
-    mMatrixBuildBound[maxDepth - 1].PushConstant(commandBuffer, 8, mDelta);
-    mMatrixBuildBound[maxDepth - 1].Record(commandBuffer);
-    mDatas[maxDepth - 1].Diagonal.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-    mDatas[maxDepth - 1].Lower.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
 }
 
 void Multigrid::Record(vk::CommandBuffer commandBuffer)

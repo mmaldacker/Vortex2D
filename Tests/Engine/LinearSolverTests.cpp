@@ -123,14 +123,14 @@ TEST(LinearSolverTests, Transfer_Prolongate)
 
     Transfer t(*device);
 
-    Buffer fineDiagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, fineSize.x*fineSize.y*sizeof(float));    
+    Buffer fineDiagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, fineSize.x*fineSize.y*sizeof(float));
     std::vector<float> fineDiagonalData(fineSize.x*fineSize.y, {1.0f});
     fineDiagonal.CopyFrom(fineDiagonalData);
-    
+
     Buffer coarseDiagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, coarseSize.x*coarseSize.y*sizeof(float));
     std::vector<float> coarseDiagonalData(coarseSize.x*coarseSize.y, {1.0f});
     coarseDiagonal.CopyFrom(coarseDiagonalData);
-    
+
     Buffer input(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float)*coarseSize.x*coarseSize.y);
     Buffer output(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float)*fineSize.x*fineSize.y);
 
@@ -169,11 +169,11 @@ TEST(LinearSolverTests, Transfer_Restrict)
     glm::ivec2 fineSize(4);
 
     Transfer t(*device);
-    
-    Buffer fineDiagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, fineSize.x*fineSize.y*sizeof(float));    
+
+    Buffer fineDiagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, fineSize.x*fineSize.y*sizeof(float));
     std::vector<float> fineDiagonalData(fineSize.x*fineSize.y, {1.0f});
     fineDiagonal.CopyFrom(fineDiagonalData);
-    
+
     Buffer coarseDiagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, coarseSize.x*coarseSize.y*sizeof(float));
     std::vector<float> coarseDiagonalData(coarseSize.x*coarseSize.y, {1.0f});
     coarseDiagonal.CopyFrom(coarseDiagonalData);
@@ -533,12 +533,13 @@ TEST(LinearSolverTests, Simple_Multigrid)
     Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, solidVelocity, valid);
 
     Multigrid multigrid(*device, size, 0.01f);
-    multigrid.Build(pressure, solidPhi, liquidPhi);
+    multigrid.BuildHierarchiesInit(pressure, solidPhi, liquidPhi);
     multigrid.Init(data.Diagonal, data.Lower, data.B, data.X);
+
+    multigrid.BuildHierarchies();
 
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
-        multigrid.RecordInit(commandBuffer);
         multigrid.Record(commandBuffer);
     });
 
@@ -597,12 +598,14 @@ TEST(LinearSolverTests, Multigrid_Simple_PCG)
     Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, solidVelocity, valid);
 
     Multigrid preconditioner(*device, size, 0.01f);
-    preconditioner.Build(pressure, solidPhi, liquidPhi);
+    preconditioner.BuildHierarchiesInit(pressure, solidPhi, liquidPhi);
 
     LinearSolver::Parameters params(1000, 1e-5f);
     ConjugateGradient solver(*device, size, preconditioner);
 
     solver.Init(data.Diagonal, data.Lower, data.B, data.X);
+
+    preconditioner.BuildHierarchies();
     solver.Solve(params);
 
     device->Queue().waitIdle();

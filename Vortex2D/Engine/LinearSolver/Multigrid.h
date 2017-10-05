@@ -42,11 +42,12 @@ public:
               Renderer::Buffer& b,
               Renderer::Buffer& x) override;
 
-    void Build(Pressure& pressure,
-               Renderer::Texture& solidPhi,
-               Renderer::Texture& liquidPhi);
+    void BuildHierarchiesInit(Pressure& pressure,
+                              Renderer::Texture& solidPhi,
+                              Renderer::Texture& liquidPhi);
 
-    void RecordInit(vk::CommandBuffer commandBuffer) override;
+    void BuildHierarchies();
+
     void Record(vk::CommandBuffer commandBuffer) override;
 
     Renderer::Statistics::Timestamps GetStatistics();
@@ -54,7 +55,7 @@ public:
 //private:
     void Smoother(vk::CommandBuffer commandBuffer, int n, int iterations);
 
-    void BuildRecursive(Pressure& pressure, std::size_t depth);
+    void BindRecursive(Pressure& pressure, std::size_t depth);
 
     Depth mDepth;
     float mDelta;
@@ -83,6 +84,8 @@ public:
     std::vector<Renderer::Work::Bound> mMatrixBuildBound;
 
     std::vector<GaussSeidel> mSmoothers;
+
+    Renderer::CommandBuffer mBuildHierarchies;
 
     bool mEnableStatistics;
     Renderer::Statistics mStatistics;

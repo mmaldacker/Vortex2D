@@ -21,11 +21,6 @@ void IncompletePoisson::Init(Renderer::Buffer& d,
     mIncompletePoissonBound = mIncompletePoisson.Bind({d, l, b, pressure});
 }
 
-void IncompletePoisson::RecordInit(vk::CommandBuffer commandBuffer)
-{
-
-}
-
 void IncompletePoisson::Record(vk::CommandBuffer commandBuffer)
 {
     mIncompletePoissonBound.Record(commandBuffer);

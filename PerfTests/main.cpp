@@ -246,7 +246,7 @@ static void MultigridCG(benchmark::State& state)
     Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, solidVelocity, valid);
 
     Multigrid preconditioner(*device, size, 0.01f);
-    preconditioner.Build(pressure, solidPhi, liquidPhi);
+    preconditioner.BuildHierarchiesInit(pressure, solidPhi, liquidPhi);
 
     LinearSolver::Parameters params(10000, 1e-4f);
     ConjugateGradient solver(*device, size, preconditioner);
@@ -254,6 +254,9 @@ static void MultigridCG(benchmark::State& state)
     Timer timer(*device);
 
     solver.Init(data.Diagonal, data.Lower, data.B, data.X);
+
+    preconditioner.BuildHierarchies();
+    device->Handle().waitIdle();
 
     while (state.KeepRunning())
     {
