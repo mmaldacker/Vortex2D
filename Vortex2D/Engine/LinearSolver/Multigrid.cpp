@@ -84,8 +84,8 @@ void Multigrid::Init(Renderer::Buffer& d,
                 mResidualWork.Bind({pressure, d, l, b, mResiduals[0]}));
 
     auto s = mDepth.GetDepthSize(0);
-    mTransfer.InitRestrict(s, mResiduals[0], mDatas[0].B);
-    mTransfer.InitProlongate(s, pressure, mDatas[0].X, d);
+    mTransfer.InitRestrict(s, mResiduals[0], d, mDatas[0].B, mDatas[0].Diagonal);
+    mTransfer.InitProlongate(s, pressure, d, mDatas[0].X, mDatas[0].Diagonal);
 
     mSmoothers[0].Init(d, l, b, pressure);
 }
@@ -119,12 +119,15 @@ void Multigrid::BuildRecursive(Pressure& pressure, std::size_t depth)
 
         mTransfer.InitRestrict(s,
                                mResiduals[depth],
-                               mDatas[depth].B);
+                               mDatas[depth-1].Diagonal,
+                               mDatas[depth].B,
+                               mDatas[depth].Diagonal);
 
         mTransfer.InitProlongate(s,
                                  mDatas[depth-1].X,
+                                 mDatas[depth-1].Diagonal,
                                  mDatas[depth].X,
-                                 mDatas[depth-1].Diagonal);
+                                 mDatas[depth].Diagonal);
 
         BuildRecursive(pressure, depth+1);
     }

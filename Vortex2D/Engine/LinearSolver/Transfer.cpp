@@ -15,17 +15,25 @@ Transfer::Transfer(const Renderer::Device& device)
 
 }
 
-void Transfer::InitProlongate(const glm::ivec2& fineSize, Renderer::Buffer& fine, Renderer::Buffer& coarse, Renderer::Buffer& matrix)
+void Transfer::InitProlongate(const glm::ivec2& fineSize, 
+                              Renderer::Buffer& fine, 
+                              Renderer::Buffer& fineDiagonal, 
+                              Renderer::Buffer& coarse, 
+                              Renderer::Buffer& coarseDiagonal)
 {
-    mProlongateBound.push_back(mProlongateWork.Bind(fineSize, {matrix, coarse, fine}));
+    mProlongateBound.push_back(mProlongateWork.Bind(fineSize, {fineDiagonal, fine, coarseDiagonal, coarse}));
     mProlongateBuffer.push_back(&fine);
 }
 
-void Transfer::InitRestrict(const glm::ivec2& fineSize, Renderer::Buffer& fine, Renderer::Buffer& coarse)
+void Transfer::InitRestrict(const glm::ivec2& fineSize, 
+                        Renderer::Buffer& fine, 
+                        Renderer::Buffer& fineDiagonal, 
+                        Renderer::Buffer& coarse, 
+                        Renderer::Buffer& coarseDiagonal)
 {
     glm::ivec2 coarseSize =  glm::ivec2(1) + fineSize / glm::ivec2(2);
 
-    mRestrictBound.push_back(mRestrictWork.Bind(coarseSize, {fine, coarse}));
+    mRestrictBound.push_back(mRestrictWork.Bind(coarseSize, {fineDiagonal, fine, coarseDiagonal, coarse}));
     mRestrictBuffer.push_back(&coarse);
 }
 

@@ -123,10 +123,14 @@ TEST(LinearSolverTests, Transfer_Prolongate)
 
     Transfer t(*device);
 
-    Buffer diagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, fineSize.x*fineSize.y*sizeof(float));
-    std::vector<float> diagonalData(fineSize.x*fineSize.y, {1.0f});
-    diagonal.CopyFrom(diagonalData);
-
+    Buffer fineDiagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, fineSize.x*fineSize.y*sizeof(float));    
+    std::vector<float> fineDiagonalData(fineSize.x*fineSize.y, {1.0f});
+    fineDiagonal.CopyFrom(fineDiagonalData);
+    
+    Buffer coarseDiagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, coarseSize.x*coarseSize.y*sizeof(float));
+    std::vector<float> coarseDiagonalData(coarseSize.x*coarseSize.y, {1.0f});
+    coarseDiagonal.CopyFrom(coarseDiagonalData);
+    
     Buffer input(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float)*coarseSize.x*coarseSize.y);
     Buffer output(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float)*fineSize.x*fineSize.y);
 
@@ -134,7 +138,7 @@ TEST(LinearSolverTests, Transfer_Prolongate)
     std::iota(data.begin(), data.end(), 1.0f);
     input.CopyFrom(data);
 
-    t.InitProlongate(fineSize, output, input, diagonal);
+    t.InitProlongate(fineSize, output, fineDiagonal, input, coarseDiagonal);
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
         t.Prolongate(commandBuffer, 0);
@@ -165,6 +169,14 @@ TEST(LinearSolverTests, Transfer_Restrict)
     glm::ivec2 fineSize(4);
 
     Transfer t(*device);
+    
+    Buffer fineDiagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, fineSize.x*fineSize.y*sizeof(float));    
+    std::vector<float> fineDiagonalData(fineSize.x*fineSize.y, {1.0f});
+    fineDiagonal.CopyFrom(fineDiagonalData);
+    
+    Buffer coarseDiagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, coarseSize.x*coarseSize.y*sizeof(float));
+    std::vector<float> coarseDiagonalData(coarseSize.x*coarseSize.y, {1.0f});
+    coarseDiagonal.CopyFrom(coarseDiagonalData);
 
     Buffer input(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float)*fineSize.x*fineSize.y);
     Buffer output(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float)*coarseSize.x*coarseSize.y);
@@ -173,7 +185,7 @@ TEST(LinearSolverTests, Transfer_Restrict)
     std::iota(data.begin(), data.end(), 1.0f);
     input.CopyFrom(data);
 
-    t.InitRestrict(fineSize, input, output);
+    t.InitRestrict(fineSize, input, fineDiagonal, output, coarseDiagonal);
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
         t.Restrict(commandBuffer, 0);

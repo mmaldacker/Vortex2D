@@ -9,17 +9,22 @@ layout(push_constant) uniform Consts
   int height;
 }consts;
 
-layout(std430, binding = 0) buffer Diagonal
+layout(std430, binding = 0) buffer FineDiagonal
 {
   float value[];
-}diagonal;
+}fineDiagonal;
 
-layout(std430, binding = 1) buffer Input
+layout(std430, binding = 1) buffer Fine
 {
   float value[];
 }coarse;
 
-layout(std430, binding = 2) buffer Output
+layout(std430, binding = 2) buffer CoarseDiagonal
+{
+  float value[];
+}coarseDiagonal;
+
+layout(std430, binding = 3) buffer Coarse
 {
   float value[];
 }fine;
@@ -30,7 +35,7 @@ void main()
   if (pos.x > 0 && pos.y > 0 && pos.x < consts.width - 1 && pos.y < consts.height - 1)
   {
     int index = pos.x + pos.y * consts.width;
-    if (diagonal.value[index] != 0.0)
+    if (fineDiagonal.value[index] != 0.0)
     {
         ivec2 t = 1 - 2 * (pos - 2 * (pos / 2));
 
@@ -39,12 +44,36 @@ void main()
         int coarseIndex = coarsePos.x + coarsePos.y * coarseWidth;
 
         float p = 0.0;
-        p += 9.0 * coarse.value[coarseIndex];
-        p += 3.0 * coarse.value[coarseIndex + t.x];
-        p += 3.0 * coarse.value[coarseIndex + t.y * coarseWidth];
-        p += 1.0 * coarse.value[coarseIndex + t.x + t.y * coarseWidth];
+        float total = 0.0;
+        
+        if (coarseDiagonal.value[coarseIndex] != 0.0)
+        {
+          p += 9.0 * coarse.value[coarseIndex];
+          total += 9.0;
+        }
+        
+        if (coarseDiagonal.value[coarseIndex + t.x] != 0.0)
+        {
+          p += 3.0 * coarse.value[coarseIndex + t.x];
+          total += 3.0;
+        }
+        
+        if (coarseDiagonal.value[coarseIndex + t.y * coarseWidth] != 0.0)
+        {     
+          p += 3.0 * coarse.value[coarseIndex + t.y * coarseWidth];
+          total += 3.0;
+        }
+        
+        if (coarseDiagonal.value[coarseIndex + t.x + t.y * coarseWidth] != 0.0)
+        {
+          p += 1.0 * coarse.value[coarseIndex + t.x + t.y * coarseWidth];
+          total += 1.0;
+        }
 
-        fine.value[index] += p * 0.0625;
+        if (total != 0.0)
+        {
+          fine.value[index] += p / total;
+        }
     }
   }
 }

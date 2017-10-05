@@ -16,8 +16,17 @@ class Transfer
 public:
     Transfer(const Renderer::Device& device);
 
-    void InitProlongate(const glm::ivec2& fineSize, Renderer::Buffer& fine, Renderer::Buffer& coarse, Renderer::Buffer& matrix);
-    void InitRestrict(const glm::ivec2& fineSize, Renderer::Buffer& fine, Renderer::Buffer& coarse);
+    void InitProlongate(const glm::ivec2& fineSize, 
+                        Renderer::Buffer& fine, 
+                        Renderer::Buffer& fineDiagonal, 
+                        Renderer::Buffer& coarse, 
+                        Renderer::Buffer& coarseDiagonal);
+                        
+    void InitRestrict(const glm::ivec2& fineSize, 
+                      Renderer::Buffer& fine, 
+                      Renderer::Buffer& fineDiagonal, 
+                      Renderer::Buffer& coarse, 
+                      Renderer::Buffer& coarseDiagonal);
 
     void Prolongate(vk::CommandBuffer commandBuffer, int level);
     void Restrict(vk::CommandBuffer commandBuffer, int level);
