@@ -137,27 +137,28 @@ void Multigrid::BuildHierarchiesInit(Pressure& pressure,
 
 void Multigrid::BindRecursive(Pressure& pressure, std::size_t depth)
 {
-    auto s = mDepth.GetDepthSize(depth);
+    auto s0 = mDepth.GetDepthSize(depth);
 
     if (depth < mDepth.GetMaxDepth())
     {
-        mLiquidPhiScaleWorkBound.push_back(mPhiScaleWork.Bind(s, {mLiquidPhis[depth - 1], mLiquidPhis[depth]}));
-        mSolidPhiScaleWorkBound.push_back(mPhiScaleWork.Bind(s, {mSolidPhis[depth - 1], mSolidPhis[depth]}));
+        auto s1 = mDepth.GetDepthSize(depth + 1);
+        mLiquidPhiScaleWorkBound.push_back(mPhiScaleWork.Bind(s1, {mLiquidPhis[depth - 1], mLiquidPhis[depth]}));
+        mSolidPhiScaleWorkBound.push_back(mPhiScaleWork.Bind(s1, {mSolidPhis[depth - 1], mSolidPhis[depth]}));
 
         mResidualWorkBound.push_back(
-                    mResidualWork.Bind(s, {mDatas[depth-1].X,
+                    mResidualWork.Bind(s0, {mDatas[depth-1].X,
                                            mDatas[depth-1].Diagonal,
                                            mDatas[depth-1].Lower,
                                            mDatas[depth-1].B,
                                            mResiduals[depth]}));
 
-        mTransfer.InitRestrict(depth, s,
+        mTransfer.InitRestrict(depth, s0,
                                mResiduals[depth],
                                mDatas[depth-1].Diagonal,
                                mDatas[depth].B,
                                mDatas[depth].Diagonal);
 
-        mTransfer.InitProlongate(depth, s,
+        mTransfer.InitProlongate(depth, s0,
                                  mDatas[depth-1].X,
                                  mDatas[depth-1].Diagonal,
                                  mDatas[depth].X,
@@ -167,7 +168,7 @@ void Multigrid::BindRecursive(Pressure& pressure, std::size_t depth)
     }
 
     mMatrixBuildBound.push_back(
-                pressure.BindMatrixBuild(s,
+                pressure.BindMatrixBuild(s0,
                                          mDatas[depth-1].Diagonal,
                                          mDatas[depth-1].Lower,
                                          mLiquidPhis[depth-1],
