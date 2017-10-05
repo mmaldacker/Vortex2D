@@ -31,7 +31,7 @@ Polygon::Polygon(const Renderer::Device& device, std::vector<glm::vec2> points, 
     , mVertexBuffer(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(glm::vec2) * points.size())
     , mTransformedVertices(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(glm::vec2) * points.size())
     , mUpdateCmd(device, false)
-    , mRender(device, Renderer::ComputeSize::Default2D(), inverse ? "../Vortex2D/PolygonMin.comp.spv" : "../Vortex2D/PolygonMax.comp.spv")
+    , mRender(device, Renderer::ComputeSize::Default2D(), "../Vortex2D/PolygonDist.comp.spv")
     , mUpdate(device, {(int)points.size()}, "../Vortex2D/UpdateVertices.comp.spv")
     , mUpdateBound(mUpdate.Bind({mMVPBuffer, mVertexBuffer, mTransformedVertices}))
 {

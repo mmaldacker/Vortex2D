@@ -67,6 +67,11 @@ std::vector<vk::DescriptorType> Reflection::GetDescriptorTypes()
 unsigned Reflection::GetPushConstantsSize()
 {
     const auto& resources = mCompiler.get_shader_resources();
+    if (resources.push_constant_buffers.empty())
+    {
+        return 0;
+    }
+
     assert(resources.push_constant_buffers.size() == 1);
 
     unsigned id = resources.push_constant_buffers[0].id;

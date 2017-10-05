@@ -25,7 +25,7 @@ public:
                          const Vortex2D::Fluid::Dimensions& dimensions,
                          float dt)
         : source(device, glm::vec2(20.0f), gray)
-        , force(device, glm::vec2(20.0f), {0.0f, 0.1f, 0.0f, 0.0f})
+        , force(device, glm::vec2(20.0f), {0.0f, 0.5f, 0.0f, 0.0f})
         , density(device, dimensions.Size.x, dimensions.Size.y, vk::Format::eB8G8R8A8Unorm)
         , densitySprite(device, density)
         , world(device, dimensions, dt)
@@ -64,17 +64,33 @@ public:
 
         // TODO could be shorter
         // Draw solid boundaries
-        Vortex2D::Fluid::Rectangle obstacle(device, {200.0f, 100.0f});
+        Vortex2D::Fluid::Rectangle obstacle1(device, {200.0f, 100.0f});
+        Vortex2D::Fluid::Rectangle obstacle2(device, {200.0f, 100.0f});
+        Vortex2D::Fluid::Rectangle area(device, {960.0f, 960.0f}, true);
 
-        obstacle.Position = {200.0f, 300.0f};
-        obstacle.Rotation = 45.0f;
+        obstacle1.Position = {200.0f, 300.0f};
+        obstacle1.Rotation = 45.0f;
 
-        obstacle.Initialize(world.SolidPhi());
-        obstacle.Update(dimensions.InvScale);
+        obstacle2.Position = {600.0f, 300.0f};
+        obstacle2.Rotation = 30.0f;
+
+        area.Position = {20.0f, 20.0f};
+
+        obstacle1.Initialize(world.SolidPhi());
+        obstacle1.Update(dimensions.InvScale);
+
+        obstacle2.Initialize(world.SolidPhi());
+        obstacle2.Update(dimensions.InvScale);
+
+        area.Initialize(world.SolidPhi());
+        area.Update(dimensions.InvScale);
+
         Vortex2D::Renderer::ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
         {
-            world.SolidPhi().Clear(commandBuffer, std::array<float, 4>{-1000.0f, 0.0f, 0.0f, 0.0f});
-            obstacle.Draw(commandBuffer, world.SolidPhi());
+            world.SolidPhi().Clear(commandBuffer, std::array<float, 4>{10000.0f, 0.0f, 0.0f, 0.0f});
+            area.Draw(commandBuffer, world.SolidPhi());
+            obstacle1.Draw(commandBuffer, world.SolidPhi());
+            obstacle2.Draw(commandBuffer, world.SolidPhi());
         });
     }
 
