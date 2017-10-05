@@ -1,5 +1,7 @@
 build
 qt-creator-build
+qt-build
+qt-build-release
 Docs/html
 Vortex2D.config
 Vortex2D.creator
