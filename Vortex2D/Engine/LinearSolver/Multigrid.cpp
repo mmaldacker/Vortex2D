@@ -84,8 +84,8 @@ void Multigrid::Init(Renderer::Buffer& d,
                 mResidualWork.Bind({pressure, d, l, b, mResiduals[0]}));
 
     auto s = mDepth.GetDepthSize(0);
-    mTransfer.InitRestrict(s, mResiduals[0], d, mDatas[0].B, mDatas[0].Diagonal);
-    mTransfer.InitProlongate(s, pressure, d, mDatas[0].X, mDatas[0].Diagonal);
+    mTransfer.InitRestrict(0, s, mResiduals[0], d, mDatas[0].B, mDatas[0].Diagonal);
+    mTransfer.InitProlongate(0, s, pressure, d, mDatas[0].X, mDatas[0].Diagonal);
 
     mSmoothers[0].Init(d, l, b, pressure);
 }
@@ -117,13 +117,13 @@ void Multigrid::BuildRecursive(Pressure& pressure, std::size_t depth)
                                            mDatas[depth-1].B,
                                            mResiduals[depth]}));
 
-        mTransfer.InitRestrict(s,
+        mTransfer.InitRestrict(depth, s,
                                mResiduals[depth],
                                mDatas[depth-1].Diagonal,
                                mDatas[depth].B,
                                mDatas[depth].Diagonal);
 
-        mTransfer.InitProlongate(s,
+        mTransfer.InitProlongate(depth, s,
                                  mDatas[depth-1].X,
                                  mDatas[depth-1].Diagonal,
                                  mDatas[depth].X,
@@ -188,7 +188,7 @@ void Multigrid::RecordInit(vk::CommandBuffer commandBuffer)
 
 void Multigrid::Record(vk::CommandBuffer commandBuffer)
 {
-    const int numIterations = 2;
+    const int numIterations = 4;
 
     if (mEnableStatistics) mStatistics.Start(commandBuffer);
 
@@ -214,7 +214,7 @@ void Multigrid::Record(vk::CommandBuffer commandBuffer)
 
     }
 
-    Smoother(commandBuffer, mDepth.GetMaxDepth(), 2 * numIterations);
+    Smoother(commandBuffer, mDepth.GetMaxDepth(), 100);
     if (mEnableStatistics) mStatistics.Tick(commandBuffer, "smoother max");
 
 

@@ -15,26 +15,38 @@ Transfer::Transfer(const Renderer::Device& device)
 
 }
 
-void Transfer::InitProlongate(const glm::ivec2& fineSize, 
+void Transfer::InitProlongate(int level, const glm::ivec2& fineSize,
                               Renderer::Buffer& fine, 
                               Renderer::Buffer& fineDiagonal, 
                               Renderer::Buffer& coarse, 
                               Renderer::Buffer& coarseDiagonal)
 {
-    mProlongateBound.push_back(mProlongateWork.Bind(fineSize, {fineDiagonal, fine, coarseDiagonal, coarse}));
-    mProlongateBuffer.push_back(&fine);
+  if (mProlongateBound.size() < level + 1)
+  {
+    mProlongateBound.resize(level + 1);
+    mProlongateBuffer.resize(level + 1);
+  }
+
+  mProlongateBound[level] = mProlongateWork.Bind(fineSize, {fineDiagonal, fine, coarseDiagonal, coarse});
+  mProlongateBuffer[level] = &fine;
 }
 
-void Transfer::InitRestrict(const glm::ivec2& fineSize, 
-                        Renderer::Buffer& fine, 
-                        Renderer::Buffer& fineDiagonal, 
-                        Renderer::Buffer& coarse, 
-                        Renderer::Buffer& coarseDiagonal)
+void Transfer::InitRestrict(int level, const glm::ivec2& fineSize,
+                            Renderer::Buffer& fine,
+                            Renderer::Buffer& fineDiagonal,
+                            Renderer::Buffer& coarse,
+                            Renderer::Buffer& coarseDiagonal)
 {
+  if (mRestrictBound.size() < level + 1)
+  {
+    mRestrictBound.resize(level + 1);
+    mRestrictBuffer.resize(level + 1);
+  }
+
     glm::ivec2 coarseSize =  glm::ivec2(1) + fineSize / glm::ivec2(2);
 
-    mRestrictBound.push_back(mRestrictWork.Bind(coarseSize, {fineDiagonal, fine, coarseDiagonal, coarse}));
-    mRestrictBuffer.push_back(&coarse);
+    mRestrictBound[level] = mRestrictWork.Bind(coarseSize, {fineDiagonal, fine, coarseDiagonal, coarse});
+    mRestrictBuffer[level] = &coarse;
 }
 
 void Transfer::Prolongate(vk::CommandBuffer commandBuffer, int level)

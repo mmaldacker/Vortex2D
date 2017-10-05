@@ -138,7 +138,7 @@ TEST(LinearSolverTests, Transfer_Prolongate)
     std::iota(data.begin(), data.end(), 1.0f);
     input.CopyFrom(data);
 
-    t.InitProlongate(fineSize, output, fineDiagonal, input, coarseDiagonal);
+    t.InitProlongate(0, fineSize, output, fineDiagonal, input, coarseDiagonal);
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
         t.Prolongate(commandBuffer, 0);
@@ -185,7 +185,7 @@ TEST(LinearSolverTests, Transfer_Restrict)
     std::iota(data.begin(), data.end(), 1.0f);
     input.CopyFrom(data);
 
-    t.InitRestrict(fineSize, input, fineDiagonal, output, coarseDiagonal);
+    t.InitRestrict(0, fineSize, input, fineDiagonal, output, coarseDiagonal);
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
         t.Restrict(commandBuffer, 0);
