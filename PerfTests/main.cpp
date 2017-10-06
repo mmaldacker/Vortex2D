@@ -231,17 +231,8 @@ static void MultigridCG(benchmark::State& state)
     Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
     Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(glm::ivec2));
 
-    Texture inputSolidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
-    SetSolidPhi(size, inputSolidPhi, sim, size.x);
-
-    Texture inputLiquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
-    SetLiquidPhi(size, inputLiquidPhi, sim, size.x);
-
-    Vortex2D::Renderer::ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-        solidPhi.CopyFrom(commandBuffer, inputSolidPhi);
-        liquidPhi.CopyFrom(commandBuffer, inputLiquidPhi);
-    });
+    SetSolidPhi(*device, size, solidPhi, sim, size.x);
+    SetLiquidPhi(*device, size, liquidPhi, sim, size.x);
 
     Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, solidVelocity, valid);
 

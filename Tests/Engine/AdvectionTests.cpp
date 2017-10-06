@@ -25,14 +25,8 @@ TEST(AdvectionTests, AdvectVelocity_Simple)
 
     sim.advance(0.01f);
 
-    Texture output(*device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
     Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
-    SetVelocity(size, output, sim);
-
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-        velocity.CopyFrom(commandBuffer, output);
-    });
+    SetVelocity(*device, size, velocity, sim);
 
     sim.advect(0.01f);
 
@@ -41,12 +35,7 @@ TEST(AdvectionTests, AdvectVelocity_Simple)
 
     device->Queue().waitIdle();
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-        output.CopyFrom(commandBuffer, velocity);
-    });
-
-    CheckVelocity(size, output, sim, 1e-5f);
+    CheckVelocity(*device, size, velocity, sim, 1e-5f);
 }
 
 TEST(AdvectionTests, AdvectVelocity_Complex)
@@ -62,14 +51,8 @@ TEST(AdvectionTests, AdvectVelocity_Complex)
     sim.add_force(0.01f);
     sim.advance(0.01f);
 
-    Texture output(*device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
     Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
-    SetVelocity(size, output, sim);
-
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-        velocity.CopyFrom(commandBuffer, output);
-    });
+    SetVelocity(*device, size, velocity, sim);
 
     sim.advect(0.01f);
 
@@ -78,12 +61,7 @@ TEST(AdvectionTests, AdvectVelocity_Complex)
 
     device->Queue().waitIdle();
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-        output.CopyFrom(commandBuffer, velocity);
-    });
-
-    CheckVelocity(size, output, sim, 1e-5f);
+    CheckVelocity(*device, size, velocity, sim, 1e-5f);
 }
 
 void PrintRGBA8(Texture& texture)
@@ -181,23 +159,13 @@ TEST(AdvectionTests, ParticleAdvect)
     particles.CopyFrom(particlesData);
 
     // setup velocities
-    Texture input(*device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
     Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
 
-    SetVelocity(size, input, sim);
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-        velocity.CopyFrom(commandBuffer, input);
-    });
+    SetVelocity(*device, size, velocity, sim);
 
     // setup level set
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
-    Texture solidPhiInput(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
-    SetSolidPhi(size, solidPhiInput, sim, size.x);
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-        solidPhi.CopyFrom(commandBuffer, solidPhiInput);
-    });
+    SetSolidPhi(*device, size, solidPhi, sim, size.x);
 
     // advection
     Advection advection(*device, size, 0.01f, velocity);
@@ -260,12 +228,7 @@ TEST(AdvectionTests, ParticleProject)
 
     // setup level set
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
-    Texture input(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
-    SetSolidPhi(size, input, sim, size.x);
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-        solidPhi.CopyFrom(commandBuffer, input);
-    });
+    SetSolidPhi(*device, size, solidPhi, sim, size.x);
 
     // advection
     Advection advection(*device, size, 0.01f, velocity);

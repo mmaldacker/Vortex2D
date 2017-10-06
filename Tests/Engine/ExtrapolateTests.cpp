@@ -62,14 +62,8 @@ TEST(ExtrapolateTest, Extrapolate)
     Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::ivec2));
     SetValid(size, sim, valid);
 
-    Texture outputVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
     Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
-    SetVelocity(size, outputVelocity, sim);
-
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-        velocity.CopyFrom(commandBuffer, outputVelocity);
-    });
+    SetVelocity(*device, size, velocity, sim);
 
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
 
@@ -81,12 +75,7 @@ TEST(ExtrapolateTest, Extrapolate)
 
     device->Queue().waitIdle();
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-        outputVelocity.CopyFrom(commandBuffer, velocity);
-    });
-
-    CheckVelocity(size, outputVelocity, sim);
+    CheckVelocity(*device, size, velocity, sim);
     CheckValid(size, sim, valid);
 }
 
@@ -106,27 +95,15 @@ TEST(ExtrapolateTest, Constrain)
 
     Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
 
-    Texture outputSolidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
     // FIXME should set the scale to size.x
-    SetSolidPhi(size, outputSolidPhi, sim);
-
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-        solidPhi.CopyFrom(commandBuffer, outputSolidPhi);
-    });
+    SetSolidPhi(*device, size, solidPhi, sim);
 
     extrapolate(sim.u, sim.u_valid);
     extrapolate(sim.v, sim.v_valid);
 
-    Texture outputVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
     Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
-    SetVelocity(size, outputVelocity, sim);
-
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-        velocity.CopyFrom(commandBuffer, outputVelocity);
-    });
+    SetVelocity(*device, size, velocity, sim);
 
     sim.constrain_velocity();
 
@@ -135,10 +112,5 @@ TEST(ExtrapolateTest, Constrain)
 
     device->Queue().waitIdle();
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-        outputVelocity.CopyFrom(commandBuffer, velocity);
-    });
-
-    CheckVelocity(size, outputVelocity, sim, 1e-5f);
+    CheckVelocity(*device, size, velocity, sim, 1e-5f);
 }

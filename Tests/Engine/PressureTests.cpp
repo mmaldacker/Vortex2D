@@ -235,14 +235,7 @@ TEST(PressureTest, Project_Simple)
     pressure.ApplyPressure();
     device->Handle().waitIdle();
 
-    Texture outputVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
-
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-        outputVelocity.CopyFrom(commandBuffer, velocity);
-    });
-
-    CheckVelocity(size, outputVelocity, sim);
+    CheckVelocity(*device, size, velocity, sim);
     CheckValid(size, sim, valid);
 }
 
@@ -284,13 +277,6 @@ TEST(PressureTest, Project_Complex)
     pressure.ApplyPressure();
     device->Handle().waitIdle();
 
-    Texture outputVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
-
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-        outputVelocity.CopyFrom(commandBuffer, velocity);
-    });
-
-    CheckVelocity(size, outputVelocity, sim);
+    CheckVelocity(*device, size, velocity, sim);
     CheckValid(size, sim, valid);
 }

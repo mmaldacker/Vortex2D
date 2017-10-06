@@ -516,17 +516,8 @@ TEST(LinearSolverTests, Simple_Multigrid)
     Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
     Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::ivec2));
 
-    Texture inputSolidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
-    SetSolidPhi(size, inputSolidPhi, sim, size.x);
-
-    Texture inputLiquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
-    SetLiquidPhi(size, inputLiquidPhi, sim, size.x);
-
-    Vortex2D::Renderer::ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-        solidPhi.CopyFrom(commandBuffer, inputSolidPhi);
-        liquidPhi.CopyFrom(commandBuffer, inputLiquidPhi);
-    });
+    SetSolidPhi(*device, size, solidPhi, sim, size.x);
+    SetLiquidPhi(*device, size, liquidPhi, sim, size.x);
 
     BuildLinearEquation(size, data.Diagonal, data.Lower, data.B, sim);
 
@@ -581,17 +572,8 @@ TEST(LinearSolverTests, Multigrid_Simple_PCG)
     Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
     Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::ivec2));
 
-    Texture inputSolidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
-    SetSolidPhi(size, inputSolidPhi, sim, size.x);
-
-    Texture inputLiquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
-    SetLiquidPhi(size, inputLiquidPhi, sim, size.x);
-
-    Vortex2D::Renderer::ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-        solidPhi.CopyFrom(commandBuffer, inputSolidPhi);
-        liquidPhi.CopyFrom(commandBuffer, inputLiquidPhi);
-    });
+    SetSolidPhi(*device, size, solidPhi, sim, size.x);
+    SetLiquidPhi(*device, size, liquidPhi, sim, size.x);
 
     BuildLinearEquation(size, data.Diagonal, data.Lower, data.B, sim);
 

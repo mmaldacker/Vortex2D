@@ -432,24 +432,14 @@ TEST(ParticleTests, FromGrid)
    ASSERT_EQ(sim.particles.size(), particleCount.GetCount());
 
    // FromGrid test
-   Texture input(*device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
    Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::ivec2));
 
-   SetVelocity(size, input, sim);
-   ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-   {
-       velocity.CopyFrom(commandBuffer, input);
-   });
+   SetVelocity(*device, size, velocity, sim);
 
    particleCount.InitVelocities(velocity, valid);
    particleCount.TransferFromGrid();
    device->Handle().waitIdle();
-
-   ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-   {
-       input.CopyFrom(commandBuffer, velocity);
-   });
 
    // Verify particle velocities
 
@@ -520,7 +510,6 @@ TEST(ParticleTests, ToGrid)
    ASSERT_EQ(sim.particles.size(), particleCount.GetCount());
 
    // ToGrid test
-   Texture output(*device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
    Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::ivec2));
 
@@ -530,10 +519,5 @@ TEST(ParticleTests, ToGrid)
 
    // TODO check valid
 
-   ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-   {
-       output.CopyFrom(commandBuffer, velocity);
-   });
-
-   CheckVelocity(size, output, sim, 1e-5f);
+   CheckVelocity(*device, size, velocity, sim, 1e-5f);
 }
