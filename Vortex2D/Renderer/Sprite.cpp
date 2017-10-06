@@ -66,9 +66,9 @@ AbstractSprite::AbstractSprite(const Device& device, const std::string& fragShad
 
 }
 
-void AbstractSprite::Update(const glm::mat4& model, const glm::mat4& view)
+void AbstractSprite::Update(const glm::mat4& projection, const glm::mat4& view)
 {
-    mMVPBuffer.CopyFrom(model * view * GetTransform());
+    mMVPBuffer.CopyFrom(projection * view * GetTransform());
 }
 
 void AbstractSprite::Initialize(const RenderState& renderState)

@@ -23,7 +23,7 @@ public:
     AbstractSprite(const Device& device, const std::string& fragShaderName, const Texture& texture);
 
     void Initialize(const RenderState& renderState) override;
-    void Update(const glm::mat4& model, const glm::mat4& view) override;
+    void Update(const glm::mat4& projection, const glm::mat4& view) override;
     void Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState) override;
 
     template<typename T>

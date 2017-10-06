@@ -25,10 +25,10 @@ public:
         circle.Initialize(renderState);
     }
 
-    void Update(const glm::mat4& model, const glm::mat4& view) override
+    void Update(const glm::mat4& projection, const glm::mat4& view) override
     {
-        rectangle.Update(model, view);
-        circle.Update(model, view);
+        rectangle.Update(projection, view);
+        circle.Update(projection, view);
     }
 
     void Draw(vk::CommandBuffer commandBuffer, const Vortex2D::Renderer::RenderState& renderState) override
