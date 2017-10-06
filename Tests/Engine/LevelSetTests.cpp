@@ -63,15 +63,11 @@ TEST(LevelSetTests, SimpleCircle)
     Ellipse circle(*device, glm::vec2{rad0} * glm::vec2(size), glm::vec4(0.5f));
     circle.Position = glm::vec2(c0[0], c0[1]) * glm::vec2(size) - glm::vec2(0.5f);
 
-    circle.Initialize({levelSet});
-    circle.Update(levelSet.Orth, glm::mat4());
+    circle.Update(levelSet.Orth, {});
 
-    levelSet.Record([&](vk::CommandBuffer commandBuffer)
-    {
-        Clear(size.x, size.y, glm::vec4(-0.5f)).Draw(commandBuffer);
-        circle.Draw(commandBuffer, {levelSet});
-    });
+    Clear clear(size.x, size.y, glm::vec4(-0.5f));
 
+    levelSet.Record({clear, circle});
     levelSet.Submit();
 
     levelSet.Reinitialise();
@@ -99,29 +95,19 @@ TEST(LevelSetTests, ComplexCircles)
     Ellipse circle2(*device, glm::vec2{rad2} * glm::vec2(size), glm::vec4(-1.0f));
     Ellipse circle3(*device, glm::vec2{rad3} * glm::vec2(size), glm::vec4(-1.0f));
 
+    Clear clear(size.x, size.y, glm::vec4(-1.0f));
+
     circle0.Position = glm::vec2(c0[0], c0[1]) * glm::vec2(size) - glm::vec2(0.5f);
     circle1.Position = glm::vec2(c1[0], c1[1]) * glm::vec2(size) - glm::vec2(0.5f);
     circle2.Position = glm::vec2(c2[0], c2[1]) * glm::vec2(size) - glm::vec2(0.5f);
     circle3.Position = glm::vec2(c3[0], c3[1]) * glm::vec2(size) - glm::vec2(0.5f);
 
-    circle0.Initialize({levelSet});
-    circle1.Initialize({levelSet});
-    circle2.Initialize({levelSet});
-    circle3.Initialize({levelSet});
-    circle0.Update(levelSet.Orth, glm::mat4());
-    circle1.Update(levelSet.Orth, glm::mat4());
-    circle2.Update(levelSet.Orth, glm::mat4());
-    circle3.Update(levelSet.Orth, glm::mat4());
+    circle0.Update(levelSet.Orth, {});
+    circle1.Update(levelSet.Orth, {});
+    circle2.Update(levelSet.Orth, {});
+    circle3.Update(levelSet.Orth, {});
 
-    levelSet.Record([&](vk::CommandBuffer commandBuffer)
-    {
-        Clear(size.x, size.y, glm::vec4(-1.0f)).Draw(commandBuffer);
-        circle0.Draw(commandBuffer, {levelSet});
-        circle1.Draw(commandBuffer, {levelSet});
-        circle2.Draw(commandBuffer, {levelSet});
-        circle3.Draw(commandBuffer, {levelSet});
-    });
-
+    levelSet.Record({clear, circle0, circle1, circle2, circle3});
     levelSet.Submit();
     levelSet.Reinitialise();
 

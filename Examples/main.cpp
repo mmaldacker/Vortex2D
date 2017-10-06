@@ -27,6 +27,7 @@ float delta = 0.016f;
 
 Vortex2D::Renderer::Device* device;
 Vortex2D::Renderer::RenderTarget* target;
+Renderer::Clear* clear;
 
 std::unique_ptr<Vortex2D::Renderer::Drawable> example;
 
@@ -54,8 +55,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             return;
     }
 
-    Vortex2D::Renderer::RenderState t(*target);
-    t.ColorBlend
+    auto blendMode = vk::PipelineColorBlendAttachmentState()
             .setBlendEnable(true)
             .setAlphaBlendOp(vk::BlendOp::eAdd)
             .setColorBlendOp(vk::BlendOp::eAdd)
@@ -64,13 +64,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             .setDstColorBlendFactor(vk::BlendFactor::eOneMinusSrcAlpha)
             .setDstAlphaBlendFactor(vk::BlendFactor::eZero);
 
-    example->Initialize(t);
-
-    target->Record([&](vk::CommandBuffer commandBuffer)
-    {
-        Renderer::Clear(size.x, size.y, {0.5f, 0.5f, 0.5f, 1.0f}).Draw(commandBuffer);
-        example->Draw(commandBuffer, t);
-    });
+    target->Record({*clear, *example}, blendMode);
 }
 
 int main()
@@ -88,10 +82,10 @@ int main()
         Renderer::RenderWindow window(device_, mainWindow.GetSurface(), size.x, size.y);
         target = &window;
 
-        target->Record([&](vk::CommandBuffer commandBuffer)
-        {
-            Renderer::Clear(size.x, size.y, {0.5f, 0.5f, 0.5f, 1.0f}).Draw(commandBuffer);
-        });
+        Renderer::Clear clear_(size.x, size.y, {0.5f, 0.5f, 0.5f, 1.0f});
+        clear = &clear_;
+
+        target->Record({*clear});
 
         while(!mainWindow.ShoudCloseWindow())
         {

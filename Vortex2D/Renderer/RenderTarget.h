@@ -14,6 +14,7 @@
 namespace Vortex2D { namespace Renderer {
 
 class RenderState;
+class Drawable;
 
 /**
  * @brief And interface to represent a target that can be rendered to.
@@ -21,16 +22,17 @@ class RenderState;
  */
 struct RenderTarget
 {
-    using CommandFn = std::function<void(vk::CommandBuffer)>;
-
     RenderTarget(uint32_t width, uint32_t height);
     RenderTarget(RenderTarget&& other);
 
     virtual ~RenderTarget();
 
-    virtual void Record(CommandFn) = 0;
-    virtual void Submit(std::initializer_list<vk::Semaphore> waitSemaphore,
-                        std::initializer_list<vk::Semaphore> signalSemaphore) = 0;
+    using DrawableList = std::initializer_list<std::reference_wrapper<Drawable>>;
+
+    virtual void Record(DrawableList drawables,
+                        vk::PipelineColorBlendAttachmentState blendMode = {}) = 0;
+    virtual void Submit(std::initializer_list<vk::Semaphore> waitSemaphore = {},
+                        std::initializer_list<vk::Semaphore> signalSemaphore = {}) = 0;
 
     uint32_t Width;
     uint32_t Height;

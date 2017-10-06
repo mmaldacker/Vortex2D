@@ -138,7 +138,15 @@ GraphicsPipeline::GraphicsPipeline(GraphicsPipeline::Builder builder)
 
 void GraphicsPipeline::Create(vk::Device device, const RenderState& renderState)
 {
-    mPipelines.emplace_back(renderState, mBuilder.Create(device, renderState));
+    auto it = std::find_if(mPipelines.begin(), mPipelines.end(), [&](const PipelineList::value_type& value)
+    {
+        return value.first == renderState;
+    });
+
+    if (it == mPipelines.end())
+    {
+        mPipelines.emplace_back(renderState, mBuilder.Create(device, renderState));
+    }
 }
 
 void GraphicsPipeline::Bind(vk::CommandBuffer commandBuffer, const RenderState& renderState)

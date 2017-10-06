@@ -178,7 +178,17 @@ Clear::Clear(uint32_t width, uint32_t height, const glm::vec4& colour)
 {
 }
 
-void Clear::Draw(vk::CommandBuffer commandBuffer)
+void Clear::Initialize(const RenderState& renderState)
+{
+
+}
+
+void Clear::Update(const glm::mat4& projection, const glm::mat4& view)
+{
+
+}
+
+void Clear::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState)
 {
     auto clearValue = vk::ClearValue()
             .setColor(std::array<float, 4>{{mColour.r, mColour.g, mColour.b, mColour.a}});

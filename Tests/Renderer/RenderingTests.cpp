@@ -85,10 +85,9 @@ TEST(RenderingTest, ClearTexture)
 
     std::vector<float> data(50*50, 3.5f);
 
-    texture.Record([&](vk::CommandBuffer commandBuffer)
-    {
-        Clear(50, 50, {3.5f, 0.0f, 0.0f, 0.0f}).Draw(commandBuffer);
-    });
+    Clear clear(50, 50, {3.5f, 0.0f, 0.0f, 0.0f});
+
+    texture.Record({clear});
 
     texture.Submit();
     device->Queue().waitIdle();

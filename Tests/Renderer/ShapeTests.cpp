@@ -24,17 +24,14 @@ TEST(ShapeTests, Square)
     rect.Position = glm::vec2(5.0f, 7.0f);
     rect.Scale = glm::vec2(1.5f, 1.0f);
 
+    Clear clear(50, 50, glm::vec4(0.0f));
+
     RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);
 
-    rect.Initialize({texture});
-    rect.Update(texture.Orth, glm::mat4());
+    rect.Update(texture.Orth, {});
 
-    texture.Record([&](vk::CommandBuffer commandBuffer)
-    {
-        Clear(50, 50, glm::vec4(0.0f)).Draw(commandBuffer);
-        rect.Draw(commandBuffer, {texture});
-    });
+    texture.Record({clear, rect});
 
     texture.Submit();
     device->Queue().waitIdle();
@@ -63,13 +60,9 @@ TEST(ShapeTests, IntSquare)
     RenderTexture texture(*device, 50, 50, vk::Format::eR32Sint);
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sint, true);
 
-    rect.Initialize({texture});
-    rect.Update(texture.Orth, glm::mat4());
+    rect.Update(texture.Orth, {});
 
-    texture.Record([&](vk::CommandBuffer commandBuffer)
-    {
-        rect.Draw(commandBuffer, {texture});
-    });
+    texture.Record({rect});
 
     texture.Submit();
     device->Queue().waitIdle();
@@ -97,28 +90,20 @@ TEST(ShapeTests, MultipleSquares)
     Rectangle rect2(*device, size, glm::vec4(1.0f));
     rect2.Position = glm::vec2(20.0f, 27.0f);
 
+    Clear clear(50, 50, glm::vec4(0.0f));
+
     RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);
 
-    rect1.Initialize({texture});
-    rect1.Update(texture.Orth, glm::mat4());
+    rect1.Update(texture.Orth, {});
+    rect2.Update(texture.Orth, {});
 
-    rect2.Initialize({texture});
-    rect2.Update(texture.Orth, glm::mat4());
-
-    texture.Record([&](vk::CommandBuffer commandBuffer)
-    {
-        Clear(50, 50, glm::vec4(0.0f)).Draw(commandBuffer);
-        rect1.Draw(commandBuffer, {texture});
-    });
+    texture.Record({clear, rect1});
 
     texture.Submit();
     device->Queue().waitIdle();
 
-    texture.Record([&](vk::CommandBuffer commandBuffer)
-    {
-        rect2.Draw(commandBuffer, {texture});
-    });
+    texture.Record({rect2});
 
     texture.Submit();
     device->Queue().waitIdle();
@@ -142,17 +127,14 @@ TEST(ShapeTests, Circle)
     Ellipse ellipse(*device, glm::vec2(5.0f), glm::vec4(1.0f));
     ellipse.Position = glm::vec2(10.0f, 15.0f);
 
+    Clear clear(50, 50, glm::vec4(0.0f));
+
     RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);
 
-    ellipse.Initialize({texture});
-    ellipse.Update(texture.Orth, glm::mat4());
+    ellipse.Update(texture.Orth, {});
 
-    texture.Record([&](vk::CommandBuffer commandBuffer)
-    {
-        Clear(50, 50, glm::vec4(0.0f)).Draw(commandBuffer);
-        ellipse.Draw(commandBuffer, {texture});
-    });
+    texture.Record({clear, ellipse});
 
     texture.Submit();
     device->Queue().waitIdle();
@@ -175,17 +157,14 @@ TEST(ShapeTests, Ellipse)
     Ellipse ellipse(*device, radius, glm::vec4(1.0f));
     ellipse.Position = glm::vec2(20.0f, 15.0f);
 
+    Clear clear(50, 50, glm::vec4(0.0f));
+
     RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);
 
-    ellipse.Initialize({texture});
-    ellipse.Update(texture.Orth, glm::mat4());
+    ellipse.Update(texture.Orth, {});
 
-    texture.Record([&](vk::CommandBuffer commandBuffer)
-    {
-        Clear(50, 50, glm::vec4(0.0f)).Draw(commandBuffer);
-        ellipse.Draw(commandBuffer, {texture});
-    });
+    texture.Record({clear, ellipse});
 
     texture.Submit();
     device->Queue().waitIdle();
@@ -210,17 +189,14 @@ TEST(ShapeTests, ScaledEllipse)
     ellipse.Position = pos;
     ellipse.Scale = glm::vec2(1.0f, 2.0f);
 
+    Clear clear(50, 50, glm::vec4(0.0f));
+
     RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);
 
-    ellipse.Initialize({texture});
-    ellipse.Update(texture.Orth, glm::mat4());
+    ellipse.Update(texture.Orth, {});
 
-    texture.Record([&](vk::CommandBuffer commandBuffer)
-    {
-        Clear(50, 50, glm::vec4(0.0f)).Draw(commandBuffer);
-        ellipse.Draw(commandBuffer, {texture});
-    });
+    texture.Record({clear, ellipse});
 
     texture.Submit();
     device->Queue().waitIdle();
@@ -245,17 +221,14 @@ TEST(ShapeTests, RotatedEllipse)
     ellipse.Position = glm::vec2(20.0f, 15.0f);
     ellipse.Rotation = 33.0f;
 
+    Clear clear(50, 50, glm::vec4(0.0f));
+
     RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);
 
-    ellipse.Initialize({texture});
-    ellipse.Update(texture.Orth, glm::mat4());
+    ellipse.Update(texture.Orth, {});
 
-    texture.Record([&](vk::CommandBuffer commandBuffer)
-    {
-        Clear(50, 50, glm::vec4(0.0f)).Draw(commandBuffer);
-        ellipse.Draw(commandBuffer, {texture});
-    });
+    texture.Record({clear, ellipse});
 
     texture.Submit();
     device->Queue().waitIdle();
@@ -279,17 +252,14 @@ TEST(ShapeTests, RenderScaledEllipse)
     Ellipse ellipse(*device, radius, glm::vec4(1.0f));
     ellipse.Position = pos;
 
+    Clear clear(50, 50, glm::vec4(0.0f));
+
     RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);
 
-    ellipse.Initialize({texture});
     ellipse.Update(texture.Orth, glm::scale(glm::vec3(2.0f, 2.0f, 1.0f)));
 
-    texture.Record([&](vk::CommandBuffer commandBuffer)
-    {
-        Clear(50, 50, glm::vec4(0.0f)).Draw(commandBuffer);
-        ellipse.Draw(commandBuffer, {texture});
-    });
+    texture.Record({clear, ellipse});
 
     texture.Submit();
     device->Queue().waitIdle();

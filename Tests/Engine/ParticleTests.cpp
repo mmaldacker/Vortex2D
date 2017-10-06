@@ -190,13 +190,9 @@ TEST(ParticleTests, ParticleDelete)
     // Delete some particles
     IntRectangle rect(*device, {10, 10}, glm::ivec4(0));
     rect.Position = glm::vec2(10.0f, 10.0f);
-    rect.Initialize(particleCount);
     rect.Update(particleCount.Orth, {});
 
-    particleCount.Record([&](vk::CommandBuffer commandBuffer)
-    {
-        rect.Draw(commandBuffer, {particleCount});
-    });
+    particleCount.Record({rect});
     particleCount.Submit();
     device->Queue().waitIdle();
 
@@ -227,13 +223,9 @@ TEST(ParticleTests, ParticleSpawn)
     // Add some particles
     IntRectangle rect(*device, {1, 1}, glm::ivec4(4));
     rect.Position = glm::vec2(10.0f, 10.0f);
-    rect.Initialize(particleCount);
     rect.Update(particleCount.Orth, {});
 
-    particleCount.Record([&](vk::CommandBuffer commandBuffer)
-    {
-        rect.Draw(commandBuffer, {particleCount});
-    });
+    particleCount.Record({rect});
     particleCount.Submit();
     device->Queue().waitIdle();
 
@@ -273,13 +265,9 @@ TEST(ParticleTests, ParticleAddDelete)
     // Add some particles
     IntRectangle rectAdd(*device, {2, 4}, glm::ivec4(1));
     rectAdd.Position = glm::vec2(10.0f, 10.0f);
-    rectAdd.Initialize(particleCount);
     rectAdd.Update(particleCount.Orth, {});
 
-    particleCount.Record([&](vk::CommandBuffer commandBuffer)
-    {
-        rectAdd.Draw(commandBuffer, {particleCount});
-    });
+    particleCount.Record({rectAdd});
     particleCount.Submit();
     device->Queue().waitIdle();
 
@@ -291,13 +279,9 @@ TEST(ParticleTests, ParticleAddDelete)
     // Remove some particles
     IntRectangle rectRemove(*device, {1, 4}, glm::ivec4(0));
     rectRemove.Position = glm::vec2(10.0f, 10.0f);
-    rectRemove.Initialize(particleCount);
     rectRemove.Update(particleCount.Orth, {});
 
-    particleCount.Record([&](vk::CommandBuffer commandBuffer)
-    {
-        rectRemove.Draw(commandBuffer, {particleCount});
-    });
+    particleCount.Record({rectRemove});
     particleCount.Submit();
     device->Queue().waitIdle();
 

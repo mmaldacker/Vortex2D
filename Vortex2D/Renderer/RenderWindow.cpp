@@ -5,6 +5,8 @@
 
 #include "RenderWindow.h"
 
+#include <Vortex2D/Renderer/Drawable.h>
+
 namespace Vortex2D { namespace Renderer {
 
 struct SwapChainSupportDetails
@@ -169,8 +171,16 @@ void RenderWindow::Submit(std::initializer_list<vk::Semaphore> waitSemaphore,
     mDevice.Queue().presentKHR(presentInfo);
 }
 
-void RenderWindow::Record(CommandFn commandFn)
+void RenderWindow::Record(DrawableList drawables,
+                          vk::PipelineColorBlendAttachmentState blendMode)
 {
+    RenderState state(*this, blendMode);
+
+    for (auto& drawable: drawables)
+    {
+      drawable.get().Initialize(state);
+    }
+
     for (uint32_t i = 0; i < mCmdBuffers.size(); i++)
     {
         auto bufferBegin = vk::CommandBufferBeginInfo()
@@ -185,7 +195,10 @@ void RenderWindow::Record(CommandFn commandFn)
 
         mCmdBuffers[i].beginRenderPass(renderPassBegin, vk::SubpassContents::eInline);
 
-        commandFn(mCmdBuffers[i]);
+        for (auto& drawable: drawables)
+        {
+          drawable.get().Draw(mCmdBuffers[i], state);
+        }
 
         mCmdBuffers[i].endRenderPass();
         mCmdBuffers[i].end();

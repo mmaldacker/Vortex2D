@@ -16,6 +16,8 @@ class RenderState
 {
 public:
     RenderState(const RenderTarget& renderTarget);
+    RenderState(const RenderTarget& renderTarget,
+                vk::PipelineColorBlendAttachmentState colorBlend);
 
     uint32_t Width;
     uint32_t Height;

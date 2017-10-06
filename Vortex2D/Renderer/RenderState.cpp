@@ -14,12 +14,18 @@ RenderState::RenderState(const RenderTarget& renderTarget)
     , Height(renderTarget.Height)
     , RenderPass(*renderTarget.RenderPass)
 {
-    ColorBlend = vk::PipelineColorBlendAttachmentState()
-            .setColorWriteMask(vk::ColorComponentFlagBits::eR |
-                               vk::ColorComponentFlagBits::eG |
-                               vk::ColorComponentFlagBits::eB |
-                               vk::ColorComponentFlagBits::eA)
-            .setBlendEnable(false);
+
+}
+
+RenderState::RenderState(const RenderTarget& renderTarget,
+                         vk::PipelineColorBlendAttachmentState colorBlend)
+    : RenderState(renderTarget)
+{
+    ColorBlend = colorBlend
+        .setColorWriteMask(vk::ColorComponentFlagBits::eR |
+                           vk::ColorComponentFlagBits::eG |
+                           vk::ColorComponentFlagBits::eB |
+                           vk::ColorComponentFlagBits::eA);
 }
 
 bool operator==(const RenderState& left, const RenderState right)

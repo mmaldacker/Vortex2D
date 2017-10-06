@@ -40,42 +40,22 @@ public:
         Vortex2D::Renderer::Rectangle area(device, dimensions.Size - glm::ivec2(2.0f), glm::vec4(1.0f));
         area.Position = glm::vec2(1.0f);
 
-        area.Initialize(world.LiquidPhi());
+        Vortex2D::Renderer::Clear clear(dimensions.Size.x, dimensions.Size.y, {-1.0f, 0.0f, 0.0f, 0.0f});
 
-        world.LiquidPhi().Record([&](vk::CommandBuffer commandBuffer)
-        {
-            Vortex2D::Renderer::Clear(dimensions.Size.x, dimensions.Size.y, {-1.0f, 0.0f, 0.0f, 0.0f})
-                    .Draw(commandBuffer);
-            area.Draw(commandBuffer, {world.LiquidPhi()});
-        });
+        world.LiquidPhi().Record({clear, area});
         world.LiquidPhi().Submit();
         device.Handle().waitIdle(); // needed since it needs to be finished before the area object is destroyed
 
-        source1.Initialize({density});
-        source2.Initialize({density});
-
         source1.Update(density.Orth, dimensions.InvScale);
         source2.Update(density.Orth, dimensions.InvScale);
-
-        force1.Initialize({world.Velocity()});
-        force2.Initialize({world.Velocity()});
 
         force1.Update(world.Velocity().Orth, dimensions.InvScale);
         force2.Update(world.Velocity().Orth, dimensions.InvScale);
 
         world.InitField(density);
 
-        world.Velocity().Record([&](vk::CommandBuffer commandBuffer)
-        {
-            force1.Draw(commandBuffer, {world.Velocity()});
-            force2.Draw(commandBuffer, {world.Velocity()});
-        });
-
-        density.Record([&](vk::CommandBuffer commandBuffer)
-        {
-            source1.Draw(commandBuffer, {density});
-            source2.Draw(commandBuffer, {density});
-        });
+        world.Velocity().Record({force1, force2});
+        density.Record({source1, source2});
     }
 
     void Initialize(const Vortex2D::Renderer::RenderState& renderState) override

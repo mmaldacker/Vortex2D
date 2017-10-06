@@ -34,13 +34,9 @@ public:
         Vortex2D::Renderer::IntRectangle fluid(device, {600.0f, 200.0f}, glm::ivec4(4));
         fluid.Position = {200.0f, 100.0f};
 
-        fluid.Initialize(world.Count());
         fluid.Update(world.Count().Orth, dimensions.InvScale);
 
-        world.Count().Record([&](vk::CommandBuffer commandBuffer)
-        {
-            fluid.Draw(commandBuffer, {world.Count()});
-        });
+        world.Count().Record({fluid});
         world.Count().Submit();
         device.Handle().waitIdle();
 
@@ -48,6 +44,7 @@ public:
         Vortex2D::Renderer::Rectangle obstacle1(device, {200.0f, 100.0f}, glm::vec4(-1.0f));
         Vortex2D::Renderer::Rectangle obstacle2(device, {200.0f, 100.0f}, glm::vec4(-1.0f));
         Vortex2D::Renderer::Rectangle area(device, dimensions.Scale * glm::vec2(dimensions.Size) - glm::vec2(40.0f), glm::vec4(1.0f));
+        Vortex2D::Renderer::Clear clear(dimensions.Size.x, dimensions.Size.y, {-1.0f, 0.0f, 0.0f, 0.0f});
 
         area.Position = glm::vec2(20.0f);
 
@@ -57,34 +54,19 @@ public:
         obstacle2.Position = {700.0f, 600.0f};
         obstacle2.Rotation = 30.0f;
 
-        area.Initialize(world.SolidPhi());
-        obstacle1.Initialize(world.SolidPhi());
-        obstacle2.Initialize(world.SolidPhi());
-
         area.Update(world.SolidPhi().Orth, dimensions.InvScale);
         obstacle1.Update(world.SolidPhi().Orth, dimensions.InvScale);
         obstacle2.Update(world.SolidPhi().Orth, dimensions.InvScale);
 
-        world.SolidPhi().Record([&](vk::CommandBuffer commandBuffer)
-        {
-            Vortex2D::Renderer::Clear(dimensions.Size.x, dimensions.Size.y, {-1.0f, 0.0f, 0.0f, 0.0f}).Draw(commandBuffer);
-            area.Draw(commandBuffer, world.SolidPhi());
-            obstacle1.Draw(commandBuffer, world.SolidPhi());
-            obstacle2.Draw(commandBuffer, world.SolidPhi());
-        });
+        world.SolidPhi().Record({clear, area, obstacle1, obstacle2});
         world.SolidPhi().Submit();
 
         world.SolidPhi().Reinitialise();
         device.Handle().waitIdle();
 
         // Set gravity
-        gravity.Initialize(world.Velocity());
         gravity.Update(world.Velocity().Orth, {});
-
-        world.Velocity().Record([&](vk::CommandBuffer commandBuffer)
-        {
-            gravity.Draw(commandBuffer, world.Velocity());
-        });
+        world.Velocity().Record({gravity});
     }
 
     void Initialize(const Vortex2D::Renderer::RenderState& renderState) override

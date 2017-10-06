@@ -5,6 +5,8 @@
 
 #include "RenderTexture.h"
 
+#include <Vortex2D/Renderer/Drawable.h>
+
 namespace Vortex2D { namespace Renderer {
 
 RenderTexture::RenderTexture(const Device& device, uint32_t width, uint32_t height, vk::Format format)
@@ -43,9 +45,23 @@ RenderTexture::RenderTexture(const Device& device, uint32_t width, uint32_t heig
     mFramebuffer = device.Handle().createFramebufferUnique(framebufferInfo);
 }
 
-void RenderTexture::Record(CommandFn commandFn)
+void RenderTexture::Record(DrawableList drawables,
+                           vk::PipelineColorBlendAttachmentState blendMode)
 {
-    mCmd.Record(*this, *mFramebuffer, commandFn);
+    RenderState state(*this, blendMode);
+
+    for (auto& drawable: drawables)
+    {
+      drawable.get().Initialize(state);
+    }
+
+    mCmd.Record(*this, *mFramebuffer, [&](vk::CommandBuffer commandBuffer)
+    {
+        for (auto& drawable: drawables)
+        {
+          drawable.get().Draw(commandBuffer, state);
+        }
+    });
 }
 
 void RenderTexture::Submit(std::initializer_list<vk::Semaphore> waitSemaphore,

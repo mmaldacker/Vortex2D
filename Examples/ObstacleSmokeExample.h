@@ -36,29 +36,17 @@ public:
 
         force.Position = source.Position = {200.0f, 100.0f};
 
-        source.Initialize({density});
-        force.Initialize(world.Velocity());
-
         source.Update(density.Orth, dimensions.InvScale);
         force.Update(world.Velocity().Orth, dimensions.InvScale);
 
         world.InitField(density);
-        world.Velocity().Record([&](vk::CommandBuffer commandBuffer)
-        {
-            force.Draw(commandBuffer, {world.Velocity()});
-        });
+        world.Velocity().Record({force});
 
-        density.Record([&](vk::CommandBuffer commandBuffer)
-        {
-            source.Draw(commandBuffer, {density});
-        });
+        density.Record({source});
 
         // Draw liquid boundaries
-        world.LiquidPhi().Record([&](vk::CommandBuffer commandBuffer)
-        {
-            Vortex2D::Renderer::Clear(dimensions.Size.x, dimensions.Size.y, {-1.0f, 0.0f, 0.0f, 0.0f})
-                    .Draw(commandBuffer);
-        });
+        Vortex2D::Renderer::Clear clear(dimensions.Size.x, dimensions.Size.y, {-1.0f, 0.0f, 0.0f, 0.0f});
+        world.LiquidPhi().Record({clear});
         world.LiquidPhi().Submit();
         device.Handle().waitIdle();
 
@@ -76,6 +64,7 @@ public:
 
         area.Position = {20.0f, 20.0f};
 
+        // TODO add similar function than in RenderTarget to LevelSet
         obstacle1.Initialize(world.SolidPhi());
         obstacle1.Update(dimensions.InvScale);
 

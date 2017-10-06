@@ -23,7 +23,8 @@ public:
     void Submit(std::initializer_list<vk::Semaphore> waitSemaphore = {},
                 std::initializer_list<vk::Semaphore> signalSemaphore = {}) override;
 
-    void Record(CommandFn commandFn) override;
+    void Record(DrawableList drawables,
+                vk::PipelineColorBlendAttachmentState blendMode = {}) override;
 
 private:
     const Device& mDevice;

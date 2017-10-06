@@ -20,7 +20,8 @@ class RenderTexture : public RenderTarget, public Texture
 public:
     RenderTexture(const Device& device, uint32_t width, uint32_t height, vk::Format format);
 
-    void Record(CommandFn commandFn) override;
+    void Record(DrawableList drawables,
+                vk::PipelineColorBlendAttachmentState blendMode = {}) override;
     void Submit(std::initializer_list<vk::Semaphore> waitSemaphore = {},
                 std::initializer_list<vk::Semaphore> signalSemaphore = {}) override;
 
