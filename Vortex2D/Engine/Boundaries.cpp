@@ -63,7 +63,16 @@ Polygon::Polygon(const Renderer::Device& device, std::vector<glm::vec2> points, 
 void Polygon::Initialize(LevelSet& levelSet)
 {
     glm::ivec2 size(levelSet.Width, levelSet.Height);
-    mRenderBounds.emplace_back(levelSet, mRender.Bind(size, {levelSet, mTransformedVertices}));
+
+    auto renderBoundIt = std::find_if(mRenderBounds.begin(), mRenderBounds.end(), [&](const auto& other)
+    {
+        return other.first == levelSet;
+    });
+
+    if (renderBoundIt == mRenderBounds.end())
+    {
+        mRenderBounds.emplace_back(levelSet, mRender.Bind(size, {levelSet, mTransformedVertices}));
+    }
 }
 
 void Polygon::Update(const glm::mat4& view)
@@ -89,6 +98,61 @@ void Polygon::Draw(vk::CommandBuffer commandBuffer, LevelSet& levelSet)
 Rectangle::Rectangle(const Renderer::Device& device, const glm::vec2& size, bool inverse)
     : Polygon(device, {{0.0f, 0.0f}, {size.x, 0.0f}, {size.x, size.y}, {0.0f, size.y}}, inverse)
 {
+}
+
+Circle::Circle(const Renderer::Device& device, float radius)
+    : mSize(radius)
+    , mLocalMVPBuffer(device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(glm::mat4))
+    , mMVPBuffer(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(glm::mat4))
+    , mVertexBuffer(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(glm::vec2))
+    , mTransformedVertices(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(glm::vec2))
+    , mUpdateCmd(device, false)
+    , mRender(device, Renderer::ComputeSize::Default2D(), "../Vortex2D/CircleDist.comp.spv")
+    , mUpdate(device, {1}, "../Vortex2D/UpdateVertices.comp.spv")
+    , mUpdateBound(mUpdate.Bind({mMVPBuffer, mVertexBuffer, mTransformedVertices}))
+{
+    mUpdateCmd.Record([&](vk::CommandBuffer commandBuffer)
+    {
+       mMVPBuffer.CopyFrom(commandBuffer, mLocalMVPBuffer);
+       mUpdateBound.PushConstant(commandBuffer, 8, 1);
+       mUpdateBound.Record(commandBuffer);
+       mTransformedVertices.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+    });
+}
+
+void Circle::Initialize(LevelSet& levelSet)
+{
+    glm::ivec2 size(levelSet.Width, levelSet.Height);
+
+    auto renderBoundIt = std::find_if(mRenderBounds.begin(), mRenderBounds.end(), [&](const auto& other)
+    {
+        return other.first == levelSet;
+    });
+
+    if (renderBoundIt == mRenderBounds.end())
+    {
+        mRenderBounds.emplace_back(levelSet, mRender.Bind(size, {mMVPBuffer, levelSet, mTransformedVertices}));
+    }
+}
+
+void Circle::Update(const glm::mat4& view)
+{
+    mLocalMVPBuffer.CopyFrom(view * GetTransform());
+    mUpdateCmd.Submit();
+}
+
+void Circle::Draw(vk::CommandBuffer commandBuffer, LevelSet& levelSet)
+{
+    auto renderBoundIt = std::find_if(mRenderBounds.begin(), mRenderBounds.end(), [&](const auto& other)
+    {
+        return other.first == levelSet;
+    });
+
+    if (renderBoundIt != mRenderBounds.end())
+    {
+        renderBoundIt->second.PushConstant(commandBuffer, 8, mSize);
+        renderBoundIt->second.Record(commandBuffer);
+    }
 }
 
 DistanceField::DistanceField(const Renderer::Device& device,

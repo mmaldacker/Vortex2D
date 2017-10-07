@@ -56,6 +56,30 @@ public:
     Rectangle(const Renderer::Device& device, const glm::vec2& size, bool inverse = false);
 };
 
+// TODO a lot of duplication between Ellipse and Polygon (and the Shapes classes?)
+class Circle : public Renderer::Transformable, public SignedObject
+{
+public:
+    Circle(const Renderer::Device& device, float radius);
+
+    void Initialize(LevelSet& levelSet) override;
+    void Update(const glm::mat4& view) override;
+    void Draw(vk::CommandBuffer commandBuffer, LevelSet& levelSet) override;
+
+private:
+    float mSize;
+    Renderer::Buffer mLocalMVPBuffer;
+    Renderer::Buffer mMVPBuffer;
+    Renderer::Buffer mVertexBuffer;
+    Renderer::Buffer mTransformedVertices;
+    Renderer::CommandBuffer mUpdateCmd;
+
+    Renderer::Work mRender;
+    std::vector<std::pair<Renderer::RenderTexture&, Renderer::Work::Bound>> mRenderBounds;
+    Renderer::Work mUpdate;
+    Renderer::Work::Bound mUpdateBound;
+};
+
 // TODO have colour has member variable and updated in the Update function
 class DistanceField : public Renderer::AbstractSprite
 {

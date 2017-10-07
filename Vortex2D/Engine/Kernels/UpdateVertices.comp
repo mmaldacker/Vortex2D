@@ -10,10 +10,10 @@ layout(push_constant) uniform Consts
   int n;
 }consts;
 
-layout(binding = 0) buffer Matrix
+layout(binding = 0) buffer MVP
 {
   mat4 value;
-}matrix;
+}mvp;
 
 layout(std430, binding = 1) buffer InPolygon
 {
@@ -30,7 +30,7 @@ void main(void)
     uint i = gl_GlobalInvocationID.x;
     if (i < consts.n)
     {
-        vec4 p = matrix.value * vec4(inPolygon.points[i], 0.0, 1.0);
+        vec4 p = mvp.value * vec4(inPolygon.points[i], 0.0, 1.0);
         outPolygon.points[i] = p.xy;
     }
 }

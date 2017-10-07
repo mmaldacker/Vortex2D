@@ -14,7 +14,7 @@
 namespace Vortex2D { namespace Renderer {
 
 class RenderState;
-class Drawable;
+struct Drawable;
 
 /**
  * @brief And interface to represent a target that can be rendered to.

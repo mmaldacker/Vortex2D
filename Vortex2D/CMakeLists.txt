@@ -54,6 +54,7 @@ file(GLOB SHADER_SOURCES
     "Engine/Kernels/ConstrainVelocity.comp"
     "Engine/Kernels/ExtrapolateVelocity.comp"
     "Engine/Kernels/PolygonDist.comp"
+    "Engine/Kernels/CircleDist.comp"
     "Engine/Kernels/UpdateVertices.comp"
     "Engine/Kernels/DistanceField.frag"
     "Engine/Kernels/PreScanAdd.comp"
