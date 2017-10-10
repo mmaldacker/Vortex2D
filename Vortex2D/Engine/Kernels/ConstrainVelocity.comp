@@ -75,7 +75,7 @@ void main()
 
         float sperp_component = dot(normal, vec2(su, suv.y));
 
-        constrained.y = normal.y * perp_component - normal.y * perp_component;
+        constrained.y = normal.y * perp_component - normal.y * sperp_component;
     }
 
     // FIXME need to set the obstacle velocity (means we don't have to set it in project?)
