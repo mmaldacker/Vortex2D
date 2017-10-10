@@ -22,6 +22,7 @@ public:
                   const glm::ivec2& size,
                   Renderer::Buffer& valid,
                   Renderer::Texture& velocity,
+                  Renderer::Texture& solidVelocity,
                   Renderer::Texture& solidPhi);
 
     /**

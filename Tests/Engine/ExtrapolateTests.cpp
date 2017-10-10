@@ -62,6 +62,7 @@ TEST(ExtrapolateTest, Extrapolate)
     Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::ivec2));
     SetValid(size, sim, valid);
 
+    Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
     Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
     SetVelocity(*device, size, velocity, sim);
 
@@ -70,7 +71,7 @@ TEST(ExtrapolateTest, Extrapolate)
     extrapolate(sim.u, sim.u_valid);
     extrapolate(sim.v, sim.v_valid);
 
-    Extrapolation extrapolation(*device, size, valid, velocity, solidPhi);
+    Extrapolation extrapolation(*device, size, valid, velocity, solidVelocity, solidPhi);
     extrapolation.Extrapolate();
 
     device->Queue().waitIdle();
@@ -102,12 +103,13 @@ TEST(ExtrapolateTest, Constrain)
     extrapolate(sim.u, sim.u_valid);
     extrapolate(sim.v, sim.v_valid);
 
+    Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
     Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
     SetVelocity(*device, size, velocity, sim);
 
     sim.constrain_velocity();
 
-    Extrapolation extrapolation(*device, size, valid, velocity, solidPhi);
+    Extrapolation extrapolation(*device, size, valid, velocity, solidVelocity, solidPhi);
     extrapolation.ConstrainVelocity();
 
     device->Queue().waitIdle();

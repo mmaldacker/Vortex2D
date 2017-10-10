@@ -10,6 +10,7 @@ Extrapolation::Extrapolation(const Renderer::Device& device,
                              const glm::ivec2& size,
                              Renderer::Buffer& valid,
                              Renderer::Texture& velocity,
+                             Renderer::Texture& solidVelocity,
                              Renderer::Texture& solidPhi)
     : mValid(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(glm::ivec2))
     , mVelocity(device, size.x, size.y, vk::Format::eR32G32Sfloat, false)
@@ -17,7 +18,7 @@ Extrapolation::Extrapolation(const Renderer::Device& device,
     , mExtrapolateVelocityFrontBound(mExtrapolateVelocity.Bind({valid, mValid, velocity}))
     , mExtrapolateVelocityBackBound(mExtrapolateVelocity.Bind({mValid, valid, velocity}))
     , mConstrainVelocity(device, size, "../Vortex2D/ConstrainVelocity.comp.spv")
-    , mConstrainVelocityBound(mConstrainVelocity.Bind({solidPhi, velocity, mVelocity}))
+    , mConstrainVelocityBound(mConstrainVelocity.Bind({solidPhi, velocity, solidVelocity, mVelocity}))
     , mExtrapolateCmd(device, false)
     , mConstrainCmd(device, false)
 {

@@ -43,6 +43,7 @@ public:
     void SolveDynamic();
 
     Renderer::RenderTexture& Velocity();
+    Renderer::RenderTexture& ObstacleVelocity();
     LevelSet& LiquidPhi();
     LevelSet& SolidPhi();
     Renderer::Buffer& Particles();

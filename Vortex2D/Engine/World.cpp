@@ -29,7 +29,7 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
                   mFluidLevelSet,
                   mBoundariesVelocity,
                   mValid)
-    , mExtrapolation(device, dimensions.Size, mValid, mVelocity, mObstacleLevelSet)
+    , mExtrapolation(device, dimensions.Size, mValid, mVelocity, mBoundariesVelocity, mObstacleLevelSet)
     , mClearVelocity(device, false)
 {
     mParticleCount.InitLevelSet(mFluidLevelSet);
@@ -111,6 +111,11 @@ void World::SolveDynamic()
 Renderer::RenderTexture& World::Velocity()
 {
     return mVelocity;
+}
+
+Renderer::RenderTexture& World::ObstacleVelocity()
+{
+    return mBoundariesVelocity;
 }
 
 LevelSet& World::LiquidPhi()
