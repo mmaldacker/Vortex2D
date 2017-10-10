@@ -12,6 +12,8 @@
 
 namespace Vortex2D { namespace Fluid {
 
+class SignedObject;
+
 /**
  * @brief A LevelSet class, which extends the Buffer class, with one dimension
  * The additional functionality ensures that the buffer represents a distance set.
@@ -29,6 +31,11 @@ public:
     void Extrapolate();
     void ExtrapolateRecord(vk::CommandBuffer commandBuffer);
 
+    using DrawableList = std::initializer_list<std::reference_wrapper<SignedObject>>;
+
+    void DrawSignedObject(DrawableList drawables);
+    void SubmitSignedBoject();
+
 private:
     Renderer::Texture mLevelSet0;
     Renderer::Texture mLevelSetBack;
@@ -44,7 +51,7 @@ private:
     Renderer::CommandBuffer mExtrapolateCmd;
     Renderer::CommandBuffer mReinitialiseCmd;
     Renderer::CommandBuffer mRedistanceCmd;
-
+    Renderer::CommandBuffer mSignedObjectCmd;
 };
 
 }}

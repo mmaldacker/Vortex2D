@@ -56,18 +56,12 @@ public:
         obstacle1.Position = {250.0f, 400.0f};
         obstacle2.Position = {750.0f, 600.0f};
 
-        obstacle1.Initialize(world.SolidPhi());
-        obstacle2.Initialize(world.SolidPhi());
-
         obstacle1.Update(dimensions.InvScale);
         obstacle2.Update(dimensions.InvScale);
 
-        Vortex2D::Renderer::ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
-        {
-            world.SolidPhi().Clear(commandBuffer, std::array<float, 4>{10000.0f, 0.0f, 0.0f, 0.0f});
-            obstacle1.Draw(commandBuffer, world.SolidPhi());
-            obstacle2.Draw(commandBuffer, world.SolidPhi());
-        });
+        world.SolidPhi().DrawSignedObject({obstacle1, obstacle2});
+        world.SolidPhi().SubmitSignedBoject();
+        device.Handle().waitIdle();
 
         // Draw sources and forces
         source1.Update(density.Orth, dimensions.InvScale);

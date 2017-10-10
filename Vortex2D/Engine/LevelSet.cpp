@@ -5,6 +5,7 @@
 
 #include "LevelSet.h"
 
+#include <Vortex2D/Engine/Boundaries.h>
 #include <Vortex2D/Renderer/CommandBuffer.h>
 
 namespace Vortex2D { namespace  Fluid {
@@ -23,6 +24,7 @@ LevelSet::LevelSet(const Renderer::Device& device, const glm::ivec2& size, int r
     , mExtrapolateCmd(device, false)
     , mReinitialiseCmd(device, false)
     , mRedistanceCmd(device, false)
+    , mSignedObjectCmd(device, false)
 {
     mRedistanceCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
@@ -100,6 +102,28 @@ void LevelSet::Redistance()
 void LevelSet::Extrapolate()
 {
     mExtrapolateCmd.Submit();
+}
+
+void LevelSet::DrawSignedObject(DrawableList drawables)
+{
+    for (auto& drawable: drawables)
+    {
+        drawable.get().Initialize(*this);
+    }
+
+    mSignedObjectCmd.Record([&](vk::CommandBuffer commandBuffer)
+    {
+        Clear(commandBuffer, std::array<float, 4>{(float)(Height*Width), 0.0f, 0.0f, 0.0f});
+        for (auto& drawable: drawables)
+        {
+            drawable.get().Draw(commandBuffer, *this);
+        }
+    });
+}
+
+void LevelSet::SubmitSignedBoject()
+{
+    mSignedObjectCmd.Submit();
 }
 
 }}

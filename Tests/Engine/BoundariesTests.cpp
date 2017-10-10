@@ -184,16 +184,6 @@ TEST(BoundariesTests, Circle)
        outTexture.CopyFrom(commandBuffer, levelSet);
     });
 
-
-    Buffer vertex(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(glm::vec2));
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-        vertex.CopyFrom(commandBuffer, circle.mTransformedVertices);
-    });
-    glm::vec2 point;
-    vertex.CopyTo(point);
-    std::cout << "Point " << point << std::endl;
-
     PrintTexture<float>(outTexture);
     CheckLevelSet(data, outTexture);
 }
