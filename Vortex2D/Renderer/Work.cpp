@@ -154,14 +154,13 @@ Work::Work(const Device& device,
 {
     vk::ShaderModule shaderModule = device.GetShaderModule(shader);
     SPIRV::Reflection reflection(device.GetShaderSPIRV(shader));
+    if (reflection.GetShaderStage() != vk::ShaderStageFlagBits::eCompute) throw std::runtime_error("only compute supported");
+
     mBindings = reflection.GetDescriptorTypes();
     mPushConstantSize = reflection.GetPushConstantsSize();
 
     DescriptorSetLayoutBuilder layoutBuilder;
-    for (int i = 0; i < mBindings.size(); i++)
-    {
-        layoutBuilder.Binding(i, mBindings[i], vk::ShaderStageFlagBits::eCompute, 1);
-    }
+    reflection.AddBindings(layoutBuilder);
     mDescriptorLayout = layoutBuilder.Create(device);
 
     auto pipelineLayoutBuilder = PipelineLayoutBuilder()

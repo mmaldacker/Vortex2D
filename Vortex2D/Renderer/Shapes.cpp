@@ -8,6 +8,7 @@
 #include <glm/gtx/transform.hpp>
 
 #include <Vortex2D/Renderer/RenderTarget.h>
+#include <Vortex2D/SPIRV/Reflection.h>
 
 namespace Vortex2D { namespace Renderer {
 
@@ -24,11 +25,14 @@ AbstractShape::AbstractShape(const Device& device,
     mColourBuffer.CopyFrom(colour);
     mVertexBuffer.CopyFrom(vertices);
 
-    static vk::DescriptorSetLayout descriptorLayout = DescriptorSetLayoutBuilder()
-            .Binding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
-            .Binding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment, 1)
-            .Create(device);
+    SPIRV::Reflection reflectionVert(device.GetShaderSPIRV("../Vortex2D/Position.vert.spv"));
+    SPIRV::Reflection reflectionFrag(device.GetShaderSPIRV(fragName));
 
+    DescriptorSetLayoutBuilder descriptorSetLayoutBuilder;
+    reflectionVert.AddBindings(descriptorSetLayoutBuilder);
+    reflectionFrag.AddBindings(descriptorSetLayoutBuilder);
+
+    vk::DescriptorSetLayout descriptorLayout = descriptorSetLayoutBuilder.Create(device);
     mDescriptorSet = MakeDescriptorSet(device, descriptorLayout);
 
     DescriptorSetUpdater(*mDescriptorSet)
