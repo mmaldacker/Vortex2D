@@ -26,8 +26,6 @@ public:
 
   vk::ShaderStageFlagBits GetShaderStage();
 
-  void AddBindings(Renderer::DescriptorSetLayoutBuilder& builder);
-
 private:
   unsigned ReadBinding(unsigned id);
 

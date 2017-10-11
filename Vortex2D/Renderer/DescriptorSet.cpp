@@ -38,6 +38,17 @@ auto make_visitor(Fs... fs)
 
 }
 
+DescriptorSetLayoutBuilder& DescriptorSetLayoutBuilder::Binding(DescriptorTypeBindings bindings,
+                                                                vk::ShaderStageFlagBits shaderStage)
+{
+    for (auto& descriptorType: bindings)
+    {
+        Binding(descriptorType.first, descriptorType.second, shaderStage, 1);
+    }
+
+    return *this;
+}
+
 DescriptorSetLayoutBuilder& DescriptorSetLayoutBuilder::Binding(uint32_t binding,
                                                                 vk::DescriptorType descriptorType,
                                                                 vk::ShaderStageFlags stageFlags,

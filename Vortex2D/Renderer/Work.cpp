@@ -101,9 +101,9 @@ Work::Work(const Device& device,
     mBindings = reflection.GetDescriptorTypesMap();
     mPushConstantSize = reflection.GetPushConstantsSize();
 
-    DescriptorSetLayoutBuilder layoutBuilder;
-    reflection.AddBindings(layoutBuilder);
-    mDescriptorLayout = layoutBuilder.Create(device);
+    mDescriptorLayout = DescriptorSetLayoutBuilder()
+            .Binding(reflection.GetDescriptorTypesMap(), reflection.GetShaderStage())
+            .Create(device);
 
     auto pipelineLayoutBuilder = PipelineLayoutBuilder()
         .DescriptorSetLayout(mDescriptorLayout);

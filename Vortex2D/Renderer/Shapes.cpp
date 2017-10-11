@@ -28,11 +28,11 @@ AbstractShape::AbstractShape(const Device& device,
     SPIRV::Reflection reflectionVert(device.GetShaderSPIRV("../Vortex2D/Position.vert.spv"));
     SPIRV::Reflection reflectionFrag(device.GetShaderSPIRV(fragName));
 
-    DescriptorSetLayoutBuilder descriptorSetLayoutBuilder;
-    reflectionVert.AddBindings(descriptorSetLayoutBuilder);
-    reflectionFrag.AddBindings(descriptorSetLayoutBuilder);
+    vk::DescriptorSetLayout descriptorLayout = DescriptorSetLayoutBuilder()
+            .Binding(reflectionVert.GetDescriptorTypesMap(), reflectionVert.GetShaderStage())
+            .Binding(reflectionFrag.GetDescriptorTypesMap(), reflectionFrag.GetShaderStage())
+            .Create(device);
 
-    vk::DescriptorSetLayout descriptorLayout = descriptorSetLayoutBuilder.Create(device);
     mDescriptorSet = MakeDescriptorSet(device, descriptorLayout);
 
     DescriptorSetUpdater(*mDescriptorSet)

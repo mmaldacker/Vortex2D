@@ -82,15 +82,6 @@ vk::ShaderStageFlagBits Reflection::GetShaderStage()
     }
 }
 
-void Reflection::AddBindings(Renderer::DescriptorSetLayoutBuilder& builder)
-{
-    auto shaderStage = GetShaderStage();
-    for (auto& descriptorType: mDescriptorTypes)
-    {
-        builder.Binding(descriptorType.first, descriptorType.second, shaderStage, 1);
-    }
-}
-
 }}
 
 

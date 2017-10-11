@@ -16,9 +16,14 @@
 
 namespace Vortex2D { namespace Renderer {
 
+using DescriptorTypeBindings = std::map<unsigned, vk::DescriptorType>;
+
 class DescriptorSetLayoutBuilder
 {
 public:
+    DescriptorSetLayoutBuilder& Binding(DescriptorTypeBindings bindings,
+                                        vk::ShaderStageFlagBits shaderStage);
+
     DescriptorSetLayoutBuilder& Binding(uint32_t binding,
                                         vk::DescriptorType descriptorType,
                                         vk::ShaderStageFlags stageFlags,
@@ -29,8 +34,6 @@ public:
 private:
     std::vector<vk::DescriptorSetLayoutBinding> mDescriptorSetLayoutBindings;
 };
-
-using DescriptorTypeBindings = std::map<unsigned, vk::DescriptorType>;
 
 struct DescriptorImage
 {
