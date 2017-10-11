@@ -10,8 +10,7 @@
 #include <Vortex2D/Renderer/Device.h>
 #include <Vortex2D/Renderer/Buffer.h>
 #include <Vortex2D/Renderer/Texture.h>
-
-#include <Vortex2D/Utils/variant.hpp>
+#include <Vortex2D/Renderer/DescriptorSet.h>
 
 namespace Vortex2D { namespace Renderer {
 
@@ -47,24 +46,6 @@ struct DispatchParams
 class Work
 {
 public:
-    struct Input
-    {
-        Input(Renderer::Buffer& buffer);
-        Input(Renderer::Texture& texture);
-        Input(vk::Sampler sampler, Renderer::Texture& texture);
-
-        struct DescriptorImage
-        {
-            DescriptorImage(vk::Sampler sampler, Renderer::Texture& texture);
-            DescriptorImage(Renderer::Texture& texture);
-
-            vk::Sampler Sampler;
-            Renderer::Texture* Texture;
-        };
-
-        mpark::variant<Renderer::Buffer*, DescriptorImage> Bind;
-    };
-
     Work(const Device& device,
          const ComputeSize& computeSize,
          const std::string& shader);
@@ -103,8 +84,8 @@ public:
     };
 
     // TODO save the bound inside the Work class and access with other method
-    Bound Bind(const std::vector<Input>& inputs);
-    Bound Bind(ComputeSize computeSize, const std::vector<Input>& inputs);
+    Bound Bind(const std::vector<BindingInput>& inputs);
+    Bound Bind(ComputeSize computeSize, const std::vector<BindingInput>& inputs);
 
 private:
     ComputeSize mComputeSize;
@@ -113,7 +94,7 @@ private:
     vk::DescriptorSetLayout mDescriptorLayout;
     vk::UniquePipelineLayout mLayout;
     vk::UniquePipeline mPipeline;
-    std::vector<vk::DescriptorType> mBindings;
+    Renderer::DescriptorTypeBindings mBindings;
 };
 
 }}

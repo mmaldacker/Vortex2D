@@ -38,7 +38,7 @@ AbstractSprite::AbstractSprite(const Device& device, const std::string& fragShad
 
     DescriptorSetUpdater(*mDescriptorSet)
             .WriteBuffers(0, 0, vk::DescriptorType::eUniformBuffer).Buffer(mMVPBuffer)
-            .WriteImages(1, 0, vk::DescriptorType::eCombinedImageSampler).Image(*mSampler, texture, vk::ImageLayout::eShaderReadOnlyOptimal)
+            .WriteImages(1, 0, vk::DescriptorType::eCombinedImageSampler).Image(*mSampler, texture.View(), vk::ImageLayout::eShaderReadOnlyOptimal)
             .Update(device.Handle());
 
     auto pipelineLayoutBuilder = PipelineLayoutBuilder()

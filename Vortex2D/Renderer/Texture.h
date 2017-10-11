@@ -51,7 +51,7 @@ public:
                  vk::ImageLayout newLayout,
                  vk::AccessFlags newAccess);
 
-    operator vk::ImageView() const;
+    vk::ImageView View() const;
 
     uint32_t GetWidth() const;
     uint32_t GetHeight() const;

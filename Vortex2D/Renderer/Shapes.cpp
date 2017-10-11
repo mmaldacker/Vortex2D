@@ -36,8 +36,8 @@ AbstractShape::AbstractShape(const Device& device,
     mDescriptorSet = MakeDescriptorSet(device, descriptorLayout);
 
     DescriptorSetUpdater(*mDescriptorSet)
-            .WriteBuffers(0, 0, vk::DescriptorType::eUniformBuffer).Buffer(mMVPBuffer)
-            .WriteBuffers(1, 0, vk::DescriptorType::eUniformBuffer).Buffer(mColourBuffer)
+            .Bind(reflectionVert.GetDescriptorTypesMap(), {{mMVPBuffer, 0}})
+            .Bind(reflectionFrag.GetDescriptorTypesMap(), {{mColourBuffer, 1}})
             .Update(device.Handle());
 
     mPipelineLayout = PipelineLayoutBuilder()

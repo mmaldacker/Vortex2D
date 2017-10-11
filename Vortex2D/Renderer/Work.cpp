@@ -11,37 +11,6 @@
 
 namespace Vortex2D { namespace Renderer {
 
-namespace
-{
-
-template <class... Fs>
-struct overload;
-
-template <class F0, class... Frest>
-struct overload<F0, Frest...> : F0, overload<Frest...>
-{
-    overload(F0 f0, Frest... rest) : F0(f0), overload<Frest...>(rest...) {}
-
-    using F0::operator();
-    using overload<Frest...>::operator();
-};
-
-template <class F0>
-struct overload<F0> : F0
-{
-    overload(F0 f0) : F0(f0) {}
-
-    using F0::operator();
-};
-
-template <class... Fs>
-auto make_visitor(Fs... fs)
-{
-    return overload<Fs...>(fs...);
-}
-
-}
-
 glm::ivec2 ComputeSize::GetLocalSize2D()
 {
     return {64, 4};
@@ -119,33 +88,6 @@ DispatchParams::DispatchParams(int count)
 {
 }
 
-Work::Input::Input(Renderer::Buffer& buffer)
-    : Bind(&buffer)
-{
-}
-
-Work::Input::Input(Renderer::Texture& texture)
-    : Bind(DescriptorImage(texture))
-{
-}
-
-Work::Input::Input(vk::Sampler sampler, Renderer::Texture& texture)
-    : Bind(DescriptorImage(sampler, texture))
-{
-}
-
-Work::Input::DescriptorImage::DescriptorImage(vk::Sampler sampler, Renderer::Texture& texture)
-    : Sampler(sampler)
-    , Texture(&texture)
-{
-}
-
-Work::Input::DescriptorImage::DescriptorImage(Renderer::Texture& texture)
-    : Sampler()
-    , Texture(&texture)
-{
-}
-
 Work::Work(const Device& device,
            const ComputeSize& computeSize,
            const std::string& shader)
@@ -156,7 +98,7 @@ Work::Work(const Device& device,
     SPIRV::Reflection reflection(device.GetShaderSPIRV(shader));
     if (reflection.GetShaderStage() != vk::ShaderStageFlagBits::eCompute) throw std::runtime_error("only compute supported");
 
-    mBindings = reflection.GetDescriptorTypes();
+    mBindings = reflection.GetDescriptorTypesMap();
     mPushConstantSize = reflection.GetPushConstantsSize();
 
     DescriptorSetLayoutBuilder layoutBuilder;
@@ -177,7 +119,7 @@ Work::Work(const Device& device,
     mPipeline = MakeComputePipeline(device.Handle(), shaderModule, *mLayout, mComputeSize.LocalSize.x, mComputeSize.LocalSize.y);
 }
 
-Work::Bound Work::Bind(ComputeSize computeSize, const std::vector<Input>& inputs)
+Work::Bound Work::Bind(ComputeSize computeSize, const std::vector<Renderer::BindingInput>& inputs)
 {
     if (inputs.size() != mBindings.size())
     {
@@ -186,32 +128,14 @@ Work::Bound Work::Bind(ComputeSize computeSize, const std::vector<Input>& inputs
 
     vk::UniqueDescriptorSet descriptor = MakeDescriptorSet(mDevice, mDescriptorLayout);
 
-    DescriptorSetUpdater updater(*descriptor);
-    for (int i = 0; i < inputs.size(); i++)
-    {
-        auto visitor = make_visitor(
-        [&](Renderer::Buffer* buffer)
-        {
-            if (mBindings[i] != vk::DescriptorType::eStorageBuffer) throw std::runtime_error("Binding not a storage buffer");
-
-            updater.WriteBuffers(i, 0, mBindings[i]).Buffer(*buffer);
-        },
-        [&](Input::DescriptorImage image)
-        {
-            if (mBindings[i] != vk::DescriptorType::eStorageImage &&
-                mBindings[i] != vk::DescriptorType::eCombinedImageSampler) throw std::runtime_error("Binding not an image");
-
-            updater.WriteImages(i, 0, mBindings[i]).Image(image.Sampler, *image.Texture, vk::ImageLayout::eGeneral);
-        });
-
-        mpark::visit(visitor, inputs[i].Bind);
-    }
-    updater.Update(mDevice.Handle());
+    DescriptorSetUpdater(*descriptor)
+            .Bind(mBindings, inputs)
+            .Update(mDevice.Handle());
 
     return Bound(computeSize, mPushConstantSize, *mLayout, *mPipeline, std::move(descriptor));
 }
 
-Work::Bound Work::Bind(const std::vector<Input>& inputs)
+Work::Bound Work::Bind(const std::vector<BindingInput>& inputs)
 {
     return Bind(mComputeSize, inputs);
 }

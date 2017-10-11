@@ -32,7 +32,7 @@ RenderTexture::RenderTexture(const Device& device, uint32_t width, uint32_t heig
             .Create(device.Handle());
 
     // Create framebuffer
-    vk::ImageView attachments[] = {*this};
+    vk::ImageView attachments[] = {View()};
 
     auto framebufferInfo = vk::FramebufferCreateInfo()
             .setWidth(Width)

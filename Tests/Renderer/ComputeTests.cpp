@@ -11,6 +11,7 @@
 #include <Vortex2D/Renderer/Work.h>
 #include <Vortex2D/Renderer/CommandBuffer.h>
 #include <Vortex2D/Renderer/Timer.h>
+#include <Vortex2D/Renderer/DescriptorSet.h>
 #include <Vortex2D/SPIRV/Reflection.h>
 
 #include "Verify.h"
@@ -133,8 +134,8 @@ TEST(ComputeTests, ImageCompute)
     auto descriptorSet = MakeDescriptorSet(*device, descriptorSetLayout);
 
     DescriptorSetUpdater(*descriptorSet)
-            .WriteImages(0, 0, vk::DescriptorType::eStorageImage).Image({}, inTexture, vk::ImageLayout::eGeneral)
-            .WriteImages(1, 0, vk::DescriptorType::eStorageImage).Image({}, outTexture, vk::ImageLayout::eGeneral)
+            .WriteImages(0, 0, vk::DescriptorType::eStorageImage).Image({}, inTexture.View(), vk::ImageLayout::eGeneral)
+            .WriteImages(1, 0, vk::DescriptorType::eStorageImage).Image({}, outTexture.View(), vk::ImageLayout::eGeneral)
             .Update(device->Handle());
 
     auto layout = PipelineLayoutBuilder()
@@ -360,31 +361,31 @@ std::vector<uint32_t> ReadFile(const std::string& filename)
     content.resize(size / 4);
     is.read(reinterpret_cast<char*>(content.data()), size);
     is.close();
-    
+
     return content;
 }
 
 TEST(ComputeTests, Reflection)
 {
   Reflection spirv1(ReadFile("Stencil.comp.spv"));
-  
-  auto descriptorTypes = spirv1.GetDescriptorTypes();
-  std::vector<vk::DescriptorType> expectedDescriptorTypes = {vk::DescriptorType::eStorageBuffer, vk::DescriptorType::eStorageBuffer};
-  
+
+  auto descriptorTypes = spirv1.GetDescriptorTypesMap();
+  DescriptorTypeBindings expectedDescriptorTypes = {{0, vk::DescriptorType::eStorageBuffer}, {1, vk::DescriptorType::eStorageBuffer}};
+
   EXPECT_EQ(expectedDescriptorTypes, descriptorTypes);
 
   Reflection spirv2(ReadFile("Image.comp.spv"));
-  
-  descriptorTypes = spirv2.GetDescriptorTypes();
-  expectedDescriptorTypes = {vk::DescriptorType::eStorageImage, vk::DescriptorType::eStorageImage};
-  
+
+  descriptorTypes = spirv2.GetDescriptorTypesMap();
+  expectedDescriptorTypes = {{0, vk::DescriptorType::eStorageImage}, {1, vk::DescriptorType::eStorageImage}};
+
   EXPECT_EQ(expectedDescriptorTypes, descriptorTypes);
-  
+
   Reflection spirv3(ReadFile("Redistance.comp.spv"));
-  
-  descriptorTypes = spirv3.GetDescriptorTypes();
-  expectedDescriptorTypes = {vk::DescriptorType::eCombinedImageSampler, vk::DescriptorType::eCombinedImageSampler, vk::DescriptorType::eStorageImage};
-  
+
+  descriptorTypes = spirv3.GetDescriptorTypesMap();
+  expectedDescriptorTypes = {{0, vk::DescriptorType::eCombinedImageSampler}, {1, vk::DescriptorType::eCombinedImageSampler}, {2, vk::DescriptorType::eStorageImage}};
+
   EXPECT_EQ(expectedDescriptorTypes, descriptorTypes);
   EXPECT_EQ(12, spirv3.GetPushConstantsSize());
 }

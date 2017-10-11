@@ -63,6 +63,7 @@ public:
 
     void Flush();
 
+    // TODO don't make it an implict conversion operator
     operator vk::Buffer() const;
     vk::DeviceSize Size() const;
 

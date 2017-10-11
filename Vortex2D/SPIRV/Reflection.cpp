@@ -47,21 +47,6 @@ unsigned Reflection::ReadBinding(unsigned id)
     return binding;
 }
 
-std::vector<vk::DescriptorType> Reflection::GetDescriptorTypes() const
-{
-    // create vector
-    std::vector<vk::DescriptorType> descriptorTypes;
-    int i = 0;
-    for (auto& descriptorTypePair: mDescriptorTypes)
-    {
-        if (descriptorTypePair.first != i) throw std::runtime_error("Missing binding");
-        descriptorTypes.push_back(descriptorTypePair.second);
-        i++;
-    }
-
-    return descriptorTypes;
-}
-
 Reflection::DescriptorTypesMap Reflection::GetDescriptorTypesMap() const
 {
     return mDescriptorTypes;

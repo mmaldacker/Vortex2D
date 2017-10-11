@@ -21,9 +21,6 @@ public:
 
   Reflection(const std::vector<uint32_t>& spirv);
 
-  // TODO read push constants too
-
-  std::vector<vk::DescriptorType> GetDescriptorTypes() const;
   DescriptorTypesMap GetDescriptorTypesMap() const;
   unsigned GetPushConstantsSize();
 
