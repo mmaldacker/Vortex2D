@@ -48,12 +48,12 @@ struct BindingInput
 {
     static constexpr unsigned DefaultBind = -1;
 
-    BindingInput(Renderer::Buffer& buffer, unsigned bind = DefaultBind);
+    BindingInput(Renderer::GenericBuffer& buffer, unsigned bind = DefaultBind);
     BindingInput(Renderer::Texture& texture,  unsigned bind = DefaultBind);
     BindingInput(vk::Sampler sampler, Renderer::Texture& texture,  unsigned bind = DefaultBind);
 
     unsigned Bind;
-    mpark::variant<Renderer::Buffer*, DescriptorImage> Input;
+    mpark::variant<Renderer::GenericBuffer*, DescriptorImage> Input;
 };
 
 vk::UniqueDescriptorSet MakeDescriptorSet(const Device& device, vk::DescriptorSetLayout layout);
@@ -68,7 +68,7 @@ public:
     DescriptorSetUpdater& WriteImages(uint32_t dstBinding, uint32_t dstArrayElement, vk::DescriptorType descriptorType);
     DescriptorSetUpdater& Image(vk::Sampler sampler, vk::ImageView imageView, vk::ImageLayout imageLayout);
     DescriptorSetUpdater& WriteBuffers(uint32_t dstBinding, uint32_t dstArrayElement, vk::DescriptorType descriptorType);
-    DescriptorSetUpdater& Buffer(const Buffer& buffer);
+    DescriptorSetUpdater& Buffer(const GenericBuffer& buffer);
 
     void Update(vk::Device device) const;
 

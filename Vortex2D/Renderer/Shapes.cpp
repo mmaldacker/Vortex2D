@@ -8,6 +8,7 @@
 #include <glm/gtx/transform.hpp>
 
 #include <Vortex2D/Renderer/RenderTarget.h>
+#include <Vortex2D/Renderer/CommandBuffer.h>
 #include <Vortex2D/SPIRV/Reflection.h>
 
 namespace Vortex2D { namespace Renderer {
@@ -16,14 +17,20 @@ AbstractShape::AbstractShape(const Device& device,
                              const std::string& fragName,
                              const std::vector<glm::vec2>& vertices,
                              const glm::vec4& colour)
-    : mDevice(device.Handle())
-    , mMVPBuffer(device, vk::BufferUsageFlagBits::eUniformBuffer, true, sizeof(glm::mat4))
-    , mColourBuffer(device, vk::BufferUsageFlagBits::eUniformBuffer, true, sizeof(glm::vec4))
-    , mVertexBuffer(device, vk::BufferUsageFlagBits::eVertexBuffer, true, sizeof(glm::vec2) * vertices.size())
+    : mDevice(device)
+    , mMVPBuffer(device)
+    , mColourBuffer(device)
+    , mVertexBuffer(device, vertices.size())
     , mNumVertices(vertices.size())
 {
-    mColourBuffer.CopyFrom(colour);
-    mVertexBuffer.CopyFrom(vertices);
+    Renderer::CopyFrom(mColourBuffer, colour);
+
+    VertexBuffer<glm::vec2> localVertices(device, vertices.size(), true);
+    Renderer::CopyFrom(localVertices, vertices);
+    ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
+    {
+        mVertexBuffer.CopyFrom(commandBuffer, localVertices);
+    });
 
     SPIRV::Reflection reflectionVert(device.GetShaderSPIRV("../Vortex2D/Position.vert.spv"));
     SPIRV::Reflection reflectionFrag(device.GetShaderSPIRV(fragName));
@@ -57,18 +64,24 @@ AbstractShape::AbstractShape(const Device& device,
 
 void AbstractShape::Initialize(const RenderState& renderState)
 {
-    mPipeline.Create(mDevice, renderState);
+    mPipeline.Create(mDevice.Handle(), renderState);
 }
 
 void AbstractShape::Update(const glm::mat4& projection, const glm::mat4& view)
 {
-    mMVPBuffer.CopyFrom(projection * view * GetTransform());
+    Renderer::CopyFrom(mMVPBuffer, projection * view * GetTransform());
+    // TODO shouldn't be a synced command
+    ExecuteCommand(mDevice, [&](vk::CommandBuffer commandBuffer)
+    {
+        mMVPBuffer.Upload(commandBuffer);
+        mColourBuffer.Upload(commandBuffer);
+    });
 }
 
 void AbstractShape::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState)
 {
     mPipeline.Bind(commandBuffer, renderState);
-    commandBuffer.bindVertexBuffers(0, {mVertexBuffer}, {0ul});
+    commandBuffer.bindVertexBuffers(0, {mVertexBuffer.Handle()}, {0ul});
     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *mPipelineLayout, 0, {*mDescriptorSet}, {});
     commandBuffer.draw(mNumVertices, 1, 0, 0);
 }
@@ -95,25 +108,46 @@ IntRectangle::IntRectangle(const Device& device, const glm::vec2& size, const gl
                      {0.0f, size.y}},
                     colour)
 {
-    mColourBuffer.CopyFrom(colour);
+    UniformBuffer<glm::ivec4> localColour(device, true);
+    CopyFrom(localColour, colour);
+    ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
+    {
+        mColourBuffer.CopyFrom(commandBuffer, localColour);
+    });
 }
 
+void IntRectangle::Update(const glm::mat4& projection, const glm::mat4& view)
+{
+    Renderer::CopyFrom(mMVPBuffer, projection * view * GetTransform());
+    // TODO shouldn't be a synced command
+    ExecuteCommand(mDevice, [&](vk::CommandBuffer commandBuffer)
+    {
+        mMVPBuffer.Upload(commandBuffer);
+    });
+}
 
 Ellipse::Ellipse(const Device& device, const glm::vec2& radius, const glm::vec4& colour)
-    : mDevice(device.Handle())
+    : mDevice(device)
     , mRadius(radius)
-    , mMVPBuffer(device, vk::BufferUsageFlagBits::eUniformBuffer, true, sizeof(glm::mat4))
-    , mColourBuffer(device, vk::BufferUsageFlagBits::eUniformBuffer, true, sizeof(glm::vec4))
-    , mVertexBuffer(device, vk::BufferUsageFlagBits::eVertexBuffer, true, 6*sizeof(glm::vec2))
-    , mSizeBuffer(device, vk::BufferUsageFlagBits::eUniformBuffer, true, sizeof(Size))
+    , mMVPBuffer(device)
+    , mColourBuffer(device)
+    , mVertexBuffer(device, 6)
+    , mSizeBuffer(device)
 {
-    mColourBuffer.CopyFrom(colour);
-    mVertexBuffer.CopyFrom(std::vector<glm::vec2>{{-radius.x, -radius.y},
-                            {radius.x + 1.0f, -radius.y},
-                            {-radius.x, radius.y + 1.0f},
-                            {radius.x + 1.0f, -radius.y},
-                            {radius.x + 1.0f, radius.y + 1.0f},
-                            {-radius.x, radius.y + 1.0f}});
+    Renderer::CopyFrom(mColourBuffer, colour);
+
+    VertexBuffer<glm::vec2> localVertices(device, 6, true);
+    std::vector<glm::vec2> vertices = {{-radius.x, -radius.y},
+                                {radius.x + 1.0f, -radius.y},
+                                {-radius.x, radius.y + 1.0f},
+                                {radius.x + 1.0f, -radius.y},
+                                {radius.x + 1.0f, radius.y + 1.0f},
+                                {-radius.x, radius.y + 1.0f}};
+    Renderer::CopyFrom(localVertices, vertices);
+    ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
+    {
+        mVertexBuffer.CopyFrom(commandBuffer, localVertices);
+    });
 
     static vk::DescriptorSetLayout descriptorLayout = DescriptorSetLayoutBuilder()
             .Binding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
@@ -146,12 +180,12 @@ Ellipse::Ellipse(const Device& device, const glm::vec2& radius, const glm::vec4&
 
 void Ellipse::Initialize(const RenderState& renderState)
 {
-    mPipeline.Create(mDevice, renderState);
+    mPipeline.Create(mDevice.Handle(), renderState);
 }
 
 void Ellipse::Update(const glm::mat4& projection, const glm::mat4& view)
 {
-    mMVPBuffer.CopyFrom(projection * view * GetTransform());
+    Renderer::CopyFrom(mMVPBuffer, projection * view * GetTransform());
 
     Size size;
     glm::vec2 transformScale(glm::length(view[0]), glm::length(view[1]));
@@ -164,13 +198,21 @@ void Ellipse::Update(const glm::mat4& projection, const glm::mat4& view)
     size.view.x = 1.0f / projection[0][0];
     size.view.y = 1.0f / projection[1][1];
 
-    mSizeBuffer.CopyFrom(size);
+    Renderer::CopyFrom(mSizeBuffer, size);
+
+    // TODO shouldn't be a synced command
+    ExecuteCommand(mDevice, [&](vk::CommandBuffer commandBuffer)
+    {
+        mMVPBuffer.Upload(commandBuffer);
+        mColourBuffer.Upload(commandBuffer);
+        mSizeBuffer.Upload(commandBuffer);
+    });
 }
 
 void Ellipse::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState)
 {
     mPipeline.Bind(commandBuffer, renderState);
-    commandBuffer.bindVertexBuffers(0, {mVertexBuffer}, {0ul});
+    commandBuffer.bindVertexBuffers(0, {mVertexBuffer.Handle()}, {0ul});
     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *mPipelineLayout, 0, {*mDescriptorSet}, {});
     commandBuffer.draw(6, 1, 0, 0);
 }

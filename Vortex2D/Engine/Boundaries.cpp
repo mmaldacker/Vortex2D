@@ -7,6 +7,7 @@
 
 #include <Vortex2D/Engine/LevelSet.h>
 #include <Vortex2D/Engine/Particles.h>
+#include <Vortex2D/SPIRV/Reflection.h>
 
 namespace Vortex2D { namespace Fluid {
 
@@ -26,26 +27,22 @@ namespace
 
 Polygon::Polygon(const Renderer::Device& device, std::vector<glm::vec2> points, bool inverse)
     : mSize(points.size())
-    , mLocalMVPBuffer(device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(glm::mat4))
-    , mMVPBuffer(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(glm::mat4))
-    , mVertexBuffer(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(glm::vec2) * points.size())
-    , mTransformedVertices(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(glm::vec2) * points.size())
+    , mMVPBuffer(device)
+    , mVertexBuffer(device, points.size())
+    , mTransformedVertices(device, points.size())
     , mUpdateCmd(device, false)
     , mRender(device, Renderer::ComputeSize::Default2D(), "../Vortex2D/PolygonDist.comp.spv")
     , mUpdate(device, {(int)points.size()}, "../Vortex2D/UpdateVertices.comp.spv")
     , mUpdateBound(mUpdate.Bind({mMVPBuffer, mVertexBuffer, mTransformedVertices}))
 {
-    Renderer::Buffer localVertexBuffer(device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(glm::vec2) * points.size());
-
     assert(!IsClockwise(points));
-
     if (inverse)
     {
         std::reverse(points.begin(), points.end());
     }
 
-    localVertexBuffer.CopyFrom(points);
-
+    Renderer::Buffer<glm::vec2> localVertexBuffer(device, points.size(), true);
+    Renderer::CopyFrom(localVertexBuffer, points);
     Renderer::ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
     {
         mVertexBuffer.CopyFrom(commandBuffer, localVertexBuffer);
@@ -53,7 +50,7 @@ Polygon::Polygon(const Renderer::Device& device, std::vector<glm::vec2> points, 
 
     mUpdateCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
-       mMVPBuffer.CopyFrom(commandBuffer, mLocalMVPBuffer);
+       mMVPBuffer.Upload(commandBuffer);
        mUpdateBound.PushConstant(commandBuffer, 8, mSize);
        mUpdateBound.Record(commandBuffer);
        mTransformedVertices.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
@@ -77,7 +74,7 @@ void Polygon::Initialize(LevelSet& levelSet)
 
 void Polygon::Update(const glm::mat4& view)
 {
-    mLocalMVPBuffer.CopyFrom(view * GetTransform());
+    Renderer::CopyFrom(mMVPBuffer, view * GetTransform());
     mUpdateCmd.Submit();
 }
 
@@ -102,10 +99,9 @@ Rectangle::Rectangle(const Renderer::Device& device, const glm::vec2& size, bool
 
 Circle::Circle(const Renderer::Device& device, float radius)
     : mSize(radius)
-    , mLocalMVPBuffer(device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(glm::mat4))
-    , mMVPBuffer(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(glm::mat4))
-    , mVertexBuffer(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(glm::vec2))
-    , mTransformedVertices(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(glm::vec2))
+    , mMVPBuffer(device)
+    , mVertexBuffer(device)
+    , mTransformedVertices(device)
     , mUpdateCmd(device, false)
     , mRender(device, Renderer::ComputeSize::Default2D(), "../Vortex2D/CircleDist.comp.spv")
     , mUpdate(device, {1}, "../Vortex2D/UpdateVertices.comp.spv")
@@ -113,7 +109,7 @@ Circle::Circle(const Renderer::Device& device, float radius)
 {
     mUpdateCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
-       mMVPBuffer.CopyFrom(commandBuffer, mLocalMVPBuffer);
+       mMVPBuffer.Upload(commandBuffer);
        mUpdateBound.PushConstant(commandBuffer, 8, 1);
        mUpdateBound.Record(commandBuffer);
        mTransformedVertices.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
@@ -137,7 +133,7 @@ void Circle::Initialize(LevelSet& levelSet)
 
 void Circle::Update(const glm::mat4& view)
 {
-    mLocalMVPBuffer.CopyFrom(view * GetTransform());
+    Renderer::CopyFrom(mMVPBuffer, view * GetTransform());
     mUpdateCmd.Submit();
 }
 
@@ -174,25 +170,28 @@ void DistanceField::Draw(vk::CommandBuffer commandBuffer, const Renderer::Render
     AbstractSprite::Draw(commandBuffer, renderState);
 }
 
-ParticleCloud::ParticleCloud(const Renderer::Device& device, Renderer::Buffer& particles, int numParticles, const glm::vec4& colour)
+ParticleCloud::ParticleCloud(const Renderer::Device& device, Renderer::GenericBuffer& particles, int numParticles, const glm::vec4& colour)
     : mDevice(device.Handle())
-    , mMVPBuffer(device, vk::BufferUsageFlagBits::eUniformBuffer, true, sizeof(glm::mat4))
-    , mColourBuffer(device, vk::BufferUsageFlagBits::eUniformBuffer, true, sizeof(glm::vec4))
+    , mMVPBuffer(device)
+    , mColourBuffer(device)
     , mVertexBuffer(particles)
     , mNumVertices(numParticles)
 {
-    mColourBuffer.CopyFrom(colour);
+    Renderer::CopyFrom(mColourBuffer, colour);
+
+    SPIRV::Reflection reflectionVert(device.GetShaderSPIRV("../Vortex2D/ParticleCloud.vert.spv"));
+    SPIRV::Reflection reflectionFrag(device.GetShaderSPIRV("../Vortex2D/ParticleCloud.frag.spv"));
 
     static vk::DescriptorSetLayout descriptorLayout = Renderer::DescriptorSetLayoutBuilder()
-            .Binding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
-            .Binding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment, 1)
+            .Binding(reflectionVert.GetDescriptorTypesMap(), reflectionVert.GetShaderStage())
+            .Binding(reflectionFrag.GetDescriptorTypesMap(), reflectionFrag.GetShaderStage())
             .Create(device);
 
     mDescriptorSet = MakeDescriptorSet(device, descriptorLayout);
 
     Renderer::DescriptorSetUpdater(*mDescriptorSet)
-            .WriteBuffers(0, 0, vk::DescriptorType::eUniformBuffer).Buffer(mMVPBuffer)
-            .WriteBuffers(1, 0, vk::DescriptorType::eUniformBuffer).Buffer(mColourBuffer)
+            .Bind(reflectionVert.GetDescriptorTypesMap(), {{mMVPBuffer, 0}})
+            .Bind(reflectionFrag.GetDescriptorTypesMap(), {{mColourBuffer, 1}})
             .Update(device.Handle());
 
     mPipelineLayout = Renderer::PipelineLayoutBuilder()
@@ -223,13 +222,13 @@ void ParticleCloud::Initialize(const Renderer::RenderState& renderState)
 
 void ParticleCloud::Update(const glm::mat4& projection, const glm::mat4& view)
 {
-    mMVPBuffer.CopyFrom(projection * view * GetTransform());
+    Renderer::CopyFrom(mMVPBuffer, projection * view * GetTransform());
 }
 
 void ParticleCloud::Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState)
 {
     mPipeline.Bind(commandBuffer, renderState);
-    commandBuffer.bindVertexBuffers(0, {mVertexBuffer}, {0ul});
+    commandBuffer.bindVertexBuffers(0, {mVertexBuffer.Handle()}, {0ul});
     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *mPipelineLayout, 0, {*mDescriptorSet}, {});
     commandBuffer.draw(mNumVertices, 1, 0, 0);
 }

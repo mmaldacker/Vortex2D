@@ -14,8 +14,7 @@ GaussSeidel::GaussSeidel(const Renderer::Device& device, const glm::ivec2& size)
     : mW(2.0f/(1.0f+std::sin(glm::pi<float>()/std::sqrt((float)(size.x*size.y)))))
     , mPreconditionerIterations(1)
     , mResidual(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float))
-    , mError(device,  vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(float))
-    , mErrorLocal(device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float))
+    , mError(device)
     , mGaussSeidel(device, Renderer::MakeCheckerboardComputeSize(size), "../Vortex2D/GaussSeidel.comp.spv")
     , mResidualWork(device, size, "../Vortex2D/Residual.comp.spv")
     , mReduceMax(device, size)
@@ -36,10 +35,10 @@ void GaussSeidel::SetPreconditionerIterations(int iterations)
     mPreconditionerIterations = iterations;
 }
 
-void GaussSeidel::Init(Renderer::Buffer& d,
-                       Renderer::Buffer& l,
-                       Renderer::Buffer& div,
-                       Renderer::Buffer& pressure)
+void GaussSeidel::Init(Renderer::GenericBuffer& d,
+                       Renderer::GenericBuffer& l,
+                       Renderer::GenericBuffer& div,
+                       Renderer::GenericBuffer& pressure)
 {
     mPressure = &pressure;
 
@@ -64,7 +63,7 @@ void GaussSeidel::Init(Renderer::Buffer& d,
         mReduceMaxBound.Record(commandBuffer);
         mError.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
 
-        mErrorLocal.CopyFrom(commandBuffer, mError);
+        mError.Download(commandBuffer);
     });
 }
 
@@ -79,7 +78,7 @@ void GaussSeidel::Solve(Parameters& params)
         mErrorCmd.Wait();
 
         params.OutIterations = i;
-        mErrorLocal.CopyTo(params.OutError);
+        Renderer::CopyTo(mError, params.OutError);
         if (params.IsFinished(i, params.OutError))
         {
             return;

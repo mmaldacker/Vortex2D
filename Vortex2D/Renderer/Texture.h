@@ -60,7 +60,7 @@ public:
     void Clear(vk::CommandBuffer commandBuffer, const std::array<int, 4>& colour);
     void Clear(vk::CommandBuffer commandBuffer, const std::array<float, 4>& colour);
 
-    friend class Buffer;
+    friend class GenericBuffer;
 
 private:
     void Clear(vk::CommandBuffer commandBuffer, vk::ClearColorValue colourValue);

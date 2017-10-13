@@ -154,7 +154,10 @@ static void BuildInputs(const Vortex2D::Renderer::Device& device,
     SetLiquidPhi(device, size, liquidPhi, sim);
 }
 
-static void BuildLinearEquation(const glm::ivec2& size, Vortex2D::Renderer::Buffer& d, Vortex2D::Renderer::Buffer& l, Vortex2D::Renderer::Buffer& div, FluidSim& sim)
+static void BuildLinearEquation(const glm::ivec2& size,
+                                Vortex2D::Renderer::Buffer<float>& d,
+                                Vortex2D::Renderer::Buffer<glm::vec2>& l,
+                                Vortex2D::Renderer::Buffer<float>& div, FluidSim& sim)
 {
     std::vector<float> diagonalData(size.x * size.y);
     std::vector<glm::vec2> lowerData(size.x * size.y);
@@ -172,15 +175,17 @@ static void BuildLinearEquation(const glm::ivec2& size, Vortex2D::Renderer::Buff
         }
     }
 
-    d.CopyFrom(diagonalData);
-    l.CopyFrom(lowerData);
-    div.CopyFrom(divData);
+    using Vortex2D::Renderer::CopyFrom;
+
+    CopyFrom(d, diagonalData);
+    CopyFrom(l, lowerData);
+    CopyFrom(div, divData);
 }
 
-static void PrintDiagonal(const glm::ivec2& size, Vortex2D::Renderer::Buffer& buffer)
+static void PrintDiagonal(const glm::ivec2& size, Vortex2D::Renderer::Buffer<float>& buffer)
 {
     std::vector<float> pixels(size.x * size.y);
-    buffer.CopyTo(pixels);
+    Vortex2D::Renderer::CopyTo(buffer, pixels);
 
     for (std::size_t j = 0; j < size.y; j++)
     {
@@ -268,10 +273,10 @@ static void CheckVelocity(const Vortex2D::Renderer::Device& device,
     }
 }
 
-static void CheckValid(const glm::ivec2& size, FluidSim& sim, Vortex2D::Renderer::Buffer& valid)
+static void CheckValid(const glm::ivec2& size, FluidSim& sim, Vortex2D::Renderer::Buffer<glm::ivec2>& valid)
 {
     std::vector<glm::ivec2> validData(size.x*size.y);
-    valid.CopyTo(validData);
+    Vortex2D::Renderer::CopyTo(valid, validData);
 
     for (int i = 0; i < size.x - 1; i++)
     {

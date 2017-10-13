@@ -28,7 +28,7 @@ public:
         std::vector<Renderer::Work::Bound> mBounds;
     };
 
-    Reduce::Bound Bind(Renderer::Buffer& input, Renderer::Buffer& output);
+    Reduce::Bound Bind(Renderer::GenericBuffer& input, Renderer::GenericBuffer& output);
 
 protected:
     Reduce(const Renderer::Device& device,
@@ -38,7 +38,7 @@ protected:
 private:
     int mSize;
     Renderer::Work mReduce;
-    std::vector<Renderer::Buffer> mBuffers;
+    std::vector<Renderer::GenericBuffer> mBuffers;
 };
 
 class ReduceSum : public Reduce

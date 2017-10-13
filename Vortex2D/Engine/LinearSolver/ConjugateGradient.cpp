@@ -21,8 +21,7 @@ ConjugateGradient::ConjugateGradient(const Renderer::Device& device,
     , rho(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(float))
     , rho_new(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(float))
     , sigma(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(float))
-    , error(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(float))
-    , errorLocal(device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float))
+    , error(device)
     , matrixMultiply(device, size, "../Vortex2D/MultiplyMatrix.comp.spv")
     , scalarDivision(device, glm::ivec2(1), "../Vortex2D/Divide.comp.spv")
     , scalarMultiply(device, size, "../Vortex2D/Multiply.comp.spv")
@@ -53,14 +52,14 @@ ConjugateGradient::ConjugateGradient(const Renderer::Device& device,
 
     mErrorRead.Record([&](vk::CommandBuffer commandBuffer)
     {
-        errorLocal.CopyFrom(commandBuffer, error);
+        error.Download(commandBuffer);
     });
 }
 
-void ConjugateGradient::Init(Renderer::Buffer& d,
-                             Renderer::Buffer& l,
-                             Renderer::Buffer& b,
-                             Renderer::Buffer& pressure)
+void ConjugateGradient::Init(Renderer::GenericBuffer& d,
+                             Renderer::GenericBuffer& l,
+                             Renderer::GenericBuffer& b,
+                             Renderer::GenericBuffer& pressure)
 {
     mPreconditioner.Init(d, l, r, z);
 
@@ -240,7 +239,7 @@ void ConjugateGradient::Solve(Parameters& params)
         mErrorRead.Wait();
 
         params.OutIterations = i;
-        errorLocal.CopyTo(params.OutError);
+        Renderer::CopyTo(error, params.OutError);
         // TODO should divide by the initial error
         if (params.IsFinished(i, params.OutError))
         {
@@ -263,7 +262,7 @@ void ConjugateGradient::NormalSolve(Parameters& params)
         mErrorRead.Wait();
 
         params.OutIterations = i;
-        errorLocal.CopyTo(params.OutError);
+        Renderer::CopyTo(error, params.OutError);
         // TODO should divide by the initial error
         if (params.IsFinished(i, params.OutError))
         {

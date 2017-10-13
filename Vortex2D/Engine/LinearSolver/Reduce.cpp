@@ -47,10 +47,10 @@ Reduce::Reduce(const Renderer::Device& device,
     assert(workGroupSize);
 }
 
-Reduce::Bound Reduce::Bind(Renderer::Buffer& input,
-                           Renderer::Buffer& output)
+Reduce::Bound Reduce::Bind(Renderer::GenericBuffer& input,
+                           Renderer::GenericBuffer& output)
 {
-    std::vector<Renderer::Buffer*> buffers;
+    std::vector<Renderer::GenericBuffer*> buffers;
     buffers.push_back(&input);
     for (auto& buffer: mBuffers)
     {
@@ -67,7 +67,7 @@ Reduce::Bound Reduce::Bind(Renderer::Buffer& input,
         bounds.emplace_back(mReduce.Bind(computeSize, {*buffers[i], *buffers[i+1]}));
         computeSize = MakeComputeSize(computeSize.WorkSize.x);
 
-        vk::Buffer buffer = *buffers[i+1];
+        vk::Buffer buffer = buffers[i+1]->Handle();
         bufferBarriers.emplace_back([=](vk::CommandBuffer commandBuffer)
         {
             Renderer::BufferBarrier(buffer, commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);

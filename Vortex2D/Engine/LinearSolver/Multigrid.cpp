@@ -73,10 +73,10 @@ Multigrid::Multigrid(const Renderer::Device& device, const glm::ivec2& size, flo
     }
 }
 
-void Multigrid::Init(Renderer::Buffer& d,
-                     Renderer::Buffer& l,
-                     Renderer::Buffer& b,
-                     Renderer::Buffer& pressure)
+void Multigrid::Init(Renderer::GenericBuffer& d,
+                     Renderer::GenericBuffer& l,
+                     Renderer::GenericBuffer& b,
+                     Renderer::GenericBuffer& pressure)
 
 {
     mPressure = &pressure;

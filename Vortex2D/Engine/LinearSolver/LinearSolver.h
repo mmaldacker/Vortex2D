@@ -33,18 +33,18 @@ struct LinearSolver
     {
         Data(const Renderer::Device& device, const glm::ivec2& size, bool host = false);
 
-        Renderer::Buffer Diagonal;
-        Renderer::Buffer Lower;
-        Renderer::Buffer B;
-        Renderer::Buffer X;
+        Renderer::Buffer<float> Diagonal;
+        Renderer::Buffer<glm::vec2> Lower;
+        Renderer::Buffer<float> B;
+        Renderer::Buffer<float> X;
     };
 
     virtual ~LinearSolver() {}
 
-    virtual void Init(Renderer::Buffer& d,
-                      Renderer::Buffer& l,
-                      Renderer::Buffer& b,
-                      Renderer::Buffer& x) = 0;
+    virtual void Init(Renderer::GenericBuffer& d,
+                      Renderer::GenericBuffer& l,
+                      Renderer::GenericBuffer& b,
+                      Renderer::GenericBuffer& x) = 0;
 
     /**
      * @brief Solves the linear equations

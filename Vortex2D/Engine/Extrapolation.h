@@ -20,7 +20,7 @@ class Extrapolation
 public:
     Extrapolation(const Renderer::Device& device,
                   const glm::ivec2& size,
-                  Renderer::Buffer& valid,
+                  Renderer::GenericBuffer& valid,
                   Renderer::Texture& velocity,
                   Renderer::Texture& solidVelocity,
                   Renderer::Texture& solidPhi);
@@ -35,7 +35,7 @@ public:
 
 
 private:
-    Renderer::Buffer mValid;
+    Renderer::GenericBuffer mValid;
     // TODO use a common temp velocity texture
     Renderer::Texture mVelocity;
 

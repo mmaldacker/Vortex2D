@@ -8,7 +8,7 @@ namespace Vortex2D { namespace Fluid {
 
 Extrapolation::Extrapolation(const Renderer::Device& device,
                              const glm::ivec2& size,
-                             Renderer::Buffer& valid,
+                             Renderer::GenericBuffer& valid,
                              Renderer::Texture& velocity,
                              Renderer::Texture& solidVelocity,
                              Renderer::Texture& solidPhi)

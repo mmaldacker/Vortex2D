@@ -44,7 +44,6 @@ TEST(ShapeTests, Square)
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
         outTexture.CopyFrom(commandBuffer, texture);
-
     });
 
     CheckTexture(data, outTexture);

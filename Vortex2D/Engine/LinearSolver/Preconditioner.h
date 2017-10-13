@@ -19,10 +19,10 @@ struct Preconditioner
 {
     virtual ~Preconditioner() {}
 
-    virtual void Init(Renderer::Buffer& d,
-                      Renderer::Buffer& l,
-                      Renderer::Buffer& b,
-                      Renderer::Buffer& x) = 0;
+    virtual void Init(Renderer::GenericBuffer& d,
+                      Renderer::GenericBuffer& l,
+                      Renderer::GenericBuffer& b,
+                      Renderer::GenericBuffer& x) = 0;
 
     virtual void Record(vk::CommandBuffer commandBuffer) = 0;
 };

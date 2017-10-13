@@ -24,9 +24,9 @@ public:
     void AdvectInit(Renderer::Texture& field);
     void Advect();
 
-    void AdvectParticleInit(Renderer::Buffer& particles,
+    void AdvectParticleInit(Renderer::GenericBuffer& particles,
                             Renderer::Texture& levelSet,
-                            Renderer::Buffer& dispatchParams);
+                            Renderer::GenericBuffer& dispatchParams);
     void AdvectParticles();
 
 private:

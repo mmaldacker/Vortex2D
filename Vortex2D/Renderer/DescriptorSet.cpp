@@ -82,7 +82,7 @@ vk::UniqueDescriptorSet MakeDescriptorSet(const Device& device, vk::DescriptorSe
     return std::move(device.Handle().allocateDescriptorSetsUnique(descriptorSetInfo).at(0));
 }
 
-BindingInput::BindingInput(Renderer::Buffer& buffer, unsigned bind)
+BindingInput::BindingInput(Renderer::GenericBuffer& buffer, unsigned bind)
     : Bind(bind)
     , Input(&buffer)
 
@@ -128,7 +128,7 @@ DescriptorSetUpdater& DescriptorSetUpdater::Bind(DescriptorTypeBindings bindings
     for (int i = 0; i < bindingInputs.size(); i++)
     {
         auto visitor = make_visitor(
-        [&](Renderer::Buffer* buffer)
+        [&](Renderer::GenericBuffer* buffer)
         {
             unsigned bind = bindingInputs[i].Bind == BindingInput::DefaultBind ? i : bindingInputs[i].Bind;
 
@@ -202,12 +202,12 @@ DescriptorSetUpdater& DescriptorSetUpdater::WriteBuffers(uint32_t dstBinding,
     return *this;
 }
 
-DescriptorSetUpdater& DescriptorSetUpdater::Buffer(const ::Vortex2D::Renderer::Buffer& buffer)
+DescriptorSetUpdater& DescriptorSetUpdater::Buffer(const ::Vortex2D::Renderer::GenericBuffer& buffer)
 {
     if (!mDescriptorWrites.empty() && mNumBuffers != mBufferInfo.size() && mDescriptorWrites.back().pBufferInfo)
     {
         mDescriptorWrites.back().descriptorCount++;
-        mBufferInfo[mNumBuffers++] = vk::DescriptorBufferInfo(buffer, 0, buffer.Size());
+        mBufferInfo[mNumBuffers++] = vk::DescriptorBufferInfo(buffer.Handle(), 0, buffer.Size());
     }
     else
     {

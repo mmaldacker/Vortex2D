@@ -24,10 +24,10 @@ class ConjugateGradient : public LinearSolver
 public:
     ConjugateGradient(const Renderer::Device& device, const glm::ivec2& size, Preconditioner& preconditioner, bool statistics = false);
 
-    void Init(Renderer::Buffer& d,
-              Renderer::Buffer& l,
-              Renderer::Buffer& b,
-              Renderer::Buffer& pressure) override;
+    void Init(Renderer::GenericBuffer& d,
+              Renderer::GenericBuffer& l,
+              Renderer::GenericBuffer& b,
+              Renderer::GenericBuffer& pressure) override;
 
     /**
      * @brief Solve iteratively solve the linear equations in data
@@ -41,7 +41,8 @@ public:
 private:
     Preconditioner& mPreconditioner;
 
-    Renderer::Buffer r, s, z, inner, alpha, beta, rho, rho_new, sigma, error, errorLocal;
+    Renderer::GenericBuffer r, s, z, inner, alpha, beta, rho, rho_new, sigma;
+    Renderer::UpdateStorageBuffer<float> error;
     Renderer::Work matrixMultiply, scalarDivision, scalarMultiply, multiplyAdd, multiplySub;
     ReduceSum reduceSum;
     ReduceMax reduceMax;

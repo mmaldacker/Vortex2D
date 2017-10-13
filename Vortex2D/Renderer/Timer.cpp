@@ -85,8 +85,7 @@ uint64_t Timer::GetElapsedNs()
 Statistics::Statistics(const Device& device)
     : mDevice(device)
     , mIndex(0)
-    , mResults(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(uint64_t) * queryCount)
-    , mOutput(device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(uint64_t) * queryCount)
+    , mResults(device, queryCount)
 {
     auto queryPoolInfo = vk::QueryPoolCreateInfo()
             .setQueryType(vk::QueryType::eTimestamp)
@@ -111,7 +110,7 @@ void Statistics::Tick(vk::CommandBuffer commandBuffer, const std::string& name)
 void Statistics::End(vk::CommandBuffer commandBuffer, const std::string& name)
 {
     commandBuffer.writeTimestamp(vk::PipelineStageFlagBits::eAllCommands, *mPool, ++mIndex);
-    commandBuffer.copyQueryPoolResults(*mPool, 0, mIndex + 1, mResults, 0, sizeof(uint64_t), vk::QueryResultFlagBits::eWait | vk::QueryResultFlagBits::e64);
+    commandBuffer.copyQueryPoolResults(*mPool, 0, mIndex + 1, mResults.Handle(), 0, sizeof(uint64_t), vk::QueryResultFlagBits::eWait | vk::QueryResultFlagBits::e64);
     commandBuffer.resetQueryPool(*mPool, 0, mIndex + 1);
     mTimestampNames.emplace_back(name);
 }
@@ -120,11 +119,11 @@ Statistics::Timestamps Statistics::GetTimestamps()
 {
     ExecuteCommand(mDevice, [&](vk::CommandBuffer commandBuffer)
     {
-        mOutput.CopyFrom(commandBuffer, mResults);
+        mResults.Download(commandBuffer);
     });
 
     std::vector<uint64_t> timestamps(queryCount);
-    mOutput.CopyTo(timestamps);
+    Renderer::CopyTo(mResults, timestamps);
 
     Timestamps result;
     for (int i = 0; i < mIndex; i++)

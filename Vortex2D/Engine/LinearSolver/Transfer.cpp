@@ -16,10 +16,10 @@ Transfer::Transfer(const Renderer::Device& device)
 }
 
 void Transfer::InitProlongate(int level, const glm::ivec2& fineSize,
-                              Renderer::Buffer& fine, 
-                              Renderer::Buffer& fineDiagonal, 
-                              Renderer::Buffer& coarse, 
-                              Renderer::Buffer& coarseDiagonal)
+                              Renderer::GenericBuffer& fine, 
+                              Renderer::GenericBuffer& fineDiagonal, 
+                              Renderer::GenericBuffer& coarse, 
+                              Renderer::GenericBuffer& coarseDiagonal)
 {
   if (mProlongateBound.size() < level + 1)
   {
@@ -32,10 +32,10 @@ void Transfer::InitProlongate(int level, const glm::ivec2& fineSize,
 }
 
 void Transfer::InitRestrict(int level, const glm::ivec2& fineSize,
-                            Renderer::Buffer& fine,
-                            Renderer::Buffer& fineDiagonal,
-                            Renderer::Buffer& coarse,
-                            Renderer::Buffer& coarseDiagonal)
+                            Renderer::GenericBuffer& fine,
+                            Renderer::GenericBuffer& fineDiagonal,
+                            Renderer::GenericBuffer& coarse,
+                            Renderer::GenericBuffer& coarseDiagonal)
 {
   if (mRestrictBound.size() < level + 1)
   {

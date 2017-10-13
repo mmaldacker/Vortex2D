@@ -37,10 +37,10 @@ class Multigrid : public Preconditioner
 public:
     Multigrid(const Renderer::Device& device, const glm::ivec2& size, float delta, bool statistics = false);
 
-    void Init(Renderer::Buffer& d,
-              Renderer::Buffer& l,
-              Renderer::Buffer& b,
-              Renderer::Buffer& x) override;
+    void Init(Renderer::GenericBuffer& d,
+              Renderer::GenericBuffer& l,
+              Renderer::GenericBuffer& b,
+              Renderer::GenericBuffer& x) override;
 
     void BuildHierarchiesInit(Pressure& pressure,
                               Renderer::Texture& solidPhi,
@@ -65,13 +65,13 @@ public:
 
     Transfer mTransfer;
 
-    Renderer::Buffer* mPressure = nullptr;
+    Renderer::GenericBuffer* mPressure = nullptr;
 
     // mDatas[0]  is level 1
     std::vector<LinearSolver::Data> mDatas;
 
     // mResiduals[0] is level 0
-    std::vector<Renderer::Buffer> mResiduals;
+    std::vector<Renderer::GenericBuffer> mResiduals;
 
     Renderer::Work mPhiScaleWork;
     std::vector<Renderer::Work::Bound> mSolidPhiScaleWorkBound;

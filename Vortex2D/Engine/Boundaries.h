@@ -15,6 +15,8 @@
 #include <Vortex2D/Renderer/Pipeline.h>
 #include <Vortex2D/Renderer/Sprite.h>
 
+#include <Vortex2D/Engine/Particles.h>
+
 namespace Vortex2D { namespace Fluid {
 
 class LevelSet;
@@ -38,10 +40,9 @@ public:
 
 private:
     int mSize;
-    Renderer::Buffer mLocalMVPBuffer;
-    Renderer::Buffer mMVPBuffer;
-    Renderer::Buffer mVertexBuffer;
-    Renderer::Buffer mTransformedVertices;
+    Renderer::UpdateUniformBuffer<glm::mat4> mMVPBuffer;
+    Renderer::Buffer<glm::vec2> mVertexBuffer;
+    Renderer::Buffer<glm::vec2> mTransformedVertices;
     Renderer::CommandBuffer mUpdateCmd;
 
     Renderer::Work mRender;
@@ -68,10 +69,9 @@ public:
 
 private:
     float mSize;
-    Renderer::Buffer mLocalMVPBuffer;
-    Renderer::Buffer mMVPBuffer;
-    Renderer::Buffer mVertexBuffer;
-    Renderer::Buffer mTransformedVertices;
+    Renderer::UpdateBuffer<Renderer::UniformBuffer, glm::mat4> mMVPBuffer;
+    Renderer::Buffer<glm::vec2> mVertexBuffer;
+    Renderer::Buffer<glm::vec2> mTransformedVertices;
     Renderer::CommandBuffer mUpdateCmd;
 
     Renderer::Work mRender;
@@ -99,7 +99,7 @@ private:
 class ParticleCloud : public Renderer::Drawable, public Renderer::Transformable
 {
 public:
-    ParticleCloud(const Renderer::Device& device, Renderer::Buffer& particles, int numParticles, const glm::vec4& colour);
+    ParticleCloud(const Renderer::Device& device, Renderer::GenericBuffer& particles, int numParticles, const glm::vec4& colour);
 
     void SetNumParticles(int numParticles);
 
@@ -109,9 +109,9 @@ public:
 
 private:
     vk::Device mDevice;
-    Renderer::Buffer mMVPBuffer;
-    Renderer::Buffer mColourBuffer;
-    Renderer::Buffer& mVertexBuffer;
+    Renderer::UpdateUniformBuffer<glm::mat4> mMVPBuffer;
+    Renderer::UpdateUniformBuffer<glm::vec4> mColourBuffer;
+    Renderer::GenericBuffer& mVertexBuffer;
     vk::UniqueDescriptorSet mDescriptorSet;
     vk::UniquePipelineLayout mPipelineLayout;
     Renderer::GraphicsPipeline mPipeline;

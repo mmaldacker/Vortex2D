@@ -13,70 +13,214 @@ namespace Vortex2D { namespace Renderer {
 
 class Texture;
 
-class Buffer
+class GenericBuffer
 {
 public:
-    Buffer(const Device& device, vk::BufferUsageFlags usageFlags, bool host, vk::DeviceSize deviceSize);
+    GenericBuffer(const Device& device, vk::BufferUsageFlags usageFlags, bool host, vk::DeviceSize deviceSize);
 
-    template<typename T>
-    void CopyFrom(const T& src)
-    {
-        assert(sizeof(T) == mSize);
-
-        void* mapped = mDevice.mapMemory(*mMemory, 0, mSize, vk::MemoryMapFlagBits());
-        std::memcpy(mapped, &src, mSize);
-        mDevice.unmapMemory(*mMemory);
-    }
-
-    template<typename T>
-    void CopyFrom(const std::vector<T>& src)
-    {
-        assert(sizeof(T) * src.size() == mSize);
-
-        void* mapped = mDevice.mapMemory(*mMemory, 0, mSize, vk::MemoryMapFlagBits());
-        std::memcpy(mapped, src.data(), mSize);
-        mDevice.unmapMemory(*mMemory);
-    }
-
-    template<typename T>
-    void CopyTo(std::vector<T>& dst)
-    {
-        assert(sizeof(T) * dst.size() == mSize);
-
-        void* mapped = mDevice.mapMemory(*mMemory, 0, mSize, vk::MemoryMapFlagBits());
-        std::memcpy(dst.data(), mapped, mSize);
-        mDevice.unmapMemory(*mMemory);
-    }
-
-    template<typename T>
-    void CopyTo(T& dst)
-    {
-        assert(sizeof(T) == mSize);
-
-        void* mapped = mDevice.mapMemory(*mMemory, 0, mSize, vk::MemoryMapFlagBits());
-        std::memcpy(&dst, mapped, mSize);
-        mDevice.unmapMemory(*mMemory);
-    }
-
-    void CopyFrom(vk::CommandBuffer commandBuffer, Buffer& srcBuffer);
+    void CopyFrom(vk::CommandBuffer commandBuffer, GenericBuffer& srcBuffer);
     void CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcTexture);
 
-    void Flush();
-
-    // TODO don't make it an implict conversion operator
-    operator vk::Buffer() const;
+    vk::Buffer Handle() const;
     vk::DeviceSize Size() const;
 
     void Barrier(vk::CommandBuffer commandBuffer, vk::AccessFlags oldAccess, vk::AccessFlags newAccess);
 
     void Clear(vk::CommandBuffer commandBuffer);
 
-private:
+    // Template friend functions for copying to and from buffers
+    template<template<typename> class BufferType, typename T>
+    friend void CopyFrom(BufferType<T>&, const T&);
+    template<template<typename> class BufferType, typename T>
+    friend void CopyTo(BufferType<T>&, T&);
+
+    template<template<typename> class BufferType, typename T>
+    friend void CopyTo(BufferType<T>&, std::vector<T>&);
+    template<template<typename> class BufferType, typename T>
+    friend void CopyFrom(BufferType<T>&, const std::vector<T>&);
+
+protected:
+    void CopyFrom(const void* data);
+    void CopyTo(void* data);
+
     vk::Device mDevice;
+    bool mHost;
     vk::UniqueBuffer mBuffer;
     vk::UniqueDeviceMemory mMemory;
     vk::DeviceSize mSize;
 };
+
+template<typename T>
+class VertexBuffer : public GenericBuffer
+{
+public:
+    VertexBuffer(const Device& device, std::size_t size, bool host = false)
+        : GenericBuffer(device, vk::BufferUsageFlagBits::eVertexBuffer, host, sizeof(T) * size)
+    {
+    }
+};
+
+template<typename T>
+class UniformBuffer : public GenericBuffer
+{
+public:
+    UniformBuffer(const Device& device, bool host = false)
+        : GenericBuffer(device, vk::BufferUsageFlagBits::eUniformBuffer, host, sizeof(T))
+    {
+    }
+};
+
+template<typename T>
+class Buffer : public GenericBuffer
+{
+public:
+    Buffer(const Device& device, std::size_t size = 1, bool host = false)
+        : GenericBuffer(device, vk::BufferUsageFlagBits::eStorageBuffer, host, sizeof(T) * size)
+    {
+    }
+};
+
+template<template<typename T> class BufferType, typename T>
+class UpdateBuffer : public BufferType<T>
+{
+public:
+    UpdateBuffer(const Device& device)
+        : BufferType<T>(device, false)
+        , mLocal(device, true)
+    {
+    }
+
+    void Upload(vk::CommandBuffer commandBuffer)
+    {
+        BufferType<T>::CopyFrom(commandBuffer, mLocal);
+    }
+
+    template<template<typename T> class BufferType, typename T>
+    friend void CopyFrom(UpdateBuffer<BufferType, T>&, const T&);
+
+    template<template<typename T> class BufferType, typename T>
+    friend void CopyTo(UpdateBuffer<BufferType, T>&, T&);
+
+private:
+    BufferType<T> mLocal;
+};
+
+template<typename T>
+using UpdateUniformBuffer = UpdateBuffer<UniformBuffer, T>;
+
+template<template<typename T> class BufferType, typename T>
+class UpdateBufferVector : public BufferType<T>
+{
+public:
+    UpdateBufferVector(const Device& device, std::size_t size = 1)
+        : BufferType<T>(device, size, false)
+        , mLocal(device, size, true)
+    {
+    }
+
+    void Upload(vk::CommandBuffer commandBuffer)
+    {
+        CopyFrom(commandBuffer, mLocal);
+    }
+
+    void Download(vk::CommandBuffer commandBuffer)
+    {
+        mLocal.CopyFrom(commandBuffer, *this);
+    }
+
+    template<template<typename T> class BufferType, typename T>
+    friend void CopyFrom(UpdateBufferVector<BufferType, T>&, const std::vector<T>&);
+
+    template<template<typename T> class BufferType, typename T>
+    friend void CopyTo(UpdateBufferVector<BufferType, T>&, std::vector<T>&);
+
+    template<template<typename T> class BufferType, typename T>
+    friend void CopyFrom(UpdateBufferVector<BufferType, T>&, const T&);
+
+    template<template<typename T> class BufferType, typename T>
+    friend void CopyTo(UpdateBufferVector<BufferType, T>&, T&);
+
+private:
+    BufferType<T> mLocal;
+};
+
+template<typename T>
+using UpdateVertexBuffer = UpdateBufferVector<VertexBuffer, T>;
+
+template<typename T>
+using UpdateStorageBuffer = UpdateBufferVector<Buffer, T>;
+
+template<template<typename> class BufferType, typename T>
+void CopyTo(BufferType<T>& buffer, T& t)
+{
+    if (sizeof(T) != buffer.Size()) throw std::runtime_error("Mismatch data size");
+    buffer.CopyTo(&t);
+}
+
+template<template<typename> class BufferType, typename T>
+void CopyTo(BufferType<T>& buffer, std::vector<T>& t)
+{
+    if (sizeof(T) * t.size() != buffer.Size()) throw std::runtime_error("Mismatch data size");
+    buffer.CopyTo(t.data());
+}
+
+template<template<typename> class BufferType, typename T>
+void CopyFrom(BufferType<T>& buffer, const T& t)
+{
+    if (sizeof(T) != buffer.Size()) throw std::runtime_error("Mismatch data size");
+    buffer.CopyFrom(&t);
+}
+
+template<template<typename> class BufferType, typename T>
+void CopyFrom(BufferType<T>& buffer, const std::vector<T>& t)
+{
+    if (sizeof(T) * t.size() != buffer.Size()) throw std::runtime_error("Mismatch data size");
+    buffer.CopyFrom(t.data());
+}
+
+// UpdateBuffer functions
+template<template<typename T> class BufferType, typename T>
+void CopyTo(UpdateBuffer<BufferType, T>& buffer, T& t)
+{
+    if (sizeof(T) != buffer.Size()) throw std::runtime_error("Mismatch data size");
+    CopyTo(buffer.mLocal, t);
+}
+
+template<template<typename T> class BufferType, typename T>
+void CopyFrom(UpdateBuffer<BufferType, T>& buffer, const T& t)
+{
+    if (sizeof(T) != buffer.Size()) throw std::runtime_error("Mismatch data size");
+    CopyFrom(buffer.mLocal, t);
+}
+
+// UpdateBufferVector functions
+template<template<typename> class BufferType, typename T>
+void CopyTo(UpdateBufferVector<BufferType, T>& buffer, std::vector<T>& t)
+{
+    if (sizeof(T) * t.size() != buffer.Size()) throw std::runtime_error("Mismatch data size");
+    CopyTo(buffer.mLocal, t);
+}
+
+template<template<typename> class BufferType, typename T>
+void CopyFrom(UpdateBufferVector<BufferType, T>& buffer, const std::vector<T>& t)
+{
+    if (sizeof(T) * t.size() != buffer.Size()) throw std::runtime_error("Mismatch data size");
+    CopyFrom(buffer.mLocal, t);
+}
+
+template<template<typename T> class BufferType, typename T>
+void CopyFrom(UpdateBufferVector<BufferType, T>& buffer, const T& t)
+{
+    if (sizeof(T) != buffer.Size()) throw std::runtime_error("Mismatch data size");
+    CopyFrom(buffer.mLocal, t);
+}
+
+template<template<typename T> class BufferType, typename T>
+void CopyTo(UpdateBufferVector<BufferType, T>& buffer, T& t)
+{
+    if (sizeof(T) != buffer.Size()) throw std::runtime_error("Mismatch data size");
+    CopyTo(buffer.mLocal, t);
+}
 
 void BufferBarrier(vk::Buffer buffer, vk::CommandBuffer commandBuffer, vk::AccessFlags oldAccess, vk::AccessFlags newAccess);
 

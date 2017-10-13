@@ -64,7 +64,7 @@ TEST(RenderingTest, TextureCopy)
 TEST(RenderingTest, TextureBufferCopy)
 {
     Texture texture(*device, 50, 50, vk::Format::eR32Sfloat, true);
-    Buffer buffer(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, 50*50*sizeof(float));
+    Buffer<float> buffer(*device, 50*50, true);
 
     std::vector<float> data(50*50, 0);
     DrawSquare<float>(50, 50, data, glm::vec2(10.0f, 15.0f), glm::vec2(5.0f, 8.0f), -5.0f);

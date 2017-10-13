@@ -142,11 +142,11 @@ TEST(AdvectionTests, ParticleAdvect)
     sim.advance(0.01f);
 
     // setup particles
-    Buffer particles(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, 8*size.x*size.y*sizeof(Particle));
-    Buffer dispatchParams(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(DispatchParams));
+    Buffer<Particle> particles(*device, 8 * size.x * size.y, true);
+    Buffer<DispatchParams> dispatchParams(*device, 1, true);
 
     DispatchParams params(sim.particles.size());
-    dispatchParams.CopyFrom(params);
+    CopyFrom(dispatchParams, params);
 
     std::vector<Particle> particlesData;
     for (auto& p: sim.particles)
@@ -156,7 +156,7 @@ TEST(AdvectionTests, ParticleAdvect)
         particlesData.push_back(particle);
     }
     particlesData.resize(8*size.x*size.y);
-    particles.CopyFrom(particlesData);
+    CopyFrom(particles, particlesData);
 
     // setup velocities
     Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
@@ -177,7 +177,7 @@ TEST(AdvectionTests, ParticleAdvect)
     sim.advect_particles(0.01f);
 
     std::vector<Particle> outParticlesData(size.x*size.y*8);
-    particles.CopyTo(outParticlesData);
+    CopyTo(particles, outParticlesData);
 
     for (int i = 0; i < sim.particles.size(); i++)
     {
@@ -207,11 +207,11 @@ TEST(AdvectionTests, ParticleProject)
     sim.add_particle(bottomRight);
 
     // setup particles
-    Buffer particles(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, 8*size.x*size.y*sizeof(Particle));
-    Buffer dispatchParams(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(DispatchParams));
+    Buffer<Particle> particles(*device, 8*size.x*size.y, true);
+    Buffer<DispatchParams> dispatchParams(*device, 1, true);
 
     DispatchParams params(sim.particles.size());
-    dispatchParams.CopyFrom(params);
+    CopyFrom(dispatchParams, params);
 
     std::vector<Particle> particlesData;
     for (auto& p: sim.particles)
@@ -221,7 +221,7 @@ TEST(AdvectionTests, ParticleProject)
         particlesData.push_back(particle);
     }
     particlesData.resize(8*size.x*size.y);
-    particles.CopyFrom(particlesData);
+    CopyFrom(particles, particlesData);
 
     // setup velocities
     Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
@@ -240,7 +240,7 @@ TEST(AdvectionTests, ParticleProject)
     sim.advect_particles(0.01f);
 
     std::vector<Particle> outParticlesData(size.x*size.y*8);
-    particles.CopyTo(outParticlesData);
+    CopyTo(particles, outParticlesData);
 
     for (int i = 0; i < sim.particles.size(); i++)
     {

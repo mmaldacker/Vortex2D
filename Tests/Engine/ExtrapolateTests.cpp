@@ -12,10 +12,10 @@ using namespace Vortex2D::Renderer;
 
 extern Device* device;
 
-void PrintValid(const glm::ivec2& size, Vortex2D::Renderer::Buffer& buffer)
+void PrintValid(const glm::ivec2& size, Vortex2D::Renderer::Buffer<glm::ivec2>& buffer)
 {
     std::vector<glm::ivec2> pixels(size.x * size.y);
-    buffer.CopyTo(pixels);
+    CopyTo(buffer, pixels);
 
     for (int j = 0; j < size.x; j++)
     {
@@ -29,7 +29,7 @@ void PrintValid(const glm::ivec2& size, Vortex2D::Renderer::Buffer& buffer)
     std::cout << std::endl;
 }
 
-void SetValid(const glm::ivec2& size, FluidSim& sim, Buffer& buffer)
+void SetValid(const glm::ivec2& size, FluidSim& sim, Buffer<glm::ivec2>& buffer)
 {
     std::vector<glm::ivec2> validData(size.x*size.y);
 
@@ -43,7 +43,7 @@ void SetValid(const glm::ivec2& size, FluidSim& sim, Buffer& buffer)
         }
     }
 
-    buffer.CopyFrom(validData);
+    CopyFrom(buffer, validData);
 }
 
 TEST(ExtrapolateTest, Extrapolate)
@@ -59,7 +59,7 @@ TEST(ExtrapolateTest, Extrapolate)
     sim.add_force(0.01f);
     sim.project(0.01f);
 
-    Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::ivec2));
+    Buffer<glm::ivec2> valid(*device, size.x*size.y, true);
     SetValid(size, sim, valid);
 
     Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
@@ -94,7 +94,7 @@ TEST(ExtrapolateTest, Constrain)
     sim.add_force(0.01f);
     sim.project(0.01f);
 
-    Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+    Buffer<glm::ivec2> valid(*device, size.x*size.y, true);
 
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
     // FIXME should set the scale to size.x

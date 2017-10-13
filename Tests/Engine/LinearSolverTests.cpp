@@ -27,8 +27,8 @@ TEST(LinearSolverTests, ReduceSum)
 {
     glm::ivec2 size(10, 15);
     int n = size.x * size.y;
-    Buffer input(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float) * n);
-    Buffer output(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float));
+    Buffer<float> input(*device, n, true);
+    Buffer<float> output(*device, 1, true);
 
     ReduceSum reduce(*device, size);
     auto reduceBound = reduce.Bind(input, output);
@@ -40,7 +40,7 @@ TEST(LinearSolverTests, ReduceSum)
         std::generate(inputData.begin(), inputData.end(), [&n]{ return n++; });
     }
 
-    input.CopyFrom(inputData);
+    CopyFrom(input, inputData);
 
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
@@ -48,7 +48,7 @@ TEST(LinearSolverTests, ReduceSum)
     });
 
     std::vector<float> outputData(1, 0.0f);
-    output.CopyTo(outputData);
+    CopyTo(output, outputData);
 
     ASSERT_EQ(0.5f * n * (n + 1), outputData[0]);
 }
@@ -58,8 +58,8 @@ TEST(LinearSolverTests, ReduceBigSum)
     glm::ivec2 size(500);
     int n = size.x * size.y; // 1 million
 
-    Buffer input(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float) * n);
-    Buffer output(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float));
+    Buffer<float> input(*device, n, true);
+    Buffer<float> output(*device, 1, true);
 
     ReduceSum reduce(*device, size);
     auto reduceBound = reduce.Bind(input, output);
@@ -71,7 +71,7 @@ TEST(LinearSolverTests, ReduceBigSum)
         std::generate(inputData.begin(), inputData.end(), [&n]{ return n++; });
     }
 
-    input.CopyFrom(inputData);
+    CopyFrom(input, inputData);
 
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
@@ -79,7 +79,7 @@ TEST(LinearSolverTests, ReduceBigSum)
     });
 
     std::vector<float> outputData(1, 0.0f);
-    output.CopyTo(outputData);
+    CopyTo(output, outputData);
 
     ASSERT_EQ(0.5f * n * (n + 1), outputData[0]);
 }
@@ -89,8 +89,8 @@ TEST(LinearSolverTests, ReduceMax)
     glm::ivec2 size(10, 15);
     int n = size.x * size.y;
 
-    Buffer input(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float) * n);
-    Buffer output(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float));
+    Buffer<float> input(*device, n, true);
+    Buffer<float> output(*device, 1, true);
 
     ReduceMax reduce(*device, size);
     auto reduceBound = reduce.Bind(input, output);
@@ -102,7 +102,7 @@ TEST(LinearSolverTests, ReduceMax)
         std::generate(inputData.begin(), inputData.end(), [&n]{ return n--; });
     }
 
-    input.CopyFrom(inputData);
+    CopyFrom(input, inputData);
 
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
@@ -110,7 +110,7 @@ TEST(LinearSolverTests, ReduceMax)
     });
 
     std::vector<float> outputData(1, 0.0f);
-    output.CopyTo(outputData);
+    CopyTo(output, outputData);
 
     ASSERT_EQ(150.0f, outputData[0]);
 }
@@ -123,20 +123,20 @@ TEST(LinearSolverTests, Transfer_Prolongate)
 
     Transfer t(*device);
 
-    Buffer fineDiagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, fineSize.x*fineSize.y*sizeof(float));
+    Buffer<float> fineDiagonal(*device, fineSize.x*fineSize.y, true);
     std::vector<float> fineDiagonalData(fineSize.x*fineSize.y, {1.0f});
-    fineDiagonal.CopyFrom(fineDiagonalData);
+    CopyFrom(fineDiagonal, fineDiagonalData);
 
-    Buffer coarseDiagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, coarseSize.x*coarseSize.y*sizeof(float));
+    Buffer<float> coarseDiagonal(*device, coarseSize.x*coarseSize.y, true);
     std::vector<float> coarseDiagonalData(coarseSize.x*coarseSize.y, {1.0f});
-    coarseDiagonal.CopyFrom(coarseDiagonalData);
+    CopyFrom(coarseDiagonal, coarseDiagonalData);
 
-    Buffer input(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float)*coarseSize.x*coarseSize.y);
-    Buffer output(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float)*fineSize.x*fineSize.y);
+    Buffer<float> input(*device, coarseSize.x*coarseSize.y, true);
+    Buffer<float> output(*device, fineSize.x*fineSize.y, true);
 
     std::vector<float> data(coarseSize.x * coarseSize.y, 0.0f);
     std::iota(data.begin(), data.end(), 1.0f);
-    input.CopyFrom(data);
+    CopyFrom(input, data);
 
     t.InitProlongate(0, fineSize, output, fineDiagonal, input, coarseDiagonal);
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
@@ -145,7 +145,7 @@ TEST(LinearSolverTests, Transfer_Prolongate)
     });
 
     std::vector<float> outputData(fineSize.x*fineSize.y, 0.0f);
-    output.CopyTo(outputData);
+    CopyTo(output, outputData);
 
     float total;
     total = (9*5 + 3*2 + 3*4 + 1*1) / 16.0f;
@@ -164,26 +164,25 @@ TEST(LinearSolverTests, Transfer_Prolongate)
 
 TEST(LinearSolverTests, Transfer_Restrict)
 {
-
     glm::ivec2 coarseSize(3);
     glm::ivec2 fineSize(4);
 
     Transfer t(*device);
 
-    Buffer fineDiagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, fineSize.x*fineSize.y*sizeof(float));
+    Buffer<float> fineDiagonal(*device, fineSize.x*fineSize.y, true);
     std::vector<float> fineDiagonalData(fineSize.x*fineSize.y, {1.0f});
-    fineDiagonal.CopyFrom(fineDiagonalData);
+    CopyFrom(fineDiagonal, fineDiagonalData);
 
-    Buffer coarseDiagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, coarseSize.x*coarseSize.y*sizeof(float));
+    Buffer<float> coarseDiagonal(*device, coarseSize.x*coarseSize.y, true);
     std::vector<float> coarseDiagonalData(coarseSize.x*coarseSize.y, {1.0f});
-    coarseDiagonal.CopyFrom(coarseDiagonalData);
+    CopyFrom(coarseDiagonal, coarseDiagonalData);
 
-    Buffer input(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float)*fineSize.x*fineSize.y);
-    Buffer output(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float)*coarseSize.x*coarseSize.y);
+    Buffer<float> input(*device, fineSize.x*fineSize.y, true);
+    Buffer<float> output(*device, coarseSize.x*coarseSize.y, true);
 
     std::vector<float> data(fineSize.x * fineSize.y, 1.0f);
     std::iota(data.begin(), data.end(), 1.0f);
-    input.CopyFrom(data);
+    CopyFrom(input, data);
 
     t.InitRestrict(0, fineSize, input, fineDiagonal, output, coarseDiagonal);
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
@@ -197,15 +196,15 @@ TEST(LinearSolverTests, Transfer_Restrict)
                    1*13 + 3*14 + 3*15 + 1*16) / 64.0f;
 
     std::vector<float> outputData(coarseSize.x*coarseSize.y, 0.0f);
-    output.CopyTo(outputData);
+    CopyTo(output, outputData);
 
     EXPECT_FLOAT_EQ(total, outputData[1 + coarseSize.x * 1]);
 }
 
-void CheckPressure(const glm::ivec2& size, const std::vector<double>& pressure, Buffer& bufferPressure, float error)
+void CheckPressure(const glm::ivec2& size, const std::vector<double>& pressure, Buffer<float>& bufferPressure, float error)
 {
     std::vector<float> bufferPressureData(size.x * size.y);
-    bufferPressure.CopyTo(bufferPressureData);
+    CopyTo(bufferPressure, bufferPressureData);
 
     for (int i = 0; i < size.x; i++)
     {
@@ -231,22 +230,19 @@ TEST(LinearSolverTests, Simple_SOR)
     sim.add_force(0.01f);
     sim.project(0.01f);
 
-    Buffer diagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
-    Buffer lower(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::vec2));
-    Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
-    Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+    LinearSolver::Data data(*device, size, true);
 
-    BuildLinearEquation(size, diagonal, lower, div, sim);
+    BuildLinearEquation(size, data.Diagonal, data.Lower, data.B, sim);
 
     LinearSolver::Parameters params(1000, 1e-4f);
     GaussSeidel solver(*device, size);
 
-    solver.Init(diagonal, lower, div, pressure);
+    solver.Init(data.Diagonal, data.Lower, data.B, data.X);
     solver.Solve(params);
 
     device->Queue().waitIdle();
 
-    CheckPressure(size, sim.pressure, pressure, 1e-4f);
+    CheckPressure(size, sim.pressure, data.X, 1e-4f);
 
     std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
 }
@@ -264,22 +260,19 @@ TEST(LinearSolverTests, Complex_SOR)
     sim.add_force(0.01f);
     sim.project(0.01f);
 
-    Buffer diagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
-    Buffer lower(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::vec2));
-    Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
-    Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+    LinearSolver::Data data(*device, size, true);
 
-    BuildLinearEquation(size, diagonal, lower, div, sim);
+    BuildLinearEquation(size, data.Diagonal, data.Lower, data.B, sim);
 
     LinearSolver::Parameters params(1000, 1e-4f);
     GaussSeidel solver(*device, size);
 
-    solver.Init(diagonal, lower, div, pressure);
+    solver.Init(data.Diagonal, data.Lower, data.B, data.X);
     solver.Solve(params);
 
     device->Queue().waitIdle();
 
-    CheckPressure(size, sim.pressure, pressure, 1e-4f);
+    CheckPressure(size, sim.pressure, data.X, 1e-4f);
 
     std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
 }
@@ -297,24 +290,21 @@ TEST(LinearSolverTests, Simple_CG)
     sim.add_force(0.01f);
     sim.project(0.01f);
 
-    Buffer diagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
-    Buffer lower(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::vec2));
-    Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
-    Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+    LinearSolver::Data data(*device, size, true);
 
-    BuildLinearEquation(size, diagonal, lower, div, sim);
+    BuildLinearEquation(size, data.Diagonal, data.Lower, data.B, sim);
 
     Diagonal preconditioner(*device, size);
 
     LinearSolver::Parameters params(1000, 1e-5f);
     ConjugateGradient solver(*device, size, preconditioner);
 
-    solver.Init(diagonal, lower, div, pressure);
+    solver.Init(data.Diagonal, data.Lower, data.B, data.X);
     solver.NormalSolve(params);
 
     device->Queue().waitIdle();
 
-    CheckPressure(size, sim.pressure, pressure, 1e-3f); // TODO somehow error is bigger than 1e-5
+    CheckPressure(size, sim.pressure, data.X, 1e-3f); // TODO somehow error is bigger than 1e-5
 
     std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
 }
@@ -332,24 +322,21 @@ TEST(LinearSolverTests, Diagonal_Simple_PCG)
     sim.add_force(0.01f);
     sim.project(0.01f);
 
-    Buffer diagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
-    Buffer lower(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::vec2));
-    Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
-    Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+    LinearSolver::Data data(*device, size, true);
 
-    BuildLinearEquation(size, diagonal, lower, div, sim);
+    BuildLinearEquation(size, data.Diagonal, data.Lower, data.B, sim);
 
     Diagonal preconditioner(*device, size);
 
     LinearSolver::Parameters params(1000, 1e-5f);
     ConjugateGradient solver(*device, size, preconditioner);
 
-    solver.Init(diagonal, lower, div, pressure);
+    solver.Init(data.Diagonal, data.Lower, data.B, data.X);
     solver.Solve(params);
 
     device->Queue().waitIdle();
 
-    CheckPressure(size, sim.pressure, pressure, 1e-5f);
+    CheckPressure(size, sim.pressure, data.X, 1e-5f);
 
     std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
 }
@@ -367,12 +354,9 @@ TEST(LinearSolverTests, GaussSeidel_Simple_PCG)
     sim.add_force(0.01f);
     sim.project(0.01f);
 
-    Buffer diagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
-    Buffer lower(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::vec2));
-    Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
-    Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+    LinearSolver::Data data(*device, size, true);
 
-    BuildLinearEquation(size, diagonal, lower, div, sim);
+    BuildLinearEquation(size, data.Diagonal, data.Lower, data.B, sim);
 
     GaussSeidel preconditioner(*device, size);
     preconditioner.SetW(1.0f);
@@ -381,12 +365,12 @@ TEST(LinearSolverTests, GaussSeidel_Simple_PCG)
     LinearSolver::Parameters params(1000, 1e-5f);
     ConjugateGradient solver(*device, size, preconditioner);
 
-    solver.Init(diagonal, lower, div, pressure);
+    solver.Init(data.Diagonal, data.Lower, data.B, data.X);
     solver.Solve(params);
 
     device->Queue().waitIdle();
 
-    CheckPressure(size, sim.pressure, pressure, 1e-4f);
+    CheckPressure(size, sim.pressure, data.X, 1e-4f);
 
     std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
 }
@@ -404,24 +388,21 @@ TEST(LinearSolverTests, IncompletePoisson_Simple_PCG)
     sim.add_force(0.01f);
     sim.project(0.01f);
 
-    Buffer diagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
-    Buffer lower(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::vec2));
-    Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
-    Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+    LinearSolver::Data data(*device, size, true);
 
-    BuildLinearEquation(size, diagonal, lower, div, sim);
+    BuildLinearEquation(size, data.Diagonal, data.Lower, data.B, sim);
 
     IncompletePoisson preconditioner(*device, size);
 
     LinearSolver::Parameters params(1000, 1e-5f);
     ConjugateGradient solver(*device, size, preconditioner);
 
-    solver.Init(diagonal, lower, div, pressure);
+    solver.Init(data.Diagonal, data.Lower, data.B, data.X);
     solver.Solve(params);
 
     device->Queue().waitIdle();
 
-    CheckPressure(size, sim.pressure, pressure, 1e-5f);
+    CheckPressure(size, sim.pressure, data.X, 1e-5f);
 
     std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
 }
@@ -430,31 +411,28 @@ TEST(LinearSolverTests, Zero_CG)
 {
     glm::vec2 size(50);
 
-    Buffer diagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
-    Buffer lower(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::vec2));
-    Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
-    Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+    LinearSolver::Data data(*device, size, true);
 
     Diagonal preconditioner(*device, size);
 
     LinearSolver::Parameters params(1000, 1e-5f);
     ConjugateGradient solver(*device, size, preconditioner);
 
-    solver.Init(diagonal, lower, div, pressure);
+    solver.Init(data.Diagonal, data.Lower, data.B, data.X);
     solver.NormalSolve(params);
 
     device->Queue().waitIdle();
 
     ASSERT_EQ(0, params.OutIterations);
 
-    std::vector<float> data(size.x*size.y, 1.0f);
-    pressure.CopyTo(data);
+    std::vector<float> pressureData(size.x*size.y, 1.0f);
+    CopyTo(data.X, pressureData);
 
     for (int i = 0; i < size.x; i++)
     {
         for (int j = 0; j < size.y; j++)
         {
-            EXPECT_FLOAT_EQ(0.0f, data[i + size.x * j]);
+            EXPECT_FLOAT_EQ(0.0f, pressureData[i + size.x * j]);
         }
     }
 }
@@ -463,31 +441,28 @@ TEST(LinearSolverTests, Zero_PCG)
 {
     glm::vec2 size(50);
 
-    Buffer diagonal(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
-    Buffer lower(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::vec2));
-    Buffer div(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
-    Buffer pressure(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(float));
+    LinearSolver::Data data(*device, size, true);
 
     Diagonal preconditioner(*device, size);
 
     LinearSolver::Parameters params(1000, 1e-5f);
     ConjugateGradient solver(*device, size, preconditioner);
 
-    solver.Init(diagonal, lower, div, pressure);
+    solver.Init(data.Diagonal, data.Lower, data.B, data.X);
     solver.Solve(params);
 
     device->Queue().waitIdle();
 
     ASSERT_EQ(0, params.OutIterations);
 
-    std::vector<float> data(size.x*size.y, 1.0f);
-    pressure.CopyTo(data);
+    std::vector<float> pressureData(size.x*size.y, 1.0f);
+    CopyTo(data.X, pressureData);
 
     for (int i = 0; i < size.x; i++)
     {
         for (int j = 0; j < size.y; j++)
         {
-            EXPECT_FLOAT_EQ(0.0f, data[i + size.x * j]);
+            EXPECT_FLOAT_EQ(0.0f, pressureData[i + size.x * j]);
         }
     }
 }
@@ -514,7 +489,7 @@ TEST(LinearSolverTests, Simple_Multigrid)
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
     Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
-    Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::ivec2));
+    Buffer<glm::ivec2> valid(*device, size.x*size.y, true);
 
     SetSolidPhi(*device, size, solidPhi, sim, size.x);
     SetLiquidPhi(*device, size, liquidPhi, sim, size.x);
@@ -570,7 +545,7 @@ TEST(LinearSolverTests, Multigrid_Simple_PCG)
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
     Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
-    Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::ivec2));
+    Buffer<glm::ivec2> valid(*device, size.x*size.y, true);
 
     SetSolidPhi(*device, size, solidPhi, sim, size.x);
     SetLiquidPhi(*device, size, liquidPhi, sim, size.x);

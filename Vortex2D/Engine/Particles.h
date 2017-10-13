@@ -24,31 +24,33 @@ class ParticleCount : public Renderer::RenderTexture
 {
 public:
     ParticleCount(const Renderer::Device& device,
-              const glm::ivec2& size,
-              Renderer::Buffer& particles,
-              const Renderer::DispatchParams& params = {0});
+                  const glm::ivec2& size,
+                  Renderer::GenericBuffer& particles,
+                  const Renderer::DispatchParams& params = {0});
 
     void Count();
     void Scan();
 
     int GetCount();
-    Renderer::Buffer& GetDispatchParams();
+    Renderer::GenericBuffer& GetDispatchParams();
 
     void InitLevelSet(LevelSet& levelSet);
     void Phi();
 
-    void InitVelocities(Renderer::Texture& velocity, Renderer::Buffer& valid);
+    void InitVelocities(Renderer::Texture& velocity, Renderer::GenericBuffer& valid);
     void TransferToGrid();
     void TransferFromGrid();
 
 private:
-    Renderer::Buffer& mParticles;
-    Renderer::Buffer mNewParticles;
-    Renderer::Buffer mCount;
-    Renderer::Buffer mIndex;
-    Renderer::Buffer mSeeds, mLocalSeeds;
+    const Renderer::Device& mDevice;
+    Renderer::GenericBuffer& mParticles;
+    Renderer::GenericBuffer mNewParticles;
+    Renderer::GenericBuffer mCount;
+    Renderer::GenericBuffer mIndex;
+    Renderer::UpdateStorageBuffer<glm::ivec2> mSeeds;
 
-    Renderer::Buffer mDispatchParams, mNewDispatchParams, mLocalDispatchParams;
+    Renderer::UpdateStorageBuffer<Renderer::DispatchParams> mDispatchParams;
+    Renderer::Buffer<Renderer::DispatchParams> mNewDispatchParams;
 
     Renderer::Work mParticleCountWork;
     Renderer::Work::Bound mParticleCountBound;

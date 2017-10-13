@@ -7,15 +7,17 @@
 
 #include <Vortex2D/Renderer/RenderTarget.h>
 #include <Vortex2D/SPIRV/Reflection.h>
+#include <Vortex2D/Renderer/CommandBuffer.h>
 
 namespace Vortex2D { namespace Renderer {
 
-AbstractSprite::AbstractSprite(const Device& device, const std::string& fragShaderName, const Texture& texture)
+AbstractSprite::AbstractSprite(const Device& device, const std::string& fragShaderName, Texture& texture)
     : mDevice(device.Handle())
-    , mMVPBuffer(device, vk::BufferUsageFlagBits::eUniformBuffer, true, sizeof(glm::mat4))
-    , mVertexBuffer(device, vk::BufferUsageFlagBits::eVertexBuffer, true, sizeof(Vertex) * 6)
+    , mMVPBuffer(device)
+    , mVertexBuffer(device, 6, false)
 {
-    Vertex vertices[] = {
+    VertexBuffer<Vertex> localBuffer(device, 6, true);
+    std::vector<Vertex> vertices = {
         {{0.0f, 0.0f}, {0.0f, 0.0f}},
         {{1.0f, 0.0f}, {texture.GetWidth(), 0.0f}},
         {{0.0f, 1.0f}, {0.0f, texture.GetHeight()}},
@@ -24,11 +26,18 @@ AbstractSprite::AbstractSprite(const Device& device, const std::string& fragShad
         {{0.0f, 1.0f}, {0.0f, texture.GetHeight()}}
     };
 
-    mVertexBuffer.CopyFrom(vertices);
+    Renderer::CopyFrom(localBuffer, vertices);
+    ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
+    {
+        mVertexBuffer.CopyFrom(commandBuffer, localBuffer);
+    });
+
+    SPIRV::Reflection reflectionVert(device.GetShaderSPIRV("../Vortex2D/TexturePosition.vert.spv"));
+    SPIRV::Reflection reflectionFrag(device.GetShaderSPIRV(fragShaderName));
 
     static vk::DescriptorSetLayout descriptorLayout = DescriptorSetLayoutBuilder()
-            .Binding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
-            .Binding(1, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, 1)
+            .Binding(reflectionVert.GetDescriptorTypesMap(), reflectionVert.GetShaderStage())
+            .Binding(reflectionFrag.GetDescriptorTypesMap(), reflectionFrag.GetShaderStage())
             .Create(device);
 
     mDescriptorSet = MakeDescriptorSet(device, descriptorLayout);
@@ -37,15 +46,14 @@ AbstractSprite::AbstractSprite(const Device& device, const std::string& fragShad
     mSampler = SamplerBuilder().Filter(vk::Filter::eLinear).Create(device.Handle());
 
     DescriptorSetUpdater(*mDescriptorSet)
-            .WriteBuffers(0, 0, vk::DescriptorType::eUniformBuffer).Buffer(mMVPBuffer)
-            .WriteImages(1, 0, vk::DescriptorType::eCombinedImageSampler).Image(*mSampler, texture.View(), vk::ImageLayout::eShaderReadOnlyOptimal)
+            .Bind(reflectionVert.GetDescriptorTypesMap(), {{mMVPBuffer, 0}})
+            .Bind(reflectionFrag.GetDescriptorTypesMap(), {{*mSampler, texture, 1}})
             .Update(device.Handle());
 
     auto pipelineLayoutBuilder = PipelineLayoutBuilder()
             .DescriptorSetLayout(descriptorLayout);
 
-    SPIRV::Reflection reflection(device.GetShaderSPIRV(fragShaderName));
-    unsigned pushConstantSize = reflection.GetPushConstantsSize();
+    unsigned pushConstantSize = reflectionFrag.GetPushConstantsSize();
     if (pushConstantSize > 0)
     {
         pipelineLayoutBuilder.PushConstantRange({vk::ShaderStageFlagBits::eFragment, 0, pushConstantSize});
@@ -68,7 +76,7 @@ AbstractSprite::AbstractSprite(const Device& device, const std::string& fragShad
 
 void AbstractSprite::Update(const glm::mat4& projection, const glm::mat4& view)
 {
-    mMVPBuffer.CopyFrom(projection * view * GetTransform());
+    Renderer::CopyFrom(mMVPBuffer, projection * view * GetTransform());
 }
 
 void AbstractSprite::Initialize(const RenderState& renderState)
@@ -79,12 +87,12 @@ void AbstractSprite::Initialize(const RenderState& renderState)
 void AbstractSprite::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState)
 {
     mPipeline.Bind(commandBuffer, renderState);
-    commandBuffer.bindVertexBuffers(0, {mVertexBuffer}, {0ul});
+    commandBuffer.bindVertexBuffers(0, {mVertexBuffer.Handle()}, {0ul});
     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *mPipelineLayout, 0, {*mDescriptorSet}, {});
     commandBuffer.draw(6, 1, 0, 0);
 }
 
-Sprite::Sprite(const Device& device, const Texture& texture)
+Sprite::Sprite(const Device& device, Texture& texture)
     : AbstractSprite(device, "../Vortex2D/TexturePosition.frag.spv", texture)
 {
 

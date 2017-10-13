@@ -20,7 +20,7 @@ struct RenderTarget;
 class AbstractSprite : public Drawable, public Transformable
 {
 public:
-    AbstractSprite(const Device& device, const std::string& fragShaderName, const Texture& texture);
+    AbstractSprite(const Device& device, const std::string& fragShaderName, Texture& texture);
 
     void Initialize(const RenderState& renderState) override;
     void Update(const glm::mat4& projection, const glm::mat4& view) override;
@@ -40,8 +40,8 @@ private:
     };
 
     vk::Device mDevice;
-    Buffer mMVPBuffer;
-    Buffer mVertexBuffer;
+    UpdateBuffer<UniformBuffer, glm::mat4> mMVPBuffer;
+    VertexBuffer<Vertex> mVertexBuffer;
     vk::UniqueSampler mSampler;
     vk::UniqueDescriptorSet mDescriptorSet;
     vk::UniquePipelineLayout mPipelineLayout;
@@ -51,7 +51,7 @@ private:
 class Sprite : public AbstractSprite
 {
 public:
-    Sprite(const Device& device, const Texture& texture);
+    Sprite(const Device& device, Texture& texture);
 };
 
 }}

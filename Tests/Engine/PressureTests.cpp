@@ -18,10 +18,10 @@ using ::testing::_;
 
 extern Device* device;
 
-void PrintDiv(const glm::ivec2& size, Buffer& buffer)
+void PrintDiv(const glm::ivec2& size, Buffer<float>& buffer)
 {
     std::vector<float> pixels(size.x * size.y);
-    buffer.CopyTo(pixels);
+    CopyTo(buffer, pixels);
 
     for (std::size_t j = 0; j < size.y; j++)
     {
@@ -47,10 +47,10 @@ void PrintDiagonal(const glm::ivec2& size, FluidSim& sim)
     }
 }
 
-void CheckDiagonal(const glm::ivec2& size, Buffer& buffer, FluidSim& sim, float error = 1e-6)
+void CheckDiagonal(const glm::ivec2& size, Buffer<float>& buffer, FluidSim& sim, float error = 1e-6)
 {
     std::vector<float> pixels(size.x * size.y);
-    buffer.CopyTo(pixels);
+    CopyTo(buffer, pixels);
 
     for (std::size_t i = 0; i < size.x; i++)
     {
@@ -62,10 +62,10 @@ void CheckDiagonal(const glm::ivec2& size, Buffer& buffer, FluidSim& sim, float 
     }
 }
 
-void CheckWeights(const glm::ivec2& size, Buffer& buffer, FluidSim& sim, float error = 1e-6)
+void CheckWeights(const glm::ivec2& size, Buffer<glm::vec2>& buffer, FluidSim& sim, float error = 1e-6)
 {
     std::vector<glm::vec2> pixels(size.x * size.y);
-    buffer.CopyTo(pixels);
+    CopyTo(buffer, pixels);
 
     for (std::size_t i = 1; i < size.x - 1; i++)
     {
@@ -78,10 +78,10 @@ void CheckWeights(const glm::ivec2& size, Buffer& buffer, FluidSim& sim, float e
     }
 }
 
-void CheckDiv(const glm::ivec2& size, Buffer& buffer, FluidSim& sim, float error = 1e-6)
+void CheckDiv(const glm::ivec2& size, Buffer<float>& buffer, FluidSim& sim, float error = 1e-6)
 {
     std::vector<float> pixels(size.x * size.y);
-    buffer.CopyTo(pixels);
+    CopyTo(buffer, pixels);
 
     for (std::size_t i = 0; i < size.x; i++)
     {
@@ -114,7 +114,7 @@ TEST(PressureTest, LinearEquationSetup_Simple)
 
     LinearSolver::Data data(*device, size, true);
 
-    Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::ivec2));
+    Buffer<glm::ivec2> valid(*device, size.x*size.y, true);
 
     Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, solidVelocity, valid);
 
@@ -147,7 +147,7 @@ TEST(PressureTest, LinearEquationSetup_Complex)
 
     LinearSolver::Data data(*device, size, true);
 
-    Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::ivec2));
+    Buffer<glm::ivec2> valid(*device, size.x*size.y, true);
 
     Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, solidVelocity, valid);
 
@@ -179,7 +179,7 @@ TEST(PressureTest, ZeroDivs)
 
     LinearSolver::Data data(*device, size, true);
 
-    Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::ivec2));
+    Buffer<glm::ivec2> valid(*device, size.x*size.y, true);
 
     Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, solidVelocity, valid);
 
@@ -187,7 +187,7 @@ TEST(PressureTest, ZeroDivs)
     device->Handle().waitIdle();
 
     std::vector<float> divOutputData(size.x*size.y);
-    data.B.CopyTo(divOutputData);
+    CopyTo(data.B, divOutputData);
     for (int i = 0; i < size.x; i++)
     {
         for (int j = 0; j < size.y; j++)
@@ -226,9 +226,9 @@ TEST(PressureTest, Project_Simple)
     {
         computedPressureData[i] = (float)sim.pressure[i];
     }
-    data.X.CopyFrom(computedPressureData);
+    CopyFrom(data.X, computedPressureData);
 
-    Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::ivec2));
+    Buffer<glm::ivec2> valid(*device, size.x*size.y, true);
 
     Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, solidVelocity, valid);
 
@@ -268,9 +268,9 @@ TEST(PressureTest, Project_Complex)
     {
         computedPressureData[i] = (float)sim.pressure[i];
     }
-    data.X.CopyFrom(computedPressureData);
+    CopyFrom(data.X, computedPressureData);
 
-    Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::ivec2));
+    Buffer<glm::ivec2> valid(*device, size.x*size.y, true);
 
     Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, solidVelocity, valid);
 

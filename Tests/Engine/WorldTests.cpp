@@ -16,7 +16,7 @@ extern Device* device;
 
 void PrintParticles(const glm::ivec2& size, World& world)
 {
-    Buffer particles(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, 8*size.x*size.y*sizeof(Particle));
+    Buffer<Particle> particles(*device, 8*size.x*size.y, true);
     std::vector<Particle> particleData(8*size.x*size.y);
 
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
@@ -24,8 +24,9 @@ void PrintParticles(const glm::ivec2& size, World& world)
        particles.CopyFrom(commandBuffer, world.Particles());
     });
 
+    CopyTo(particles, particleData);
+
     int particleCount = world.Count().GetCount();
-    particles.CopyTo(particleData);
     for (int i = 0; i < particleCount; i++)
     {
         std::cout << "(" << particleData[i].Position.x << "," << particleData[i].Position.y << ")"
@@ -65,7 +66,7 @@ TEST(WorldTests, Velocity)
     }
 
     // Verify particle velocity
-    Buffer particles(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, 8*size.Size.x*size.Size.y*sizeof(Particle));
+    Buffer<Particle> particles(*device, 8*size.Size.x*size.Size.y, true);
     std::vector<Particle> particleData(8*size.Size.x*size.Size.y);
 
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
@@ -73,10 +74,11 @@ TEST(WorldTests, Velocity)
        particles.CopyFrom(commandBuffer, world.Particles());
     });
 
+    CopyTo(particles, particleData);
+
     glm::vec2 expectedVelocity(0.0f, -0.1f);
 
     int particleCount = world.Count().GetCount();
-    particles.CopyTo(particleData);
     for (int i = 0; i < particleCount; i++)
     {
         EXPECT_NEAR(expectedVelocity.x, particleData[i].Velocity.x, 1e-5f);

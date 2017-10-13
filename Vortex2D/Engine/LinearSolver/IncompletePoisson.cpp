@@ -13,10 +13,10 @@ IncompletePoisson::IncompletePoisson(const Renderer::Device& device, const glm::
 
 }
 
-void IncompletePoisson::Init(Renderer::Buffer& d,
-                             Renderer::Buffer& l,
-                             Renderer::Buffer& b,
-                             Renderer::Buffer& pressure)
+void IncompletePoisson::Init(Renderer::GenericBuffer& d,
+                             Renderer::GenericBuffer& l,
+                             Renderer::GenericBuffer& b,
+                             Renderer::GenericBuffer& pressure)
 {
     mIncompletePoissonBound = mIncompletePoisson.Bind({d, l, b, pressure});
 }

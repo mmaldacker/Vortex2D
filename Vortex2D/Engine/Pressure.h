@@ -22,11 +22,11 @@ public:
              Renderer::Texture& solidPhi,
              Renderer::Texture& liquidPhi,
              Renderer::Texture& solidVelocity,
-             Renderer::Buffer& valid);
+             Renderer::GenericBuffer& valid);
 
     Renderer::Work::Bound BindMatrixBuild(const glm::ivec2& size,
-                                          Renderer::Buffer& diagonal,
-                                          Renderer::Buffer& lower,
+                                          Renderer::GenericBuffer& diagonal,
+                                          Renderer::GenericBuffer& lower,
                                           Renderer::Texture& liquidPhi,
                                           Renderer::Texture& solidPhi);
 

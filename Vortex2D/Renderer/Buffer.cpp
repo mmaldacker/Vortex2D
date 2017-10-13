@@ -28,8 +28,9 @@ void BufferBarrier(vk::Buffer buffer, vk::CommandBuffer commandBuffer, vk::Acces
                                   nullptr);
 }
 
-Buffer::Buffer(const Device& device, vk::BufferUsageFlags usageFlags, bool host, vk::DeviceSize deviceSize)
+GenericBuffer::GenericBuffer(const Device& device, vk::BufferUsageFlags usageFlags, bool host, vk::DeviceSize deviceSize)
     : mDevice(device.Handle())
+    , mHost(host)
     , mSize(deviceSize)
 {
     usageFlags |= vk::BufferUsageFlagBits::eTransferDst |
@@ -65,26 +66,17 @@ Buffer::Buffer(const Device& device, vk::BufferUsageFlags usageFlags, bool host,
     });
 }
 
-void Buffer::Flush()
-{
-    auto mappedRange = vk::MappedMemoryRange()
-            .setMemory(*mMemory)
-            .setSize(mSize);
-
-    mDevice.flushMappedMemoryRanges({mappedRange});
-}
-
-Buffer::operator vk::Buffer() const
+vk::Buffer GenericBuffer::Handle() const
 {
     return *mBuffer;
 }
 
-vk::DeviceSize Buffer::Size() const
+vk::DeviceSize GenericBuffer::Size() const
 {
     return mSize;
 }
 
-void Buffer::CopyFrom(vk::CommandBuffer commandBuffer, Buffer& srcBuffer)
+void GenericBuffer::CopyFrom(vk::CommandBuffer commandBuffer, GenericBuffer& srcBuffer)
 {
     if (mSize != srcBuffer.mSize)
     {
@@ -97,12 +89,12 @@ void Buffer::CopyFrom(vk::CommandBuffer commandBuffer, Buffer& srcBuffer)
     auto region = vk::BufferCopy()
             .setSize(mSize);
 
-    commandBuffer.copyBuffer(srcBuffer, *mBuffer, region);
+    commandBuffer.copyBuffer(srcBuffer.Handle(), *mBuffer, region);
 
     Barrier(commandBuffer, vk::AccessFlagBits::eTransferWrite, vk::AccessFlagBits::eShaderRead);
 }
 
-void Buffer::CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcTexture)
+void GenericBuffer::CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcTexture)
 {
     // TODO check if it can be copied
 
@@ -130,17 +122,32 @@ void Buffer::CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcTexture)
     Barrier(commandBuffer, vk::AccessFlagBits::eTransferWrite, vk::AccessFlagBits::eShaderRead);
 }
 
-void Buffer::Barrier(vk::CommandBuffer commandBuffer, vk::AccessFlags oldAccess, vk::AccessFlags newAccess)
+void GenericBuffer::Barrier(vk::CommandBuffer commandBuffer, vk::AccessFlags oldAccess, vk::AccessFlags newAccess)
 {
     BufferBarrier(*mBuffer, commandBuffer, oldAccess, newAccess);
 }
 
-void Buffer::Clear(vk::CommandBuffer commandBuffer)
+void GenericBuffer::Clear(vk::CommandBuffer commandBuffer)
 {
-
     Barrier(commandBuffer, vk::AccessFlagBits::eShaderRead, vk::AccessFlagBits::eTransferWrite);
     commandBuffer.fillBuffer(*mBuffer, 0, mSize, 0);
     Barrier(commandBuffer, vk::AccessFlagBits::eTransferWrite, vk::AccessFlagBits::eShaderRead);
+}
+
+void GenericBuffer::CopyFrom(const void* data)
+{
+    if (!mHost) throw std::runtime_error("Not local buffer");
+    void* mapped = mDevice.mapMemory(*mMemory, 0, mSize, vk::MemoryMapFlagBits());
+    std::memcpy(mapped, data, mSize);
+    mDevice.unmapMemory(*mMemory);
+}
+
+void GenericBuffer::CopyTo(void* data)
+{
+    if (!mHost) throw std::runtime_error("Not local buffer");
+    void* mapped = mDevice.mapMemory(*mMemory, 0, mSize, vk::MemoryMapFlagBits());
+    std::memcpy(data, mapped, mSize);
+    mDevice.unmapMemory(*mMemory);
 }
 
 }}

@@ -18,17 +18,17 @@ public:
 
     void InitProlongate(int level,
                         const glm::ivec2& fineSize,
-                        Renderer::Buffer& fine, 
-                        Renderer::Buffer& fineDiagonal, 
-                        Renderer::Buffer& coarse, 
-                        Renderer::Buffer& coarseDiagonal);
+                        Renderer::GenericBuffer& fine, 
+                        Renderer::GenericBuffer& fineDiagonal, 
+                        Renderer::GenericBuffer& coarse, 
+                        Renderer::GenericBuffer& coarseDiagonal);
                         
     void InitRestrict(int level,
                       const glm::ivec2& fineSize,
-                      Renderer::Buffer& fine, 
-                      Renderer::Buffer& fineDiagonal, 
-                      Renderer::Buffer& coarse, 
-                      Renderer::Buffer& coarseDiagonal);
+                      Renderer::GenericBuffer& fine, 
+                      Renderer::GenericBuffer& fineDiagonal, 
+                      Renderer::GenericBuffer& coarse, 
+                      Renderer::GenericBuffer& coarseDiagonal);
 
     void Prolongate(vk::CommandBuffer commandBuffer, int level);
     void Restrict(vk::CommandBuffer commandBuffer, int level);
@@ -37,11 +37,11 @@ private:
     const Renderer::Device& mDevice;
     Renderer::Work mProlongateWork;
     std::vector<Renderer::Work::Bound> mProlongateBound;
-    std::vector<Renderer::Buffer*> mProlongateBuffer;
+    std::vector<Renderer::GenericBuffer*> mProlongateBuffer;
 
     Renderer::Work mRestrictWork;
     std::vector<Renderer::Work::Bound> mRestrictBound;
-    std::vector<Renderer::Buffer*> mRestrictBuffer;
+    std::vector<Renderer::GenericBuffer*> mRestrictBuffer;
 };
 
 }}

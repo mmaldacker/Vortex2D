@@ -24,9 +24,9 @@ extern Device* device;
 TEST(ComputeTests, WriteBuffer)
 {
     std::vector<float> data(100, 23.4f);
-    Buffer buffer(*device, vk::BufferUsageFlagBits::eUniformBuffer, true, sizeof(float) * data.size());
+    Buffer<float> buffer(*device, data.size(), true);
 
-    buffer.CopyFrom(data);
+    CopyFrom(buffer, data);
 
     CheckBuffer(data, buffer);
 }
@@ -34,11 +34,11 @@ TEST(ComputeTests, WriteBuffer)
 TEST(ComputeTests, BufferCopy)
 {
     std::vector<float> data(100, 23.4f);
-    Buffer buffer(*device, vk::BufferUsageFlagBits::eUniformBuffer, false, sizeof(float) * data.size());
-    Buffer inBuffer(*device, vk::BufferUsageFlagBits::eUniformBuffer, true, sizeof(float) * data.size());
-    Buffer outBuffer(*device, vk::BufferUsageFlagBits::eUniformBuffer, true, sizeof(float) * data.size());
+    Buffer<float> buffer(*device, data.size());
+    Buffer<float> inBuffer(*device, data.size(), true);
+    Buffer<float> outBuffer(*device, data.size(), true);
 
-    inBuffer.CopyFrom(data);
+    CopyFrom(inBuffer, data);
 
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
@@ -47,6 +47,28 @@ TEST(ComputeTests, BufferCopy)
     });
 
     CheckBuffer(data, outBuffer);
+}
+
+TEST(ComputeTests, UpdateVectorBuffer)
+{
+    int size = 3;
+    UpdateStorageBuffer<float> inBuffer(*device, size);
+    UpdateStorageBuffer<float> outBuffer(*device, size);
+
+    std::vector<float> data(size, 1.1f);
+    CopyFrom(inBuffer, data);
+
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+        inBuffer.Upload(commandBuffer);
+        outBuffer.CopyFrom(commandBuffer, inBuffer);
+        outBuffer.Download(commandBuffer);
+    });
+
+    std::vector<float> outData(size);
+    CopyTo(outBuffer, outData);
+
+    EXPECT_EQ(outData, data);
 }
 
 struct Particle
@@ -65,13 +87,13 @@ TEST(ComputeTests, BufferCompute)
 {
     std::vector<Particle> particles(100, {{1.0f, 1.0f}, {10.0f, 10.0f}});
 
-    Buffer buffer(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(Particle) * 100);
-    Buffer uboBuffer(*device, vk::BufferUsageFlagBits::eUniformBuffer, true, sizeof(UBO));
+    Buffer<Particle> buffer(*device, 100, true);
+    Buffer<UBO> uboBuffer(*device, 1, true);
 
     UBO ubo = {0.2f, 100};
 
-    buffer.CopyFrom(particles);
-    uboBuffer.CopyFrom(ubo);
+    CopyFrom(buffer, particles);
+    CopyFrom(uboBuffer, ubo);
 
     auto shader = device->GetShaderModule("Buffer.comp.spv");
 
@@ -101,7 +123,7 @@ TEST(ComputeTests, BufferCompute)
     });
 
     std::vector<Particle> output(100);
-    buffer.CopyTo(output);
+    CopyTo(buffer, output);
 
     for (int i = 0; i < 100; i++)
     {
@@ -159,7 +181,7 @@ TEST(ComputeTests, ImageCompute)
 
 TEST(ComputeTests, Work)
 {
-    Buffer buffer(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float)*16*16);
+    Buffer<float> buffer(*device, 16*16, true);
     Work work(*device, glm::ivec2(16), "Work.comp.spv");
 
     auto boundWork = work.Bind({buffer});
@@ -193,14 +215,14 @@ TEST(ComputeTests, WorkIndirect)
     glm::ivec2 size(16, 1);
 
     // create bigger buffer than size to check the indirect buffer is correct
-    Buffer buffer(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, 100*sizeof(float)*size.x*size.y);
-    Buffer dispatchParams(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(DispatchParams));
+    Buffer<float> buffer(*device, 100*size.x*size.y, true);
+    Buffer<DispatchParams> dispatchParams(*device, 1, true);
 
     DispatchParams params(1);
     params.workSize.x = 2;
     params.count = 16;
 
-    dispatchParams.CopyFrom(params);
+    CopyFrom(dispatchParams, params);
 
     ComputeSize computeSize(16);
     computeSize.DomainSize.x = 16;
@@ -223,7 +245,7 @@ TEST(ComputeTests, WorkIndirect)
     }
 
     std::vector<float> outputData(100*size.x*size.y);
-    buffer.CopyTo(outputData);
+    CopyTo(buffer, outputData);
 
     ASSERT_EQ(outputData, bufferData);
 }
@@ -232,8 +254,8 @@ TEST(ComputeTests, Stencil)
 {
     glm::ivec2 size(50);
 
-    Buffer input(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float)*size.x*size.y);
-    Buffer output(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float)*size.x*size.y);
+    Buffer<float> input(*device, size.x*size.y, true);
+    Buffer<float> output(*device, size.x*size.y, true);
 
     auto computeSize = MakeStencilComputeSize(size, 1);
 
@@ -243,7 +265,7 @@ TEST(ComputeTests, Stencil)
 
     std::vector<float> inputData(size.x*size.y, 1.0f);
 
-    input.CopyFrom(inputData);
+    CopyFrom(input, inputData);
 
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
@@ -258,7 +280,7 @@ TEST(ComputeTests, Checkerboard)
 {
     glm::ivec2 size(50);
 
-    Buffer buffer(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(float)*size.x*size.y);
+    Buffer<float> buffer(*device, size.x*size.y, true);
 
     ComputeSize computeSize = MakeCheckerboardComputeSize(size);
 
@@ -291,7 +313,7 @@ TEST(ComputeTests, Timer)
 {
     glm::ivec2 size(500);
 
-    Buffer buffer(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(float)*size.x*size.y);
+    Buffer<float> buffer(*device, size.x*size.y);
     Work work(*device, size, "Work.comp.spv");
 
     auto boundWork = work.Bind({buffer});
@@ -323,8 +345,8 @@ TEST(ComputeTests, Statistics)
 
     Statistics stats(*device);
 
-    Buffer flop(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(float)*size.x*size.y);
-    Buffer flip(*device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(float)*size.x*size.y);
+    Buffer<float> flop(*device, size.x*size.y);
+    Buffer<float> flip(*device, size.x*size.y);
 
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {

@@ -17,7 +17,7 @@ Pressure::Pressure(const Renderer::Device& device,
                    Renderer::Texture& solidPhi,
                    Renderer::Texture& liquidPhi,
                    Renderer::Texture& solidVelocity,
-                   Renderer::Buffer& valid)
+                   Renderer::GenericBuffer& valid)
     : mBuildMatrix(device, size, "../Vortex2D/BuildMatrix.comp.spv")
     , mBuildMatrixBound(mBuildMatrix.Bind({data.Diagonal,
                                            data.Lower,
@@ -57,8 +57,8 @@ Pressure::Pressure(const Renderer::Device& device,
 }
 
 Renderer::Work::Bound Pressure::BindMatrixBuild(const glm::ivec2& size,
-                                                Renderer::Buffer& diagonal,
-                                                Renderer::Buffer& lower,
+                                                Renderer::GenericBuffer& diagonal,
+                                                Renderer::GenericBuffer& lower,
                                                 Renderer::Texture& liquidPhi,
                                                 Renderer::Texture& solidPhi)
 {

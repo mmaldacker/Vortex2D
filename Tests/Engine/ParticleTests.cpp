@@ -46,11 +46,11 @@ std::vector<int> CalculatePrefixScan(const std::vector<int>& input)
     return output;
 }
 
-void PrintPrefixBuffer(const glm::ivec2& size, Buffer& buffer)
+void PrintPrefixBuffer(const glm::ivec2& size, Buffer<int>& buffer)
 {
     int n = size.x * size.y;
     std::vector<int> pixels(n);
-    buffer.CopyTo(pixels);
+    CopyTo(buffer, pixels);
 
     for (int i = 0; i < n; i++)
     {
@@ -75,12 +75,12 @@ TEST(ParticleTests, PrefixScan)
 
     PrefixScan prefixScan(*device, size);
 
-    Buffer input(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(int));
-    Buffer output(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(int));
-    Buffer dispatchParams(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(DispatchParams));
+    Buffer<int> input(*device, size.x*size.y, true);
+    Buffer<int> output(*device, size.x*size.y, true);
+    Buffer<DispatchParams> dispatchParams(*device, 1, true);
 
     std::vector<int> inputData = GenerateInput(size.x*size.y);
-    input.CopyFrom(inputData);
+    CopyFrom(input, inputData);
 
     auto bound = prefixScan.Bind(input, output, dispatchParams);
 
@@ -93,7 +93,7 @@ TEST(ParticleTests, PrefixScan)
     CheckBuffer(outputData, output);
 
     DispatchParams params(0);
-    dispatchParams.CopyTo(params);
+    CopyTo(dispatchParams, params);
 
     int total = outputData.back() + inputData.back();
     EXPECT_EQ(params.count, total);
@@ -108,12 +108,12 @@ TEST(ParticleTests, PrefixScanBig)
 
     PrefixScan prefixScan(*device, size);
 
-    Buffer input(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(int));
-    Buffer output(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(int));
-    Buffer dispatchParams(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, sizeof(DispatchParams));
+    Buffer<int> input(*device, size.x*size.y, true);
+    Buffer<int> output(*device, size.x*size.y, true);
+    Buffer<DispatchParams> dispatchParams(*device, 1, true);
 
     std::vector<int> inputData = GenerateInput(size.x*size.y);
-    input.CopyFrom(inputData);
+    CopyFrom(input, inputData);
 
     auto bound = prefixScan.Bind(input, output, dispatchParams);
 
@@ -126,7 +126,7 @@ TEST(ParticleTests, PrefixScanBig)
     CheckBuffer(outputData, output);
 
     DispatchParams params(0);
-    dispatchParams.CopyTo(params);
+    CopyTo(dispatchParams, params);
 
     int total = outputData.back() + inputData.back();
     EXPECT_EQ(params.count, total);
@@ -145,8 +145,8 @@ TEST(ParticleTests, ParticleCounting)
     particlesData[2].Position = glm::vec2(5.4f, 6.7f);
     int numParticles = 3;
 
-    Buffer particles(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, 8*size.x*size.y*sizeof(Particle));
-    particles.CopyFrom(particlesData);
+    Buffer<Particle> particles(*device, 8*size.x*size.y, true);
+    CopyFrom(particles, particlesData);
 
     ParticleCount particleCount(*device, size, particles, {numParticles});
 
@@ -178,8 +178,8 @@ TEST(ParticleTests, ParticleDelete)
     particlesData[2].Position = glm::vec2(3.5f, 2.4f);
     int numParticles = 3;
 
-    Buffer particles(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, 8*size.x*size.y*sizeof(Particle));
-    particles.CopyFrom(particlesData);
+    Buffer<Particle> particles(*device, 8*size.x*size.y, true);
+    CopyFrom(particles, particlesData);
 
     ParticleCount particleCount(*device, size, particles, {numParticles});
 
@@ -204,7 +204,7 @@ TEST(ParticleTests, ParticleDelete)
 
     // Read particles
     std::vector<Particle> outParticlesData(size.x*size.y*8);
-    particles.CopyTo(outParticlesData);
+    CopyTo(particles, outParticlesData);
 
     // We don't know the order of particles in the same grid position
     EXPECT_TRUE(outParticlesData[0].Position == particlesData[0].Position ||
@@ -217,7 +217,7 @@ TEST(ParticleTests, ParticleSpawn)
 {
     glm::ivec2 size(20);
 
-    Buffer particles(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, 8*size.x*size.y*sizeof(Particle));
+    Buffer<Particle> particles(*device, 8*size.x*size.y, true);
     ParticleCount particleCount(*device, size, particles);
 
     // Add some particles
@@ -237,7 +237,7 @@ TEST(ParticleTests, ParticleSpawn)
 
     // Read particles
     std::vector<Particle> outParticlesData(size.x*size.y*8);
-    particles.CopyTo(outParticlesData);
+    CopyTo(particles, outParticlesData);
 
     glm::ivec2 particlePos(10, 10);
     EXPECT_EQ(glm::ivec2(outParticlesData[0].Position), particlePos);
@@ -259,7 +259,7 @@ TEST(ParticleTests, ParticleAddDelete)
 {
     glm::ivec2 size(20);
 
-    Buffer particles(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, 8*size.x*size.y*sizeof(Particle));
+    Buffer<Particle> particles(*device, 8*size.x*size.y, true);
     ParticleCount particleCount(*device, size, particles);
 
     // Add some particles
@@ -291,7 +291,7 @@ TEST(ParticleTests, ParticleAddDelete)
 
     // Read particles
     std::vector<Particle> outParticlesData(size.x*size.y*8);
-    particles.CopyTo(outParticlesData);
+    CopyTo(particles, outParticlesData);
 
     ASSERT_EQ(4, particleCount.GetCount());
 
@@ -346,7 +346,7 @@ TEST(ParticleTests, Phi)
     AddParticles(size, sim, boundary_phi);
     sim.compute_phi();
 
-    Buffer particles(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, 8*size.x*size.y*sizeof(Particle));
+    Buffer<Particle> particles(*device, 8*size.x*size.y, true);
 
     std::vector<Particle> particlesData;
     for (auto& p: sim.particles)
@@ -356,7 +356,7 @@ TEST(ParticleTests, Phi)
         particlesData.push_back(particle);
     }
     particlesData.resize(8*size.x*size.y);
-    particles.CopyFrom(particlesData);
+    CopyFrom(particles, particlesData);
 
     ParticleCount particleCount(*device, size, particles, {(int)sim.particles.size()});
 
@@ -395,7 +395,7 @@ TEST(ParticleTests, FromGrid)
    sim.update_from_grid();
 
    // setup ParticleCount
-   Buffer particles(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, 8*size.x*size.y*sizeof(Particle));
+   Buffer<Particle> particles(*device, 8*size.x*size.y, true);
 
    std::vector<Particle> particlesData;
    for (std::size_t p = 0; p < sim.particles.size(); p++)
@@ -405,7 +405,7 @@ TEST(ParticleTests, FromGrid)
        particlesData.push_back(particle);
    }
    particlesData.resize(8*size.x*size.y);
-   particles.CopyFrom(particlesData);
+   CopyFrom(particles, particlesData);
 
    ParticleCount particleCount(*device, size, particles, {(int)sim.particles.size()});
 
@@ -417,7 +417,7 @@ TEST(ParticleTests, FromGrid)
 
    // FromGrid test
    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
-   Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::ivec2));
+   Buffer<glm::ivec2> valid(*device, size.x*size.y, true);
 
    SetVelocity(*device, size, velocity, sim);
 
@@ -430,7 +430,7 @@ TEST(ParticleTests, FromGrid)
    // TODO check valid
 
    std::vector<Particle> outParticlesData(size.x*size.y*8);
-   particles.CopyTo(outParticlesData);
+   CopyTo(particles, outParticlesData);
 
    for (int i = 0; i < sim.particles.size(); i++)
    {
@@ -472,7 +472,7 @@ TEST(ParticleTests, ToGrid)
    sim.transfer_to_grid();
 
    // setup ParticleCount
-   Buffer particles(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, 8*size.x*size.y*sizeof(Particle));
+   Buffer<Particle> particles(*device, 8*size.x*size.y, true);
 
    std::vector<Particle> particlesData;
    for (std::size_t p = 0; p < sim.particles.size(); p++)
@@ -483,7 +483,7 @@ TEST(ParticleTests, ToGrid)
        particlesData.push_back(particle);
    }
    particlesData.resize(8*size.x*size.y);
-   particles.CopyFrom(particlesData);
+   CopyFrom(particles, particlesData);
 
    ParticleCount particleCount(*device, size, particles, {(int)sim.particles.size()});
 
@@ -495,7 +495,7 @@ TEST(ParticleTests, ToGrid)
 
    // ToGrid test
    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
-   Buffer valid(*device, vk::BufferUsageFlagBits::eStorageBuffer, true, size.x*size.y*sizeof(glm::ivec2));
+   Buffer<glm::ivec2> valid(*device, size.x*size.y, true);
 
    particleCount.InitVelocities(velocity, valid);
    particleCount.TransferToGrid();

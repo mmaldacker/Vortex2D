@@ -10,7 +10,7 @@ layout(push_constant) uniform Consts
   int n;
 }consts;
 
-layout(binding = 0) buffer MVP
+layout(binding = 0) uniform MVP
 {
   mat4 value;
 }mvp;

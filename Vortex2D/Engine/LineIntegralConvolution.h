@@ -22,14 +22,14 @@ public:
     LineIntegralConvolution(const glm::ivec2& size);
     virtual ~LineIntegralConvolution();
 
-    void Calculate(Renderer::Buffer & velocity);
+    void Calculate(Renderer::GenericBuffer & velocity);
 
     void Render(const Renderer::Device& device, Renderer::RenderTarget & target) override;
 
 private:
     Renderer::Texture mWhiteNoise;
     Renderer::Operator mLic;
-    Renderer::Buffer mOutput;
+    Renderer::GenericBuffer mOutput;
 };
 
 }}

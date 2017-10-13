@@ -65,7 +65,7 @@ public:
         }
 
         void Record(vk::CommandBuffer commandBuffer);
-        void RecordIndirect(vk::CommandBuffer commandBuffer, Buffer& dispatchParams);
+        void RecordIndirect(vk::CommandBuffer commandBuffer, GenericBuffer& dispatchParams);
 
         friend class Work;
 

@@ -37,10 +37,10 @@ public:
     void Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState) override;
 
 protected:
-    vk::Device mDevice;
-    Buffer mMVPBuffer;
-    Buffer mColourBuffer;
-    Buffer mVertexBuffer;
+    const Device& mDevice;
+    UpdateUniformBuffer<glm::mat4> mMVPBuffer;
+    UpdateUniformBuffer<glm::vec4> mColourBuffer;
+    VertexBuffer<glm::vec2> mVertexBuffer;
     vk::UniqueDescriptorSet mDescriptorSet;
     vk::UniquePipelineLayout mPipelineLayout;
     GraphicsPipeline mPipeline;
@@ -60,6 +60,8 @@ class IntRectangle : public AbstractShape
 {
 public:
     IntRectangle(const Device& device, const glm::vec2& size, const glm::ivec4& colour);
+
+    void Update(const glm::mat4& projection, const glm::mat4& view) override;
 };
 
 /**
@@ -84,12 +86,12 @@ private:
         alignas(16) glm::mat2x4 rotation;
     };
 
-    vk::Device mDevice;
+    const Device& mDevice;
     glm::vec2 mRadius;
-    Buffer mMVPBuffer;
-    Buffer mColourBuffer;
-    Buffer mVertexBuffer;
-    Buffer mSizeBuffer;
+    UpdateUniformBuffer<glm::mat4> mMVPBuffer;
+    UpdateUniformBuffer<glm::vec4> mColourBuffer;
+    VertexBuffer<glm::vec2> mVertexBuffer;
+    UpdateUniformBuffer<Size> mSizeBuffer;
     vk::UniqueDescriptorSet mDescriptorSet;
     vk::UniquePipelineLayout mPipelineLayout;
     GraphicsPipeline mPipeline;

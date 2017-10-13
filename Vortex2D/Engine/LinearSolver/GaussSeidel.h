@@ -23,10 +23,10 @@ class GaussSeidel : public LinearSolver, public Preconditioner
 public:
     GaussSeidel(const Renderer::Device& device, const glm::ivec2& size);
 
-    void Init(Renderer::Buffer& d,
-              Renderer::Buffer& l,
-              Renderer::Buffer& b,
-              Renderer::Buffer& pressure) override;
+    void Init(Renderer::GenericBuffer& d,
+              Renderer::GenericBuffer& l,
+              Renderer::GenericBuffer& b,
+              Renderer::GenericBuffer& pressure) override;
 
     /**
      * @brief Iterative solving of the linear equations in data
@@ -43,7 +43,8 @@ private:
     float mW;
     int mPreconditionerIterations;
 
-    Renderer::Buffer mResidual, mError, mErrorLocal;
+    Renderer::GenericBuffer mResidual;
+    Renderer::UpdateStorageBuffer<float> mError;
 
     Renderer::Work mGaussSeidel;
     Renderer::Work::Bound mGaussSeidelBound;
@@ -56,7 +57,7 @@ private:
     Renderer::CommandBuffer mGaussSeidelCmd;
     Renderer::CommandBuffer mInitCmd;
     Renderer::CommandBuffer mErrorCmd;
-    Renderer::Buffer* mPressure;
+    Renderer::GenericBuffer* mPressure;
 };
 
 }}

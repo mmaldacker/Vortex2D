@@ -85,7 +85,7 @@ LineIntegralConvolution::~LineIntegralConvolution()
 
 }
 
-void LineIntegralConvolution::Calculate(Renderer::Buffer& velocity)
+void LineIntegralConvolution::Calculate(Renderer::GenericBuffer& velocity)
 {
     mOutput = mLic(velocity, mWhiteNoise);
 }

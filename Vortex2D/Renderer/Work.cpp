@@ -102,7 +102,7 @@ Work::Work(const Device& device,
     mPushConstantSize = reflection.GetPushConstantsSize();
 
     mDescriptorLayout = DescriptorSetLayoutBuilder()
-            .Binding(reflection.GetDescriptorTypesMap(), reflection.GetShaderStage())
+            .Binding(reflection.GetDescriptorTypesMap(), vk::ShaderStageFlagBits::eCompute)
             .Create(device);
 
     auto pipelineLayoutBuilder = PipelineLayoutBuilder()
@@ -172,14 +172,14 @@ void Work::Bound::Record(vk::CommandBuffer commandBuffer)
     commandBuffer.dispatch(mComputeSize.WorkSize.x, mComputeSize.WorkSize.y, 1);
 }
 
-void Work::Bound::RecordIndirect(vk::CommandBuffer commandBuffer, Buffer& dispatchParams)
+void Work::Bound::RecordIndirect(vk::CommandBuffer commandBuffer, GenericBuffer& dispatchParams)
 {
     PushConstant(commandBuffer, 0, mComputeSize.DomainSize.x);
     PushConstant(commandBuffer, 4, mComputeSize.DomainSize.y);
     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, mLayout, 0, {*mDescriptor}, {});
     commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, mPipeline);
 
-    commandBuffer.dispatchIndirect(dispatchParams, 0);
+    commandBuffer.dispatchIndirect(dispatchParams.Handle(), 0);
 }
 
 }}

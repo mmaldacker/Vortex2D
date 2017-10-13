@@ -44,10 +44,10 @@ void PrintTexture(Vortex2D::Renderer::Texture& texture)
 }
 
 template<typename T>
-void PrintBuffer(const glm::ivec2& size, Vortex2D::Renderer::Buffer& buffer)
+void PrintBuffer(const glm::ivec2& size, Vortex2D::Renderer::Buffer<T>& buffer)
 {
     std::vector<T> pixels(size.x * size.y);
-    buffer.CopyTo(pixels);
+    Vortex2D::Renderer::CopyTo(buffer, pixels);
 
     for (int j = 0; j < size.x; j++)
     {
@@ -61,10 +61,10 @@ void PrintBuffer(const glm::ivec2& size, Vortex2D::Renderer::Buffer& buffer)
     std::cout << std::endl;
 }
 
-static void PrintWeights(const glm::ivec2& size, Vortex2D::Renderer::Buffer& buffer)
+static void PrintWeights(const glm::ivec2& size, Vortex2D::Renderer::Buffer<glm::vec2>& buffer)
 {
     std::vector<glm::vec2> pixels(size.x * size.y);
-    buffer.CopyTo(pixels);
+    Vortex2D::Renderer::CopyTo(buffer, pixels);
 
     for (int j = 0; j < size.x; j++)
     {
@@ -98,10 +98,10 @@ void CheckTexture(const std::vector<T>& data, Vortex2D::Renderer::Texture& textu
 }
 
 template<typename T>
-void CheckBuffer(const std::vector<T>& data, Vortex2D::Renderer::Buffer& buffer)
+void CheckBuffer(const std::vector<T>& data, Vortex2D::Renderer::Buffer<T>& buffer)
 {
     std::vector<T> pixels(data.size(), 0.0f);
-    buffer.CopyTo(pixels);
+    CopyTo(buffer, pixels);
 
     for (int i = 0; i < data.size(); i++)
     {

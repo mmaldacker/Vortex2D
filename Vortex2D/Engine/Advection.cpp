@@ -62,9 +62,9 @@ void Advection::Advect()
     mAdvectCmd.Submit();
 }
 
-void Advection::AdvectParticleInit(Renderer::Buffer& particles,
+void Advection::AdvectParticleInit(Renderer::GenericBuffer& particles,
                                    Renderer::Texture& levelSet,
-                                   Renderer::Buffer& dispatchParams)
+                                   Renderer::GenericBuffer& dispatchParams)
 {
     mAdvectParticlesBound = mAdvectParticles.Bind(mSize, {particles, dispatchParams, mVelocity, levelSet});
     mAdvectParticlesCmd.Record([&](vk::CommandBuffer commandBuffer)

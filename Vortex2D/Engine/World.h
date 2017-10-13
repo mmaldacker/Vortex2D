@@ -46,13 +46,13 @@ public:
     Renderer::RenderTexture& ObstacleVelocity();
     LevelSet& LiquidPhi();
     LevelSet& SolidPhi();
-    Renderer::Buffer& Particles();
+    Renderer::GenericBuffer& Particles();
     ParticleCount& Count();
 
 private:
     Dimensions mDimensions;
 
-    Renderer::Buffer mParticles;
+    Renderer::GenericBuffer mParticles;
     ParticleCount mParticleCount;
 
     IncompletePoisson mPreconditioner;
@@ -64,7 +64,7 @@ private:
     LevelSet mFluidLevelSet;
     LevelSet mObstacleLevelSet;
 
-    Renderer::Buffer mValid;
+    Renderer::GenericBuffer mValid;
 
     Advection mAdvection;
     Pressure mProjection;

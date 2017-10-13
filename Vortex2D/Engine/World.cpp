@@ -128,7 +128,7 @@ LevelSet& World::SolidPhi()
     return mObstacleLevelSet;
 }
 
-Renderer::Buffer& World::Particles()
+Renderer::GenericBuffer& World::Particles()
 {
     return mParticles;
 }
