@@ -12,7 +12,7 @@
 namespace Vortex2D { namespace Renderer {
 
 AbstractSprite::AbstractSprite(const Device& device, const std::string& fragShaderName, Texture& texture)
-    : mDevice(device.Handle())
+    : mDevice(device)
     , mMVPBuffer(device)
     , mVertexBuffer(device, 6, false)
 {
@@ -77,11 +77,15 @@ AbstractSprite::AbstractSprite(const Device& device, const std::string& fragShad
 void AbstractSprite::Update(const glm::mat4& projection, const glm::mat4& view)
 {
     Renderer::CopyFrom(mMVPBuffer, projection * view * GetTransform());
+    ExecuteCommand(mDevice, [&](vk::CommandBuffer commandBuffer)
+    {
+       mMVPBuffer.Upload(commandBuffer);
+    });
 }
 
 void AbstractSprite::Initialize(const RenderState& renderState)
 {
-    mPipeline.Create(mDevice, renderState);
+    mPipeline.Create(mDevice.Handle(), renderState);
 }
 
 void AbstractSprite::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState)

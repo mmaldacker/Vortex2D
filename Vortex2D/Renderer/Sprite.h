@@ -39,7 +39,7 @@ private:
         glm::vec2 pos;
     };
 
-    vk::Device mDevice;
+    const Device& mDevice;
     UpdateBuffer<UniformBuffer, glm::mat4> mMVPBuffer;
     VertexBuffer<Vertex> mVertexBuffer;
     vk::UniqueSampler mSampler;
