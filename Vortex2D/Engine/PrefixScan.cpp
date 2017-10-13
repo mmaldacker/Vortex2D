@@ -39,7 +39,7 @@ PrefixScan::PrefixScan(const Renderer::Device& device, const glm::ivec2& size)
 
     while ((workGroupSize = GetWorkGroupSize(workGroupSize, localSize)) > 1)
     {
-        mPartialSums.emplace_back(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(float) * workGroupSize);
+        mPartialSums.emplace_back(device, workGroupSize);
     }
 
     assert(workGroupSize);

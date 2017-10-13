@@ -35,7 +35,7 @@ public:
 
 
 private:
-    Renderer::GenericBuffer mValid;
+    Renderer::Buffer<glm::ivec2> mValid;
     // TODO use a common temp velocity texture
     Renderer::Texture mVelocity;
 

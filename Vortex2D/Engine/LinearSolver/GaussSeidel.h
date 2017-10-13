@@ -43,7 +43,7 @@ private:
     float mW;
     int mPreconditionerIterations;
 
-    Renderer::GenericBuffer mResidual;
+    Renderer::Buffer<float> mResidual;
     Renderer::UpdateStorageBuffer<float> mError;
 
     Renderer::Work mGaussSeidel;

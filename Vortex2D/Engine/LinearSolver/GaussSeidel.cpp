@@ -13,7 +13,7 @@ namespace Vortex2D { namespace Fluid {
 GaussSeidel::GaussSeidel(const Renderer::Device& device, const glm::ivec2& size)
     : mW(2.0f/(1.0f+std::sin(glm::pi<float>()/std::sqrt((float)(size.x*size.y)))))
     , mPreconditionerIterations(1)
-    , mResidual(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(float))
+    , mResidual(device, size.x*size.y)
     , mError(device)
     , mGaussSeidel(device, Renderer::MakeCheckerboardComputeSize(size), "../Vortex2D/GaussSeidel.comp.spv")
     , mResidualWork(device, size, "../Vortex2D/Residual.comp.spv")

@@ -12,7 +12,7 @@ Extrapolation::Extrapolation(const Renderer::Device& device,
                              Renderer::Texture& velocity,
                              Renderer::Texture& solidVelocity,
                              Renderer::Texture& solidPhi)
-    : mValid(device, vk::BufferUsageFlagBits::eStorageBuffer, false, size.x*size.y*sizeof(glm::ivec2))
+    : mValid(device,size.x*size.y)
     , mVelocity(device, size.x, size.y, vk::Format::eR32G32Sfloat, false)
     , mExtrapolateVelocity(device, size, "../Vortex2D/ExtrapolateVelocity.comp.spv")
     , mExtrapolateVelocityFrontBound(mExtrapolateVelocity.Bind({valid, mValid, velocity}))

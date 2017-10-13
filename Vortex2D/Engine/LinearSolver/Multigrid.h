@@ -71,7 +71,7 @@ public:
     std::vector<LinearSolver::Data> mDatas;
 
     // mResiduals[0] is level 0
-    std::vector<Renderer::GenericBuffer> mResiduals;
+    std::vector<Renderer::Buffer<float>> mResiduals;
 
     Renderer::Work mPhiScaleWork;
     std::vector<Renderer::Work::Bound> mSolidPhiScaleWorkBound;

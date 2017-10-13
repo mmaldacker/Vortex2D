@@ -44,9 +44,9 @@ public:
 private:
     const Renderer::Device& mDevice;
     Renderer::GenericBuffer& mParticles;
-    Renderer::GenericBuffer mNewParticles;
-    Renderer::GenericBuffer mCount;
-    Renderer::GenericBuffer mIndex;
+    Renderer::Buffer<Particle> mNewParticles;
+    Renderer::Buffer<int> mCount;
+    Renderer::Buffer<int> mIndex;
     Renderer::UpdateStorageBuffer<glm::ivec2> mSeeds;
 
     Renderer::UpdateStorageBuffer<Renderer::DispatchParams> mDispatchParams;

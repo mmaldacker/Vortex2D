@@ -41,7 +41,7 @@ Reduce::Reduce(const Renderer::Device& device,
 
     while ((workGroupSize = GetWorkGroupSize(workGroupSize, localSize)) > 1)
     {
-        mBuffers.emplace_back(device, vk::BufferUsageFlagBits::eStorageBuffer, false, sizeof(float) * workGroupSize);
+        mBuffers.emplace_back(device, workGroupSize);
     }
 
     assert(workGroupSize);

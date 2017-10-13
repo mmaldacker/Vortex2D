@@ -64,7 +64,7 @@ private:
     LevelSet mFluidLevelSet;
     LevelSet mObstacleLevelSet;
 
-    Renderer::GenericBuffer mValid;
+    Renderer::Buffer<glm::ivec2> mValid;
 
     Advection mAdvection;
     Pressure mProjection;

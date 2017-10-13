@@ -38,7 +38,7 @@ protected:
 private:
     int mSize;
     Renderer::Work mReduce;
-    std::vector<Renderer::GenericBuffer> mBuffers;
+    std::vector<Renderer::Buffer<float>> mBuffers;
 };
 
 class ReduceSum : public Reduce

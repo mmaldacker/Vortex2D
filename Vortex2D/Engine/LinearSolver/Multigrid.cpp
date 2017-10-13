@@ -69,7 +69,7 @@ Multigrid::Multigrid(const Renderer::Device& device, const glm::ivec2& size, flo
     for (int i = 0; i < mDepth.GetMaxDepth(); i++)
     {
         auto s = mDepth.GetDepthSize(i);
-        mResiduals.emplace_back(device, vk::BufferUsageFlagBits::eStorageBuffer, false, s.x*s.y*sizeof(float));
+        mResiduals.emplace_back(device, s.x*s.y);
     }
 }
 

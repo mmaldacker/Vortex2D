@@ -20,7 +20,7 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
     , mBoundariesVelocity(device, dimensions.Size.x, dimensions.Size.y, vk::Format::eR32G32Sfloat)
     , mFluidLevelSet(device, dimensions.Size)
     , mObstacleLevelSet(device, dimensions.Size)
-    , mValid(device, vk::BufferUsageFlagBits::eStorageBuffer, false, dimensions.Size.x*dimensions.Size.y*sizeof(glm::ivec2))
+    , mValid(device, dimensions.Size.x*dimensions.Size.y)
     , mAdvection(device, dimensions.Size, dt, mVelocity)
     , mProjection(device, dt, dimensions.Size,
                   mData,

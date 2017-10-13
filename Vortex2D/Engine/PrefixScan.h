@@ -46,7 +46,7 @@ private:
     Renderer::Work mPreScanWork;
     Renderer::Work mPreScanStoreSumWork;
 
-    std::vector<Renderer::GenericBuffer> mPartialSums;
+    std::vector<Renderer::Buffer<int>> mPartialSums;
 };
 
 }}
