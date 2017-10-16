@@ -10,6 +10,8 @@
 #include <Vortex2D/Renderer/Sprite.h>
 #include <Vortex2D/Engine/Boundaries.h>
 
+#include "Rigidbody.h"
+
 #include <Box2D/Box2D.h>
 
 #include <glm/trigonometric.hpp>
@@ -37,9 +39,9 @@ public:
         , world(device, dimensions, dt)
         , solidPhi(device, world.SolidPhi(), green, dimensions.Scale)
         , area(device, {960.0f, 960.0f}, true)
-        , obstacle1(device, {100.0f, 100.0f})
-        , obstacle2(device, {100.0f, 100.0f})
         , rWorld({0.0f, 10.0f})
+        , body1(device, world, {50.0f, 50.0f})
+        , body2(device, world, {50.0f, 50.0f})
     {
         // TODO should set the view and not the scale
         solidPhi.Scale = densitySprite.Scale = (glm::vec2)dimensions.Scale;
@@ -64,37 +66,14 @@ public:
         // Draw solid boundaries
         area.Position = {20.0f, 20.0f};
 
-        b2PolygonShape boxShape;
-        boxShape.SetAsBox(50.0f / box2dScale, 50.0f / box2dScale);
-
-        b2FixtureDef fixtureDef;
-        fixtureDef.shape = &boxShape;
-        fixtureDef.density = 1.0f;
-        fixtureDef.restitution = 0.8f;
-
-        // First body
-        b2BodyDef def1;
-        def1.type = b2_dynamicBody;
-        def1.position = {200.0f / box2dScale, 200.0f / box2dScale};
-
-        rObstacle1 = rWorld.CreateBody(&def1);
-        rObstacle1->CreateFixture(&fixtureDef);
-        rObstacle1->ApplyAngularImpulse(5.0f, true);
-        rObstacle1->ApplyForceToCenter({-1000.0f, 0.0f}, true);
-
-        obstacle1.Anchor = {50.0f, 50.0f};
+        body1.SetTransform({200.0f, 200.0f}, 0.0f);
+        body1.Body().ApplyAngularImpulse(5.0f, true);
+        body1.Body().ApplyForceToCenter({-1000.0f, 0.0f}, true);
 
         // Second body
-        b2BodyDef def2;
-        def2.type = b2_dynamicBody;
-        def2.position = {600.0f / box2dScale, 300.0f / box2dScale};
-
-        rObstacle2 = rWorld.CreateBody(&def2);
-        rObstacle2->CreateFixture(&fixtureDef);
-        rObstacle2->ApplyAngularImpulse(-10.0f, true);
-        rObstacle2->ApplyForceToCenter({1000.0f, 0.0f}, true);
-
-        obstacle2.Anchor = {50.0f, 50.0f};
+        body2.SetTransform({600.0f, 300.0f}, 0.0f);
+        body2.Body().ApplyAngularImpulse(-10.0f, true);
+        body2.Body().ApplyForceToCenter({1000.0f, 0.0f}, true);
 
         // Borders
         b2BodyDef border;
@@ -112,7 +91,7 @@ public:
         auto* right = rWorld.CreateBody(&border);
         right->CreateFixture(&line, 0.0f);
 
-        world.SolidPhi().DrawSignedObject({area, obstacle1, obstacle2});
+        world.SolidPhi().DrawSignedObject({area, body1.SignedObject(), body1.SignedObject()});
     }
 
     void Initialize(const Vortex2D::Renderer::RenderState& renderState) override
@@ -123,16 +102,11 @@ public:
 
     void Update(const glm::mat4& projection, const glm::mat4& view) override
     {
-        auto pos1 = rObstacle1->GetPosition();
-        obstacle1.Position = {pos1.x * box2dScale, pos1.y * box2dScale};
-        obstacle1.Rotation = glm::degrees(rObstacle1->GetAngle());
+        body1.Update();
+        body2.Update();
 
-        auto pos2 = rObstacle2->GetPosition();
-        obstacle2.Position = {pos2.x * box2dScale, pos2.y * box2dScale};
-        obstacle2.Rotation = glm::degrees(rObstacle2->GetAngle());
-
-        obstacle1.Update(dimensions.InvScale);
-        obstacle2.Update(dimensions.InvScale);
+        body1.SignedObject().Update(dimensions.InvScale);
+        body2.SignedObject().Update(dimensions.InvScale);
         area.Update(dimensions.InvScale);
 
         densitySprite.Update(projection, view);
@@ -162,11 +136,9 @@ private:
     Vortex2D::Fluid::DistanceField solidPhi;
 
     Vortex2D::Fluid::Rectangle area;
-    Vortex2D::Fluid::Rectangle obstacle1;
-    Vortex2D::Fluid::Rectangle obstacle2;
-
-    b2Body* rObstacle1;
-    b2Body* rObstacle2;
 
     b2World rWorld;
+
+    BoxRigidbody body1;
+    BoxRigidbody body2;
 };
