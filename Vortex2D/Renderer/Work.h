@@ -83,7 +83,6 @@ public:
         vk::UniqueDescriptorSet mDescriptor;
     };
 
-    // TODO save the bound inside the Work class and access with other method
     Bound Bind(const std::vector<BindingInput>& inputs);
     Bound Bind(ComputeSize computeSize, const std::vector<BindingInput>& inputs);
 

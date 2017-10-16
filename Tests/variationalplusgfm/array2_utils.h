@@ -37,7 +37,6 @@ float interpolate_gradient(Vec<2,T>& gradient, const Vec<2,S>& point, const Arra
    T ddx0 = (v10 - v00);
    T ddx1 = (v11 - v01);
 
-   // TODO are the fy/fx swapped?
    gradient[0] = lerp(ddx0,ddx1,fy);
    gradient[1] = lerp(ddy0,ddy1,fx);
 
