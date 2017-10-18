@@ -52,7 +52,7 @@ Reflection::DescriptorTypesMap Reflection::GetDescriptorTypesMap() const
     return mDescriptorTypes;
 }
 
-unsigned Reflection::GetPushConstantsSize()
+unsigned Reflection::GetPushConstantsSize() const
 {
     const auto& resources = mCompiler.get_shader_resources();
     if (resources.push_constant_buffers.empty())
@@ -67,7 +67,7 @@ unsigned Reflection::GetPushConstantsSize()
     return mCompiler.get_declared_struct_size(type);
 }
 
-vk::ShaderStageFlagBits Reflection::GetShaderStage()
+vk::ShaderStageFlagBits Reflection::GetShaderStage() const
 {
     switch (mCompiler.get_execution_model())
     {

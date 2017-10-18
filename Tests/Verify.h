@@ -92,7 +92,7 @@ void CheckTexture(const std::vector<T>& data, Vortex2D::Renderer::Texture& textu
         {
             T expectedValue = data[i + j * texture.GetWidth()];
             T value = pixels[i + j * texture.GetWidth()];
-            EXPECT_FLOAT_EQ(expectedValue, value) << "Value not equal at " << i << ", " << j;
+            EXPECT_EQ(expectedValue, value) << "Value not equal at " << i << ", " << j;
         }
     }
 }
@@ -100,13 +100,13 @@ void CheckTexture(const std::vector<T>& data, Vortex2D::Renderer::Texture& textu
 template<typename T>
 void CheckBuffer(const std::vector<T>& data, Vortex2D::Renderer::Buffer<T>& buffer)
 {
-    std::vector<T> pixels(data.size(), 0.0f);
+    std::vector<T> pixels(data.size(), T());
     CopyTo(buffer, pixels);
 
     for (int i = 0; i < data.size(); i++)
     {
         T expectedValue = data[i];
         T value = pixels[i];
-        EXPECT_FLOAT_EQ(expectedValue, value) << "Value not equal at " << i;
+        EXPECT_EQ(expectedValue, value) << "Value not equal at " << i;
     }
 }

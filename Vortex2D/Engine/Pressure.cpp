@@ -62,7 +62,7 @@ Renderer::Work::Bound Pressure::BindMatrixBuild(const glm::ivec2& size,
                                                 Renderer::Texture& liquidPhi,
                                                 Renderer::Texture& solidPhi)
 {
-    return mBuildMatrix.Bind({diagonal, lower, liquidPhi, solidPhi});
+    return mBuildMatrix.Bind(size, {diagonal, lower, liquidPhi, solidPhi});
 }
 
 void Pressure::BuildLinearEquation()

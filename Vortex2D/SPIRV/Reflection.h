@@ -22,9 +22,9 @@ public:
   Reflection(const std::vector<uint32_t>& spirv);
 
   DescriptorTypesMap GetDescriptorTypesMap() const;
-  unsigned GetPushConstantsSize();
+  unsigned GetPushConstantsSize() const;
 
-  vk::ShaderStageFlagBits GetShaderStage();
+  vk::ShaderStageFlagBits GetShaderStage() const;
 
 private:
   unsigned ReadBinding(unsigned id);
