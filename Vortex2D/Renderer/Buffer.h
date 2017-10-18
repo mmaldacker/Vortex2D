@@ -80,7 +80,7 @@ public:
     }
 };
 
-template<template<typename T> class BufferType, typename T>
+template<template<typename> class BufferType, typename T>
 class UpdateBuffer : public BufferType<T>
 {
 public:
@@ -95,11 +95,11 @@ public:
         BufferType<T>::CopyFrom(commandBuffer, mLocal);
     }
 
-    template<template<typename T> class BufferType, typename T>
-    friend void CopyFrom(UpdateBuffer<BufferType, T>&, const T&);
+    template<template<typename> class BufferType2, typename T2>
+    friend void CopyFrom(UpdateBuffer<BufferType2, T2>&, const T2&);
 
-    template<template<typename T> class BufferType, typename T>
-    friend void CopyTo(UpdateBuffer<BufferType, T>&, T&);
+    template<template<typename> class BufferType2, typename T2>
+    friend void CopyTo(UpdateBuffer<BufferType2, T2>&, T2&);
 
 private:
     BufferType<T> mLocal;
@@ -120,7 +120,7 @@ public:
 
     void Upload(vk::CommandBuffer commandBuffer)
     {
-        CopyFrom(commandBuffer, mLocal);
+        GenericBuffer::CopyFrom(commandBuffer, mLocal);
     }
 
     void Download(vk::CommandBuffer commandBuffer)
@@ -128,17 +128,17 @@ public:
         mLocal.CopyFrom(commandBuffer, *this);
     }
 
-    template<template<typename T> class BufferType, typename T>
-    friend void CopyFrom(UpdateBufferVector<BufferType, T>&, const std::vector<T>&);
+    template<template<typename> class BufferType2, typename T2>
+    friend void CopyFrom(UpdateBufferVector<BufferType2, T2>&, const std::vector<T2>&);
 
-    template<template<typename T> class BufferType, typename T>
-    friend void CopyTo(UpdateBufferVector<BufferType, T>&, std::vector<T>&);
+    template<template<typename> class BufferType2, typename T2>
+    friend void CopyTo(UpdateBufferVector<BufferType2, T2>&, std::vector<T2>&);
 
-    template<template<typename T> class BufferType, typename T>
-    friend void CopyFrom(UpdateBufferVector<BufferType, T>&, const T&);
+    template<template<typename> class BufferType2, typename T2>
+    friend void CopyFrom(UpdateBufferVector<BufferType2, T2>&, const T2&);
 
-    template<template<typename T> class BufferType, typename T>
-    friend void CopyTo(UpdateBufferVector<BufferType, T>&, T&);
+    template<template<typename> class BufferType2, typename T2>
+    friend void CopyTo(UpdateBufferVector<BufferType2, T2>&, T2&);
 
 private:
     BufferType<T> mLocal;
@@ -186,7 +186,7 @@ void CopyTo(UpdateBuffer<BufferType, T>& buffer, T& t)
     CopyTo(buffer.mLocal, t);
 }
 
-template<template<typename T> class BufferType, typename T>
+template<template<typename> class BufferType, typename T>
 void CopyFrom(UpdateBuffer<BufferType, T>& buffer, const T& t)
 {
     if (sizeof(T) != buffer.Size()) throw std::runtime_error("Mismatch data size");
@@ -208,14 +208,14 @@ void CopyFrom(UpdateBufferVector<BufferType, T>& buffer, const std::vector<T>& t
     CopyFrom(buffer.mLocal, t);
 }
 
-template<template<typename T> class BufferType, typename T>
+template<template<typename> class BufferType, typename T>
 void CopyFrom(UpdateBufferVector<BufferType, T>& buffer, const T& t)
 {
     if (sizeof(T) != buffer.Size()) throw std::runtime_error("Mismatch data size");
     CopyFrom(buffer.mLocal, t);
 }
 
-template<template<typename T> class BufferType, typename T>
+template<template<typename> class BufferType, typename T>
 void CopyTo(UpdateBufferVector<BufferType, T>& buffer, T& t)
 {
     if (sizeof(T) != buffer.Size()) throw std::runtime_error("Mismatch data size");
