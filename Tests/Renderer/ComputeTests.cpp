@@ -88,7 +88,7 @@ TEST(ComputeTests, BufferCompute)
     std::vector<Particle> particles(100, {{1.0f, 1.0f}, {10.0f, 10.0f}});
 
     Buffer<Particle> buffer(*device, 100, true);
-    Buffer<UBO> uboBuffer(*device, 1, true);
+    UniformBuffer<UBO> uboBuffer(*device, true);
 
     UBO ubo = {0.2f, 100};
 
