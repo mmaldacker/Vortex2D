@@ -78,6 +78,5 @@ void main()
         constrained.y = normal.y * perp_component - normal.y * sperp_component;
     }
 
-    // FIXME need to set the obstacle velocity (means we don't have to set it in project?)
     imageStore(OutVelocity, pos, vec4(uv - constrained, 0.0, 0.0));
 }

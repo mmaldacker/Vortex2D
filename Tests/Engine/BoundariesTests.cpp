@@ -3,6 +3,7 @@
 //  Vortex2D
 //
 
+#include "../Renderer/ShapeDrawer.h"
 #include "Verify.h"
 
 #include <glm/gtx/io.hpp>
@@ -186,4 +187,93 @@ TEST(BoundariesTests, Circle)
 
     PrintTexture<float>(outTexture);
     CheckLevelSet(data, outTexture);
+}
+
+TEST(BoundariesTests, PolygonVelocity)
+{
+    glm::ivec2 size(20);
+    std::vector<glm::vec2> points = {{0.0f, 0.0f}, {4.0f, 0.0f}, {4.0f, 4.0f}, {0.0f, 4.0f}};
+
+    Buffer<glm::ivec2> valid(*device, size.x*size.y, true);
+
+    PolygonVelocity polygon(*device, size, points, {2.0f, 2.0f});
+    polygon.Position = {10.0f, 10.0f};
+    polygon.UpdateVelocities({1.0f, 0.0f}, 0.0f);
+
+    RenderTexture boundaryVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
+
+    polygon.Update(boundaryVelocity.Orth, {});
+    boundaryVelocity.Record({polygon});
+    boundaryVelocity.Submit();
+    device->Handle().waitIdle();
+
+    Texture output(*device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+        output.CopyFrom(commandBuffer, boundaryVelocity);
+    });
+
+    std::vector<glm::vec2> data(size.x*size.y);
+    DrawSquare(size.x, size.y, data, polygon.Position, {4.0f, 4.0f}, {1.0f / size.x, 0.0f});
+
+    CheckTexture(data, output);
+
+    std::vector<glm::ivec2> validData(size.x*size.y);
+    DrawSquare(size.x, size.y, validData, polygon.Position, {4.0f, 4.0f}, {1, 1});
+
+    CheckBuffer(validData, valid);
+}
+
+glm::vec2 GetVelocity(const glm::vec2& dir, float angularVelocity)
+{
+    return angularVelocity * glm::vec2(-dir.y, dir.x);
+}
+
+void DrawSquareRotation(int width, int height, std::vector<glm::vec2>& data, const glm::vec2& centre, const glm::vec2& size, float angularVelocity)
+{
+    for (int i = 0; i < size.x; i++)
+    {
+        for (int j = 0; j < size.y; j++)
+        {
+            glm::vec2 upos = glm::vec2(i, j) + glm::vec2(0.5f, 0.0f) - centre;
+            glm::vec2 vpos = glm::vec2(i, j) + glm::vec2(0.0f, 0.5f) - centre;
+
+            int x = i + centre.x;
+            int y = j + centre.y;
+            data[x + y * width].x = GetVelocity(upos, angularVelocity).x;
+            data[x + y * width].y = GetVelocity(vpos, angularVelocity).y;
+        }
+    }
+}
+
+TEST(BoundariesTests, PolygonVelocityRotation)
+{
+    glm::ivec2 size(20);
+    std::vector<glm::vec2> points = {{0.0f, 0.0f}, {4.0f, 0.0f}, {4.0f, 4.0f}, {0.0f, 4.0f}};
+
+    Buffer<glm::ivec2> valid(*device, size.x*size.y, true);
+
+    PolygonVelocity polygon(*device, size, points, {2.0f, 2.0f});
+    polygon.Position = {10.0f, 10.0f};
+    polygon.UpdateVelocities({0.0f, 0.0f}, 1.0f);
+
+    RenderTexture boundaryVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
+
+    polygon.Update(boundaryVelocity.Orth, {});
+    boundaryVelocity.Record({polygon});
+    boundaryVelocity.Submit();
+    device->Handle().waitIdle();
+
+    Texture output(*device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+        output.CopyFrom(commandBuffer, boundaryVelocity);
+    });
+
+    std::vector<glm::vec2> data(size.x*size.y);
+    DrawSquareRotation(size.x, size.y, data, polygon.Position, {4.0f, 4.0f}, 1.0f / size.x);
+
+    PrintData<glm::vec2>(size.x, size.y, data);
+    PrintTexture<glm::vec2>(output);
+    CheckTexture(data, output);
 }

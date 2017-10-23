@@ -42,7 +42,7 @@ void main()
       float solid_uxp = imageLoad(SolidLevelSetVelocity, pos + ivec2(1,0)).x;
       float solid_vyp = imageLoad(SolidLevelSetVelocity, pos + ivec2(0,1)).y;
 
-      b += ((1.0 - wxp) * solid_uxp - (1.0 - wuv.x) * solid_uv.x + (1.0 - wyp) * solid_vyp - (1.0 - wuv.y) * solid_uv.y) * consts.width;
+      b += ((1.0 - wuv.x) * solid_uv.x - (1.0 - wxp) * solid_uxp + (1.0 - wuv.y) * solid_uv.y - (1.0 - wyp) * solid_vyp) * consts.width;
 
       div.value[pos.x + pos.y * consts.width] = b;
     }

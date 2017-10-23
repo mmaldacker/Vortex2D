@@ -24,8 +24,6 @@ extern glm::vec4 green;
 extern glm::vec4 gray;
 extern glm::vec4 blue;
 
-const float box2dScale = 32.0f;
-
 class ObstacleSmokeExample : public Vortex2D::Renderer::Drawable
 {
 public:
@@ -39,14 +37,17 @@ public:
         , world(device, dimensions, dt)
         , solidPhi(device, world.SolidPhi(), green, dimensions.Scale)
         , area(device, {960.0f, 960.0f}, true)
+        , velocityClear(dimensions.Size.x, dimensions.Size.y, {0.0f, 0.0f, 0.0f, 0.0f})
         , rWorld({0.0f, 10.0f})
-        , body1(device, world, {50.0f, 50.0f})
-        , body2(device, world, {50.0f, 50.0f})
+        , body1(device, rWorld, dimensions.Size, {100.0f, 50.0f})
+        , body2(device, rWorld, dimensions.Size, {50.0f, 50.0f})
     {
         // TODO should set the view and not the scale
         solidPhi.Scale = densitySprite.Scale = (glm::vec2)dimensions.Scale;
 
         world.InitField(density);
+
+        world.ObstacleVelocity().Record({velocityClear, body1.VelocityObject(), body2.VelocityObject()});
 
         // Draw density
         Vortex2D::Renderer::Rectangle source(device, {800.0f, 400.0f}, gray);
@@ -65,15 +66,18 @@ public:
 
         // Draw solid boundaries
         area.Position = {20.0f, 20.0f};
+        area.Update(dimensions.InvScale);
 
         body1.SetTransform({200.0f, 200.0f}, 0.0f);
-        body1.Body().ApplyAngularImpulse(5.0f, true);
-        body1.Body().ApplyForceToCenter({-1000.0f, 0.0f}, true);
+        body1.Body().ApplyAngularImpulse(500.0f, true);
+        body1.Body().ApplyForceToCenter({1000.0f, 0.0f}, true);
+        body1.Body().GetFixtureList()->SetRestitution(0.8f);
 
         // Second body
         body2.SetTransform({600.0f, 300.0f}, 0.0f);
         body2.Body().ApplyAngularImpulse(-10.0f, true);
-        body2.Body().ApplyForceToCenter({1000.0f, 0.0f}, true);
+        body2.Body().ApplyForceToCenter({-1000.0f, 0.0f}, true);
+        body2.Body().GetFixtureList()->SetRestitution(0.8f);
 
         // Borders
         b2BodyDef border;
@@ -91,7 +95,7 @@ public:
         auto* right = rWorld.CreateBody(&border);
         right->CreateFixture(&line, 0.0f);
 
-        world.SolidPhi().DrawSignedObject({area, body1.SignedObject(), body1.SignedObject()});
+        world.SolidPhi().DrawSignedObject({area, body1.SignedObject(), body2.SignedObject()});
     }
 
     void Initialize(const Vortex2D::Renderer::RenderState& renderState) override
@@ -103,16 +107,18 @@ public:
     void Update(const glm::mat4& projection, const glm::mat4& view) override
     {
         body1.Update();
-        body2.Update();
+        body1.UpdateVelocities();
+        body1.Update(world.SolidPhi().Orth, dimensions.InvScale);
 
-        body1.SignedObject().Update(dimensions.InvScale);
-        body2.SignedObject().Update(dimensions.InvScale);
-        area.Update(dimensions.InvScale);
+        body2.Update();
+        body2.UpdateVelocities();
+        body2.Update(world.SolidPhi().Orth, dimensions.InvScale);
 
         densitySprite.Update(projection, view);
         solidPhi.Update(projection, view);
 
         world.SolidPhi().SubmitSignedBoject();
+        world.ObstacleVelocity().Submit();
 
         world.SolveStatic();
 
@@ -136,6 +142,8 @@ private:
     Vortex2D::Fluid::DistanceField solidPhi;
 
     Vortex2D::Fluid::Rectangle area;
+
+    Vortex2D::Renderer::Clear velocityClear;
 
     b2World rWorld;
 

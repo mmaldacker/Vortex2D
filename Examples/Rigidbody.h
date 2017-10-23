@@ -15,69 +15,37 @@ class PolygonRigidbody
 public:
   PolygonRigidbody(const Vortex2D::Renderer::Device& device,
                    b2World& world,
-                   const std::vector<glm::vec2>& points)
-    : mDrawPolygon(device, points)
-  {
-    b2PolygonShape shape;
+                   const glm::ivec2& size,
+                   const std::vector<glm::vec2>& points);
 
-    std::vector<b2Vec2> b2Points;
-    for (auto& point: points)
-    {
-      b2Points.push_back({point.x / box2dScale, point.y / box2dScale});
-    }
+  b2Body& Body();
 
-    shape.Set(b2Points.data(), b2Points.size());
+  Vortex2D::Fluid::SignedObject& SignedObject();
+  Vortex2D::Renderer::Drawable& VelocityObject();
 
-    b2FixtureDef fixtureDef;
-    fixtureDef.shape = &shape;
-    fixtureDef.density = 1.0f;
-
-    b2BodyDef def;
-    def.type = b2_dynamicBody;
-
-    mB2Body = world.CreateBody(&def);
-    mB2Body->CreateFixture(&fixtureDef);
-  }
-
-  b2Body& Body()
-  {
-    return *mB2Body;
-  }
-
-  Vortex2D::Fluid::SignedObject& SignedObject()
-  {
-    return mDrawPolygon;
-  }
-
-  void Update()
-  {
-    auto pos = mB2Body->GetPosition();
-    mDrawPolygon.Position = {pos.x * box2dScale, pos.y * box2dScale};
-    mDrawPolygon.Rotation = glm::degrees(mB2Body->GetAngle());
-  }
-
-  void SetTransform(const glm::vec2& pos, float angle)
-  {
-    mDrawPolygon.Position = pos;
-    mDrawPolygon.Rotation = angle;
-    mB2Body->SetTransform({pos.x / box2dScale, pos.y / box2dScale}, angle);
-  }
+  void Update();
+  void UpdateVelocities();
+  void Update(const glm::mat4& projection, const glm::mat4& view);
+  void SetTransform(const glm::vec2& pos, float angle);
 
 private:
   Vortex2D::Fluid::Polygon mDrawPolygon;
+  Vortex2D::Fluid::PolygonVelocity mVelocityPolygon;
   b2Body* mB2Body;
-
 };
 
 class BoxRigidbody : public PolygonRigidbody
 {
 public:
-  BoxRigidbody(const Vortex2D::Renderer::Device& device, b2World& world, const glm::vec2& halfSize)
-    : PolygonRigidbody(device, world,
-  {{-halfSize.x, -halfSize.y},
-  {halfSize.x, -halfSize.y},
-  {halfSize.x, halfSize.y},
-  {-halfSize.x, halfSize.y}})
+  BoxRigidbody(const Vortex2D::Renderer::Device& device,
+               b2World& world,
+               const glm::ivec2& size,
+               const glm::vec2& halfSize)
+    : PolygonRigidbody(device, world, size,
+                      {{-halfSize.x, -halfSize.y},
+                      {halfSize.x, -halfSize.y},
+                      {halfSize.x, halfSize.y},
+                      {-halfSize.x, halfSize.y}})
   {
   }
 

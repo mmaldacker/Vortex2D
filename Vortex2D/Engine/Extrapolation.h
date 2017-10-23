@@ -22,8 +22,7 @@ public:
                   const glm::ivec2& size,
                   Renderer::GenericBuffer& valid,
                   Renderer::Texture& velocity,
-                  Renderer::Texture& solidVelocity,
-                  Renderer::Texture& solidPhi);
+                  int iterations = 10);
 
     /**
      * @brief Will extrapolate values from buffer into the dirichlet and neumann boundaries
@@ -31,13 +30,15 @@ public:
      */
     void Extrapolate();
 
+    void ConstrainInit(Renderer::Texture& solidVelocity, Renderer::Texture& solidPhi);
     void ConstrainVelocity();
 
 
 private:
     Renderer::Buffer<glm::ivec2> mValid;
+    Renderer::Texture& mVelocity;
     // TODO use a common temp velocity texture
-    Renderer::Texture mVelocity;
+    Renderer::Texture mTempVelocity;
 
     Renderer::Work mExtrapolateVelocity;
     Renderer::Work::Bound mExtrapolateVelocityFrontBound, mExtrapolateVelocityBackBound;
