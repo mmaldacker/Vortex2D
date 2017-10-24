@@ -469,7 +469,7 @@ TEST(LinearSolverTests, Zero_PCG)
 
 TEST(LinearSolverTests, Simple_Multigrid)
 {
-    glm::ivec2 size(16);
+    glm::ivec2 size(32);
 
     FluidSim sim;
     sim.initialize(1.0f, size.x, size.y);
@@ -511,8 +511,8 @@ TEST(LinearSolverTests, Simple_Multigrid)
 
     device->Queue().waitIdle();
 
-    Texture localLiquidPhi(*device, 16, 16, vk::Format::eR32Sfloat, true);
-    Texture localLiquidPhi2(*device, 9, 9, vk::Format::eR32Sfloat, true);
+    Texture localLiquidPhi(*device, 32, 32, vk::Format::eR32Sfloat, true);
+    Texture localLiquidPhi2(*device, 16, 16, vk::Format::eR32Sfloat, true);
 
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
@@ -528,7 +528,7 @@ TEST(LinearSolverTests, Simple_Multigrid)
 
 TEST(LinearSolverTests, Multigrid_Simple_PCG)
 {
-    glm::ivec2 size(66);
+    glm::ivec2 size(64);
 
     FluidSim sim;
     sim.initialize(1.0f, size.x, size.y);

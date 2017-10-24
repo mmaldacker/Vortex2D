@@ -15,9 +15,9 @@ layout(binding = 1, r32f) uniform image2D CoarseLevelSet;
 void main()
 {
   ivec2 pos = ivec2(gl_GlobalInvocationID);
-  if (pos.x > 0 && pos.y > 0 && pos.x < consts.width - 1 && pos.y < consts.height - 1)
+  if (pos.x < consts.width && pos.y < consts.height)
   {
-    ivec2 finePos = pos * ivec2(2) - ivec2(1);
+    ivec2 finePos = pos * ivec2(2);
     float value = 0.5 * 0.25 * (imageLoad(FineLevelSet, finePos).x +
                                 imageLoad(FineLevelSet, finePos + ivec2(1, 0)).x +
                                 imageLoad(FineLevelSet, finePos + ivec2(0, 1)).x +

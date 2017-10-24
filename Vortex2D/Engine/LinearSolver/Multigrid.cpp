@@ -14,12 +14,12 @@ Depth::Depth(const glm::ivec2& size)
     auto s = size;
     mDepths.push_back(s);
 
-    const float min_size = 10.0f;
+    const float min_size = 16.0f;
     while (s.x > min_size && s.y > min_size)
     {
         if (s.x % 2 != 0 || s.y % 2 != 0) throw std::runtime_error("Invalid multigrid size");
 
-        s = (s - glm::ivec2(2)) / glm::ivec2(2) + glm::ivec2(2);
+        s = s / glm::ivec2(2);
         mDepths.push_back(s);
     }
 }
@@ -41,7 +41,7 @@ Multigrid::Multigrid(const Renderer::Device& device, const glm::ivec2& size, flo
     , mResidualWork(device, size, "../Vortex2D/Residual.comp.spv")
     , mTransfer(device)
     , mPhiScaleWork(device, size, "../Vortex2D/PhiScale.comp.spv")
-    , mBuildHierarchies(device)
+    , mBuildHierarchies(device, false)
     , mEnableStatistics(statistics)
     , mStatistics(device)
 {
@@ -58,12 +58,6 @@ Multigrid::Multigrid(const Renderer::Device& device, const glm::ivec2& size, flo
         mLiquidPhis.back().ExtrapolateInit(mSolidPhis.back());
 
         mSmoothers.emplace_back(device, s);
-
-        ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
-        {
-            mSolidPhis.back().Clear(commandBuffer, std::array<float, 4>{{-0.5f, 0.0f, 0.0f, 0.0f}});
-            mLiquidPhis.back().Clear(commandBuffer, std::array<float, 4>{{0.5f, 0.0f, 0.0f, 0.0f}});
-        });
     }
 
     for (int i = 0; i < mDepth.GetMaxDepth(); i++)
@@ -195,7 +189,7 @@ void Multigrid::Smoother(vk::CommandBuffer commandBuffer, int n, int iterations)
 
 void Multigrid::Record(vk::CommandBuffer commandBuffer)
 {
-    const int numIterations = 4;
+    const int numIterations = 16;
 
     if (mEnableStatistics) mStatistics.Start(commandBuffer);
 
@@ -221,7 +215,7 @@ void Multigrid::Record(vk::CommandBuffer commandBuffer)
 
     }
 
-    Smoother(commandBuffer, mDepth.GetMaxDepth(), 100);
+    Smoother(commandBuffer, mDepth.GetMaxDepth(), numIterations);
     if (mEnableStatistics) mStatistics.Tick(commandBuffer, "smoother max");
 
 
