@@ -19,7 +19,7 @@ using namespace Vortex2D::Fluid;
 
 Vortex2D::Renderer::Device* device;
 
-const glm::ivec2 size = glm::ivec2(258);
+const glm::ivec2 size = glm::ivec2(256);
 
 FluidSim sim;
 
@@ -215,7 +215,7 @@ static void MultigridCG(benchmark::State& state)
 
     Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, solidVelocity, valid);
 
-    Multigrid preconditioner(*device, size, 0.01f);
+    Multigrid preconditioner(*device, size, 0.01f, true);
     preconditioner.BuildHierarchiesInit(pressure, solidPhi, liquidPhi);
 
     LinearSolver::Parameters params(10000, 1e-4f);
