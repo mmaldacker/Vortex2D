@@ -189,7 +189,8 @@ void Multigrid::Smoother(vk::CommandBuffer commandBuffer, int n, int iterations)
 
 void Multigrid::Record(vk::CommandBuffer commandBuffer)
 {
-    const int numIterations = 16;
+    const int numIterations = 4;
+    const int coarseNumIterations = 128;
 
     if (mEnableStatistics) mStatistics.Start(commandBuffer);
 
@@ -215,9 +216,8 @@ void Multigrid::Record(vk::CommandBuffer commandBuffer)
 
     }
 
-    Smoother(commandBuffer, mDepth.GetMaxDepth(), numIterations);
+    Smoother(commandBuffer, mDepth.GetMaxDepth(), coarseNumIterations);
     if (mEnableStatistics) mStatistics.Tick(commandBuffer, "smoother max");
-
 
     for (int i = mDepth.GetMaxDepth() - 1; i >= 0; --i)
     {

@@ -21,7 +21,7 @@ glm::vec4 gray = glm::vec4(182.0f,172.0f,164.0f, 255.0f)/glm::vec4(255.0f);
 glm::vec4 blue = glm::vec4(188.0f, 155.0f, 99.0f, 255.0f)/glm::vec4(255.0f);
 glm::vec4 colour = glm::vec4{99.0f,96.0f,93.0f,255.0f} / glm::vec4(255.0f);
 
-glm::ivec2 size = {1000,1000};
+glm::ivec2 size = {1024,1024};
 float scale = 4;
 float delta = 0.016f;
 
@@ -87,6 +87,10 @@ int main()
 
         target->Record({*clear});
 
+        int windowSize = 20;
+        std::vector<uint64_t> timePoints(windowSize, 0);
+        int timePointIndex = 0;
+
         while(!mainWindow.ShoudCloseWindow())
         {
             glfwPollEvents();
@@ -97,8 +101,11 @@ int main()
             window.Submit();
 
             auto end = std::chrono::system_clock::now();
-            auto duration = end - start;
-            auto title = std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(duration).count()) + "ms";
+            timePoints[timePointIndex] = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+            timePointIndex = (timePointIndex + 1) % windowSize;
+
+            auto average = std::accumulate(timePoints.begin(), timePoints.end(), 0) / windowSize;
+            auto title = std::to_string(average) + "ms";
             glfwSetWindowTitle(mainWindow.GetWindow(), title.c_str());
         }
 
