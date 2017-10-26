@@ -13,6 +13,7 @@
 #include <memory>
 #include <functional>
 #include <chrono>
+#include <numeric>
 
 using namespace Vortex2D;
 

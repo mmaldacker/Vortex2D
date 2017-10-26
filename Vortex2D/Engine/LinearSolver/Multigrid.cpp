@@ -68,6 +68,9 @@ Multigrid::Multigrid(const Renderer::Device& device, const glm::ivec2& size, flo
         auto s = mDepth.GetDepthSize(i);
         mXs.emplace_back(device, s.x*s.y);
     }
+
+    mSmoothers.resize(2 * (mDepth.GetMaxDepth() + 1));
+    mResidualWorkBound.resize(mDepth.GetMaxDepth() + 1);
 }
 
 void Multigrid::Init(Renderer::GenericBuffer& d,
@@ -78,10 +81,10 @@ void Multigrid::Init(Renderer::GenericBuffer& d,
 {
     mPressure = &pressure;
 
-    mResidualWorkBound.push_back(
-                mResidualWork.Bind({pressure, d, l, b, mResiduals[0]}));
-    mSmoothers.push_back(mDampedJacobi.Bind({pressure, mXs[0], d, l, b}));
-    mSmoothers.push_back(mDampedJacobi.Bind({mXs[0], pressure, d, l, b}));
+    mResidualWorkBound[0] =
+                mResidualWork.Bind({pressure, d, l, b, mResiduals[0]});
+    mSmoothers[0] = mDampedJacobi.Bind({pressure, mXs[0], d, l, b});
+    mSmoothers[1] = mDampedJacobi.Bind({mXs[0], pressure, d, l, b});
 
     auto s = mDepth.GetDepthSize(0);
     mTransfer.InitRestrict(0, s, mResiduals[0], d, mDatas[0].B, mDatas[0].Diagonal);
@@ -142,24 +145,12 @@ void Multigrid::BindRecursive(Pressure& pressure, std::size_t depth)
         mLiquidPhiScaleWorkBound.push_back(mPhiScaleWork.Bind(s1, {mLiquidPhis[depth - 1], mLiquidPhis[depth]}));
         mSolidPhiScaleWorkBound.push_back(mPhiScaleWork.Bind(s1, {mSolidPhis[depth - 1], mSolidPhis[depth]}));
 
-        mResidualWorkBound.push_back(
+        mResidualWorkBound[depth] =
                     mResidualWork.Bind(s0, {mDatas[depth-1].X,
                                            mDatas[depth-1].Diagonal,
                                            mDatas[depth-1].Lower,
                                            mDatas[depth-1].B,
-                                           mResiduals[depth]}));
-        mSmoothers.push_back(
-              mDampedJacobi.Bind(s0, {mDatas[depth-1].X,
-                                      mXs[depth],
-                                      mDatas[depth-1].Diagonal,
-                                      mDatas[depth-1].Lower,
-                                      mDatas[depth-1].B}));
-        mSmoothers.push_back(
-              mDampedJacobi.Bind(s0, {mXs[depth],
-                                      mDatas[depth-1].X,
-                                      mDatas[depth-1].Diagonal,
-                                      mDatas[depth-1].Lower,
-                                      mDatas[depth-1].B}));
+                                           mResiduals[depth]});
 
         mTransfer.InitRestrict(depth, s0,
                                mResiduals[depth],
@@ -182,6 +173,19 @@ void Multigrid::BindRecursive(Pressure& pressure, std::size_t depth)
                                          mDatas[depth-1].Lower,
                                          mLiquidPhis[depth-1],
                                          mSolidPhis[depth-1]));
+
+    mSmoothers[2 * depth] =
+          mDampedJacobi.Bind(s0, {mDatas[depth-1].X,
+                                  mXs[depth],
+                                  mDatas[depth-1].Diagonal,
+                                  mDatas[depth-1].Lower,
+                                  mDatas[depth-1].B});
+    mSmoothers[2 * depth + 1] =
+          mDampedJacobi.Bind(s0, {mXs[depth],
+                                  mDatas[depth-1].X,
+                                  mDatas[depth-1].Diagonal,
+                                  mDatas[depth-1].Lower,
+                                  mDatas[depth-1].B});
 }
 
 void Multigrid::BuildHierarchies()
@@ -192,7 +196,7 @@ void Multigrid::BuildHierarchies()
 void Multigrid::Smoother(vk::CommandBuffer commandBuffer, int n, int iterations)
 {
   float w = 2.0f / 3.0f;
-  int level = n / 2;
+  int level = n * 2;
   for (int i = 0; i < iterations; i++)
   {
     mSmoothers[level].PushConstant(commandBuffer, 8, w);
@@ -202,7 +206,7 @@ void Multigrid::Smoother(vk::CommandBuffer commandBuffer, int n, int iterations)
     mSmoothers[level + 1].Record(commandBuffer);
 
     if (n == 0) mPressure->Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-    else mDatas[n].X.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+    else mDatas[n - 1].X.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
   }
 }
 
@@ -242,7 +246,7 @@ void Multigrid::Record(vk::CommandBuffer commandBuffer)
         mTransfer.Prolongate(commandBuffer, i);
         if (mEnableStatistics) mStatistics.Tick(commandBuffer, "prolongate " + std::to_string(i));
 
-        Smoother(commandBuffer, i, numIterations);
+       Smoother(commandBuffer, i, numIterations);
         if (mEnableStatistics) mStatistics.Tick(commandBuffer, "smoother " + std::to_string(i));
     }
 

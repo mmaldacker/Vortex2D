@@ -457,7 +457,7 @@ TEST(LinearSolverTests, Zero_PCG)
 
 TEST(LinearSolverTests, Simple_Multigrid)
 {
-    glm::ivec2 size(32);
+    glm::ivec2 size(64);
 
     FluidSim sim;
     sim.initialize(1.0f, size.x, size.y);
@@ -469,7 +469,7 @@ TEST(LinearSolverTests, Simple_Multigrid)
     sim.project(0.01f);
 
     // solution from FluidSim
-    PrintData(size.x, size.y, sim.pressure);
+    //PrintData(size.x, size.y, sim.pressure);
 
     LinearSolver::Data data(*device, size, true);
 
@@ -499,14 +499,20 @@ TEST(LinearSolverTests, Simple_Multigrid)
 
     device->Queue().waitIdle();
 
-    Buffer<float> residual(*device, 32*32, true);
+    Buffer<float> output1(*device, 64*64, true);
+    Buffer<float> output2(*device, 32*32, true);
+    Buffer<float> output3(*device, 16*16, true);
 
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
-        residual.CopyFrom(commandBuffer, multigrid.mResiduals[0]);
+        output1.CopyFrom(commandBuffer, multigrid.mResiduals[0]);
+        output2.CopyFrom(commandBuffer, multigrid.mDatas[0].B);
+        //output3.CopyFrom(commandBuffer, multigrid.mResiduals[2]);
     });
 
-    PrintBuffer<float>(size, residual);
+    PrintBuffer<float>({64, 64}, output1);
+    PrintBuffer<float>({32, 32}, output2);
+    //PrintBuffer<float>({16, 16}, output3);
 
     PrintBuffer<float>(size, data.X);
 }

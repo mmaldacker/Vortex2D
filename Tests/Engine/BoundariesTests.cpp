@@ -84,7 +84,7 @@ void CheckLevelSet(const std::vector<float>& data, Vortex2D::Renderer::Texture& 
     }
 }
 
-TEST(BoundariesTests, Square)
+TEST(BoundariesTests, DISABLED_Square)
 {
     glm::ivec2 size(20);
 
@@ -119,7 +119,7 @@ TEST(BoundariesTests, Square)
     CheckTexture(data, outTexture);
 }
 
-TEST(BoundariesTests, InverseSquare)
+TEST(BoundariesTests, DISABLED_InverseSquare)
 {
     glm::ivec2 size(20);
 
