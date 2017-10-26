@@ -83,7 +83,11 @@ public:
 
     std::vector<Renderer::Work::Bound> mMatrixBuildBound;
 
-    std::vector<GaussSeidel> mSmoothers;
+    Renderer::Work mDampedJacobi;
+    std::vector<Renderer::Work::Bound> mSmoothers;
+
+    // mXs[0] is level 0
+    std::vector<Renderer::Buffer<float>> mXs;
 
     Renderer::CommandBuffer mBuildHierarchies;
 

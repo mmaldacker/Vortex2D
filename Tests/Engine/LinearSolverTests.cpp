@@ -499,17 +499,14 @@ TEST(LinearSolverTests, Simple_Multigrid)
 
     device->Queue().waitIdle();
 
-    Texture localLiquidPhi(*device, 32, 32, vk::Format::eR32Sfloat, true);
-    Texture localLiquidPhi2(*device, 16, 16, vk::Format::eR32Sfloat, true);
+    Buffer<float> residual(*device, 32*32, true);
 
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
-        localLiquidPhi.CopyFrom(commandBuffer, liquidPhi);
-        localLiquidPhi2.CopyFrom(commandBuffer, multigrid.mLiquidPhis[0]);
+        residual.CopyFrom(commandBuffer, multigrid.mResiduals[0]);
     });
 
-    PrintTexture<float>(localLiquidPhi);
-    PrintTexture<float>(localLiquidPhi2);
+    PrintBuffer<float>(size, residual);
 
     PrintBuffer<float>(size, data.X);
 }
