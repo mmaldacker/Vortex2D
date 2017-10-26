@@ -17,7 +17,7 @@ layout(std430, binding = 0) buffer FineDiagonal
 layout(std430, binding = 1) buffer Fine
 {
   float value[];
-}coarse;
+}fine;
 
 layout(std430, binding = 2) buffer CoarseDiagonal
 {
@@ -27,18 +27,18 @@ layout(std430, binding = 2) buffer CoarseDiagonal
 layout(std430, binding = 3) buffer Coarse
 {
   float value[];
-}fine;
+}coarse;
 
 void main()
 {
   ivec2 pos = ivec2(gl_GlobalInvocationID);
-  if (pos.x > 0 && pos.y > 0 && pos.x < consts.width - 1 && pos.y < consts.height - 1)
+  if (pos.x < consts.width && pos.y < consts.height)
   {
     int index = pos.x + pos.y * consts.width;
     if (fineDiagonal.value[index] != 0.0)
     {
-        ivec2 coarsePos = 1 + (pos - 1) / 2;
-        int coarseWidth = 1 + consts.width / 2;
+        ivec2 coarsePos = pos / 2;
+        int coarseWidth = consts.width / 2;
         int coarseIndex = coarsePos.x + coarsePos.y * coarseWidth;
 
         if (coarseDiagonal.value[coarseIndex] != 0.0)

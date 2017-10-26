@@ -43,7 +43,7 @@ void Transfer::InitRestrict(int level, const glm::ivec2& fineSize,
     mRestrictBuffer.resize(level + 1);
   }
 
-    glm::ivec2 coarseSize =  glm::ivec2(1) + fineSize / glm::ivec2(2);
+    glm::ivec2 coarseSize =  fineSize / glm::ivec2(2);
 
     mRestrictBound[level] = mRestrictWork.Bind(coarseSize, {fineDiagonal, fine, coarseDiagonal, coarse});
     mRestrictBuffer[level] = &coarse;

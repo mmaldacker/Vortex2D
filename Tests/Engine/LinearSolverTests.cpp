@@ -117,8 +117,7 @@ TEST(LinearSolverTests, ReduceMax)
 
 TEST(LinearSolverTests, Transfer_Prolongate)
 {
-
-    glm::ivec2 coarseSize(3);
+    glm::ivec2 coarseSize(2);
     glm::ivec2 fineSize(4);
 
     Transfer t(*device);
@@ -147,24 +146,15 @@ TEST(LinearSolverTests, Transfer_Prolongate)
     std::vector<float> outputData(fineSize.x*fineSize.y, 0.0f);
     CopyTo(output, outputData);
 
-    float total;
-    total = (9*5 + 3*2 + 3*4 + 1*1) / 16.0f;
-    EXPECT_FLOAT_EQ(total, outputData[1 + fineSize.x * 1]);
-
-    total = (9*5 + 3*2 + 3*6 + 1*3) / 16.0f;
-    EXPECT_FLOAT_EQ(total, outputData[2 + fineSize.x * 1]);
-
-    total = (9*5 + 3*4 + 3*8 + 1*7) / 16.0f;
-    EXPECT_FLOAT_EQ(total, outputData[1 + fineSize.x * 2]);
-
-    total = (9*5 + 3*6 + 3*8 + 1*9) / 16.0f;
-    EXPECT_FLOAT_EQ(total, outputData[2 + fineSize.x * 2]);
-
+    EXPECT_FLOAT_EQ(1.0f, outputData[1 + fineSize.x * 1]);
+    EXPECT_FLOAT_EQ(2.0f, outputData[2 + fineSize.x * 1]);
+    EXPECT_FLOAT_EQ(3.0f, outputData[1 + fineSize.x * 2]);
+    EXPECT_FLOAT_EQ(4.0f, outputData[2 + fineSize.x * 2]);
 }
 
 TEST(LinearSolverTests, Transfer_Restrict)
 {
-    glm::ivec2 coarseSize(3);
+    glm::ivec2 coarseSize(2);
     glm::ivec2 fineSize(4);
 
     Transfer t(*device);
@@ -190,15 +180,13 @@ TEST(LinearSolverTests, Transfer_Restrict)
         t.Restrict(commandBuffer, 0);
     });
 
-    float total = (1*1 + 3*2 + 3*3 + 1*4 +
-                   3*5 + 9*6 + 9*7 + 3*8 +
-                   3*9 + 9*10 + 9*11 + 3*12 +
-                   1*13 + 3*14 + 3*15 + 1*16) / 64.0f;
-
-    std::vector<float> outputData(coarseSize.x*coarseSize.y, 0.0f);
+    std::vector<float> outputData(coarseSize.x*coarseSize.y, 1.0f);
     CopyTo(output, outputData);
 
-    EXPECT_FLOAT_EQ(total, outputData[1 + coarseSize.x * 1]);
+    EXPECT_FLOAT_EQ((1.0f + 2.0f + 5.0f + 6.0f) / 4.0f, outputData[0 + coarseSize.x * 0]);
+    EXPECT_FLOAT_EQ((3.0f + 4.0f + 7.0f + 8.0f) / 4.0f, outputData[1 + coarseSize.x * 0]);
+    EXPECT_FLOAT_EQ((9.0f + 10.0f + 13.0f + 14.0f) / 4.0f, outputData[0 + coarseSize.x * 1]);
+    EXPECT_FLOAT_EQ((11.0f + 12.0f + 15.0f + 16.0f) / 4.0f, outputData[1 + coarseSize.x * 1]);
 }
 
 void CheckPressure(const glm::ivec2& size, const std::vector<double>& pressure, Buffer<float>& bufferPressure, float error)

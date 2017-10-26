@@ -215,7 +215,7 @@ static void MultigridCG(benchmark::State& state)
 
     Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, solidVelocity, valid);
 
-    Multigrid preconditioner(*device, size, 0.01f, true);
+    Multigrid preconditioner(*device, size, 0.01f);
     preconditioner.BuildHierarchiesInit(pressure, solidPhi, liquidPhi);
 
     LinearSolver::Parameters params(10000, 1e-4f);

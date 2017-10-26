@@ -17,7 +17,7 @@ layout(std430, binding = 0) buffer FineDiagonal
 layout(std430, binding = 1) buffer Fine
 {
   float value[];
-}coarse;
+}fine;
 
 layout(std430, binding = 2) buffer CoarseDiagonal
 {
@@ -27,50 +27,50 @@ layout(std430, binding = 2) buffer CoarseDiagonal
 layout(std430, binding = 3) buffer Coarse
 {
   float value[];
-}fine;
+}coarse;
 
 void main()
 {
-  ivec2 pos = ivec2(gl_GlobalInvocationID);
-  if (pos.x > 0 && pos.y > 0 && pos.x < consts.width - 1 && pos.y < consts.height - 1)
-  {
-    int index = pos.x + pos.y * consts.width;
-    if (coarseDiagonal.value[index] != 0.0)
+    ivec2 pos = ivec2(gl_GlobalInvocationID);
+    if (pos.x < consts.width && pos.y < consts.height)
     {
-        ivec2 finePos = pos * ivec2(2) - ivec2(1);
-        int fineWidth = consts.width * 2 - 2;
-        int fineIndex = finePos.x + finePos.y * fineWidth;
-
-        float p = 0.0;
-        float total = 0.0;
-        if (fineDiagonal.value[fineIndex] != 0.0)
+        int index = pos.x + pos.y * consts.width;
+        if (coarseDiagonal.value[index] != 0.0)
         {
-            p += fine.value[fineIndex];
-            total += 1.0;
-        }
+            ivec2 finePos = pos * ivec2(2);
+            int fineWidth = consts.width * 2;
+            int fineIndex = finePos.x + finePos.y * fineWidth;
 
-        if (fineDiagonal.value[fineIndex + 1] != 0.0)
-        {
-            p += fine.value[fineIndex + 1];
-            total += 1.0;
-        }
+            float p = 0.0;
+            float total = 0.0;
+            if (fineDiagonal.value[fineIndex] != 0.0)
+            {
+                p += fine.value[fineIndex];
+                total += 1.0;
+            }
 
-        if (fineDiagonal.value[fineIndex + fineWidth] != 0.0)
-        {
-            p += fine.value[fineIndex + fineWidth];
-            total += 1.0;
-        }
+            if (fineDiagonal.value[fineIndex + 1] != 0.0)
+            {
+                p += fine.value[fineIndex + 1];
+                total += 1.0;
+            }
 
-        if (fineDiagonal.value[fineIndex + 1 + fineWidth] != 0.0)
-        {
-            p += fine.value[fineIndex + 1 + fineWidth];
-            total += 1.0;
-        }
+            if (fineDiagonal.value[fineIndex + fineWidth] != 0.0)
+            {
+                p += fine.value[fineIndex + fineWidth];
+                total += 1.0;
+            }
 
-      if (total != 0.0)
-      {
-        coarse.value[index] = p / total;
-      }
+            if (fineDiagonal.value[fineIndex + 1 + fineWidth] != 0.0)
+            {
+                p += fine.value[fineIndex + 1 + fineWidth];
+                total += 1.0;
+            }
+
+            if (total != 0.0)
+            {
+                coarse.value[index] = p / total;
+            }
+        }
     }
-  }
 }
