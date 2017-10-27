@@ -125,6 +125,7 @@ void Multigrid::BuildHierarchiesInit(Pressure& pressure,
             mMatrixBuildBound[i].Record(commandBuffer);
             mDatas[i].Diagonal.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
             mDatas[i].Lower.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+            mDatas[i].B.Clear(commandBuffer);
         }
 
         std::size_t maxDepth = mDepth.GetMaxDepth();
@@ -218,6 +219,7 @@ void Multigrid::Record(vk::CommandBuffer commandBuffer)
 
     assert(mPressure != nullptr);
     mPressure->Clear(commandBuffer);
+    mXs[0].Clear(commandBuffer);
 
     if (mEnableStatistics) mStatistics.Tick(commandBuffer, "clear");
 
@@ -234,6 +236,7 @@ void Multigrid::Record(vk::CommandBuffer commandBuffer)
         if (mEnableStatistics) mStatistics.Tick(commandBuffer, "transfer " + std::to_string(i));
 
         mDatas[i].X.Clear(commandBuffer);
+        mXs[i-1].Clear(commandBuffer);
         if (mEnableStatistics) mStatistics.Tick(commandBuffer, "clear " + std::to_string(i));
 
     }
@@ -246,7 +249,7 @@ void Multigrid::Record(vk::CommandBuffer commandBuffer)
         mTransfer.Prolongate(commandBuffer, i);
         if (mEnableStatistics) mStatistics.Tick(commandBuffer, "prolongate " + std::to_string(i));
 
-       Smoother(commandBuffer, i, numIterations);
+        Smoother(commandBuffer, i, numIterations);
         if (mEnableStatistics) mStatistics.Tick(commandBuffer, "smoother " + std::to_string(i));
     }
 
