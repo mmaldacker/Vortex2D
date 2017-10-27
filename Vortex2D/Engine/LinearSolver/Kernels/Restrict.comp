@@ -42,35 +42,27 @@ void main()
             int fineIndex = finePos.x + finePos.y * fineWidth;
 
             float p = 0.0;
-            float total = 0.0;
             if (fineDiagonal.value[fineIndex] != 0.0)
             {
                 p += fine.value[fineIndex];
-                total += 1.0;
             }
 
             if (fineDiagonal.value[fineIndex + 1] != 0.0)
             {
                 p += fine.value[fineIndex + 1];
-                total += 1.0;
             }
 
             if (fineDiagonal.value[fineIndex + fineWidth] != 0.0)
             {
                 p += fine.value[fineIndex + fineWidth];
-                total += 1.0;
             }
 
             if (fineDiagonal.value[fineIndex + 1 + fineWidth] != 0.0)
             {
                 p += fine.value[fineIndex + 1 + fineWidth];
-                total += 1.0;
             }
 
-            if (total != 0.0)
-            {
-                coarse.value[index] = p / total;
-            }
+            coarse.value[index] = p / 4.0;
         }
     }
 }
