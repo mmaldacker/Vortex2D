@@ -236,7 +236,7 @@ void Multigrid::Record(vk::CommandBuffer commandBuffer)
         if (mEnableStatistics) mStatistics.Tick(commandBuffer, "transfer " + std::to_string(i));
 
         mDatas[i].X.Clear(commandBuffer);
-        mXs[i-1].Clear(commandBuffer);
+        mXs[i].Clear(commandBuffer);
         if (mEnableStatistics) mStatistics.Tick(commandBuffer, "clear " + std::to_string(i));
 
     }
