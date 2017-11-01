@@ -23,43 +23,22 @@ LevelSet::LevelSet(const Renderer::Device& device, const glm::ivec2& size, int r
     , mRedistanceBack(mRedistance.Bind({{*mSampler, mLevelSet0}, {*mSampler, mLevelSetBack}, *this}))
     , mExtrapolateCmd(device, false)
     , mReinitialiseCmd(device, false)
-    , mRedistanceCmd(device, false)
     , mSignedObjectCmd(device, false)
 {
-    mRedistanceCmd.Record([&](vk::CommandBuffer commandBuffer)
+    mReinitialiseCmd.Record([&, reinitializeIterations](vk::CommandBuffer commandBuffer)
     {
         mLevelSet0.CopyFrom(commandBuffer, *this);
 
-        mRedistanceFront.PushConstant(commandBuffer, 8, 0.01f);
-        mRedistanceFront.Record(commandBuffer);
-        mLevelSetBack.Barrier(commandBuffer,
-                              vk::ImageLayout::eGeneral,
-                              vk::AccessFlagBits::eShaderWrite,
-                              vk::ImageLayout::eGeneral,
-                              vk::AccessFlagBits::eShaderRead);
-        mRedistanceBack.PushConstant(commandBuffer, 8, 0.01f);
-        mRedistanceBack.Record(commandBuffer);
-        Barrier(commandBuffer,
-                vk::ImageLayout::eGeneral,
-                vk::AccessFlagBits::eShaderWrite,
-                vk::ImageLayout::eGeneral,
-                vk::AccessFlagBits::eShaderRead);
-    });
-
-    mReinitialiseCmd.Record([&](vk::CommandBuffer commandBuffer)
-    {
-        mLevelSet0.CopyFrom(commandBuffer, *this);
-
-        for (int i = 0; i < reinitializeIterations; i++)
+        for (int i = 0; i < reinitializeIterations / 2; i++)
         {
-            mRedistanceFront.PushConstant(commandBuffer, 8, 0.01f);
+            mRedistanceFront.PushConstant(commandBuffer, 8, 0.1f);
             mRedistanceFront.Record(commandBuffer);
             mLevelSetBack.Barrier(commandBuffer,
                                   vk::ImageLayout::eGeneral,
                                   vk::AccessFlagBits::eShaderWrite,
                                   vk::ImageLayout::eGeneral,
                                   vk::AccessFlagBits::eShaderRead);
-            mRedistanceBack.PushConstant(commandBuffer, 8, 0.01f);
+            mRedistanceBack.PushConstant(commandBuffer, 8, 0.1f);
             mRedistanceBack.Record(commandBuffer);
             Barrier(commandBuffer,
                     vk::ImageLayout::eGeneral,
@@ -92,11 +71,6 @@ void LevelSet::ExtrapolateRecord(vk::CommandBuffer commandBuffer)
 void LevelSet::Reinitialise()
 {
     mReinitialiseCmd.Submit();
-}
-
-void LevelSet::Redistance()
-{
-    mRedistanceCmd.Submit();
 }
 
 void LevelSet::Extrapolate()

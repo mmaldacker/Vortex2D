@@ -22,12 +22,11 @@ class SignedObject;
 class LevelSet : public Renderer::RenderTexture
 {
 public:
-    LevelSet(const Renderer::Device& device, const glm::ivec2& size, int reinitializeIterations = 50);
+    LevelSet(const Renderer::Device& device, const glm::ivec2& size, int reinitializeIterations = 100);
 
     void ExtrapolateInit(Renderer::Texture& solidPhi);
 
     void Reinitialise();
-    void Redistance();
     void Extrapolate();
     void ExtrapolateRecord(vk::CommandBuffer commandBuffer);
 
@@ -50,7 +49,6 @@ private:
 
     Renderer::CommandBuffer mExtrapolateCmd;
     Renderer::CommandBuffer mReinitialiseCmd;
-    Renderer::CommandBuffer mRedistanceCmd;
     Renderer::CommandBuffer mSignedObjectCmd;
 };
 
