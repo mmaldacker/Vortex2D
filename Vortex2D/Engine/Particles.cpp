@@ -53,6 +53,7 @@ ParticleCount::ParticleCount(const Renderer::Device& device,
         mDispatchParams.CopyFrom(commandBuffer, localDispatchParams);
     });
 
+    // TODO should limit to 4 (or 8) particles
     mCountWork.Record([&](vk::CommandBuffer commandBuffer)
     {
         Clear(commandBuffer, std::array<int, 4>{0, 0, 0, 0});
@@ -119,6 +120,7 @@ Renderer::GenericBuffer& ParticleCount::GetDispatchParams()
 
 void ParticleCount::InitLevelSet(LevelSet& levelSet)
 {
+    // TODO should shrink wrap wholes and redistance
     mParticlePhiBound = mParticlePhiWork.Bind({*this, mParticles, mIndex, levelSet});
     mParticlePhi.Record([&](vk::CommandBuffer commandBuffer)
     {
