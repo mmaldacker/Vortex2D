@@ -108,14 +108,14 @@ Device::Device(vk::PhysicalDevice physicalDevice, int familyIndex, bool validati
     // TODO size should be configurable
     // TODO check when we allocate more than what is allowed (might get it for free already)
     std::vector<vk::DescriptorPoolSize> poolSizes;
-    poolSizes.emplace_back(vk::DescriptorType::eUniformBuffer, 128);
-    poolSizes.emplace_back(vk::DescriptorType::eCombinedImageSampler, 128);
-    poolSizes.emplace_back(vk::DescriptorType::eStorageImage, 128);
-    poolSizes.emplace_back(vk::DescriptorType::eStorageBuffer, 256);
+    poolSizes.emplace_back(vk::DescriptorType::eUniformBuffer, 256);
+    poolSizes.emplace_back(vk::DescriptorType::eCombinedImageSampler, 256);
+    poolSizes.emplace_back(vk::DescriptorType::eStorageImage, 256);
+    poolSizes.emplace_back(vk::DescriptorType::eStorageBuffer, 512);
 
     vk::DescriptorPoolCreateInfo descriptorPoolInfo{};
     descriptorPoolInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
-    descriptorPoolInfo.maxSets = 256;
+    descriptorPoolInfo.maxSets = 512;
     descriptorPoolInfo.poolSizeCount = (uint32_t)poolSizes.size();
     descriptorPoolInfo.pPoolSizes = poolSizes.data();
     mDescriptorPool = mDevice->createDescriptorPoolUnique(descriptorPoolInfo);

@@ -272,6 +272,9 @@ int main(int argc, char** argv)
 
     AddParticles(size, sim, complex_boundary_phi);
 
+    // advance simulation one step to have more interesting problem to solve
+    sim.advance(0.01f);
+
     sim.add_force(0.01f);
     sim.compute_phi();
     sim.extrapolate_phi();
