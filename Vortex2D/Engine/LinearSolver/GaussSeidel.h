@@ -60,6 +60,25 @@ private:
     Renderer::GenericBuffer* mPressure;
 };
 
+class LocalGaussSeidel : public Preconditioner
+{
+public:
+    LocalGaussSeidel(const Renderer::Device& device, const glm::ivec2& size);
+
+    void Init(Renderer::GenericBuffer& d,
+              Renderer::GenericBuffer& l,
+              Renderer::GenericBuffer& b,
+              Renderer::GenericBuffer& pressure) override;
+
+    void Record(vk::CommandBuffer commandBuffer) override;
+
+private:
+    Renderer::GenericBuffer* mPressure;
+
+    Renderer::Work mLocalGaussSeidel;
+    Renderer::Work::Bound mLocalGaussSeidelBound;
+};
+
 }}
 
 #endif

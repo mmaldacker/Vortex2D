@@ -13,7 +13,7 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
     : mDimensions(dimensions)
     , mParticles(device, vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eVertexBuffer, false, 8*dimensions.Size.x*dimensions.Size.y*sizeof(Particle))
     , mParticleCount(device, dimensions.Size, mParticles)
-    , mPreconditioner(device, dimensions.Size)
+    , mPreconditioner(device, dimensions.Size, dt)
     , mLinearSolver(device, dimensions.Size, mPreconditioner)
     , mData(device, dimensions.Size)
     , mVelocity(device, dimensions.Size.x, dimensions.Size.y, vk::Format::eR32G32Sfloat)
@@ -43,6 +43,7 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
         mVelocity.Clear(commandBuffer, std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f});
     });
 
+    mPreconditioner.BuildHierarchiesInit(mProjection, mObstacleLevelSet, mFluidLevelSet);
     mLinearSolver.Init(mData.Diagonal, mData.Lower, mData.B, mData.X);
 }
 
@@ -54,6 +55,7 @@ void World::InitField(Renderer::Texture& field)
 void World::SolveStatic()
 {
     LinearSolver::Parameters params(300, 1e-3f);
+    mPreconditioner.BuildHierarchies();
     mProjection.BuildLinearEquation();
     mLinearSolver.Solve(params);
     mProjection.ApplyPressure();
@@ -89,6 +91,7 @@ void World::SolveDynamic()
     // transfer to grid adds to the velocity, so we can set the values before
 
     // 4)
+    mPreconditioner.BuildHierarchies();
     mFluidLevelSet.Extrapolate();
 
     // 5)

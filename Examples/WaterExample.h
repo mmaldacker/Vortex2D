@@ -41,10 +41,10 @@ public:
         // Draw solid boundaries
         Vortex2D::Renderer::Rectangle obstacle1(device, {200.0f, 100.0f}, glm::vec4(-1.0f));
         Vortex2D::Renderer::Rectangle obstacle2(device, {200.0f, 100.0f}, glm::vec4(-1.0f));
-        Vortex2D::Renderer::Rectangle area(device, dimensions.Scale * (glm::vec2(dimensions.Size) - glm::vec2(2.0f)), glm::vec4(1.0f));
+        Vortex2D::Renderer::Rectangle area(device, dimensions.Scale * (glm::vec2(dimensions.Size) - glm::vec2(4.0f)), glm::vec4(1.0f));
         Vortex2D::Renderer::Clear clear(dimensions.Size.x, dimensions.Size.y, {-1.0f, 0.0f, 0.0f, 0.0f});
 
-        area.Position = glm::vec2(dimensions.Scale);
+        area.Position = glm::vec2(2.0f * dimensions.Scale);
 
         obstacle1.Position = {300.0f, 600.0f};
         obstacle1.Rotation = 45.0f;

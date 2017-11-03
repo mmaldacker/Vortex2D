@@ -109,4 +109,34 @@ void GaussSeidel::Record(vk::CommandBuffer commandBuffer, int iterations)
     }
 }
 
+Renderer::ComputeSize MakeLocalSize(const glm::ivec2& size)
+{
+    Renderer::ComputeSize computeSize(size);
+    computeSize.WorkSize = glm::ivec2(1);
+    computeSize.LocalSize = glm::ivec2(16); // TODO shouldn't be hardcoded 16
+
+    return computeSize;
+}
+
+LocalGaussSeidel::LocalGaussSeidel(const Renderer::Device& device, const glm::ivec2& size)
+  : mLocalGaussSeidel(device, MakeLocalSize(size), "../Vortex2D/LocalGaussSeidel.comp.spv")
+{
+    // TODO check size is within local size
+}
+
+void LocalGaussSeidel::Init(Renderer::GenericBuffer& d,
+                  Renderer::GenericBuffer& l,
+                  Renderer::GenericBuffer& div,
+                  Renderer::GenericBuffer& pressure)
+{
+    mPressure = &pressure;
+    mLocalGaussSeidelBound = mLocalGaussSeidel.Bind({pressure, d, l, div});
+}
+
+void LocalGaussSeidel::Record(vk::CommandBuffer commandBuffer)
+{
+    mLocalGaussSeidelBound.Record(commandBuffer);
+    mPressure->Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+}
+
 }}

@@ -1,0 +1,101 @@
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+layout (local_size_x_id = 1, local_size_y_id = 2) in;
+layout(constant_id = 1) const int blockWidth = 16;
+layout(constant_id = 2) const int blockHeight = 16;
+
+layout(push_constant) uniform Consts
+{
+  int width;
+  int height;
+}consts;
+
+layout(std430, binding = 0) buffer Pressure
+{
+  float value[];
+}pressure;
+
+layout(std430, binding = 1) buffer Diagonal
+{
+  float value[];
+}diagonal;
+
+layout(std430, binding = 2) buffer Lower
+{
+  vec2 value[];
+}lower;
+
+layout(std430, binding = 3) buffer B
+{
+  float value[];
+}b;
+
+shared float sdata[blockWidth * blockHeight];
+const int iterations = 32; // TODO make configurable
+const float w = 1.5;
+
+void main()
+{
+    // load pressure in shared data
+    sdata[gl_LocalInvocationIndex] = pressure.value[gl_LocalInvocationIndex];
+
+    memoryBarrierShared();
+    barrier();
+
+    ivec2 pos = ivec2(gl_LocalInvocationID);
+    int index = pos.x + pos.y * consts.width;
+
+    // do a certain number of gauss-seidel iterations
+    for (int i = 0; i < iterations; i++)
+    {
+        // red
+        if ((gl_LocalInvocationID.x + gl_LocalInvocationID.y) % 2 == 0)
+        {
+            if (pos.x > 0 && pos.y > 0 && pos.x < consts.width - 1 && pos.y < consts.height - 1)
+            {
+                float d = diagonal.value[index];
+                if (d != 0.0)
+                {
+                  float x = sdata[index];
+
+                  float newx = (b.value[index] - sdata[index + 1] * lower.value[index + 1].x
+                                               - sdata[index - 1] * lower.value[index].x
+                                               - sdata[index + consts.width] * lower.value[index + consts.width].y
+                                               - sdata[index - consts.width] * lower.value[index].y) / d;
+
+                  sdata[index] = mix(x, newx, w);
+                }
+            }
+        }
+
+        memoryBarrierShared();
+        barrier();
+
+        // black
+        if ((gl_LocalInvocationID.x + gl_LocalInvocationID.y) % 2 == 1)
+        {
+            if (pos.x > 0 && pos.y > 0 && pos.x < consts.width - 1 && pos.y < consts.height - 1)
+            {
+                float d = diagonal.value[index];
+                if (d != 0.0)
+                {
+                  float x = sdata[index];
+
+                  float newx = (b.value[index] - sdata[index + 1] * lower.value[index + 1].x
+                                               - sdata[index - 1] * lower.value[index].x
+                                               - sdata[index + consts.width] * lower.value[index + consts.width].y
+                                               - sdata[index - consts.width] * lower.value[index].y) / d;
+
+                  sdata[index] = mix(x, newx, w);
+                }
+            }
+        }
+
+        memoryBarrierShared();
+        barrier();
+    }
+
+    // copy shared data back
+    pressure.value[gl_LocalInvocationIndex] = sdata[gl_LocalInvocationIndex];
+}

@@ -189,7 +189,7 @@ TEST(BoundariesTests, Circle)
     CheckLevelSet(data, outTexture);
 }
 
-TEST(BoundariesTests, PolygonVelocity)
+TEST(BoundariesTests, DISABLED_PolygonVelocity)
 {
     glm::ivec2 size(20);
     std::vector<glm::vec2> points = {{0.0f, 0.0f}, {4.0f, 0.0f}, {4.0f, 4.0f}, {0.0f, 4.0f}};
@@ -245,7 +245,7 @@ void DrawSquareRotation(int width, int height, std::vector<glm::vec2>& data, con
     }
 }
 
-TEST(BoundariesTests, PolygonVelocityRotation)
+TEST(BoundariesTests, DISABLED_PolygonVelocityRotation)
 {
     glm::ivec2 size(20);
     std::vector<glm::vec2> points = {{0.0f, 0.0f}, {4.0f, 0.0f}, {4.0f, 4.0f}, {0.0f, 4.0f}};

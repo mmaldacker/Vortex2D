@@ -265,6 +265,36 @@ TEST(LinearSolverTests, Complex_SOR)
     std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
 }
 
+TEST(LinearSolverTests, LocalGaussSeidel)
+{
+    glm::ivec2 size(16); // maximum size
+
+    FluidSim sim;
+    sim.initialize(1.0f, size.x, size.y);
+    sim.set_boundary(boundary_phi);
+
+    AddParticles(size, sim, boundary_phi);
+
+    sim.add_force(0.01f);
+    sim.project(0.01f);
+
+    LinearSolver::Data data(*device, size, true);
+
+    BuildLinearEquation(size, data.Diagonal, data.Lower, data.B, sim);
+
+    LocalGaussSeidel solver(*device, size);
+
+    solver.Init(data.Diagonal, data.Lower, data.B, data.X);
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+        solver.Record(commandBuffer);
+    });
+
+    device->Queue().waitIdle();
+
+    CheckPressure(size, sim.pressure, data.X, 1e-1f); // TODO make number of iterations configurable and increase this
+}
+
 TEST(LinearSolverTests, Simple_CG)
 {
     glm::ivec2 size(50);
@@ -453,68 +483,6 @@ TEST(LinearSolverTests, Zero_PCG)
             EXPECT_FLOAT_EQ(0.0f, pressureData[i + size.x * j]);
         }
     }
-}
-
-TEST(LinearSolverTests, Simple_Multigrid)
-{
-    glm::ivec2 size(64);
-
-    FluidSim sim;
-    sim.initialize(1.0f, size.x, size.y);
-    sim.set_boundary(boundary_phi);
-
-    AddParticles(size, sim, boundary_phi);
-
-    sim.add_force(0.01f);
-    sim.project(0.01f);
-
-    // solution from FluidSim
-    //PrintData(size.x, size.y, sim.pressure);
-
-    LinearSolver::Data data(*device, size, true);
-
-    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
-    Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
-    Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
-    Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
-    Buffer<glm::ivec2> valid(*device, size.x*size.y, true);
-
-    SetSolidPhi(*device, size, solidPhi, sim, size.x);
-    SetLiquidPhi(*device, size, liquidPhi, sim, size.x);
-
-    BuildLinearEquation(size, data.Diagonal, data.Lower, data.B, sim);
-
-    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, solidVelocity, valid);
-
-    Multigrid multigrid(*device, size, 0.01f);
-    multigrid.BuildHierarchiesInit(pressure, solidPhi, liquidPhi);
-    multigrid.Init(data.Diagonal, data.Lower, data.B, data.X);
-
-    multigrid.BuildHierarchies();
-
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-        multigrid.Record(commandBuffer);
-    });
-
-    device->Queue().waitIdle();
-
-    Buffer<float> output1(*device, 64*64, true);
-    Buffer<float> output2(*device, 32*32, true);
-    Buffer<float> output3(*device, 16*16, true);
-
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-        output1.CopyFrom(commandBuffer, multigrid.mResiduals[0]);
-        output2.CopyFrom(commandBuffer, multigrid.mDatas[0].B);
-        //output3.CopyFrom(commandBuffer, multigrid.mResiduals[2]);
-    });
-
-    PrintBuffer<float>({64, 64}, output1);
-    PrintBuffer<float>({32, 32}, output2);
-    //PrintBuffer<float>({16, 16}, output3);
-
-    PrintBuffer<float>(size, data.X);
 }
 
 TEST(LinearSolverTests, Multigrid_Simple_PCG)

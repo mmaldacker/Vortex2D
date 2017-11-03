@@ -41,6 +41,7 @@ Multigrid::Multigrid(const Renderer::Device& device, const glm::ivec2& size, flo
     , mResidualWork(device, size, "../Vortex2D/Residual.comp.spv")
     , mTransfer(device)
     , mPhiScaleWork(device, size, "../Vortex2D/PhiScale.comp.spv")
+    , mSmoother(device, mDepth.GetDepthSize(mDepth.GetMaxDepth()))
     , mBuildHierarchies(device, false)
     , mEnableStatistics(statistics)
     , mStatistics(device)
@@ -52,22 +53,20 @@ Multigrid::Multigrid(const Renderer::Device& device, const glm::ivec2& size, flo
 
         mSolidPhis.emplace_back(device, s);
         mLiquidPhis.emplace_back(device, s);
-
-        mLiquidPhis.back().ExtrapolateInit(mSolidPhis.back());
     }
 
     for (int i = 0; i < mDepth.GetMaxDepth(); i++)
     {
         auto s = mDepth.GetDepthSize(i);
         mResiduals.emplace_back(device, s.x*s.y);
-    }
-
-    for (int i = 0; i <= mDepth.GetMaxDepth(); i++)
-    {
-        auto s = mDepth.GetDepthSize(i);
         mSmoothers.emplace_back(device, s);
     }
 
+    int depth = mDepth.GetMaxDepth() - 1;
+    mSmoother.Init(mDatas[depth].Diagonal,
+                   mDatas[depth].Lower,
+                   mDatas[depth].B,
+                   mDatas[depth].X);
     mResidualWorkBound.resize(mDepth.GetMaxDepth() + 1);
 }
 
@@ -116,8 +115,6 @@ void Multigrid::BuildHierarchiesInit(Pressure& pressure,
                                   vk::ImageLayout::eGeneral,
                                   vk::AccessFlagBits::eShaderRead);
 
-            mLiquidPhis[i].ExtrapolateRecord(commandBuffer);
-
             mMatrixBuildBound[i].PushConstant(commandBuffer, 8, mDelta);
             mMatrixBuildBound[i].Record(commandBuffer);
             mDatas[i].Diagonal.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
@@ -162,6 +159,11 @@ void Multigrid::BindRecursive(Pressure& pressure, std::size_t depth)
                                  mDatas[depth].X,
                                  mDatas[depth].Diagonal);
 
+        mSmoothers[depth].Init(mDatas[depth-1].Diagonal,
+            mDatas[depth-1].Lower,
+            mDatas[depth-1].B,
+            mDatas[depth-1].X);
+
         BindRecursive(pressure, depth+1);
     }
 
@@ -171,11 +173,6 @@ void Multigrid::BindRecursive(Pressure& pressure, std::size_t depth)
                                          mDatas[depth-1].Lower,
                                          mLiquidPhis[depth-1],
                                          mSolidPhis[depth-1]));
-
-    mSmoothers[depth].Init(mDatas[depth-1].Diagonal,
-        mDatas[depth-1].Lower,
-        mDatas[depth-1].B,
-        mDatas[depth-1].X);
 }
 
 void Multigrid::BuildHierarchies()
@@ -219,7 +216,7 @@ void Multigrid::Record(vk::CommandBuffer commandBuffer)
         if (mEnableStatistics) mStatistics.Tick(commandBuffer, "clear " + std::to_string(i));
     }
 
-    Smoother(commandBuffer, mDepth.GetMaxDepth(), numIterations);
+    mSmoother.Record(commandBuffer);
     if (mEnableStatistics) mStatistics.Tick(commandBuffer, "smoother max");
 
     for (int i = mDepth.GetMaxDepth() - 1; i >= 0; --i)

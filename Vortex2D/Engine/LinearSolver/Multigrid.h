@@ -10,6 +10,7 @@
 #include <Vortex2D/Engine/LinearSolver/Preconditioner.h>
 #include <Vortex2D/Engine/LinearSolver/Transfer.h>
 #include <Vortex2D/Engine/LinearSolver/Jacobi.h>
+#include <Vortex2D/Engine/LinearSolver/GaussSeidel.h>
 #include <Vortex2D/Engine/LevelSet.h>
 #include <Vortex2D/Renderer/Work.h>
 #include <Vortex2D/Renderer/CommandBuffer.h>
@@ -85,6 +86,7 @@ public:
 
     // mSmoothers[0] is level 0
     std::vector<Jacobi> mSmoothers;
+    LocalGaussSeidel mSmoother;
 
     Renderer::CommandBuffer mBuildHierarchies;
 

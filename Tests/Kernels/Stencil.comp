@@ -11,7 +11,6 @@ layout(push_constant) uniform Consts
   int height;
 }consts;
 
-
 layout(std430, binding = 0) buffer Input1
 {
   float value[];
