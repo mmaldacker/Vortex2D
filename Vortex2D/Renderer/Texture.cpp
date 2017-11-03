@@ -290,7 +290,7 @@ void Texture::Barrier(vk::CommandBuffer commandBuffer,
                                   imageMemoryBarriers);
 }
 
-vk::ImageView Texture::View() const
+vk::ImageView Texture::GetView() const
 {
     return *mImageView;
 }
