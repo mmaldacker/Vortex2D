@@ -25,6 +25,8 @@ file(GLOB LIB_SOURCES
     "Engine/LinearSolver/Reduce.cpp"
     "Engine/LinearSolver/GaussSeidel.h"
     "Engine/LinearSolver/GaussSeidel.cpp"
+    "Engine/LinearSolver/Jacobi.h"
+    "Engine/LinearSolver/Jacobi.cpp"
     "Engine/LinearSolver/ConjugateGradient.h"
     "Engine/LinearSolver/ConjugateGradient.cpp"
     "Engine/LinearSolver/Diagonal.h"
