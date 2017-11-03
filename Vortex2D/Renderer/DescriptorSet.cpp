@@ -146,7 +146,7 @@ DescriptorSetUpdater& DescriptorSetUpdater::Bind(DescriptorTypeBindings bindings
             if (bindings[bind] != vk::DescriptorType::eStorageImage &&
                 bindings[bind] != vk::DescriptorType::eCombinedImageSampler) throw std::runtime_error("Binding not an image");
 
-            WriteImages(bind, 0, bindings[bind]).Image(image.Sampler, image.Texture->View(), vk::ImageLayout::eGeneral);
+            WriteImages(bind, 0, bindings[bind]).Image(image.Sampler, image.Texture->GetView(), vk::ImageLayout::eGeneral);
         });
 
         mpark::visit(visitor, bindingInputs[i].Input);

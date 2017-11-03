@@ -42,8 +42,7 @@ public:
         , body1(device, rWorld, dimensions.Size, {100.0f, 50.0f})
         , body2(device, rWorld, dimensions.Size, {50.0f, 50.0f})
     {
-        // TODO should set the view and not the scale
-        solidPhi.Scale = densitySprite.Scale = (glm::vec2)dimensions.Scale;
+        solidPhi.Scale = densitySprite.Scale = glm::vec2(dimensions.Scale);
 
         world.InitField(density);
 
@@ -52,8 +51,8 @@ public:
         // Draw density
         Vortex2D::Renderer::Rectangle source(device, {800.0f, 400.0f}, gray);
         source.Position = {100.0f, 500.0f};
-        source.Update(density.Orth, dimensions.InvScale);
 
+        density.View = dimensions.InvScale;
         density.Record({source});
         density.Submit();
         device.Handle().waitIdle();

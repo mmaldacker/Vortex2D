@@ -156,8 +156,8 @@ TEST(ComputeTests, ImageCompute)
     auto descriptorSet = MakeDescriptorSet(*device, descriptorSetLayout);
 
     DescriptorSetUpdater(*descriptorSet)
-            .WriteImages(0, 0, vk::DescriptorType::eStorageImage).Image({}, inTexture.View(), vk::ImageLayout::eGeneral)
-            .WriteImages(1, 0, vk::DescriptorType::eStorageImage).Image({}, outTexture.View(), vk::ImageLayout::eGeneral)
+            .WriteImages(0, 0, vk::DescriptorType::eStorageImage).Image({}, inTexture.GetView(), vk::ImageLayout::eGeneral)
+            .WriteImages(1, 0, vk::DescriptorType::eStorageImage).Image({}, outTexture.GetView(), vk::ImageLayout::eGeneral)
             .Update(device->Handle());
 
     auto layout = PipelineLayoutBuilder()

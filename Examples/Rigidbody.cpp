@@ -61,6 +61,7 @@ void PolygonRigidbody::UpdateVelocities()
 {
     glm::vec2 vel = {mB2Body->GetLinearVelocity().x, mB2Body->GetLinearVelocity().y};
     float angularVelocity = mB2Body->GetAngularVelocity();
+    // TODO get correct scale
     float scale = box2dScale / 4.0f;
     mVelocityPolygon.UpdateVelocities(vel * scale, angularVelocity);
 }

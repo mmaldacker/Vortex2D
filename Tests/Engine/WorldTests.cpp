@@ -44,16 +44,12 @@ TEST(WorldTests, Velocity)
     Vortex2D::Renderer::IntRectangle fluidArea(*device, glm::vec2(1.0f), glm::ivec4(4));
     fluidArea.Position = {10.0f, 2.0f};
 
-    fluidArea.Update(world.Count().Orth, size.InvScale);
-
     world.Count().Record({fluidArea});
     world.Count().Submit();
     device->Handle().waitIdle();
 
     // Draw gravity
     Vortex2D::Renderer::Rectangle gravity(*device, size.Size, {0.0f, -0.01f, 0.0f, 0.0f});
-
-    gravity.Update(world.Velocity().Orth, {});
 
     world.Velocity().Record({gravity});
 

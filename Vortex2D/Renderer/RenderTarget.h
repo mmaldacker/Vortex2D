@@ -37,6 +37,7 @@ struct RenderTarget
     uint32_t Width;
     uint32_t Height;
     glm::mat4 Orth;
+    glm::mat4 View;
     vk::UniqueRenderPass RenderPass;
 };
 

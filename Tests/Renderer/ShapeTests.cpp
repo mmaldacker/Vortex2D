@@ -29,8 +29,6 @@ TEST(ShapeTests, Square)
     RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);
 
-    rect.Update(texture.Orth, {});
-
     texture.Record({clear, rect});
 
     texture.Submit();
@@ -58,8 +56,6 @@ TEST(ShapeTests, IntSquare)
 
     RenderTexture texture(*device, 50, 50, vk::Format::eR32Sint);
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sint, true);
-
-    rect.Update(texture.Orth, {});
 
     texture.Record({rect});
 
@@ -93,9 +89,6 @@ TEST(ShapeTests, MultipleSquares)
 
     RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);
-
-    rect1.Update(texture.Orth, {});
-    rect2.Update(texture.Orth, {});
 
     texture.Record({clear, rect1});
 
@@ -131,8 +124,6 @@ TEST(ShapeTests, Circle)
     RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);
 
-    ellipse.Update(texture.Orth, {});
-
     texture.Record({clear, ellipse});
 
     texture.Submit();
@@ -160,8 +151,6 @@ TEST(ShapeTests, Ellipse)
 
     RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);
-
-    ellipse.Update(texture.Orth, {});
 
     texture.Record({clear, ellipse});
 
@@ -193,8 +182,6 @@ TEST(ShapeTests, ScaledEllipse)
     RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);
 
-    ellipse.Update(texture.Orth, {});
-
     texture.Record({clear, ellipse});
 
     texture.Submit();
@@ -225,8 +212,6 @@ TEST(ShapeTests, RotatedEllipse)
     RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);
 
-    ellipse.Update(texture.Orth, {});
-
     texture.Record({clear, ellipse});
 
     texture.Submit();
@@ -256,10 +241,8 @@ TEST(ShapeTests, RenderScaledEllipse)
     RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);
 
-    ellipse.Update(texture.Orth, glm::scale(glm::vec3(2.0f, 2.0f, 1.0f)));
-
+    texture.View = glm::scale(glm::vec3(2.0f, 2.0f, 1.0f));
     texture.Record({clear, ellipse});
-
     texture.Submit();
     device->Queue().waitIdle();
 

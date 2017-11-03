@@ -178,7 +178,9 @@ void RenderWindow::Record(DrawableList drawables,
 
     for (auto& drawable: drawables)
     {
+      // TODO initialize should only be called once
       drawable.get().Initialize(state);
+      drawable.get().Update(Orth, View);
     }
 
     for (uint32_t i = 0; i < mCmdBuffers.size(); i++)

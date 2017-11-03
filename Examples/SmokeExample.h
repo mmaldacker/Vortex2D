@@ -32,7 +32,6 @@ public:
         , world(device, dimensions, dt)
         , solidPhi(device, world.SolidPhi(), green, dimensions.Scale)
     {
-        // TODO should set the view and not the scale
         solidPhi.Scale = densitySprite.Scale = (glm::vec2)dimensions.Scale;
 
         source1.Position = force1.Position = {250.0f, 100.0f};
@@ -43,7 +42,6 @@ public:
         Vortex2D::Renderer::Clear clearLiquid(dimensions.Size.x, dimensions.Size.y, {1.0f, 0.0f, 0.0f, 0.0f});
 
         area.Position = glm::vec2(1.0f);
-        area.Update(world.LiquidPhi().Orth, {});
 
         world.LiquidPhi().Record({clearLiquid, area});
         world.LiquidPhi().Submit();
@@ -64,15 +62,12 @@ public:
         device.Handle().waitIdle();
 
         // Draw sources and forces
-        source1.Update(density.Orth, dimensions.InvScale);
-        source2.Update(density.Orth, dimensions.InvScale);
-
-        force1.Update(world.Velocity().Orth, dimensions.InvScale);
-        force2.Update(world.Velocity().Orth, dimensions.InvScale);
-
         world.InitField(density);
 
+        world.Velocity().View = dimensions.InvScale;
         world.Velocity().Record({force1, force2});
+
+        density.View = dimensions.InvScale;
         density.Record({source1, source2});
     }
 

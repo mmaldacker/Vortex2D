@@ -27,15 +27,13 @@ public:
         , solidPhi(device, world.SolidPhi(), green, dimensions.Scale)
         , liquidPhi(device, world.LiquidPhi(), blue, dimensions.Scale)
     {
-        // TODO should set the view and not the scale
-        liquidPhi.Scale = solidPhi.Scale = (glm::vec2)dimensions.Scale;
+        liquidPhi.Scale = solidPhi.Scale = glm::vec2(dimensions.Scale);
 
         // Add particles
         Vortex2D::Renderer::IntRectangle fluid(device, {600.0f, 200.0f}, glm::ivec4(4));
         fluid.Position = {200.0f, 100.0f};
 
-        fluid.Update(world.Count().Orth, dimensions.InvScale);
-
+        world.Count().View = dimensions.InvScale;
         world.Count().Record({fluid});
         world.Count().Submit();
         device.Handle().waitIdle();
@@ -54,10 +52,7 @@ public:
         obstacle2.Position = {700.0f, 600.0f};
         obstacle2.Rotation = 30.0f;
 
-        area.Update(world.SolidPhi().Orth, dimensions.InvScale);
-        obstacle1.Update(world.SolidPhi().Orth, dimensions.InvScale);
-        obstacle2.Update(world.SolidPhi().Orth, dimensions.InvScale);
-
+        world.SolidPhi().View = dimensions.InvScale;
         world.SolidPhi().Record({clear, area, obstacle1, obstacle2});
         world.SolidPhi().Submit();
 
@@ -65,7 +60,6 @@ public:
         device.Handle().waitIdle();
 
         // Set gravity
-        gravity.Update(world.Velocity().Orth, {});
         world.Velocity().Record({gravity});
     }
 

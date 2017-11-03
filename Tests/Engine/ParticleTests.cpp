@@ -190,7 +190,6 @@ TEST(ParticleTests, ParticleDelete)
     // Delete some particles
     IntRectangle rect(*device, {10, 10}, glm::ivec4(0));
     rect.Position = glm::vec2(10.0f, 10.0f);
-    rect.Update(particleCount.Orth, {});
 
     particleCount.Record({rect});
     particleCount.Submit();
@@ -223,7 +222,6 @@ TEST(ParticleTests, ParticleSpawn)
     // Add some particles
     IntRectangle rect(*device, {1, 1}, glm::ivec4(4));
     rect.Position = glm::vec2(10.0f, 10.0f);
-    rect.Update(particleCount.Orth, {});
 
     particleCount.Record({rect});
     particleCount.Submit();
@@ -265,7 +263,6 @@ TEST(ParticleTests, ParticleAddDelete)
     // Add some particles
     IntRectangle rectAdd(*device, {2, 4}, glm::ivec4(1));
     rectAdd.Position = glm::vec2(10.0f, 10.0f);
-    rectAdd.Update(particleCount.Orth, {});
 
     particleCount.Record({rectAdd});
     particleCount.Submit();
@@ -279,7 +276,6 @@ TEST(ParticleTests, ParticleAddDelete)
     // Remove some particles
     IntRectangle rectRemove(*device, {1, 4}, glm::ivec4(0));
     rectRemove.Position = glm::vec2(10.0f, 10.0f);
-    rectRemove.Update(particleCount.Orth, {});
 
     particleCount.Record({rectRemove});
     particleCount.Submit();

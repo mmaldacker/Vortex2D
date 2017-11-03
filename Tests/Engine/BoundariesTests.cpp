@@ -202,7 +202,6 @@ TEST(BoundariesTests, PolygonVelocity)
 
     RenderTexture boundaryVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
 
-    polygon.Update(boundaryVelocity.Orth, {});
     boundaryVelocity.Record({polygon});
     boundaryVelocity.Submit();
     device->Handle().waitIdle();
@@ -259,7 +258,6 @@ TEST(BoundariesTests, PolygonVelocityRotation)
 
     RenderTexture boundaryVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
 
-    polygon.Update(boundaryVelocity.Orth, {});
     boundaryVelocity.Record({polygon});
     boundaryVelocity.Submit();
     device->Handle().waitIdle();

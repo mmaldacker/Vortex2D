@@ -32,7 +32,7 @@ RenderTexture::RenderTexture(const Device& device, uint32_t width, uint32_t heig
             .Create(device.Handle());
 
     // Create framebuffer
-    vk::ImageView attachments[] = {View()};
+    vk::ImageView attachments[] = {GetView()};
 
     auto framebufferInfo = vk::FramebufferCreateInfo()
             .setWidth(Width)
@@ -52,7 +52,9 @@ void RenderTexture::Record(DrawableList drawables,
 
     for (auto& drawable: drawables)
     {
+      // TODO initialize should only be called once
       drawable.get().Initialize(state);
+      drawable.get().Update(Orth, View);
     }
 
     mCmd.Record(*this, *mFramebuffer, [&](vk::CommandBuffer commandBuffer)
