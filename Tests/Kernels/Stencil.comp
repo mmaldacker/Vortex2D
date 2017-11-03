@@ -24,7 +24,7 @@ layout(std430, binding = 1) buffer Input2
 
 const int blockSizeX = blockWidth - 2;
 const int blockSizeY = blockHeight - 2;
-shared float sdata[blockWidth * blockHeight];
+shared float sdata[(blockWidth + 1) * blockHeight];
 
 void main()
 {
@@ -35,22 +35,22 @@ void main()
     pos = min(max(ivec2(0), pos), ivec2(consts.width - 1, consts.height - 1));
 
     uint index = pos.x + pos.y * consts.width;
-    uint bindex = gl_LocalInvocationIndex;
+    uint bindex = gl_LocalInvocationID.x + gl_LocalInvocationID.y * (blockWidth + 1);
 
     sdata[bindex] = a.value[index];
 
     memoryBarrierShared();
     barrier();
 
-    if (gl_LocalInvocationID.x >= 1 && gl_LocalInvocationID.x < blockWidth - 1 &&
-        gl_LocalInvocationID.y >= 1 && gl_LocalInvocationID.y < blockHeight - 1)
+    if (gl_LocalInvocationID.x > 0 && gl_LocalInvocationID.x < blockWidth - 1 &&
+        gl_LocalInvocationID.y > 0 && gl_LocalInvocationID.y < blockHeight - 1)
     {
         float x = sdata[bindex];
         vec4 p;
         p.x = sdata[bindex + 1];
         p.y = sdata[bindex - 1];
-        p.z = sdata[bindex + blockWidth];
-        p.w = sdata[bindex - blockWidth];
+        p.z = sdata[bindex + (blockWidth + 1)];
+        p.w = sdata[bindex - (blockWidth + 1)];
 
         b.value[index] = x + dot(p, vec4(1.0));
     }

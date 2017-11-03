@@ -263,7 +263,11 @@ TEST(ComputeTests, Stencil)
 
     auto boundWork = work.Bind({input, output});
 
-    std::vector<float> inputData(size.x*size.y, 1.0f);
+    std::vector<float> inputData(size.x*size.y, 0.0f);
+    {
+        float n = 1.0f;
+        std::generate(inputData.begin(), inputData.end(), [&n]{ return n++; });
+    }
 
     CopyFrom(input, inputData);
 
@@ -272,8 +276,35 @@ TEST(ComputeTests, Stencil)
         boundWork.Record(commandBuffer);
     });
 
-    std::vector<float> expectedOutput(size.x*size.y, 5.0f);
-    CheckBuffer(expectedOutput, output);
+    std::vector<float> expectedOutput(size.x*size.y, 0.0f);
+    for (int i = 1; i < size.x - 1; i++)
+    {
+      for (int j = 1; j < size.y - 1; j++)
+      {
+        int index = i + j * size.x;
+        expectedOutput[index] =
+            inputData[index] +
+            inputData[index + 1] +
+            inputData[index - 1] +
+            inputData[index + size.x] +
+            inputData[index - size.x];
+      }
+    }
+
+    std::vector<float> bufferOutput(size.x * size.y);
+    CopyTo(output, bufferOutput);
+
+    for (int i = 1; i < size.x - 1; i++)
+    {
+      for (int j = 1; j < size.y - 1; j++)
+      {
+        int index = i + j * size.x;
+
+        float expectedValue = expectedOutput[index];
+        float value = bufferOutput[index];
+        EXPECT_EQ(expectedValue, value) << "Value not equal at " << index;
+      }
+    }
 }
 
 TEST(ComputeTests, Checkerboard)
