@@ -13,7 +13,6 @@ PolygonRigidbody::PolygonRigidbody(const Vortex2D::Renderer::Device& device,
     : mDrawPolygon(device, points)
     , mVelocityPolygon(device, size, points, {})
 {
-  mVelocityPolygon.Scale = glm::vec2(2.0f);
   b2PolygonShape shape;
 
   std::vector<b2Vec2> b2Points;
@@ -68,7 +67,7 @@ void PolygonRigidbody::UpdateVelocities()
 
 void PolygonRigidbody::Update(const glm::mat4& projection, const glm::mat4& view)
 {
-    mDrawPolygon.Update(view);
+    mDrawPolygon.Update(projection, view);
     mVelocityPolygon.Update(projection, view);
 }
 

@@ -29,7 +29,8 @@ public:
   void SetTransform(const glm::vec2& pos, float angle);
 
 private:
-  Vortex2D::Fluid::Polygon mDrawPolygon;
+  float mScale;
+  Vortex2D::Renderer::AbstractShape mDrawPolygon;
   Vortex2D::Fluid::PolygonVelocity mVelocityPolygon;
   b2Body* mB2Body;
 };
