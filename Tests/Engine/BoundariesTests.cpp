@@ -189,14 +189,34 @@ TEST(BoundariesTests, Circle)
     CheckLevelSet(data, outTexture);
 }
 
-TEST(BoundariesTests, DISABLED_PolygonVelocity)
+void DrawSquareVelocity(int width, int height, std::vector<glm::vec2>& data, const glm::vec2& centre, const glm::vec2& size, const glm::vec2& velocity)
+{
+    for (int i = -size.x; i < size.x; i++)
+    {
+        for (int j = -size.y; j < size.y; j++)
+        {
+            glm::vec2 pos = glm::vec2(i, j) + centre;
+            glm::vec2 upos = pos + glm::vec2(0.5f, 0.0f) - centre;
+            glm::vec2 vpos = pos + glm::vec2(0.0f, 0.5f) - centre;
+
+            int x = i + centre.x;
+            int y = j + centre.y;
+            data[x + y * width] = velocity;
+        }
+    }
+}
+
+TEST(BoundariesTests, PolygonVelocity)
 {
     glm::ivec2 size(20);
-    std::vector<glm::vec2> points = {{0.0f, 0.0f}, {4.0f, 0.0f}, {4.0f, 4.0f}, {0.0f, 4.0f}};
+    std::vector<glm::vec2> points = {{-2.0f, -2.0f},
+                                     {2.0f, -2.0f},
+                                     {-2.0f, 2.0f},
+                                     {2.0f, -2.0f},
+                                     {2.0f, 2.0f},
+                                     {-2.0f, 2.0f}};
 
-    Buffer<glm::ivec2> valid(*device, size.x*size.y, true);
-
-    PolygonVelocity polygon(*device, size, points, {2.0f, 2.0f});
+    PolygonVelocity polygon(*device, size, points, {});
     polygon.Position = {10.0f, 10.0f};
     polygon.UpdateVelocities({1.0f, 0.0f}, 0.0f);
 
@@ -213,47 +233,48 @@ TEST(BoundariesTests, DISABLED_PolygonVelocity)
     });
 
     std::vector<glm::vec2> data(size.x*size.y);
-    DrawSquare(size.x, size.y, data, polygon.Position, {4.0f, 4.0f}, {1.0f / size.x, 0.0f});
+    DrawSquareVelocity(size.x, size.y, data, polygon.Position, {2.0f, 2.0f}, {1.0f / size.x, 0.0f});
 
     CheckTexture(data, output);
-
-    std::vector<glm::ivec2> validData(size.x*size.y);
-    DrawSquare(size.x, size.y, validData, polygon.Position, {4.0f, 4.0f}, {1, 1});
-
-    CheckBuffer(validData, valid);
 }
 
-glm::vec2 GetVelocity(const glm::vec2& dir, float angularVelocity)
+glm::vec2 GetRotationVelocity(const glm::vec2& dir, float angularVelocity)
 {
     return angularVelocity * glm::vec2(-dir.y, dir.x);
 }
 
 void DrawSquareRotation(int width, int height, std::vector<glm::vec2>& data, const glm::vec2& centre, const glm::vec2& size, float angularVelocity)
 {
-    for (int i = 0; i < size.x; i++)
+    for (int i = -size.x; i < size.x; i++)
     {
-        for (int j = 0; j < size.y; j++)
+        for (int j = -size.y; j < size.y; j++)
         {
-            glm::vec2 upos = glm::vec2(i, j) + glm::vec2(0.5f, 0.0f) - centre;
-            glm::vec2 vpos = glm::vec2(i, j) + glm::vec2(0.0f, 0.5f) - centre;
+            glm::vec2 pos = glm::vec2(i, j) + centre;
+            glm::vec2 upos = pos + glm::vec2(0.5f, 0.0f) - centre;
+            glm::vec2 vpos = pos + glm::vec2(0.0f, 0.5f) - centre;
 
             int x = i + centre.x;
             int y = j + centre.y;
-            data[x + y * width].x = GetVelocity(upos, angularVelocity).x;
-            data[x + y * width].y = GetVelocity(vpos, angularVelocity).y;
+            data[x + y * width].x = GetRotationVelocity(upos, angularVelocity).x;
+            data[x + y * width].y = GetRotationVelocity(vpos, angularVelocity).y;
         }
     }
 }
 
-TEST(BoundariesTests, DISABLED_PolygonVelocityRotation)
+TEST(BoundariesTests, PolygonVelocityRotation)
 {
     glm::ivec2 size(20);
-    std::vector<glm::vec2> points = {{0.0f, 0.0f}, {4.0f, 0.0f}, {4.0f, 4.0f}, {0.0f, 4.0f}};
+    std::vector<glm::vec2> points = {{-2.0f, -2.0f},
+                                     {2.0f, -2.0f},
+                                     {-2.0f, 2.0f},
+                                     {2.0f, -2.0f},
+                                     {2.0f, 2.0f},
+                                     {-2.0f, 2.0f}};
 
     Buffer<glm::ivec2> valid(*device, size.x*size.y, true);
 
-    PolygonVelocity polygon(*device, size, points, {2.0f, 2.0f});
-    polygon.Position = {10.0f, 10.0f};
+    PolygonVelocity polygon(*device, size, points, {});
+    polygon.Position = {10.0f, 14.0f};
     polygon.UpdateVelocities({0.0f, 0.0f}, 1.0f);
 
     RenderTexture boundaryVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
@@ -269,9 +290,7 @@ TEST(BoundariesTests, DISABLED_PolygonVelocityRotation)
     });
 
     std::vector<glm::vec2> data(size.x*size.y);
-    DrawSquareRotation(size.x, size.y, data, polygon.Position, {4.0f, 4.0f}, 1.0f / size.x);
+    DrawSquareRotation(size.x, size.y, data, polygon.Position, {2.0f, 2.0f}, 1.0f / size.x);
 
-    PrintData<glm::vec2>(size.x, size.y, data);
-    PrintTexture<glm::vec2>(output);
     CheckTexture(data, output);
 }

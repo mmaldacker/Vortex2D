@@ -196,7 +196,7 @@ PolygonVelocity::PolygonVelocity(const Renderer::Device& device,
     vk::ShaderModule fragShader = device.GetShaderModule("../Vortex2D/PolygonVelocity.frag.spv");
 
     mPipeline = Renderer::GraphicsPipeline::Builder()
-            .Topology(vk::PrimitiveTopology::eTriangleFan)
+            .Topology(vk::PrimitiveTopology::eTriangleList)
             .Shader(vertexShader, vk::ShaderStageFlagBits::eVertex)
             .Shader(fragShader, vk::ShaderStageFlagBits::eFragment)
             .VertexAttribute(0, 0, vk::Format::eR32G32Sfloat, 0)
