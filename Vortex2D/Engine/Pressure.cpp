@@ -25,6 +25,7 @@ Pressure::Pressure(const Renderer::Device& device,
                                            solidPhi}))
     , mBuildDiv(device, size, "../Vortex2D/BuildDiv.comp.spv")
     , mBuildDivBound(mBuildDiv.Bind({data.B,
+                                     data.Diagonal,
                                      liquidPhi,
                                      solidPhi,
                                      velocity,

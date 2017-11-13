@@ -14,10 +14,15 @@ layout(std430, binding = 0) buffer Div
   float value[];
 }div;
 
-layout(binding = 1, r32f) uniform image2D FluidLevelSet;
-layout(binding = 2, r32f) uniform image2D SolidLevelSet;
-layout(binding = 3, rg32f) uniform image2D Velocity;
-layout(binding = 4, rg32f) uniform image2D SolidLevelSetVelocity;
+layout(std430, binding = 1) buffer Diagonal
+{
+  float value[];
+}diagonal;
+
+layout(binding = 2, r32f) uniform image2D FluidLevelSet;
+layout(binding = 3, r32f) uniform image2D SolidLevelSet;
+layout(binding = 4, rg32f) uniform image2D Velocity;
+layout(binding = 5, rg32f) uniform image2D SolidLevelSetVelocity;
 
 #include "CommonProject.comp"
 
@@ -26,8 +31,9 @@ void main()
   ivec2 pos = ivec2(gl_GlobalInvocationID);
   if (pos.x > 0 && pos.y > 0 && pos.x < consts.width - 1 && pos.y < consts.height - 1)
   {
+    int index = pos.x + pos.y * consts.width;
     float liquid_phi = imageLoad(FluidLevelSet, pos).x;
-    if (liquid_phi < 0.0)
+    if (liquid_phi < 0.0 && diagonal.value[index] != 0.0)
     {
       vec2  uv  = imageLoad(Velocity, pos).xy;
       float uxp = imageLoad(Velocity, pos + ivec2(1,0)).x;
@@ -44,11 +50,11 @@ void main()
 
       b += ((1.0 - wuv.x) * solid_uv.x - (1.0 - wxp) * solid_uxp + (1.0 - wuv.y) * solid_uv.y - (1.0 - wyp) * solid_vyp) * consts.width;
 
-      div.value[pos.x + pos.y * consts.width] = b;
+      div.value[index] = b;
     }
     else
     {
-      div.value[pos.x + pos.y * consts.width] = 0.0;
+      div.value[index] = 0.0;
     }
   }
 }
