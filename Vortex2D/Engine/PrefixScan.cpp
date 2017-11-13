@@ -86,9 +86,11 @@ void PrefixScan::BindRecursive(std::vector<Renderer::CommandBuffer::CommandFn>& 
     {
         bound.emplace_back(mPreScanWork.Bind(computeSize, {input, output, dispatchParams}));
         vk::Buffer outputBuffer = output.Handle();
+        vk::Buffer dispatchBuffer = dispatchParams.Handle();
         bufferBarriers.emplace_back([=](vk::CommandBuffer commandBuffer)
         {
             Renderer::BufferBarrier(outputBuffer, commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+            Renderer::BufferBarrier(dispatchBuffer, commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         });
     }
 }

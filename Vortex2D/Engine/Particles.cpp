@@ -67,7 +67,6 @@ ParticleCount::ParticleCount(const Renderer::Device& device,
     {
         mCount.CopyFrom(commandBuffer, *this);
         mPrefixScanBound.Record(commandBuffer);
-        mIndex.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         mParticleBucketBound.RecordIndirect(commandBuffer, mDispatchParams);
         mNewParticles.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         mSeeds.Upload(commandBuffer);
