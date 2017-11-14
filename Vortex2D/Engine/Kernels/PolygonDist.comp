@@ -20,7 +20,9 @@ layout(std430, binding = 1) buffer Polygon
 // +1 if is left
 float orientation(vec2 a, vec2 b, vec2 p)
 {
-     return sign((b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x));
+    float v = ((b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x));
+    if (v >= 0.0) return 1.0;
+    else return -1.0;
 }
 
 float dist_to_segment(vec2 a, vec2 b, vec2 p)
@@ -33,7 +35,7 @@ float dist_to_segment(vec2 a, vec2 b, vec2 p)
     return distance(p, proj);
 }
 
-const float udist_bias = 0.001;
+const float udist_bias = 1e-3;
 
 void main(void)
 {
