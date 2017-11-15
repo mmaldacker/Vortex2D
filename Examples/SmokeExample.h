@@ -57,6 +57,7 @@ public:
         obstacle1.Update(dimensions.InvScale);
         obstacle2.Update(dimensions.InvScale);
 
+        world.SolidPhi().View = dimensions.InvScale;
         world.SolidPhi().DrawSignedObject({obstacle1, obstacle2});
         world.SolidPhi().SubmitSignedBoject();
         device.Handle().waitIdle();

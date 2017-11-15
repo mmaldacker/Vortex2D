@@ -13,6 +13,11 @@ layout(binding = 2) uniform PolygonProperties
     float angular_velocity;
 }properties;
 
+layout(std430, binding = 3) buffer Valid
+{
+    ivec2 value[];
+}valid;
+
 layout(location = 0) in vec2 position_centre;
 
 layout(location = 0) out vec4 out_colour;
@@ -28,6 +33,9 @@ void main(void)
     vec2 velocity;
     velocity.x = get_velocity(gl_FragCoord.xy - vec2(0.0, 0.5) - position_centre).x / float(consts.width);
     velocity.y = get_velocity(gl_FragCoord.xy - vec2(0.5, 0.0) - position_centre).y / float(consts.width);
+
+    ivec2 pos = ivec2(gl_FragCoord.xy);
+    valid.value[pos.x + pos.y * consts.width] = ivec2(1);
 
     out_colour = vec4(velocity, 0.0, 0.0);
 }

@@ -85,6 +85,7 @@ class PolygonVelocity : public Renderer::Drawable, public Renderer::Transformabl
 public:
     PolygonVelocity(const Renderer::Device& device,
                     const glm::ivec2& size,
+                    Renderer::GenericBuffer& valid,
                     const std::vector<glm::vec2>& points,
                     const glm::vec2& centre);
 

@@ -36,11 +36,11 @@ public:
         , densitySprite(device, density)
         , world(device, dimensions, dt)
         , solidPhi(device, world.SolidPhi(), green, dimensions.Scale)
-        , area(device, {960.0f, 960.0f}, true)
         , velocityClear(dimensions.Size.x, dimensions.Size.y, {0.0f, 0.0f, 0.0f, 0.0f})
         , rWorld({0.0f, 10.0f})
-        , body1(device, rWorld, dimensions.Size, {100.0f, 50.0f})
-        , body2(device, rWorld, dimensions.Size, {50.0f, 50.0f})
+        , body1(device, rWorld, dimensions, world.Valid(), b2_dynamicBody, {100.0f, 50.0f})
+        , body2(device, rWorld, dimensions, world.Valid(), b2_dynamicBody, {50.0f, 50.0f})
+        , bottom(device, rWorld, dimensions, world.Valid(), b2_staticBody, {500.0f, 20.0f})
     {
         solidPhi.Scale = densitySprite.Scale = glm::vec2(dimensions.Scale);
 
@@ -58,43 +58,45 @@ public:
         device.Handle().waitIdle();
 
         // Draw liquid boundaries
-        Vortex2D::Renderer::Clear clear(dimensions.Size.x, dimensions.Size.y, {-1.0f, 0.0f, 0.0f, 0.0f});
-        world.LiquidPhi().Record({clear});
+        Vortex2D::Renderer::Clear clear(dimensions.Size.x, dimensions.Size.y, {1.0f, 0.0f, 0.0f, 0.0f});
+        Vortex2D::Renderer::Rectangle liquidArea(device, {1000.0f, 1000.0f}, {-1.0f, 0.0f, 0.0f, 0.0f});
+
+        liquidArea.Position = {12.0f, 12.0};
+
+        world.LiquidPhi().View = dimensions.InvScale;
+        world.LiquidPhi().Record({clear, liquidArea});
         world.LiquidPhi().Submit();
         device.Handle().waitIdle();
 
         // Draw solid boundaries
-        area.Position = {20.0f, 20.0f};
-        area.Update(dimensions.InvScale);
 
-        body1.SetTransform({200.0f, 200.0f}, 0.0f);
-        body1.Body().ApplyAngularImpulse(500.0f, true);
+        // First body
+        body1.SetTransform({200.0f, 200.0f}, 45.0f);
+        body1.Body().ApplyAngularImpulse(50.0f, true);
         body1.Body().ApplyForceToCenter({1000.0f, 0.0f}, true);
-        body1.Body().GetFixtureList()->SetRestitution(0.8f);
 
         // Second body
         body2.SetTransform({600.0f, 300.0f}, 0.0f);
         body2.Body().ApplyAngularImpulse(-10.0f, true);
         body2.Body().ApplyForceToCenter({-1000.0f, 0.0f}, true);
-        body2.Body().GetFixtureList()->SetRestitution(0.8f);
+
+        // Bottom
+        bottom.SetTransform({512.5f, 1000.5f}, 0.0f);
 
         // Borders
         b2BodyDef border;
         b2EdgeShape line;
 
-        line.Set({20.0f / box2dScale, 980.0f / box2dScale}, {980.0f / box2dScale, 980.0f / box2dScale});
-        auto* bottom = rWorld.CreateBody(&border);
-        bottom->CreateFixture(&line, 0.0f);
-
-        line.Set({20.0f / box2dScale, 20.0f / box2dScale}, {20.0f / box2dScale, 980.0f / box2dScale});
+        line.Set({12.0f / box2dScale, 12.0f / box2dScale}, {12.0f / box2dScale, 1000.0f / box2dScale});
         auto* left = rWorld.CreateBody(&border);
         left->CreateFixture(&line, 0.0f);
 
-        line.Set({980.0f / box2dScale, 20.0f / box2dScale}, {980.0f / box2dScale, 980.0f / box2dScale});
+        line.Set({1000.0f / box2dScale, 12.0f / box2dScale}, {1000.0f / box2dScale, 1000.0f / box2dScale});
         auto* right = rWorld.CreateBody(&border);
         right->CreateFixture(&line, 0.0f);
 
-        world.SolidPhi().DrawSignedObject({area, body1.SignedObject(), body2.SignedObject()});
+        world.SolidPhi().View = dimensions.InvScale;
+        world.SolidPhi().DrawSignedObject({bottom.SignedObject(), body1.SignedObject(), body2.SignedObject()});
     }
 
     void Initialize(const Vortex2D::Renderer::RenderState& renderState) override
@@ -105,11 +107,11 @@ public:
 
     void Update(const glm::mat4& projection, const glm::mat4& view) override
     {
-        body1.Update();
+        body1.UpdatePosition();
         body1.UpdateVelocities();
         body1.Update(world.SolidPhi().Orth, dimensions.InvScale);
 
-        body2.Update();
+        body2.UpdatePosition();
         body2.UpdateVelocities();
         body2.Update(world.SolidPhi().Orth, dimensions.InvScale);
 
@@ -117,6 +119,7 @@ public:
         solidPhi.Update(projection, view);
 
         world.SolidPhi().SubmitSignedBoject();
+        world.SolidPhi().Reinitialise();
         world.ObstacleVelocity().Submit();
 
         world.SolveStatic();
@@ -140,12 +143,11 @@ private:
     Vortex2D::Fluid::World world;
     Vortex2D::Fluid::DistanceField solidPhi;
 
-    Vortex2D::Fluid::Rectangle area;
-
     Vortex2D::Renderer::Clear velocityClear;
 
     b2World rWorld;
 
     BoxRigidbody body1;
     BoxRigidbody body2;
+    BoxRigidbody bottom;
 };

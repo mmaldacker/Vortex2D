@@ -153,6 +153,7 @@ void Circle::Draw(vk::CommandBuffer commandBuffer, LevelSet& levelSet)
 
 PolygonVelocity::PolygonVelocity(const Renderer::Device& device,
                                  const glm::ivec2& size,
+                                 Renderer::GenericBuffer& valid,
                                  const std::vector<glm::vec2>& points,
                                  const glm::vec2& centre)
     : mDevice(device)
@@ -183,7 +184,7 @@ PolygonVelocity::PolygonVelocity(const Renderer::Device& device,
 
     Renderer::DescriptorSetUpdater(*mDescriptorSet)
             .Bind(reflectionVert.GetDescriptorTypesMap(), {{mMVPBuffer, 0}, {mMVBuffer, 1}})
-            .Bind(reflectionFrag.GetDescriptorTypesMap(), {{mVelocity, 2}})
+            .Bind(reflectionFrag.GetDescriptorTypesMap(), {{mVelocity, 2}, {valid, 3}})
             .Update(device.Handle());
 
     mPipelineLayout = Renderer::PipelineLayoutBuilder()
@@ -196,7 +197,7 @@ PolygonVelocity::PolygonVelocity(const Renderer::Device& device,
     vk::ShaderModule fragShader = device.GetShaderModule("../Vortex2D/PolygonVelocity.frag.spv");
 
     mPipeline = Renderer::GraphicsPipeline::Builder()
-            .Topology(vk::PrimitiveTopology::eTriangleList)
+            .Topology(vk::PrimitiveTopology::eTriangleFan)
             .Shader(vertexShader, vk::ShaderStageFlagBits::eVertex)
             .Shader(fragShader, vk::ShaderStageFlagBits::eFragment)
             .VertexAttribute(0, 0, vk::Format::eR32G32Sfloat, 0)

@@ -216,7 +216,9 @@ TEST(BoundariesTests, PolygonVelocity)
                                      {2.0f, 2.0f},
                                      {-2.0f, 2.0f}};
 
-    PolygonVelocity polygon(*device, size, points, {});
+    Buffer<glm::ivec2> valid(*device, size.x*size.y);
+
+    PolygonVelocity polygon(*device, size, valid, points, {});
     polygon.Position = {10.0f, 10.0f};
     polygon.UpdateVelocities({1.0f, 0.0f}, 0.0f);
 
@@ -271,9 +273,9 @@ TEST(BoundariesTests, PolygonVelocityRotation)
                                      {2.0f, 2.0f},
                                      {-2.0f, 2.0f}};
 
-    Buffer<glm::ivec2> valid(*device, size.x*size.y, true);
+    Buffer<glm::ivec2> valid(*device, size.x*size.y);
 
-    PolygonVelocity polygon(*device, size, points, {});
+    PolygonVelocity polygon(*device, size, valid, points, {});
     polygon.Position = {10.0f, 14.0f};
     polygon.UpdateVelocities({0.0f, 0.0f}, 1.0f);
 

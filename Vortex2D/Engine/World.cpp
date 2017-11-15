@@ -30,7 +30,9 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
                   mBoundariesVelocity,
                   mValid)
     , mExtrapolation(device, dimensions.Size, mValid, mVelocity)
+    , mObstacleExtrapolation(device, dimensions.Size, mValid, mBoundariesVelocity, 2)
     , mClearVelocity(device, false)
+    , mClearValid(device, false)
 {
     mExtrapolation.ConstrainInit(mBoundariesVelocity, mObstacleLevelSet);
     mParticleCount.InitLevelSet(mFluidLevelSet);
@@ -41,6 +43,11 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
     mClearVelocity.Record([&](vk::CommandBuffer commandBuffer)
     {
         mVelocity.Clear(commandBuffer, std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f});
+    });
+
+    mClearValid.Record([&](vk::CommandBuffer commandBuffer)
+    {
+        mValid.Clear(commandBuffer);
     });
 
     mPreconditioner.BuildHierarchiesInit(mProjection, mObstacleLevelSet, mFluidLevelSet);
@@ -54,6 +61,8 @@ void World::InitField(Renderer::Texture& field)
 
 void World::SolveStatic()
 {
+    mObstacleExtrapolation.Extrapolate();
+
     LinearSolver::Parameters params(300, 1e-3f);
     mPreconditioner.BuildHierarchies();
     mProjection.BuildLinearEquation();
@@ -65,10 +74,14 @@ void World::SolveStatic()
 
     mAdvection.AdvectVelocity();
     mAdvection.Advect();
+
+    mClearValid.Submit();
 }
 
 void World::SolveDynamic()
 {
+    mObstacleExtrapolation.Extrapolate();
+
     /*
      1) From particles, construct fluid level set
      2) Transfer velocities from particles to grid
@@ -110,6 +123,7 @@ void World::SolveDynamic()
     mAdvection.AdvectParticles();
     mParticleCount.Count();
     mClearVelocity.Submit();
+    mClearValid.Submit();
 }
 
 Renderer::RenderTexture& World::Velocity()
@@ -140,6 +154,11 @@ Renderer::GenericBuffer& World::Particles()
 ParticleCount& World::Count()
 {
     return mParticleCount;
+}
+
+Renderer::GenericBuffer& World::Valid()
+{
+    return mValid;
 }
 
 }}

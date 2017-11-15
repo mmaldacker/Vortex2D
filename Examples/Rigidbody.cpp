@@ -5,20 +5,34 @@
 
 #include "Rigidbody.h"
 
+namespace
+{
+
+float sign(float value)
+{
+    if (value >= 0.0f) return 1.0f;
+    return -1.0;
+}
+
+}
 
 PolygonRigidbody::PolygonRigidbody(const Vortex2D::Renderer::Device& device,
                                    b2World& world,
-                                   const glm::ivec2& size,
+                                   const Vortex2D::Fluid::Dimensions& dimensions,
+                                   Vortex2D::Renderer::GenericBuffer& valid,
+                                   b2BodyType type,
                                    const std::vector<glm::vec2>& points)
-    : mDrawPolygon(device, points)
-    , mVelocityPolygon(device, size, points, {})
+    : mScale(dimensions.Scale)
+    , mDrawPolygon(device, points)
+    , mVelocityPolygon(device, dimensions.Size, valid, points, {})
 {
   b2PolygonShape shape;
 
   std::vector<b2Vec2> b2Points;
   for (auto& point: points)
   {
-    b2Points.push_back({point.x / box2dScale, point.y / box2dScale});
+    b2Points.push_back({point.x / box2dScale - sign(point.x) * b2_polygonRadius,
+                        point.y / box2dScale - sign(point.y) * b2_polygonRadius});
   }
 
   shape.Set(b2Points.data(), b2Points.size());
@@ -28,7 +42,7 @@ PolygonRigidbody::PolygonRigidbody(const Vortex2D::Renderer::Device& device,
   fixtureDef.density = 1.0f;
 
   b2BodyDef def;
-  def.type = b2_dynamicBody;
+  def.type = type;
 
   mB2Body = world.CreateBody(&def);
   mB2Body->CreateFixture(&fixtureDef);
@@ -49,7 +63,7 @@ Vortex2D::Renderer::Drawable& PolygonRigidbody::VelocityObject()
     return mVelocityPolygon;
 }
 
-void PolygonRigidbody::Update()
+void PolygonRigidbody::UpdatePosition()
 {
   auto pos = mB2Body->GetPosition();
   mVelocityPolygon.Position = mDrawPolygon.Position = {pos.x * box2dScale, pos.y * box2dScale};
@@ -60,14 +74,13 @@ void PolygonRigidbody::UpdateVelocities()
 {
     glm::vec2 vel = {mB2Body->GetLinearVelocity().x, mB2Body->GetLinearVelocity().y};
     float angularVelocity = mB2Body->GetAngularVelocity();
-    // TODO get correct scale
-    float scale = box2dScale / 4.0f;
+    float scale = box2dScale / mScale;
     mVelocityPolygon.UpdateVelocities(vel * scale, angularVelocity);
 }
 
 void PolygonRigidbody::Update(const glm::mat4& projection, const glm::mat4& view)
 {
-    mDrawPolygon.Update(projection, view);
+    mDrawPolygon.Update(view);
     mVelocityPolygon.Update(projection, view);
 }
 

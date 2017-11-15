@@ -83,6 +83,7 @@ void LevelSet::DrawSignedObject(DrawableList drawables)
     for (auto& drawable: drawables)
     {
         drawable.get().Initialize(*this);
+        drawable.get().Update(View);
     }
 
     mSignedObjectCmd.Record([&](vk::CommandBuffer commandBuffer)

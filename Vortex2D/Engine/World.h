@@ -48,6 +48,7 @@ public:
     LevelSet& SolidPhi();
     Renderer::GenericBuffer& Particles();
     ParticleCount& Count();
+    Renderer::GenericBuffer& Valid();
 
 private:
     Dimensions mDimensions;
@@ -69,8 +70,9 @@ private:
     Advection mAdvection;
     Pressure mProjection;
     Extrapolation mExtrapolation;
+    Extrapolation mObstacleExtrapolation;
 
-    Renderer::CommandBuffer mClearVelocity;
+    Renderer::CommandBuffer mClearVelocity, mClearValid;
 };
 
 }}
