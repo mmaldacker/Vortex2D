@@ -33,11 +33,7 @@ void main(void)
         vec2 dir = circle.point - pos;
         float scale = sqrt(mvp.value[0][0] * mvp.value[1][1]);
         float dist = length(dir) - consts.radius * scale;
-        if (dist < abs(value))
-        {
-            value = dist;
-        }
 
-        imageStore(LevelSet, pos, vec4(value, 0.0, 0.0, 0.0));
+        imageStore(LevelSet, pos, vec4(min(value, dist), 0.0, 0.0, 0.0));
     }
 }

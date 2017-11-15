@@ -35,27 +35,20 @@ float dist_to_segment(vec2 a, vec2 b, vec2 p)
     return distance(p, proj);
 }
 
-const float udist_bias = 1e-3;
-
 void main(void)
 {
     ivec2 pos = ivec2(gl_GlobalInvocationID);
     if (pos.x >= 0 && pos.y >= 0 && pos.x < consts.width && pos.y < consts.height)
     {
-        float value = imageLoad(LevelSet, pos).x;
+        float value = -max(consts.width, consts.height);
         for (int i = consts.n - 1, j = 0; j < consts.n; i = j++)
         {
-            float dist = dist_to_segment(polygon.points[i], polygon.points[j], pos);
-            if (abs(dist - abs(value)) < udist_bias)
-            {
-                value = max(-orientation(polygon.points[i], polygon.points[j], pos) * dist, value);
-            }
-            else if (dist < abs(value))
-            {
-                value = -orientation(polygon.points[i], polygon.points[j], pos) * dist;
-            }
+            float udist = dist_to_segment(polygon.points[i], polygon.points[j], pos);
+            float dist = -orientation(polygon.points[i], polygon.points[j], pos) * udist;
+
+            value = max(value, dist);
         }
 
-        imageStore(LevelSet, pos, vec4(value, 0.0, 0.0, 0.0));
+        imageStore(LevelSet, pos, vec4(min(value, imageLoad(LevelSet, pos).x), 0.0, 0.0, 0.0));
     }
 }
