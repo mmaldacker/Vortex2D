@@ -18,7 +18,7 @@ layout(binding = 1, rg32f) uniform image2D OutVelocity;
 void main(void)
 {
     ivec2 pos = ivec2(gl_GlobalInvocationID);
-    if (pos.x >= 0 && pos.y >= 0 && pos.x < consts.width && pos.y < consts.height)
+    if (pos.x < consts.width && pos.y < consts.height)
     {
         vec2 value;
 

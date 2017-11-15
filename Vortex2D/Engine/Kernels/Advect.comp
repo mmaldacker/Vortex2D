@@ -30,7 +30,7 @@ vec4 interpolate(vec2 xy)
 void main(void)
 {
     ivec2 pos = ivec2(gl_GlobalInvocationID);
-    if (pos.x >= 0 && pos.y >= 0 && pos.x < consts.width && pos.y < consts.height)
+    if (pos.x < consts.width && pos.y < consts.height)
     {
         vec4 value = interpolate(trace_rk3(pos, consts.delta));
         imageStore(OutField, pos, value);

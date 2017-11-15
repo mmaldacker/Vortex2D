@@ -27,7 +27,7 @@ const float udist_bias = 0.001;
 void main(void)
 {
     ivec2 pos = ivec2(gl_GlobalInvocationID);
-    if (pos.x >= 0 && pos.y >= 0 && pos.x < consts.width && pos.y < consts.height)
+    if (pos.x < consts.width && pos.y < consts.height)
     {
         float value = imageLoad(LevelSet, pos).x;
         vec2 dir = circle.point - pos;
