@@ -7,6 +7,7 @@
 #include "Verify.h"
 
 #include <glm/gtx/io.hpp>
+#include <glm/glm.hpp>
 
 #include <Vortex2D/Engine/LevelSet.h>
 #include <Vortex2D/Engine/Boundaries.h>
@@ -31,39 +32,40 @@ void DrawCircle(const glm::ivec2& size, std::vector<float>& data,  float radius,
     }
 }
 
-float DistToLine(glm::vec2 a, glm::vec2 b, glm::vec2 p)
+float DistToSegment(glm::vec2 a, glm::vec2 b, glm::vec2 p)
 {
     glm::vec2 dir = b - a;
-    glm::vec2 norm(-dir.y, dir.x);
-    return glm::dot(glm::normalize(norm), a - p);
+    float l = dot(dir, dir);
+
+    float t = glm::clamp(glm::dot(p - a, dir) / l, 0.0f, 1.0f);
+    glm::vec2 proj = a + t * dir;
+    return glm::distance(p, proj);
 }
 
-void DrawSignedSquareMax(const glm::ivec2& size, const std::vector<glm::vec2>& points, std::vector<float>& data, const glm::vec2& pos)
+// +1 if is left
+float Orientation(glm::vec2 a, glm::vec2 b, glm::vec2 p)
+{
+    float v = ((b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x));
+    if (v >= 0.0) return 1.0;
+    else return -1.0;
+}
+
+void DrawSignedSquare(const glm::ivec2& size, const std::vector<glm::vec2>& points, std::vector<float>& data, const glm::vec2& pos)
 {
     for (int i = 0; i < size.x; i++)
     {
         for (int j = 0; j < size.y; j++)
         {
             int index = i + j * size.x;
+            float value = -std::max(size.x, size.y);
             for (int k = points.size() - 1, l = 0; l < points.size(); k = l++)
             {
-                data[index] = std::max(data[index], DistToLine(points[k] + pos, points[l] + pos, glm::vec2(i, j)));
+                float udist = DistToSegment(points[k] + pos, points[l] + pos, glm::vec2(i, j));
+                float dist = -Orientation(points[k] + pos, points[l] + pos, glm::vec2(i, j)) * udist;
+                value = std::max(value, dist);
             }
-        }
-    }
-}
 
-void DrawSignedSquareMin(const glm::ivec2& size, const std::vector<glm::vec2>& points, std::vector<float>& data, const glm::vec2& pos)
-{
-    for (int i = 0; i < size.x; i++)
-    {
-        for (int j = 0; j < size.y; j++)
-        {
-            int index = i + j * size.x;
-            for (int k = points.size() - 1, l = 0; l < points.size(); k = l++)
-            {
-                data[index] = std::min(data[index], DistToLine(points[k] + pos, points[l] + pos, glm::vec2(i, j)));
-            }
+            data[index] = std::min(data[index], value);
         }
     }
 }
@@ -84,7 +86,7 @@ void CheckLevelSet(const std::vector<float>& data, Vortex2D::Renderer::Texture& 
     }
 }
 
-TEST(BoundariesTests, DISABLED_Square)
+TEST(BoundariesTests, Square)
 {
     glm::ivec2 size(20);
 
@@ -94,7 +96,7 @@ TEST(BoundariesTests, DISABLED_Square)
     square.Position = glm::vec2(5.0f, 10.0f);
 
     std::vector<float> data(size.x*size.y, 100.0f);
-    DrawSignedSquareMax(size, points, data, square.Position);
+    DrawSignedSquare(size, points, data, square.Position);
 
     LevelSet levelSet(*device, size);
 
@@ -115,11 +117,10 @@ TEST(BoundariesTests, DISABLED_Square)
        outTexture.CopyFrom(commandBuffer, levelSet);
     });
 
-    PrintTexture<float>(outTexture);
-    CheckTexture(data, outTexture);
+    CheckLevelSet(data, outTexture);
 }
 
-TEST(BoundariesTests, DISABLED_InverseSquare)
+TEST(BoundariesTests, InverseSquare)
 {
     glm::ivec2 size(20);
 
@@ -129,7 +130,7 @@ TEST(BoundariesTests, DISABLED_InverseSquare)
     square.Position = glm::vec2(5.0f, 10.0f);
 
     std::vector<float> data(size.x*size.y, 100.0f);
-    DrawSignedSquareMin(size, points, data, square.Position);
+    DrawSignedSquare(size, points, data, square.Position);
 
     LevelSet levelSet(*device, size);
 
@@ -150,8 +151,7 @@ TEST(BoundariesTests, DISABLED_InverseSquare)
        outTexture.CopyFrom(commandBuffer, levelSet);
     });
 
-    PrintTexture<float>(outTexture);
-    CheckTexture(data, outTexture);
+    CheckLevelSet(data, outTexture);
 }
 
 TEST(BoundariesTests, Circle)
@@ -185,7 +185,6 @@ TEST(BoundariesTests, Circle)
        outTexture.CopyFrom(commandBuffer, levelSet);
     });
 
-    PrintTexture<float>(outTexture);
     CheckLevelSet(data, outTexture);
 }
 
