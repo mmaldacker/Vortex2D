@@ -32,7 +32,8 @@ public:
     void Record(const RenderTarget& renderTarget, vk::Framebuffer framebuffer, CommandFn commandFn);
     void Wait();
     void Reset();
-    void Submit(std::initializer_list<vk::Semaphore> signalSemaphore = {});
+    void Submit(std::initializer_list<vk::Semaphore> waitSemaphores = {},
+                std::initializer_list<vk::Semaphore> signalSemaphores = {});
 
 private:
     const Device& mDevice;

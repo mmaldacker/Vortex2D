@@ -97,15 +97,21 @@ void CommandBuffer::Reset()
     }
 }
 
-void CommandBuffer::Submit(std::initializer_list<vk::Semaphore> signalSemaphore)
+void CommandBuffer::Submit(std::initializer_list<vk::Semaphore> waitSemaphores,
+                           std::initializer_list<vk::Semaphore> signalSemaphores)
 {
     Reset();
+
+    std::vector<vk::PipelineStageFlags> waitStages(waitSemaphores.size(), vk::PipelineStageFlagBits::eAllCommands);
 
     auto submitInfo = vk::SubmitInfo()
             .setCommandBufferCount(1)
             .setPCommandBuffers(&mCommandBuffer)
-            .setSignalSemaphoreCount(signalSemaphore.size())
-            .setPSignalSemaphores(signalSemaphore.begin());
+            .setWaitSemaphoreCount(waitSemaphores.size())
+            .setPWaitSemaphores(waitSemaphores.begin())
+            .setSignalSemaphoreCount(signalSemaphores.size())
+            .setPSignalSemaphores(signalSemaphores.begin())
+            .setPWaitDstStageMask(waitStages.data());
 
     if (mSynchronise)
     {
