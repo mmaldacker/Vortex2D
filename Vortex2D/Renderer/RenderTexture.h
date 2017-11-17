@@ -29,7 +29,7 @@ public:
 
 private:
     vk::UniqueFramebuffer mFramebuffer;
-    RenderCommandBuffer mCmd;
+    CommandBuffer mCmd;
 };
 
 }}

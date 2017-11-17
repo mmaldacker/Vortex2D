@@ -29,7 +29,9 @@ public:
     CommandBuffer& operator=(CommandBuffer&&);
 
     void Record(CommandFn commandFn);
+    void Record(const RenderTarget& renderTarget, vk::Framebuffer framebuffer, CommandFn commandFn);
     void Wait();
+    void Reset();
     void Submit(std::initializer_list<vk::Semaphore> signalSemaphore = {});
 
 private:
@@ -37,25 +39,6 @@ private:
     bool mSynchronise;
     vk::CommandBuffer mCommandBuffer;
     vk::UniqueFence mFence;
-};
-
-class RenderCommandBuffer
-{
-public:
-    using CommandFn = std::function<void(vk::CommandBuffer)>;
-
-    RenderCommandBuffer(const Device& device);
-    ~RenderCommandBuffer();
-
-    RenderCommandBuffer(RenderCommandBuffer&& other);
-    RenderCommandBuffer& operator=(RenderCommandBuffer&& other);
-
-    void Record(const RenderTarget& renderTarget, vk::Framebuffer framebuffer, CommandFn commandFn);
-    void Submit(std::initializer_list<vk::Semaphore> signalSemaphore = {});
-
-private:
-    const Device& mDevice;
-    vk::CommandBuffer mCommandBuffer;
 };
 
 void ExecuteCommand(const Device& device, CommandBuffer::CommandFn commandFn);
