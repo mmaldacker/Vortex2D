@@ -124,13 +124,15 @@ TEST(BoundariesTests, InverseSquare)
 {
     glm::ivec2 size(20);
 
-    std::vector<glm::vec2> points = {{0.0f, 4.0f}, {4.0f, 4.0f}, {4.0f, 0.0f}, {0.0f, 0.0f}};
+    std::vector<glm::vec2> points = {{0.0f, 0.0f}, {4.0f, 0.0f}, {4.0f, 4.0f}, {0.0f, 4.0f}};
 
     Rectangle square(*device, {4.0f, 4.0f}, true);
     square.Position = glm::vec2(5.0f, 10.0f);
 
     std::vector<float> data(size.x*size.y, 100.0f);
     DrawSignedSquare(size, points, data, square.Position);
+
+    for (float& x: data) x *= -1.0f;
 
     LevelSet levelSet(*device, size);
 

@@ -54,9 +54,6 @@ public:
         obstacle1.Position = {250.0f, 400.0f};
         obstacle2.Position = {750.0f, 600.0f};
 
-        obstacle1.Update(dimensions.InvScale);
-        obstacle2.Update(dimensions.InvScale);
-
         world.SolidPhi().View = dimensions.InvScale;
         world.SolidPhi().DrawSignedObject({obstacle1, obstacle2});
         world.SolidPhi().SubmitSignedBoject();

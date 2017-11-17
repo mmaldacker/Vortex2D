@@ -6,6 +6,7 @@
 #include <gtest/gtest.h>
 #include "VariationalHelpers.h"
 #include <Vortex2D/Engine/World.h>
+#include <Vortex2D/Engine/LinearSolver/IncompletePoisson.h>
 
 #include <cmath>
 
@@ -80,4 +81,63 @@ TEST(WorldTests, Velocity)
         EXPECT_NEAR(expectedVelocity.x, particleData[i].Velocity.x, 1e-5f);
         EXPECT_NEAR(expectedVelocity.y, particleData[i].Velocity.y, 1e-5f);
     }
+}
+
+TEST(WorldTests, ObstacleVelocity)
+{
+    glm::ivec2 size(20);
+
+    Buffer<glm::ivec2> valid(*device, size.x*size.y, false);
+
+    LinearSolver::Data data(*device, size, true);
+
+    IncompletePoisson preconditioner(*device, size);
+    ConjugateGradient linearSolver(*device, size, preconditioner);
+
+    linearSolver.Init(data.Diagonal, data.Lower, data.B, data.X);
+
+    LevelSet fluidLevelSet(*device, size);
+    LevelSet obstacleLevelSet(*device, size);
+
+    RenderTexture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
+    RenderTexture boundariesVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
+
+    Pressure projection(*device, 0.01f, size, data, velocity, obstacleLevelSet, fluidLevelSet, boundariesVelocity, valid);
+
+    // Draw fluid level set
+    Clear clear(size.x, size.y, {1.0f, 0.0f, 0.0f, 0.0f});
+    Rectangle liquidArea(*device, {18.0f, 18.0f}, {-1.0f, 0.0f, 0.0f, 0.0f});
+    liquidArea.Position = glm::vec2(1.0f);
+
+    fluidLevelSet.Record({clear, liquidArea});
+    fluidLevelSet.Submit();
+    device->Handle().waitIdle();
+
+    // Draw solid level set
+    Rectangle solidArea(*device, {10.0f, 10.0f}, {-1.0f, 0.0f, 0.0f, 0.0f});
+    solidArea.Position = glm::vec2(5.0f);
+    solidArea.Rotation = 45.0f;
+
+    obstacleLevelSet.Record({clear, solidArea});
+    obstacleLevelSet.Submit();
+    device->Handle().waitIdle();
+
+    // Draw solid velocity
+    Rectangle solidVelocity(*device, {10.0f, 10.0f}, {-1.0f, 0.0f, 0.0f, 0.0f});
+    solidVelocity.Position = glm::vec2(5.0f);
+    solidVelocity.Rotation = 45.0f;
+
+    boundariesVelocity.Record({solidVelocity});
+    boundariesVelocity.Submit();
+    device->Handle().waitIdle();
+
+    // Solve
+    LinearSolver::Parameters params(300, 1e-3f);
+    projection.BuildLinearEquation();
+    linearSolver.Solve(params);
+
+    device->Handle().waitIdle();
+
+    // Verify it got solved
+    ASSERT_LE(params.OutError, 1e-3f);
 }

@@ -3,6 +3,9 @@
 //  Vortex2D
 //
 
+#ifndef Examples_Rigidbody_h
+#define Examples_Rigidbody_h
+
 #include <glm/trigonometric.hpp>
 
 #include <Vortex2D/Engine/Boundaries.h>
@@ -56,3 +59,5 @@ public:
   }
 
 };
+
+#endif

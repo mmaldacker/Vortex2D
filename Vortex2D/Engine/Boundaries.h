@@ -40,6 +40,7 @@ public:
 
 private:
     int mSize;
+    bool mInverse;
     Renderer::UpdateUniformBuffer<glm::mat4> mMVPBuffer;
     Renderer::Buffer<glm::vec2> mVertexBuffer;
     Renderer::Buffer<glm::vec2> mTransformedVertices;

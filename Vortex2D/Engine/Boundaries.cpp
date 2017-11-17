@@ -27,6 +27,7 @@ bool IsClockwise(const std::vector<glm::vec2>& points)
 
 Polygon::Polygon(const Renderer::Device& device, std::vector<glm::vec2> points, bool inverse)
     : mSize(points.size())
+    , mInverse(inverse)
     , mMVPBuffer(device)
     , mVertexBuffer(device, points.size())
     , mTransformedVertices(device, points.size())
@@ -88,6 +89,7 @@ void Polygon::Draw(vk::CommandBuffer commandBuffer, LevelSet& levelSet)
     if (renderBoundIt != mRenderBounds.end())
     {
         renderBoundIt->second.PushConstant(commandBuffer, 8, mSize);
+        renderBoundIt->second.PushConstant(commandBuffer, 12, mInverse ? 1 : 0);
         renderBoundIt->second.Record(commandBuffer);
     }
 }

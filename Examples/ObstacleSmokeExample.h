@@ -76,7 +76,7 @@ public:
         body1.Body().ApplyForceToCenter({1000.0f, 0.0f}, true);
 
         // Second body
-        body2.SetTransform({600.0f, 300.0f}, 0.0f);
+        body2.SetTransform({800.0f, 300.0f}, 0.0f);
         body2.Body().ApplyAngularImpulse(-10.0f, true);
         body2.Body().ApplyForceToCenter({-1000.0f, 0.0f}, true);
 

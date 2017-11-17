@@ -39,12 +39,11 @@ public:
         device.Handle().waitIdle();
 
         // Draw solid boundaries
-        Vortex2D::Renderer::Rectangle obstacle1(device, {200.0f, 100.0f}, glm::vec4(-1.0f));
-        Vortex2D::Renderer::Rectangle obstacle2(device, {200.0f, 100.0f}, glm::vec4(-1.0f));
-        Vortex2D::Renderer::Rectangle area(device, dimensions.Scale * (glm::vec2(dimensions.Size) - glm::vec2(4.0f)), glm::vec4(1.0f));
-        Vortex2D::Renderer::Clear clear(dimensions.Size.x, dimensions.Size.y, {-1.0f, 0.0f, 0.0f, 0.0f});
+        Vortex2D::Fluid::Rectangle obstacle1(device, {200.0f, 100.0f});
+        Vortex2D::Fluid::Rectangle obstacle2(device, {200.0f, 100.0f});
+        Vortex2D::Fluid::Rectangle area(device, {1000.0f, 1000.0f}, true);
 
-        area.Position = glm::vec2(2.0f * dimensions.Scale);
+        area.Position = glm::vec2(12.0f);
 
         obstacle1.Position = {300.0f, 600.0f};
         obstacle1.Rotation = 45.0f;
@@ -53,10 +52,8 @@ public:
         obstacle2.Rotation = 30.0f;
 
         world.SolidPhi().View = dimensions.InvScale;
-        world.SolidPhi().Record({clear, area, obstacle1, obstacle2});
-        world.SolidPhi().Submit();
-
-        world.SolidPhi().Reinitialise();
+        world.SolidPhi().DrawSignedObject({area, obstacle1, obstacle2});
+        world.SolidPhi().SubmitSignedBoject();
         device.Handle().waitIdle();
 
         // Set gravity
