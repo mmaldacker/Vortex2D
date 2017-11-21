@@ -9,6 +9,7 @@
 #include <glm/trigonometric.hpp>
 
 #include <Vortex2D/Engine/Boundaries.h>
+#include <Vortex2D/Engine/Rigidbody.h>
 #include <Vortex2D/Engine/Size.h>
 #include <Box2D/Box2D.h>
 

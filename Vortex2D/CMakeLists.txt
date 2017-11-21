@@ -18,6 +18,8 @@ file(GLOB LIB_SOURCES
     "Engine/PrefixScan.cpp"
     "Engine/Particles.h"
     "Engine/Particles.cpp"
+    "Engine/Rigidbody.h"
+    "Engine/Rigidbody.cpp"
     "Engine/LinearSolver/LinearSolver.h"
     "Engine/LinearSolver/LinearSolver.cpp"
     "Engine/LinearSolver/Preconditioner.h"
