@@ -13,7 +13,7 @@ using namespace Vortex2D::Fluid;
 
 extern Device* device;
 
-TEST(AdvectionTests, AdvectVelocity_Simple)
+TEST(AdvectionTests, DISABLED_AdvectVelocity_Simple)
 {
     glm::ivec2 size(50);
 
@@ -38,7 +38,7 @@ TEST(AdvectionTests, AdvectVelocity_Simple)
     CheckVelocity(*device, size, velocity, sim, 1e-5f);
 }
 
-TEST(AdvectionTests, AdvectVelocity_Complex)
+TEST(AdvectionTests, DISABLED_AdvectVelocity_Complex)
 {
     glm::ivec2 size(50);
 
@@ -81,7 +81,7 @@ void PrintRGBA8(Texture& texture)
     std::cout << std::endl;
 }
 
-TEST(AdvectionTests, Advect)
+TEST(AdvectionTests, DISABLED_Advect)
 {
     glm::ivec2 size(10);
 
@@ -129,7 +129,7 @@ TEST(AdvectionTests, Advect)
     ASSERT_EQ(128, pixels[pos.x + size.x * pos.y].x);
 }
 
-TEST(AdvectionTests, ParticleAdvect)
+TEST(AdvectionTests, DISABLED_ParticleAdvect)
 {
     glm::ivec2 size(50);
 
@@ -188,7 +188,7 @@ TEST(AdvectionTests, ParticleAdvect)
     }
 }
 
-TEST(AdvectionTests, ParticleProject)
+TEST(AdvectionTests, DISABLED_ParticleProject)
 {
     glm::ivec2 size(50);
 

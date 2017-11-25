@@ -38,6 +38,8 @@ float dist_to_segment(vec2 a, vec2 b, vec2 p)
 
 void main(void)
 {
+    uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
+
     ivec2 pos = ivec2(gl_GlobalInvocationID);
     if (pos.x < consts.width && pos.y < consts.height)
     {

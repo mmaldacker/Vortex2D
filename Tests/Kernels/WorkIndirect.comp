@@ -30,6 +30,8 @@ layout(std430, binding = 1) buffer Params
 
 void main()
 {
+    uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
+
     uint index = gl_GlobalInvocationID.x;
     data.value[index] = 1.0;
 }

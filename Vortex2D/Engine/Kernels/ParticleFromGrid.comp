@@ -34,12 +34,14 @@ layout(std430, binding = 1) buffer Params
     DispatchParams params;
 };
 
-layout(binding = 2, rg32f) uniform image2D Velocity;
+layout(binding = 2, rgba32f) uniform image2D Velocity;
 
 #include "CommonAdvect.comp"
 
 void main()
 {
+    uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
+
     uint index = gl_GlobalInvocationID.x;
     // TODO also check is within bounds with width/height?
     if (index < params.count)

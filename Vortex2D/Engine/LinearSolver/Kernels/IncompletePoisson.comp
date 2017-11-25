@@ -33,6 +33,8 @@ const float w = 1.1;
 
 void main()
 {
+    uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
+
     ivec2 pos = ivec2(gl_GlobalInvocationID);
 
     if (pos.x > 0 && pos.y > 0 && pos.x < consts.width - 1 && pos.y < consts.height - 1)

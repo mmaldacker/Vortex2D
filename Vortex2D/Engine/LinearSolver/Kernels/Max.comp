@@ -27,6 +27,8 @@ shared float sdata[blockSize];
 
 void main()
 {
+  uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
+
   uint tid = gl_LocalInvocationID.x;
   uint i = gl_WorkGroupID.x * blockSize * 2 + gl_LocalInvocationID.x;
   uint gridSize = blockSize * 2 * gl_NumWorkGroups.x;

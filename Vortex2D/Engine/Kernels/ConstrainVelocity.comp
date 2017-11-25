@@ -10,14 +10,16 @@ layout(push_constant) uniform Consts
 }consts;
 
 layout(binding = 0, r32f) uniform image2D SolidLevelSet;
-layout(binding = 1, rg32f) uniform image2D Velocity;
-layout(binding = 2, rg32f) uniform image2D SolidVelocity;
-layout(binding = 3, rg32f) uniform image2D OutVelocity;
+layout(binding = 1, rgba32f) uniform image2D Velocity;
+layout(binding = 2, rgba32f) uniform image2D SolidVelocity;
+layout(binding = 3, rgba32f) uniform image2D OutVelocity;
 
 #include "CommonProject.comp"
 
 void main()
 {
+    uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
+
     ivec2 pos = ivec2(gl_GlobalInvocationID);
     vec2 uv = imageLoad(Velocity, pos).xy;
     vec2 suv = imageLoad(SolidVelocity, pos).xy;

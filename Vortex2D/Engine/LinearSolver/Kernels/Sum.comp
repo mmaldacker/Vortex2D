@@ -27,6 +27,8 @@ shared float sdata[blockSize];
 
 void main()
 {
+  uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
+
   uint tid = gl_LocalInvocationID.x;
   uint i = gl_WorkGroupID.x * blockSize * 2 + gl_LocalInvocationID.x;
   uint gridSize = blockSize * 2 * gl_NumWorkGroups.x;
@@ -52,7 +54,7 @@ void main()
   barrier();
 
   // do reduction in shared mem
-  for (int s = blockSize / 2; s > 32; s >>= 1)
+  for (int s = blockSize / 2; s > 0; s >>= 1)
   {
     if (tid < s)
     {
@@ -61,22 +63,6 @@ void main()
 
     memoryBarrierShared();
     barrier();
-  }
-
-  if (tid < 32)
-  {
-    sdata[tid] += sdata[tid + 32];
-    memoryBarrierShared();
-    sdata[tid] += sdata[tid + 16];
-    memoryBarrierShared();
-    sdata[tid] += sdata[tid + 8];
-    memoryBarrierShared();
-    sdata[tid] += sdata[tid + 4];
-    memoryBarrierShared();
-    sdata[tid] += sdata[tid + 2];
-    memoryBarrierShared();
-    sdata[tid] += sdata[tid + 1];
-    memoryBarrierShared();
   }
 
   // write result for this block to global mem

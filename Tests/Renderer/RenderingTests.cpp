@@ -17,7 +17,7 @@ using namespace Vortex2D::Renderer;
 
 extern Device* device;
 
-TEST(RenderingTest, WriteHostTextureInt)
+TEST(RenderingTest, DISABLED_WriteHostTextureInt)
 {
     Texture texture(*device, 50, 50, vk::Format::eR8Uint, true);
 

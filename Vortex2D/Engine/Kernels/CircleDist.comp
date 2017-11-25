@@ -26,6 +26,8 @@ const float udist_bias = 0.001;
 
 void main(void)
 {
+    uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
+
     ivec2 pos = ivec2(gl_GlobalInvocationID);
     if (pos.x < consts.width && pos.y < consts.height)
     {

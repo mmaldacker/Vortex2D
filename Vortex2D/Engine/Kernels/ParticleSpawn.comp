@@ -61,6 +61,8 @@ vec2 random(ivec2 pos, ivec2 seed)
 
 void main()
 {
+    uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
+
     ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
     if (pos.x < consts.width && pos.y < consts.height)
     {

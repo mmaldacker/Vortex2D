@@ -44,6 +44,8 @@ float g(float s, float w, float wxp, float wxn, float wyp, float wyn)
 
 void main()
 {
+    uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
+
     ivec2 pos = ivec2(gl_GlobalInvocationID);
     vec2 texPos = vec2((pos.x + 0.5) / consts.width, (pos.y + 0.5) / consts.height);
 

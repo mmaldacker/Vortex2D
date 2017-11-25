@@ -37,6 +37,8 @@ const float w = 1.5;
 
 void main()
 {
+    uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
+
     // load pressure in shared data
     sdata[gl_LocalInvocationIndex] = pressure.value[gl_LocalInvocationIndex];
 

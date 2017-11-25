@@ -17,6 +17,8 @@ layout(push_constant) uniform PushConsts
 
 void main()
 {
+  uvec2 localSize = gl_WorkGroupSize.xy; // hack for Mali-GPU
+
   uvec2 index = gl_GlobalInvocationID.xy;
   if (index.x < consts.width && index.y < consts.height)
   {

@@ -17,6 +17,8 @@ const float dx = 1.0;
 
 void main(void)
 {
+    uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
+
     ivec2 pos = ivec2(gl_GlobalInvocationID);
 
     float f = imageLoad(LiquidPhi, pos).x;

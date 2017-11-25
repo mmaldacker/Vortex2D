@@ -27,6 +27,8 @@ shared float sdata[(blockWidth + 1) * blockHeight];
 
 void main()
 {
+    uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
+
     ivec2 pos;
     pos.x = int(gl_WorkGroupID.x) * blockSizeX + int(gl_LocalInvocationID.x) - 1;
     pos.y = int(gl_WorkGroupID.y) * blockSizeY + int(gl_LocalInvocationID.y) - 1;
