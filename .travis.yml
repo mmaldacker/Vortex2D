@@ -4,10 +4,9 @@ language: cpp
 
 matrix:
   include:
-    - os: osx
-      compiler: clang
     - os: linux
-      compile: gcc
+      compiler: gcc
+      compiler: clang
 
 branches:
   only:
@@ -26,41 +25,28 @@ addons:
     packages:
       # Vortex2D dependencies
       - doxygen
-      - gdb
-      - lcov
       # GLFW3 dependencies
       - libxrandr-dev
       - libxinerama-dev
       - libxcursor-dev
 
 install:
-# Mesa 13.0.4 install
- - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cd Dependencies; chmod +x buildMesa.sh; ./buildMesa.sh; cd ..; fi
-
-before_script:
-  - ulimit -c unlimited -S       # enable core dumps
+# LunarG SDK install
+ - wget https://vulkan.lunarg.com/sdk/download/1.0.65.0/linux/vulkansdk-linux-x86_64-1.0.65.0.run
+ - chmod +x vulkansdk-linux-x86_64-1.0.65.0.run
+ - ./vulkansdk-linux-x86_64-1.0.65.0.run
+ - cd VulkanSDK/1.0.65.0/
+ - ./build_tools.sh
+ - . setup-env.sh
 
 script:
   - cd ${TRAVIS_BUILD_DIR}
-  - mkdir build
-  - cd build
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cmake .. -DVORTEX2D_ENABLE_TESTS=ON -DVORTEX2D_ENABLE_EXAMPLES=ON -DVORTEX2D_USE_OSMESA=ON -DCMAKE_BUILD_TYPE=Coverage; else cmake .. -DVORTEX2D_ENABLE_TESTS=ON -DVORTEX2D_ENABLE_EXAMPLES=ON; fi
+  - mkdir build && cd build
+  - cmake .. -DVORTEX2D_ENABLE_TESTS=ON -DVORTEX2D_ENABLE_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Debug
   - make -j 4
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make vortex2d_tests_coverage; fi
 
 # Generate and deploy documentation
 after_success:
-  # Creating report
-  - cd ${TRAVIS_BUILD_DIR}
-  - lcov --directory . --capture --output-file coverage.info # capture coverage info
-  - lcov --remove coverage.info '/usr/*' '*/Vortex2D/Dependencies/*' '*/Vortex2D/Tests/*' '*/Vortex2D/RenderWindow/*' '*/Vortex2D/build/*' --output-file coverage.info # filter out system
-  - lcov --list coverage.info #debug info
-  # Uploading report to CodeCov
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"; fi
   # Compile & Upload docs
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cd $TRAVIS_BUILD_DIR/Docs; chmod +x generatePublishDocs.sh; ./generatePublishDocs.sh; fi
-
-# Check if there is a coredump and print backtrace if there is
-after_failure:
-  - COREFILE=$(find . -maxdepth 1 -name "core*" | head -n 1) # find core file
-  - if [[ -f "$COREFILE" ]]; then gdb -c "$COREFILE" Tests/vortex2d_tests -ex "thread apply all bt" -ex "set pagination 0" -batch; fi
+  - cd $TRAVIS_BUILD_DIR/Docs; chmod +x generatePublishDocs.sh; ./generatePublishDocs.sh

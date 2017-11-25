@@ -1,4 +1,2 @@
 ignore:
   - "Tests/.*"
-  - "Dependencies/.*"
-  - "RenderWindow/.*"

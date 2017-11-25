@@ -16,7 +16,6 @@ script:
   - make -j4
   - cd Tests && ./vortex2d_tests
 
-# Generate and deploy documentation
 after_success:
   # Creating report
   - lcov --directory . --capture --output-file coverage.info # capture coverage info
