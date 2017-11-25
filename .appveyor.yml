@@ -2,7 +2,7 @@ os: Visual Studio 2017
 clone_folder: C:\Vortex2D
 platform:
   - x64
- environment:
+environment:
   VK_SDK_PATH: "C:\\VulkanSDK\\1.0.54.0\\"
 install:
 # Download and install Vulkan SDK
