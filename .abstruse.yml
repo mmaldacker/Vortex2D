@@ -20,7 +20,7 @@ after_success:
   - lcov --remove coverage.info '/usr/*' '*/Vortex2D/build/*' --output-file coverage.info # filter out system
   - lcov --list coverage.info #debug info
   # Uploading report to CodeCov
-  #- bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
+  - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
   # Compile & Upload docs
   #- cd ../Docs; chmod +x generatePublishDocs.sh; ./generatePublishDocs.sh
 
