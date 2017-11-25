@@ -11,10 +11,10 @@ before_script:
   - ulimit -c unlimited -S       # enable core dumps
 
 script:
-  - cmake -H. -Bbuild -DVORTEX2D_ENABLE_TESTS=ON -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
-  - cd build
-  - make -j 4
-  - ctest
+  - mkdir buid && cd build
+  - cmake -DVORTEX2D_ENABLE_TESTS=On -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
+  - make -j4
+  - cd Tests && ./vortex2d_tests
 
 # Generate and deploy documentation
 after_success:
