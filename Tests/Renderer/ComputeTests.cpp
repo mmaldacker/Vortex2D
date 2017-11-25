@@ -230,9 +230,9 @@ TEST(ComputeTests, WorkIndirect)
     computeSize.LocalSize.x = 8;
 
     Work work(*device, computeSize, "WorkIndirect.comp.spv");
-
     auto bound = work.Bind({buffer, dispatchParams});
 
+    // Run first time
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
        bound.RecordIndirect(commandBuffer, dispatchParams);
@@ -248,6 +248,28 @@ TEST(ComputeTests, WorkIndirect)
     CopyTo(buffer, outputData);
 
     ASSERT_EQ(outputData, bufferData);
+
+    // Update buffer and run again
+    params.workSize.x = 1;
+    params.count = 8;
+
+    //CopyFrom(dispatchParams, params);
+
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+       buffer.Clear(commandBuffer);
+       bound.RecordIndirect(commandBuffer, dispatchParams);
+    });
+
+    std::vector<float> bufferData2(100*size.x*size.y);
+    for (int i = 0; i < 8; i++)
+    {
+        bufferData2[i] = 1.0f;
+    }
+
+    CopyTo(buffer, outputData);
+
+    ASSERT_EQ(outputData, bufferData2);
 }
 
 TEST(ComputeTests, Stencil)

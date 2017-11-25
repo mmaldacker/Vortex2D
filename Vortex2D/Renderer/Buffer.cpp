@@ -85,6 +85,7 @@ void GenericBuffer::CopyFrom(vk::CommandBuffer commandBuffer, GenericBuffer& src
 
     // TODO improve barriers
     srcBuffer.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eTransferRead);
+    Barrier(commandBuffer, vk::AccessFlagBits::eShaderRead, vk::AccessFlagBits::eTransferWrite);
 
     auto region = vk::BufferCopy()
             .setSize(mSize);
@@ -92,6 +93,7 @@ void GenericBuffer::CopyFrom(vk::CommandBuffer commandBuffer, GenericBuffer& src
     commandBuffer.copyBuffer(srcBuffer.Handle(), *mBuffer, region);
 
     Barrier(commandBuffer, vk::AccessFlagBits::eTransferWrite, vk::AccessFlagBits::eShaderRead);
+    srcBuffer.Barrier(commandBuffer, vk::AccessFlagBits::eTransferRead, vk::AccessFlagBits::eShaderRead);
 }
 
 void GenericBuffer::CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcTexture)

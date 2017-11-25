@@ -14,6 +14,7 @@ file(GLOB EXAMPLES_SOURCES
         "ObstacleSmokeExample.h"
         "ScaleWaterExample.h"
         "SmokeExample.h"
+        "SmokeVelocityExample.h"
         "WaterExample.h"
         "Rigidbody.h"
         "Rigidbody.cpp")

@@ -8,6 +8,7 @@
 #include "SmokeExample.h"
 #include "ObstacleSmokeExample.h"
 #include "WaterExample.h"
+#include "SmokeVelocityExample.h"
 
 #include <iostream>
 #include <memory>
@@ -20,7 +21,6 @@ using namespace Vortex2D;
 glm::vec4 green = glm::vec4(35.0f, 163.0f, 143.0f, 255.0f)/glm::vec4(255.0f);
 glm::vec4 gray = glm::vec4(182.0f,172.0f,164.0f, 255.0f)/glm::vec4(255.0f);
 glm::vec4 blue = glm::vec4(188.0f, 155.0f, 99.0f, 255.0f)/glm::vec4(255.0f);
-glm::vec4 colour = glm::vec4{99.0f,96.0f,93.0f,255.0f} / glm::vec4(255.0f);
 
 glm::ivec2 size = {1024,1024};
 float scale = 4;
@@ -51,7 +51,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             example.reset(new WaterExample(*device, {size, scale}, delta));
             break;
         case GLFW_KEY_5:
-            //example.reset(new ScaleWaterExample(size, 0.033f));
+            example.reset(new SmokeVelocityExample(*device, {size, scale}, delta));
+            break;
         default:
             return;
     }

@@ -9,6 +9,12 @@ TEST(Vulkan, Init)
     auto physicalDevice = device->GetPhysicalDevice();
     auto properties = physicalDevice.getProperties();
     std::cout << "Device name: " << properties.deviceName << std::endl;
+
+    for (int i = 0; i < 3; i++)
+    {
+        std::cout << "Max local size " << i << " : " << properties.limits.maxComputeWorkGroupSize[i] << std::endl;
+    }
+    std::cout << "Max local size total: " << properties.limits.maxComputeWorkGroupInvocations << std::endl;
 }
 
 int main(int argc, char **argv)
