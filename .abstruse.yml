@@ -4,11 +4,14 @@ branches:
   only:
     - master
 
+matrix:
+  - env: BUILD_TYPE=Coverage    
+
 before_script:
   - ulimit -c unlimited -S       # enable core dumps
 
 script:
-  - cmake -H. -Bbuild -DVORTEX2D_ENABLE_TESTS=ON -DCMAKE_BUILD_TYPE=Coverage
+  - cmake -H. -Bbuild -DVORTEX2D_ENABLE_TESTS=ON -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
   - cd build
   - make -j 4
   - ctest
@@ -21,10 +24,4 @@ after_success:
   - lcov --list coverage.info #debug info
   # Uploading report to CodeCov
   - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
-  # Compile & Upload docs
-  #- cd ../Docs; chmod +x generatePublishDocs.sh; ./generatePublishDocs.sh
 
-# Check if there is a coredump and print backtrace if there is
-after_failure:
-  - COREFILE=$(find . -maxdepth 1 -name "core*" | head -n 1) # find core file
-  - if [[ -f "$COREFILE" ]]; then gdb -c "$COREFILE" Tests/vortex2d_tests -ex "thread apply all bt" -ex "set pagination 0" -batch; fi
