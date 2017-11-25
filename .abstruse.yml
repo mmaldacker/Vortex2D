@@ -2,7 +2,7 @@ image: vulkan
 
 branches:
   only:
-    - vulkan
+    - master
 
 before_script:
   - ulimit -c unlimited -S       # enable core dumps
