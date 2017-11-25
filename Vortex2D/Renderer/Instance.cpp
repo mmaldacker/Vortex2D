@@ -64,7 +64,7 @@ void Instance::Create(const std::string& name, std::vector<const char*> extensio
     mInstance = vk::createInstanceUnique(instanceInfo);
 
     // load symbols
-    if (!vkLoaderInstanceInit(*mInstance)) throw std::runtime_error("cannot load instance procs");
+    if (!vkLoaderInstanceInit((VkInstance)*mInstance)) throw std::runtime_error("cannot load instance procs");
 
     // add the validation calback if necessary
     if (validation)
