@@ -35,10 +35,18 @@ void Instance::Create(const std::string& name, std::vector<const char*> extensio
     }
 
     // configure instance
-    vk::ApplicationInfo appInfo;
-    appInfo.setPApplicationName(name.c_str());
+    auto appInfo = vk::ApplicationInfo()
+            .setPApplicationName(name.c_str())
+            .setApiVersion(VK_MAKE_VERSION(1, 0, 65));
 
-    const std::vector<const char*> validationLayers = {"VK_LAYER_LUNARG_standard_validation"};
+    std::vector<const char*> validationLayers = {"VK_LAYER_LUNARG_standard_validation"};
+
+    // make sure we request available layers
+    auto availableLayers = vk::enumerateInstanceLayerProperties();
+    RemoveInexistingLayers(validationLayers, availableLayers);
+
+    auto availableExtensions = vk::enumerateInstanceExtensionProperties();
+    RemoveInexistingExtensions(extensions, availableExtensions);
 
     vk::InstanceCreateInfo instanceInfo;
     instanceInfo
@@ -88,6 +96,48 @@ vk::PhysicalDevice Instance::GetPhysicalDevice() const
 vk::Instance Instance::GetInstance() const
 {
     return *mInstance;
+}
+
+void RemoveInexistingLayers(std::vector<const char*>& list, const std::vector<vk::LayerProperties>& available)
+{
+    for (auto it = list.begin(); it != list.end();)
+    {
+        auto find_it = std::find_if(available.begin(), available.end(),
+            [&](const vk::LayerProperties& layer)
+            {
+                return std::strcmp(*it, layer.layerName) == 0;
+            });
+
+        if (find_it == available.end())
+        {
+            it = list.erase(it);
+        }
+        else
+        {
+            it++;
+        }
+    }
+}
+
+void RemoveInexistingExtensions(std::vector<const char*>& list, const std::vector<vk::ExtensionProperties>& available)
+{
+    for (auto it = list.begin(); it != list.end();)
+    {
+        auto find_it = std::find_if(available.begin(), available.end(),
+            [&](const vk::ExtensionProperties& layer)
+            {
+                return std::strcmp(*it, layer.extensionName) == 0;
+            });
+
+        if (find_it == available.end())
+        {
+            it = list.erase(it);
+        }
+        else
+        {
+            it++;
+        }
+    }
 }
 
 }}

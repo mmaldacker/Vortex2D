@@ -7,6 +7,8 @@
 #include <iostream>
 #include <fstream>
 
+#include <Vortex2D/Renderer/Instance.h>
+
 namespace Vortex2D { namespace Renderer {
 
 // TODO two functions below are duplicated
@@ -75,8 +77,12 @@ Device::Device(vk::PhysicalDevice physicalDevice, int familyIndex, bool validati
             .setQueueCount(1)
             .setPQueuePriorities(&queuePriority);
 
-    const std::vector<const char*> validationLayers = {"VK_LAYER_LUNARG_standard_validation"};
-    const std::vector<const char*> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+    std::vector<const char*> validationLayers = {"VK_LAYER_LUNARG_standard_validation"};
+    std::vector<const char*> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+
+    // make sure we request valid layers only
+    auto availableLayers = physicalDevice.enumerateDeviceLayerProperties();
+    RemoveInexistingLayers(validationLayers, availableLayers);
 
     // create queue
     auto deviceFeatures = vk::PhysicalDeviceFeatures()

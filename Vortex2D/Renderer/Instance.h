@@ -27,6 +27,9 @@ private:
     vk::UniqueDebugReportCallbackEXT mDebugCallback;
 };
 
+void RemoveInexistingExtensions(std::vector<const char*>& list, const std::vector<vk::ExtensionProperties>& available);
+void RemoveInexistingLayers(std::vector<const char*>& list, const std::vector<vk::LayerProperties>& available);
+
 }}
 
 #endif
