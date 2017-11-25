@@ -6,6 +6,7 @@
 #ifndef Vortex_Common_h
 #define Vortex_Common_h
 
+#include <vk_loader/vk_loader.h>
 #include <vulkan/vulkan.hpp>
 
 #define GLM_ENABLE_EXPERIMENTAL

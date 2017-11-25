@@ -5,24 +5,8 @@
 
 #include "Instance.h"
 
+#include <vk_loader/vk_loader.h>
 #include <iostream>
-
-static PFN_vkCreateDebugReportCallbackEXT pfn_vkCreateDebugReportCallbackEXT;
-VkResult vkCreateDebugReportCallbackEXT(VkInstance instance,
-                                        const VkDebugReportCallbackCreateInfoEXT* pCreateInfo,
-                                        const VkAllocationCallbacks* pAllocator,
-                                        VkDebugReportCallbackEXT* pCallback)
-{
-    return pfn_vkCreateDebugReportCallbackEXT(instance, pCreateInfo, pAllocator, pCallback);
-}
-
-static PFN_vkDestroyDebugReportCallbackEXT pfn_vkDestroyDebugReportCallbackEXT;
-void vkDestroyDebugReportCallbackEXT(VkInstance instance,
-                                     VkDebugReportCallbackEXT callback,
-                                     const VkAllocationCallbacks* pAllocator)
-{
-    pfn_vkDestroyDebugReportCallbackEXT(instance, callback, pAllocator);
-}
 
 VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugReportFlagsEXT flags,
                                              VkDebugReportObjectTypeEXT objType,
@@ -41,6 +25,9 @@ namespace Vortex2D { namespace Renderer {
 
 void Instance::Create(const std::string& name, std::vector<const char*> extensions, bool validation)
 {
+    // load symbols
+    if (!vkLoaderInit()) throw std::runtime_error("cannot load vulkan library!");
+
     // add the validation extension if necessary
     if (validation)
     {
@@ -68,12 +55,12 @@ void Instance::Create(const std::string& name, std::vector<const char*> extensio
 
     mInstance = vk::createInstanceUnique(instanceInfo);
 
+    // load symbols
+    if (!vkLoaderInstanceInit(*mInstance)) throw std::runtime_error("cannot load instance procs");
+
     // add the validation calback if necessary
     if (validation)
     {
-        pfn_vkCreateDebugReportCallbackEXT = (PFN_vkCreateDebugReportCallbackEXT) mInstance->getProcAddr("vkCreateDebugReportCallbackEXT");
-        pfn_vkDestroyDebugReportCallbackEXT = (PFN_vkDestroyDebugReportCallbackEXT) mInstance->getProcAddr("vkDestroyDebugReportCallbackEXT");
-
         vk::DebugReportCallbackCreateInfoEXT debugCallbackInfo;
         debugCallbackInfo
                 .setPfnCallback(debugCallback)
@@ -81,19 +68,21 @@ void Instance::Create(const std::string& name, std::vector<const char*> extensio
 
         mDebugCallback = mInstance->createDebugReportCallbackEXTUnique(debugCallbackInfo);
     }
-}
 
-vk::PhysicalDevice Instance::GetPhysicalDevice() const
-{
+    // get physical device
     // TODO better search than first available device
     // - using swap chain info
     // - using queue info
     // - discrete GPU
-    vk::PhysicalDevice physicalDevice = mInstance->enumeratePhysicalDevices().at(0);
-    auto properties = physicalDevice.getProperties();
+    mPhysicalDevice = mInstance->enumeratePhysicalDevices().at(0);
+    auto properties = mPhysicalDevice.getProperties();
     std::cout << "Device name: " << properties.deviceName << std::endl;
 
-    return physicalDevice;
+}
+
+vk::PhysicalDevice Instance::GetPhysicalDevice() const
+{
+    return mPhysicalDevice;
 }
 
 vk::Instance Instance::GetInstance() const

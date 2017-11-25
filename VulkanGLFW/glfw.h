@@ -6,6 +6,7 @@
 #ifndef GLFW_H
 #define GLFW_H
 
+#include <vk_loader/vk_loader.h>
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
 
