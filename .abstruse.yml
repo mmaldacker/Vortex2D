@@ -11,7 +11,7 @@ before_script:
   - ulimit -c unlimited -S       # enable core dumps
 
 script:
-  - mkdir buid && cd build
+  - mkdir build && cd build
   - cmake -DVORTEX2D_ENABLE_TESTS=On -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
   - make -j4
   - cd Tests && ./vortex2d_tests
