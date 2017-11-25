@@ -1,4 +1,4 @@
-[![Build Status](https://vortex2d.strangled.net:6500/badge/1)](http://vortex2d.strangled.net:6500/repo/1)
+[![Build Status](http://vortex2d.strangled.net:6500/badge/1)](http://vortex2d.strangled.net:6500/repo/1)
 [![Build Status](https://travis-ci.org/mmaldacker/Vortex2D.svg?branch=master)](https://travis-ci.org/mmaldacker/Vortex2D)
 [![Build Status](https://ci.appveyor.com/api/projects/status/p7q9aple11yhs1ck?svg=true)](https://ci.appveyor.com/project/mmaldacker/vortex2d)
 [![Code Coverage](http://codecov.io/github/mmaldacker/Vortex2D/coverage.svg?branch=master)](http://codecov.io/github/mmaldacker/Vortex2D?branch=master)
