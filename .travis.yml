@@ -25,6 +25,7 @@ addons:
       # Vortex2D dependencies
       - cmake
       - doxygen
+      - liblua5.2-0
       # GLFW3 dependencies
       - libxrandr-dev
       - libxinerama-dev
@@ -46,12 +47,6 @@ install:
  - cd VulkanSDK/1.0.65.0/
 # - ./build_tools.sh
  - . setup-env.sh
-# Lua
- - git clone https://github.com/LuaDist/lua.git --quiet
- - cd lua/
- - git checkout -qf 5.2.4
- - mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr && make -j4 && sudo make install
- - sudo ln -s /usr/local/lib/liblua.so /usr/lib/liblua5.2.so.0
 
 script:
   - cd ${TRAVIS_BUILD_DIR}
