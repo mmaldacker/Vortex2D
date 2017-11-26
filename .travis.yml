@@ -48,6 +48,11 @@ install:
  - cd VulkanSDK/1.0.65.0/
  - ./build_tools.sh
  - . setup-env.sh
+# Lua
+ - git clone https://github.com/LuaDist/lua.git --quiet
+ - cd lua/
+ - git checkout -qf 5.2.4
+ - mkdir build && cd build && cmake .. && make -j4 && sudo make install
 
 script:
   - cd ${TRAVIS_BUILD_DIR}
