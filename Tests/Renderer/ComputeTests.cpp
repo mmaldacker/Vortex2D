@@ -253,7 +253,7 @@ TEST(ComputeTests, WorkIndirect)
     params.workSize.x = 1;
     params.count = 8;
 
-    //CopyFrom(dispatchParams, params);
+    CopyFrom(dispatchParams, params);
 
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {

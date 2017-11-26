@@ -32,6 +32,7 @@ addons:
       - libxrandr-dev
       - libxinerama-dev
       - libxcursor-dev
+      - libxi-dev
 
 install:
 # LunarG SDK install
