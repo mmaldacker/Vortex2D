@@ -40,12 +40,12 @@ install:
  - export DOXYREST_FRAME=${TRAVIS_BUILD_DIR}/doxyrest-linux-1.1.0-amd64/share/doxyrest/frame
  - export DOXYREST_SPHINX=${TRAVIS_BUILD_DIR}/doxyrest-linux-1.1.0-amd64/share/doxyrest/frame
 # LunarG SDK install
-# - wget https://vulkan.lunarg.com/sdk/download/1.0.65.0/linux/vulkansdk-linux-x86_64-1.0.65.0.run
-# - chmod +x vulkansdk-linux-x86_64-1.0.65.0.run
-# - ./vulkansdk-linux-x86_64-1.0.65.0.run
-# - cd VulkanSDK/1.0.65.0/
+ - wget https://vulkan.lunarg.com/sdk/download/1.0.65.0/linux/vulkansdk-linux-x86_64-1.0.65.0.run
+ - chmod +x vulkansdk-linux-x86_64-1.0.65.0.run
+ - ./vulkansdk-linux-x86_64-1.0.65.0.run
+ - cd VulkanSDK/1.0.65.0/
 # - ./build_tools.sh
-# - . setup-env.sh
+ - . setup-env.sh
 # Lua
  - git clone https://github.com/LuaDist/lua.git --quiet
  - cd lua/
@@ -54,8 +54,8 @@ install:
  - sudo ln -s /usr/local/lib/liblua.so /usr/local/lib/liblua5.2.so.0
 
 script:
-#  - cd ${TRAVIS_BUILD_DIR}
-#  - mkdir build && cd build
+  - cd ${TRAVIS_BUILD_DIR}
+  - mkdir build && cd build
 #  - cmake .. -DVORTEX2D_ENABLE_TESTS=On -DVORTEX2D_ENABLE_EXAMPLES=On -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=gcc-5 -DCMAKE_CXX_COMPILER=g++-5
 #  - make -j 4
 
