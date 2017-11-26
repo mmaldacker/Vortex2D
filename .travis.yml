@@ -25,8 +25,6 @@ addons:
       # Vortex2D dependencies
       - cmake
       - doxygen
-      - liblua5.3-dev
-      - libexpat1-dev
       # GLFW3 dependencies
       - libxrandr-dev
       - libxinerama-dev
