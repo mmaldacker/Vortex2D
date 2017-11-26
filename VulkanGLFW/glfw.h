@@ -7,6 +7,7 @@
 #define GLFW_H
 
 #include <vk_loader/vk_loader.h>
+#define VULKAN_HPP_TYPESAFE_CONVERSION 1
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
 

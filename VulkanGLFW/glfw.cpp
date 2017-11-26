@@ -52,12 +52,12 @@ GLFWApp::GLFWApp(uint32_t width, uint32_t height, bool validation)
 
     // create surface
     VkSurfaceKHR surface;
-    if (glfwCreateWindowSurface(mInstance.GetInstance(), mWindow, nullptr, &surface) != VK_SUCCESS)
+    if (glfwCreateWindowSurface(static_cast<VkInstance>(mInstance.GetInstance()), mWindow, nullptr, &surface) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create window surface!");
     }
 
-    mSurface = vk::UniqueSurfaceKHR(surface, vk::SurfaceKHRDeleter(mInstance.GetInstance()));
+    mSurface = vk::UniqueSurfaceKHR(surface, vk::SurfaceKHRDeleter{mInstance.GetInstance()});
 }
 
 GLFWApp::~GLFWApp()
