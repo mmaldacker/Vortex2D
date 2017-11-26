@@ -69,7 +69,7 @@ echo 'Generating Doxygen code documentation...'
 cd ..
 # Redirect both stderr and stdout to the log file AND the console.
 doxygen $DOXYFILE 2>&1 | tee doxygen.log
-$DOXYREST_BIN/doxyrest xml_output/xml/index.xml -o source/index.rst -F $DOXYREST_FRAME -f c_index.rst.in
+$DOXYREST_BIN/doxyrest xml_output/xml/index.xml -o rst_output/index.rst -F $DOXYREST_FRAME -f c_index.rst.in
 sphinx-build -c . -b html rst_output html_output/html
 cd html_output
 
