@@ -45,9 +45,8 @@ install:
 script:
   - cd ${TRAVIS_BUILD_DIR}
   - mkdir build && cd build
-  - cmake .. -DVORTEX2D_ENABLE_TESTS=ON -DVORTEX2D_ENABLE_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Debug
+  - cmake .. -DVORTEX2D_ENABLE_TESTS=On -DVORTEX2D_ENABLE_EXAMPLES=On -DCMAKE_BUILD_TYPE=Debug
   - make -j 4
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make vortex2d_tests_coverage; fi
 
 # Generate and deploy documentation
 after_success:

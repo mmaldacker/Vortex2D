@@ -1,5 +1,7 @@
 file(GLOB LIB_SOURCES
     "Vortex2D.h"
+    "Engine/Density.h"
+    "Engine/Density.cpp"
     "Engine/LevelSet.h"
     "Engine/LevelSet.cpp"
     "Engine/Pressure.h"

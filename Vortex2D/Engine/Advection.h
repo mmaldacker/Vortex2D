@@ -12,6 +12,8 @@
 
 namespace Vortex2D { namespace Fluid {
 
+class Density;
+
 class Advection
 {
 public:
@@ -20,8 +22,7 @@ public:
     void AdvectVelocity();
 
     // TODO can only advect one field, need to be able to do as many as we want
-    // also can only advect RGBA8
-    void AdvectInit(Renderer::Texture& field);
+    void AdvectInit(Density& density);
     void Advect();
 
     void AdvectParticleInit(Renderer::GenericBuffer& particles,
@@ -35,8 +36,6 @@ private:
     Renderer::Texture& mVelocity;
     // TODO use a common temp velocity texture
     Renderer::Texture mTmpVelocity;
-    // TODO currently only accepts RGBA8
-    Renderer::Texture mField;
 
     Renderer::Work mVelocityAdvect;
     Renderer::Work::Bound mVelocityAdvectBound;

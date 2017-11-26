@@ -36,7 +36,7 @@ public:
      */
     World(const Renderer::Device& device, Dimensions dimensions, float dt);
 
-    void InitField(Renderer::Texture& field);
+    void InitField(Density& density);
 
     void SolveStatic();
 

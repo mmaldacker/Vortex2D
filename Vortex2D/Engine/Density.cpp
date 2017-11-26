@@ -5,38 +5,13 @@
 
 #include "Density.h"
 
-#include <glm/gtx/transform.hpp>
-
-#include <Vortex2D/Engine/World.h>
-
 namespace Vortex2D { namespace Fluid {
 
-Density::Density(Dimensions dimensions)
-    : mDimensions(dimensions)
-    , mDensity(dimensions.Size, 4, true)
+Density::Density(const Renderer::Device& device, const glm::ivec2& size, vk::Format format)
+    : Renderer::RenderTexture(device, size.x, size.y, format)
+    , Renderer::Sprite(device, *this)
+    , mFieldBack(device, size.x, size.y, format, false)
 {
-}
-
-Density::~Density()
-{
-}
-
-void Density::Render(Renderer::Drawable& object)
-{
-}
-
-void Density::Advect(World & world)
-{
-    world.Advect(mDensity);
-}
-
-void Density::Render(const Renderer::Device& device, Renderer::RenderTarget & target)
-{
-    /*
-    auto & densitySprite = mDensity.Sprite();
-    densitySprite.SetProgram(mProgram);
-    densitySprite.Render(target, glm::scale(glm::vec3(mDimensions.Scale, mDimensions.Scale, 1.0))*transform);
-    */
 }
 
 }}

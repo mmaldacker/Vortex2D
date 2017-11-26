@@ -6,6 +6,7 @@
 #include <Vortex2D/Vortex2D.h>
 #include <Vortex2D/Renderer/Drawable.h>
 #include <Vortex2D/Engine/World.h>
+#include <Vortex2D/Engine/Density.h>
 #include <Vortex2D/Renderer/RenderTexture.h>
 #include <Vortex2D/Renderer/Sprite.h>
 #include <Vortex2D/Engine/Boundaries.h>
@@ -27,12 +28,11 @@ public:
         , source2(device, glm::vec2(20.0f), gray)
         , force1(device, glm::vec2(20.0f), {0.0f, 0.5f, 0.0f, 0.0f})
         , force2(device, glm::vec2(20.0f), {0.0f, -0.5f, 0.0f, 0.0f})
-        , density(device, dimensions.Size.x, dimensions.Size.y, vk::Format::eB8G8R8A8Unorm)
-        , densitySprite(device, density)
+        , density(device, dimensions.Size, vk::Format::eB8G8R8A8Unorm)
         , world(device, dimensions, dt)
         , solidPhi(device, world.SolidPhi(), green, dimensions.Scale)
     {
-        solidPhi.Scale = densitySprite.Scale = (glm::vec2)dimensions.Scale;
+        solidPhi.Scale = density.Scale = (glm::vec2)dimensions.Scale;
 
         source1.Position = force1.Position = {250.0f, 100.0f};
         source2.Position = force2.Position = {750.0f, 900.0f};
@@ -71,13 +71,13 @@ public:
 
     void Initialize(const Vortex2D::Renderer::RenderState& renderState) override
     {
-        densitySprite.Initialize(renderState);
+        density.Initialize(renderState);
         solidPhi.Initialize(renderState);
     }
 
     void Update(const glm::mat4& projection, const glm::mat4& view) override
     {
-        densitySprite.Update(projection, view);
+        density.Update(projection, view);
         solidPhi.Update(projection, view);
 
         world.Velocity().Submit();
@@ -88,15 +88,14 @@ public:
 
     void Draw(vk::CommandBuffer commandBuffer, const Vortex2D::Renderer::RenderState& renderState) override
     {
-        densitySprite.Draw(commandBuffer, renderState);
+        density.Draw(commandBuffer, renderState);
         solidPhi.Draw(commandBuffer, renderState);
     }
 
 private:
     Vortex2D::Renderer::Ellipse source1, source2;
     Vortex2D::Renderer::Ellipse force1, force2;
-    Vortex2D::Renderer::RenderTexture density;
-    Vortex2D::Renderer::Sprite densitySprite;
+    Vortex2D::Fluid::Density density;
     Vortex2D::Fluid::World world;
     Vortex2D::Fluid::DistanceField solidPhi;
 };

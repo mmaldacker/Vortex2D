@@ -6,46 +6,22 @@
 #ifndef Vortex2D_Density_h
 #define Vortex2D_Density_h
 
-#include <Vortex2D/Renderer/Operator.h>
-#include <Vortex2D/Renderer/Drawable.h>
-#include <Vortex2D/Renderer/Transformable.h>
-
-#include <Vortex2D/Engine/Size.h>
+#include <Vortex2D/Renderer/Sprite.h>
+#include <Vortex2D/Renderer/RenderTexture.h>
 
 namespace Vortex2D { namespace Fluid {
 
-class World;
-
-/**
- * @brief Used to move and render colour with the velocity field of the Engine
- */
-class Density : public Renderer::Drawable, public Renderer::Transformable
+class Density : public Renderer::RenderTexture, public Renderer::Sprite
 {
 public:
-    Density(Dimensions dimensions);
-    virtual ~Density();
+    Density(const Renderer::Device& device, const glm::ivec2& size, vk::Format format);
 
-    /**
-     * @brief Renders some colours on the density grid
-     */
-    void Render(Renderer::Drawable& object);
-
-    /**
-     * @brief Advect the colours rendered with Render using the velocity field in Engine
-     */
-    void Advect(World& engine);
-
-    /**
-     * @brief Renders the colours to a RenderTarget
-     */
-    void Render(const Renderer::Device& device, Renderer::RenderTarget & target) override;
-
+    friend  class Advection;
 private:
-    Dimensions mDimensions;
-    Renderer::GenericBuffer mDensity;
-    Renderer::Program mProgram;
+    Renderer::Texture mFieldBack;
 };
+
 
 }}
 
-#endif /* defined(__Vortex2D__Density__) */
+#endif

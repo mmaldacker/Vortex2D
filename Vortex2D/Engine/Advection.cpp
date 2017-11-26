@@ -6,15 +6,16 @@
 #include "Advection.h"
 
 #include <Vortex2D/Renderer/Pipeline.h>
+#include <Vortex2D/Engine/Density.h>
 
 namespace Vortex2D { namespace Fluid {
+
 
 Advection::Advection(const Renderer::Device& device, const glm::ivec2& size, float dt, Renderer::Texture& velocity)
     : mDt(dt)
     , mSize(size)
     , mVelocity(velocity)
     , mTmpVelocity(device, size.x, size.y, vk::Format::eR32G32Sfloat, false)
-    , mField(device, size.x, size.y, vk::Format::eB8G8R8A8Unorm, false)
     , mVelocityAdvect(device, size, "../Vortex2D/AdvectVelocity.comp.spv")
     , mVelocityAdvectBound(mVelocityAdvect.Bind({velocity, mTmpVelocity}))
     , mAdvect(device, size, "../Vortex2D/Advect.comp.spv")
@@ -41,19 +42,19 @@ void Advection::AdvectVelocity()
     mAdvectVelocityCmd.Submit();
 }
 
-void Advection::AdvectInit(Renderer::Texture& field)
+void Advection::AdvectInit(Density& density)
 {
-    mAdvectBound = mAdvect.Bind({mVelocity, field, mField});
+    mAdvectBound = mAdvect.Bind({mVelocity, density, density.mFieldBack});
     mAdvectCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
         mAdvectBound.PushConstant(commandBuffer, 8, mDt);
         mAdvectBound.Record(commandBuffer);
-        mField.Barrier(commandBuffer,
+        density.mFieldBack.Barrier(commandBuffer,
                       vk::ImageLayout::eGeneral,
                       vk::AccessFlagBits::eShaderWrite,
                       vk::ImageLayout::eGeneral,
                       vk::AccessFlagBits::eShaderRead);
-        field.CopyFrom(commandBuffer, mField);
+        density.CopyFrom(commandBuffer, density.mFieldBack);
     });
 }
 

@@ -6,6 +6,7 @@
 #include <Vortex2D/Vortex2D.h>
 #include <Vortex2D/Renderer/Drawable.h>
 #include <Vortex2D/Engine/World.h>
+#include <Vortex2D/Engine/Density.h>
 #include <Vortex2D/Renderer/RenderTexture.h>
 #include <Vortex2D/Renderer/Sprite.h>
 #include <Vortex2D/Engine/Boundaries.h>
@@ -32,8 +33,7 @@ public:
                          float dt)
         : delta(dt)
         , dimensions(dimensions)
-        , density(device, dimensions.Size.x, dimensions.Size.y, vk::Format::eB8G8R8A8Unorm)
-        , densitySprite(device, density)
+        , density(device, dimensions.Size, vk::Format::eB8G8R8A8Unorm)
         , world(device, dimensions, dt)
         , solidPhi(device, world.SolidPhi(), green, dimensions.Scale)
         , velocityClear(dimensions.Size.x, dimensions.Size.y, {0.0f, 0.0f, 0.0f, 0.0f})
@@ -42,7 +42,7 @@ public:
         , body2(device, rWorld, dimensions, world.Valid(), b2_dynamicBody, {50.0f, 50.0f})
         , bottom(device, rWorld, dimensions, world.Valid(), b2_staticBody, {500.0f, 20.0f})
     {
-        solidPhi.Scale = densitySprite.Scale = glm::vec2(dimensions.Scale);
+        solidPhi.Scale = density.Scale = glm::vec2(dimensions.Scale);
 
         world.InitField(density);
 
@@ -101,7 +101,7 @@ public:
 
     void Initialize(const Vortex2D::Renderer::RenderState& renderState) override
     {
-        densitySprite.Initialize(renderState);
+        density.Initialize(renderState);
         solidPhi.Initialize(renderState);
     }
 
@@ -115,7 +115,7 @@ public:
         body2.UpdateVelocities();
         body2.Update(world.SolidPhi().Orth, dimensions.InvScale);
 
-        densitySprite.Update(projection, view);
+        density.Update(projection, view);
         solidPhi.Update(projection, view);
 
         world.SolidPhi().SubmitSignedBoject();
@@ -131,15 +131,14 @@ public:
 
     void Draw(vk::CommandBuffer commandBuffer, const Vortex2D::Renderer::RenderState& renderState) override
     {
-        densitySprite.Draw(commandBuffer, renderState);
+        density.Draw(commandBuffer, renderState);
         solidPhi.Draw(commandBuffer, renderState);
     }
 
 private:
     float delta;
     Vortex2D::Fluid::Dimensions dimensions;
-    Vortex2D::Renderer::RenderTexture density;
-    Vortex2D::Renderer::Sprite densitySprite;
+    Vortex2D::Fluid::Density density;
     Vortex2D::Fluid::World world;
     Vortex2D::Fluid::DistanceField solidPhi;
 

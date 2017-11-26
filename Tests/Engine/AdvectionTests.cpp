@@ -6,6 +6,7 @@
 #include "Verify.h"
 #include "VariationalHelpers.h"
 #include <Vortex2D/Engine/Advection.h>
+#include <Vortex2D/Engine/Density.h>
 #include <Vortex2D/Engine/Particles.h>
 
 using namespace Vortex2D::Renderer;
@@ -13,7 +14,7 @@ using namespace Vortex2D::Fluid;
 
 extern Device* device;
 
-TEST(AdvectionTests, DISABLED_AdvectVelocity_Simple)
+TEST(AdvectionTests, AdvectVelocity_Simple)
 {
     glm::ivec2 size(50);
 
@@ -38,7 +39,7 @@ TEST(AdvectionTests, DISABLED_AdvectVelocity_Simple)
     CheckVelocity(*device, size, velocity, sim, 1e-5f);
 }
 
-TEST(AdvectionTests, DISABLED_AdvectVelocity_Complex)
+TEST(AdvectionTests, AdvectVelocity_Complex)
 {
     glm::ivec2 size(50);
 
@@ -81,7 +82,7 @@ void PrintRGBA8(Texture& texture)
     std::cout << std::endl;
 }
 
-TEST(AdvectionTests, DISABLED_Advect)
+TEST(AdvectionTests, Advect)
 {
     glm::ivec2 size(10);
 
@@ -100,7 +101,7 @@ TEST(AdvectionTests, DISABLED_Advect)
     });
 
     Texture fieldInput(*device, size.x, size.y, vk::Format::eB8G8R8A8Unorm, true);
-    Texture field(*device, size.x, size.y, vk::Format::eB8G8R8A8Unorm, false);
+    Density field(*device, size, vk::Format::eB8G8R8A8Unorm);
 
     std::vector<glm::u8vec4> fieldData(size.x * size.y);
     fieldData[pos.x + size.x * pos.y].x = 128;
@@ -129,7 +130,7 @@ TEST(AdvectionTests, DISABLED_Advect)
     ASSERT_EQ(128, pixels[pos.x + size.x * pos.y].x);
 }
 
-TEST(AdvectionTests, DISABLED_ParticleAdvect)
+TEST(AdvectionTests, ParticleAdvect)
 {
     glm::ivec2 size(50);
 
@@ -188,7 +189,7 @@ TEST(AdvectionTests, DISABLED_ParticleAdvect)
     }
 }
 
-TEST(AdvectionTests, DISABLED_ParticleProject)
+TEST(AdvectionTests, ParticleProject)
 {
     glm::ivec2 size(50);
 

@@ -54,9 +54,9 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
     mLinearSolver.Init(mData.Diagonal, mData.Lower, mData.B, mData.X);
 }
 
-void World::InitField(Renderer::Texture& field)
+void World::InitField(Density& density)
 {
-    mAdvection.AdvectInit(field);
+    mAdvection.AdvectInit(density);
 }
 
 void World::SolveStatic()
