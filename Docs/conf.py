@@ -18,7 +18,7 @@
 #
 import os
 import sys
-sys.path.insert(1, os.path.abspath('${DOXYREST_SPHINX}'))
+sys.path.insert(1, os.path.abspath(os.environ['DOXYREST_SPHINX']))
 
 # -- General configuration ------------------------------------------------
 
