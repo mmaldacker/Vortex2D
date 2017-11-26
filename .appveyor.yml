@@ -3,10 +3,10 @@ clone_folder: C:\Vortex2D
 platform:
   - x64
 environment:
-  VK_SDK_PATH: "C:\\VulkanSDK\\1.0.54.0\\"
+  VULKAN_SDK: "C:\\VulkanSDK\\1.0.65.0\\"
 install:
 # Download and install Vulkan SDK
-  - appveyor DownloadFile https://vulkan.lunarg.com/sdk/download/1.0.54.0/windows/VulkanSDK-1.0.54.0-Installer.exe -FileName vulkan.exe
+  - appveyor DownloadFile https://vulkan.lunarg.com/sdk/download/1.0.65.0/windows/VulkanSDK-1.0.65.0-Installer.exe -FileName vulkan.exe
   - vulkan.exe /S
 build_script:
   - mkdir build && cd build

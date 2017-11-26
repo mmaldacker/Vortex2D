@@ -364,6 +364,12 @@ TEST(ComputeTests, Checkerboard)
 
 TEST(ComputeTests, Timer)
 {
+    auto properties = device->GetPhysicalDevice().getProperties();
+    if (!properties.limits.timestampComputeAndGraphics)
+    {
+        return;
+    }
+
     glm::ivec2 size(500);
 
     Buffer<float> buffer(*device, size.x*size.y);

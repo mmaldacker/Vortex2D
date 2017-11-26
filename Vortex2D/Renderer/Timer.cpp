@@ -12,6 +12,18 @@ namespace Vortex2D { namespace Renderer {
 namespace
 {
     const int queryCount = 128;
+
+    uint64_t GetMask(uint32_t validBits)
+    {
+        if (validBits == 64)
+        {
+            return -1;
+        }
+        else
+        {
+            return (1 << (validBits + 1)) - 1;
+        }
+    }
 }
 
 Timer::Timer(const Device& device)
@@ -51,9 +63,6 @@ uint64_t Timer::GetElapsedNs()
     mStart.Wait();
     mStop.Wait();
 
-    // TODO set mask using validBits
-    const uint64_t invalidTime = -1;
-
     uint64_t timestamps[2] = {0};
     auto result = mDevice.Handle().getQueryPoolResults(*mPool, 0, 2, sizeof(timestamps), timestamps, 0,
                                                        vk::QueryResultFlagBits::eWait | vk::QueryResultFlagBits::e64);
@@ -74,7 +83,7 @@ uint64_t Timer::GetElapsedNs()
         auto queueProperties = mDevice.GetPhysicalDevice().getQueueFamilyProperties();
         auto validBits = queueProperties[familyIndex].timestampValidBits;
 
-        return ((timestamps[1] & invalidTime) - (timestamps[0] & invalidTime)) * period;
+        return ((timestamps[1] & GetMask(validBits)) - (timestamps[0] & GetMask(validBits))) * period;
     }
     else
     {
