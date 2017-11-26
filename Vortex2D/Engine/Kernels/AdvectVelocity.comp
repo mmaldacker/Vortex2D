@@ -10,8 +10,8 @@ layout(push_constant) uniform Consts
   float delta;
 }consts;
 
-layout(binding = 0, rg32f) uniform image2D Velocity;
-layout(binding = 1, rg32f) uniform image2D OutVelocity;
+layout(binding = 0, rgba32f) uniform image2D Velocity;
+layout(binding = 1, rgba32f) uniform image2D OutVelocity;
 
 #include "CommonAdvect.comp"
 

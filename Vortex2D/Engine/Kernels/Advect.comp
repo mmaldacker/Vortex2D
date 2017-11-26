@@ -11,7 +11,7 @@ layout(push_constant) uniform Consts
   float delta;
 }consts;
 
-layout(binding = 0, rg32f) uniform image2D Velocity;
+layout(binding = 0, rgba32f) uniform image2D Velocity;
 layout(binding = 1, rgba8) uniform image2D Field;
 layout(binding = 2, rgba8) uniform image2D OutField;
 
