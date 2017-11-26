@@ -39,7 +39,7 @@ install:
  - tar xf doxyrest-linux-1.1.0-amd64.tar.xz
  - export DOXYREST_BIN=${TRAVIS_BUILD_DIR}/doxyrest-linux-1.1.0-amd64/bin
  - export DOXYREST_FRAME=${TRAVIS_BUILD_DIR}/doxyrest-linux-1.1.0-amd64/share/doxyrest/frame
- - export DOXYREST_SPHINX=${TRAVIS_BUILD_DIR}/doxyrest-linux-1.1.0-amd64/share/doxyrest/frame
+ - export DOXYREST_SPHINX=${TRAVIS_BUILD_DIR}/doxyrest-linux-1.1.0-amd64/share/doxyrest/sphinx
 # LunarG SDK install
  - wget https://vulkan.lunarg.com/sdk/download/1.0.65.0/linux/vulkansdk-linux-x86_64-1.0.65.0.run
  - chmod +x vulkansdk-linux-x86_64-1.0.65.0.run
