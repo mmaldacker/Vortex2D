@@ -87,7 +87,7 @@ uint64_t Timer::GetElapsedNs()
     }
     else
     {
-        return invalidTime;
+        return -1;
     }
 }
 
