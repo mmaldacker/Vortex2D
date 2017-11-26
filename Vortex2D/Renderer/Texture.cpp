@@ -7,8 +7,6 @@
 
 #include <Vortex2D/Renderer/CommandBuffer.h>
 
-#include <cassert>
-
 namespace Vortex2D { namespace Renderer {
 
 SamplerBuilder::SamplerBuilder()
@@ -47,7 +45,6 @@ Texture::Texture(const Device& device, uint32_t width, uint32_t height, vk::Form
     , mFormat(format)
 {
     auto formatProperties = device.GetPhysicalDevice().getFormatProperties(format);
-    assert(formatProperties.optimalTilingFeatures & vk::FormatFeatureFlagBits::eStorageImage);
 
     // TODO perhaps only set transferSrc or transferDst depending on how it's used?
     vk::ImageUsageFlags usageFlags = vk::ImageUsageFlagBits::eTransferSrc |
