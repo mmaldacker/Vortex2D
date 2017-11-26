@@ -32,9 +32,9 @@ shared int sdata[2 * blockSize + 2 * blockSize / 16];
 
 void ClearLastElementStoreSum()
 {
-    const uint local_id = gl_LocalInvocationID.x;
-    const uint group_size = gl_WorkGroupSize.x;
-    const uint group_id = gl_WorkGroupID.x;
+    uint local_id = gl_LocalInvocationID.x;
+    uint group_size = gl_WorkGroupSize.x;
+    uint group_id = gl_WorkGroupID.x;
 
     if (local_id == 0)
     {
@@ -54,8 +54,8 @@ void PreScanGroupStoreSum()
 
 void main()
 {
-    const uint group_id = gl_WorkGroupID.x;
-    const uint group_size = gl_WorkGroupSize.x;
+    uint group_id = gl_WorkGroupID.x;
+    uint group_size = gl_WorkGroupSize.x;
 
     uint local_index = group_id * group_size * 2;
     uvec4 address_pair = GetAddressMapping(local_index);

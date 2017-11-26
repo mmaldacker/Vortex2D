@@ -25,9 +25,9 @@ shared int sdata[blockSize];
 
 void main()
 {
-    const uint local_id = gl_LocalInvocationID.x;
-    const uint group_id = gl_WorkGroupID.x;
-    const uint group_size = gl_WorkGroupSize.x;
+    uint local_id = gl_LocalInvocationID.x;
+    uint group_id = gl_WorkGroupID.x;
+    uint group_size = gl_WorkGroupSize.x;
 
     if (local_id == 0)
     {
