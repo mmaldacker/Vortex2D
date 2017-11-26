@@ -33,7 +33,7 @@ addons:
 
 install:
 # Doxyrest
- - pip install travis-sphinx sphinx_rtd_theme
+ - pip install --user sphinx sphinx_rtd_theme
  - wget https://github.com/vovkos/doxyrest/releases/download/doxyrest-1.1.0/doxyrest-linux-1.1.0-amd64.tar.xz
  - tar xf https://github.com/vovkos/doxyrest/releases/download/doxyrest-1.1.0/doxyrest-linux-1.1.0-amd64.tar.xz
  - export DOXYREST_BIN = ${TRAVIS_BUILD_DIR}/doxyrest-linux-1.1.0-amd64/bin
