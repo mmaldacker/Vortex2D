@@ -20,6 +20,9 @@ addons:
     sources:
       - ubuntu-toolchain-r-test
     packages:
+      # Modern GCC
+      - gcc-5
+      - g++-5
       # Vortex2D dependencies
       - cmake
       - doxygen
@@ -38,6 +41,10 @@ install:
  - ./build_tools.sh
  - . setup-env.sh
 
+before_script:
+    - sudo ln -s /usr/bin/gcc-5 /usr/local/bin/gcc
+    - sudo ln -s /usr/bin/g++-5 /usr/local/bin/g++
+ 
 script:
   - cd ${TRAVIS_BUILD_DIR}
   - mkdir build && cd build
