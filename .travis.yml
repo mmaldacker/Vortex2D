@@ -22,8 +22,11 @@ env:
 
 addons:
   apt:
+    sources:
+      - ubuntu-toolchain-r-test
     packages:
       # Vortex2D dependencies
+      - cmake
       - doxygen
       # GLFW3 dependencies
       - libxrandr-dev
