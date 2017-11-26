@@ -40,8 +40,8 @@ echo 'Setting up the script...'
 set -e
 
 # Get the current gh-pages branch
-git clone -b gh-pages https://git@$GH_REPO_REF Pages
-cd Pages
+git clone -b gh-pages https://git@$GH_REPO_REF html_output
+cd html_output
 
 ##### Configure git.
 # Set the push default to simple i.e. push only the current branch.
