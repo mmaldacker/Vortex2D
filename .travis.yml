@@ -62,4 +62,4 @@ script:
 # Generate and deploy documentation
 after_success:
   # Compile & Upload docs
-  - cd $TRAVIS_BUILD_DIR/Docs; chmod +x generatePublishDocs.sh; ./generatePublishDocs.sh
+  - cd $TRAVIS_BUILD_DIR/Docs; chmod +x generatePublishDocs.sh; LD_LIBRARY_PATH=/usr/lib/ ./generatePublishDocs.sh
