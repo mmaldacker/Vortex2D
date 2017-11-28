@@ -59,7 +59,7 @@ GenericBuffer::GenericBuffer(const Device& device, vk::BufferUsageFlags usageFla
     mMemory = device.Handle().allocateMemoryUnique(memoryInfo);
     device.Handle().bindBufferMemory(*mBuffer, *mMemory, 0);
 
-    // TODO should we always clear in constructor
+    // TODO we shouldn't have to clear always in the constructor
     ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
     {
         Clear(commandBuffer);
