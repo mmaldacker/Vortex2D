@@ -80,6 +80,16 @@ public:
     }
 };
 
+template<typename T>
+class IndirectBuffer : public GenericBuffer
+{
+public:
+    IndirectBuffer(const Device& device, bool host = false)
+        : GenericBuffer(device, vk::BufferUsageFlagBits::eIndirectBuffer | vk::BufferUsageFlagBits::eStorageBuffer, host, sizeof(T))
+    {
+    }
+};
+
 template<template<typename> class BufferType, typename T>
 class UpdateBuffer : public BufferType<T>
 {

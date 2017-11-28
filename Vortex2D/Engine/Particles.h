@@ -49,8 +49,8 @@ private:
     Renderer::Buffer<int> mIndex;
     Renderer::UpdateStorageBuffer<glm::ivec2> mSeeds;
 
-    Renderer::UpdateStorageBuffer<Renderer::DispatchParams> mDispatchParams;
-    Renderer::Buffer<Renderer::DispatchParams> mNewDispatchParams;
+    Renderer::IndirectBuffer<Renderer::DispatchParams> mDispatchParams;
+    Renderer::Buffer<Renderer::DispatchParams> mLocalDispatchParams, mNewDispatchParams;
 
     Renderer::Work mParticleCountWork;
     Renderer::Work::Bound mParticleCountBound;

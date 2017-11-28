@@ -216,59 +216,64 @@ TEST(ComputeTests, WorkIndirect)
 
     // create bigger buffer than size to check the indirect buffer is correct
     Buffer<float> buffer(*device, 100*size.x*size.y, true);
-    Buffer<DispatchParams> dispatchParams(*device, 1, true);
+    IndirectBuffer<DispatchParams> dispatchParams(*device, true);
 
+    // build work
+    ComputeSize computeSize(16);
+    computeSize.DomainSize.x = 16;
+    computeSize.WorkSize.x = 0;
+    computeSize.LocalSize.x = 8;
+
+    Work work(*device, computeSize, "WorkIndirect.comp.spv");
+    auto bound = work.Bind({buffer, dispatchParams});
+
+    CommandBuffer cmd(*device, true);
+    cmd.Record([&](vk::CommandBuffer commandBuffer)
+    {
+        bound.RecordIndirect(commandBuffer, dispatchParams);
+    });
+
+    // Run first time
     DispatchParams params(1);
     params.workSize.x = 2;
     params.count = 16;
 
     CopyFrom(dispatchParams, params);
 
-    ComputeSize computeSize(16);
-    computeSize.DomainSize.x = 16;
-    computeSize.WorkSize.x = 2;
-    computeSize.LocalSize.x = 8;
+    cmd.Submit();
+    cmd.Wait();
 
-    Work work(*device, computeSize, "WorkIndirect.comp.spv");
-    auto bound = work.Bind({buffer, dispatchParams});
-
-    // Run first time
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-       bound.RecordIndirect(commandBuffer, dispatchParams);
-    });
-
+    // Verify
     std::vector<float> bufferData(100*size.x*size.y);
     for (int i = 0; i < 16; i++)
     {
         bufferData[i] = 1.0f;
     }
 
-    std::vector<float> outputData(100*size.x*size.y);
+    std::vector<float> outputData(100*size.x*size.y, 0.0f);
     CopyTo(buffer, outputData);
 
     ASSERT_EQ(outputData, bufferData);
 
     // Update buffer and run again
-    params.workSize.x = 1;
-    params.count = 8;
+    params.workSize.x = 4;
+    params.count = 32;
 
     CopyFrom(dispatchParams, params);
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-       buffer.Clear(commandBuffer);
-       bound.RecordIndirect(commandBuffer, dispatchParams);
-    });
+    cmd.Submit();
+    cmd.Wait();
 
-    std::vector<float> bufferData2(100*size.x*size.y);
-    for (int i = 0; i < 8; i++)
+    // Verify
+    std::vector<float> bufferData2(100*size.x*size.y, 0.0f);
+    for (int i = 0; i < 32; i++)
     {
         bufferData2[i] = 1.0f;
     }
 
     CopyTo(buffer, outputData);
 
+    ASSERT_NE(outputData, bufferData);
     ASSERT_EQ(outputData, bufferData2);
 }
 

@@ -72,6 +72,7 @@ void main()
         {
             Particle newParticle;
             newParticle.Position = random(pos, seeds.value[i]);
+            newParticle.Velocity = vec2(0.0);
 
             particles.value[scanIndex.value[particleIndex] + i] = newParticle;
         }
