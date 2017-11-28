@@ -47,60 +47,6 @@ static void ICCG(benchmark::State& state)
     }
 }
 
-static void SOR(benchmark::State& state)
-{
-    LinearSolver::Data data(*device, size, false);
-    BuildDeviceLocalLinearEquations(size, data.Diagonal, data.Lower, data.B, sim);
-
-    LinearSolver::Parameters params(10000, 1e-4f);
-    GaussSeidel solver(*device, size);
-
-    Timer timer(*device);
-
-    solver.Init(data.Diagonal, data.Lower, data.B, data.X);
-
-    while (state.KeepRunning())
-    {
-        timer.Start();
-        solver.Solve(params);
-        timer.Stop();
-
-        device->Queue().waitIdle();
-
-        state.SetIterationTime(timer.GetElapsedNs());
-    }
-
-    state.counters["SolveIterations"] = params.OutIterations;
-}
-
-static void CG(benchmark::State& state)
-{
-    LinearSolver::Data data(*device, size, false);
-    BuildDeviceLocalLinearEquations(size, data.Diagonal, data.Lower, data.B, sim);
-
-    Diagonal preconditioner(*device, size);
-
-    LinearSolver::Parameters params(10000, 1e-4f);
-    ConjugateGradient solver(*device, size, preconditioner);
-
-    Timer timer(*device);
-
-    solver.Init(data.Diagonal, data.Lower, data.B, data.X);
-
-    while (state.KeepRunning())
-    {
-        timer.Start();
-        solver.NormalSolve(params);
-        timer.Stop();
-
-        device->Queue().waitIdle();
-
-        state.SetIterationTime(timer.GetElapsedNs());
-    }
-
-    state.counters["SolveIterations"] = params.OutIterations;
-}
-
 static void DiagonalCG(benchmark::State& state)
 {
     LinearSolver::Data data(*device, size, false);
@@ -249,8 +195,6 @@ static void MultigridCG(benchmark::State& state)
 }
 
 BENCHMARK(ICCG)->Unit(benchmark::kMillisecond);
-BENCHMARK(SOR)->Unit(benchmark::kMillisecond);
-BENCHMARK(CG)->Unit(benchmark::kMillisecond);
 BENCHMARK(DiagonalCG)->Unit(benchmark::kMillisecond);
 BENCHMARK(IncompletePoissonCG)->Unit(benchmark::kMillisecond);
 BENCHMARK(GaussSeidelCG)->Unit(benchmark::kMillisecond);

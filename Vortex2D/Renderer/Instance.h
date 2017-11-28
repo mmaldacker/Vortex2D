@@ -11,6 +11,8 @@
 #include <string>
 #include <vector>
 
+#define VK_LAYER_LUNARG_STANDARD_VALIDATION_NAME "VK_LAYER_LUNARG_standard_validation"
+
 namespace Vortex2D { namespace Renderer {
 
 class Instance
@@ -27,8 +29,8 @@ private:
     vk::UniqueDebugReportCallbackEXT mDebugCallback;
 };
 
-void RemoveInexistingExtensions(std::vector<const char*>& list, const std::vector<vk::ExtensionProperties>& available);
-void RemoveInexistingLayers(std::vector<const char*>& list, const std::vector<vk::LayerProperties>& available);
+bool HasLayer(const char* extension, const std::vector<vk::LayerProperties>& availableExtensions);
+bool HasExtension(const char* extension, const std::vector<vk::ExtensionProperties>& availableExtensions);
 
 }}
 

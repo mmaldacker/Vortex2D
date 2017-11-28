@@ -295,38 +295,6 @@ TEST(LinearSolverTests, LocalGaussSeidel)
     CheckPressure(size, sim.pressure, data.X, 1e-1f); // TODO make number of iterations configurable and increase this
 }
 
-TEST(LinearSolverTests, Simple_CG)
-{
-    glm::ivec2 size(50);
-
-    FluidSim sim;
-    sim.initialize(1.0f, size.x, size.y);
-    sim.set_boundary(boundary_phi);
-
-    AddParticles(size, sim, boundary_phi);
-
-    sim.add_force(0.01f);
-    sim.project(0.01f);
-
-    LinearSolver::Data data(*device, size, true);
-
-    BuildLinearEquation(size, data.Diagonal, data.Lower, data.B, sim);
-
-    Diagonal preconditioner(*device, size);
-
-    LinearSolver::Parameters params(1000, 1e-5f);
-    ConjugateGradient solver(*device, size, preconditioner);
-
-    solver.Init(data.Diagonal, data.Lower, data.B, data.X);
-    solver.NormalSolve(params);
-
-    device->Queue().waitIdle();
-
-    CheckPressure(size, sim.pressure, data.X, 1e-3f); // TODO somehow error is bigger than 1e-5
-
-    std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
-}
-
 TEST(LinearSolverTests, Diagonal_Simple_PCG)
 {
     glm::ivec2 size(50);
@@ -423,36 +391,6 @@ TEST(LinearSolverTests, IncompletePoisson_Simple_PCG)
     CheckPressure(size, sim.pressure, data.X, 1e-5f);
 
     std::cout << "Solved with number of iterations: " << params.OutIterations << std::endl;
-}
-
-TEST(LinearSolverTests, Zero_CG)
-{
-    glm::vec2 size(50);
-
-    LinearSolver::Data data(*device, size, true);
-
-    Diagonal preconditioner(*device, size);
-
-    LinearSolver::Parameters params(1000, 1e-5f);
-    ConjugateGradient solver(*device, size, preconditioner);
-
-    solver.Init(data.Diagonal, data.Lower, data.B, data.X);
-    solver.NormalSolve(params);
-
-    device->Queue().waitIdle();
-
-    ASSERT_EQ(0, params.OutIterations);
-
-    std::vector<float> pressureData(size.x*size.y, 1.0f);
-    CopyTo(data.X, pressureData);
-
-    for (int i = 0; i < size.x; i++)
-    {
-        for (int j = 0; j < size.y; j++)
-        {
-            EXPECT_FLOAT_EQ(0.0f, pressureData[i + size.x * j]);
-        }
-    }
 }
 
 TEST(LinearSolverTests, Zero_PCG)

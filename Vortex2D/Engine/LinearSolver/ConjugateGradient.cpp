@@ -33,16 +33,12 @@ ConjugateGradient::ConjugateGradient(const Renderer::Device& device,
     , reduceSumRhoBound(reduceSum.Bind(inner, rho))
     , reduceSumSigmaBound(reduceSum.Bind(inner, sigma))
     , reduceSumRhoNewBound(reduceSum.Bind(inner, rho_new))
-    , multiplyRBound(scalarMultiply.Bind({r, r, inner}))
     , multiplySBound(scalarMultiply.Bind({z, s, inner}))
     , multiplyZBound(scalarMultiply.Bind({z, r, inner}))
     , divideRhoBound(scalarDivision.Bind({rho, sigma, alpha}))
     , divideRhoNewBound(scalarDivision.Bind({rho_new, rho, beta}))
     , multiplySubRBound(multiplySub.Bind({r, z, alpha, r}))
-    , multiplyAddSBound(multiplyAdd.Bind({r, s, beta, s}))
     , multiplyAddZBound(multiplyAdd.Bind({z, s, beta, s}))
-    , mNormalSolveInit(device, false)
-    , mNormalSolve(device, false)
     , mSolveInit(device, false)
     , mSolve(device, false)
     , mErrorRead(device)
@@ -65,74 +61,6 @@ void ConjugateGradient::Init(Renderer::GenericBuffer& d,
 
     matrixMultiplyBound = matrixMultiply.Bind({d, l, s, z});
     multiplyAddPBound = multiplyAdd.Bind({pressure, s, alpha, pressure});
-
-    mNormalSolveInit.Record([&](vk::CommandBuffer commandBuffer)
-    {
-        // r = b
-        r.CopyFrom(commandBuffer, b);
-
-        // calculate error
-        reduceMaxBound.Record(commandBuffer);
-        error.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-
-        // p = 0
-        pressure.Clear(commandBuffer);
-
-        // s = r
-        s.CopyFrom(commandBuffer, r);
-
-        // rho = rTr
-        multiplyRBound.Record(commandBuffer);
-        inner.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-        reduceSumRhoBound.Record(commandBuffer);
-        rho.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-    });
-
-    mNormalSolve.Record([&](vk::CommandBuffer commandBuffer)
-    {
-        // z = As
-        matrixMultiplyBound.Record(commandBuffer);
-        z.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-
-        // sigma = zTs
-        multiplySBound.Record(commandBuffer);
-        inner.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-        reduceSumSigmaBound.Record(commandBuffer);
-        sigma.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-
-        // alpha = rho / sigma
-        divideRhoBound.Record(commandBuffer);
-        alpha.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-
-        // p = p + alpha * s
-        multiplyAddPBound.Record(commandBuffer);
-        pressure.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-
-        // r = r - alpha * z
-        multiplySubRBound.Record(commandBuffer);
-        r.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-
-        // calculate max error
-        reduceMaxBound.Record(commandBuffer);
-        error.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-
-        // rho_new = rTr
-        multiplyRBound.Record(commandBuffer);
-        inner.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-        reduceSumRhoNewBound.Record(commandBuffer);
-        rho_new.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-
-        // beta = rho_new / rho
-        divideRhoNewBound.Record(commandBuffer);
-        beta.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-
-        // s = r + beta * s
-        multiplyAddSBound.Record(commandBuffer);
-        s.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-
-        // rho = rho_new
-        rho.CopyFrom(commandBuffer, rho_new);
-    });
 
     mSolveInit.Record([&](vk::CommandBuffer commandBuffer)
     {
@@ -248,29 +176,6 @@ void ConjugateGradient::Solve(Parameters& params)
 
         mErrorRead.Submit();
         mSolve.Submit();
-    }
-}
-
-void ConjugateGradient::NormalSolve(Parameters& params)
-{
-    mNormalSolveInit.Submit();
-    mErrorRead.Submit();
-
-    for (unsigned i = 0 ;; ++i)
-    {
-        // exit condition
-        mErrorRead.Wait();
-
-        params.OutIterations = i;
-        Renderer::CopyTo(error, params.OutError);
-        // TODO should divide by the initial error
-        if (params.IsFinished(i, params.OutError))
-        {
-            return;
-        }
-
-        mErrorRead.Submit();
-        mNormalSolve.Submit();
     }
 }
 

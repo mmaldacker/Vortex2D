@@ -77,12 +77,16 @@ Device::Device(vk::PhysicalDevice physicalDevice, int familyIndex, bool validati
             .setQueueCount(1)
             .setPQueuePriorities(&queuePriority);
 
-    std::vector<const char*> validationLayers = {"VK_LAYER_LUNARG_standard_validation"};
+    // this should always be available
     std::vector<const char*> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
     // make sure we request valid layers only
     auto availableLayers = physicalDevice.enumerateDeviceLayerProperties();
-    RemoveInexistingLayers(validationLayers, availableLayers);
+    std::vector<const char*> validationLayers;
+    if (validation && HasLayer(VK_LAYER_LUNARG_STANDARD_VALIDATION_NAME, availableLayers))
+    {
+      validationLayers.push_back(VK_LAYER_LUNARG_STANDARD_VALIDATION_NAME);
+    }
 
     // create queue
     auto deviceFeatures = vk::PhysicalDeviceFeatures()
@@ -92,14 +96,9 @@ Device::Device(vk::PhysicalDevice physicalDevice, int familyIndex, bool validati
             .setPQueueCreateInfos(&deviceQueueInfo)
             .setPEnabledFeatures(&deviceFeatures)
             .setEnabledExtensionCount((uint32_t)deviceExtensions.size())
-            .setPpEnabledExtensionNames(deviceExtensions.data());
-
-    // add the validation layer if necessary
-    if (validation)
-    {
-        deviceInfo.setEnabledLayerCount((uint32_t)validationLayers.size());
-        deviceInfo.setPpEnabledLayerNames(validationLayers.data());
-    }
+            .setPpEnabledExtensionNames(deviceExtensions.data())
+            .setEnabledLayerCount((uint32_t)validationLayers.size())
+            .setPpEnabledLayerNames(validationLayers.data());
 
     mDevice = physicalDevice.createDeviceUnique(deviceInfo);
     mQueue = mDevice->getQueue(familyIndex, 0);

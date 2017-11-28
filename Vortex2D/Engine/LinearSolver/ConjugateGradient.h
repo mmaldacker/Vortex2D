@@ -34,8 +34,6 @@ public:
      */
     void Solve(Parameters& params) override;
 
-    void NormalSolve(Parameters& params);
-
     Renderer::Statistics::Timestamps GetStatistics();
 
 private:
@@ -49,13 +47,12 @@ private:
 
     ReduceMax::Bound reduceMaxBound;
     ReduceSum::Bound reduceSumRhoBound, reduceSumSigmaBound, reduceSumRhoNewBound;
-    Renderer::Work::Bound multiplyRBound, multiplySBound, multiplyZBound;
+    Renderer::Work::Bound multiplySBound, multiplyZBound;
     Renderer::Work::Bound matrixMultiplyBound;
     Renderer::Work::Bound divideRhoBound;
     Renderer::Work::Bound divideRhoNewBound;
-    Renderer::Work::Bound multiplyAddPBound, multiplySubRBound, multiplyAddSBound, multiplyAddZBound;
+    Renderer::Work::Bound multiplyAddPBound, multiplySubRBound, multiplyAddZBound;
 
-    Renderer::CommandBuffer mNormalSolveInit, mNormalSolve;
     Renderer::CommandBuffer mSolveInit, mSolve;
     Renderer::CommandBuffer mErrorRead;
 

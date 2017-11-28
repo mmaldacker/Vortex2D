@@ -28,10 +28,19 @@ void Instance::Create(const std::string& name, std::vector<const char*> extensio
     // load symbols
     if (!vkLoaderInit()) throw std::runtime_error("cannot load vulkan library!");
 
+    auto availableLayers = vk::enumerateInstanceLayerProperties();
+    auto availableExtensions = vk::enumerateInstanceExtensionProperties();
+
     // add the validation extension if necessary
-    if (validation)
+    if (validation && HasExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME, availableExtensions))
     {
         extensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+    }
+
+    std::vector<const char*> validationLayers;
+    if (validation && HasLayer(VK_LAYER_LUNARG_STANDARD_VALIDATION_NAME, availableLayers))
+    {
+        validationLayers.push_back(VK_LAYER_LUNARG_STANDARD_VALIDATION_NAME);
     }
 
     // configure instance
@@ -39,27 +48,13 @@ void Instance::Create(const std::string& name, std::vector<const char*> extensio
             .setPApplicationName(name.c_str())
             .setApiVersion(VK_MAKE_VERSION(1, 0, 65));
 
-    std::vector<const char*> validationLayers = {"VK_LAYER_LUNARG_standard_validation"};
-
-    // make sure we request available layers
-    auto availableLayers = vk::enumerateInstanceLayerProperties();
-    RemoveInexistingLayers(validationLayers, availableLayers);
-
-    auto availableExtensions = vk::enumerateInstanceExtensionProperties();
-    RemoveInexistingExtensions(extensions, availableExtensions);
-
     vk::InstanceCreateInfo instanceInfo;
     instanceInfo
             .setPApplicationInfo(&appInfo)
             .setEnabledExtensionCount((uint32_t)extensions.size())
-            .setPpEnabledExtensionNames(extensions.data());
-
-    // add the validation layer if necessary
-    if (validation)
-    {
-        instanceInfo.setEnabledLayerCount((uint32_t)validationLayers.size());
-        instanceInfo.setPpEnabledLayerNames(validationLayers.data());
-    }
+            .setPpEnabledExtensionNames(extensions.data())
+            .setEnabledLayerCount((uint32_t)validationLayers.size())
+            .setPpEnabledLayerNames(validationLayers.data());
 
     mInstance = vk::createInstanceUnique(instanceInfo);
 
@@ -67,7 +62,7 @@ void Instance::Create(const std::string& name, std::vector<const char*> extensio
     if (!vkLoaderInstanceInit(static_cast<VkInstance>(*mInstance))) throw std::runtime_error("cannot load instance procs");
 
     // add the validation calback if necessary
-    if (validation)
+    if (validation && HasExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME, availableExtensions))
     {
         vk::DebugReportCallbackCreateInfoEXT debugCallbackInfo;
         debugCallbackInfo
@@ -98,46 +93,26 @@ vk::Instance Instance::GetInstance() const
     return *mInstance;
 }
 
-void RemoveInexistingLayers(std::vector<const char*>& list, const std::vector<vk::LayerProperties>& available)
+bool HasLayer(const char* extension, const std::vector<vk::LayerProperties>& availableExtensions)
 {
-    for (auto it = list.begin(); it != list.end();)
-    {
-        auto find_it = std::find_if(available.begin(), available.end(),
-            [&](const vk::LayerProperties& layer)
-            {
-                return std::strcmp(*it, layer.layerName) == 0;
-            });
+  auto find_it = std::find_if(availableExtensions.begin(), availableExtensions.end(),
+      [&](const vk::LayerProperties& layer)
+      {
+          return std::strcmp(extension, layer.layerName) == 0;
+      });
 
-        if (find_it == available.end())
-        {
-            it = list.erase(it);
-        }
-        else
-        {
-            it++;
-        }
-    }
+  return find_it != availableExtensions.end();
 }
 
-void RemoveInexistingExtensions(std::vector<const char*>& list, const std::vector<vk::ExtensionProperties>& available)
+bool HasExtension(const char* extension, const std::vector<vk::ExtensionProperties>& availableExtensions)
 {
-    for (auto it = list.begin(); it != list.end();)
-    {
-        auto find_it = std::find_if(available.begin(), available.end(),
-            [&](const vk::ExtensionProperties& layer)
-            {
-                return std::strcmp(*it, layer.extensionName) == 0;
-            });
+  auto find_it = std::find_if(availableExtensions.begin(), availableExtensions.end(),
+      [&](const vk::ExtensionProperties& layer)
+      {
+          return std::strcmp(extension, layer.extensionName) == 0;
+      });
 
-        if (find_it == available.end())
-        {
-            it = list.erase(it);
-        }
-        else
-        {
-            it++;
-        }
-    }
+  return find_it != availableExtensions.end();
 }
 
 }}
