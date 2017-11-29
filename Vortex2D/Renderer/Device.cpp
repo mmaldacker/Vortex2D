@@ -79,13 +79,23 @@ Device::Device(vk::PhysicalDevice physicalDevice, int familyIndex, bool validati
 
     // this should always be available
     std::vector<const char*> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+    std::vector<const char*> validationLayers;
 
     // make sure we request valid layers only
     auto availableLayers = physicalDevice.enumerateDeviceLayerProperties();
-    std::vector<const char*> validationLayers;
-    if (validation && HasLayer(VK_LAYER_LUNARG_STANDARD_VALIDATION_NAME, availableLayers))
+    auto availableExtensions = physicalDevice.enumerateDeviceExtensionProperties();
+
+    // add validation extensions and layers
+    if (validation)
     {
-      validationLayers.push_back(VK_LAYER_LUNARG_STANDARD_VALIDATION_NAME);
+        if (HasLayer(VK_LAYER_LUNARG_STANDARD_VALIDATION_NAME, availableLayers))
+        {
+            validationLayers.push_back(VK_LAYER_LUNARG_STANDARD_VALIDATION_NAME);
+        }
+        if (HasExtension(VK_EXT_DEBUG_MARKER_EXTENSION_NAME, availableExtensions))
+        {
+            deviceExtensions.push_back(VK_EXT_DEBUG_MARKER_EXTENSION_NAME);
+        }
     }
 
     // create queue
@@ -102,6 +112,12 @@ Device::Device(vk::PhysicalDevice physicalDevice, int familyIndex, bool validati
 
     mDevice = physicalDevice.createDeviceUnique(deviceInfo);
     mQueue = mDevice->getQueue(familyIndex, 0);
+
+    // load device extensions symbols
+    for (auto& extension: deviceExtensions)
+    {
+        vkLoaderDeviceExtensionInit(static_cast<VkDevice>(*mDevice), extension);
+    }
 
     // create command pool
     auto commandPoolInfo = vk::CommandPoolCreateInfo()

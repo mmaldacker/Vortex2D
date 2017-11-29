@@ -36,7 +36,7 @@ class Pressure;
 class Multigrid : public Preconditioner
 {
 public:
-    Multigrid(const Renderer::Device& device, const glm::ivec2& size, float delta, bool statistics = false);
+    Multigrid(const Renderer::Device& device, const glm::ivec2& size, float delta);
 
     void Init(Renderer::GenericBuffer& d,
               Renderer::GenericBuffer& l,
@@ -51,9 +51,7 @@ public:
 
     void Record(vk::CommandBuffer commandBuffer) override;
 
-    Renderer::Statistics::Timestamps GetStatistics();
-
-//private:
+private:
     void Smoother(vk::CommandBuffer commandBuffer, int n, int iterations);
 
     void BindRecursive(Pressure& pressure, std::size_t depth);
@@ -89,9 +87,6 @@ public:
     LocalGaussSeidel mSmoother;
 
     Renderer::CommandBuffer mBuildHierarchies;
-
-    bool mEnableStatistics;
-    Renderer::Statistics mStatistics;
 };
 
 }}

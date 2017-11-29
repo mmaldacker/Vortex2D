@@ -23,7 +23,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugReportFlagsEXT flags,
 
 namespace Vortex2D { namespace Renderer {
 
-void Instance::Create(const std::string& name, std::vector<const char*> extensions, bool validation)
+void Instance::Create(const std::string& name, std::vector<const char*> extraExtensions, bool validation)
 {
     // load symbols
     if (!vkLoaderInit()) throw std::runtime_error("cannot load vulkan library!");
@@ -31,16 +31,29 @@ void Instance::Create(const std::string& name, std::vector<const char*> extensio
     auto availableLayers = vk::enumerateInstanceLayerProperties();
     auto availableExtensions = vk::enumerateInstanceExtensionProperties();
 
+    std::vector<const char*> layers;
+    std::vector<const char*> extensions;
+
     // add the validation extension if necessary
-    if (validation && HasExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME, availableExtensions))
+    if (validation)
     {
-        extensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+        if (HasExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME, availableExtensions))
+        {
+            extensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+        }
+        if (HasLayer(VK_LAYER_LUNARG_STANDARD_VALIDATION_NAME, availableLayers))
+        {
+            layers.push_back(VK_LAYER_LUNARG_STANDARD_VALIDATION_NAME);
+        }
     }
 
-    std::vector<const char*> validationLayers;
-    if (validation && HasLayer(VK_LAYER_LUNARG_STANDARD_VALIDATION_NAME, availableLayers))
+    // add extra extensions
+    for (auto& extension: extraExtensions)
     {
-        validationLayers.push_back(VK_LAYER_LUNARG_STANDARD_VALIDATION_NAME);
+        if (HasExtension(extension, availableExtensions))
+        {
+            extensions.push_back(extension);
+        }
     }
 
     // configure instance
@@ -53,13 +66,17 @@ void Instance::Create(const std::string& name, std::vector<const char*> extensio
             .setPApplicationInfo(&appInfo)
             .setEnabledExtensionCount((uint32_t)extensions.size())
             .setPpEnabledExtensionNames(extensions.data())
-            .setEnabledLayerCount((uint32_t)validationLayers.size())
-            .setPpEnabledLayerNames(validationLayers.data());
+            .setEnabledLayerCount((uint32_t)layers.size())
+            .setPpEnabledLayerNames(layers.data());
 
     mInstance = vk::createInstanceUnique(instanceInfo);
 
     // load symbols
     if (!vkLoaderInstanceInit(static_cast<VkInstance>(*mInstance))) throw std::runtime_error("cannot load instance procs");
+    for (auto& extension: extensions)
+    {
+        vkLoaderInstanceExtensionInit(static_cast<VkInstance>(*mInstance), extension);
+    }
 
     // add the validation calback if necessary
     if (validation && HasExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME, availableExtensions))

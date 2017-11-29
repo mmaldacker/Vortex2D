@@ -100,12 +100,6 @@ static void IncompletePoissonCG(benchmark::State& state)
         state.SetIterationTime(timer.GetElapsedNs());
     }
 
-    auto statistics = solver.GetStatistics();
-    for (auto statistic: statistics)
-    {
-        std::cout << statistic.first << ": " << (float)statistic.second / 1000 << std::endl;
-    }
-
     state.counters["SolveIterations"] = params.OutIterations;
 }
 
@@ -134,12 +128,6 @@ static void GaussSeidelCG(benchmark::State& state)
         device->Queue().waitIdle();
 
         state.SetIterationTime(timer.GetElapsedNs());
-    }
-
-    auto statistics = solver.GetStatistics();
-    for (auto statistic: statistics)
-    {
-        std::cout << statistic.first << ": " << (float)statistic.second / 1000 << std::endl;
     }
 
     state.counters["SolveIterations"] = params.OutIterations;
@@ -183,12 +171,6 @@ static void MultigridCG(benchmark::State& state)
         device->Queue().waitIdle();
 
         state.SetIterationTime(timer.GetElapsedNs());
-    }
-
-    auto statistics = preconditioner.GetStatistics();
-    for (auto statistic: statistics)
-    {
-        std::cout << statistic.first << ": " << (float)statistic.second / 1000 << std::endl;
     }
 
     state.counters["SolveIterations"] = params.OutIterations;

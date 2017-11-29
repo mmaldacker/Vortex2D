@@ -23,6 +23,7 @@ Extrapolation::Extrapolation(const Renderer::Device& device,
 {
     mExtrapolateCmd.Record([&, iterations](vk::CommandBuffer commandBuffer)
     {
+        commandBuffer.debugMarkerBeginEXT({"Extrapolate", {{ 0.60f, 0.87f, 0.12f, 1.0f}}});
         for (int i = 0; i < iterations / 2; i++)
         {
             mExtrapolateVelocityFrontBound.Record(commandBuffer);
@@ -44,6 +45,7 @@ Extrapolation::Extrapolation(const Renderer::Device& device,
                           vk::AccessFlagBits::eShaderWrite,
                           vk::AccessFlagBits::eShaderRead);
         }
+        commandBuffer.debugMarkerEndEXT();
     });
 }
 
@@ -58,6 +60,7 @@ void Extrapolation::ConstrainInit(Renderer::Texture& solidVelocity, Renderer::Te
 
     mConstrainCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
+        commandBuffer.debugMarkerBeginEXT({"Constrain Velocity", {{ 0.82f, 0.20f, 0.20f, 1.0f}}});
         mConstrainVelocityBound.Record(commandBuffer);
         mTempVelocity.Barrier(commandBuffer,
                           vk::ImageLayout::eGeneral,
@@ -65,6 +68,7 @@ void Extrapolation::ConstrainInit(Renderer::Texture& solidVelocity, Renderer::Te
                           vk::ImageLayout::eGeneral,
                           vk::AccessFlagBits::eShaderRead);
         mVelocity.CopyFrom(commandBuffer, mTempVelocity);
+        commandBuffer.debugMarkerEndEXT();
     });
 }
 

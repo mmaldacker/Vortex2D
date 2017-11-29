@@ -54,7 +54,9 @@ void LevelSet::ExtrapolateInit(Renderer::Texture& solidPhi)
     mExtrapolateBound = mExtrapolate.Bind({solidPhi, *this});
     mExtrapolateCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
+        commandBuffer.debugMarkerBeginEXT({"Extrapolate phi", {{ 0.53f, 0.09f, 0.16f, 1.0f}}});
         ExtrapolateRecord(commandBuffer);
+        commandBuffer.debugMarkerEndEXT();
     });
 }
 

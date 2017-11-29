@@ -35,7 +35,7 @@ glm::ivec2 Depth::GetDepthSize(int i) const
     return mDepths[i];
 }
 
-Multigrid::Multigrid(const Renderer::Device& device, const glm::ivec2& size, float delta, bool statistics)
+Multigrid::Multigrid(const Renderer::Device& device, const glm::ivec2& size, float delta)
     : mDepth(size)
     , mDelta(delta)
     , mResidualWork(device, size, "../Vortex2D/Residual.comp.spv")
@@ -43,8 +43,6 @@ Multigrid::Multigrid(const Renderer::Device& device, const glm::ivec2& size, flo
     , mPhiScaleWork(device, size, "../Vortex2D/PhiScale.comp.spv")
     , mSmoother(device, mDepth.GetDepthSize(mDepth.GetMaxDepth()))
     , mBuildHierarchies(device, false)
-    , mEnableStatistics(statistics)
-    , mStatistics(device)
 {
     for (int i = 1; i <= mDepth.GetMaxDepth(); i++)
     {
@@ -99,6 +97,7 @@ void Multigrid::BuildHierarchiesInit(Pressure& pressure,
 
     mBuildHierarchies.Record([&](vk::CommandBuffer commandBuffer)
     {
+        commandBuffer.debugMarkerBeginEXT({"Build hierarchies", {{ 0.36f, 0.85f, 0.55f, 1.0f}}});
         for (std::size_t i = 0; i < mDepth.GetMaxDepth(); i++)
         {
             mLiquidPhiScaleWorkBound[i].Record(commandBuffer);
@@ -127,6 +126,7 @@ void Multigrid::BuildHierarchiesInit(Pressure& pressure,
         mMatrixBuildBound[maxDepth - 1].Record(commandBuffer);
         mDatas[maxDepth - 1].Diagonal.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         mDatas[maxDepth - 1].Lower.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        commandBuffer.debugMarkerEndEXT();
     });
 }
 
@@ -191,49 +191,35 @@ void Multigrid::Smoother(vk::CommandBuffer commandBuffer, int n, int iterations)
 
 void Multigrid::Record(vk::CommandBuffer commandBuffer)
 {
-    const int numIterations = 2;
+    commandBuffer.debugMarkerBeginEXT({"Multigrid", {{ 0.48f, 0.25f, 0.19f, 1.0f}}});
 
-    if (mEnableStatistics) mStatistics.Start(commandBuffer);
+    const int numIterations = 2;
 
     assert(mPressure != nullptr);
     mPressure->Clear(commandBuffer);
 
-    if (mEnableStatistics) mStatistics.Tick(commandBuffer, "clear");
-
     for (int i = 0; i < mDepth.GetMaxDepth(); i++)
     {
         Smoother(commandBuffer, i, numIterations);
-        if (mEnableStatistics) mStatistics.Tick(commandBuffer, "smoother " + std::to_string(i));
 
         mResidualWorkBound[i].Record(commandBuffer);
         mResiduals[i].Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-        if (mEnableStatistics) mStatistics.Tick(commandBuffer, "residual " + std::to_string(i));
 
         mTransfer.Restrict(commandBuffer, i);
-        if (mEnableStatistics) mStatistics.Tick(commandBuffer, "transfer " + std::to_string(i));
 
         mDatas[i].X.Clear(commandBuffer);
-        if (mEnableStatistics) mStatistics.Tick(commandBuffer, "clear " + std::to_string(i));
     }
 
     mSmoother.Record(commandBuffer);
-    if (mEnableStatistics) mStatistics.Tick(commandBuffer, "smoother max");
 
     for (int i = mDepth.GetMaxDepth() - 1; i >= 0; --i)
     {
         mTransfer.Prolongate(commandBuffer, i);
-        if (mEnableStatistics) mStatistics.Tick(commandBuffer, "prolongate " + std::to_string(i));
 
         Smoother(commandBuffer, i, numIterations);
-        if (mEnableStatistics) mStatistics.Tick(commandBuffer, "smoother " + std::to_string(i));
     }
 
-    if (mEnableStatistics) mStatistics.End(commandBuffer, "end");
-}
-
-Renderer::Statistics::Timestamps Multigrid::GetStatistics()
-{
-    return mStatistics.GetTimestamps();
+    commandBuffer.debugMarkerEndEXT();
 }
 
 }}

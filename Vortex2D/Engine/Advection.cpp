@@ -70,9 +70,11 @@ void Advection::AdvectParticleInit(Renderer::GenericBuffer& particles,
     mAdvectParticlesBound = mAdvectParticles.Bind(mSize, {particles, dispatchParams, mVelocity, levelSet});
     mAdvectParticlesCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
-       mAdvectParticlesBound.PushConstant(commandBuffer, 8, mDt);
-       mAdvectParticlesBound.RecordIndirect(commandBuffer, dispatchParams);
-       particles.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        commandBuffer.debugMarkerBeginEXT({"Particle advect", {{ 0.09f, 0.17f, 0.36f, 1.0f}}});
+        mAdvectParticlesBound.PushConstant(commandBuffer, 8, mDt);
+        mAdvectParticlesBound.RecordIndirect(commandBuffer, dispatchParams);
+        particles.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        commandBuffer.debugMarkerEndEXT();
     });
 }
 

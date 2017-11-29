@@ -22,7 +22,7 @@ namespace Vortex2D { namespace Fluid {
 class ConjugateGradient : public LinearSolver
 {
 public:
-    ConjugateGradient(const Renderer::Device& device, const glm::ivec2& size, Preconditioner& preconditioner, bool statistics = false);
+    ConjugateGradient(const Renderer::Device& device, const glm::ivec2& size, Preconditioner& preconditioner);
 
     void Init(Renderer::GenericBuffer& d,
               Renderer::GenericBuffer& l,
@@ -33,8 +33,6 @@ public:
      * @brief Solve iteratively solve the linear equations in data
      */
     void Solve(Parameters& params) override;
-
-    Renderer::Statistics::Timestamps GetStatistics();
 
 private:
     Preconditioner& mPreconditioner;
@@ -55,9 +53,6 @@ private:
 
     Renderer::CommandBuffer mSolveInit, mSolve;
     Renderer::CommandBuffer mErrorRead;
-
-    bool mEnableStatistics;
-    Renderer::Statistics mStatistics;
 };
 
 }}

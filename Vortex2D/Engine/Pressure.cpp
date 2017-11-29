@@ -37,22 +37,26 @@ Pressure::Pressure(const Renderer::Device& device,
 {
     mBuildEquationCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
+        commandBuffer.debugMarkerBeginEXT({"Build equations", {{ 0.02f, 0.68f, 0.84f, 1.0f}}});
         mBuildMatrixBound.PushConstant(commandBuffer, 8, dt);
         mBuildMatrixBound.Record(commandBuffer);
         data.Diagonal.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         data.Lower.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         mBuildDivBound.Record(commandBuffer);
         data.B.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        commandBuffer.debugMarkerEndEXT();
     });
 
     mProjectCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
+        commandBuffer.debugMarkerBeginEXT({"Pressure", {{ 0.45f, 0.47f, 0.75f, 1.0f}}});
         valid.Clear(commandBuffer);
         mProjectBound.PushConstant(commandBuffer, 8, dt);
         mProjectBound.Record(commandBuffer);
         velocity.Barrier(commandBuffer,
                          vk::ImageLayout::eGeneral, vk::AccessFlagBits::eShaderWrite,
                          vk::ImageLayout::eGeneral, vk::AccessFlagBits::eShaderRead);
+        commandBuffer.debugMarkerEndEXT();
     });
 
 }

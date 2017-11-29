@@ -9,8 +9,7 @@ namespace Vortex2D { namespace Fluid {
 
 ConjugateGradient::ConjugateGradient(const Renderer::Device& device,
                                      const glm::ivec2& size,
-                                     Preconditioner& preconditioner,
-                                     bool statistics)
+                                     Preconditioner& preconditioner)
     : mPreconditioner(preconditioner)
     , r(device, size.x*size.y)
     , s(device, size.x*size.y)
@@ -42,8 +41,6 @@ ConjugateGradient::ConjugateGradient(const Renderer::Device& device,
     , mSolveInit(device, false)
     , mSolve(device, false)
     , mErrorRead(device)
-    , mEnableStatistics(statistics)
-    , mStatistics(device)
 {
 
     mErrorRead.Record([&](vk::CommandBuffer commandBuffer)
@@ -64,6 +61,8 @@ void ConjugateGradient::Init(Renderer::GenericBuffer& d,
 
     mSolveInit.Record([&](vk::CommandBuffer commandBuffer)
     {
+        commandBuffer.debugMarkerBeginEXT({"PCG Init", {{ 0.63f, 0.04f, 0.66f, 1.0f}}});
+
         // r = b
         r.CopyFrom(commandBuffer, b);
 
@@ -87,72 +86,63 @@ void ConjugateGradient::Init(Renderer::GenericBuffer& d,
         inner.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         reduceSumRhoBound.Record(commandBuffer);
         rho.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+
+        commandBuffer.debugMarkerEndEXT();
     });
 
     mSolve.Record([&](vk::CommandBuffer commandBuffer)
     {
-        if (mEnableStatistics) mStatistics.Start(commandBuffer);
+        commandBuffer.debugMarkerBeginEXT({"PCG Step", {{ 0.51f, 0.90f, 0.72f, 1.0f}}});
 
         // z = As
         matrixMultiplyBound.Record(commandBuffer);
         z.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-        if (mEnableStatistics) mStatistics.Tick(commandBuffer, "z=As");
 
         // sigma = zTs
         multiplySBound.Record(commandBuffer);
         inner.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         reduceSumSigmaBound.Record(commandBuffer);
-        if (mEnableStatistics) mStatistics.Tick(commandBuffer, "inner=z*s");
         sigma.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-        if (mEnableStatistics) mStatistics.Tick(commandBuffer, "sigma=zTs");
 
         // alpha = rho / sigma
         divideRhoBound.Record(commandBuffer);
         alpha.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-        if (mEnableStatistics) mStatistics.Tick(commandBuffer, "alpha=rho/sigma");
 
         // p = p + alpha * s
         multiplyAddPBound.Record(commandBuffer);
         pressure.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-        if (mEnableStatistics) mStatistics.Tick(commandBuffer, "p=p+alpha*s");
 
         // r = r - alpha * z
         multiplySubRBound.Record(commandBuffer);
         r.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-        if (mEnableStatistics) mStatistics.Tick(commandBuffer, "r=r-alpha*z");
 
         // calculate max error
         reduceMaxBound.Record(commandBuffer);
         error.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-        if (mEnableStatistics) mStatistics.Tick(commandBuffer, "error=max(r)");
 
         // z = M^-1 r
         z.Clear(commandBuffer);
         mPreconditioner.Record(commandBuffer);
         z.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-        if (mEnableStatistics) mStatistics.Tick(commandBuffer, "z=M^-1r");
 
         // rho_new = zTr
         multiplyZBound.Record(commandBuffer);
         inner.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-        if (mEnableStatistics) mStatistics.Tick(commandBuffer, "inner=z*r");
         reduceSumRhoNewBound.Record(commandBuffer);
         rho_new.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-        if (mEnableStatistics) mStatistics.Tick(commandBuffer, "rho_new=zTr");
 
         // beta = rho_new / rho
         divideRhoNewBound.Record(commandBuffer);
         beta.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-        if (mEnableStatistics) mStatistics.Tick(commandBuffer, "beta=rho_new/rho");
 
         // s = z + beta * s
         multiplyAddZBound.Record(commandBuffer);
         s.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-        if (mEnableStatistics) mStatistics.Tick(commandBuffer, "s=z+beta*s");
 
         // rho = rho_new
         rho.CopyFrom(commandBuffer, rho_new);
-        if (mEnableStatistics) mStatistics.End(commandBuffer, "rho=rho_new");
+
+        commandBuffer.debugMarkerEndEXT();
     });
 }
 
@@ -177,11 +167,6 @@ void ConjugateGradient::Solve(Parameters& params)
         mErrorRead.Submit();
         mSolve.Submit();
     }
-}
-
-Renderer::Statistics::Timestamps ConjugateGradient::GetStatistics()
-{
-    return mStatistics.GetTimestamps();
 }
 
 }}
