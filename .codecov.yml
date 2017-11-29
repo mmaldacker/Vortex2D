@@ -1,8 +1,8 @@
 codecov:
   token: 3cdb839b-9d38-47ab-adfb-73c1fb316190
 ignore:
-  - "/usr/**/*"
-  - "**/PerfTests/**/*" 
-  - "**/Tests/**/*" 
-  - "**/*-src/**/*"
-  - "**/Vortex2D/Utils/**/*"
+  - "/usr/.*"
+  - "**/PerfTests/.*" 
+  - "**/Tests/.*" 
+  - "**/*-src/.*"
+  - "**/Vortex2D/Utils/.*"
