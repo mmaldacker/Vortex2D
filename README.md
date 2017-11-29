@@ -1,7 +1,7 @@
 [![Build Status](http://vortex2d.strangled.net:6500/badge/1)](http://vortex2d.strangled.net:6500/repo/1)
 [![Build Status](https://travis-ci.org/mmaldacker/Vortex2D.svg?branch=master)](https://travis-ci.org/mmaldacker/Vortex2D)
 [![Build Status](https://ci.appveyor.com/api/projects/status/p7q9aple11yhs1ck?svg=true)](https://ci.appveyor.com/project/mmaldacker/vortex2d)
-[![Code Coverage](http://codecov.io/github/mmaldacker/Vortex2D/coverage.svg?branch=master)](http://codecov.io/github/mmaldacker/Vortex2D?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/mmaldacker/Vortex2D/badge.svg?branch=master)](https://coveralls.io/github/mmaldacker/Vortex2D?branch=master)
 [![Docs](https://img.shields.io/badge/docs-latest-brightgreen.svg)](http://mmaldacker.github.io/Vortex2D/html)
 [![Coverity](https://scan.coverity.com/projects/14431/badge.svg)](https://scan.coverity.com/projects/mmaldacker-vortex2d)
 

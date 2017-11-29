@@ -17,6 +17,5 @@ script:
   - cd Tests && ./vortex2d_tests
 
 after_success:
-  # Uploading report to CodeCov
-  - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
-
+  # Uploading report to Coveralls
+  - coveralls --exclude-pattern "/usr/.*" --exclude-pattern ".*/Examples/.*" --exclude-pattern ".*/PerfTests/.*"  --exclude-pattern ".*/Tests/.*"  --exclude-pattern ".*/*-src/.*" --exclude-pattern ".*/Vortex2D/Utils/.*"
