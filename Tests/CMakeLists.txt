@@ -43,6 +43,3 @@ copy_shader(TARGET vortex2d_tests SOURCES vortex2d)
 
 add_test(AllTests vortex2d_tests)
 
-if (CMAKE_BUILD_TYPE STREQUAL "Coverage")
-    setup_target_for_coverage(vortex2d_tests_coverage vortex2d_tests coverage)
-endif ()
