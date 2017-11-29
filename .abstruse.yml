@@ -18,4 +18,4 @@ script:
 
 after_success:
   # Uploading report to Coveralls
-  - coveralls --exclude-pattern "/usr/.*" --exclude-pattern ".*/Examples/.*" --exclude-pattern ".*/PerfTests/.*"  --exclude-pattern ".*/Tests/.*"  --exclude-pattern ".*/*-src/.*" --exclude-pattern ".*/Vortex2D/Utils/.*"
+  - coveralls --exclude-pattern "/usr/.*" --exclude-pattern ".*/CMakeFiles/.*" --exclude-pattern ".*/VulkanGLFW/.*" --exclude-pattern ".*/Examples/.*" --exclude-pattern ".*/PerfTests/.*"  --exclude-pattern ".*/Tests/.*"  --exclude-pattern ".*/*-src/.*" --exclude-pattern ".*/Vortex2D/Utils/.*"
