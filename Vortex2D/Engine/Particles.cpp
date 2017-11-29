@@ -23,6 +23,7 @@ ParticleCount::ParticleCount(const Renderer::Device& device,
     , mIndex(device, size.x*size.y)
     , mSeeds(device, 4)
     , mDispatchParams(device)
+    , mLocalDispatchParams(device, 1, true)
     , mNewDispatchParams(device)
     , mParticleCountWork(device, Renderer::ComputeSize::Default1D(), "../Vortex2D/ParticleCount.comp.spv")
     , mParticleCountBound(mParticleCountWork.Bind({particles, mDispatchParams, *this}))
@@ -46,11 +47,10 @@ ParticleCount::ParticleCount(const Renderer::Device& device,
     , mParticleToGrid(device, false)
     , mParticleFromGrid(device, false)
 {
-    Renderer::Buffer<Renderer::DispatchParams> localDispatchParams(device, 1, true);
-    Renderer::CopyFrom(localDispatchParams, params);
+    Renderer::CopyFrom(mLocalDispatchParams, params);
     Renderer::ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
     {
-        mDispatchParams.CopyFrom(commandBuffer, localDispatchParams);
+        mDispatchParams.CopyFrom(commandBuffer, mLocalDispatchParams);
     });
 
     // TODO should limit to 4 (or 8) particles
@@ -78,7 +78,7 @@ ParticleCount::ParticleCount(const Renderer::Device& device,
 
     mDispatchCountWork.Record([&](vk::CommandBuffer commandBuffer)
     {
-        mDispatchParams.Download(commandBuffer);
+        mLocalDispatchParams.CopyFrom(commandBuffer, mDispatchParams);
     });
 }
 
@@ -108,7 +108,7 @@ int ParticleCount::GetCount()
     mDispatchCountWork.Wait();
 
     Renderer::DispatchParams params(0);
-    Renderer::CopyTo(mDispatchParams, params);
+    Renderer::CopyTo(mLocalDispatchParams, params);
     return params.count;
 }
 

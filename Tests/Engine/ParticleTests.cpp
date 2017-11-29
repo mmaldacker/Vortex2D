@@ -231,7 +231,8 @@ TEST(ParticleTests, ParticleSpawn)
     particleCount.Scan();
     device->Queue().waitIdle();
 
-    ASSERT_EQ(4, particleCount.GetCount());
+    int particleNum = particleCount.GetCount();
+    ASSERT_EQ(4, particleNum);
 
     // Read particles
     std::vector<Particle> outParticlesData(size.x*size.y*8);
@@ -251,6 +252,11 @@ TEST(ParticleTests, ParticleSpawn)
               [](const auto& left, const auto&right) { return std::tie(left.x, left.y) < std::tie(right.x, right.y); });
     auto it = std::adjacent_find(outParticles.begin(), outParticles.end());
     ASSERT_EQ(it, outParticles.end());
+
+    for (int i = 0; i < particleNum; i++)
+    {
+        ASSERT_EQ(outParticlesData[i].Velocity, glm::vec2(0.0));
+    }
 }
 
 TEST(ParticleTests, ParticleAddDelete)
