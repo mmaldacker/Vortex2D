@@ -17,10 +17,6 @@ script:
   - cd Tests && ./vortex2d_tests
 
 after_success:
-  # Creating report
-  - lcov --directory . --capture --output-file coverage.info # capture coverage info
-  - lcov --remove coverage.info '/usr/*' '*/PerfTests/*' '*/Tests/*' '/*-src/*' '*/Vortex2D/Utils/*' --output-file coverage.info # filter out system
-  - lcov --list coverage.info #debug info
   # Uploading report to CodeCov
   - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
 
