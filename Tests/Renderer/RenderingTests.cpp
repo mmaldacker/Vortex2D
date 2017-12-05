@@ -85,7 +85,7 @@ TEST(RenderingTest, ClearTexture)
 
     std::vector<float> data(50*50, 3.5f);
 
-    Clear clear(50, 50, {3.5f, 0.0f, 0.0f, 0.0f});
+    Clear clear({3.5f, 0.0f, 0.0f, 0.0f});
 
     texture.Record({clear});
 

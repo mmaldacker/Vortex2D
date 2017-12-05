@@ -36,7 +36,7 @@ public:
         , density(device, dimensions.Size, vk::Format::eB8G8R8A8Unorm)
         , world(device, dimensions, dt)
         , solidPhi(device, world.SolidPhi(), green, dimensions.Scale)
-        , velocityClear(dimensions.Size.x, dimensions.Size.y, {0.0f, 0.0f, 0.0f, 0.0f})
+        , velocityClear({0.0f, 0.0f, 0.0f, 0.0f})
         , rWorld({0.0f, 10.0f})
         , body1(device, rWorld, dimensions, world.Valid(), b2_dynamicBody, {100.0f, 50.0f})
         , body2(device, rWorld, dimensions, world.Valid(), b2_dynamicBody, {50.0f, 50.0f})
@@ -58,7 +58,7 @@ public:
         device.Handle().waitIdle();
 
         // Draw liquid boundaries
-        Vortex2D::Renderer::Clear clear(dimensions.Size.x, dimensions.Size.y, {1.0f, 0.0f, 0.0f, 0.0f});
+        Vortex2D::Renderer::Clear clear({1.0f, 0.0f, 0.0f, 0.0f});
         Vortex2D::Renderer::Rectangle liquidArea(device, {1000.0f, 1000.0f}, {-1.0f, 0.0f, 0.0f, 0.0f});
 
         liquidArea.Position = {12.0f, 12.0};

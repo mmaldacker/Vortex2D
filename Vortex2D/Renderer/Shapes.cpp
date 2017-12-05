@@ -217,10 +217,8 @@ void Ellipse::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderSta
     commandBuffer.draw(6, 1, 0, 0);
 }
 
-Clear::Clear(uint32_t width, uint32_t height, const glm::vec4& colour)
-    : mWidth(width)
-    , mHeight(height)
-    , mColour(colour)
+Clear::Clear(const glm::vec4& colour)
+    : mColour(colour)
 {
 }
 
@@ -244,7 +242,7 @@ void Clear::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState
             .setClearValue(clearValue);
 
     auto clearRect = vk::ClearRect()
-            .setRect({{0, 0}, {mWidth, mHeight}})
+            .setRect({{0, 0}, {renderState.Width, renderState.Height}})
             .setLayerCount(1);
 
     commandBuffer.clearAttachments({clearAttachement}, {clearRect});

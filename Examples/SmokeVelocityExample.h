@@ -44,7 +44,7 @@ public:
 
         // Draw liquid boundaries
         Vortex2D::Renderer::Rectangle area(device, dimensions.Size - glm::ivec2(2.0f), glm::vec4(-1.0f));
-        Vortex2D::Renderer::Clear clearLiquid(dimensions.Size.x, dimensions.Size.y, {1.0f, 0.0f, 0.0f, 0.0f});
+        Vortex2D::Renderer::Clear clearLiquid({1.0f, 0.0f, 0.0f, 0.0f});
 
         area.Position = glm::vec2(1.0f);
 

@@ -63,7 +63,7 @@ TEST(LevelSetTests, SimpleCircle)
     Ellipse circle(*device, glm::vec2{rad0} * glm::vec2(size), glm::vec4(0.5f));
     circle.Position = glm::vec2(c0[0], c0[1]) * glm::vec2(size) - glm::vec2(0.5f);
 
-    Clear clear(size.x, size.y, glm::vec4(-0.5f));
+    Clear clear(glm::vec4(-0.5f));
 
     levelSet.Record({clear, circle});
     levelSet.Submit();
@@ -93,7 +93,7 @@ TEST(LevelSetTests, ComplexCircles)
     Ellipse circle2(*device, glm::vec2{rad2} * glm::vec2(size), glm::vec4(-1.0f));
     Ellipse circle3(*device, glm::vec2{rad3} * glm::vec2(size), glm::vec4(-1.0f));
 
-    Clear clear(size.x, size.y, glm::vec4(-1.0f));
+    Clear clear(glm::vec4(-1.0f));
 
     circle0.Position = glm::vec2(c0[0], c0[1]) * glm::vec2(size) - glm::vec2(0.5f);
     circle1.Position = glm::vec2(c1[0], c1[1]) * glm::vec2(size) - glm::vec2(0.5f);

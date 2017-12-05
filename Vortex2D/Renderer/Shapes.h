@@ -100,15 +100,13 @@ private:
 class Clear : public Drawable
 {
 public:
-    Clear(uint32_t width, uint32_t height, const glm::vec4& colour);
+    Clear(const glm::vec4& colour);
 
     void Initialize(const RenderState& renderState) override;
     void Update(const glm::mat4& projection, const glm::mat4& view) override;
     void Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState) override;
 
 private:
-    uint32_t mWidth;
-    uint32_t mHeight;
     glm::vec4 mColour;
 };
 

@@ -105,7 +105,7 @@ TEST(WorldTests, ObstacleVelocity)
     Pressure projection(*device, 0.01f, size, data, velocity, obstacleLevelSet, fluidLevelSet, boundariesVelocity, valid);
 
     // Draw fluid level set
-    Clear clear(size.x, size.y, {1.0f, 0.0f, 0.0f, 0.0f});
+    Clear clear({1.0f, 0.0f, 0.0f, 0.0f});
     Rectangle liquidArea(*device, {18.0f, 18.0f}, {-1.0f, 0.0f, 0.0f, 0.0f});
     liquidArea.Position = glm::vec2(1.0f);
 

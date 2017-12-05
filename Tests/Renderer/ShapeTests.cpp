@@ -24,7 +24,7 @@ TEST(ShapeTests, Square)
     rect.Position = glm::vec2(5.0f, 7.0f);
     rect.Scale = glm::vec2(1.5f, 1.0f);
 
-    Clear clear(50, 50, glm::vec4(0.0f));
+    Clear clear(glm::vec4(0.0f));
 
     RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);
@@ -85,7 +85,7 @@ TEST(ShapeTests, MultipleSquares)
     Rectangle rect2(*device, size, glm::vec4(1.0f));
     rect2.Position = glm::vec2(20.0f, 27.0f);
 
-    Clear clear(50, 50, glm::vec4(0.0f));
+    Clear clear(glm::vec4(0.0f));
 
     RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);
@@ -119,7 +119,7 @@ TEST(ShapeTests, Circle)
     Ellipse ellipse(*device, glm::vec2(5.0f), glm::vec4(1.0f));
     ellipse.Position = glm::vec2(10.0f, 15.0f);
 
-    Clear clear(50, 50, glm::vec4(0.0f));
+    Clear clear(glm::vec4(0.0f));
 
     RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);
@@ -147,7 +147,7 @@ TEST(ShapeTests, Ellipse)
     Ellipse ellipse(*device, radius, glm::vec4(1.0f));
     ellipse.Position = glm::vec2(20.0f, 15.0f);
 
-    Clear clear(50, 50, glm::vec4(0.0f));
+    Clear clear(glm::vec4(0.0f));
 
     RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);
@@ -177,7 +177,7 @@ TEST(ShapeTests, ScaledEllipse)
     ellipse.Position = pos;
     ellipse.Scale = glm::vec2(1.0f, 2.0f);
 
-    Clear clear(50, 50, glm::vec4(0.0f));
+    Clear clear(glm::vec4(0.0f));
 
     RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);
@@ -207,7 +207,7 @@ TEST(ShapeTests, RotatedEllipse)
     ellipse.Position = glm::vec2(20.0f, 15.0f);
     ellipse.Rotation = 33.0f;
 
-    Clear clear(50, 50, glm::vec4(0.0f));
+    Clear clear(glm::vec4(0.0f));
 
     RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);
@@ -236,7 +236,7 @@ TEST(ShapeTests, RenderScaledEllipse)
     Ellipse ellipse(*device, radius, glm::vec4(1.0f));
     ellipse.Position = pos;
 
-    Clear clear(50, 50, glm::vec4(0.0f));
+    Clear clear(glm::vec4(0.0f));
 
     RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);

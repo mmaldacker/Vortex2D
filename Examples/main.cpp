@@ -84,7 +84,7 @@ int main()
         Renderer::RenderWindow window(device_, mainWindow.GetSurface(), size.x, size.y);
         target = &window;
 
-        Renderer::Clear clear_(size.x, size.y, {0.5f, 0.5f, 0.5f, 1.0f});
+        Renderer::Clear clear_({0.5f, 0.5f, 0.5f, 1.0f});
         clear = &clear_;
 
         target->Record({*clear});
