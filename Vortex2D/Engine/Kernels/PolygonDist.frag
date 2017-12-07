@@ -11,9 +11,7 @@ layout(push_constant) uniform Consts
   int inv;
 }consts;
 
-layout(binding = 0, r32f) uniform image2D LevelSet;
-
-layout(std430, binding = 1) buffer Polygon
+layout(std430, binding = 2) buffer Polygon
 {
   vec2 points[];
 }polygon;

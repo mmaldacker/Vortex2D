@@ -9,10 +9,14 @@
 #include <Vortex2D/Engine/Particles.h>
 #include <Vortex2D/SPIRV/Reflection.h>
 
+#include <glm/gtx/transform.hpp>
+
 namespace Vortex2D { namespace Fluid {
 
 namespace
 {
+const int extent = 3;
+
 bool IsClockwise(const std::vector<glm::vec2>& points)
 {
     float total = 0.0f;
@@ -23,18 +27,21 @@ bool IsClockwise(const std::vector<glm::vec2>& points)
 
     return total > 0.0;
 }
+
+std::vector<glm::vec2> GetBoundingBox(const std::vector<glm::vec2>& points, int extent = 3)
+{
+    glm::vec2 pos, size;
+}
+
 }
 
 Polygon::Polygon(const Renderer::Device& device, std::vector<glm::vec2> points, bool inverse)
-    : mSize(points.size())
-    , mInverse(inverse)
+    : mDevice(device)
+    , mExtent(glm::translate(glm::vec3{-extent, -extent, 0.0f}))
     , mMVPBuffer(device)
-    , mVertexBuffer(device, points.size())
-    , mTransformedVertices(device, points.size())
-    , mUpdateCmd(device, false)
-    , mRender(device, Renderer::ComputeSize::Default2D(), "../Vortex2D/PolygonDist.comp.spv")
-    , mUpdate(device, {(int)points.size()}, "../Vortex2D/UpdateVertices.comp.spv")
-    , mUpdateBound(mUpdate.Bind({mMVPBuffer, mVertexBuffer, mTransformedVertices}))
+    , mMVBuffer(device)
+    , mVertexBuffer(device, 6)
+    , mPolygonVertexBuffer(device)
 {
     assert(!IsClockwise(points));
     if (inverse)
@@ -42,56 +49,70 @@ Polygon::Polygon(const Renderer::Device& device, std::vector<glm::vec2> points, 
         std::reverse(points.begin(), points.end());
     }
 
-    Renderer::Buffer<glm::vec2> localVertexBuffer(device, points.size(), true);
-    Renderer::CopyFrom(localVertexBuffer, points);
+    Renderer::Buffer<glm::vec2> localPolygonVertexBuffer(device, points.size(), true);
+    Renderer::CopyFrom(localPolygonVertexBuffer, points);
+
+    auto boundingBox = GetBoundingBox(points);
+    Renderer::Buffer<glm::vec2> localVertexBuffer(device, boundingBox.size(), true);
+    Renderer::CopyFrom(localVertexBuffer, boundingBox);
+
     Renderer::ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
     {
+        mPolygonVertexBuffer.CopyFrom(commandBuffer, localPolygonVertexBuffer);
         mVertexBuffer.CopyFrom(commandBuffer, localVertexBuffer);
     });
 
-    mUpdateCmd.Record([&](vk::CommandBuffer commandBuffer)
+    SPIRV::Reflection reflectionVert(device.GetShaderSPIRV("../Vortex2D/Position.vert.spv"));
+    SPIRV::Reflection reflectionFrag(device.GetShaderSPIRV("../Vortex2D/PolygonDist.frag.spv"));
+
+    vk::DescriptorSetLayout descriptorLayout = Renderer::DescriptorSetLayoutBuilder()
+            .Binding(reflectionVert.GetDescriptorTypesMap(), reflectionVert.GetShaderStage())
+            .Binding(reflectionFrag.GetDescriptorTypesMap(), reflectionFrag.GetShaderStage())
+            .Create(device);
+
+    mDescriptorSet = MakeDescriptorSet(device, descriptorLayout);
+
+    Renderer::DescriptorSetUpdater(*mDescriptorSet)
+            .Bind(reflectionVert.GetDescriptorTypesMap(), {{mMVPBuffer, 0}, {mMVBuffer, 1}})
+            .Bind(reflectionFrag.GetDescriptorTypesMap(), {{mPolygonVertexBuffer, 2}})
+            .Update(device.Handle());
+
+    mPipelineLayout = Renderer::PipelineLayoutBuilder()
+            .PushConstantRange({reflectionFrag.GetShaderStage(), 0, reflectionFrag.GetPushConstantsSize()})
+            .DescriptorSetLayout(descriptorLayout)
+            .Create(device.Handle());
+
+    mPipeline = Renderer::GraphicsPipeline::Builder()
+            .Topology(vk::PrimitiveTopology::eTriangleFan)
+            .Shader(device.GetShaderModule("../Vortex2D/Position.vert.spv"), vk::ShaderStageFlagBits::eVertex)
+            .Shader(device.GetShaderModule("../Vortex2D/PolygonDist.frag.spv"), vk::ShaderStageFlagBits::eFragment)
+            .VertexAttribute(0, 0, vk::Format::eR32G32Sfloat, 0)
+            .VertexBinding(0, sizeof(glm::vec2))
+            .Layout(*mPipelineLayout);
+}
+
+void Polygon::Initialize(const Renderer::RenderState& renderState)
+{
+    mPipeline.Create(mDevice.Handle(), renderState);
+}
+
+void Polygon::Update(const glm::mat4& projection, const glm::mat4& view)
+{
+    Renderer::CopyFrom(mMVPBuffer, projection * view * GetTransform() * mExtent);
+    Renderer::CopyFrom(mMVBuffer, view * GetTransform());
+    ExecuteCommand(mDevice, [&](vk::CommandBuffer commandBuffer)
     {
-        mMVPBuffer.Upload(commandBuffer);
-        mUpdateBound.PushConstant(commandBuffer, 8, mSize);
-        mUpdateBound.Record(commandBuffer);
-        mTransformedVertices.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+       mMVPBuffer.Upload(commandBuffer);
+       mMVBuffer.Upload(commandBuffer);
     });
 }
 
-void Polygon::Initialize(LevelSet& levelSet)
+void Polygon::Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState)
 {
-    glm::ivec2 size(levelSet.Width, levelSet.Height);
-
-    auto renderBoundIt = std::find_if(mRenderBounds.begin(), mRenderBounds.end(), [&](const auto& other)
-    {
-        return other.first == levelSet;
-    });
-
-    if (renderBoundIt == mRenderBounds.end())
-    {
-        mRenderBounds.emplace_back(levelSet, mRender.Bind(size, {levelSet, mTransformedVertices}));
-    }
-}
-
-void Polygon::Update(const glm::mat4& view)
-{
-    Renderer::CopyFrom(mMVPBuffer, view * GetTransform());
-    mUpdateCmd.Submit();
-}
-
-void Polygon::Draw(vk::CommandBuffer commandBuffer, LevelSet& levelSet)
-{
-    auto renderBoundIt = std::find_if(mRenderBounds.begin(), mRenderBounds.end(), [&](const auto& other)
-    {
-        return other.first == levelSet;
-    });
-
-    if (renderBoundIt != mRenderBounds.end())
-    {
-        renderBoundIt->second.PushConstant(commandBuffer, 8, mSize);
-        renderBoundIt->second.PushConstant(commandBuffer, 12, mInverse ? 1 : 0);
-        renderBoundIt->second.Record(commandBuffer);
-    }
+    mPipeline.Bind(commandBuffer, renderState);
+    commandBuffer.bindVertexBuffers(0, {mVertexBuffer.Handle()}, {0ul});
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *mPipelineLayout, 0, {*mDescriptorSet}, {});
+    commandBuffer.draw(6, 1, 0, 0);
 }
 
 Rectangle::Rectangle(const Renderer::Device& device, const glm::vec2& size, bool inverse)
@@ -100,57 +121,34 @@ Rectangle::Rectangle(const Renderer::Device& device, const glm::vec2& size, bool
 }
 
 Circle::Circle(const Renderer::Device& device, float radius)
-    : mSize(radius)
-    , mMVPBuffer(device)
-    , mVertexBuffer(device)
-    , mTransformedVertices(device)
-    , mUpdateCmd(device, false)
-    , mRender(device, Renderer::ComputeSize::Default2D(), "../Vortex2D/CircleDist.comp.spv")
-    , mUpdate(device, {1}, "../Vortex2D/UpdateVertices.comp.spv")
-    , mUpdateBound(mUpdate.Bind({mMVPBuffer, mVertexBuffer, mTransformedVertices}))
+
 {
-    mUpdateCmd.Record([&](vk::CommandBuffer commandBuffer)
+
+}
+
+void Circle::Initialize(const Renderer::RenderState& renderState)
+{
+    mPipeline.Create(mDevice.Handle(), renderState);
+}
+
+void Circle::Update(const glm::mat4& projection, const glm::mat4& view)
+{
+    // TODO adjust with extent
+    Renderer::CopyFrom(mMVPBuffer, projection * view * GetTransform());
+    Renderer::CopyFrom(mMVBuffer, view * GetTransform());
+    ExecuteCommand(mDevice, [&](vk::CommandBuffer commandBuffer)
     {
-        mMVPBuffer.Upload(commandBuffer);
-        mUpdateBound.PushConstant(commandBuffer, 8, 1);
-        mUpdateBound.Record(commandBuffer);
-        mTransformedVertices.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+       mMVPBuffer.Upload(commandBuffer);
+       mMVBuffer.Upload(commandBuffer);
     });
 }
 
-void Circle::Initialize(LevelSet& levelSet)
+void Circle::Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState)
 {
-    glm::ivec2 size(levelSet.Width, levelSet.Height);
-
-    auto renderBoundIt = std::find_if(mRenderBounds.begin(), mRenderBounds.end(), [&](const auto& other)
-    {
-        return other.first == levelSet;
-    });
-
-    if (renderBoundIt == mRenderBounds.end())
-    {
-        mRenderBounds.emplace_back(levelSet, mRender.Bind(size, {mMVPBuffer, levelSet, mTransformedVertices}));
-    }
-}
-
-void Circle::Update(const glm::mat4& view)
-{
-    Renderer::CopyFrom(mMVPBuffer, view * GetTransform());
-    mUpdateCmd.Submit();
-}
-
-void Circle::Draw(vk::CommandBuffer commandBuffer, LevelSet& levelSet)
-{
-    auto renderBoundIt = std::find_if(mRenderBounds.begin(), mRenderBounds.end(), [&](const auto& other)
-    {
-        return other.first == levelSet;
-    });
-
-    if (renderBoundIt != mRenderBounds.end())
-    {
-        renderBoundIt->second.PushConstant(commandBuffer, 8, mSize);
-        renderBoundIt->second.Record(commandBuffer);
-    }
+    mPipeline.Bind(commandBuffer, renderState);
+    commandBuffer.bindVertexBuffers(0, {mVertexBuffer.Handle()}, {0ul});
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *mPipelineLayout, 0, {*mDescriptorSet}, {});
+    commandBuffer.draw(6, 1, 0, 0);
 }
 
 

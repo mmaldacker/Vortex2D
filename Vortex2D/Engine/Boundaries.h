@@ -20,35 +20,25 @@ namespace Vortex2D { namespace Fluid {
 
 class LevelSet;
 
-class SignedObject
-{
-public:
-    virtual void Initialize(LevelSet& levelSet) = 0;
-    virtual void Update(const glm::mat4& view) = 0;
-    virtual void Draw(vk::CommandBuffer commandBuffer, LevelSet& levelSet) = 0;
-};
-
-class Polygon : public Renderer::Transformable, public SignedObject
+class Polygon : public Renderer::Transformable, public Renderer::Drawable
 {
 public:
     Polygon(const Renderer::Device& device, std::vector<glm::vec2> points, bool inverse = false);
 
-    void Initialize(LevelSet& levelSet) override;
-    void Update(const glm::mat4& view) override;
-    void Draw(vk::CommandBuffer commandBuffer, LevelSet& levelSet) override;
+    void Initialize(const Renderer::RenderState& renderState) override;
+    void Update(const glm::mat4& projection, const glm::mat4& view) override;
+    void Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState) override;
 
 private:
-    int mSize;
-    bool mInverse;
-    Renderer::UpdateUniformBuffer<glm::mat4> mMVPBuffer;
-    Renderer::Buffer<glm::vec2> mVertexBuffer;
-    Renderer::Buffer<glm::vec2> mTransformedVertices;
-    Renderer::CommandBuffer mUpdateCmd;
-
-    Renderer::Work mRender;
-    std::vector<std::pair<Renderer::RenderTexture&, Renderer::Work::Bound>> mRenderBounds;
-    Renderer::Work mUpdate;
-    Renderer::Work::Bound mUpdateBound;
+    const Renderer::Device& mDevice;
+    glm::mat4 mExtent;
+    Renderer::UpdateBuffer<Renderer::UniformBuffer, glm::mat4> mMVPBuffer;
+    Renderer::UpdateUniformBuffer<glm::mat4> mMVBuffer;
+    Renderer::VertexBuffer<glm::vec2> mVertexBuffer;
+    vk::UniqueDescriptorSet mDescriptorSet;
+    vk::UniquePipelineLayout mPipelineLayout;
+    Renderer::GraphicsPipeline mPipeline;
+    Renderer::Buffer<glm::vec2> mPolygonVertexBuffer;
 };
 
 class Rectangle : public Polygon
@@ -58,26 +48,24 @@ public:
 };
 
 // TODO a lot of duplication between Ellipse and Polygon (and the Shapes classes?)
-class Circle : public Renderer::Transformable, public SignedObject
+class Circle : public Renderer::Transformable, public Renderer::Drawable
 {
 public:
     Circle(const Renderer::Device& device, float radius);
 
-    void Initialize(LevelSet& levelSet) override;
-    void Update(const glm::mat4& view) override;
-    void Draw(vk::CommandBuffer commandBuffer, LevelSet& levelSet) override;
+    void Initialize(const Renderer::RenderState& renderState) override;
+    void Update(const glm::mat4& projection, const glm::mat4& view) override;
+    void Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState) override;
 
 private:
     float mSize;
+    const Renderer::Device& mDevice;
     Renderer::UpdateBuffer<Renderer::UniformBuffer, glm::mat4> mMVPBuffer;
-    Renderer::Buffer<glm::vec2> mVertexBuffer;
-    Renderer::Buffer<glm::vec2> mTransformedVertices;
-    Renderer::CommandBuffer mUpdateCmd;
-
-    Renderer::Work mRender;
-    std::vector<std::pair<Renderer::RenderTexture&, Renderer::Work::Bound>> mRenderBounds;
-    Renderer::Work mUpdate;
-    Renderer::Work::Bound mUpdateBound;
+    Renderer::UpdateUniformBuffer<glm::mat4> mMVBuffer;
+    Renderer::VertexBuffer<glm::vec2> mVertexBuffer;
+    vk::UniqueDescriptorSet mDescriptorSet;
+    vk::UniquePipelineLayout mPipelineLayout;
+    Renderer::GraphicsPipeline mPipeline;
 };
 
 // TODO have colour has member variable and updated in the Update function
