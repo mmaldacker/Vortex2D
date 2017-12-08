@@ -59,7 +59,7 @@ Polygon::Polygon(const Renderer::Device& device, std::vector<glm::vec2> points, 
     : mDevice(device)
     , mSize(points.size())
     , mInv(inverse)
-    , mMVPBuffer(device)
+    , mMVPBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
     , mMVBuffer(device)
     , mVertexBuffer(device, 6)
     , mPolygonVertexBuffer(device, points.size())
@@ -70,11 +70,11 @@ Polygon::Polygon(const Renderer::Device& device, std::vector<glm::vec2> points, 
         std::reverse(points.begin(), points.end());
     }
 
-    Renderer::Buffer<glm::vec2> localPolygonVertexBuffer(device, points.size(), true);
+    Renderer::Buffer<glm::vec2> localPolygonVertexBuffer(device, points.size(), VMA_MEMORY_USAGE_CPU_ONLY);
     Renderer::CopyFrom(localPolygonVertexBuffer, points);
 
     auto boundingBox = GetBoundingBox(points, extent);
-    Renderer::Buffer<glm::vec2> localVertexBuffer(device, boundingBox.size(), true);
+    Renderer::Buffer<glm::vec2> localVertexBuffer(device, boundingBox.size(), VMA_MEMORY_USAGE_CPU_ONLY);
     Renderer::CopyFrom(localVertexBuffer, boundingBox);
 
     Renderer::ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
@@ -108,11 +108,6 @@ void Polygon::Update(const glm::mat4& projection, const glm::mat4& view)
 {
     Renderer::CopyFrom(mMVPBuffer, projection * view * GetTransform());
     Renderer::CopyFrom(mMVBuffer, view * GetTransform());
-    ExecuteCommand(mDevice, [&](vk::CommandBuffer commandBuffer)
-    {
-       mMVPBuffer.Upload(commandBuffer);
-       mMVBuffer.Upload(commandBuffer);
-    });
 }
 
 void Polygon::Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState)
@@ -134,14 +129,14 @@ Rectangle::Rectangle(const Renderer::Device& device, const glm::vec2& size, bool
 Circle::Circle(const Renderer::Device& device, float radius, int extent)
     : mDevice(device)
     , mSize(radius)
-    , mMVPBuffer(device)
-    , mMVBuffer(device)
+    , mMVPBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
+    , mMVBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
     , mVertexBuffer(device, 6)
 {
     std::vector<glm::vec2> points = {{-radius, -radius}, {radius, -radius}, {radius, radius}, {-radius, radius}};
 
     auto boundingBox = GetBoundingBox(points, extent);
-    Renderer::Buffer<glm::vec2> localVertexBuffer(device, boundingBox.size(), true);
+    Renderer::Buffer<glm::vec2> localVertexBuffer(device, boundingBox.size(), VMA_MEMORY_USAGE_CPU_ONLY);
     Renderer::CopyFrom(localVertexBuffer, boundingBox);
 
     Renderer::ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
@@ -172,14 +167,8 @@ void Circle::Initialize(const Renderer::RenderState& renderState)
 
 void Circle::Update(const glm::mat4& projection, const glm::mat4& view)
 {
-    // TODO adjust with extent
     Renderer::CopyFrom(mMVPBuffer, projection * view * GetTransform());
     Renderer::CopyFrom(mMVBuffer, view * GetTransform());
-    ExecuteCommand(mDevice, [&](vk::CommandBuffer commandBuffer)
-    {
-       mMVPBuffer.Upload(commandBuffer);
-       mMVBuffer.Upload(commandBuffer);
-    });
 }
 
 void Circle::Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState)
@@ -227,8 +216,8 @@ void DistanceField::Draw(vk::CommandBuffer commandBuffer, const Renderer::Render
 
 ParticleCloud::ParticleCloud(const Renderer::Device& device, Renderer::GenericBuffer& particles, int numParticles, const glm::vec4& colour)
     : mDevice(device.Handle())
-    , mMVPBuffer(device)
-    , mColourBuffer(device)
+    , mMVPBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
+    , mColourBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
     , mVertexBuffer(particles)
     , mNumVertices(numParticles)
 {

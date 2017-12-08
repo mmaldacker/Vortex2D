@@ -27,8 +27,8 @@ TEST(LinearSolverTests, ReduceSum)
 {
     glm::ivec2 size(10, 15);
     int n = size.x * size.y;
-    Buffer<float> input(*device, n, true);
-    Buffer<float> output(*device, 1, true);
+    Buffer<float> input(*device, n, VMA_MEMORY_USAGE_CPU_ONLY);
+    Buffer<float> output(*device, 1, VMA_MEMORY_USAGE_CPU_ONLY);
 
     ReduceSum reduce(*device, size);
     auto reduceBound = reduce.Bind(input, output);
@@ -58,8 +58,8 @@ TEST(LinearSolverTests, ReduceBigSum)
     glm::ivec2 size(500);
     int n = size.x * size.y; // 1 million
 
-    Buffer<float> input(*device, n, true);
-    Buffer<float> output(*device, 1, true);
+    Buffer<float> input(*device, n, VMA_MEMORY_USAGE_CPU_ONLY);
+    Buffer<float> output(*device, 1, VMA_MEMORY_USAGE_CPU_ONLY);
 
     ReduceSum reduce(*device, size);
     auto reduceBound = reduce.Bind(input, output);
@@ -89,8 +89,8 @@ TEST(LinearSolverTests, ReduceMax)
     glm::ivec2 size(10, 15);
     int n = size.x * size.y;
 
-    Buffer<float> input(*device, n, true);
-    Buffer<float> output(*device, 1, true);
+    Buffer<float> input(*device, n, VMA_MEMORY_USAGE_CPU_ONLY);
+    Buffer<float> output(*device, 1, VMA_MEMORY_USAGE_CPU_ONLY);
 
     ReduceMax reduce(*device, size);
     auto reduceBound = reduce.Bind(input, output);
@@ -122,16 +122,16 @@ TEST(LinearSolverTests, Transfer_Prolongate)
 
     Transfer t(*device);
 
-    Buffer<float> fineDiagonal(*device, fineSize.x*fineSize.y, true);
+    Buffer<float> fineDiagonal(*device, fineSize.x*fineSize.y, VMA_MEMORY_USAGE_CPU_ONLY);
     std::vector<float> fineDiagonalData(fineSize.x*fineSize.y, {1.0f});
     CopyFrom(fineDiagonal, fineDiagonalData);
 
-    Buffer<float> coarseDiagonal(*device, coarseSize.x*coarseSize.y, true);
+    Buffer<float> coarseDiagonal(*device, coarseSize.x*coarseSize.y, VMA_MEMORY_USAGE_CPU_ONLY);
     std::vector<float> coarseDiagonalData(coarseSize.x*coarseSize.y, {1.0f});
     CopyFrom(coarseDiagonal, coarseDiagonalData);
 
-    Buffer<float> input(*device, coarseSize.x*coarseSize.y, true);
-    Buffer<float> output(*device, fineSize.x*fineSize.y, true);
+    Buffer<float> input(*device, coarseSize.x*coarseSize.y, VMA_MEMORY_USAGE_CPU_ONLY);
+    Buffer<float> output(*device, fineSize.x*fineSize.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
     std::vector<float> data(coarseSize.x * coarseSize.y, 0.0f);
     std::iota(data.begin(), data.end(), 1.0f);
@@ -159,16 +159,16 @@ TEST(LinearSolverTests, Transfer_Restrict)
 
     Transfer t(*device);
 
-    Buffer<float> fineDiagonal(*device, fineSize.x*fineSize.y, true);
+    Buffer<float> fineDiagonal(*device, fineSize.x*fineSize.y, VMA_MEMORY_USAGE_CPU_ONLY);
     std::vector<float> fineDiagonalData(fineSize.x*fineSize.y, {1.0f});
     CopyFrom(fineDiagonal, fineDiagonalData);
 
-    Buffer<float> coarseDiagonal(*device, coarseSize.x*coarseSize.y, true);
+    Buffer<float> coarseDiagonal(*device, coarseSize.x*coarseSize.y, VMA_MEMORY_USAGE_CPU_ONLY);
     std::vector<float> coarseDiagonalData(coarseSize.x*coarseSize.y, {1.0f});
     CopyFrom(coarseDiagonal, coarseDiagonalData);
 
-    Buffer<float> input(*device, fineSize.x*fineSize.y, true);
-    Buffer<float> output(*device, coarseSize.x*coarseSize.y, true);
+    Buffer<float> input(*device, fineSize.x*fineSize.y, VMA_MEMORY_USAGE_CPU_ONLY);
+    Buffer<float> output(*device, coarseSize.x*coarseSize.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
     std::vector<float> data(fineSize.x * fineSize.y, 1.0f);
     std::iota(data.begin(), data.end(), 1.0f);
@@ -220,7 +220,7 @@ TEST(LinearSolverTests, Simple_SOR)
     sim.extrapolate_phi();
     sim.apply_projection(0.01f);
 
-    LinearSolver::Data data(*device, size, true);
+    LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
 
     BuildLinearEquation(size, data.Diagonal, data.Lower, data.B, sim);
 
@@ -252,7 +252,7 @@ TEST(LinearSolverTests, Complex_SOR)
     sim.extrapolate_phi();
     sim.apply_projection(0.01f);
 
-    LinearSolver::Data data(*device, size, true);
+    LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
 
     BuildLinearEquation(size, data.Diagonal, data.Lower, data.B, sim);
 
@@ -284,7 +284,7 @@ TEST(LinearSolverTests, LocalGaussSeidel)
     sim.extrapolate_phi();
     sim.apply_projection(0.01f);
 
-    LinearSolver::Data data(*device, size, true);
+    LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
 
     BuildLinearEquation(size, data.Diagonal, data.Lower, data.B, sim);
 
@@ -316,7 +316,7 @@ TEST(LinearSolverTests, Diagonal_Simple_PCG)
     sim.extrapolate_phi();
     sim.apply_projection(0.01f);
 
-    LinearSolver::Data data(*device, size, true);
+    LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
 
     BuildLinearEquation(size, data.Diagonal, data.Lower, data.B, sim);
 
@@ -350,7 +350,7 @@ TEST(LinearSolverTests, GaussSeidel_Simple_PCG)
     sim.extrapolate_phi();
     sim.apply_projection(0.01f);
 
-    LinearSolver::Data data(*device, size, true);
+    LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
 
     BuildLinearEquation(size, data.Diagonal, data.Lower, data.B, sim);
 
@@ -386,7 +386,7 @@ TEST(LinearSolverTests, IncompletePoisson_Simple_PCG)
     sim.extrapolate_phi();
     sim.apply_projection(0.01f);
 
-    LinearSolver::Data data(*device, size, true);
+    LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
 
     BuildLinearEquation(size, data.Diagonal, data.Lower, data.B, sim);
 
@@ -409,7 +409,7 @@ TEST(LinearSolverTests, Zero_PCG)
 {
     glm::vec2 size(50);
 
-    LinearSolver::Data data(*device, size, true);
+    LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
 
     Diagonal preconditioner(*device, size);
 
@@ -450,13 +450,13 @@ TEST(LinearSolverTests, Multigrid_Simple_PCG)
     sim.extrapolate_phi();
     sim.apply_projection(0.01f);
 
-    LinearSolver::Data data(*device, size, true);
+    LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
 
-    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
-    Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
-    Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
-    Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
-    Buffer<glm::ivec2> valid(*device, size.x*size.y, true);
+    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
+    Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+    Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+    Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
+    Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
     SetSolidPhi(*device, size, solidPhi, sim, size.x);
     SetLiquidPhi(*device, size, liquidPhi, sim, size.x);

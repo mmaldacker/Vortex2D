@@ -34,8 +34,8 @@ private:
     const Renderer::Device& mDevice;
     uint32_t mSize;
     uint32_t mInv;
-    Renderer::UpdateBuffer<Renderer::UniformBuffer, glm::mat4> mMVPBuffer;
-    Renderer::UpdateUniformBuffer<glm::mat4> mMVBuffer;
+    Renderer::Buffer<glm::mat4> mMVPBuffer;
+    Renderer::UniformBuffer<glm::mat4> mMVBuffer;
     Renderer::VertexBuffer<glm::vec2> mVertexBuffer;
     Renderer::DescriptorSet mDescriptorSet;
     Renderer::GraphicsPipeline mPipeline;
@@ -61,8 +61,8 @@ public:
 private:
     const Renderer::Device& mDevice;
     float mSize;
-    Renderer::UpdateBuffer<Renderer::UniformBuffer, glm::mat4> mMVPBuffer;
-    Renderer::UpdateUniformBuffer<glm::mat4> mMVBuffer;
+    Renderer::UniformBuffer<glm::mat4> mMVPBuffer;
+    Renderer::UniformBuffer<glm::mat4> mMVBuffer;
     Renderer::VertexBuffer<glm::vec2> mVertexBuffer;
     Renderer::DescriptorSet mDescriptorSet;
     Renderer::GraphicsPipeline mPipeline;
@@ -100,8 +100,8 @@ public:
 
 private:
     vk::Device mDevice;
-    Renderer::UpdateUniformBuffer<glm::mat4> mMVPBuffer;
-    Renderer::UpdateUniformBuffer<glm::vec4> mColourBuffer;
+    Renderer::UniformBuffer<glm::mat4> mMVPBuffer;
+    Renderer::UniformBuffer<glm::vec4> mColourBuffer;
     Renderer::GenericBuffer& mVertexBuffer;
     Renderer::DescriptorSet mDescriptorSet;
     Renderer::GraphicsPipeline mPipeline;

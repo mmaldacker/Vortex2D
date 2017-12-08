@@ -75,9 +75,9 @@ TEST(ParticleTests, PrefixScan)
 
     PrefixScan prefixScan(*device, size);
 
-    Buffer<int> input(*device, size.x*size.y, true);
-    Buffer<int> output(*device, size.x*size.y, true);
-    Buffer<DispatchParams> dispatchParams(*device, 1, true);
+    Buffer<int> input(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+    Buffer<int> output(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+    Buffer<DispatchParams> dispatchParams(*device, 1, VMA_MEMORY_USAGE_CPU_ONLY);
 
     std::vector<int> inputData = GenerateInput(size.x*size.y);
     CopyFrom(input, inputData);
@@ -108,9 +108,9 @@ TEST(ParticleTests, PrefixScanBig)
 
     PrefixScan prefixScan(*device, size);
 
-    Buffer<int> input(*device, size.x*size.y, true);
-    Buffer<int> output(*device, size.x*size.y, true);
-    Buffer<DispatchParams> dispatchParams(*device, 1, true);
+    Buffer<int> input(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+    Buffer<int> output(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+    Buffer<DispatchParams> dispatchParams(*device, 1, VMA_MEMORY_USAGE_CPU_ONLY);
 
     std::vector<int> inputData = GenerateInput(size.x*size.y);
     CopyFrom(input, inputData);
@@ -145,7 +145,7 @@ TEST(ParticleTests, ParticleCounting)
     particlesData[2].Position = glm::vec2(5.4f, 6.7f);
     int numParticles = 3;
 
-    Buffer<Particle> particles(*device, 8*size.x*size.y, true);
+    Buffer<Particle> particles(*device, 8*size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
     CopyFrom(particles, particlesData);
 
     ParticleCount particleCount(*device, size, particles, {numParticles});
@@ -153,7 +153,7 @@ TEST(ParticleTests, ParticleCounting)
     particleCount.Count();
     device->Handle().waitIdle();
 
-    Texture localCount(*device, size.x, size.y, vk::Format::eR32Sint, true);
+    Texture localCount(*device, size.x, size.y, vk::Format::eR32Sint, VMA_MEMORY_USAGE_CPU_ONLY);
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
         localCount.CopyFrom(commandBuffer, particleCount);
@@ -178,7 +178,7 @@ TEST(ParticleTests, ParticleDelete)
     particlesData[2].Position = glm::vec2(3.5f, 2.4f);
     int numParticles = 3;
 
-    Buffer<Particle> particles(*device, 8*size.x*size.y, true);
+    Buffer<Particle> particles(*device, 8*size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
     CopyFrom(particles, particlesData);
 
     ParticleCount particleCount(*device, size, particles, {numParticles});
@@ -214,7 +214,7 @@ TEST(ParticleTests, ParticleSpawn)
 {
     glm::ivec2 size(20);
 
-    Buffer<Particle> particles(*device, 8*size.x*size.y, true);
+    Buffer<Particle> particles(*device, 8*size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
     ParticleCount particleCount(*device, size, particles);
 
     // Add some particles
@@ -259,7 +259,7 @@ TEST(ParticleTests, ParticleAddDelete)
 {
     glm::ivec2 size(20);
 
-    Buffer<Particle> particles(*device, 8*size.x*size.y, true);
+    Buffer<Particle> particles(*device, 8*size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
     ParticleCount particleCount(*device, size, particles);
 
     // Add some particles
@@ -340,7 +340,7 @@ TEST(ParticleTests, Phi)
     AddParticles(size, sim, boundary_phi);
     sim.compute_phi();
 
-    Buffer<Particle> particles(*device, 8*size.x*size.y, true);
+    Buffer<Particle> particles(*device, 8*size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
     std::vector<Particle> particlesData;
     for (auto& p: sim.particles)
@@ -364,7 +364,7 @@ TEST(ParticleTests, Phi)
     particleCount.Phi();
     device->Handle().waitIdle();
 
-    Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
+    Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
        outTexture.CopyFrom(commandBuffer, phi);
@@ -389,7 +389,7 @@ TEST(ParticleTests, FromGrid)
    sim.update_from_grid();
 
    // setup ParticleCount
-   Buffer<Particle> particles(*device, 8*size.x*size.y, true);
+   Buffer<Particle> particles(*device, 8*size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
    std::vector<Particle> particlesData;
    for (std::size_t p = 0; p < sim.particles.size(); p++)
@@ -410,8 +410,8 @@ TEST(ParticleTests, FromGrid)
    ASSERT_EQ(sim.particles.size(), particleCount.GetCount());
 
    // FromGrid test
-   Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
-   Buffer<glm::ivec2> valid(*device, size.x*size.y, true);
+   Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
+   Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
    SetVelocity(*device, size, velocity, sim);
 
@@ -466,7 +466,7 @@ TEST(ParticleTests, ToGrid)
    sim.transfer_to_grid();
 
    // setup ParticleCount
-   Buffer<Particle> particles(*device, 8*size.x*size.y, true);
+   Buffer<Particle> particles(*device, 8*size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
    std::vector<Particle> particlesData;
    for (std::size_t p = 0; p < sim.particles.size(); p++)
@@ -488,8 +488,8 @@ TEST(ParticleTests, ToGrid)
    ASSERT_EQ(sim.particles.size(), particleCount.GetCount());
 
    // ToGrid test
-   Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
-   Buffer<glm::ivec2> valid(*device, size.x*size.y, true);
+   Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
+   Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
    particleCount.InitVelocities(velocity, valid);
    particleCount.TransferToGrid();

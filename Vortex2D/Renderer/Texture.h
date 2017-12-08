@@ -7,6 +7,7 @@
 #define Vortex2d_Texture_h
 
 #include <Vortex2D/Renderer/Common.h>
+#include <Vortex2D/Utils/vk_mem_alloc.h>
 
 namespace Vortex2D { namespace Renderer {
 
@@ -29,7 +30,14 @@ private:
 class Texture
 {
 public:
-    Texture(const Device& device, uint32_t width, uint32_t height, vk::Format format, bool host);
+    Texture(const Device& device,
+            uint32_t width,
+            uint32_t height,
+            vk::Format format,
+            VmaMemoryUsage memoryUsage = VMA_MEMORY_USAGE_GPU_ONLY);
+
+    ~Texture();
+    Texture(Texture&& other);
 
     template<typename T>
     void CopyFrom(const std::vector<T>& data)
@@ -69,13 +77,13 @@ private:
     void CopyFrom(const void* data, vk::DeviceSize bytesPerPixel);
     void CopyTo(void* data, vk::DeviceSize bytesPerPixel);
 
-    bool mHost;
-    vk::Device mDevice;
+    const Device& mDevice;
     uint32_t mWidth;
     uint32_t mHeight;
     vk::Format mFormat;
-    vk::UniqueImage mImage;
-    vk::UniqueDeviceMemory mMemory;
+    VkImage mImage;
+    VmaAllocation mAllocation;
+    VmaAllocationInfo mAllocationInfo;
     vk::UniqueImageView mImageView;
 };
 

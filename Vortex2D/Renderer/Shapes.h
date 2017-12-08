@@ -38,8 +38,8 @@ public:
 
 protected:
     const Device& mDevice;
-    UpdateUniformBuffer<glm::mat4> mMVPBuffer;
-    UpdateUniformBuffer<glm::vec4> mColourBuffer;
+    UniformBuffer<glm::mat4> mMVPBuffer;
+    UniformBuffer<glm::vec4> mColourBuffer;
     VertexBuffer<glm::vec2> mVertexBuffer;
     DescriptorSet mDescriptorSet;
     GraphicsPipeline mPipeline;
@@ -87,10 +87,10 @@ private:
 
     const Device& mDevice;
     glm::vec2 mRadius;
-    UpdateUniformBuffer<glm::mat4> mMVPBuffer;
-    UpdateUniformBuffer<glm::vec4> mColourBuffer;
+    UniformBuffer<glm::mat4> mMVPBuffer;
+    UniformBuffer<glm::vec4> mColourBuffer;
     VertexBuffer<glm::vec2> mVertexBuffer;
-    UpdateUniformBuffer<Size> mSizeBuffer;
+    UniformBuffer<Size> mSizeBuffer;
     DescriptorSet mDescriptorSet;
     GraphicsPipeline mPipeline;
 };

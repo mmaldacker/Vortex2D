@@ -37,9 +37,8 @@ vk::UniqueSampler SamplerBuilder::Create(vk::Device device)
     return device.createSamplerUnique(mSamplerInfo);
 }
 
-Texture::Texture(const Device& device, uint32_t width, uint32_t height, vk::Format format, bool host)
-    : mHost(host)
-    , mDevice(device.Handle())
+Texture::Texture(const Device& device, uint32_t width, uint32_t height, vk::Format format, VmaMemoryUsage memoryUsage)
+    : mDevice(device)
     , mWidth(width)
     , mHeight(height)
     , mFormat(format)
@@ -50,9 +49,9 @@ Texture::Texture(const Device& device, uint32_t width, uint32_t height, vk::Form
     vk::ImageUsageFlags usageFlags = vk::ImageUsageFlagBits::eTransferSrc |
                                      vk::ImageUsageFlagBits::eTransferDst;
 
-    vk::ImageLayout imageLayout = host ? vk::ImageLayout::ePreinitialized : vk::ImageLayout::eUndefined;
+    vk::ImageLayout imageLayout = memoryUsage == VMA_MEMORY_USAGE_CPU_ONLY ? vk::ImageLayout::ePreinitialized : vk::ImageLayout::eUndefined;
 
-    if (!host)
+    if (memoryUsage != VMA_MEMORY_USAGE_CPU_ONLY)
     {
         // TODO color attachement only for render textures
         usageFlags |= vk::ImageUsageFlagBits::eSampled |
@@ -66,30 +65,29 @@ Texture::Texture(const Device& device, uint32_t width, uint32_t height, vk::Form
             .setMipLevels(1)
             .setArrayLayers(1)
             .setFormat(format)
-            .setTiling(host ? vk::ImageTiling::eLinear : vk::ImageTiling::eOptimal)
+            .setTiling(memoryUsage == VMA_MEMORY_USAGE_CPU_ONLY ? vk::ImageTiling::eLinear : vk::ImageTiling::eOptimal)
             .setInitialLayout(imageLayout)
             .setUsage(usageFlags)
             .setSharingMode(vk::SharingMode::eExclusive)
             .setSamples(vk::SampleCountFlagBits::e1);
 
-    mImage = device.Handle().createImageUnique(imageInfo);
+    VkImageCreateInfo vkImageInfo = imageInfo;
+    VmaAllocationCreateInfo allocInfo = {};
+    allocInfo.usage = memoryUsage;
+    if (vmaCreateImage(device.Allocator(),
+                       &vkImageInfo,
+                       &allocInfo,
+                       &mImage,
+                       &mAllocation,
+                       &mAllocationInfo) != VK_SUCCESS)
+    {
+      throw std::runtime_error("Error creating texture");
+    }
 
-    vk::MemoryRequirements requirements = device.Handle().getImageMemoryRequirements(*mImage);
-
-    auto memoryFlags = host ? vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent :
-                              vk::MemoryPropertyFlagBits::eDeviceLocal;
-
-    auto allocateInfo = vk::MemoryAllocateInfo()
-            .setAllocationSize(requirements.size)
-            .setMemoryTypeIndex(device.FindMemoryPropertiesIndex(requirements.memoryTypeBits, memoryFlags));
-
-    mMemory = device.Handle().allocateMemoryUnique(allocateInfo);
-    device.Handle().bindImageMemory(*mImage, *mMemory, 0);
-
-    if (!host)
+    if (memoryUsage != VMA_MEMORY_USAGE_CPU_ONLY)
     {
         auto imageViewInfo = vk::ImageViewCreateInfo()
-                .setImage(*mImage)
+                .setImage(mImage)
                 .setFormat(format)
                 .setViewType(vk::ImageViewType::e2D)
                 .setComponents({vk::ComponentSwizzle::eIdentity,
@@ -114,7 +112,7 @@ Texture::Texture(const Device& device, uint32_t width, uint32_t height, vk::Form
         auto clearValue = vk::ClearColorValue()
                 .setFloat32({{0.0f, 0.0f, 0.0f, 0.0f}});
 
-        commandBuffer.clearColorImage(*mImage,
+        commandBuffer.clearColorImage(mImage,
                                       vk::ImageLayout::eGeneral,
                                       clearValue,
                                       vk::ImageSubresourceRange{vk::ImageAspectFlagBits::eColor, 0, 1, 0 ,1});
@@ -125,6 +123,27 @@ Texture::Texture(const Device& device, uint32_t width, uint32_t height, vk::Form
                 vk::ImageLayout::eGeneral,
                 vk::AccessFlagBits{});
     });
+}
+
+Texture::~Texture()
+{
+    if (mImage != VK_NULL_HANDLE)
+    {
+        vmaDestroyImage(mDevice.Allocator(), mImage, mAllocation);
+    }
+}
+
+Texture::Texture(Texture&& other)
+  : mDevice(other.mDevice)
+  , mWidth(other.mWidth)
+  , mHeight(other.mHeight)
+  , mFormat(other.mFormat)
+  , mImage(other.mImage)
+  , mAllocation(other.mAllocation)
+  , mAllocationInfo(other.mAllocationInfo)
+  , mImageView(std::move(other.mImageView))
+{
+  other.mImage = VK_NULL_HANDLE;
 }
 
 void Texture::Clear(vk::CommandBuffer commandBuffer, const std::array<int, 4>& colour)
@@ -146,7 +165,7 @@ void Texture::Clear(vk::CommandBuffer commandBuffer, vk::ClearColorValue colour)
             vk::ImageLayout::eGeneral, vk::AccessFlagBits{},
             vk::ImageLayout::eGeneral, vk::AccessFlagBits::eTransferWrite);
 
-    commandBuffer.clearColorImage(*mImage,
+    commandBuffer.clearColorImage(mImage,
                                   vk::ImageLayout::eGeneral,
                                   colour,
                                   vk::ImageSubresourceRange{vk::ImageAspectFlagBits::eColor, 0, 1, 0 ,1});
@@ -159,63 +178,88 @@ void Texture::Clear(vk::CommandBuffer commandBuffer, vk::ClearColorValue colour)
 void Texture::CopyFrom(const void* data, vk::DeviceSize bytesPerPixel)
 {
     // TODO verify bytesPerPixel is correct
+    // TODO use always mapped functionality of VMA
 
-    if (mHost)
+    VkMemoryPropertyFlags memFlags;
+    vmaGetMemoryTypeProperties(mDevice.Allocator(), mAllocationInfo.memoryType, &memFlags);
+    if (!(memFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)) throw std::runtime_error("Not visible image");
+
+    void* pData;
+    if (vmaMapMemory(mDevice.Allocator(), mAllocation, &pData) != VK_SUCCESS) throw std::runtime_error("Cannot map buffer");
+
+    auto subresource = vk::ImageSubresource()
+        .setAspectMask(vk::ImageAspectFlagBits::eColor)
+        .setMipLevel(0)
+        .setArrayLayer(0);
+
+    auto srcLayout = mDevice.Handle().getImageSubresourceLayout(mImage, subresource);
+
+    const uint8_t* src = (const uint8_t *)data;
+    uint8_t* dst = (uint8_t *)pData;
+
+    dst += srcLayout.offset;
+    for (uint32_t y = 0; y < mHeight; y++)
     {
-        auto subresource = vk::ImageSubresource()
-                .setAspectMask(vk::ImageAspectFlagBits::eColor)
-                .setMipLevel(0)
-                .setArrayLayer(0);
+      std::memcpy(dst, src, mWidth * bytesPerPixel);
 
-        auto srcLayout = mDevice.getImageSubresourceLayout(*mImage, subresource);
-
-        const uint8_t* src = (const uint8_t *)data;
-        uint8_t* dst = (uint8_t *)mDevice.mapMemory(*mMemory, 0, VK_WHOLE_SIZE, {});
-
-        dst += srcLayout.offset;
-        for (uint32_t y = 0; y < mHeight; y++)
-        {
-            std::memcpy(dst, src, mWidth * bytesPerPixel);
-
-            dst += srcLayout.rowPitch;
-            src += mWidth * bytesPerPixel;
-        }
-        mDevice.unmapMemory(*mMemory);
+      dst += srcLayout.rowPitch;
+      src += mWidth * bytesPerPixel;
     }
-    else
+
+    if(!(memFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT))
     {
-        throw std::runtime_error("Texture is not host texture");
+      auto memRange = vk::MappedMemoryRange()
+          .setMemory(mAllocationInfo.deviceMemory)
+          .setOffset(mAllocationInfo.offset)
+          .setSize(mAllocationInfo.size);
+
+      mDevice.Handle().flushMappedMemoryRanges(memRange);
     }
+
+    vmaUnmapMemory(mDevice.Allocator(), mAllocation);
 }
 
 void Texture::CopyTo(void* data, vk::DeviceSize bytesPerPixel)
 {
-    if (mHost)
+    // TODO use always mapped functionality of VMA
+
+    VkMemoryPropertyFlags memFlags;
+    vmaGetMemoryTypeProperties(mDevice.Allocator(), mAllocationInfo.memoryType, &memFlags);
+    if (!(memFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)) throw std::runtime_error("Not visible image");
+
+    void* pData;
+    if (vmaMapMemory(mDevice.Allocator(), mAllocation, &pData) != VK_SUCCESS) throw std::runtime_error("Cannot map buffer");
+
+    if(!(memFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT))
     {
-        auto subresource = vk::ImageSubresource()
-                .setAspectMask(vk::ImageAspectFlagBits::eColor)
-                .setMipLevel(0)
-                .setArrayLayer(0);
+        auto memRange = vk::MappedMemoryRange()
+            .setMemory(mAllocationInfo.deviceMemory)
+            .setOffset(mAllocationInfo.offset)
+            .setSize(mAllocationInfo.size);
 
-        auto srcLayout = mDevice.getImageSubresourceLayout(*mImage, subresource);
-
-        uint8_t* dst = (uint8_t *)data;
-        const uint8_t* src = (const uint8_t *)mDevice.mapMemory(*mMemory, 0, VK_WHOLE_SIZE, {});
-
-        src +=  srcLayout.offset;
-        for (uint32_t y = 0; y < mHeight; y++)
-        {
-            std::memcpy(dst, src, mWidth * bytesPerPixel);
-
-            src += srcLayout.rowPitch;
-            dst += mWidth * bytesPerPixel;
-        }
-        mDevice.unmapMemory(*mMemory);
+        mDevice.Handle().invalidateMappedMemoryRanges(memRange);
     }
-    else
+
+    auto subresource = vk::ImageSubresource()
+        .setAspectMask(vk::ImageAspectFlagBits::eColor)
+        .setMipLevel(0)
+        .setArrayLayer(0);
+
+    auto srcLayout = mDevice.Handle().getImageSubresourceLayout(mImage, subresource);
+
+    uint8_t* dst = (uint8_t *)data;
+    const uint8_t* src = (const uint8_t *)pData;
+
+    src +=  srcLayout.offset;
+    for (uint32_t y = 0; y < mHeight; y++)
     {
-        throw std::runtime_error("Texture is not host texture");
+      std::memcpy(dst, src, mWidth * bytesPerPixel);
+
+      src += srcLayout.rowPitch;
+      dst += mWidth * bytesPerPixel;
     }
+
+    vmaUnmapMemory(mDevice.Allocator(), mAllocation);
 }
 
 void Texture::CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcImage)
@@ -243,9 +287,9 @@ void Texture::CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcImage)
             .setDstSubresource({vk::ImageAspectFlagBits::eColor, 0, 0, 1})
             .setExtent({mWidth, mHeight, 1});
 
-    commandBuffer.copyImage(*srcImage.mImage,
+    commandBuffer.copyImage(srcImage.mImage,
                             vk::ImageLayout::eTransferSrcOptimal,
-                            *mImage,
+                            mImage,
                             vk::ImageLayout::eTransferDstOptimal,
                             region);
 
@@ -274,7 +318,7 @@ void Texture::Barrier(vk::CommandBuffer commandBuffer,
             .setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
             .setOldLayout(oldLayout)
             .setNewLayout(newLayout)
-            .setImage(*mImage)
+            .setImage(mImage)
             .setSubresourceRange({vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1})
             .setSrcAccessMask(srcMask)
             .setDstAccessMask(dstMask);

@@ -31,7 +31,7 @@ struct LinearSolver
 
     struct Data
     {
-        Data(const Renderer::Device& device, const glm::ivec2& size, bool host = false);
+        Data(const Renderer::Device& device, const glm::ivec2& size, VmaMemoryUsage memoryUsage = VMA_MEMORY_USAGE_GPU_ONLY);
 
         Renderer::Buffer<float> Diagonal;
         Renderer::Buffer<glm::vec2> Lower;

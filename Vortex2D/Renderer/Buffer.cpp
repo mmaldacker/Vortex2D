@@ -28,9 +28,11 @@ void BufferBarrier(vk::Buffer buffer, vk::CommandBuffer commandBuffer, vk::Acces
                                   nullptr);
 }
 
-GenericBuffer::GenericBuffer(const Device& device, vk::BufferUsageFlags usageFlags, bool host, vk::DeviceSize deviceSize)
-    : mDevice(device.Handle())
-    , mHost(host)
+GenericBuffer::GenericBuffer(const Device& device,
+                             vk::BufferUsageFlags usageFlags,
+                             VmaMemoryUsage memoryUsage,
+                             vk::DeviceSize deviceSize)
+    : mDevice(device)
     , mSize(deviceSize)
 {
     usageFlags |= vk::BufferUsageFlagBits::eTransferDst |
@@ -41,23 +43,18 @@ GenericBuffer::GenericBuffer(const Device& device, vk::BufferUsageFlags usageFla
             .setUsage(usageFlags)
             .setSharingMode(vk::SharingMode::eExclusive);
 
-    mBuffer = device.Handle().createBufferUnique(bufferInfo);
-
-    auto memoryRequirements = device.Handle().getBufferMemoryRequirements(*mBuffer);
-
-    vk::MemoryPropertyFlags memoryFlags = host ? vk::MemoryPropertyFlagBits::eHostVisible |
-                                                 vk::MemoryPropertyFlagBits::eHostCoherent
-                                               : vk::MemoryPropertyFlagBits::eDeviceLocal;
-
-    uint32_t memoryPropertyIndex =
-            device.FindMemoryPropertiesIndex(memoryRequirements.memoryTypeBits, memoryFlags);
-
-    auto memoryInfo = vk::MemoryAllocateInfo()
-            .setAllocationSize(memoryRequirements.size)
-            .setMemoryTypeIndex(memoryPropertyIndex);
-
-    mMemory = device.Handle().allocateMemoryUnique(memoryInfo);
-    device.Handle().bindBufferMemory(*mBuffer, *mMemory, 0);
+    VkBufferCreateInfo vkBufferInfo = bufferInfo;
+    VmaAllocationCreateInfo allocInfo = {};
+    allocInfo.usage = memoryUsage;
+    if (vmaCreateBuffer(device.Allocator(),
+                        &vkBufferInfo,
+                        &allocInfo,
+                        &mBuffer,
+                        &mAllocation,
+                        &mAllocationInfo) != VK_SUCCESS)
+    {
+      throw std::runtime_error("Error creating buffer");
+    }
 
     // TODO we shouldn't have to clear always in the constructor
     ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
@@ -66,9 +63,28 @@ GenericBuffer::GenericBuffer(const Device& device, vk::BufferUsageFlags usageFla
     });
 }
 
+GenericBuffer::~GenericBuffer()
+{
+  if (mBuffer != VK_NULL_HANDLE)
+  {
+    vmaDestroyBuffer(mDevice.Allocator(), mBuffer, mAllocation);
+  }
+}
+
+GenericBuffer::GenericBuffer(GenericBuffer&& other)
+  : mDevice(other.mDevice)
+  , mSize(other.mSize)
+  , mBuffer(other.mBuffer)
+  , mAllocation(other.mAllocation)
+  , mAllocationInfo(other.mAllocationInfo)
+{
+  other.mBuffer = VK_NULL_HANDLE;
+  other.mSize = 0;
+}
+
 vk::Buffer GenericBuffer::Handle() const
 {
-    return *mBuffer;
+    return mBuffer;
 }
 
 vk::DeviceSize GenericBuffer::Size() const
@@ -90,7 +106,7 @@ void GenericBuffer::CopyFrom(vk::CommandBuffer commandBuffer, GenericBuffer& src
     auto region = vk::BufferCopy()
             .setSize(mSize);
 
-    commandBuffer.copyBuffer(srcBuffer.Handle(), *mBuffer, region);
+    commandBuffer.copyBuffer(srcBuffer.Handle(), mBuffer, region);
 
     Barrier(commandBuffer, vk::AccessFlagBits::eTransferWrite, vk::AccessFlagBits::eShaderRead);
     srcBuffer.Barrier(commandBuffer, vk::AccessFlagBits::eTransferRead, vk::AccessFlagBits::eShaderRead);
@@ -110,9 +126,9 @@ void GenericBuffer::CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcTextur
             .setImageSubresource({vk::ImageAspectFlagBits::eColor, 0, 0 ,1})
             .setImageExtent({srcTexture.GetWidth(), srcTexture.GetHeight(), 1});
 
-    commandBuffer.copyImageToBuffer(*srcTexture.mImage,
+    commandBuffer.copyImageToBuffer(srcTexture.mImage,
                                     vk::ImageLayout::eTransferSrcOptimal,
-                                    *mBuffer,
+                                    mBuffer,
                                     info);
 
     srcTexture.Barrier(commandBuffer,
@@ -126,30 +142,66 @@ void GenericBuffer::CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcTextur
 
 void GenericBuffer::Barrier(vk::CommandBuffer commandBuffer, vk::AccessFlags oldAccess, vk::AccessFlags newAccess)
 {
-    BufferBarrier(*mBuffer, commandBuffer, oldAccess, newAccess);
+    BufferBarrier(mBuffer, commandBuffer, oldAccess, newAccess);
 }
 
 void GenericBuffer::Clear(vk::CommandBuffer commandBuffer)
 {
     Barrier(commandBuffer, vk::AccessFlagBits::eShaderRead, vk::AccessFlagBits::eTransferWrite);
-    commandBuffer.fillBuffer(*mBuffer, 0, mSize, 0);
+    commandBuffer.fillBuffer(mBuffer, 0, mSize, 0);
     Barrier(commandBuffer, vk::AccessFlagBits::eTransferWrite, vk::AccessFlagBits::eShaderRead);
 }
 
 void GenericBuffer::CopyFrom(const void* data)
 {
-    if (!mHost) throw std::runtime_error("Not local buffer");
-    void* mapped = mDevice.mapMemory(*mMemory, 0, mSize, vk::MemoryMapFlagBits());
-    std::memcpy(mapped, data, mSize);
-    mDevice.unmapMemory(*mMemory);
+    // TODO use always mapped functionality of VMA
+
+    VkMemoryPropertyFlags memFlags;
+    vmaGetMemoryTypeProperties(mDevice.Allocator(), mAllocationInfo.memoryType, &memFlags);
+    if (!(memFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)) throw std::runtime_error("Not visible buffer");
+
+    void* pData;
+    if (vmaMapMemory(mDevice.Allocator(), mAllocation, &pData) != VK_SUCCESS) throw std::runtime_error("Cannot map buffer");
+
+    std::memcpy(pData, data, mSize);
+
+    if(!(memFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT))
+    {
+        auto memRange = vk::MappedMemoryRange()
+            .setMemory(mAllocationInfo.deviceMemory)
+            .setOffset(mAllocationInfo.offset)
+            .setSize(mAllocationInfo.size);
+
+        mDevice.Handle().flushMappedMemoryRanges(memRange);
+    }
+
+    vmaUnmapMemory(mDevice.Allocator(), mAllocation);
 }
 
 void GenericBuffer::CopyTo(void* data)
 {
-    if (!mHost) throw std::runtime_error("Not local buffer");
-    void* mapped = mDevice.mapMemory(*mMemory, 0, mSize, vk::MemoryMapFlagBits());
-    std::memcpy(data, mapped, mSize);
-    mDevice.unmapMemory(*mMemory);
+  // TODO use always mapped functionality of VMA
+
+  VkMemoryPropertyFlags memFlags;
+  vmaGetMemoryTypeProperties(mDevice.Allocator(), mAllocationInfo.memoryType, &memFlags);
+  if (!(memFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)) throw std::runtime_error("Not visible buffer");
+
+  void* pData;
+  if (vmaMapMemory(mDevice.Allocator(), mAllocation, &pData) != VK_SUCCESS) throw std::runtime_error("Cannot map buffer");
+
+  if(!(memFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT))
+  {
+      auto memRange = vk::MappedMemoryRange()
+          .setMemory(mAllocationInfo.deviceMemory)
+          .setOffset(mAllocationInfo.offset)
+          .setSize(mAllocationInfo.size);
+
+      mDevice.Handle().invalidateMappedMemoryRanges(memRange);
+  }
+
+  std::memcpy(data, pData, mSize);
+
+  vmaUnmapMemory(mDevice.Allocator(), mAllocation);
 }
 
 }}

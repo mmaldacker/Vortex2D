@@ -66,7 +66,7 @@ static void SetVelocity(const Vortex2D::Renderer::Device& device,
                         Vortex2D::Renderer::Texture& velocity,
                         FluidSim& sim)
 {
-    Vortex2D::Renderer::Texture input(device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
+    Vortex2D::Renderer::Texture input(device, size.x, size.y, vk::Format::eR32G32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
 
     std::vector<glm::vec2> velocityData(size.x * size.y, glm::vec2(0.0f));
     for (int i = 0; i < size.x; i++)
@@ -92,7 +92,7 @@ static void SetSolidPhi(const Vortex2D::Renderer::Device& device,
                         FluidSim& sim,
                         float scale = 1.0f)
 {
-    Vortex2D::Renderer::Texture input(device, size.x, size.y, vk::Format::eR32Sfloat, true);
+    Vortex2D::Renderer::Texture input(device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
 
     std::vector<float> phi(size.x * size.y, 0.0f);
     for (int i = 0; i < size.x; i++)
@@ -117,7 +117,7 @@ static void SetLiquidPhi(const Vortex2D::Renderer::Device& device,
                          FluidSim& sim,
                          float scale = 1.0f)
 {
-    Vortex2D::Renderer::Texture input(device, size.x, size.y, vk::Format::eR32Sfloat, true);
+    Vortex2D::Renderer::Texture input(device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
 
     std::vector<float> phi(size.x * size.y, 0.0f);
     for (int i = 0; i < size.x; i++)
@@ -252,7 +252,7 @@ static void CheckVelocity(const Vortex2D::Renderer::Device& device,
                           FluidSim& sim,
                           float error = 1e-6)
 {
-    Vortex2D::Renderer::Texture output(device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
+    Vortex2D::Renderer::Texture output(device, size.x, size.y, vk::Format::eR32G32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
     ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
     {
         output.CopyFrom(commandBuffer, velocity);

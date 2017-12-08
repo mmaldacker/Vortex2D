@@ -45,7 +45,8 @@ file(GLOB LIB_SOURCES
     "Renderer/*.h"
     "SPIRV/Reflection.h"
     "SPIRV/Reflection.cpp"
-    "Utils/variant.hpp")
+    "Utils/variant.hpp"
+    "Utils/vk_mem_alloc.h")
 
 file(GLOB SHADER_SOURCES
     "Renderer/Kernels/*.vert"

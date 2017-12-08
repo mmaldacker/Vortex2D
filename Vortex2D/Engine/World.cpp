@@ -11,7 +11,7 @@ namespace Vortex2D { namespace Fluid {
 
 World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
     : mDimensions(dimensions)
-    , mParticles(device, vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eVertexBuffer, false, 8*dimensions.Size.x*dimensions.Size.y*sizeof(Particle))
+    , mParticles(device, vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eVertexBuffer, VMA_MEMORY_USAGE_GPU_ONLY, 8*dimensions.Size.x*dimensions.Size.y*sizeof(Particle))
     , mParticleCount(device, dimensions.Size, mParticles)
     , mPreconditioner(device, dimensions.Size, dt)
     , mLinearSolver(device, dimensions.Size, mPreconditioner)

@@ -50,7 +50,7 @@ TEST(RigidbodyTests, PolygonVelocity)
 
     boundaryVelocity.Record({polygon}).Submit();
 
-    Texture output(*device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
+    Texture output(*device, size.x, size.y, vk::Format::eR32G32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
         output.CopyFrom(commandBuffer, boundaryVelocity);
@@ -105,7 +105,7 @@ TEST(RigidbodyTests, PolygonVelocityRotation)
 
     boundaryVelocity.Record({polygon}).Submit();
 
-    Texture output(*device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
+    Texture output(*device, size.x, size.y, vk::Format::eR32G32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
         output.CopyFrom(commandBuffer, boundaryVelocity);

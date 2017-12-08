@@ -38,7 +38,7 @@ private:
     Preconditioner& mPreconditioner;
 
     Renderer::Buffer<float> r, s, z, inner, alpha, beta, rho, rho_new, sigma;
-    Renderer::UpdateStorageBuffer<float> error;
+    Renderer::Buffer<float> error, localError;
     Renderer::Work matrixMultiply, scalarDivision, scalarMultiply, multiplyAdd, multiplySub;
     ReduceSum reduceSum;
     ReduceMax reduceMax;

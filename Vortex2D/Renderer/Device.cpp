@@ -9,7 +9,13 @@
 
 #include <Vortex2D/Renderer/Instance.h>
 
+#define VMA_IMPLEMENTATION
+#include <Vortex2D/Utils/vk_mem_alloc.h>
+
 namespace Vortex2D { namespace Renderer {
+
+namespace
+{
 
 // TODO two functions below are duplicated
 int ComputeFamilyIndex(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
@@ -55,6 +61,8 @@ int ComputeFamilyIndex(vk::PhysicalDevice physicalDevice)
     }
 
     return index;
+}
+
 }
 
 Device::Device(vk::PhysicalDevice physicalDevice, bool validation)
@@ -126,8 +134,23 @@ Device::Device(vk::PhysicalDevice physicalDevice, int familyIndex, bool validati
             .setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
     mCommandPool = mDevice->createCommandPoolUnique(commandPoolInfo);
 
+    // create alllocator
+    VmaAllocatorCreateInfo allocatorInfo = {};
+    allocatorInfo.physicalDevice = mPhysicalDevice;
+    allocatorInfo.device = *mDevice;
+
+    if (vmaCreateAllocator(&allocatorInfo, &mAllocator) != VK_SUCCESS)
+    {
+      throw std::runtime_error("Error creating allocator");
+    }
+
     // create descriptor pool
     mLayoutManager.CreateDescriptorPool();
+}
+
+Device::~Device()
+{
+  vmaDestroyAllocator(mAllocator);
 }
 
 vk::Device Device::Handle() const
@@ -170,17 +193,9 @@ void Device::FreeCommandBuffers(vk::ArrayProxy<const vk::CommandBuffer> commandB
     mDevice->freeCommandBuffers(*mCommandPool, commandBuffers);
 }
 
-uint32_t Device::FindMemoryPropertiesIndex(uint32_t memoryTypeBits, vk::MemoryPropertyFlags properties) const
+VmaAllocator Device::Allocator() const
 {
-    auto memoryProperties = mPhysicalDevice.getMemoryProperties();
-    for (uint32_t i = 0; i < memoryProperties.memoryTypeCount; ++i)
-    {
-        if ((memoryTypeBits & (1 << i)) &&
-                ((memoryProperties.memoryTypes[i].propertyFlags & properties) == properties))
-            return i;
-    }
-
-    throw std::runtime_error("Memory type not found");
+    return mAllocator;
 }
 
 vk::ShaderModule Device::GetShaderModule(const std::string& filename) const

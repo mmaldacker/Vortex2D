@@ -40,7 +40,7 @@ private:
     };
 
     const Device& mDevice;
-    UpdateBuffer<UniformBuffer, glm::mat4> mMVPBuffer;
+    UniformBuffer<glm::mat4> mMVPBuffer;
     VertexBuffer<Vertex> mVertexBuffer;
     vk::UniqueSampler mSampler;
     DescriptorSet mDescriptorSet;

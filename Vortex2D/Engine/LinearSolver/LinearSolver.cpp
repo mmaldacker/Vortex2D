@@ -16,11 +16,11 @@ LinearSolver::Parameters::Parameters(unsigned iterations, float errorTolerance)
 
 }
 
-LinearSolver::Data::Data(const Renderer::Device& device, const glm::ivec2& size, bool host)
-    : Diagonal(device, size.x * size.y, host)
-    , Lower(device, size.x * size.y, host)
-    , B(device, size.x * size.y, host)
-    , X(device, size.x * size.y, host)
+LinearSolver::Data::Data(const Renderer::Device& device, const glm::ivec2& size, VmaMemoryUsage memoryUsage)
+    : Diagonal(device, size.x * size.y, memoryUsage)
+    , Lower(device, size.x * size.y, memoryUsage)
+    , B(device, size.x * size.y, memoryUsage)
+    , X(device, size.x * size.y, memoryUsage)
 {
 }
 

@@ -24,7 +24,7 @@ extern Device* device;
 TEST(ComputeTests, WriteBuffer)
 {
     std::vector<float> data(100, 23.4f);
-    Buffer<float> buffer(*device, data.size(), true);
+    Buffer<float> buffer(*device, data.size(), VMA_MEMORY_USAGE_CPU_ONLY);
 
     CopyFrom(buffer, data);
 
@@ -35,8 +35,8 @@ TEST(ComputeTests, BufferCopy)
 {
     std::vector<float> data(100, 23.4f);
     Buffer<float> buffer(*device, data.size());
-    Buffer<float> inBuffer(*device, data.size(), true);
-    Buffer<float> outBuffer(*device, data.size(), true);
+    Buffer<float> inBuffer(*device, data.size(), VMA_MEMORY_USAGE_CPU_ONLY);
+    Buffer<float> outBuffer(*device, data.size(), VMA_MEMORY_USAGE_CPU_ONLY);
 
     CopyFrom(inBuffer, data);
 
@@ -52,17 +52,15 @@ TEST(ComputeTests, BufferCopy)
 TEST(ComputeTests, UpdateVectorBuffer)
 {
     int size = 3;
-    UpdateStorageBuffer<float> inBuffer(*device, size);
-    UpdateStorageBuffer<float> outBuffer(*device, size);
+    Buffer<float> inBuffer(*device, size, VMA_MEMORY_USAGE_CPU_TO_GPU);
+    Buffer<float> outBuffer(*device, size, VMA_MEMORY_USAGE_GPU_TO_CPU);
 
     std::vector<float> data(size, 1.1f);
     CopyFrom(inBuffer, data);
 
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
-        inBuffer.Upload(commandBuffer);
         outBuffer.CopyFrom(commandBuffer, inBuffer);
-        outBuffer.Download(commandBuffer);
     });
 
     std::vector<float> outData(size);
@@ -87,8 +85,8 @@ TEST(ComputeTests, BufferCompute)
 {
     std::vector<Particle> particles(100, {{1.0f, 1.0f}, {10.0f, 10.0f}});
 
-    Buffer<Particle> buffer(*device, 100, true);
-    UniformBuffer<UBO> uboBuffer(*device, true);
+    Buffer<Particle> buffer(*device, 100, VMA_MEMORY_USAGE_CPU_ONLY);
+    UniformBuffer<UBO> uboBuffer(*device, VMA_MEMORY_USAGE_CPU_ONLY);
 
     UBO ubo = {0.2f, 100};
 
@@ -128,9 +126,9 @@ TEST(ComputeTests, BufferCompute)
 
 TEST(ComputeTests, ImageCompute)
 {
-    Texture stagingTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);
-    Texture inTexture(*device, 50, 50, vk::Format::eR32Sfloat, false);
-    Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, false);
+    Texture stagingTexture(*device, 50, 50, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
+    Texture inTexture(*device, 50, 50, vk::Format::eR32Sfloat);
+    Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat);
 
     std::vector<float> data(50*50,1.0f);
     stagingTexture.CopyFrom(data);
@@ -159,7 +157,7 @@ TEST(ComputeTests, ImageCompute)
 
 TEST(ComputeTests, Work)
 {
-    Buffer<float> buffer(*device, 16*16, true);
+    Buffer<float> buffer(*device, 16*16, VMA_MEMORY_USAGE_CPU_ONLY);
     Work work(*device, glm::ivec2(16), "Work.comp.spv");
 
     auto boundWork = work.Bind({buffer});
@@ -193,8 +191,8 @@ TEST(ComputeTests, WorkIndirect)
     glm::ivec2 size(16, 1);
 
     // create bigger buffer than size to check the indirect buffer is correct
-    Buffer<float> buffer(*device, 100*size.x*size.y, true);
-    IndirectBuffer<DispatchParams> dispatchParams(*device, true);
+    Buffer<float> buffer(*device, 100*size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+    IndirectBuffer<DispatchParams> dispatchParams(*device, VMA_MEMORY_USAGE_CPU_ONLY);
 
     // build work
     ComputeSize computeSize(16);
@@ -259,8 +257,8 @@ TEST(ComputeTests, Stencil)
 {
     glm::ivec2 size(50);
 
-    Buffer<float> input(*device, size.x*size.y, true);
-    Buffer<float> output(*device, size.x*size.y, true);
+    Buffer<float> input(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+    Buffer<float> output(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
     auto computeSize = MakeStencilComputeSize(size, 1);
 
@@ -316,7 +314,7 @@ TEST(ComputeTests, Checkerboard)
 {
     glm::ivec2 size(50);
 
-    Buffer<float> buffer(*device, size.x*size.y, true);
+    Buffer<float> buffer(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
     ComputeSize computeSize = MakeCheckerboardComputeSize(size);
 

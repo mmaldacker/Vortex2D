@@ -59,10 +59,10 @@ TEST(ExtrapolateTest, Extrapolate)
     sim.add_force(0.01f);
     sim.apply_projection(0.01f);
 
-    Buffer<glm::ivec2> valid(*device, size.x*size.y, true);
+    Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
     SetValid(size, sim, valid);
 
-    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
+    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
     SetVelocity(*device, size, velocity, sim);
 
     extrapolate(sim.u, sim.u_valid);
@@ -92,17 +92,17 @@ TEST(ExtrapolateTest, Constrain)
     sim.compute_pressure_weights();
     sim.apply_projection(0.01f);
 
-    Buffer<glm::ivec2> valid(*device, size.x*size.y, true);
+    Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
-    Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
+    Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
     // FIXME should set the scale to size.x
     SetSolidPhi(*device, size, solidPhi, sim);
 
     extrapolate(sim.u, sim.u_valid);
     extrapolate(sim.v, sim.v_valid);
 
-    Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
-    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
+    Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
+    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
     SetVelocity(*device, size, velocity, sim);
 
     sim.constrain_velocity();

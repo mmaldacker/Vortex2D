@@ -17,7 +17,7 @@ extern Device* device;
 
 void PrintParticles(const glm::ivec2& size, World& world)
 {
-    Buffer<Particle> particles(*device, 8*size.x*size.y, true);
+    Buffer<Particle> particles(*device, 8*size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
     std::vector<Particle> particleData(8*size.x*size.y);
 
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
@@ -63,7 +63,7 @@ TEST(WorldTests, Velocity)
     device->Handle().waitIdle();
 
     // Verify particle velocity
-    Buffer<Particle> particles(*device, 8*size.Size.x*size.Size.y, true);
+    Buffer<Particle> particles(*device, 8*size.Size.x*size.Size.y, VMA_MEMORY_USAGE_CPU_ONLY);
     std::vector<Particle> particleData(8*size.Size.x*size.Size.y);
 
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
@@ -87,9 +87,8 @@ TEST(WorldTests, ObstacleVelocity)
 {
     glm::ivec2 size(20);
 
-    Buffer<glm::ivec2> valid(*device, size.x*size.y, false);
-
-    LinearSolver::Data data(*device, size, true);
+    Buffer<glm::ivec2> valid(*device, size.x*size.y);
+    LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
 
     IncompletePoisson preconditioner(*device, size);
     ConjugateGradient linearSolver(*device, size, preconditioner);

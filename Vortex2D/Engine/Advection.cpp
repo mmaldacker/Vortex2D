@@ -15,7 +15,7 @@ Advection::Advection(const Renderer::Device& device, const glm::ivec2& size, flo
     : mDt(dt)
     , mSize(size)
     , mVelocity(velocity)
-    , mTmpVelocity(device, size.x, size.y, vk::Format::eR32G32Sfloat, false)
+    , mTmpVelocity(device, size.x, size.y, vk::Format::eR32G32Sfloat)
     , mVelocityAdvect(device, size, "../Vortex2D/AdvectVelocity.comp.spv")
     , mVelocityAdvectBound(mVelocityAdvect.Bind({velocity, mTmpVelocity}))
     , mAdvect(device, size, "../Vortex2D/Advect.comp.spv")

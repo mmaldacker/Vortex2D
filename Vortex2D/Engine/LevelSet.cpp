@@ -12,8 +12,8 @@ namespace Vortex2D { namespace  Fluid {
 
 LevelSet::LevelSet(const Renderer::Device& device, const glm::ivec2& size, int reinitializeIterations)
     : Renderer::RenderTexture(device, size.x, size.y, vk::Format::eR32Sfloat)
-    , mLevelSet0(device, size.x, size.y, vk::Format::eR32Sfloat, false)
-    , mLevelSetBack(device, size.x, size.y, vk::Format::eR32Sfloat, false)
+    , mLevelSet0(device, size.x, size.y, vk::Format::eR32Sfloat)
+    , mLevelSetBack(device, size.x, size.y, vk::Format::eR32Sfloat)
     , mSampler(Renderer::SamplerBuilder()
                .AddressMode(vk::SamplerAddressMode::eClampToEdge)
                .Create(device.Handle()))
@@ -21,9 +21,9 @@ LevelSet::LevelSet(const Renderer::Device& device, const glm::ivec2& size, int r
     , mRedistance(device, size, "../Vortex2D/Redistance.comp.spv")
     , mRedistanceFront(mRedistance.Bind({{*mSampler, mLevelSet0}, {*mSampler, *this}, mLevelSetBack}))
     , mRedistanceBack(mRedistance.Bind({{*mSampler, mLevelSet0}, {*mSampler, mLevelSetBack}, *this}))
-    , mExtrapolateCmd(device, false)
-    , mReinitialiseCmd(device, false)
-    , mSignedObjectCmd(device, false)
+    , mExtrapolateCmd(device)
+    , mReinitialiseCmd(device)
+    , mSignedObjectCmd(device)
 {
     mReinitialiseCmd.Record([&, reinitializeIterations](vk::CommandBuffer commandBuffer)
     {

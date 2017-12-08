@@ -106,7 +106,7 @@ TEST(BoundariesTests, Square)
     levelSet.Record({clear, square}).Submit();
     device->Handle().waitIdle();
 
-    Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
+    Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
        outTexture.CopyFrom(commandBuffer, levelSet);
@@ -136,7 +136,7 @@ TEST(BoundariesTests, InverseSquare)
     levelSet.Record({clear, square}).Submit();
     device->Handle().waitIdle();
 
-    Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
+    Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
        outTexture.CopyFrom(commandBuffer, levelSet);
@@ -163,7 +163,7 @@ TEST(BoundariesTests, Circle)
     levelSet.Record({clear, circle}).Submit();
     device->Handle().waitIdle();
 
-    Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
+    Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
        outTexture.CopyFrom(commandBuffer, levelSet);
@@ -202,7 +202,7 @@ TEST(BoundariesTests, Intersection)
     levelSet.Record({clear, square1, square2}, UnionBlend).Submit();
     device->Handle().waitIdle();
 
-    Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
+    Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
        outTexture.CopyFrom(commandBuffer, levelSet);

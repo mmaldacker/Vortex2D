@@ -25,9 +25,9 @@ FluidSim sim;
 
 void BuildDeviceLocalLinearEquations(const glm::ivec2& size, Vortex2D::Renderer::GenericBuffer& diagonal, Vortex2D::Renderer::GenericBuffer& lower, Vortex2D::Renderer::GenericBuffer& div, FluidSim& sim)
 {
-    Buffer<float> hostDiagonal(*device, size.x*size.y, true);
-    Buffer<glm::vec2> hostLower(*device, size.x*size.y, true);
-    Buffer<float> hostDiv(*device, size.x*size.y, true);
+    Buffer<float> hostDiagonal(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+    Buffer<glm::vec2> hostLower(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+    Buffer<float> hostDiv(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
     BuildLinearEquation(size, hostDiagonal, hostLower, hostDiv, sim);
 
@@ -49,7 +49,7 @@ static void ICCG(benchmark::State& state)
 
 static void DiagonalCG(benchmark::State& state)
 {
-    LinearSolver::Data data(*device, size, false);
+    LinearSolver::Data data(*device, size);
     BuildDeviceLocalLinearEquations(size, data.Diagonal, data.Lower, data.B, sim);
 
     Diagonal preconditioner(*device, size);
@@ -77,7 +77,7 @@ static void DiagonalCG(benchmark::State& state)
 
 static void IncompletePoissonCG(benchmark::State& state)
 {
-    LinearSolver::Data data(*device, size, false);
+    LinearSolver::Data data(*device, size);
     BuildDeviceLocalLinearEquations(size, data.Diagonal, data.Lower, data.B, sim);
 
     IncompletePoisson preconditioner(*device, size);
@@ -105,7 +105,7 @@ static void IncompletePoissonCG(benchmark::State& state)
 
 static void GaussSeidelCG(benchmark::State& state)
 {
-    LinearSolver::Data data(*device, size, false);
+    LinearSolver::Data data(*device, size);
     BuildDeviceLocalLinearEquations(size, data.Diagonal, data.Lower, data.B, sim);
 
     GaussSeidel preconditioner(*device, size);
@@ -138,10 +138,10 @@ static void MultigridCG(benchmark::State& state)
     LinearSolver::Data data(*device, size);
     BuildDeviceLocalLinearEquations(size, data.Diagonal, data.Lower, data.B, sim);
 
-    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
-    Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
-    Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat, false);
-    Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat, false);
+    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
+    Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+    Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+    Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
     Buffer<glm::ivec2> valid(*device, size.x*size.y);
 
     SetSolidPhi(*device, size, solidPhi, sim, size.x);

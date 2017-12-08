@@ -18,14 +18,14 @@ AbstractShape::AbstractShape(const Device& device,
                              const std::vector<glm::vec2>& vertices,
                              const glm::vec4& colour)
     : mDevice(device)
-    , mMVPBuffer(device)
-    , mColourBuffer(device)
+    , mMVPBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
+    , mColourBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
     , mVertexBuffer(device, vertices.size())
     , mNumVertices(vertices.size())
 {
     Renderer::CopyFrom(mColourBuffer, colour);
 
-    VertexBuffer<glm::vec2> localVertices(device, vertices.size(), true);
+    VertexBuffer<glm::vec2> localVertices(device, vertices.size(), VMA_MEMORY_USAGE_CPU_ONLY);
     Renderer::CopyFrom(localVertices, vertices);
     ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
     {
@@ -58,12 +58,7 @@ void AbstractShape::Initialize(const RenderState& renderState)
 void AbstractShape::Update(const glm::mat4& projection, const glm::mat4& view)
 {
     Renderer::CopyFrom(mMVPBuffer, projection * view * GetTransform());
-    // TODO shouldn't be a synced command
-    ExecuteCommand(mDevice, [&](vk::CommandBuffer commandBuffer)
-    {
-        mMVPBuffer.Upload(commandBuffer);
-        mColourBuffer.Upload(commandBuffer);
-    });
+    // TODO no way to update colour
 }
 
 void AbstractShape::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState)
@@ -97,7 +92,7 @@ IntRectangle::IntRectangle(const Device& device, const glm::vec2& size, const gl
                      {0.0f, size.y}},
                     colour)
 {
-    UniformBuffer<glm::ivec4> localColour(device, true);
+    UniformBuffer<glm::ivec4> localColour(device, VMA_MEMORY_USAGE_CPU_ONLY);
     CopyFrom(localColour, colour);
     ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
     {
@@ -108,24 +103,19 @@ IntRectangle::IntRectangle(const Device& device, const glm::vec2& size, const gl
 void IntRectangle::Update(const glm::mat4& projection, const glm::mat4& view)
 {
     Renderer::CopyFrom(mMVPBuffer, projection * view * GetTransform());
-    // TODO shouldn't be a synced command
-    ExecuteCommand(mDevice, [&](vk::CommandBuffer commandBuffer)
-    {
-        mMVPBuffer.Upload(commandBuffer);
-    });
 }
 
 Ellipse::Ellipse(const Device& device, const glm::vec2& radius, const glm::vec4& colour)
     : mDevice(device)
     , mRadius(radius)
-    , mMVPBuffer(device)
-    , mColourBuffer(device)
+    , mMVPBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
+    , mColourBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
     , mVertexBuffer(device, 6)
-    , mSizeBuffer(device)
+    , mSizeBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
 {
     Renderer::CopyFrom(mColourBuffer, colour);
 
-    VertexBuffer<glm::vec2> localVertices(device, 6, true);
+    VertexBuffer<glm::vec2> localVertices(device, 6, VMA_MEMORY_USAGE_CPU_ONLY);
     std::vector<glm::vec2> vertices = {{-radius.x, -radius.y},
                                 {radius.x + 1.0f, -radius.y},
                                 {-radius.x, radius.y + 1.0f},
@@ -178,13 +168,7 @@ void Ellipse::Update(const glm::mat4& projection, const glm::mat4& view)
 
     Renderer::CopyFrom(mSizeBuffer, size);
 
-    // TODO shouldn't be a synced command
-    ExecuteCommand(mDevice, [&](vk::CommandBuffer commandBuffer)
-    {
-        mMVPBuffer.Upload(commandBuffer);
-        mColourBuffer.Upload(commandBuffer);
-        mSizeBuffer.Upload(commandBuffer);
-    });
+    // TODO no way to update colour
 }
 
 void Ellipse::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState)

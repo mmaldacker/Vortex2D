@@ -94,7 +94,7 @@ uint64_t Timer::GetElapsedNs()
 Statistics::Statistics(const Device& device)
     : mDevice(device)
     , mIndex(0)
-    , mResults(device, queryCount)
+    , mResults(device, queryCount, VMA_MEMORY_USAGE_GPU_TO_CPU)
 {
     auto queryPoolInfo = vk::QueryPoolCreateInfo()
             .setQueryType(vk::QueryType::eTimestamp)
@@ -126,11 +126,6 @@ void Statistics::End(vk::CommandBuffer commandBuffer, const std::string& name)
 
 Statistics::Timestamps Statistics::GetTimestamps()
 {
-    ExecuteCommand(mDevice, [&](vk::CommandBuffer commandBuffer)
-    {
-        mResults.Download(commandBuffer);
-    });
-
     std::vector<uint64_t> timestamps(queryCount);
     Renderer::CopyTo(mResults, timestamps);
 

@@ -44,7 +44,7 @@ private:
     const Device& mDevice;
     vk::UniqueQueryPool mPool;
     int mIndex;
-    UpdateStorageBuffer<uint64_t> mResults;
+    Buffer<uint64_t> mResults;
 
     std::vector<std::string> mTimestampNames;
 };

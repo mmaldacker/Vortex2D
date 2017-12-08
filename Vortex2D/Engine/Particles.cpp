@@ -21,9 +21,9 @@ ParticleCount::ParticleCount(const Renderer::Device& device,
     , mNewParticles(device, 8*size.x*size.y)
     , mCount(device, size.x*size.y)
     , mIndex(device, size.x*size.y)
-    , mSeeds(device, 4)
+    , mSeeds(device, 4, VMA_MEMORY_USAGE_CPU_TO_GPU)
     , mDispatchParams(device)
-    , mLocalDispatchParams(device, 1, true)
+    , mLocalDispatchParams(device, 1, VMA_MEMORY_USAGE_CPU_ONLY)
     , mNewDispatchParams(device)
     , mParticleCountWork(device, Renderer::ComputeSize::Default1D(), "../Vortex2D/ParticleCount.comp.spv")
     , mParticleCountBound(mParticleCountWork.Bind({particles, mDispatchParams, *this}))
@@ -72,7 +72,6 @@ ParticleCount::ParticleCount(const Renderer::Device& device,
         mPrefixScanBound.Record(commandBuffer);
         mParticleBucketBound.RecordIndirect(commandBuffer, mDispatchParams);
         mNewParticles.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-        mSeeds.Upload(commandBuffer);
         mParticleSpawnBound.Record(commandBuffer);
         mNewParticles.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         particles.CopyFrom(commandBuffer, mNewParticles);

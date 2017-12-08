@@ -15,6 +15,7 @@ GaussSeidel::GaussSeidel(const Renderer::Device& device, const glm::ivec2& size)
     , mPreconditionerIterations(1)
     , mResidual(device, size.x*size.y)
     , mError(device)
+    , mLocalError(device, 1, VMA_MEMORY_USAGE_GPU_TO_CPU)
     , mGaussSeidel(device, Renderer::MakeCheckerboardComputeSize(size), "../Vortex2D/GaussSeidel.comp.spv")
     , mResidualWork(device, size, "../Vortex2D/Residual.comp.spv")
     , mReduceMax(device, size)
@@ -63,7 +64,7 @@ void GaussSeidel::Init(Renderer::GenericBuffer& d,
         mReduceMaxBound.Record(commandBuffer);
         mError.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
 
-        mError.Download(commandBuffer);
+        mLocalError.CopyFrom(commandBuffer, mError);
     });
 }
 
@@ -78,7 +79,7 @@ void GaussSeidel::Solve(Parameters& params)
         mErrorCmd.Wait();
 
         params.OutIterations = i;
-        Renderer::CopyTo(mError, params.OutError);
+        Renderer::CopyTo(mLocalError, params.OutError);
         if (params.IsFinished(i, params.OutError))
         {
             return;

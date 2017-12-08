@@ -20,7 +20,8 @@ ConjugateGradient::ConjugateGradient(const Renderer::Device& device,
     , rho(device, 1)
     , rho_new(device, 1)
     , sigma(device, 1)
-    , error(device)
+    , error(device, 1)
+    , localError(device, 1, VMA_MEMORY_USAGE_GPU_TO_CPU)
     , matrixMultiply(device, size, "../Vortex2D/MultiplyMatrix.comp.spv")
     , scalarDivision(device, glm::ivec2(1), "../Vortex2D/Divide.comp.spv")
     , scalarMultiply(device, size, "../Vortex2D/Multiply.comp.spv")
@@ -45,7 +46,7 @@ ConjugateGradient::ConjugateGradient(const Renderer::Device& device,
 
     mErrorRead.Record([&](vk::CommandBuffer commandBuffer)
     {
-        error.Download(commandBuffer);
+        localError.CopyFrom(commandBuffer, error);
     });
 }
 
@@ -157,7 +158,7 @@ void ConjugateGradient::Solve(Parameters& params)
         mErrorRead.Wait();
 
         params.OutIterations = i;
-        Renderer::CopyTo(error, params.OutError);
+        Renderer::CopyTo(localError, params.OutError);
         // TODO should divide by the initial error
         if (params.IsFinished(i, params.OutError))
         {

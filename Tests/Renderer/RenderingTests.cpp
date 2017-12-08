@@ -19,7 +19,7 @@ extern Device* device;
 
 TEST(RenderingTest, WriteHostTextureInt)
 {
-    Texture texture(*device, 50, 50, vk::Format::eR8Uint, true);
+    Texture texture(*device, 50, 50, vk::Format::eR8Uint, VMA_MEMORY_USAGE_CPU_ONLY);
 
     std::vector<uint8_t> data(50*50, 0);
     DrawSquare<uint8_t>(50, 50, data, glm::vec2(10.0f, 15.0f), glm::vec2(5.0f, 8.0f), 12);
@@ -31,7 +31,7 @@ TEST(RenderingTest, WriteHostTextureInt)
 
 TEST(RenderingTest, WriteHostTextureFloat)
 {
-    Texture texture(*device, 50, 50, vk::Format::eR32Sfloat, true);
+    Texture texture(*device, 50, 50, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
 
     std::vector<float> data(50*50, 0.0f);
     DrawSquare(50, 50, data, glm::vec2(10.0f, 15.0f), glm::vec2(5.0f, 8.0f), 1.0f);
@@ -43,9 +43,9 @@ TEST(RenderingTest, WriteHostTextureFloat)
 
 TEST(RenderingTest, TextureCopy)
 {
-    Texture texture(*device, 50, 50, vk::Format::eR32Sint, false);
-    Texture inTexture(*device, 50, 50, vk::Format::eR32Sint, true);
-    Texture outTexture(*device, 50, 50, vk::Format::eR32Sint, true);
+    Texture texture(*device, 50, 50, vk::Format::eR32Sint);
+    Texture inTexture(*device, 50, 50, vk::Format::eR32Sint, VMA_MEMORY_USAGE_CPU_ONLY);
+    Texture outTexture(*device, 50, 50, vk::Format::eR32Sint, VMA_MEMORY_USAGE_CPU_ONLY);
 
     std::vector<int8_t> data(50*50, 0);
     DrawSquare<int8_t>(50, 50, data, glm::vec2(10.0f, 15.0f), glm::vec2(5.0f, 8.0f), -5);
@@ -63,8 +63,8 @@ TEST(RenderingTest, TextureCopy)
 
 TEST(RenderingTest, TextureBufferCopy)
 {
-    Texture texture(*device, 50, 50, vk::Format::eR32Sfloat, true);
-    Buffer<float> buffer(*device, 50*50, true);
+    Texture texture(*device, 50, 50, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
+    Buffer<float> buffer(*device, 50*50, VMA_MEMORY_USAGE_CPU_ONLY);
 
     std::vector<float> data(50*50, 0);
     DrawSquare<float>(50, 50, data, glm::vec2(10.0f, 15.0f), glm::vec2(5.0f, 8.0f), -5.0f);
@@ -89,7 +89,7 @@ TEST(RenderingTest, ClearTexture)
 
     texture.Record({clear}).Submit();
 
-    Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);
+    Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
 
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
@@ -104,7 +104,7 @@ TEST(RenderingTest, MoveCommandBuffer)
     RenderCommand renderCommand;
 
     RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
-    Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);
+    Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
 
     {
         Clear clear1({1.0f, 0.0f, 0.0f, 1.0f});

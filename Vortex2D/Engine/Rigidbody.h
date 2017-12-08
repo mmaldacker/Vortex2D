@@ -39,9 +39,9 @@ private:
     const Renderer::Device& mDevice;
     glm::ivec2 mSize;
     glm::vec2 mCentre;
-    Renderer::UpdateUniformBuffer<glm::mat4> mMVPBuffer;
-    Renderer::UpdateUniformBuffer<glm::mat4> mMVBuffer;
-    Renderer::UpdateUniformBuffer<Velocity> mVelocity;
+    Renderer::UniformBuffer<glm::mat4> mMVPBuffer;
+    Renderer::UniformBuffer<glm::mat4> mMVBuffer;
+    Renderer::UniformBuffer<Velocity> mVelocity;
     Renderer::VertexBuffer<glm::vec2> mVertexBuffer;
     Renderer::DescriptorSet mDescriptorSet;
     Renderer::GraphicsPipeline mPipeline;

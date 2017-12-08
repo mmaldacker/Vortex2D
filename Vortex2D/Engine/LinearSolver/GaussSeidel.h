@@ -44,7 +44,7 @@ private:
     int mPreconditionerIterations;
 
     Renderer::Buffer<float> mResidual;
-    Renderer::UpdateStorageBuffer<float> mError;
+    Renderer::Buffer<float> mError, mLocalError;
 
     Renderer::Work mGaussSeidel;
     Renderer::Work::Bound mGaussSeidelBound;

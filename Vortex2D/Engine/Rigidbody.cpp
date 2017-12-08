@@ -17,13 +17,13 @@ PolygonVelocity::PolygonVelocity(const Renderer::Device& device,
     : mDevice(device)
     , mSize(size)
     , mCentre(centre)
-    , mMVPBuffer(device)
-    , mMVBuffer(device)
-    , mVelocity(device)
+    , mMVPBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
+    , mMVBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
+    , mVelocity(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
     , mVertexBuffer(device, points.size())
     , mNumVertices(points.size())
 {
-    Renderer::VertexBuffer<glm::vec2> localVertices(device, points.size(), true);
+    Renderer::VertexBuffer<glm::vec2> localVertices(device, points.size(), VMA_MEMORY_USAGE_CPU_ONLY);
     Renderer::CopyFrom(localVertices, points);
     Renderer::ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
     {
@@ -55,10 +55,6 @@ void PolygonVelocity::UpdateVelocities(const glm::vec2& velocity, float angularV
 {
     Velocity v = {velocity, angularVelocity};
     Renderer::CopyFrom(mVelocity, v);
-    ExecuteCommand(mDevice, [&](vk::CommandBuffer commandBuffer)
-    {
-        mVelocity.Upload(commandBuffer);
-    });
 }
 
 void PolygonVelocity::Initialize(const Renderer::RenderState& renderState)
@@ -70,11 +66,6 @@ void PolygonVelocity::Update(const glm::mat4& projection, const glm::mat4& view)
 {
     Renderer::CopyFrom(mMVPBuffer, projection * view * GetTransform());
     Renderer::CopyFrom(mMVBuffer, view * GetTransform());
-    ExecuteCommand(mDevice, [&](vk::CommandBuffer commandBuffer)
-    {
-       mMVPBuffer.Upload(commandBuffer);
-       mMVBuffer.Upload(commandBuffer);
-    });
 }
 
 void PolygonVelocity::Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState)
