@@ -185,32 +185,17 @@ ParticleCloud::ParticleCloud(const Renderer::Device& device, Renderer::GenericBu
     SPIRV::Reflection reflectionVert(device.GetShaderSPIRV("../Vortex2D/ParticleCloud.vert.spv"));
     SPIRV::Reflection reflectionFrag(device.GetShaderSPIRV("../Vortex2D/ParticleCloud.frag.spv"));
 
-    static vk::DescriptorSetLayout descriptorLayout = Renderer::DescriptorSetLayoutBuilder()
-            .Binding(reflectionVert.GetDescriptorTypesMap(), reflectionVert.GetShaderStage())
-            .Binding(reflectionFrag.GetDescriptorTypesMap(), reflectionFrag.GetShaderStage())
-            .Create(device);
-
-    mDescriptorSet = MakeDescriptorSet(device, descriptorLayout);
-
-    Renderer::DescriptorSetUpdater(*mDescriptorSet)
-            .Bind(reflectionVert.GetDescriptorTypesMap(), {{mMVPBuffer, 0}})
-            .Bind(reflectionFrag.GetDescriptorTypesMap(), {{mColourBuffer, 1}})
-            .Update(device.Handle());
-
-    mPipelineLayout = Renderer::PipelineLayoutBuilder()
-            .DescriptorSetLayout(descriptorLayout)
-            .Create(device.Handle());
-
-    vk::ShaderModule vertexShader = device.GetShaderModule("../Vortex2D/ParticleCloud.vert.spv");
-    vk::ShaderModule fragShader = device.GetShaderModule("../Vortex2D/ParticleCloud.frag.spv");
+    Renderer::PipelineLayout layout = {{reflectionVert, reflectionFrag}};
+    mDescriptorSet = device.GetLayoutManager().MakeDescriptorSet(layout);
+    Bind(device, *mDescriptorSet.descriptorSet, layout, {{mMVPBuffer}, {mColourBuffer}});
 
     mPipeline = Renderer::GraphicsPipeline::Builder()
             .Topology(vk::PrimitiveTopology::ePointList)
-            .Shader(vertexShader, vk::ShaderStageFlagBits::eVertex)
-            .Shader(fragShader, vk::ShaderStageFlagBits::eFragment)
+            .Shader(device.GetShaderModule("../Vortex2D/ParticleCloud.vert.spv"), vk::ShaderStageFlagBits::eVertex)
+            .Shader(device.GetShaderModule("../Vortex2D/ParticleCloud.frag.spv"), vk::ShaderStageFlagBits::eFragment)
             .VertexAttribute(0, 0, vk::Format::eR32G32Sfloat, offsetof(Particle, Position))
             .VertexBinding(0, sizeof(Particle))
-            .Layout(*mPipelineLayout);
+            .Layout(mDescriptorSet.pipelineLayout);
 }
 
 void ParticleCloud::SetNumParticles(int numParticles)
@@ -232,7 +217,8 @@ void ParticleCloud::Draw(vk::CommandBuffer commandBuffer, const Renderer::Render
 {
     mPipeline.Bind(commandBuffer, renderState);
     commandBuffer.bindVertexBuffers(0, {mVertexBuffer.Handle()}, {0ul});
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *mPipelineLayout, 0, {*mDescriptorSet}, {});
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
+                                     mDescriptorSet.pipelineLayout, 0, {*mDescriptorSet.descriptorSet}, {});
     commandBuffer.draw(mNumVertices, 1, 0, 0);
 }
 

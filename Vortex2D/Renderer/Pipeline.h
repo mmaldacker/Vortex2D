@@ -15,22 +15,9 @@
 
 namespace Vortex2D { namespace Renderer {
 
-class PipelineLayoutBuilder
-{
-public:
-    PipelineLayoutBuilder& DescriptorSetLayout(vk::DescriptorSetLayout layout);
-    PipelineLayoutBuilder& PushConstantRange(vk::PushConstantRange range);
-    vk::UniquePipelineLayout Create(vk::Device device);
-
-private:
-    std::vector<vk::DescriptorSetLayout> mLayouts;
-    std::vector<vk::PushConstantRange> mPushConstantRanges;
-};
-
 class GraphicsPipeline
 {
 public:
-    // TODO is this format better? or like DescriptorSetLayout?
     class Builder
     {
     public:

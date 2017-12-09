@@ -3,36 +3,67 @@
 //  Vortex2D
 //
 
-#ifndef DescriptorSet_h
-#define DescriptorSet_h
+#ifndef Vortex2d_DescriptorSet_h
+#define Vortex2d_DescriptorSet_h
 
 #include <Vortex2D/Renderer/Common.h>
-#include <Vortex2D/Renderer/Device.h>
 #include <Vortex2D/Renderer/Buffer.h>
 #include <Vortex2D/Renderer/Texture.h>
 
 #include <Vortex2D/Utils/variant.hpp>
 #include <map>
 
-namespace Vortex2D { namespace Renderer {
+namespace Vortex2D {
 
+namespace SPIRV {
+class Reflection;
+}
+
+namespace Renderer {
+
+class Device;
 using DescriptorTypeBindings = std::map<unsigned, vk::DescriptorType>;
 
-class DescriptorSetLayoutBuilder
+struct ShaderLayout
+{
+    ShaderLayout(const SPIRV::Reflection& reflection);
+
+    vk::ShaderStageFlags shaderStage;
+    DescriptorTypeBindings bindings;
+    unsigned pushConstantSize;
+};
+
+bool operator==(const ShaderLayout& left, const ShaderLayout& right);
+
+struct PipelineLayout
+{
+    std::vector<ShaderLayout> layouts;
+};
+
+bool operator==(const PipelineLayout& left, const PipelineLayout& right);
+
+struct DescriptorSet
+{
+    vk::UniqueDescriptorSet descriptorSet;
+    vk::PipelineLayout pipelineLayout;
+    vk::DescriptorSetLayout descriptorSetLayout;
+};
+
+class LayoutManager
 {
 public:
-    DescriptorSetLayoutBuilder& Binding(DescriptorTypeBindings bindings,
-                                        vk::ShaderStageFlagBits shaderStage);
+    LayoutManager(const Device& device);
 
-    DescriptorSetLayoutBuilder& Binding(uint32_t binding,
-                                        vk::DescriptorType descriptorType,
-                                        vk::ShaderStageFlags stageFlags,
-                                        uint32_t descriptorCount);
-
-    vk::DescriptorSetLayout Create(const Device& device);
+    void CreateDescriptorPool();
+    DescriptorSet MakeDescriptorSet(const PipelineLayout& layout);
+    vk::DescriptorSetLayout GetDescriptorSetLayout(const PipelineLayout& layout);
+    vk::PipelineLayout GetPipelineLayout(const PipelineLayout& layout);
 
 private:
-    std::vector<vk::DescriptorSetLayoutBinding> mDescriptorSetLayoutBindings;
+    const Device& mDevice;
+    vk::UniqueDescriptorPool mDescriptorPool;
+    std::vector<std::tuple<PipelineLayout, vk::UniqueDescriptorSetLayout>> mDescriptorSetLayouts;
+    std::vector<std::tuple<PipelineLayout, vk::UniquePipelineLayout>> mPipelineLayouts;
 };
 
 struct DescriptorImage
@@ -56,30 +87,7 @@ struct BindingInput
     mpark::variant<Renderer::GenericBuffer*, DescriptorImage> Input;
 };
 
-vk::UniqueDescriptorSet MakeDescriptorSet(const Device& device, vk::DescriptorSetLayout layout);
-
-class DescriptorSetUpdater
-{
-public:
-    DescriptorSetUpdater(vk::DescriptorSet dstSet, int maxBuffers = 10, int maxImages = 10);
-
-    DescriptorSetUpdater& Bind(DescriptorTypeBindings bindings, const std::vector<BindingInput>& bindingInputs);
-
-    DescriptorSetUpdater& WriteImages(uint32_t dstBinding, uint32_t dstArrayElement, vk::DescriptorType descriptorType);
-    DescriptorSetUpdater& Image(vk::Sampler sampler, vk::ImageView imageView, vk::ImageLayout imageLayout);
-    DescriptorSetUpdater& WriteBuffers(uint32_t dstBinding, uint32_t dstArrayElement, vk::DescriptorType descriptorType);
-    DescriptorSetUpdater& Buffer(const GenericBuffer& buffer);
-
-    void Update(vk::Device device) const;
-
-private:
-    std::vector<vk::DescriptorBufferInfo> mBufferInfo;
-    std::vector<vk::DescriptorImageInfo> mImageInfo;
-    std::vector<vk::WriteDescriptorSet> mDescriptorWrites;
-    vk::DescriptorSet mDstSet;
-    int mNumBuffers;
-    int mNumImages;
-};
+void Bind(const Device& device, vk::DescriptorSet dstSet, const PipelineLayout& layout, const std::vector<BindingInput>& bindingInputs);
 
 }}
 

@@ -29,7 +29,7 @@ public:
     template<typename T>
     void PushConstant(vk::CommandBuffer commandBuffer, uint32_t offset, const T& data)
     {
-        commandBuffer.pushConstants(*mPipelineLayout, vk::ShaderStageFlagBits::eFragment, offset, sizeof(T), &data);
+        commandBuffer.pushConstants(mDescriptorSet.pipelineLayout, vk::ShaderStageFlagBits::eFragment, offset, sizeof(T), &data);
     }
 
 private:
@@ -43,8 +43,7 @@ private:
     UpdateBuffer<UniformBuffer, glm::mat4> mMVPBuffer;
     VertexBuffer<Vertex> mVertexBuffer;
     vk::UniqueSampler mSampler;
-    vk::UniqueDescriptorSet mDescriptorSet;
-    vk::UniquePipelineLayout mPipelineLayout;
+    DescriptorSet mDescriptorSet;
     GraphicsPipeline mPipeline;
 };
 

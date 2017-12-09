@@ -7,11 +7,11 @@
 #define Buffer_h
 
 #include <Vortex2D/Renderer/Common.h>
-#include <Vortex2D/Renderer/Device.h>
 
 namespace Vortex2D { namespace Renderer {
 
 class Texture;
+class Device;
 
 class GenericBuffer
 {

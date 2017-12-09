@@ -9,29 +9,6 @@
 
 namespace Vortex2D { namespace Renderer {
 
-PipelineLayoutBuilder& PipelineLayoutBuilder::DescriptorSetLayout(vk::DescriptorSetLayout layout)
-{
-    mLayouts.push_back(layout);
-    return *this;
-}
-
-PipelineLayoutBuilder& PipelineLayoutBuilder::PushConstantRange(vk::PushConstantRange range)
-{
-    mPushConstantRanges.push_back(range);
-    return *this;
-}
-
-vk::UniquePipelineLayout PipelineLayoutBuilder::Create(vk::Device device)
-{
-    auto pipelineLayoutInfo = vk::PipelineLayoutCreateInfo()
-            .setSetLayoutCount((uint32_t)mLayouts.size())
-            .setPSetLayouts(mLayouts.data())
-            .setPPushConstantRanges(mPushConstantRanges.data())
-            .setPushConstantRangeCount((uint32_t)mPushConstantRanges.size());
-
-    return device.createPipelineLayoutUnique(pipelineLayoutInfo);
-}
-
 GraphicsPipeline::Builder::Builder()
 {
     mInputAssembly = vk::PipelineInputAssemblyStateCreateInfo()

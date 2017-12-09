@@ -70,6 +70,7 @@ Device::Device(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface, bool v
 Device::Device(vk::PhysicalDevice physicalDevice, int familyIndex, bool validation)
     : mPhysicalDevice(physicalDevice)
     , mFamilyIndex(familyIndex)
+    , mLayoutManager(*this)
 {
     float queuePriority = 1.0f;
     auto deviceQueueInfo = vk::DeviceQueueCreateInfo()
@@ -126,20 +127,7 @@ Device::Device(vk::PhysicalDevice physicalDevice, int familyIndex, bool validati
     mCommandPool = mDevice->createCommandPoolUnique(commandPoolInfo);
 
     // create descriptor pool
-    // TODO size should be configurable
-    // TODO check when we allocate more than what is allowed (might get it for free already)
-    std::vector<vk::DescriptorPoolSize> poolSizes;
-    poolSizes.emplace_back(vk::DescriptorType::eUniformBuffer, 256);
-    poolSizes.emplace_back(vk::DescriptorType::eCombinedImageSampler, 256);
-    poolSizes.emplace_back(vk::DescriptorType::eStorageImage, 256);
-    poolSizes.emplace_back(vk::DescriptorType::eStorageBuffer, 512);
-
-    vk::DescriptorPoolCreateInfo descriptorPoolInfo{};
-    descriptorPoolInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
-    descriptorPoolInfo.maxSets = 512;
-    descriptorPoolInfo.poolSizeCount = (uint32_t)poolSizes.size();
-    descriptorPoolInfo.pPoolSizes = poolSizes.data();
-    mDescriptorPool = mDevice->createDescriptorPoolUnique(descriptorPoolInfo);
+    mLayoutManager.CreateDescriptorPool();
 }
 
 vk::Device Device::Handle() const
@@ -152,9 +140,9 @@ vk::Queue Device::Queue() const
     return mQueue;
 }
 
-vk::DescriptorPool Device::DescriptorPool() const
+LayoutManager& Device::GetLayoutManager() const
 {
-    return *mDescriptorPool;
+    return mLayoutManager;
 }
 
 vk::PhysicalDevice Device::GetPhysicalDevice() const
@@ -193,12 +181,6 @@ uint32_t Device::FindMemoryPropertiesIndex(uint32_t memoryTypeBits, vk::MemoryPr
     }
 
     throw std::runtime_error("Memory type not found");
-}
-
-vk::DescriptorSetLayout Device::CreateDescriptorSetLayout(vk::DescriptorSetLayoutCreateInfo layoutInfo) const
-{
-    mDescriptorSetLayouts.emplace_back(mDevice->createDescriptorSetLayoutUnique(layoutInfo));
-    return *mDescriptorSetLayouts.back();
 }
 
 vk::ShaderModule Device::GetShaderModule(const std::string& filename) const

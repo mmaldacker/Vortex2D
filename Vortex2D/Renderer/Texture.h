@@ -3,13 +3,15 @@
 //  Vortex2D
 //
 
-#ifndef Vortex_Texture_h
-#define Vortex_Texture_h
+#ifndef Vortex2d_Texture_h
+#define Vortex2d_Texture_h
 
 #include <Vortex2D/Renderer/Common.h>
-#include <Vortex2D/Renderer/Device.h>
 
 namespace Vortex2D { namespace Renderer {
+
+class Device;
+
 class SamplerBuilder
 {
 public:

@@ -96,29 +96,18 @@ TEST(ComputeTests, BufferCompute)
     CopyFrom(uboBuffer, ubo);
 
     auto shader = device->GetShaderModule("Buffer.comp.spv");
+    Reflection reflection(device->GetShaderSPIRV("Buffer.comp.spv"));
 
-    auto descriptorLayout = DescriptorSetLayoutBuilder()
-            .Binding(0, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute, 1)
-            .Binding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute, 1)
-            .Create(*device);
+    PipelineLayout layout = {{reflection}};
+    DescriptorSet descriptorSet = device->GetLayoutManager().MakeDescriptorSet(layout);
+    Bind(*device, *descriptorSet.descriptorSet, layout, {{buffer}, {uboBuffer}});
 
-    auto descriptorSet = MakeDescriptorSet(*device, descriptorLayout);
-
-    DescriptorSetUpdater(*descriptorSet)
-            .WriteBuffers(0, 0, vk::DescriptorType::eStorageBuffer).Buffer(buffer)
-            .WriteBuffers(1, 0, vk::DescriptorType::eUniformBuffer).Buffer(uboBuffer)
-            .Update(device->Handle());
-
-    auto layout = PipelineLayoutBuilder()
-            .DescriptorSetLayout(descriptorLayout)
-            .Create(device->Handle());
-
-    auto pipeline = MakeComputePipeline(device->Handle(), shader, *layout);
+    auto pipeline = MakeComputePipeline(device->Handle(), shader, descriptorSet.pipelineLayout);
 
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
         commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, *pipeline);
-        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, *layout, 0, {*descriptorSet}, {});
+        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, descriptorSet.pipelineLayout, 0, {*descriptorSet.descriptorSet}, {});
         commandBuffer.dispatch(1, 1, 1);
     });
 
@@ -147,29 +136,18 @@ TEST(ComputeTests, ImageCompute)
     stagingTexture.CopyFrom(data);
 
     auto shader = device->GetShaderModule("Image.comp.spv");
+    Reflection reflection(device->GetShaderSPIRV("Image.comp.spv"));
 
-    auto descriptorSetLayout = DescriptorSetLayoutBuilder()
-            .Binding(0, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute, 1)
-            .Binding(1, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute, 1)
-            .Create(*device);
+    PipelineLayout layout = {{reflection}};
+    DescriptorSet descriptorSet = device->GetLayoutManager().MakeDescriptorSet(layout);
+    Bind(*device, *descriptorSet.descriptorSet, layout, {{inTexture}, {outTexture}});
 
-    auto descriptorSet = MakeDescriptorSet(*device, descriptorSetLayout);
-
-    DescriptorSetUpdater(*descriptorSet)
-            .WriteImages(0, 0, vk::DescriptorType::eStorageImage).Image({}, inTexture.GetView(), vk::ImageLayout::eGeneral)
-            .WriteImages(1, 0, vk::DescriptorType::eStorageImage).Image({}, outTexture.GetView(), vk::ImageLayout::eGeneral)
-            .Update(device->Handle());
-
-    auto layout = PipelineLayoutBuilder()
-            .DescriptorSetLayout(descriptorSetLayout)
-            .Create(device->Handle());
-
-    auto pipeline = MakeComputePipeline(device->Handle(), shader, *layout);
+    auto pipeline = MakeComputePipeline(device->Handle(), shader, descriptorSet.pipelineLayout);
 
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
         inTexture.CopyFrom(commandBuffer, stagingTexture);
-        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, *layout, 0, {*descriptorSet}, {});
+        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, descriptorSet.pipelineLayout, 0, {*descriptorSet.descriptorSet}, {});
         commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, *pipeline);
         commandBuffer.dispatch(16, 16, 1);
         stagingTexture.CopyFrom(commandBuffer, outTexture);

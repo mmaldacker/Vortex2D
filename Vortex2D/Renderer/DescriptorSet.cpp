@@ -5,6 +5,11 @@
 
 #include "DescriptorSet.h"
 
+#include <Vortex2D/Renderer/Device.h>
+#include <Vortex2D/Renderer/Buffer.h>
+#include <Vortex2D/Renderer/Texture.h>
+#include <Vortex2D/SPIRV/Reflection.h>
+
 namespace Vortex2D { namespace Renderer {
 
 namespace
@@ -38,48 +43,139 @@ auto make_visitor(Fs... fs)
 
 }
 
-DescriptorSetLayoutBuilder& DescriptorSetLayoutBuilder::Binding(DescriptorTypeBindings bindings,
-                                                                vk::ShaderStageFlagBits shaderStage)
+bool operator==(const ShaderLayout& left, const ShaderLayout& right)
 {
-    for (auto& descriptorType: bindings)
+    return left.bindings == right.bindings &&
+           left.pushConstantSize == right.pushConstantSize &&
+           left.shaderStage == right.shaderStage;
+}
+
+bool operator==(const PipelineLayout& left, const PipelineLayout& right)
+{
+    return left.layouts == right.layouts;
+}
+
+ShaderLayout::ShaderLayout(const SPIRV::Reflection& reflection)
+    : shaderStage(reflection.GetShaderStage())
+    , bindings(reflection.GetDescriptorTypesMap())
+    , pushConstantSize(reflection.GetPushConstantsSize())
+{
+}
+
+LayoutManager::LayoutManager(const Device& device)
+    : mDevice(device)
+{
+}
+
+void LayoutManager::CreateDescriptorPool()
+{
+    // create descriptor pool
+    // TODO size should be configurable
+    // TODO check when we allocate more than what is allowed (might get it for free already)
+    std::vector<vk::DescriptorPoolSize> poolSizes;
+    poolSizes.emplace_back(vk::DescriptorType::eUniformBuffer, 256);
+    poolSizes.emplace_back(vk::DescriptorType::eCombinedImageSampler, 256);
+    poolSizes.emplace_back(vk::DescriptorType::eStorageImage, 256);
+    poolSizes.emplace_back(vk::DescriptorType::eStorageBuffer, 512);
+
+    vk::DescriptorPoolCreateInfo descriptorPoolInfo{};
+    descriptorPoolInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
+    descriptorPoolInfo.maxSets = 512;
+    descriptorPoolInfo.poolSizeCount = (uint32_t)poolSizes.size();
+    descriptorPoolInfo.pPoolSizes = poolSizes.data();
+    mDescriptorPool = mDevice.Handle().createDescriptorPoolUnique(descriptorPoolInfo);
+}
+
+vk::DescriptorSetLayout LayoutManager::GetDescriptorSetLayout(const PipelineLayout& layout)
+{
+    auto it = std::find_if(mDescriptorSetLayouts.begin(), mDescriptorSetLayouts.end(),
+                           [&](const auto& descriptorSetLayout)
     {
-        Binding(descriptorType.first, descriptorType.second, shaderStage, 1);
+        return std::get<0>(descriptorSetLayout) == layout;
+    });
+
+    if (it == mDescriptorSetLayouts.end())
+    {
+        std::vector<vk::DescriptorSetLayoutBinding> descriptorSetLayoutBindings;
+        for (auto& shaderLayout: layout.layouts)
+        {
+            for (auto& desciptorType: shaderLayout.bindings)
+            {
+                descriptorSetLayoutBindings.push_back({desciptorType.first,
+                                                       desciptorType.second,
+                                                       1,
+                                                       shaderLayout.shaderStage,
+                                                       nullptr});
+            }
+        }
+
+        auto descriptorSetLayoutInfo = vk::DescriptorSetLayoutCreateInfo()
+                .setBindingCount((uint32_t)descriptorSetLayoutBindings.size())
+                .setPBindings(descriptorSetLayoutBindings.data());
+
+        auto descriptorSetLayout = mDevice.Handle().createDescriptorSetLayoutUnique(descriptorSetLayoutInfo);
+        mDescriptorSetLayouts.emplace_back(layout, std::move(descriptorSetLayout));
+        return *std::get<1>(mDescriptorSetLayouts.back());
     }
 
-    return *this;
+    return *std::get<1>(*it);
 }
 
-DescriptorSetLayoutBuilder& DescriptorSetLayoutBuilder::Binding(uint32_t binding,
-                                                                vk::DescriptorType descriptorType,
-                                                                vk::ShaderStageFlags stageFlags,
-                                                                uint32_t descriptorCount)
+vk::PipelineLayout LayoutManager::GetPipelineLayout(const PipelineLayout& layout)
 {
-    mDescriptorSetLayoutBindings.push_back({binding,
-                                            descriptorType,
-                                            descriptorCount,
-                                            stageFlags,
-                                            nullptr});
-    return *this;
+    auto it = std::find_if(mPipelineLayouts.begin(), mPipelineLayouts.end(),
+                           [&](const auto& pipelineLayout)
+    {
+        return std::get<0>(pipelineLayout) == layout;
+    });
+
+    if (it == mPipelineLayouts.end())
+    {
+        vk::DescriptorSetLayout descriptorSetlayouts[] = {GetDescriptorSetLayout(layout)};
+        std::vector<vk::PushConstantRange> pushConstantRanges;
+        unsigned totalPushConstantSize = 0;
+        for (auto& shaderLayout: layout.layouts)
+        {
+            if (shaderLayout.pushConstantSize > 0)
+            {
+                pushConstantRanges.push_back({shaderLayout.shaderStage, totalPushConstantSize, shaderLayout.pushConstantSize});
+                totalPushConstantSize += shaderLayout.pushConstantSize;
+            }
+        }
+
+        auto pipelineLayoutInfo = vk::PipelineLayoutCreateInfo()
+                .setSetLayoutCount(1)
+                .setPSetLayouts(descriptorSetlayouts);
+
+        if (totalPushConstantSize > 0)
+        {
+            pipelineLayoutInfo
+                    .setPPushConstantRanges(pushConstantRanges.data())
+                    .setPushConstantRangeCount((uint32_t)pushConstantRanges.size());
+        }
+
+        mPipelineLayouts.emplace_back(layout, mDevice.Handle().createPipelineLayoutUnique(pipelineLayoutInfo));
+        return *std::get<1>(mPipelineLayouts.back());
+    }
+
+    return *std::get<1>(*it);
 }
 
-vk::DescriptorSetLayout DescriptorSetLayoutBuilder::Create(const Device& device)
+DescriptorSet LayoutManager::MakeDescriptorSet(const PipelineLayout& layout)
 {
-    auto descriptorSetLayoutInfo = vk::DescriptorSetLayoutCreateInfo()
-            .setBindingCount((uint32_t)mDescriptorSetLayoutBindings.size())
-            .setPBindings(mDescriptorSetLayoutBindings.data());
+    vk::DescriptorSetLayout descriptorSetlayouts[] = {GetDescriptorSetLayout(layout)};
 
-    return device.CreateDescriptorSetLayout(descriptorSetLayoutInfo);
-}
-
-vk::UniqueDescriptorSet MakeDescriptorSet(const Device& device, vk::DescriptorSetLayout layout)
-{
-    vk::DescriptorSetLayout layouts[] = {layout};
     auto descriptorSetInfo = vk::DescriptorSetAllocateInfo()
-            .setDescriptorPool(device.DescriptorPool())
+            .setDescriptorPool(*mDescriptorPool)
             .setDescriptorSetCount(1)
-            .setPSetLayouts(layouts);
+            .setPSetLayouts(descriptorSetlayouts);
 
-    return std::move(device.Handle().allocateDescriptorSetsUnique(descriptorSetInfo).at(0));
+    DescriptorSet descriptorSet;
+    descriptorSet.descriptorSet = std::move(mDevice.Handle().allocateDescriptorSetsUnique(descriptorSetInfo).at(0));
+    descriptorSet.descriptorSetLayout = GetDescriptorSetLayout(layout);
+    descriptorSet.pipelineLayout = GetPipelineLayout(layout);
+
+    return descriptorSet;
 }
 
 BindingInput::BindingInput(Renderer::GenericBuffer& buffer, unsigned bind)
@@ -113,113 +209,88 @@ DescriptorImage::DescriptorImage(Renderer::Texture& texture)
 {
 }
 
-DescriptorSetUpdater::DescriptorSetUpdater(vk::DescriptorSet dstSet, int maxBuffers, int maxImages)
-    : mDstSet(dstSet)
-    , mNumBuffers(0)
-    , mNumImages(0)
+vk::DescriptorType GetDescriptorType(unsigned bind, const PipelineLayout& layout)
 {
-    // we must pre-size these buffers as we take pointers to their members.
-    mBufferInfo.resize(maxBuffers);
-    mImageInfo.resize(maxImages);
+    for (auto& shaderLayout: layout.layouts)
+    {
+        auto it = shaderLayout.bindings.find(bind);
+        if (it != shaderLayout.bindings.end())
+        {
+            return it->second;
+        }
+    }
+
+    throw std::runtime_error("no bindings defined");
 }
 
-DescriptorSetUpdater& DescriptorSetUpdater::Bind(DescriptorTypeBindings bindings, const std::vector<BindingInput>& bindingInputs)
+void Bind(const Device& device, vk::DescriptorSet dstSet, const PipelineLayout& layout, const std::vector<BindingInput>& bindingInputs)
 {
+    std::vector<vk::DescriptorBufferInfo> bufferInfo(20);
+    std::vector<vk::DescriptorImageInfo> imageInfo(20);
+    std::vector<vk::WriteDescriptorSet> descriptorWrites;
+    int numBuffers = 0;
+    int numImages = 0;
+
     for (int i = 0; i < bindingInputs.size(); i++)
     {
         auto visitor = make_visitor(
-        [&](Renderer::GenericBuffer* buffer)
-        {
-            unsigned bind = bindingInputs[i].Bind == BindingInput::DefaultBind ? i : bindingInputs[i].Bind;
+            [&](Renderer::GenericBuffer* buffer)
+            {
+                unsigned bind = bindingInputs[i].Bind == BindingInput::DefaultBind ? i : bindingInputs[i].Bind;
 
-            if (bindings.count(bind) == 0) throw std::runtime_error("no binding defined");
-            if (bindings[bind] != vk::DescriptorType::eStorageBuffer &&
-                bindings[bind] != vk::DescriptorType::eUniformBuffer) throw std::runtime_error("Binding not a storage buffer");
+                auto descriptorType = GetDescriptorType(bind, layout);
+                if (descriptorType != vk::DescriptorType::eStorageBuffer &&
+                descriptorType != vk::DescriptorType::eUniformBuffer) throw std::runtime_error("Binding not a storage buffer");
 
-            WriteBuffers(bind, 0, bindings[bind]).Buffer(*buffer);
-        },
-        [&](DescriptorImage image)
-        {
-            unsigned bind = bindingInputs[i].Bind == BindingInput::DefaultBind ? i : bindingInputs[i].Bind;
+                auto writeDescription = vk::WriteDescriptorSet()
+                    .setDstSet(dstSet)
+                    .setDstBinding(bind)
+                    .setDstArrayElement(0)
+                    .setDescriptorType(descriptorType)
+                    .setPBufferInfo(bufferInfo.data() + numBuffers);
+                descriptorWrites.push_back(writeDescription);
 
-            if (bindings.count(bind) == 0) throw std::runtime_error("no binding defined");
-            if (bindings[bind] != vk::DescriptorType::eStorageImage &&
-                bindings[bind] != vk::DescriptorType::eCombinedImageSampler) throw std::runtime_error("Binding not an image");
+                if (!descriptorWrites.empty() && numBuffers != bufferInfo.size() && descriptorWrites.back().pBufferInfo)
+                {
+                    descriptorWrites.back().descriptorCount++;
+                    bufferInfo[numBuffers++] = vk::DescriptorBufferInfo(buffer->Handle(), 0, buffer->Size());
+                }
+                else
+                {
+                    assert(false);
+                }
+            },
+            [&](DescriptorImage image)
+            {
+                unsigned bind = bindingInputs[i].Bind == BindingInput::DefaultBind ? i : bindingInputs[i].Bind;
 
-            WriteImages(bind, 0, bindings[bind]).Image(image.Sampler, image.Texture->GetView(), vk::ImageLayout::eGeneral);
-        });
+                auto descriptorType = GetDescriptorType(bind, layout);
+                if (descriptorType != vk::DescriptorType::eStorageImage &&
+                descriptorType != vk::DescriptorType::eCombinedImageSampler) throw std::runtime_error("Binding not an image");
+
+                auto writeDescription = vk::WriteDescriptorSet()
+                    .setDstSet(dstSet)
+                    .setDstBinding(bind)
+                    .setDstArrayElement(0)
+                    .setDescriptorType(descriptorType)
+                    .setPImageInfo(imageInfo.data() + numImages);
+                descriptorWrites.push_back(writeDescription);
+
+                if (!descriptorWrites.empty() && numImages != imageInfo.size() && descriptorWrites.back().pImageInfo)
+                {
+                    descriptorWrites.back().descriptorCount++;
+                    imageInfo[numImages++] = vk::DescriptorImageInfo(image.Sampler, image.Texture->GetView(), vk::ImageLayout::eGeneral);
+                }
+                else
+                {
+                    assert(false);
+                }
+            });
 
         mpark::visit(visitor, bindingInputs[i].Input);
     }
 
-    return *this;
-}
-
-DescriptorSetUpdater& DescriptorSetUpdater::WriteImages(uint32_t dstBinding,
-                                                        uint32_t dstArrayElement,
-                                                        vk::DescriptorType descriptorType)
-{
-    auto writeDescription = vk::WriteDescriptorSet()
-            .setDstSet(mDstSet)
-            .setDstBinding(dstBinding)
-            .setDstArrayElement(dstArrayElement)
-            .setDescriptorType(descriptorType)
-            .setPImageInfo(mImageInfo.data() + mNumImages);
-    mDescriptorWrites.push_back(writeDescription);
-
-    return *this;
-}
-
-DescriptorSetUpdater& DescriptorSetUpdater::Image(vk::Sampler sampler,
-                                                  vk::ImageView imageView,
-                                                  vk::ImageLayout imageLayout)
-{
-    if (!mDescriptorWrites.empty() && mNumImages != mImageInfo.size() && mDescriptorWrites.back().pImageInfo)
-    {
-        mDescriptorWrites.back().descriptorCount++;
-        mImageInfo[mNumImages++] = vk::DescriptorImageInfo(sampler, imageView, imageLayout);
-    }
-    else
-    {
-        assert(false);
-    }
-
-    return *this;
-}
-
-DescriptorSetUpdater& DescriptorSetUpdater::WriteBuffers(uint32_t dstBinding,
-                                                         uint32_t dstArrayElement,
-                                                         vk::DescriptorType descriptorType)
-{
-    auto writeDescription = vk::WriteDescriptorSet()
-            .setDstSet(mDstSet)
-            .setDstBinding(dstBinding)
-            .setDstArrayElement(dstArrayElement)
-            .setDescriptorType(descriptorType)
-            .setPBufferInfo(mBufferInfo.data() + mNumBuffers);
-    mDescriptorWrites.push_back(writeDescription);
-
-    return *this;
-}
-
-DescriptorSetUpdater& DescriptorSetUpdater::Buffer(const ::Vortex2D::Renderer::GenericBuffer& buffer)
-{
-    if (!mDescriptorWrites.empty() && mNumBuffers != mBufferInfo.size() && mDescriptorWrites.back().pBufferInfo)
-    {
-        mDescriptorWrites.back().descriptorCount++;
-        mBufferInfo[mNumBuffers++] = vk::DescriptorBufferInfo(buffer.Handle(), 0, buffer.Size());
-    }
-    else
-    {
-        assert(false);
-    }
-
-    return *this;
-}
-
-void DescriptorSetUpdater::Update(vk::Device device) const
-{
-    device.updateDescriptorSets(mDescriptorWrites, {});
+    device.Handle().updateDescriptorSets(descriptorWrites, {});
 }
 
 }}

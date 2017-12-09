@@ -3,10 +3,11 @@
 //  Vortex2D
 //
 
-#ifndef Device_h
-#define Device_h
+#ifndef Vortex2d_Device_h
+#define Vortex2d_Device_h
 
 #include <Vortex2D/Renderer/Common.h>
+#include <Vortex2D/Renderer/DescriptorSet.h>
 
 #include <map>
 
@@ -21,16 +22,13 @@ public:
 
     vk::Device Handle() const;
     vk::Queue Queue() const;
-    vk::DescriptorPool DescriptorPool() const;
     vk::PhysicalDevice GetPhysicalDevice() const;
     int GetFamilyIndex() const;
     std::vector<vk::CommandBuffer> CreateCommandBuffers(uint32_t size) const;
     void FreeCommandBuffers(vk::ArrayProxy<const vk::CommandBuffer> commandBuffers) const;
     uint32_t FindMemoryPropertiesIndex(uint32_t memoryTypeBits, vk::MemoryPropertyFlags properties) const;
 
-    // TODO have a getter like shader module
-    // use a map of layout description to the handle (equality should be easy)
-    vk::DescriptorSetLayout CreateDescriptorSetLayout(vk::DescriptorSetLayoutCreateInfo layoutInfo) const;
+    LayoutManager& GetLayoutManager() const;
 
     vk::ShaderModule GetShaderModule(const std::string& filename) const;
     const std::vector<uint32_t> GetShaderSPIRV(const std::string& filename) const;
@@ -41,7 +39,6 @@ private:
     vk::UniqueDevice mDevice;
     vk::Queue mQueue;
     vk::UniqueCommandPool mCommandPool;
-    vk::UniqueDescriptorPool mDescriptorPool;
 
     struct SPIRVModule
     {
@@ -50,7 +47,7 @@ private:
     };
 
     mutable std::map<std::string, SPIRVModule> mShaders;
-    mutable std::vector<vk::UniqueDescriptorSetLayout> mDescriptorSetLayouts;
+    mutable LayoutManager mLayoutManager;
 };
 
 }}

@@ -35,21 +35,9 @@ AbstractShape::AbstractShape(const Device& device,
     SPIRV::Reflection reflectionVert(device.GetShaderSPIRV("../Vortex2D/Position.vert.spv"));
     SPIRV::Reflection reflectionFrag(device.GetShaderSPIRV(fragName));
 
-    vk::DescriptorSetLayout descriptorLayout = DescriptorSetLayoutBuilder()
-            .Binding(reflectionVert.GetDescriptorTypesMap(), reflectionVert.GetShaderStage())
-            .Binding(reflectionFrag.GetDescriptorTypesMap(), reflectionFrag.GetShaderStage())
-            .Create(device);
-
-    mDescriptorSet = MakeDescriptorSet(device, descriptorLayout);
-
-    DescriptorSetUpdater(*mDescriptorSet)
-            .Bind(reflectionVert.GetDescriptorTypesMap(), {{mMVPBuffer, 0}})
-            .Bind(reflectionFrag.GetDescriptorTypesMap(), {{mColourBuffer, 1}})
-            .Update(device.Handle());
-
-    mPipelineLayout = PipelineLayoutBuilder()
-            .DescriptorSetLayout(descriptorLayout)
-            .Create(device.Handle());
+    PipelineLayout layout = {{reflectionVert, reflectionFrag}};
+    mDescriptorSet = device.GetLayoutManager().MakeDescriptorSet(layout);
+    Bind(device, *mDescriptorSet.descriptorSet, layout, {{mMVPBuffer, 0}, {mColourBuffer, 1}});
 
     vk::ShaderModule vertexShader = device.GetShaderModule("../Vortex2D/Position.vert.spv");
     vk::ShaderModule fragShader = device.GetShaderModule(fragName);
@@ -59,7 +47,7 @@ AbstractShape::AbstractShape(const Device& device,
             .Shader(fragShader, vk::ShaderStageFlagBits::eFragment)
             .VertexAttribute(0, 0, vk::Format::eR32G32Sfloat, 0)
             .VertexBinding(0, sizeof(glm::vec2))
-            .Layout(*mPipelineLayout);
+            .Layout(mDescriptorSet.pipelineLayout);
 }
 
 void AbstractShape::Initialize(const RenderState& renderState)
@@ -82,7 +70,8 @@ void AbstractShape::Draw(vk::CommandBuffer commandBuffer, const RenderState& ren
 {
     mPipeline.Bind(commandBuffer, renderState);
     commandBuffer.bindVertexBuffers(0, {mVertexBuffer.Handle()}, {0ul});
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *mPipelineLayout, 0, {*mDescriptorSet}, {});
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
+                                     mDescriptorSet.pipelineLayout, 0, {*mDescriptorSet.descriptorSet}, {});
     commandBuffer.draw(mNumVertices, 1, 0, 0);
 }
 
@@ -149,23 +138,12 @@ Ellipse::Ellipse(const Device& device, const glm::vec2& radius, const glm::vec4&
         mVertexBuffer.CopyFrom(commandBuffer, localVertices);
     });
 
-    static vk::DescriptorSetLayout descriptorLayout = DescriptorSetLayoutBuilder()
-            .Binding(0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex, 1)
-            .Binding(1, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment, 1)
-            .Binding(2, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment, 1)
-            .Create(device);
+    SPIRV::Reflection reflectionVert(device.GetShaderSPIRV("../Vortex2D/Ellipse.vert.spv"));
+    SPIRV::Reflection reflectionFrag(device.GetShaderSPIRV("../Vortex2D/Ellipse.frag.spv"));
 
-    mDescriptorSet = MakeDescriptorSet(device, descriptorLayout);
-
-    DescriptorSetUpdater(*mDescriptorSet)
-            .WriteBuffers(0, 0, vk::DescriptorType::eUniformBuffer).Buffer(mMVPBuffer)
-            .WriteBuffers(1, 0, vk::DescriptorType::eUniformBuffer).Buffer(mSizeBuffer)
-            .WriteBuffers(2, 0, vk::DescriptorType::eUniformBuffer).Buffer(mColourBuffer)
-            .Update(device.Handle());
-
-    mPipelineLayout = PipelineLayoutBuilder()
-            .DescriptorSetLayout(descriptorLayout)
-            .Create(device.Handle());
+    Renderer::PipelineLayout layout = {{reflectionVert, reflectionFrag}};
+    mDescriptorSet = device.GetLayoutManager().MakeDescriptorSet(layout);
+    Bind(device, *mDescriptorSet.descriptorSet, layout, {{mMVPBuffer}, {mSizeBuffer}, {mColourBuffer}});
 
     vk::ShaderModule vertexShader = device.GetShaderModule("../Vortex2D/Ellipse.vert.spv");
     vk::ShaderModule fragShader = device.GetShaderModule("../Vortex2D/Ellipse.frag.spv");
@@ -175,7 +153,7 @@ Ellipse::Ellipse(const Device& device, const glm::vec2& radius, const glm::vec4&
             .Shader(fragShader, vk::ShaderStageFlagBits::eFragment)
             .VertexAttribute(0, 0, vk::Format::eR32G32Sfloat, 0)
             .VertexBinding(0, sizeof(glm::vec2))
-            .Layout(*mPipelineLayout);
+            .Layout(mDescriptorSet.pipelineLayout);
 }
 
 void Ellipse::Initialize(const RenderState& renderState)
@@ -213,7 +191,8 @@ void Ellipse::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderSta
 {
     mPipeline.Bind(commandBuffer, renderState);
     commandBuffer.bindVertexBuffers(0, {mVertexBuffer.Handle()}, {0ul});
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *mPipelineLayout, 0, {*mDescriptorSet}, {});
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
+                                     mDescriptorSet.pipelineLayout, 0, {*mDescriptorSet.descriptorSet}, {});
     commandBuffer.draw(6, 1, 0, 0);
 }
 

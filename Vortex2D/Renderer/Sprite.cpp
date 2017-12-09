@@ -35,31 +35,13 @@ AbstractSprite::AbstractSprite(const Device& device, const std::string& fragShad
     SPIRV::Reflection reflectionVert(device.GetShaderSPIRV("../Vortex2D/TexturePosition.vert.spv"));
     SPIRV::Reflection reflectionFrag(device.GetShaderSPIRV(fragShaderName));
 
-    static vk::DescriptorSetLayout descriptorLayout = DescriptorSetLayoutBuilder()
-            .Binding(reflectionVert.GetDescriptorTypesMap(), reflectionVert.GetShaderStage())
-            .Binding(reflectionFrag.GetDescriptorTypesMap(), reflectionFrag.GetShaderStage())
-            .Create(device);
-
-    mDescriptorSet = MakeDescriptorSet(device, descriptorLayout);
+    PipelineLayout layout = {{reflectionVert, reflectionFrag}};
+    mDescriptorSet = device.GetLayoutManager().MakeDescriptorSet(layout);
 
     // TODO add as parameter
     mSampler = SamplerBuilder().Filter(vk::Filter::eLinear).Create(device.Handle());
 
-    DescriptorSetUpdater(*mDescriptorSet)
-            .Bind(reflectionVert.GetDescriptorTypesMap(), {{mMVPBuffer, 0}})
-            .Bind(reflectionFrag.GetDescriptorTypesMap(), {{*mSampler, texture, 1}})
-            .Update(device.Handle());
-
-    auto pipelineLayoutBuilder = PipelineLayoutBuilder()
-            .DescriptorSetLayout(descriptorLayout);
-
-    unsigned pushConstantSize = reflectionFrag.GetPushConstantsSize();
-    if (pushConstantSize > 0)
-    {
-        pipelineLayoutBuilder.PushConstantRange({vk::ShaderStageFlagBits::eFragment, 0, pushConstantSize});
-    }
-
-    mPipelineLayout = pipelineLayoutBuilder.Create(device.Handle());
+    Bind(device, *mDescriptorSet.descriptorSet, layout, {{mMVPBuffer, 0}, {*mSampler, texture, 1}});
 
     vk::ShaderModule vertexShader = device.GetShaderModule("../Vortex2D/TexturePosition.vert.spv");
     vk::ShaderModule fragShader = device.GetShaderModule(fragShaderName);
@@ -70,8 +52,7 @@ AbstractSprite::AbstractSprite(const Device& device, const std::string& fragShad
             .VertexAttribute(0, 0, vk::Format::eR32G32Sfloat, offsetof(Vertex, pos))
             .VertexAttribute(1, 0, vk::Format::eR32G32Sfloat, offsetof(Vertex, uv))
             .VertexBinding(0, sizeof(Vertex))
-            .Layout(*mPipelineLayout);
-
+            .Layout(mDescriptorSet.pipelineLayout);
 }
 
 void AbstractSprite::Update(const glm::mat4& projection, const glm::mat4& view)
@@ -92,7 +73,8 @@ void AbstractSprite::Draw(vk::CommandBuffer commandBuffer, const RenderState& re
 {
     mPipeline.Bind(commandBuffer, renderState);
     commandBuffer.bindVertexBuffers(0, {mVertexBuffer.Handle()}, {0ul});
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *mPipelineLayout, 0, {*mDescriptorSet}, {});
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
+                                     mDescriptorSet.pipelineLayout, 0, {*mDescriptorSet.descriptorSet}, {});
     commandBuffer.draw(6, 1, 0, 0);
 }
 

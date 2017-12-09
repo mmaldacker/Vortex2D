@@ -41,8 +41,7 @@ protected:
     UpdateUniformBuffer<glm::mat4> mMVPBuffer;
     UpdateUniformBuffer<glm::vec4> mColourBuffer;
     VertexBuffer<glm::vec2> mVertexBuffer;
-    vk::UniqueDescriptorSet mDescriptorSet;
-    vk::UniquePipelineLayout mPipelineLayout;
+    DescriptorSet mDescriptorSet;
     GraphicsPipeline mPipeline;
     uint32_t mNumVertices;
 };
@@ -92,8 +91,7 @@ private:
     UpdateUniformBuffer<glm::vec4> mColourBuffer;
     VertexBuffer<glm::vec2> mVertexBuffer;
     UpdateUniformBuffer<Size> mSizeBuffer;
-    vk::UniqueDescriptorSet mDescriptorSet;
-    vk::UniquePipelineLayout mPipelineLayout;
+    DescriptorSet mDescriptorSet;
     GraphicsPipeline mPipeline;
 };
 

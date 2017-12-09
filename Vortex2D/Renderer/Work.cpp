@@ -98,41 +98,24 @@ Work::Work(const Device& device,
     SPIRV::Reflection reflection(device.GetShaderSPIRV(shader));
     if (reflection.GetShaderStage() != vk::ShaderStageFlagBits::eCompute) throw std::runtime_error("only compute supported");
 
-    mBindings = reflection.GetDescriptorTypesMap();
-    mPushConstantSize = reflection.GetPushConstantsSize();
-
-    mDescriptorLayout = DescriptorSetLayoutBuilder()
-            .Binding(reflection.GetDescriptorTypesMap(), vk::ShaderStageFlagBits::eCompute)
-            .Create(device);
-
-    auto pipelineLayoutBuilder = PipelineLayoutBuilder()
-        .DescriptorSetLayout(mDescriptorLayout);
-
-    if (mPushConstantSize > 0)
-    {
-      pipelineLayoutBuilder.PushConstantRange({vk::ShaderStageFlagBits::eCompute, 0, mPushConstantSize});
-    }
-
-    mLayout = pipelineLayoutBuilder.Create(device.Handle());
+    mPipelineLayout = {{reflection}};
+    auto layout = device.GetLayoutManager().GetPipelineLayout(mPipelineLayout);
 
     assert(mComputeSize.LocalSize.x > 0 && mComputeSize.LocalSize.y > 0);
-    mPipeline = MakeComputePipeline(device.Handle(), shaderModule, *mLayout, mComputeSize.LocalSize.x, mComputeSize.LocalSize.y);
+    mPipeline = MakeComputePipeline(device.Handle(), shaderModule, layout, mComputeSize.LocalSize.x, mComputeSize.LocalSize.y);
 }
 
 Work::Bound Work::Bind(ComputeSize computeSize, const std::vector<Renderer::BindingInput>& inputs)
 {
-    if (inputs.size() != mBindings.size())
+    if (inputs.size() != mPipelineLayout.layouts.front().bindings.size())
     {
         throw std::runtime_error("Unmatched inputs and bindings");
     }
 
-    vk::UniqueDescriptorSet descriptor = MakeDescriptorSet(mDevice, mDescriptorLayout);
+    auto descriptorSet = mDevice.GetLayoutManager().MakeDescriptorSet(mPipelineLayout);
+    Renderer::Bind(mDevice, *descriptorSet.descriptorSet, mPipelineLayout, inputs);
 
-    DescriptorSetUpdater(*descriptor)
-            .Bind(mBindings, inputs)
-            .Update(mDevice.Handle());
-
-    return Bound(computeSize, mPushConstantSize, *mLayout, *mPipeline, std::move(descriptor));
+    return Bound(computeSize, mPipelineLayout.layouts.front().pushConstantSize, descriptorSet.pipelineLayout, *mPipeline, std::move(descriptorSet.descriptorSet));
 }
 
 Work::Bound Work::Bind(const std::vector<BindingInput>& inputs)

@@ -33,34 +33,17 @@ PolygonVelocity::PolygonVelocity(const Renderer::Device& device,
     SPIRV::Reflection reflectionVert(device.GetShaderSPIRV("../Vortex2D/PolygonVelocity.vert.spv"));
     SPIRV::Reflection reflectionFrag(device.GetShaderSPIRV("../Vortex2D/PolygonVelocity.frag.spv"));
 
-    vk::DescriptorSetLayout descriptorLayout = Renderer::DescriptorSetLayoutBuilder()
-            .Binding(reflectionVert.GetDescriptorTypesMap(), reflectionVert.GetShaderStage())
-            .Binding(reflectionFrag.GetDescriptorTypesMap(), reflectionFrag.GetShaderStage())
-            .Create(device);
-
-    mDescriptorSet = MakeDescriptorSet(device, descriptorLayout);
-
-    Renderer::DescriptorSetUpdater(*mDescriptorSet)
-            .Bind(reflectionVert.GetDescriptorTypesMap(), {{mMVPBuffer, 0}, {mMVBuffer, 1}})
-            .Bind(reflectionFrag.GetDescriptorTypesMap(), {{mVelocity, 2}, {valid, 3}})
-            .Update(device.Handle());
-
-    mPipelineLayout = Renderer::PipelineLayoutBuilder()
-            .PushConstantRange({reflectionVert.GetShaderStage(), 0, reflectionVert.GetPushConstantsSize()})
-            .PushConstantRange({reflectionFrag.GetShaderStage(), 8, reflectionFrag.GetPushConstantsSize()})
-            .DescriptorSetLayout(descriptorLayout)
-            .Create(device.Handle());
-
-    vk::ShaderModule vertexShader = device.GetShaderModule("../Vortex2D/PolygonVelocity.vert.spv");
-    vk::ShaderModule fragShader = device.GetShaderModule("../Vortex2D/PolygonVelocity.frag.spv");
+    Renderer::PipelineLayout layout = {{reflectionVert, reflectionFrag}};
+    mDescriptorSet = device.GetLayoutManager().MakeDescriptorSet(layout);
+    Bind(device, *mDescriptorSet.descriptorSet, layout, {{mMVPBuffer, 0}, {mMVBuffer, 1}, {mVelocity, 2}, {valid, 3}});
 
     mPipeline = Renderer::GraphicsPipeline::Builder()
             .Topology(vk::PrimitiveTopology::eTriangleFan)
-            .Shader(vertexShader, vk::ShaderStageFlagBits::eVertex)
-            .Shader(fragShader, vk::ShaderStageFlagBits::eFragment)
+            .Shader(device.GetShaderModule("../Vortex2D/PolygonVelocity.vert.spv"), vk::ShaderStageFlagBits::eVertex)
+            .Shader(device.GetShaderModule("../Vortex2D/PolygonVelocity.frag.spv"), vk::ShaderStageFlagBits::eFragment)
             .VertexAttribute(0, 0, vk::Format::eR32G32Sfloat, 0)
             .VertexBinding(0, sizeof(glm::vec2))
-            .Layout(*mPipelineLayout);
+            .Layout(mDescriptorSet.pipelineLayout);
 }
 
 void PolygonVelocity::SetCentre(const glm::vec2& centre)
@@ -97,10 +80,11 @@ void PolygonVelocity::Update(const glm::mat4& projection, const glm::mat4& view)
 void PolygonVelocity::Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState)
 {
     mPipeline.Bind(commandBuffer, renderState);
-    commandBuffer.pushConstants(*mPipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, sizeof(mCentre), &mCentre);
-    commandBuffer.pushConstants(*mPipelineLayout, vk::ShaderStageFlagBits::eFragment, 8, sizeof(mSize), &mSize);
+    commandBuffer.pushConstants(mDescriptorSet.pipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, sizeof(mCentre), &mCentre);
+    commandBuffer.pushConstants(mDescriptorSet.pipelineLayout, vk::ShaderStageFlagBits::eFragment, 8, sizeof(mSize), &mSize);
     commandBuffer.bindVertexBuffers(0, {mVertexBuffer.Handle()}, {0ul});
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *mPipelineLayout, 0, {*mDescriptorSet}, {});
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
+                                     mDescriptorSet.pipelineLayout, 0, {*mDescriptorSet.descriptorSet}, {});
     commandBuffer.draw(mNumVertices, 1, 0, 0);
 }
 

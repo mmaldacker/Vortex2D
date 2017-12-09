@@ -88,12 +88,9 @@ public:
 
 private:
     ComputeSize mComputeSize;
-    uint32_t mPushConstantSize;
     const Device& mDevice;
-    vk::DescriptorSetLayout mDescriptorLayout;
-    vk::UniquePipelineLayout mLayout;
+    Renderer::PipelineLayout mPipelineLayout;
     vk::UniquePipeline mPipeline;
-    Renderer::DescriptorTypeBindings mBindings;
 };
 
 }}

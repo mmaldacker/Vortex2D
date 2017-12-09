@@ -43,8 +43,7 @@ private:
     Renderer::UpdateUniformBuffer<glm::mat4> mMVBuffer;
     Renderer::UpdateUniformBuffer<Velocity> mVelocity;
     Renderer::VertexBuffer<glm::vec2> mVertexBuffer;
-    vk::UniqueDescriptorSet mDescriptorSet;
-    vk::UniquePipelineLayout mPipelineLayout;
+    Renderer::DescriptorSet mDescriptorSet;
     Renderer::GraphicsPipeline mPipeline;
     uint32_t mNumVertices;
 };
