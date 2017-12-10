@@ -1,8 +1,6 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-layout (local_size_x_id = 1, local_size_y_id = 2) in;
-
 layout(push_constant) uniform Consts
 {
   int width;
@@ -15,6 +13,8 @@ layout(std430, binding = 2) buffer Polygon
 {
   vec2 points[];
 }polygon;
+
+layout(location = 0) out vec4 out_colour;
 
 // +1 if is left
 float orientation(vec2 a, vec2 b, vec2 p)
@@ -36,20 +36,15 @@ float dist_to_segment(vec2 a, vec2 b, vec2 p)
 
 void main(void)
 {
-    uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
-
-    ivec2 pos = ivec2(gl_GlobalInvocationID);
-    if (pos.x < consts.width && pos.y < consts.height)
+    vec2 pos = gl_FragCoord.xy;
+    float value = (consts.inv == 1 ? 1.0 : -1.0) * max(consts.width, consts.height);
+    for (int i = consts.n - 1, j = 0; j < consts.n; i = j++)
     {
-        float value = (consts.inv == 1 ? 1.0 : -1.0) * max(consts.width, consts.height);
-        for (int i = consts.n - 1, j = 0; j < consts.n; i = j++)
-        {
-            float udist = dist_to_segment(polygon.points[i], polygon.points[j], pos);
-            float dist = -orientation(polygon.points[i], polygon.points[j], pos) * udist;
+        float udist = dist_to_segment(polygon.points[i], polygon.points[j], pos);
+        float dist = -orientation(polygon.points[i], polygon.points[j], pos) * udist;
 
-            value = consts.inv == 1 ? min(value, dist) : max(value, dist);
-        }
-
-        imageStore(LevelSet, pos, vec4(min(value, imageLoad(LevelSet, pos).x), 0.0, 0.0, 0.0));
+        value = consts.inv == 1 ? min(value, dist) : max(value, dist);
     }
+
+    out_colour = vec4(value);
 }
