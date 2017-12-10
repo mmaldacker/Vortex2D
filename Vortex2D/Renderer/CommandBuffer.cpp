@@ -10,6 +10,13 @@
 
 namespace Vortex2D { namespace Renderer {
 
+namespace
+{
+
+const uint32_t zero = 0;
+
+}
+
 CommandBuffer::CommandBuffer(const Device& device, bool synchronise)
     : mDevice(device)
     , mSynchronise(synchronise)

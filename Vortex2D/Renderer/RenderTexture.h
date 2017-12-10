@@ -26,8 +26,6 @@ public:
                          vk::PipelineColorBlendAttachmentState blendMode = {}) override;
     void Submit(RenderCommand& renderCommand) override;
 
-    bool operator==(const RenderTexture& other) const;
-
 private:
     const Device& mDevice;
     vk::UniqueFramebuffer mFramebuffer;

@@ -58,9 +58,4 @@ void RenderTexture::Submit(RenderCommand& renderCommand)
     renderCommand.Render();
 }
 
-bool RenderTexture::operator==(const RenderTexture& other) const
-{
-    return *mFramebuffer == *other.mFramebuffer;
-}
-
 }}
