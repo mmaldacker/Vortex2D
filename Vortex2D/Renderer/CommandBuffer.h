@@ -74,7 +74,7 @@ private:
     void Render(const std::initializer_list<vk::Semaphore>& waitSemaphores = {},
                 const std::initializer_list<vk::Semaphore>& signalSemaphores = {});
 
-    static const uint32_t zero = 0;
+    static constexpr uint32_t zero = 0;
     RenderTarget* mRenderTarget;
     std::vector<CommandBuffer> mCmds;
     const uint32_t* mIndex;
