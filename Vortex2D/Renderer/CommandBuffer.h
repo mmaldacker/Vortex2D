@@ -8,14 +8,13 @@
 
 #include <Vortex2D/Renderer/Common.h>
 #include <Vortex2D/Renderer/Device.h>
+#include <Vortex2D/Renderer/RenderTarget.h>
 
 #include <vector>
 #include <functional>
 #include <initializer_list>
 
 namespace Vortex2D { namespace Renderer {
-
-struct RenderTarget;
 
 class CommandBuffer
 {
@@ -32,8 +31,8 @@ public:
     void Record(const RenderTarget& renderTarget, vk::Framebuffer framebuffer, CommandFn commandFn);
     void Wait();
     void Reset();
-    void Submit(std::initializer_list<vk::Semaphore> waitSemaphores = {},
-                std::initializer_list<vk::Semaphore> signalSemaphores = {});
+    void Submit(const std::initializer_list<vk::Semaphore>& waitSemaphores = {},
+                const std::initializer_list<vk::Semaphore>& signalSemaphores = {});
 
 private:
     const Device& mDevice;
@@ -43,6 +42,46 @@ private:
 };
 
 void ExecuteCommand(const Device& device, CommandBuffer::CommandFn commandFn);
+
+class RenderCommand
+{
+public:
+    RenderCommand();
+    ~RenderCommand();
+
+    RenderCommand(const Device& device,
+                  RenderTarget& renderTarget,
+                  const RenderState& renderState,
+                  const vk::UniqueFramebuffer& frameBuffer,
+                  RenderTarget::DrawableList drawables);
+
+    RenderCommand(const Device& device,
+                  RenderTarget& renderTarget,
+                  const RenderState& renderState,
+                  const std::vector<vk::UniqueFramebuffer>& frameBuffers,
+                  const uint32_t& index,
+                  RenderTarget::DrawableList drawables);
+
+    RenderCommand(RenderCommand&&);
+    RenderCommand& operator=(RenderCommand&&);
+
+    void Submit();
+
+    friend class RenderTexture;
+    friend class RenderWindow;
+
+private:
+    void Render(const std::initializer_list<vk::Semaphore>& waitSemaphores = {},
+                const std::initializer_list<vk::Semaphore>& signalSemaphores = {});
+
+    static const uint32_t zero = 0;
+    RenderTarget* mRenderTarget;
+    std::vector<CommandBuffer> mCmds;
+    const uint32_t* mIndex;
+    std::vector<std::reference_wrapper<Drawable>> mDrawables;
+};
+
+
 
 }}
 

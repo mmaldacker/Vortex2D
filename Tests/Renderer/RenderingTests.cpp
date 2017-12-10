@@ -87,10 +87,7 @@ TEST(RenderingTest, ClearTexture)
 
     Clear clear({3.5f, 0.0f, 0.0f, 0.0f});
 
-    texture.Record({clear});
-
-    texture.Submit();
-    device->Queue().waitIdle();
+    texture.Record({clear}).Submit();
 
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);
 
@@ -100,4 +97,45 @@ TEST(RenderingTest, ClearTexture)
     });
 
     CheckTexture(data, outTexture);
+}
+
+TEST(RenderingTest, MoveCommandBuffer)
+{
+    RenderCommand renderCommand;
+
+    RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
+    Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);
+
+    {
+        Clear clear1({1.0f, 0.0f, 0.0f, 1.0f});
+
+        // clear with 1
+        renderCommand = texture.Record({clear1});
+        renderCommand.Submit();
+
+        std::vector<float> data1(50*50, 1.0f);
+
+        ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+        {
+            outTexture.CopyFrom(commandBuffer, texture);
+        });
+
+        CheckTexture(data1, outTexture);
+    }
+
+    {
+        Clear clear2({2.0f, 0.0f, 0.0f, 1.0f});
+
+        // clear with 2
+        renderCommand = texture.Record({clear2});
+        renderCommand.Submit();
+
+        std::vector<float> data2(50*50, 2.0f);
+        ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+        {
+            outTexture.CopyFrom(commandBuffer, texture);
+        });
+
+        CheckTexture(data2, outTexture);
+    }
 }

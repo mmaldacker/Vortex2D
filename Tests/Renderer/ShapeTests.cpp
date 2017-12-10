@@ -29,10 +29,7 @@ TEST(ShapeTests, Square)
     RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);
 
-    texture.Record({clear, rect});
-
-    texture.Submit();
-    device->Queue().waitIdle();
+    texture.Record({clear, rect}).Submit();
 
     size *= (glm::vec2)rect.Scale;
 
@@ -57,10 +54,7 @@ TEST(ShapeTests, IntSquare)
     RenderTexture texture(*device, 50, 50, vk::Format::eR32Sint);
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sint, true);
 
-    texture.Record({rect});
-
-    texture.Submit();
-    device->Queue().waitIdle();
+    texture.Record({rect}).Submit();
 
     std::vector<int> data(50*50, 0.0f);
     DrawSquare(50, 50, data, rect.Position, size, 1);
@@ -90,15 +84,8 @@ TEST(ShapeTests, MultipleSquares)
     RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);
 
-    texture.Record({clear, rect1});
-
-    texture.Submit();
-    device->Queue().waitIdle();
-
-    texture.Record({rect2});
-
-    texture.Submit();
-    device->Queue().waitIdle();
+    texture.Record({clear, rect1}).Submit();
+    texture.Record({rect2}).Submit();
 
     std::vector<float> data(50*50, 0.0f);
     DrawSquare(50, 50, data, rect2.Position, size, 1.0f);
@@ -124,10 +111,7 @@ TEST(ShapeTests, Circle)
     RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);
 
-    texture.Record({clear, ellipse});
-
-    texture.Submit();
-    device->Queue().waitIdle();
+    texture.Record({clear, ellipse}).Submit();
 
     std::vector<float> data(50*50, 0.0f);
     DrawCircle(50, 50, data, ellipse.Position, 5.0f);
@@ -152,10 +136,7 @@ TEST(ShapeTests, Ellipse)
     RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);
 
-    texture.Record({clear, ellipse});
-
-    texture.Submit();
-    device->Queue().waitIdle();
+    texture.Record({clear, ellipse}).Submit();
 
     std::vector<float> data(50*50, 0.0f);
     DrawEllipse(50, 50, data, ellipse.Position, radius);
@@ -182,10 +163,7 @@ TEST(ShapeTests, ScaledEllipse)
     RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);
 
-    texture.Record({clear, ellipse});
-
-    texture.Submit();
-    device->Queue().waitIdle();
+    texture.Record({clear, ellipse}).Submit();
 
     radius *= (glm::vec2)ellipse.Scale;
     std::vector<float> data(50*50, 0.0f);
@@ -212,10 +190,7 @@ TEST(ShapeTests, RotatedEllipse)
     RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);
 
-    texture.Record({clear, ellipse});
-
-    texture.Submit();
-    device->Queue().waitIdle();
+    texture.Record({clear, ellipse}).Submit();
 
     std::vector<float> data(50*50, 0.0f);
     DrawEllipse(50, 50, data, ellipse.Position, radius, ellipse.Rotation);
@@ -242,9 +217,7 @@ TEST(ShapeTests, RenderScaledEllipse)
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, true);
 
     texture.View = glm::scale(glm::vec3(2.0f, 2.0f, 1.0f));
-    texture.Record({clear, ellipse});
-    texture.Submit();
-    device->Queue().waitIdle();
+    texture.Record({clear, ellipse}).Submit();
 
     radius *= glm::vec2(2.0f);
     pos *= glm::vec2(2.0f);

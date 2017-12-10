@@ -43,9 +43,7 @@ public:
 
         area.Position = glm::vec2(1.0f);
 
-        world.LiquidPhi().Record({clearLiquid, area});
-        world.LiquidPhi().Submit();
-        device.Handle().waitIdle(); // needed since it needs to be finished before the area object is destroyed
+        world.LiquidPhi().Record({clearLiquid, area}).Submit();
 
         // Draw solid boundaries
         Vortex2D::Fluid::Circle obstacle1(device, 50.0f);
@@ -57,16 +55,18 @@ public:
         world.SolidPhi().View = dimensions.InvScale;
         world.SolidPhi().DrawSignedObject({obstacle1, obstacle2});
         world.SolidPhi().SubmitSignedBoject();
-        device.Handle().waitIdle();
 
         // Draw sources and forces
         world.InitField(density);
 
         world.Velocity().View = dimensions.InvScale;
-        world.Velocity().Record({force1, force2});
-
         density.View = dimensions.InvScale;
-        density.Record({source1, source2});
+
+        velocityRender = world.Velocity().Record({force1, force2});
+        densityRender = density.Record({source1, source2});
+
+        // wait for all drawing to finish
+        device.Handle().waitIdle();
     }
 
     void Initialize(const Vortex2D::Renderer::RenderState& renderState) override
@@ -80,8 +80,8 @@ public:
         density.Update(projection, view);
         solidPhi.Update(projection, view);
 
-        world.Velocity().Submit();
-        density.Submit();
+        velocityRender.Submit();
+        densityRender.Submit();
 
         world.SolveStatic();
     }
@@ -98,4 +98,5 @@ private:
     Vortex2D::Fluid::Density density;
     Vortex2D::Fluid::World world;
     Vortex2D::Fluid::DistanceField solidPhi;
+    Vortex2D::Renderer::RenderCommand velocityRender, densityRender;
 };

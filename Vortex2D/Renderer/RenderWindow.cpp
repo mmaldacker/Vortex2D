@@ -6,6 +6,7 @@
 #include "RenderWindow.h"
 
 #include <Vortex2D/Renderer/Drawable.h>
+#include <Vortex2D/Renderer/CommandBuffer.h>
 
 namespace Vortex2D { namespace Renderer {
 
@@ -31,6 +32,7 @@ struct SwapChainSupportDetails
 RenderWindow::RenderWindow(const Device& device, vk::SurfaceKHR surface, uint32_t width, uint32_t height)
     : RenderTarget(width, height)
     , mDevice(device)
+    , mIndex(-1)
 {
     // get swap chain support details
     SwapChainSupportDetails details(device.GetPhysicalDevice(), surface);
@@ -114,97 +116,66 @@ RenderWindow::RenderWindow(const Device& device, vk::SurfaceKHR surface, uint32_
     // Create semaphores
     mImageAvailableSemaphore = device.Handle().createSemaphoreUnique({});
     mRenderFinishedSemaphore = device.Handle().createSemaphoreUnique({});
-
-    // Create command Buffers
-    mCmdBuffers = device.CreateCommandBuffers(numFramebuffers);
 }
 
-RenderWindow::~RenderWindow()
+RenderCommand RenderWindow::Record(DrawableList drawables,
+                                   vk::PipelineColorBlendAttachmentState blendMode)
 {
-    mDevice.FreeCommandBuffers({mCmdBuffers});
+    RenderState state(*this, blendMode);
+    return RenderCommand(mDevice,
+                         *this,
+                         state,
+                         mFrameBuffers,
+                         mIndex,
+                         drawables);
 }
 
-void RenderWindow::Submit(std::initializer_list<vk::Semaphore> waitSemaphore,
-                          std::initializer_list<vk::Semaphore> signalSemaphore)
+void RenderWindow::Submit(RenderCommand& renderCommand)
 {
-    uint32_t imageIndex;
+    mRenderCommands.emplace_back(renderCommand);
+}
+
+void RenderWindow::Display()
+{
+    if (mRenderCommands.empty()) return; // nothing to draw
+
     auto result = mDevice.Handle().acquireNextImageKHR(*mSwapChain, UINT64_MAX, *mImageAvailableSemaphore, nullptr);
     if (result.result == vk::Result::eSuccess)
     {
-        imageIndex = result.value;
+        mIndex = result.value;
     }
     else
     {
         throw std::runtime_error("Acquire error " + vk::to_string(result.result));
     }
 
-    std::vector<vk::Semaphore> waitSemaphores = waitSemaphore;
-    waitSemaphores.push_back(*mImageAvailableSemaphore);
-
-    std::vector<vk::Semaphore> signalSemaphores = signalSemaphore;
-    signalSemaphores.push_back(*mRenderFinishedSemaphore);
-
-    std::vector<vk::PipelineStageFlags> waitStages(waitSemaphores.size(), vk::PipelineStageFlagBits::eAllCommands);
-
-    auto submitInfo = vk::SubmitInfo()
-            .setCommandBufferCount(1)
-            .setPCommandBuffers(&mCmdBuffers[imageIndex])
-            .setWaitSemaphoreCount(waitSemaphores.size())
-            .setPWaitSemaphores(waitSemaphores.data())
-            .setSignalSemaphoreCount(signalSemaphores.size())
-            .setPSignalSemaphores(signalSemaphores.data())
-            .setPWaitDstStageMask(waitStages.data());
-
-    mDevice.Queue().submit({submitInfo}, nullptr);
+    if (mRenderCommands.size() == 1)
+    {
+        mRenderCommands[0].get().Render({*mImageAvailableSemaphore}, {*mRenderFinishedSemaphore});
+    }
+    else
+    {
+        mRenderCommands.front().get().Render({*mImageAvailableSemaphore});
+        for (int i = 1; i < mRenderCommands.size() - 1; i++)
+        {
+            mRenderCommands[i].get().Render();
+        }
+        mRenderCommands.back().get().Render({}, {*mRenderFinishedSemaphore});
+    }
 
     vk::SwapchainKHR swapChain[] = {*mSwapChain};
-
-    vk::Semaphore presentSemaphore[] = {*mRenderFinishedSemaphore};
+    vk::Semaphore waitSemaphores[] = {*mRenderFinishedSemaphore};
 
     auto presentInfo = vk::PresentInfoKHR()
             .setSwapchainCount(1)
             .setPSwapchains(swapChain)
-            .setPImageIndices(&imageIndex)
-            .setPWaitSemaphores(presentSemaphore)
+            .setPImageIndices(&mIndex)
+            .setPWaitSemaphores(waitSemaphores)
             .setWaitSemaphoreCount(1);
 
     mDevice.Queue().presentKHR(presentInfo);
-}
-
-void RenderWindow::Record(DrawableList drawables,
-                          vk::PipelineColorBlendAttachmentState blendMode)
-{
-    RenderState state(*this, blendMode);
-
-    for (auto& drawable: drawables)
-    {
-      // TODO initialize should only be called once
-      drawable.get().Initialize(state);
-      drawable.get().Update(Orth, View);
-    }
-
-    for (uint32_t i = 0; i < mCmdBuffers.size(); i++)
-    {
-        auto bufferBegin = vk::CommandBufferBeginInfo()
-                .setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse);
-
-        mCmdBuffers[i].begin(bufferBegin);
-
-        auto renderPassBegin = vk::RenderPassBeginInfo()
-                .setFramebuffer(*mFrameBuffers[i])
-                .setRenderPass(*RenderPass)
-                .setRenderArea({{0, 0}, {Width, Height}});
-
-        mCmdBuffers[i].beginRenderPass(renderPassBegin, vk::SubpassContents::eInline);
-
-        for (auto& drawable: drawables)
-        {
-          drawable.get().Draw(mCmdBuffers[i], state);
-        }
-
-        mCmdBuffers[i].endRenderPass();
-        mCmdBuffers[i].end();
-    }
+    mIndex = -1;
+    mRenderCommands.clear();
 }
 
 }}

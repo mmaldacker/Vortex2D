@@ -48,9 +48,7 @@ TEST(RigidbodyTests, PolygonVelocity)
 
     RenderTexture boundaryVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
 
-    boundaryVelocity.Record({polygon});
-    boundaryVelocity.Submit();
-    device->Handle().waitIdle();
+    boundaryVelocity.Record({polygon}).Submit();
 
     Texture output(*device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
@@ -105,9 +103,7 @@ TEST(RigidbodyTests, PolygonVelocityRotation)
 
     RenderTexture boundaryVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
 
-    boundaryVelocity.Record({polygon});
-    boundaryVelocity.Submit();
-    device->Handle().waitIdle();
+    boundaryVelocity.Record({polygon}).Submit();
 
     Texture output(*device, size.x, size.y, vk::Format::eR32G32Sfloat, true);
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)

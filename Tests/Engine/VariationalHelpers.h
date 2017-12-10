@@ -235,9 +235,9 @@ static void PrintVelocity(const glm::ivec2& size, Vortex2D::Renderer::Texture& b
 
 static void PrintVelocity(const glm::ivec2& size, FluidSim& sim)
 {
-    for (std::size_t j = 0; j < size.y; j++)
+    for (int j = 0; j < size.y; j++)
     {
-        for (std::size_t i = 0; i < size.x; i++)
+        for (int i = 0; i < size.x; i++)
         {
             std::cout << "(" << sim.u(i, j) << "," << sim.v(i, j) << ")";
         }
@@ -283,8 +283,8 @@ static void CheckValid(const glm::ivec2& size, FluidSim& sim, Vortex2D::Renderer
         for (int j = 0; j < size.y - 1; j++)
         {
             std::size_t index = i + j * size.x;
-            EXPECT_FLOAT_EQ(validData[index].x, sim.u_valid(i, j)) << "Mismatch at " << i << "," << j;
-            EXPECT_FLOAT_EQ(validData[index].y, sim.v_valid(i, j)) << "Mismatch at " << i << "," << j;
+            EXPECT_EQ(validData[index].x, sim.u_valid(i, j)) << "Mismatch at " << i << "," << j;
+            EXPECT_EQ(validData[index].y, sim.v_valid(i, j)) << "Mismatch at " << i << "," << j;
         }
     }
 }

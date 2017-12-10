@@ -48,7 +48,7 @@ void SetValid(const glm::ivec2& size, FluidSim& sim, Buffer<glm::ivec2>& buffer)
 
 TEST(ExtrapolateTest, Extrapolate)
 {
-    glm::vec2 size(50);
+    glm::ivec2 size(50);
 
     FluidSim sim;
     sim.initialize(1.0f, size.x, size.y);
@@ -80,7 +80,7 @@ TEST(ExtrapolateTest, Extrapolate)
 TEST(ExtrapolateTest, Constrain)
 {
     // FIXME Cannot use higher size because of weird float conversions in FluidSim
-    glm::vec2 size(20);
+    glm::ivec2 size(20);
 
     FluidSim sim;
     sim.initialize(1.0f, size.x, size.y);

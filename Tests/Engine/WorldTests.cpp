@@ -45,22 +45,22 @@ TEST(WorldTests, Velocity)
     Vortex2D::Renderer::IntRectangle fluidArea(*device, glm::vec2(1.0f), glm::ivec4(4));
     fluidArea.Position = {10.0f, 2.0f};
 
-    world.Count().Record({fluidArea});
-    world.Count().Submit();
-    device->Handle().waitIdle();
+    world.Count().Record({fluidArea}).Submit();
 
     // Draw gravity
     Vortex2D::Renderer::Rectangle gravity(*device, size.Size, {0.0f, -0.01f, 0.0f, 0.0f});
 
-    world.Velocity().Record({gravity});
+    auto gravityRender = world.Velocity().Record({gravity});
 
     // Step
     for (int i = 0; i < 10; i++)
     {
-      world.Velocity().Submit();
+      gravityRender.Submit();
       world.SolveDynamic();
-      device->Handle().waitIdle();
     }
+
+    // wait to finish
+    device->Handle().waitIdle();
 
     // Verify particle velocity
     Buffer<Particle> particles(*device, 8*size.Size.x*size.Size.y, true);
@@ -109,27 +109,21 @@ TEST(WorldTests, ObstacleVelocity)
     Rectangle liquidArea(*device, {18.0f, 18.0f}, {-1.0f, 0.0f, 0.0f, 0.0f});
     liquidArea.Position = glm::vec2(1.0f);
 
-    fluidLevelSet.Record({clear, liquidArea});
-    fluidLevelSet.Submit();
-    device->Handle().waitIdle();
+    fluidLevelSet.Record({clear, liquidArea}).Submit();
 
     // Draw solid level set
     Rectangle solidArea(*device, {10.0f, 10.0f}, {-1.0f, 0.0f, 0.0f, 0.0f});
     solidArea.Position = glm::vec2(5.0f);
     solidArea.Rotation = 45.0f;
 
-    obstacleLevelSet.Record({clear, solidArea});
-    obstacleLevelSet.Submit();
-    device->Handle().waitIdle();
+    obstacleLevelSet.Record({clear, solidArea}).Submit();
 
     // Draw solid velocity
     Rectangle solidVelocity(*device, {10.0f, 10.0f}, {-1.0f, 0.0f, 0.0f, 0.0f});
     solidVelocity.Position = glm::vec2(5.0f);
     solidVelocity.Rotation = 45.0f;
 
-    boundariesVelocity.Record({solidVelocity});
-    boundariesVelocity.Submit();
-    device->Handle().waitIdle();
+    boundariesVelocity.Record({solidVelocity}).Submit();
 
     // Solve
     LinearSolver::Parameters params(300, 1e-3f);

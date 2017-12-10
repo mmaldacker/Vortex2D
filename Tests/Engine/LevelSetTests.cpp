@@ -65,9 +65,7 @@ TEST(LevelSetTests, SimpleCircle)
 
     Clear clear(glm::vec4(-0.5f));
 
-    levelSet.Record({clear, circle});
-    levelSet.Submit();
-
+    levelSet.Record({clear, circle}).Submit();
     levelSet.Reinitialise();
 
     device->Handle().waitIdle();
@@ -100,8 +98,7 @@ TEST(LevelSetTests, ComplexCircles)
     circle2.Position = glm::vec2(c2[0], c2[1]) * glm::vec2(size) - glm::vec2(0.5f);
     circle3.Position = glm::vec2(c3[0], c3[1]) * glm::vec2(size) - glm::vec2(0.5f);
 
-    levelSet.Record({clear, circle0, circle1, circle2, circle3});
-    levelSet.Submit();
+    levelSet.Record({clear, circle0, circle1, circle2, circle3}).Submit();
     levelSet.Reinitialise();
 
     device->Handle().waitIdle();

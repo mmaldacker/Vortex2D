@@ -191,9 +191,7 @@ TEST(ParticleTests, ParticleDelete)
     IntRectangle rect(*device, {10, 10}, glm::ivec4(0));
     rect.Position = glm::vec2(10.0f, 10.0f);
 
-    particleCount.Record({rect});
-    particleCount.Submit();
-    device->Queue().waitIdle();
+    particleCount.Record({rect}).Submit();
 
     // Now scan and copy them
     particleCount.Scan();
@@ -223,9 +221,7 @@ TEST(ParticleTests, ParticleSpawn)
     IntRectangle rect(*device, {1, 1}, glm::ivec4(4));
     rect.Position = glm::vec2(10.0f, 10.0f);
 
-    particleCount.Record({rect});
-    particleCount.Submit();
-    device->Queue().waitIdle();
+    particleCount.Record({rect}).Submit();
 
     // Now scan and spawn them
     particleCount.Scan();
@@ -270,9 +266,7 @@ TEST(ParticleTests, ParticleAddDelete)
     IntRectangle rectAdd(*device, {2, 4}, glm::ivec4(1));
     rectAdd.Position = glm::vec2(10.0f, 10.0f);
 
-    particleCount.Record({rectAdd});
-    particleCount.Submit();
-    device->Queue().waitIdle();
+    particleCount.Record({rectAdd}).Submit();
 
     // Now scan and spawn them
     particleCount.Scan();
@@ -283,9 +277,7 @@ TEST(ParticleTests, ParticleAddDelete)
     IntRectangle rectRemove(*device, {1, 4}, glm::ivec4(0));
     rectRemove.Position = glm::vec2(10.0f, 10.0f);
 
-    particleCount.Record({rectRemove});
-    particleCount.Submit();
-    device->Queue().waitIdle();
+    particleCount.Record({rectRemove}).Submit();
 
     // Scan again
     particleCount.Scan();

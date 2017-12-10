@@ -6,13 +6,14 @@
 #include "RenderTexture.h"
 
 #include <Vortex2D/Renderer/Drawable.h>
+#include <Vortex2D/Renderer/CommandBuffer.h>
 
 namespace Vortex2D { namespace Renderer {
 
 RenderTexture::RenderTexture(const Device& device, uint32_t width, uint32_t height, vk::Format format)
     : RenderTarget(width, height)
     , Texture(device, width, height, format, false)
-    , mCmd(device)
+    , mDevice(device)
 {
     // Create render pass
     RenderPass = RenderpassBuilder()
@@ -45,32 +46,16 @@ RenderTexture::RenderTexture(const Device& device, uint32_t width, uint32_t heig
     mFramebuffer = device.Handle().createFramebufferUnique(framebufferInfo);
 }
 
-void RenderTexture::Record(DrawableList drawables,
-                           vk::PipelineColorBlendAttachmentState blendMode)
+RenderCommand RenderTexture::Record(DrawableList drawables,
+                                    vk::PipelineColorBlendAttachmentState blendMode)
 {
     RenderState state(*this, blendMode);
-
-    for (auto& drawable: drawables)
-    {
-      // TODO initialize should only be called once
-      drawable.get().Initialize(state);
-      drawable.get().Update(Orth, View);
-    }
-
-    mCmd.Record(*this, *mFramebuffer, [&](vk::CommandBuffer commandBuffer)
-    {
-        for (auto& drawable: drawables)
-        {
-          drawable.get().Draw(commandBuffer, state);
-        }
-    });
+    return RenderCommand(mDevice, *this, state, mFramebuffer, drawables);
 }
 
-void RenderTexture::Submit(std::initializer_list<vk::Semaphore> waitSemaphore,
-                           std::initializer_list<vk::Semaphore> signalSemaphore)
+void RenderTexture::Submit(RenderCommand& renderCommand)
 {
-    // TODO add (or remove?) wait semaphore
-    mCmd.Submit(signalSemaphore);
+    renderCommand.Render();
 }
 
 bool RenderTexture::operator==(const RenderTexture& other) const

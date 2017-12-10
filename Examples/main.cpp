@@ -22,74 +22,74 @@ glm::vec4 green = glm::vec4(35.0f, 163.0f, 143.0f, 255.0f)/glm::vec4(255.0f);
 glm::vec4 gray = glm::vec4(182.0f,172.0f,164.0f, 255.0f)/glm::vec4(255.0f);
 glm::vec4 blue = glm::vec4(188.0f, 155.0f, 99.0f, 255.0f)/glm::vec4(255.0f);
 
-glm::ivec2 size = {1024,1024};
-float scale = 4;
-float delta = 0.016f;
-
-Vortex2D::Renderer::Device* device;
-Vortex2D::Renderer::RenderTarget* target;
-Renderer::Clear* clear;
-
-std::unique_ptr<Vortex2D::Renderer::Drawable> example;
-
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+class App
 {
-    if (action != GLFW_PRESS) return;
+public:
+    glm::ivec2 size = {1024,1024};
+    float scale = 4;
+    float delta = 0.016f;
 
-    switch (key)
+    App()
+        : mainWindow(size.x, size.y)
+        , device(mainWindow.GetPhysicalDevice(), mainWindow.GetSurface())
+        , window(device, mainWindow.GetSurface(), size.x, size.y)
+        , clearRender(window.Record({clear}))
     {
+        glfwSetWindowUserPointer(mainWindow.GetWindow(), this);
+
+        auto func = [](GLFWwindow* window, int key, int scancode, int action, int mods)
+        {
+            static_cast<App*>(glfwGetWindowUserPointer(window))->KeyCallback(key, action);
+        };
+
+        glfwSetKeyCallback(mainWindow.GetWindow(), func);
+    }
+
+    ~App()
+    {
+        device.Handle().waitIdle();
+    }
+
+    void KeyCallback(int key, int action)
+    {
+        if (action != GLFW_PRESS) return;
+
+        switch (key)
+        {
         case GLFW_KEY_1:
-            example.reset(new RenderExample(*device, size));
+            example.reset(new RenderExample(device, size));
             break;
         case GLFW_KEY_2:
-            example.reset(new SmokeExample(*device, {size, scale}, delta));
+            example.reset(new SmokeExample(device, {size, scale}, delta));
             break;
         case GLFW_KEY_3:
-            example.reset(new ObstacleSmokeExample(*device, {size, scale}, delta));
+            example.reset(new ObstacleSmokeExample(device, {size, scale}, delta));
             break;
         case GLFW_KEY_4:
-            example.reset(new WaterExample(*device, {size, scale}, delta));
+            example.reset(new WaterExample(device, {size, scale}, delta));
             break;
         case GLFW_KEY_5:
-            example.reset(new SmokeVelocityExample(*device, {size, scale}, delta));
+            example.reset(new SmokeVelocityExample(device, {size, scale}, delta));
             break;
         default:
             return;
+        }
+
+        auto blendMode = vk::PipelineColorBlendAttachmentState()
+                .setBlendEnable(true)
+                .setAlphaBlendOp(vk::BlendOp::eAdd)
+                .setColorBlendOp(vk::BlendOp::eAdd)
+                .setSrcColorBlendFactor(vk::BlendFactor::eSrcAlpha)
+                .setSrcAlphaBlendFactor(vk::BlendFactor::eOne)
+                .setDstColorBlendFactor(vk::BlendFactor::eOneMinusSrcAlpha)
+                .setDstAlphaBlendFactor(vk::BlendFactor::eZero);
+
+        exampleRender = window.Record({*example}, blendMode);
     }
 
-    auto blendMode = vk::PipelineColorBlendAttachmentState()
-            .setBlendEnable(true)
-            .setAlphaBlendOp(vk::BlendOp::eAdd)
-            .setColorBlendOp(vk::BlendOp::eAdd)
-            .setSrcColorBlendFactor(vk::BlendFactor::eSrcAlpha)
-            .setSrcAlphaBlendFactor(vk::BlendFactor::eOne)
-            .setDstColorBlendFactor(vk::BlendFactor::eOneMinusSrcAlpha)
-            .setDstAlphaBlendFactor(vk::BlendFactor::eZero);
-
-    target->Record({*clear, *example}, blendMode);
-}
-
-int main()
-{
-    try
+    void Run()
     {
-        GLFWApp mainWindow(size.x, size.y);
-
-        glfwSetKeyCallback(mainWindow.GetWindow(), key_callback);
-
-        Renderer::Device device_(mainWindow.GetPhysicalDevice(),
-                                 mainWindow.GetSurface());
-        device = &device_;
-
-        Renderer::RenderWindow window(device_, mainWindow.GetSurface(), size.x, size.y);
-        target = &window;
-
-        Renderer::Clear clear_({0.5f, 0.5f, 0.5f, 1.0f});
-        clear = &clear_;
-
-        target->Record({*clear});
-
-        int windowSize = 20;
+        const int windowSize = 20;
         std::vector<uint64_t> timePoints(windowSize, 0);
         int timePointIndex = 0;
 
@@ -99,8 +99,9 @@ int main()
 
             auto start = std::chrono::system_clock::now();
 
-            if (example) example->Update(window.Orth, glm::mat4());
-            window.Submit();
+            clearRender.Submit();
+            exampleRender.Submit();
+            window.Display();
 
             auto end = std::chrono::system_clock::now();
             timePoints[timePointIndex] = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
@@ -110,10 +111,23 @@ int main()
             auto title = std::to_string(average) + "ms";
             glfwSetWindowTitle(mainWindow.GetWindow(), title.c_str());
         }
+    }
 
-        device_.Handle().waitIdle();
+    GLFWApp mainWindow;
+    Vortex2D::Renderer::Device device;
+    Renderer::RenderWindow window;
+    Renderer::Clear clear = {{0.5f, 0.5f, 0.5f, 1.0f}};
+    std::unique_ptr<Vortex2D::Renderer::Drawable> example;
+    Vortex2D::Renderer::RenderCommand clearRender;
+    Vortex2D::Renderer::RenderCommand exampleRender;
+};
 
-        example.reset();
+int main()
+{
+    try
+    {
+        App app;
+        app.Run();
     }
     catch (const std::exception& error)
     {

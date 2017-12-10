@@ -18,22 +18,21 @@ class RenderWindow : public RenderTarget
 public:
     RenderWindow(const Device& device, vk::SurfaceKHR surface, uint32_t width, uint32_t height);
 
-    ~RenderWindow();
+    RenderCommand Record(DrawableList drawables,
+                         vk::PipelineColorBlendAttachmentState blendMode = {}) override;
+    void Submit(RenderCommand& renderCommand) override;
 
-    void Submit(std::initializer_list<vk::Semaphore> waitSemaphore = {},
-                std::initializer_list<vk::Semaphore> signalSemaphore = {}) override;
-
-    void Record(DrawableList drawables,
-                vk::PipelineColorBlendAttachmentState blendMode = {}) override;
+    void Display();
 
 private:
     const Device& mDevice;
     vk::UniqueSwapchainKHR mSwapChain;
     std::vector<vk::UniqueImageView> mSwapChainImageViews;
     std::vector<vk::UniqueFramebuffer> mFrameBuffers;
-    std::vector<vk::CommandBuffer> mCmdBuffers;
     vk::UniqueSemaphore mImageAvailableSemaphore;
     vk::UniqueSemaphore mRenderFinishedSemaphore;
+    std::vector<std::reference_wrapper<RenderCommand>> mRenderCommands;
+    uint32_t mIndex;
 };
 
 }}

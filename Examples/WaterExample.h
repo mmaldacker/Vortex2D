@@ -33,10 +33,9 @@ public:
         Vortex2D::Renderer::IntRectangle fluid(device, {600.0f, 200.0f}, glm::ivec4(4));
         fluid.Position = {200.0f, 100.0f};
 
+        // TODO should be set in World (same for other render textures)
         world.Count().View = dimensions.InvScale;
-        world.Count().Record({fluid});
-        world.Count().Submit();
-        device.Handle().waitIdle();
+        world.Count().Record({fluid}).Submit();
 
         // Draw solid boundaries
         Vortex2D::Fluid::Rectangle obstacle1(device, {200.0f, 100.0f});
@@ -57,7 +56,10 @@ public:
         device.Handle().waitIdle();
 
         // Set gravity
-        world.Velocity().Record({gravity});
+        velocityRender = world.Velocity().Record({gravity});
+
+        // wait for drawing to finish
+        device.Handle().waitIdle();
     }
 
     void Initialize(const Vortex2D::Renderer::RenderState& renderState) override
@@ -71,7 +73,7 @@ public:
         solidPhi.Update(projection, view);
         liquidPhi.Update(projection, view);
 
-        world.Velocity().Submit();
+        velocityRender.Submit();
         world.SolveDynamic();
     }
 
@@ -85,4 +87,5 @@ private:
     Vortex2D::Renderer::Rectangle gravity;
     Vortex2D::Fluid::World world;
     Vortex2D::Fluid::DistanceField solidPhi, liquidPhi;
+    Vortex2D::Renderer::RenderCommand velocityRender;
 };

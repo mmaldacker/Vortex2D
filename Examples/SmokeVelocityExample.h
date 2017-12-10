@@ -48,23 +48,24 @@ public:
 
         area.Position = glm::vec2(1.0f);
 
-        world.LiquidPhi().Record({clearLiquid, area});
-        world.LiquidPhi().Submit();
-        device.Handle().waitIdle();
+        world.LiquidPhi().Record({clearLiquid, area}).Submit();
 
         // Draw sources and forces
         world.InitField(density);
 
         world.Velocity().View = dimensions.InvScale;
-        world.Velocity().Record({force});
+        velocityRender = world.Velocity().Record({force});
 
         density.View = dimensions.InvScale;
-        density.Record({source});
+        densityRender = density.Record({source});
 
         // Draw rigid body
         body.SetTransform({300.0f, 500.0f}, -45.0f);
         world.SolidPhi().View = dimensions.InvScale;
         world.SolidPhi().DrawSignedObject({body.SignedObject()});
+
+        // wait for drawing to finish
+        device.Handle().waitIdle();
     }
 
     void Initialize(const Vortex2D::Renderer::RenderState& renderState) override
@@ -83,8 +84,8 @@ public:
         solidPhi.Update(projection, view);
 
         world.SolidPhi().SubmitSignedBoject();
-        world.Velocity().Submit();
-        density.Submit();
+        velocityRender.Submit();
+        densityRender.Submit();
 
         world.SolveStatic();
 
@@ -107,6 +108,7 @@ private:
     Vortex2D::Fluid::Density density;
     Vortex2D::Fluid::World world;
     Vortex2D::Fluid::DistanceField solidPhi;
+    Vortex2D::Renderer::RenderCommand velocityRender, densityRender;
 
     b2World rWorld;
 

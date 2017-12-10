@@ -5,6 +5,7 @@
 
 #include "CommandBuffer.h"
 
+#include <Vortex2D/Renderer/Drawable.h>
 #include <Vortex2D/Renderer/RenderTarget.h>
 
 namespace Vortex2D { namespace Renderer {
@@ -97,8 +98,8 @@ void CommandBuffer::Reset()
     }
 }
 
-void CommandBuffer::Submit(std::initializer_list<vk::Semaphore> waitSemaphores,
-                           std::initializer_list<vk::Semaphore> signalSemaphores)
+void CommandBuffer::Submit(const std::initializer_list<vk::Semaphore>& waitSemaphores,
+                           const std::initializer_list<vk::Semaphore>& signalSemaphores)
 {
     Reset();
 
@@ -131,5 +132,121 @@ void ExecuteCommand(const Device& device, CommandBuffer::CommandFn commandFn)
     cmd.Wait();
 }
 
+RenderCommand::RenderCommand(RenderCommand&& other)
+    : mRenderTarget(other.mRenderTarget)
+    , mCmds(std::move(other.mCmds))
+    , mIndex(other.mIndex)
+    , mDrawables(std::move(other.mDrawables))
+{
+    other.mRenderTarget = nullptr;
+    other.mIndex = nullptr;
+}
+
+RenderCommand::RenderCommand()
+    : mIndex(&zero)
+    , mRenderTarget(nullptr)
+{
+
+}
+
+RenderCommand::~RenderCommand()
+{
+    for (auto& cmd: mCmds)
+    {
+        cmd.Wait();
+    }
+}
+
+RenderCommand& RenderCommand::operator=(RenderCommand&& other)
+{
+    mRenderTarget = other.mRenderTarget;
+    mCmds = std::move(other.mCmds);
+    mIndex = other.mIndex;
+    mDrawables = std::move(other.mDrawables);
+
+    other.mRenderTarget = nullptr;
+    other.mIndex = nullptr;
+
+    return *this;
+}
+
+RenderCommand::RenderCommand(const Device& device,
+                             RenderTarget& renderTarget,
+                             const RenderState& renderState,
+                             const vk::UniqueFramebuffer& frameBuffer,
+                             RenderTarget::DrawableList drawables)
+    : mRenderTarget(&renderTarget)
+    , mIndex(&zero)
+    , mDrawables(drawables)
+{
+    for (auto& drawable: drawables)
+    {
+        drawable.get().Initialize(renderState);
+    }
+
+    CommandBuffer cmd(device, true);
+    cmd.Record(renderTarget, *frameBuffer, [&](vk::CommandBuffer commandBuffer)
+    {
+        for (auto& drawable: drawables)
+        {
+            drawable.get().Draw(commandBuffer, renderState);
+        }
+    });
+
+    mCmds.emplace_back(std::move(cmd));
+}
+
+RenderCommand::RenderCommand(const Device& device,
+                             RenderTarget& renderTarget,
+                             const RenderState& renderState,
+                             const std::vector<vk::UniqueFramebuffer>& frameBuffers,
+                             const uint32_t& index,
+                             RenderTarget::DrawableList drawables)
+    : mRenderTarget(&renderTarget)
+    , mIndex(&index)
+    , mDrawables(drawables)
+{
+    for (auto& drawable: drawables)
+    {
+        drawable.get().Initialize(renderState);
+    }
+
+    for (auto& frameBuffer: frameBuffers)
+    {
+        CommandBuffer cmd(device, false);
+        cmd.Record(renderTarget, *frameBuffer, [&](vk::CommandBuffer commandBuffer)
+        {
+            for (auto& drawable: drawables)
+            {
+                drawable.get().Draw(commandBuffer, renderState);
+            }
+        });
+
+        mCmds.emplace_back(std::move(cmd));
+    }
+}
+
+void RenderCommand::Submit()
+{
+    if (mRenderTarget)
+    {
+        mRenderTarget->Submit(*this);
+    }
+}
+
+void RenderCommand::Render(const std::initializer_list<vk::Semaphore>& waitSemaphores, const std::initializer_list<vk::Semaphore>& signalSemaphores)
+{
+    assert(mIndex);
+    if (mCmds.empty()) return;
+    if (*mIndex >= mCmds.size()) throw std::runtime_error("invalid index");
+
+    for (auto& drawable: mDrawables)
+    {
+        assert(mRenderTarget);
+        drawable.get().Update(mRenderTarget->Orth, mRenderTarget->View);
+    }
+
+    mCmds[*mIndex].Submit(waitSemaphores, signalSemaphores);
+}
 
 }}

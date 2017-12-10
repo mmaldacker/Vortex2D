@@ -46,16 +46,14 @@ public:
 
         world.InitField(density);
 
-        world.ObstacleVelocity().Record({velocityClear, body1.VelocityObject(), body2.VelocityObject()});
+        velocityRender = world.ObstacleVelocity().Record({velocityClear, body1.VelocityObject(), body2.VelocityObject()});
 
         // Draw density
         Vortex2D::Renderer::Rectangle source(device, {800.0f, 400.0f}, gray);
         source.Position = {100.0f, 500.0f};
 
         density.View = dimensions.InvScale;
-        density.Record({source});
-        density.Submit();
-        device.Handle().waitIdle();
+        density.Record({source}).Submit();
 
         // Draw liquid boundaries
         Vortex2D::Renderer::Clear clear({1.0f, 0.0f, 0.0f, 0.0f});
@@ -64,9 +62,7 @@ public:
         liquidArea.Position = {12.0f, 12.0};
 
         world.LiquidPhi().View = dimensions.InvScale;
-        world.LiquidPhi().Record({clear, liquidArea});
-        world.LiquidPhi().Submit();
-        device.Handle().waitIdle();
+        world.LiquidPhi().Record({clear, liquidArea}).Submit();
 
         // Draw solid boundaries
 
@@ -83,20 +79,11 @@ public:
         // Bottom
         bottom.SetTransform({512.5f, 1000.5f}, 0.0f);
 
-        // Borders
-        b2BodyDef border;
-        b2EdgeShape line;
-
-        line.Set({12.0f / box2dScale, 12.0f / box2dScale}, {12.0f / box2dScale, 1000.0f / box2dScale});
-        auto* left = rWorld.CreateBody(&border);
-        left->CreateFixture(&line, 0.0f);
-
-        line.Set({1000.0f / box2dScale, 12.0f / box2dScale}, {1000.0f / box2dScale, 1000.0f / box2dScale});
-        auto* right = rWorld.CreateBody(&border);
-        right->CreateFixture(&line, 0.0f);
-
         world.SolidPhi().View = dimensions.InvScale;
         world.SolidPhi().DrawSignedObject({bottom.SignedObject(), body1.SignedObject(), body2.SignedObject()});
+
+        // wait for drawing to finish
+        device.Handle().waitIdle();
     }
 
     void Initialize(const Vortex2D::Renderer::RenderState& renderState) override
@@ -120,7 +107,7 @@ public:
 
         world.SolidPhi().SubmitSignedBoject();
         world.SolidPhi().Reinitialise();
-        world.ObstacleVelocity().Submit();
+        velocityRender.Submit();
 
         world.SolveStatic();
 
@@ -143,6 +130,7 @@ private:
     Vortex2D::Fluid::DistanceField solidPhi;
 
     Vortex2D::Renderer::Clear velocityClear;
+    Vortex2D::Renderer::RenderCommand velocityRender;
 
     b2World rWorld;
 
