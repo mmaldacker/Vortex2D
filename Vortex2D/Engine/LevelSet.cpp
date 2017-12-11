@@ -80,27 +80,4 @@ void LevelSet::Extrapolate()
     mExtrapolateCmd.Submit();
 }
 
-void LevelSet::DrawSignedObject(DrawableList drawables)
-{
-    for (auto& drawable: drawables)
-    {
-        drawable.get().Initialize(*this);
-        drawable.get().Update(View);
-    }
-
-    mSignedObjectCmd.Record([&](vk::CommandBuffer commandBuffer)
-    {
-        Clear(commandBuffer, std::array<float, 4>{(float)(Height*Width), 0.0f, 0.0f, 0.0f});
-        for (auto& drawable: drawables)
-        {
-            drawable.get().Draw(commandBuffer, *this);
-        }
-    });
-}
-
-void LevelSet::SubmitSignedBoject()
-{
-    mSignedObjectCmd.Submit();
-}
-
 }}

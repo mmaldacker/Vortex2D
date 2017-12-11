@@ -3,11 +3,14 @@
 
 layout(push_constant) uniform Consts
 {
-  int width;
-  int height;
   int n;
   int inv;
 }consts;
+
+layout(set = 0, binding = 1) uniform UBO
+{
+    mat4 mv;
+}u;
 
 layout(std430, binding = 2) buffer Polygon
 {
@@ -34,14 +37,19 @@ float dist_to_segment(vec2 a, vec2 b, vec2 p)
     return distance(p, proj);
 }
 
+const float max_dist = 100000.0;
+
 void main(void)
 {
     vec2 pos = gl_FragCoord.xy;
-    float value = (consts.inv == 1 ? 1.0 : -1.0) * max(consts.width, consts.height);
+    float value = (consts.inv == 1 ? 1.0 : -1.0) * max_dist;
     for (int i = consts.n - 1, j = 0; j < consts.n; i = j++)
     {
-        float udist = dist_to_segment(polygon.points[i], polygon.points[j], pos);
-        float dist = -orientation(polygon.points[i], polygon.points[j], pos) * udist;
+        vec2 a = (u.mv * vec4(polygon.points[i], 0.0, 1.0)).xy;
+        vec2 b = (u.mv * vec4(polygon.points[j], 0.0, 1.0)).xy;
+
+        float udist = dist_to_segment(a, b, pos);
+        float dist = -orientation(a, b, pos) * udist;
 
         value = consts.inv == 1 ? min(value, dist) : max(value, dist);
     }

@@ -9,6 +9,7 @@
 #include <glm/gtx/io.hpp>
 #include <glm/glm.hpp>
 
+#include <Vortex2D/Renderer/Shapes.h>
 #include <Vortex2D/Engine/LevelSet.h>
 #include <Vortex2D/Engine/Boundaries.h>
 
@@ -60,8 +61,8 @@ void DrawSignedSquare(const glm::ivec2& size, const std::vector<glm::vec2>& poin
             float value = -std::max(size.x, size.y);
             for (int k = points.size() - 1, l = 0; l < points.size(); k = l++)
             {
-                float udist = DistToSegment(points[k] + pos, points[l] + pos, glm::vec2(i, j));
-                float dist = -Orientation(points[k] + pos, points[l] + pos, glm::vec2(i, j)) * udist;
+                float udist = DistToSegment(points[k] + pos, points[l] + pos, glm::vec2(i + 0.5, j + 0.5));
+                float dist = -Orientation(points[k] + pos, points[l] + pos, glm::vec2(i + 0.5, j + 0.5)) * udist;
                 value = std::max(value, dist);
             }
 
@@ -92,7 +93,7 @@ TEST(BoundariesTests, Square)
 
     std::vector<glm::vec2> points = {{0.0f, 0.0f}, {4.0f, 0.0f}, {4.0f, 4.0f}, {0.0f, 4.0f}};
 
-    Polygon square(*device, points);
+    Polygon square(*device, points, false, 20);
     square.Position = glm::vec2(5.0f, 10.0f);
 
     std::vector<float> data(size.x*size.y, 100.0f);
@@ -100,16 +101,10 @@ TEST(BoundariesTests, Square)
 
     LevelSet levelSet(*device, size);
 
-    square.Initialize(levelSet);
-    square.Update({});
+    Clear clear({100.0f, 0.0f, 0.0f, 0.0f});
 
+    levelSet.Record({clear, square}).Submit();
     device->Handle().waitIdle();
-
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-        levelSet.Clear(commandBuffer, std::array<float, 4>{100.0f, 0.0f, 0.0f, 0.0f});
-        square.Draw(commandBuffer, levelSet);
-    });
 
     Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
@@ -126,7 +121,7 @@ TEST(BoundariesTests, InverseSquare)
 
     std::vector<glm::vec2> points = {{0.0f, 0.0f}, {4.0f, 0.0f}, {4.0f, 4.0f}, {0.0f, 4.0f}};
 
-    Rectangle square(*device, {4.0f, 4.0f}, true);
+    Polygon square(*device, points, true, 20);
     square.Position = glm::vec2(5.0f, 10.0f);
 
     std::vector<float> data(size.x*size.y, 100.0f);
@@ -136,16 +131,10 @@ TEST(BoundariesTests, InverseSquare)
 
     LevelSet levelSet(*device, size);
 
-    square.Initialize(levelSet);
-    square.Update({});
+    Clear clear({100.0f, 0.0f, 0.0f, 0.0f});
 
+    levelSet.Record({clear, square}).Submit();
     device->Handle().waitIdle();
-
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-        levelSet.Clear(commandBuffer, std::array<float, 4>{100.0f, 0.0f, 0.0f, 0.0f});
-        square.Draw(commandBuffer, levelSet);
-    });
 
     Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
@@ -169,17 +158,10 @@ TEST(BoundariesTests, Circle)
     DrawCircle(size, data, 5.0f, circle.Position);
 
     LevelSet levelSet(*device, size);
+    Clear clear({100.0f, 0.0f, 0.0f, 0.0f});
 
-    circle.Initialize(levelSet);
-    circle.Update({});
-
+    levelSet.Record({clear, circle}).Submit();
     device->Handle().waitIdle();
-
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-        levelSet.Clear(commandBuffer, std::array<float, 4>{100.0f, 0.0f, 0.0f, 0.0f});
-        circle.Draw(commandBuffer, levelSet);
-    });
 
     Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)

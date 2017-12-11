@@ -23,7 +23,7 @@ class LevelSet;
 class Polygon : public Renderer::Transformable, public Renderer::Drawable
 {
 public:
-    Polygon(const Renderer::Device& device, std::vector<glm::vec2> points, bool inverse = false);
+    Polygon(const Renderer::Device& device, std::vector<glm::vec2> points, bool inverse = false, int extent = 3);
 
     void Initialize(const Renderer::RenderState& renderState) override;
     void Update(const glm::mat4& projection, const glm::mat4& view) override;
@@ -31,12 +31,12 @@ public:
 
 private:
     const Renderer::Device& mDevice;
-    glm::mat4 mExtent;
+    uint32_t mSize;
+    uint32_t mInv;
     Renderer::UpdateBuffer<Renderer::UniformBuffer, glm::mat4> mMVPBuffer;
     Renderer::UpdateUniformBuffer<glm::mat4> mMVBuffer;
     Renderer::VertexBuffer<glm::vec2> mVertexBuffer;
-    vk::UniqueDescriptorSet mDescriptorSet;
-    vk::UniquePipelineLayout mPipelineLayout;
+    Renderer::DescriptorSet mDescriptorSet;
     Renderer::GraphicsPipeline mPipeline;
     Renderer::Buffer<glm::vec2> mPolygonVertexBuffer;
 };
@@ -58,13 +58,12 @@ public:
     void Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState) override;
 
 private:
-    float mSize;
     const Renderer::Device& mDevice;
+    float mSize;
     Renderer::UpdateBuffer<Renderer::UniformBuffer, glm::mat4> mMVPBuffer;
     Renderer::UpdateUniformBuffer<glm::mat4> mMVBuffer;
     Renderer::VertexBuffer<glm::vec2> mVertexBuffer;
-    vk::UniqueDescriptorSet mDescriptorSet;
-    vk::UniquePipelineLayout mPipelineLayout;
+    Renderer::DescriptorSet mDescriptorSet;
     Renderer::GraphicsPipeline mPipeline;
 };
 
