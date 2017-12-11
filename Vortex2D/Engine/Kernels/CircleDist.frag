@@ -3,31 +3,26 @@
 
 layout(push_constant) uniform Consts
 {
-  int width;
-  int height;
   float radius;
 }consts;
 
-layout(binding = 0) uniform MVP
+layout(binding = 1) uniform UBO
 {
-  mat4 value;
-}mvp;
-
-layout(std430, binding = 2) buffer Circle
-{
-  vec2 point;
-}circle;
+  mat4 mv;
+}u;
 
 layout(location = 0) out vec4 out_colour;
+
+const float max_dist = 100000.0;
 
 void main(void)
 {
     vec2 pos = gl_FragCoord.xy;
 
-    float value = -max(consts.width, consts.height);
-    vec2 dir = circle.point - pos;
-    float scale = sqrt(mvp.value[0][0] * mvp.value[1][1]);
-    float dist = length(dir) - consts.radius * scale;
+    float value = -max_dist;
+    vec2 p = (u.mv * vec4(0.0, 0.0, 0.0, 1.0)).xy;
+    vec2 dir = p - pos;
+    float dist = length(dir) - consts.radius;
 
-    out_colour = vec4(value);
+    out_colour = vec4(dist);
 }

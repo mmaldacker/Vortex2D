@@ -131,21 +131,33 @@ Rectangle::Rectangle(const Renderer::Device& device, const glm::vec2& size, bool
 {
 }
 
-Circle::Circle(const Renderer::Device& device, float radius)
+Circle::Circle(const Renderer::Device& device, float radius, int extent)
     : mDevice(device)
     , mSize(radius)
     , mMVPBuffer(device)
     , mMVBuffer(device)
-    , mVertexBuffer(device, 1)
+    , mVertexBuffer(device, 6)
 {
+    std::vector<glm::vec2> points = {{-radius, -radius}, {radius, -radius}, {radius, radius}, {-radius, radius}};
+
+    auto boundingBox = GetBoundingBox(points, extent);
+    Renderer::Buffer<glm::vec2> localVertexBuffer(device, boundingBox.size(), true);
+    Renderer::CopyFrom(localVertexBuffer, boundingBox);
+
+    Renderer::ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
+    {
+        mVertexBuffer.CopyFrom(commandBuffer, localVertexBuffer);
+    });
+
     SPIRV::Reflection reflectionVert(device.GetShaderSPIRV("../Vortex2D/Position.vert.spv"));
     SPIRV::Reflection reflectionFrag(device.GetShaderSPIRV("../Vortex2D/CircleDist.frag.spv"));
 
     Renderer::PipelineLayout layout = {{reflectionVert, reflectionFrag}};
     mDescriptorSet = device.GetLayoutManager().MakeDescriptorSet(layout);
+    Bind(device, *mDescriptorSet.descriptorSet, layout, {{mMVPBuffer}, {mMVBuffer}});
 
     mPipeline = Renderer::GraphicsPipeline::Builder()
-            .Topology(vk::PrimitiveTopology::eTriangleFan)
+            .Topology(vk::PrimitiveTopology::eTriangleList)
             .Shader(device.GetShaderModule("../Vortex2D/Position.vert.spv"), vk::ShaderStageFlagBits::eVertex)
             .Shader(device.GetShaderModule("../Vortex2D/CircleDist.frag.spv"), vk::ShaderStageFlagBits::eFragment)
             .VertexAttribute(0, 0, vk::Format::eR32G32Sfloat, 0)
@@ -173,12 +185,18 @@ void Circle::Update(const glm::mat4& projection, const glm::mat4& view)
 void Circle::Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState)
 {
     mPipeline.Bind(commandBuffer, renderState);
+    commandBuffer.pushConstants(mDescriptorSet.pipelineLayout, vk::ShaderStageFlagBits::eFragment, 0, 4, &mSize);
     commandBuffer.bindVertexBuffers(0, {mVertexBuffer.Handle()}, {0ul});
     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
                                      mDescriptorSet.pipelineLayout, 0, {*mDescriptorSet.descriptorSet}, {});
     commandBuffer.draw(6, 1, 0, 0);
 }
 
+vk::PipelineColorBlendAttachmentState IntersectionBlend = vk::PipelineColorBlendAttachmentState()
+        .setColorBlendOp(vk::BlendOp::eMax)
+        .setSrcColorBlendFactor(vk::BlendFactor::eOne)
+        .setDstColorBlendFactor(vk::BlendFactor::eOne)
+        .setColorWriteMask(vk::ColorComponentFlagBits::eR);
 
 DistanceField::DistanceField(const Renderer::Device& device,
                              LevelSet& levelSet,

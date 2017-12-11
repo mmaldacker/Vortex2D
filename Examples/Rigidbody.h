@@ -27,7 +27,7 @@ public:
 
   b2Body& Body();
 
-  Vortex2D::Fluid::SignedObject& SignedObject();
+  Vortex2D::Renderer::Drawable& SignedObject();
   Vortex2D::Renderer::Drawable& VelocityObject();
 
   void UpdatePosition();

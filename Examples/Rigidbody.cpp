@@ -53,7 +53,7 @@ b2Body& PolygonRigidbody::Body()
   return *mB2Body;
 }
 
-Vortex2D::Fluid::SignedObject& PolygonRigidbody::SignedObject()
+Vortex2D::Renderer::Drawable& PolygonRigidbody::SignedObject()
 {
   return mDrawPolygon;
 }
@@ -80,7 +80,7 @@ void PolygonRigidbody::UpdateVelocities()
 
 void PolygonRigidbody::Update(const glm::mat4& projection, const glm::mat4& view)
 {
-    mDrawPolygon.Update(view);
+    mDrawPolygon.Update(projection, view);
     mVelocityPolygon.Update(projection, view);
 }
 

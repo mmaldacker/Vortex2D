@@ -20,6 +20,7 @@ namespace Vortex2D { namespace Fluid {
 
 class LevelSet;
 
+// TODO scaling doesn't work
 class Polygon : public Renderer::Transformable, public Renderer::Drawable
 {
 public:
@@ -47,11 +48,11 @@ public:
     Rectangle(const Renderer::Device& device, const glm::vec2& size, bool inverse = false);
 };
 
-// TODO a lot of duplication between Ellipse and Polygon (and the Shapes classes?)
+// TODO scaling doesn't work
 class Circle : public Renderer::Transformable, public Renderer::Drawable
 {
 public:
-    Circle(const Renderer::Device& device, float radius);
+    Circle(const Renderer::Device& device, float radius, int extent = 3);
 
     void Initialize(const Renderer::RenderState& renderState) override;
     void Update(const glm::mat4& projection, const glm::mat4& view) override;
@@ -66,6 +67,8 @@ private:
     Renderer::DescriptorSet mDescriptorSet;
     Renderer::GraphicsPipeline mPipeline;
 };
+
+extern vk::PipelineColorBlendAttachmentState IntersectionBlend;
 
 // TODO have colour has member variable and updated in the Update function
 class DistanceField : public Renderer::AbstractSprite

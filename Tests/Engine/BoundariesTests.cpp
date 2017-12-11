@@ -25,7 +25,7 @@ void DrawCircle(const glm::ivec2& size, std::vector<float>& data,  float radius,
     {
         for (int j = 0; j < size.y; j++)
         {
-            glm::vec2 pos(i, j);
+            glm::vec2 pos(i + 0.5, j + 0.5);
             auto p = pos - centre;
             int index = i + j * size.x;
             data[index] = glm::length(p) - radius;
@@ -151,7 +151,7 @@ TEST(BoundariesTests, Circle)
 
     std::vector<glm::vec2> points = {{0.0f, 0.0f}, {4.0f, 0.0f}, {4.0f, 4.0f}, {0.0f, 4.0f}};
 
-    Circle circle(*device, 5.0f);
+    Circle circle(*device, 5.0f, 20);
     circle.Position = glm::vec2(8.0f, 10.0f);
 
     std::vector<float> data(size.x*size.y, 100.0f);

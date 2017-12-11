@@ -38,6 +38,7 @@ public:
         world.Count().Record({fluid}).Submit();
 
         // Draw solid boundaries
+        Vortex2D::Renderer::Clear clear({1000.0f, 0.0f, 0.0f, 0.0f});
         Vortex2D::Fluid::Rectangle obstacle1(device, {200.0f, 100.0f});
         Vortex2D::Fluid::Rectangle obstacle2(device, {200.0f, 100.0f});
         Vortex2D::Fluid::Rectangle area(device, {1000.0f, 1000.0f}, true);
@@ -51,8 +52,7 @@ public:
         obstacle2.Rotation = 30.0f;
 
         world.SolidPhi().View = dimensions.InvScale;
-        world.SolidPhi().DrawSignedObject({area, obstacle1, obstacle2});
-        world.SolidPhi().SubmitSignedBoject();
+        world.SolidPhi().Record({area, obstacle1, obstacle2}).Submit();
         device.Handle().waitIdle();
 
         // Set gravity

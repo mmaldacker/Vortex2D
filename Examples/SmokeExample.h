@@ -46,6 +46,7 @@ public:
         world.LiquidPhi().Record({clearLiquid, area}).Submit();
 
         // Draw solid boundaries
+        Vortex2D::Renderer::Clear clearObstacles({1000.0, 0.0f, 0.0f, 0.0f});
         Vortex2D::Fluid::Circle obstacle1(device, 50.0f);
         Vortex2D::Fluid::Circle obstacle2(device, 50.0f);
 
@@ -53,8 +54,7 @@ public:
         obstacle2.Position = {750.0f, 600.0f};
 
         world.SolidPhi().View = dimensions.InvScale;
-        world.SolidPhi().DrawSignedObject({obstacle1, obstacle2});
-        world.SolidPhi().SubmitSignedBoject();
+        world.SolidPhi().Record({clearObstacles, obstacle1, obstacle2}, Vortex2D::Fluid::IntersectionBlend).Submit();
 
         // Draw sources and forces
         world.InitField(density);

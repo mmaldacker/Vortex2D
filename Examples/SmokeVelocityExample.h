@@ -62,7 +62,7 @@ public:
         // Draw rigid body
         body.SetTransform({300.0f, 500.0f}, -45.0f);
         world.SolidPhi().View = dimensions.InvScale;
-        world.SolidPhi().DrawSignedObject({body.SignedObject()});
+        obstaclesRender = world.SolidPhi().Record({body.SignedObject()});
 
         // wait for drawing to finish
         device.Handle().waitIdle();
@@ -83,7 +83,7 @@ public:
         density.Update(projection, view);
         solidPhi.Update(projection, view);
 
-        world.SolidPhi().SubmitSignedBoject();
+        obstaclesRender.Submit();
         velocityRender.Submit();
         densityRender.Submit();
 
@@ -108,7 +108,7 @@ private:
     Vortex2D::Fluid::Density density;
     Vortex2D::Fluid::World world;
     Vortex2D::Fluid::DistanceField solidPhi;
-    Vortex2D::Renderer::RenderCommand velocityRender, densityRender;
+    Vortex2D::Renderer::RenderCommand velocityRender, densityRender, obstaclesRender;
 
     b2World rWorld;
 

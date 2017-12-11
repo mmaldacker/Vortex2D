@@ -2,6 +2,9 @@ os: Visual Studio 2017
 clone_folder: C:\Vortex2D
 platform:
   - x64
+branches:
+  only:
+    - master
 environment:
   VULKAN_SDK: "C:\\VulkanSDK\\1.0.65.0\\"
 install:
