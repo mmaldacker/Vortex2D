@@ -81,7 +81,8 @@ public:
         bottom.SetTransform({512.5f, 1000.5f}, 0.0f);
 
         world.SolidPhi().View = dimensions.InvScale;
-        obstaclesRender = world.SolidPhi().Record({bottom.SignedObject(), body1.SignedObject(), body2.SignedObject()});
+        obstaclesRender = world.SolidPhi().Record({obstaclesClear, bottom.SignedObject(), body1.SignedObject(), body2.SignedObject()},
+                                                  Vortex2D::Fluid::UnionBlend);
 
         // wait for drawing to finish
         device.Handle().waitIdle();

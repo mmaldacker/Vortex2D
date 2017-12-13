@@ -22,7 +22,8 @@ void main(void)
     float value = -max_dist;
     vec2 p = (u.mv * vec4(0.0, 0.0, 0.0, 1.0)).xy;
     vec2 dir = p - pos;
-    float dist = length(dir) - consts.radius;
+    float scale = sqrt(u.mv[0][0] * u.mv[1][1]);
+    float dist = length(dir) - consts.radius * scale;
 
     out_colour = vec4(dist);
 }

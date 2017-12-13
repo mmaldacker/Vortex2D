@@ -54,7 +54,7 @@ public:
         obstacle2.Position = {750.0f, 600.0f};
 
         world.SolidPhi().View = dimensions.InvScale;
-        world.SolidPhi().Record({clearObstacles, obstacle1, obstacle2}, Vortex2D::Fluid::IntersectionBlend).Submit();
+        world.SolidPhi().Record({clearObstacles, obstacle1, obstacle2}, Vortex2D::Fluid::UnionBlend).Submit();
 
         // Draw sources and forces
         world.InitField(density);

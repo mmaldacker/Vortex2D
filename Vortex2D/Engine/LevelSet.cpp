@@ -27,6 +27,8 @@ LevelSet::LevelSet(const Renderer::Device& device, const glm::ivec2& size, int r
 {
     mReinitialiseCmd.Record([&, reinitializeIterations](vk::CommandBuffer commandBuffer)
     {
+        commandBuffer.debugMarkerBeginEXT({"Reinitialise", {{ 0.98f, 0.49f, 0.26f, 1.0f}}});
+
         mLevelSet0.CopyFrom(commandBuffer, *this);
 
         for (int i = 0; i < reinitializeIterations / 2; i++)
@@ -46,6 +48,8 @@ LevelSet::LevelSet(const Renderer::Device& device, const glm::ivec2& size, int r
                     vk::ImageLayout::eGeneral,
                     vk::AccessFlagBits::eShaderRead);
         }
+
+        commandBuffer.debugMarkerEndEXT();
     });
 }
 

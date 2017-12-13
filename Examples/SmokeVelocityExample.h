@@ -35,6 +35,7 @@ public:
         , density(device, dimensions.Size, vk::Format::eB8G8R8A8Unorm)
         , world(device, dimensions, dt)
         , solidPhi(device, world.SolidPhi(), green, dimensions.Scale)
+        , clearObstacles({1000.0f, 0.0f, 0.0f, 0.0f})
         , rWorld({0.0f, 0.0f})
         , body(device, rWorld, dimensions, world.Valid(), b2_dynamicBody, {200.0f, 50.0f})
     {
@@ -62,7 +63,8 @@ public:
         // Draw rigid body
         body.SetTransform({300.0f, 500.0f}, -45.0f);
         world.SolidPhi().View = dimensions.InvScale;
-        obstaclesRender = world.SolidPhi().Record({body.SignedObject()});
+        obstaclesRender = world.SolidPhi().Record({clearObstacles, body.SignedObject()},
+                                                  Vortex2D::Fluid::UnionBlend);
 
         // wait for drawing to finish
         device.Handle().waitIdle();
@@ -108,6 +110,7 @@ private:
     Vortex2D::Fluid::Density density;
     Vortex2D::Fluid::World world;
     Vortex2D::Fluid::DistanceField solidPhi;
+    Vortex2D::Renderer::Clear clearObstacles;
     Vortex2D::Renderer::RenderCommand velocityRender, densityRender, obstaclesRender;
 
     b2World rWorld;

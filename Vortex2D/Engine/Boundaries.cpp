@@ -22,7 +22,7 @@ bool IsClockwise(const std::vector<glm::vec2>& points)
     float total = 0.0f;
     for (int i = points.size() - 1, j = 0; j < points.size(); i = j++)
     {
-        total += (points[j].x - points[i].x) * (points[j].y + points[j].y);
+        total += (points[j].x - points[i].x) * (points[i].y + points[j].y);
     }
 
     return total > 0.0;
@@ -193,7 +193,15 @@ void Circle::Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& 
 }
 
 vk::PipelineColorBlendAttachmentState IntersectionBlend = vk::PipelineColorBlendAttachmentState()
+        .setBlendEnable(true)
         .setColorBlendOp(vk::BlendOp::eMax)
+        .setSrcColorBlendFactor(vk::BlendFactor::eOne)
+        .setDstColorBlendFactor(vk::BlendFactor::eOne)
+        .setColorWriteMask(vk::ColorComponentFlagBits::eR);
+
+vk::PipelineColorBlendAttachmentState UnionBlend = vk::PipelineColorBlendAttachmentState()
+        .setBlendEnable(true)
+        .setColorBlendOp(vk::BlendOp::eMin)
         .setSrcColorBlendFactor(vk::BlendFactor::eOne)
         .setDstColorBlendFactor(vk::BlendFactor::eOne)
         .setColorWriteMask(vk::ColorComponentFlagBits::eR);

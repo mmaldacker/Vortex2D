@@ -171,3 +171,42 @@ TEST(BoundariesTests, Circle)
 
     CheckLevelSet(data, outTexture);
 }
+
+TEST(BoundariesTests, Intersection)
+{
+    glm::ivec2 size(20);
+
+    std::vector<glm::vec2> points = {{0.0f, 0.0f}, {4.0f, 0.0f}, {4.0f, 4.0f}, {0.0f, 4.0f}};
+
+    Polygon square1(*device, points, false, 20);
+    square1.Position = glm::vec2(5.0f, 10.0f);
+
+    Polygon square2(*device, points, false, 20);
+    square2.Position = glm::vec2(12.0f, 10.0f);
+
+    std::vector<float> data1(size.x*size.y, 100.0f);
+    DrawSignedSquare(size, points, data1, square1.Position);
+
+    std::vector<float> data2(size.x*size.y, 100.0f);
+    DrawSignedSquare(size, points, data2, square2.Position);
+
+    std::vector<float> data(size.x*size.y, 100.0f);
+    for (int i = 0; i < data.size(); i++)
+    {
+        data[i] = std::min(data1[i], data2[i]);
+    }
+
+    LevelSet levelSet(*device, size);
+    Clear clear({100.0f, 0.0f, 0.0f, 0.0f});
+
+    levelSet.Record({clear, square1, square2}, UnionBlend).Submit();
+    device->Handle().waitIdle();
+
+    Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, true);
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+       outTexture.CopyFrom(commandBuffer, levelSet);
+    });
+
+    CheckLevelSet(data, outTexture);
+}

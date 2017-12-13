@@ -20,11 +20,11 @@ namespace Vortex2D { namespace Fluid {
 
 class LevelSet;
 
-// TODO scaling doesn't work
 class Polygon : public Renderer::Transformable, public Renderer::Drawable
 {
 public:
-    Polygon(const Renderer::Device& device, std::vector<glm::vec2> points, bool inverse = false, int extent = 3);
+    // TODO number should be calculated
+    Polygon(const Renderer::Device& device, std::vector<glm::vec2> points, bool inverse = false, int extent = 10);
 
     void Initialize(const Renderer::RenderState& renderState) override;
     void Update(const glm::mat4& projection, const glm::mat4& view) override;
@@ -48,11 +48,11 @@ public:
     Rectangle(const Renderer::Device& device, const glm::vec2& size, bool inverse = false);
 };
 
-// TODO scaling doesn't work
 class Circle : public Renderer::Transformable, public Renderer::Drawable
 {
 public:
-    Circle(const Renderer::Device& device, float radius, int extent = 3);
+    // TODO number should be calculated
+    Circle(const Renderer::Device& device, float radius, int extent = 10);
 
     void Initialize(const Renderer::RenderState& renderState) override;
     void Update(const glm::mat4& projection, const glm::mat4& view) override;
@@ -69,6 +69,7 @@ private:
 };
 
 extern vk::PipelineColorBlendAttachmentState IntersectionBlend;
+extern vk::PipelineColorBlendAttachmentState UnionBlend;
 
 // TODO have colour has member variable and updated in the Update function
 class DistanceField : public Renderer::AbstractSprite
