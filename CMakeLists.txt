@@ -31,7 +31,7 @@ if (VORTEX2D_ENABLE_TESTS)
   enable_testing()
   download_project(PROJ                googletest
                    GIT_REPOSITORY      https://github.com/google/googletest.git
-                   GIT_TAG             release-1.8.0
+                   GIT_TAG             master
                    ${UPDATE_DISCONNECTED_IF_AVAILABLE})
 
   # Prevent GoogleTest from overriding our compiler/linker options
