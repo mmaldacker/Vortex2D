@@ -30,6 +30,9 @@ int main(int argc, char **argv)
     debug = true;
 #endif
 
+    // load symbols
+    if (!vkLoaderInit()) throw std::runtime_error("cannot load vulkan library!");
+
     instance_.Create("Tests", extensions, debug);
     Vortex2D::Renderer::Device device_(instance_.GetPhysicalDevice());
 

@@ -188,6 +188,9 @@ int main(int argc, char** argv)
     std::vector<const char*> extensions;
     Vortex2D::Renderer::Instance instance_;
 
+    // load symbols
+    if (!vkLoaderInit()) throw std::runtime_error("cannot load vulkan library!");
+
     instance_.Create("Tests", extensions, false);
     Vortex2D::Renderer::Device device_(instance_.GetPhysicalDevice());
     device = &device_;

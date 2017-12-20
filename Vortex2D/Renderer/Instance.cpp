@@ -25,9 +25,6 @@ namespace Vortex2D { namespace Renderer {
 
 void Instance::Create(const std::string& name, std::vector<const char*> extraExtensions, bool validation)
 {
-    // load symbols
-    if (!vkLoaderInit()) throw std::runtime_error("cannot load vulkan library!");
-
     auto availableLayers = vk::enumerateInstanceLayerProperties();
     auto availableExtensions = vk::enumerateInstanceExtensionProperties();
 

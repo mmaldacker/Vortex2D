@@ -37,6 +37,9 @@ GLFWApp::GLFWApp(uint32_t width, uint32_t height, bool validation)
         throw std::runtime_error("Error creating GLFW Window");
     }
 
+    // load symbols
+    if (!vkLoaderInit()) throw std::runtime_error("cannot load vulkan library!");
+
     std::vector<const char*> extensions;
     unsigned int glfwExtensionCount = 0;
     const char** glfwExtensions;
