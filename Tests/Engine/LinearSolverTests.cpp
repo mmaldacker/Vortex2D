@@ -216,7 +216,7 @@ TEST(LinearSolverTests, Simple_SOR)
     AddParticles(size, sim, boundary_phi);
 
     sim.add_force(0.01f);
-    sim.project(0.01f);
+    sim.apply_projection(0.01f);
 
     LinearSolver::Data data(*device, size, true);
 
@@ -246,7 +246,7 @@ TEST(LinearSolverTests, Complex_SOR)
     AddParticles(size, sim, complex_boundary_phi);
 
     sim.add_force(0.01f);
-    sim.project(0.01f);
+    sim.apply_projection(0.01f);
 
     LinearSolver::Data data(*device, size, true);
 
@@ -276,7 +276,7 @@ TEST(LinearSolverTests, LocalGaussSeidel)
     AddParticles(size, sim, boundary_phi);
 
     sim.add_force(0.01f);
-    sim.project(0.01f);
+    sim.apply_projection(0.01f);
 
     LinearSolver::Data data(*device, size, true);
 
@@ -306,7 +306,7 @@ TEST(LinearSolverTests, Diagonal_Simple_PCG)
     AddParticles(size, sim, boundary_phi);
 
     sim.add_force(0.01f);
-    sim.project(0.01f);
+    sim.apply_projection(0.01f);
 
     LinearSolver::Data data(*device, size, true);
 
@@ -338,7 +338,7 @@ TEST(LinearSolverTests, GaussSeidel_Simple_PCG)
     AddParticles(size, sim, boundary_phi);
 
     sim.add_force(0.01f);
-    sim.project(0.01f);
+    sim.apply_projection(0.01f);
 
     LinearSolver::Data data(*device, size, true);
 
@@ -372,7 +372,7 @@ TEST(LinearSolverTests, IncompletePoisson_Simple_PCG)
     AddParticles(size, sim, boundary_phi);
 
     sim.add_force(0.01f);
-    sim.project(0.01f);
+    sim.apply_projection(0.01f);
 
     LinearSolver::Data data(*device, size, true);
 
@@ -434,7 +434,7 @@ TEST(LinearSolverTests, Multigrid_Simple_PCG)
     AddParticles(size, sim, boundary_phi);
 
     sim.add_force(0.01f);
-    sim.project(0.01f);
+    sim.apply_projection(0.01f);
 
     LinearSolver::Data data(*device, size, true);
 

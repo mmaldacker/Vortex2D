@@ -206,9 +206,8 @@ int main(int argc, char** argv)
 
     sim.add_force(0.01f);
     sim.compute_phi();
-    sim.extrapolate_phi();
-    sim.compute_weights();
-    sim.compute_linear_equations(0.01f);
+    sim.compute_pressure_weights();
+    sim.solve_pressure(0.01f);
 
     benchmark::Initialize(&argc, argv);
     benchmark::RunSpecifiedBenchmarks();

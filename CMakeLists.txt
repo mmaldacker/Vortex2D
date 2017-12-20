@@ -13,7 +13,15 @@ endif ()
 
 # cmake file to download and include dependencies
 include(Dependencies/DownloadProject.cmake)
-set(UPDATE_DISCONNECTED_IF_AVAILABLE "UPDATE_DISCONNECTED 1")
+set(UPDATE_DISCONNECTED_IF_AVAILABLE "UPDATE_DISCONNECTED 0")
+
+if (VORTEX2D_ENABLE_TESTS OR VORTEX2D_ENABLE_PERFTESTS)
+download_project(PROJ                FluidRigidCoupling2D
+                 GIT_REPOSITORY      https://github.com/mmaldacker/FluidRigidCoupling2D.git
+                 GIT_TAG             master
+                 ${UPDATE_DISCONNECTED_IF_AVAILABLE})
+add_subdirectory(${FluidRigidCoupling2D_SOURCE_DIR} ${FluidRigidCoupling2D_BINARY_DIR})
+endif ()
 
 download_project(PROJ                glm
                  GIT_REPOSITORY      https://github.com/g-truc/glm.git

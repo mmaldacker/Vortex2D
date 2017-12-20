@@ -217,7 +217,6 @@ TEST(PressureTest, Project_Simple)
     BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
 
     sim.solve_pressure(0.01f);
-    sim.apply_pressure(0.01f);
 
     LinearSolver::Data data(*device, size, true);
 
@@ -259,7 +258,6 @@ TEST(PressureTest, Project_Complex)
     BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
 
     sim.solve_pressure(0.01f);
-    sim.apply_pressure(0.01f);
 
     LinearSolver::Data data(*device, size, true);
 

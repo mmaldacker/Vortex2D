@@ -6,12 +6,8 @@ file(GLOB ENGINE_TEST_SOURCES "Engine/LevelSetTests.cpp"
                               "Engine/BoundariesTests.cpp"
                               "Engine/ParticleTests.cpp"
                               "Engine/WorldTests.cpp"
-                              "Engine/RigidbodyTests.cpp")
-
-file(GLOB VARIATIONAL_SOURCES "Engine/VariationalHelpers.h"
-                              "variationalplusgfm/*.h"
-                              "variationalplusgfm/*.cpp"
-                              "variationalplusgfm/pcgsolver/*.h")
+                              "Engine/RigidbodyTests.cpp"
+                              "Engine/VariationalHelpers.h")
 
 file(GLOB RENDERER_TEST_SOURCES  "Renderer/ShapeDrawer.h"
                                  "Renderer/ShapeDrawer.cpp"
@@ -29,14 +25,10 @@ file(GLOB SHADER_TEST_SOURCES "Kernels/Image.comp"
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
-add_library(vortex2d_tests_lib STATIC  ${VARIATIONAL_SOURCES})
-target_compile_features(vortex2d_tests_lib PRIVATE cxx_variadic_templates)
-target_link_libraries(vortex2d_tests_lib vortex2d gtest gmock gmock_main Threads::Threads)
-target_include_directories(vortex2d_tests_lib PUBLIC "./" "./variationalplusgfm")
-
 add_executable(vortex2d_tests ${ENGINE_TEST_SOURCES} ${RENDERER_TEST_SOURCES} ${SHADER_TEST_SOURCES} "main.cpp" "Verify.h")
 target_compile_features(vortex2d_tests PRIVATE cxx_variadic_templates cxx_generic_lambdas)
-target_link_libraries(vortex2d_tests vortex2d_tests_lib)
+target_link_libraries(vortex2d_tests vortex2d gtest gmock gmock_main Threads::Threads fluidrigidcoupling2d_lib)
+target_include_directories(vortex2d_tests PUBLIC ./)
 
 compile_shader(TARGET vortex2d_tests SOURCES ${SHADER_TEST_SOURCES})
 copy_shader(TARGET vortex2d_tests SOURCES vortex2d)

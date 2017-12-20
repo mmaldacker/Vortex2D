@@ -16,7 +16,7 @@
 
 #include <Vortex2D/Engine/LinearSolver/LinearSolver.h>
 
-#include "variationalplusgfm/fluidsim.h"
+#include "fluidsim.h"
 
 //Boundary definition - several circles in a circular domain.
 
@@ -146,9 +146,8 @@ static void BuildInputs(const Vortex2D::Renderer::Device& device,
     SetVelocity(device, size, velocity, sim);
 
     sim.compute_phi();
-    sim.extrapolate_phi();
-    sim.compute_weights();
-    sim.compute_linear_equations(0.01f);
+    sim.compute_pressure_weights();
+    sim.solve_pressure(0.01f);
 
     SetSolidPhi(device, size, solidPhi, sim);
     SetLiquidPhi(device, size, liquidPhi, sim);
