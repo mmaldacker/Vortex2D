@@ -206,6 +206,7 @@ int main(int argc, char** argv)
 
     sim.add_force(0.01f);
     sim.compute_phi();
+    sim.extrapolate_phi();
     sim.compute_pressure_weights();
     sim.solve_pressure(0.01f);
 

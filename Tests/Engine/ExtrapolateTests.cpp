@@ -89,6 +89,7 @@ TEST(ExtrapolateTest, Constrain)
     AddParticles(size, sim, complex_boundary_phi);
 
     sim.add_force(0.01f);
+    sim.compute_pressure_weights();
     sim.apply_projection(0.01f);
 
     Buffer<glm::ivec2> valid(*device, size.x*size.y, true);

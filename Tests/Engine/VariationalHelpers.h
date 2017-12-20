@@ -146,6 +146,7 @@ static void BuildInputs(const Vortex2D::Renderer::Device& device,
     SetVelocity(device, size, velocity, sim);
 
     sim.compute_phi();
+    sim.extrapolate_phi();
     sim.compute_pressure_weights();
     sim.solve_pressure(0.01f);
 
