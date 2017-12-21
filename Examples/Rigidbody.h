@@ -38,7 +38,7 @@ public:
 private:
   float mScale;
   Vortex2D::Fluid::Polygon mDrawPolygon;
-  Vortex2D::Fluid::PolygonVelocity mVelocityPolygon;
+  Vortex2D::Fluid::RigidBody mVelocityPolygon;
   b2Body* mB2Body;
 };
 

@@ -11,8 +11,7 @@ layout(push_constant) uniform Consts
 
 layout(binding = 0, r32f) uniform image2D SolidLevelSet;
 layout(binding = 1, rgba32f) uniform image2D Velocity;
-layout(binding = 2, rgba32f) uniform image2D SolidVelocity;
-layout(binding = 3, rgba32f) uniform image2D OutVelocity;
+layout(binding = 2, rgba32f) uniform image2D OutVelocity;
 
 #include "CommonProject.comp"
 
@@ -22,7 +21,6 @@ void main()
 
     ivec2 pos = ivec2(gl_GlobalInvocationID);
     vec2 uv = imageLoad(Velocity, pos).xy;
-    vec2 suv = imageLoad(SolidVelocity, pos).xy;
 
     float v00 = imageLoad(SolidLevelSet, pos).x;
     float v10 = imageLoad(SolidLevelSet, pos + ivec2(1,0)).x;
@@ -45,15 +43,7 @@ void main()
 
         float perp_component = dot(normal, vec2(uv.x, v));
 
-        float svn = imageLoad(SolidVelocity, pos + ivec2(-1, 0)).y;
-        float svp = imageLoad(SolidVelocity, pos + ivec2(-1, 1)).y;
-        float sup = imageLoad(SolidVelocity, pos + ivec2(0, 1)).y;
-
-        float sv = (svn + suv.y + svp + sup) * 0.25;
-
-        float sperp_component = dot(normal, vec2(suv.x, sv));
-
-        constrained.x = normal.x * perp_component - normal.x * sperp_component;
+        constrained.x = normal.x * perp_component;
     }
 
     if (wuv.y == 0.0)
@@ -69,15 +59,7 @@ void main()
 
         float perp_component = dot(normal, vec2(u, uv.y));
 
-        float svn = imageLoad(SolidVelocity, pos + ivec2(0, -1)).x;
-        float svp = imageLoad(SolidVelocity, pos + ivec2(1, -1)).x;
-        float sup = imageLoad(SolidVelocity, pos + ivec2(1, 0)).x;
-
-        float su = (svn + suv.x + svp + sup) * 0.25;
-
-        float sperp_component = dot(normal, vec2(su, suv.y));
-
-        constrained.y = normal.y * perp_component - normal.y * sperp_component;
+        constrained.y = normal.y * perp_component;
     }
 
     imageStore(OutVelocity, pos, vec4(uv - constrained, 0.0, 0.0));

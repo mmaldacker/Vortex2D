@@ -22,7 +22,6 @@ layout(std430, binding = 1) buffer Diagonal
 layout(binding = 2, r32f) uniform image2D FluidLevelSet;
 layout(binding = 3, r32f) uniform image2D SolidLevelSet;
 layout(binding = 4, rgba32f) uniform image2D Velocity;
-layout(binding = 5, rgba32f) uniform image2D SolidLevelSetVelocity;
 
 #include "CommonProject.comp"
 
@@ -46,11 +45,6 @@ void main()
       float wyp = get_weightyp(pos).y;
 
       float b = (wuv.x * uv.x - wxp * uxp + wuv.y * uv.y - wyp * vyp) * consts.width;
-      vec2 solid_uv = imageLoad(SolidLevelSetVelocity, pos).xy;
-      float solid_uxp = imageLoad(SolidLevelSetVelocity, pos + ivec2(1,0)).x;
-      float solid_vyp = imageLoad(SolidLevelSetVelocity, pos + ivec2(0,1)).y;
-
-      b += ((1.0 - wuv.x) * solid_uv.x - (1.0 - wxp) * solid_uxp + (1.0 - wuv.y) * solid_uv.y - (1.0 - wyp) * solid_vyp) * consts.width;
 
       div.value[index] = b;
     }

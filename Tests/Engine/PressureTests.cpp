@@ -6,8 +6,12 @@
 #include "VariationalHelpers.h"
 #include "Verify.h"
 #include "Renderer/ShapeDrawer.h"
+#include "box2dgeometry.h"
+#include "rigidbody.h"
 
 #include <Vortex2D/Engine/Pressure.h>
+#include <Vortex2D/Engine/Boundaries.h>
+#include <Vortex2D/Engine/Rigidbody.h>
 #include <iostream>
 
 using namespace Vortex2D::Renderer;
@@ -108,14 +112,13 @@ TEST(PressureTest, LinearEquationSetup_Simple)
     Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-    Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
 
     BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
 
     LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
     Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
-    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, solidVelocity, valid);
+    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
 
     pressure.BuildLinearEquation();
     device->Handle().waitIdle();
@@ -140,20 +143,62 @@ TEST(PressureTest, LinearEquationSetup_Complex)
     Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-    Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
 
     BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
 
     LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
     Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
-    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, solidVelocity, valid);
+    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
 
     pressure.BuildLinearEquation();
     device->Handle().waitIdle();
 
     CheckDiagonal(size, data.Diagonal, sim, 1e-3f); // FIXME can we reduce error tolerance?
     CheckWeights(size, data.Lower, sim, 1e-3f); // FIXME can we reduce error tolerance?
+    CheckDiv(size, data.B, sim);
+}
+
+TEST(PressureTest, RigidBodyDiv)
+{
+    glm::ivec2 size(50);
+
+    FluidSim sim;
+    sim.initialize(1.0f, size.x, size.y);
+    sim.set_boundary(boundary_phi);
+
+    AddParticles(size, sim, boundary_phi);
+
+    sim.rigidgeom = new Box2DGeometry(0.3f, 0.2f);
+    sim.rbd = new ::RigidBody(0.4f, *sim.rigidgeom);
+    sim.rbd->setCOM(Vec2f(0.5f, 0.5f));
+    sim.rbd->setAngle(0.0);
+    sim.rbd->setAngularMomentum(0.5f);
+    sim.rbd->setLinearVelocity(Vec2f(1.0f, 0.0f));
+
+    sim.update_rigid_body_grids();
+
+    sim.add_force(0.01f);
+
+    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
+    Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+    Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+
+    BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
+
+    LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
+
+    Buffer<glm::ivec2> valid(*device, size.x*size.y, true);
+
+    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
+
+    Vortex2D::Fluid::Rectangle rectangle(*device, {15.0f, 10.0f});
+    Vortex2D::Fluid::RigidBody rigidBody(*device, Dimensions(size, 1.0f), rectangle, {0.0f, 0.0f});
+
+    //pressure.BindRigidbody(rigibody);
+    pressure.BuildLinearEquation();
+    device->Handle().waitIdle();
+
     CheckDiv(size, data.B, sim);
 }
 
@@ -164,7 +209,6 @@ TEST(PressureTest, ZeroDivs)
     Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-    Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
 
     Texture input(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
     std::vector<float> inputData(size.x * size.y);
@@ -178,7 +222,7 @@ TEST(PressureTest, ZeroDivs)
     LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
     Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
-    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, solidVelocity, valid);
+    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
 
     pressure.BuildLinearEquation();
     device->Handle().waitIdle();
@@ -209,7 +253,6 @@ TEST(PressureTest, Project_Simple)
     Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-    Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
 
     BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
 
@@ -224,7 +267,7 @@ TEST(PressureTest, Project_Simple)
 
     Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
-    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, solidVelocity, valid);
+    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
 
     pressure.ApplyPressure();
     device->Handle().waitIdle();
@@ -248,7 +291,6 @@ TEST(PressureTest, Project_Complex)
     Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-    Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
 
     BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
 
@@ -263,7 +305,7 @@ TEST(PressureTest, Project_Complex)
 
     Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
-    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, solidVelocity, valid);
+    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
 
     pressure.ApplyPressure();
     device->Handle().waitIdle();

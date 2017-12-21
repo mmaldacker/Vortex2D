@@ -16,9 +16,9 @@ Pressure::Pressure(const Renderer::Device& device,
                    Renderer::Texture& velocity,
                    Renderer::Texture& solidPhi,
                    Renderer::Texture& liquidPhi,
-                   Renderer::Texture& solidVelocity,
                    Renderer::GenericBuffer& valid)
-    : mBuildMatrix(device, size, "../Vortex2D/BuildMatrix.comp.spv")
+    : mData(data)
+    , mBuildMatrix(device, size, "../Vortex2D/BuildMatrix.comp.spv")
     , mBuildMatrixBound(mBuildMatrix.Bind({data.Diagonal,
                                            data.Lower,
                                            liquidPhi,
@@ -28,8 +28,7 @@ Pressure::Pressure(const Renderer::Device& device,
                                      data.Diagonal,
                                      liquidPhi,
                                      solidPhi,
-                                     velocity,
-                                     solidVelocity}))
+                                     velocity}))
     , mProject(device, size, "../Vortex2D/Project.comp.spv")
     , mProjectBound(mProject.Bind({data.X, liquidPhi, solidPhi, velocity, valid}))
     , mBuildEquationCmd(device, false)
