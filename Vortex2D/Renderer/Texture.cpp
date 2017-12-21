@@ -182,7 +182,7 @@ void Texture::CopyFrom(const void* data, vk::DeviceSize bytesPerPixel)
 
     VkMemoryPropertyFlags memFlags;
     vmaGetMemoryTypeProperties(mDevice.Allocator(), mAllocationInfo.memoryType, &memFlags);
-    if (!(memFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)) throw std::runtime_error("Not visible image");
+    if ((memFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == 0) throw std::runtime_error("Not visible image");
 
     void* pData;
     if (vmaMapMemory(mDevice.Allocator(), mAllocation, &pData) != VK_SUCCESS) throw std::runtime_error("Cannot map buffer");
@@ -206,7 +206,7 @@ void Texture::CopyFrom(const void* data, vk::DeviceSize bytesPerPixel)
       src += mWidth * bytesPerPixel;
     }
 
-    if(!(memFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT))
+    if((memFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) == 0)
     {
       auto memRange = vk::MappedMemoryRange()
           .setMemory(mAllocationInfo.deviceMemory)
@@ -225,12 +225,12 @@ void Texture::CopyTo(void* data, vk::DeviceSize bytesPerPixel)
 
     VkMemoryPropertyFlags memFlags;
     vmaGetMemoryTypeProperties(mDevice.Allocator(), mAllocationInfo.memoryType, &memFlags);
-    if (!(memFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)) throw std::runtime_error("Not visible image");
+    if ((memFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == 0) throw std::runtime_error("Not visible image");
 
     void* pData;
     if (vmaMapMemory(mDevice.Allocator(), mAllocation, &pData) != VK_SUCCESS) throw std::runtime_error("Cannot map buffer");
 
-    if(!(memFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT))
+    if((memFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) == 0)
     {
         auto memRange = vk::MappedMemoryRange()
             .setMemory(mAllocationInfo.deviceMemory)
