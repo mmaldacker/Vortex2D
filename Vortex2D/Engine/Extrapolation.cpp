@@ -18,8 +18,8 @@ Extrapolation::Extrapolation(const Renderer::Device& device,
     , mExtrapolateVelocityFrontBound(mExtrapolateVelocity.Bind({valid, mValid, velocity}))
     , mExtrapolateVelocityBackBound(mExtrapolateVelocity.Bind({mValid, valid, velocity}))
     , mConstrainVelocity(device, size, "../Vortex2D/ConstrainVelocity.comp.spv")
-    , mExtrapolateCmd(device)
-    , mConstrainCmd(device)
+    , mExtrapolateCmd(device, false)
+    , mConstrainCmd(device, false)
 {
     mExtrapolateCmd.Record([&, iterations](vk::CommandBuffer commandBuffer)
     {

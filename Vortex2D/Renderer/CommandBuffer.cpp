@@ -30,6 +30,7 @@ CommandBuffer::~CommandBuffer()
 {
     if (mCommandBuffer != vk::CommandBuffer(nullptr))
     {
+        Wait();
         mDevice.FreeCommandBuffers({mCommandBuffer});
     }
 }

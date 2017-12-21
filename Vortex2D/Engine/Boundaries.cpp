@@ -60,7 +60,7 @@ Polygon::Polygon(const Renderer::Device& device, std::vector<glm::vec2> points, 
     , mSize(points.size())
     , mInv(inverse)
     , mMVPBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
-    , mMVBuffer(device)
+    , mMVBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
     , mVertexBuffer(device, 6)
     , mPolygonVertexBuffer(device, points.size())
 {

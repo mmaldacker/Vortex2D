@@ -13,7 +13,7 @@ namespace Vortex2D { namespace Renderer {
 
 AbstractSprite::AbstractSprite(const Device& device, const std::string& fragShaderName, Texture& texture)
     : mDevice(device)
-    , mMVPBuffer(device)
+    , mMVPBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
     , mVertexBuffer(device, 6)
 {
     VertexBuffer<Vertex> localBuffer(device, 6, VMA_MEMORY_USAGE_CPU_ONLY);

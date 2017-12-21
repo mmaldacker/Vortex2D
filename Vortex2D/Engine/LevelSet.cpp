@@ -21,9 +21,8 @@ LevelSet::LevelSet(const Renderer::Device& device, const glm::ivec2& size, int r
     , mRedistance(device, size, "../Vortex2D/Redistance.comp.spv")
     , mRedistanceFront(mRedistance.Bind({{*mSampler, mLevelSet0}, {*mSampler, *this}, mLevelSetBack}))
     , mRedistanceBack(mRedistance.Bind({{*mSampler, mLevelSet0}, {*mSampler, mLevelSetBack}, *this}))
-    , mExtrapolateCmd(device)
-    , mReinitialiseCmd(device)
-    , mSignedObjectCmd(device)
+    , mExtrapolateCmd(device, false)
+    , mReinitialiseCmd(device, false)
 {
     mReinitialiseCmd.Record([&, reinitializeIterations](vk::CommandBuffer commandBuffer)
     {

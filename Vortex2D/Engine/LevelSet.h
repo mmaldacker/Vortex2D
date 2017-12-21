@@ -42,7 +42,6 @@ private:
 
     Renderer::CommandBuffer mExtrapolateCmd;
     Renderer::CommandBuffer mReinitialiseCmd;
-    Renderer::CommandBuffer mSignedObjectCmd;
 };
 
 }}
