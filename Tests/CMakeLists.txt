@@ -30,8 +30,7 @@ target_compile_features(vortex2d_tests PRIVATE cxx_variadic_templates cxx_generi
 target_link_libraries(vortex2d_tests vortex2d gtest gmock gmock_main Threads::Threads fluidrigidcoupling2d_lib)
 target_include_directories(vortex2d_tests PUBLIC ./)
 
-compile_shader(TARGET vortex2d_tests SOURCES ${SHADER_TEST_SOURCES})
-copy_shader(TARGET vortex2d_tests SOURCES vortex2d)
+compile_shader(OUTPUT 'test_generated_spirv.h' SOURCES ${SHADER_TEST_SOURCES})
 
 add_test(AllTests vortex2d_tests)
 
