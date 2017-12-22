@@ -69,7 +69,6 @@ void ConjugateGradient::Init(Renderer::GenericBuffer& d,
 
         // calculate error
         reduceMaxBound.Record(commandBuffer);
-        error.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
 
         // p = 0
         pressure.Clear(commandBuffer);
@@ -86,7 +85,6 @@ void ConjugateGradient::Init(Renderer::GenericBuffer& d,
         multiplyZBound.Record(commandBuffer);
         inner.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         reduceSumRhoBound.Record(commandBuffer);
-        rho.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
 
         commandBuffer.debugMarkerEndEXT();
     });
@@ -103,7 +101,6 @@ void ConjugateGradient::Init(Renderer::GenericBuffer& d,
         multiplySBound.Record(commandBuffer);
         inner.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         reduceSumSigmaBound.Record(commandBuffer);
-        sigma.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
 
         // alpha = rho / sigma
         divideRhoBound.Record(commandBuffer);
@@ -119,7 +116,6 @@ void ConjugateGradient::Init(Renderer::GenericBuffer& d,
 
         // calculate max error
         reduceMaxBound.Record(commandBuffer);
-        error.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
 
         // z = M^-1 r
         z.Clear(commandBuffer);
@@ -130,7 +126,6 @@ void ConjugateGradient::Init(Renderer::GenericBuffer& d,
         multiplyZBound.Record(commandBuffer);
         inner.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         reduceSumRhoNewBound.Record(commandBuffer);
-        rho_new.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
 
         // beta = rho_new / rho
         divideRhoNewBound.Record(commandBuffer);
