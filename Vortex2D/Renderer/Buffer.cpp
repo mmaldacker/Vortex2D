@@ -46,6 +46,7 @@ GenericBuffer::GenericBuffer(const Device& device,
     VkBufferCreateInfo vkBufferInfo = bufferInfo;
     VmaAllocationCreateInfo allocInfo = {};
     allocInfo.usage = memoryUsage;
+    allocInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
     if (vmaCreateBuffer(device.Allocator(),
                         &vkBufferInfo,
                         &allocInfo,
