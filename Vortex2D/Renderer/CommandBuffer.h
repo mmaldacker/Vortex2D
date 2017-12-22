@@ -37,6 +37,7 @@ public:
 private:
     const Device& mDevice;
     bool mSynchronise;
+    bool mRecorded;
     vk::CommandBuffer mCommandBuffer;
     vk::UniqueFence mFence;
 };

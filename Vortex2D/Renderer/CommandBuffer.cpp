@@ -20,6 +20,7 @@ const uint32_t zero = 0;
 CommandBuffer::CommandBuffer(const Device& device, bool synchronise)
     : mDevice(device)
     , mSynchronise(synchronise)
+    , mRecorded(false)
     , mCommandBuffer(device.CreateCommandBuffers(1).at(0))
     , mFence(device.Handle().createFenceUnique({vk::FenceCreateFlagBits::eSignaled}))
 {
@@ -31,6 +32,7 @@ CommandBuffer::~CommandBuffer()
     if (mCommandBuffer != vk::CommandBuffer(nullptr))
     {
         Wait();
+        Reset();
         mDevice.FreeCommandBuffers({mCommandBuffer});
     }
 }
@@ -38,20 +40,24 @@ CommandBuffer::~CommandBuffer()
 CommandBuffer::CommandBuffer(CommandBuffer&& other)
     : mDevice(other.mDevice)
     , mSynchronise(other.mSynchronise)
+    , mRecorded(other.mRecorded)
     , mCommandBuffer(other.mCommandBuffer)
     , mFence(std::move(other.mFence))
 {
     other.mCommandBuffer = nullptr;
+    other.mRecorded = false;
 }
 
 CommandBuffer& CommandBuffer::operator=(CommandBuffer&& other)
 {
     assert(mDevice.Handle() == other.mDevice.Handle());
     mSynchronise = other.mSynchronise;
+    mRecorded = other.mRecorded;
     mCommandBuffer = other.mCommandBuffer;
     mFence = std::move(other.mFence);
 
     other.mCommandBuffer = nullptr;
+    other.mRecorded = false;
 
     return *this;
 }
@@ -66,6 +72,7 @@ void CommandBuffer::Record(CommandBuffer::CommandFn commandFn)
     mCommandBuffer.begin(bufferBegin);
     commandFn(mCommandBuffer);
     mCommandBuffer.end();
+    mRecorded = true;
 }
 
 void CommandBuffer::Record(const RenderTarget& renderTarget, vk::Framebuffer framebuffer, CommandFn commandFn)
@@ -109,6 +116,8 @@ void CommandBuffer::Reset()
 void CommandBuffer::Submit(const std::initializer_list<vk::Semaphore>& waitSemaphores,
                            const std::initializer_list<vk::Semaphore>& signalSemaphores)
 {
+    if (!mRecorded) throw std::runtime_error("Submitting a command that wasn't recorded");
+
     Reset();
 
     std::vector<vk::PipelineStageFlags> waitStages(waitSemaphores.size(), vk::PipelineStageFlagBits::eAllCommands);
@@ -151,8 +160,8 @@ RenderCommand::RenderCommand(RenderCommand&& other)
 }
 
 RenderCommand::RenderCommand()
-    : mIndex(&zero)
-    , mRenderTarget(nullptr)
+    : mRenderTarget(nullptr)
+    , mIndex(&zero)
 {
 
 }

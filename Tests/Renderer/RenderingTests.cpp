@@ -139,3 +139,35 @@ TEST(RenderingTest, MoveCommandBuffer)
         CheckTexture(data2, outTexture);
     }
 }
+
+TEST(RenderingTest, CommandBufferWait)
+{
+  Buffer<int> buffer(*device, 1, VMA_MEMORY_USAGE_GPU_ONLY);
+  Buffer<int> localBufferRead(*device, 1, VMA_MEMORY_USAGE_GPU_TO_CPU);
+  Buffer<int> localBufferWrite(*device, 1, VMA_MEMORY_USAGE_CPU_ONLY);
+
+  CommandBuffer write(*device, false);
+  write.Record([&](vk::CommandBuffer commandBuffer)
+  {
+      buffer.CopyFrom(commandBuffer, localBufferWrite);
+  });
+
+  CommandBuffer read(*device, true);
+  read.Record([&](vk::CommandBuffer commandBuffer)
+  {
+      localBufferRead.CopyFrom(commandBuffer, buffer);
+  });
+
+  for (int i = 0; i < 10; i++)
+  {
+    CopyFrom(localBufferWrite, i);
+    write.Submit();
+    read.Submit();
+    read.Wait();
+
+    int result;
+    CopyTo(localBufferRead, result);
+    ASSERT_EQ(i, result);
+  }
+
+}
