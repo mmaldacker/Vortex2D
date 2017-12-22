@@ -95,6 +95,7 @@ void CommandBuffer::Record(const RenderTarget& renderTarget, vk::Framebuffer fra
 
     mCommandBuffer.endRenderPass();
     mCommandBuffer.end();
+    mRecorded = true;
 }
 
 void CommandBuffer::Wait()
