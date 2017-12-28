@@ -19,4 +19,4 @@ script:
 after_success:
   # Uploading report to Coveralls
   - curl -s https://codecov.io/bash > codecov.sh && chmod +x codecov.sh
-  - ./codecov.sh -g "/usr/*" -g "*/CMakeFiles/*" -g "*/VulkanGLFW/*" -g "*/Examples/*" -g "*/PerfTests/*"  -g "*/Tests/*"  -g "*/*-src/*" -g "*/Vortex2D/Utils/*"
+  - ./codecov.sh -G "*/Vortex2D/Vortex2D/*"
