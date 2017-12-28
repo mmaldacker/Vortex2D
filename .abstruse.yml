@@ -12,7 +12,7 @@ before_script:
 
 script:
   - mkdir build && cd build
-  - cmake .. -DVORTEX2D_ENABLE_TESTS=On -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_CXX_FLAGS="-Wno-psabi"
+  - cmake -DVORTEX2D_ENABLE_TESTS=On -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_CXX_FLAGS="-Wno-psabi"
   - make -j3
   - cd Tests && ./vortex2d_tests
 
