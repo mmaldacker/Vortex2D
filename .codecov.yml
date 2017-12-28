@@ -4,3 +4,4 @@ ignore:
   - "Examples/.*" 
   - "PerfTests/.*"
   - "VulkanGLFW/.*"
+  - "Vortex2D/Utils/.*"
