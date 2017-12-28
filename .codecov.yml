@@ -1,0 +1,6 @@
+ignore:
+  - "build/.*" 
+  - "Tests/.*" 
+  - "Examples/.*" 
+  - "PerfTests/.*"
+  - "VulkanGLFW/.*"
