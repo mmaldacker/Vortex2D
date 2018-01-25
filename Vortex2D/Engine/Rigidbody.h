@@ -32,18 +32,22 @@ public:
               const glm::vec2& centre);
 
     void SetVelocities(const glm::vec2& velocity, float angularVelocity);
-    Velocity GetVelocities() const;
 
     void UpdatePosition();
 
+    Renderer::RenderCommand RecordLocalPhi();
     Renderer::RenderCommand RecordPhi(Renderer::RenderTexture& phi);
 
-    Renderer::Work::Bound BindDiv(Renderer::GenericBuffer& div);
-    Renderer::Work::Bound BindVelocityConstrain(Renderer::GenericBuffer& velocity);
+    void BindDiv(Renderer::GenericBuffer& div,
+                 Renderer::GenericBuffer& diagonal,
+                 Renderer::Texture& fluidLevelSet);
 
-    // TODO:
-    // BindPressure
-    // BindA
+    void BindVelocityConstrain(Renderer::GenericBuffer& velocity);
+    void BindPressure(Renderer::GenericBuffer& pressure);
+
+    void Div();
+    void VelocityConstrain();
+    Velocity GetVelocities() const;
 
 private:
     const Renderer::Device& mDevice;
@@ -53,6 +57,10 @@ private:
     glm::mat4 mView;
     Renderer::UniformBuffer<Velocity> mVelocity;
     Renderer::UniformBuffer<glm::mat4> mMVBuffer;
+
+    Renderer::Work mDiv, mConstrain, mPressure;
+    Renderer::Work::Bound mDivBound, mConstrainBound, mPressureBound;
+    Renderer::CommandBuffer mDivCmd, mConstrainCmd, mPressureCmd;
 };
 
 }}

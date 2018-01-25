@@ -1,0 +1,66 @@
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+layout (local_size_x_id = 1, local_size_y_id = 2) in;
+
+layout(push_constant) uniform Consts
+{
+  int width;
+  int height;
+  vec2 centre;
+}consts;
+
+layout(std430, binding = 0) buffer Div
+{
+  float value[];
+}div;
+
+layout(std430, binding = 1) buffer Diagonal
+{
+  float value[];
+}diagonal;
+
+layout(binding = 2, r32f) uniform image2D FluidLevelSet;
+layout(binding = 3, r32f) uniform image2D SolidLevelSet;
+
+struct Velocity
+{
+    vec2 velocity;
+    float angular_velocity;
+};
+
+layout(binding = 4) uniform RigidbodyVelocity
+{
+    Velocity value;
+}velocity;
+
+layout(binding = 5) uniform MV
+{
+    mat4 mv;
+};
+
+#include "CommonProject.comp"
+
+void main()
+{
+  uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
+
+  ivec2 pos = ivec2(gl_GlobalInvocationID);
+  if (pos.x > 0 && pos.y > 0 && pos.x < consts.width - 1 && pos.y < consts.height - 1)
+  {
+    int index = pos.x + pos.y * consts.width;
+    float liquid_phi = imageLoad(FluidLevelSet, pos).x;
+    if (liquid_phi < 0.0 && diagonal.value[index] != 0.0) // ensure linear system is well formed
+    {
+      float u_term = get_weightxp(pos).x - get_weight(pos).x;
+      float v_term = get_weightyp(pos).y - get_weight(pos).y;
+
+      vec4 centre = mv * vec4(consts.centre, 0.0, 1.0);
+      vec2 rad = pos + vec2(0.5) - centre.xy;
+      div.value[index] += u_term * velocity.value.velocity.x +
+                          v_term * velocity.value.velocity.y +
+                          v_term * rad.x -
+                          u_term * rad.y;
+    }
+  }
+}

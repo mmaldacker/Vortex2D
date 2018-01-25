@@ -288,3 +288,34 @@ static void CheckValid(const glm::ivec2& size, FluidSim& sim, Vortex2D::Renderer
         }
     }
 }
+
+static void CheckDiv(const glm::ivec2& size, Vortex2D::Renderer::Buffer<float>& buffer, FluidSim& sim, float error = 1e-6)
+{
+    std::vector<float> pixels(size.x * size.y);
+    Vortex2D::Renderer::CopyTo(buffer, pixels);
+
+    for (std::size_t i = 0; i < size.x; i++)
+    {
+        for (std::size_t j = 0; j < size.y; j++)
+        {
+            std::size_t index = i + size.x * j;
+            EXPECT_NEAR(sim.rhs[index], pixels[index], error);
+        }
+    }
+}
+
+static void PrintDiv(const glm::ivec2& size, FluidSim& sim)
+{
+    for (std::size_t j = 0; j < size.y; j++)
+    {
+        for (std::size_t i = 0; i < size.x; i++)
+        {
+            std::size_t index = i + size.x * j;
+            std::cout << "(" <<  sim.rhs[index] << ")";
+        }
+        std::cout << std::endl;
+    }
+
+    std::cout << std::endl;
+}
+
