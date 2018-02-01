@@ -132,7 +132,7 @@ function(copy_shader)
       add_custom_command(
         TARGET ${SHADER_TARGET}
         POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy ${SHADER_FILE} $<TARGET_FILE_DIR:${SHADER_TARGET}>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${SHADER_FILE} $<TARGET_FILE_DIR:${SHADER_TARGET}>
         DEPENDS ${SHADER_FILE})
     endforeach()
   endforeach(SHADER_SOURCE)

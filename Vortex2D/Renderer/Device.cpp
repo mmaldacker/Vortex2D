@@ -215,6 +215,11 @@ vk::ShaderModule Device::GetShaderModule(const std::string& filename) const
     std::vector<uint32_t> content;
 
     size_t size = is.tellg();
+    if (size == 0)
+    {
+        throw std::runtime_error("Empty file:" + filename);
+    }
+
     is.seekg(0, std::ios::beg);
     content.resize((size + 3) / 4);
     is.read(reinterpret_cast<char*>(content.data()), size);
