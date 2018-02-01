@@ -38,9 +38,9 @@ glm::ivec2 Depth::GetDepthSize(int i) const
 Multigrid::Multigrid(const Renderer::Device& device, const glm::ivec2& size, float delta)
     : mDepth(size)
     , mDelta(delta)
-    , mResidualWork(device, size, "../Vortex2D/Residual.comp.spv")
+    , mResidualWork(device, size, "Residual.comp.spv")
     , mTransfer(device)
-    , mPhiScaleWork(device, size, "../Vortex2D/PhiScale.comp.spv")
+    , mPhiScaleWork(device, size, "PhiScale.comp.spv")
     , mSmoother(device, mDepth.GetDepthSize(mDepth.GetMaxDepth()))
     , mBuildHierarchies(device, false)
 {

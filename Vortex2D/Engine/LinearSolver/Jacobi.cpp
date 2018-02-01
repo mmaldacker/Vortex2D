@@ -14,7 +14,7 @@ Jacobi::Jacobi(const Renderer::Device& device, const glm::ivec2& size)
   : mW(1.0f)
   , mPreconditionerIterations(1)
   , mBackPressure(device, size.x * size.y)
-  , mJacobi(device, size, "../Vortex2D/DampedJacobi.comp.spv")
+  , mJacobi(device, size, "DampedJacobi.comp.spv")
 {
 }
 

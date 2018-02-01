@@ -8,7 +8,7 @@
 namespace Vortex2D { namespace Fluid {
 
 IncompletePoisson::IncompletePoisson(const Renderer::Device& device, const glm::ivec2& size)
-    : mIncompletePoisson(device, size, "../Vortex2D/IncompletePoisson.comp.spv")
+    : mIncompletePoisson(device, size, "IncompletePoisson.comp.spv")
 {
 
 }

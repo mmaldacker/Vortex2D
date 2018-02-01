@@ -130,15 +130,13 @@ function(copy_shader)
     foreach(SHADER_FILE ${SHADER_FILES})
       get_filename_component(SHADER_FILENAME ${SHADER_FILE} NAME)
       add_custom_command(
-        OUTPUT ${SHADER_FILENAME}
-        COMMAND ${CMAKE_COMMAND} -E copy ${SHADER_FILE} ${CMAKE_CURRENT_BINARY_DIR}
+        TARGET ${SHADER_TARGET}
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy ${SHADER_FILE} $<TARGET_FILE_DIR:${SHADER_TARGET}>
         DEPENDS ${SHADER_FILE})
-      list(APPEND SHADERS "${CMAKE_CURRENT_BINARY_DIR}/${SHADER_FILENAME}")
     endforeach()
   endforeach(SHADER_SOURCE)
 
-  add_custom_target("${SHADER_TARGET}_SHADERS_COPY" DEPENDS ${SHADERS})
-  add_dependencies(${SHADER_TARGET} "${SHADER_TARGET}_SHADERS_COPY")
 endfunction()
 
 add_library(vortex2d STATIC ${LIB_SOURCES} ${SHADERS} ${SHADER_SOURCES} "Engine/Kernels/CommonAdvect.comp" "Engine/Kernels/CommonProject.comp" "Engine/Kernels/CommonPreScan.comp")

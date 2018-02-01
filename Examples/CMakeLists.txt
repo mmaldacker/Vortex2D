@@ -25,3 +25,5 @@ include_directories(${Box2D_SOURCE_DIR}/Box2D)
 add_executable(vortex2d_examples ${EXAMPLES_SOURCES})
 target_compile_features(vortex2d_examples PRIVATE cxx_nullptr)
 target_link_libraries(vortex2d_examples vortex2d vortex2d_window Box2D)
+
+copy_shader(TARGET vortex2d_examples SOURCES vortex2d)

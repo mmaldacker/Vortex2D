@@ -95,14 +95,14 @@ void Reduce::Bound::Record(vk::CommandBuffer commandBuffer)
 
 ReduceSum::ReduceSum(const Renderer::Device& device,
                      const glm::ivec2& size)
-    : Reduce(device, "../Vortex2D/Sum.comp.spv", size)
+    : Reduce(device, "Sum.comp.spv", size)
 {
 
 }
 
 ReduceMax::ReduceMax(const Renderer::Device& device,
                      const glm::ivec2& size)
-    : Reduce(device, "../Vortex2D/Max.comp.spv", size)
+    : Reduce(device, "Max.comp.spv", size)
 {
 
 }

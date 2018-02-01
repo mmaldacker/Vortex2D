@@ -30,8 +30,8 @@ PolygonVelocity::PolygonVelocity(const Renderer::Device& device,
         mVertexBuffer.CopyFrom(commandBuffer, localVertices);
     });
 
-    SPIRV::Reflection reflectionVert(device.GetShaderSPIRV("../Vortex2D/PolygonVelocity.vert.spv"));
-    SPIRV::Reflection reflectionFrag(device.GetShaderSPIRV("../Vortex2D/PolygonVelocity.frag.spv"));
+    SPIRV::Reflection reflectionVert(device.GetShaderSPIRV("PolygonVelocity.vert.spv"));
+    SPIRV::Reflection reflectionFrag(device.GetShaderSPIRV("PolygonVelocity.frag.spv"));
 
     Renderer::PipelineLayout layout = {{reflectionVert, reflectionFrag}};
     mDescriptorSet = device.GetLayoutManager().MakeDescriptorSet(layout);
@@ -39,8 +39,8 @@ PolygonVelocity::PolygonVelocity(const Renderer::Device& device,
 
     mPipeline = Renderer::GraphicsPipeline::Builder()
             .Topology(vk::PrimitiveTopology::eTriangleFan)
-            .Shader(device.GetShaderModule("../Vortex2D/PolygonVelocity.vert.spv"), vk::ShaderStageFlagBits::eVertex)
-            .Shader(device.GetShaderModule("../Vortex2D/PolygonVelocity.frag.spv"), vk::ShaderStageFlagBits::eFragment)
+            .Shader(device.GetShaderModule("PolygonVelocity.vert.spv"), vk::ShaderStageFlagBits::eVertex)
+            .Shader(device.GetShaderModule("PolygonVelocity.frag.spv"), vk::ShaderStageFlagBits::eFragment)
             .VertexAttribute(0, 0, vk::Format::eR32G32Sfloat, 0)
             .VertexBinding(0, sizeof(glm::vec2))
             .Layout(mDescriptorSet.pipelineLayout);

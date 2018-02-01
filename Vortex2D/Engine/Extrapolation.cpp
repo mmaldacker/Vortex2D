@@ -14,10 +14,10 @@ Extrapolation::Extrapolation(const Renderer::Device& device,
     : mValid(device,size.x*size.y)
     , mVelocity(velocity)
     , mTempVelocity(device, size.x, size.y, vk::Format::eR32G32Sfloat)
-    , mExtrapolateVelocity(device, size, "../Vortex2D/ExtrapolateVelocity.comp.spv")
+    , mExtrapolateVelocity(device, size, "ExtrapolateVelocity.comp.spv")
     , mExtrapolateVelocityFrontBound(mExtrapolateVelocity.Bind({valid, mValid, velocity}))
     , mExtrapolateVelocityBackBound(mExtrapolateVelocity.Bind({mValid, valid, velocity}))
-    , mConstrainVelocity(device, size, "../Vortex2D/ConstrainVelocity.comp.spv")
+    , mConstrainVelocity(device, size, "ConstrainVelocity.comp.spv")
     , mExtrapolateCmd(device, false)
     , mConstrainCmd(device, false)
 {

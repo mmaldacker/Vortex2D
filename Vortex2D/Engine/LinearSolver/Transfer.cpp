@@ -9,8 +9,8 @@ namespace Vortex2D { namespace Fluid {
 
 Transfer::Transfer(const Renderer::Device& device)
     : mDevice(device)
-    , mProlongateWork(device, Renderer::ComputeSize::Default2D(), "../Vortex2D/Prolongate.comp.spv")
-    , mRestrictWork(device, Renderer::ComputeSize::Default2D(), "../Vortex2D/Restrict.comp.spv")
+    , mProlongateWork(device, Renderer::ComputeSize::Default2D(), "Prolongate.comp.spv")
+    , mRestrictWork(device, Renderer::ComputeSize::Default2D(), "Restrict.comp.spv")
 {
 
 }

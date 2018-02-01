@@ -8,7 +8,7 @@
 namespace Vortex2D { namespace Fluid {
 
 Diagonal::Diagonal(const Renderer::Device& device, const glm::ivec2& size)
-    : mDiagonal(device, size, "../Vortex2D/Diagonal.comp.spv")
+    : mDiagonal(device, size, "Diagonal.comp.spv")
 {
 
 }

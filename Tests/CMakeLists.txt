@@ -32,6 +32,7 @@ target_include_directories(vortex2d_tests PUBLIC ./)
 
 compile_shader(TARGET vortex2d_tests SOURCES ${SHADER_TEST_SOURCES})
 copy_shader(TARGET vortex2d_tests SOURCES vortex2d)
+copy_shader(TARGET vortex2d_tests SOURCES vortex2d_tests)
 
 add_test(AllTests vortex2d_tests)
 
