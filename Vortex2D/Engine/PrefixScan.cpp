@@ -5,6 +5,8 @@
 
 #include "PrefixScan.h"
 
+#include "vortex2d_generated_spirv.h"
+
 namespace Vortex2D { namespace Fluid {
 
 namespace
@@ -29,9 +31,9 @@ namespace
 
 PrefixScan::PrefixScan(const Renderer::Device& device, const glm::ivec2& size)
     : mSize(size.x*size.y)
-    , mAddWork(device, Renderer::ComputeSize::Default1D(), "PreScanAdd.comp.spv")
-    , mPreScanWork(device, Renderer::ComputeSize::Default1D(), "PreScan.comp.spv")
-    , mPreScanStoreSumWork(device, Renderer::ComputeSize::Default1D(), "PreScanStoreSum.comp.spv")
+    , mAddWork(device, Renderer::ComputeSize::Default1D(), PreScanAdd_comp)
+    , mPreScanWork(device, Renderer::ComputeSize::Default1D(), PreScan_comp)
+    , mPreScanStoreSumWork(device, Renderer::ComputeSize::Default1D(), PreScanStoreSum_comp)
 {
 
     auto localSize = Renderer::ComputeSize::GetLocalSize1D();

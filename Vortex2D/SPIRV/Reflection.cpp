@@ -7,9 +7,8 @@
 
 namespace Vortex2D { namespace SPIRV {
 
-
-Reflection::Reflection(const std::vector<uint32_t>& spirv)
-    : mCompiler(spirv)
+Reflection::Reflection(const Renderer::SpirvBinary& spirv)
+  : mCompiler(spirv.data(), spirv.words())
 {
     const auto& resources = mCompiler.get_shader_resources();
 

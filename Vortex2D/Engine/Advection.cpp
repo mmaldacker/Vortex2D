@@ -8,6 +8,8 @@
 #include <Vortex2D/Renderer/Pipeline.h>
 #include <Vortex2D/Engine/Density.h>
 
+#include "vortex2d_generated_spirv.h"
+
 namespace Vortex2D { namespace Fluid {
 
 
@@ -16,10 +18,10 @@ Advection::Advection(const Renderer::Device& device, const glm::ivec2& size, flo
     , mSize(size)
     , mVelocity(velocity)
     , mTmpVelocity(device, size.x, size.y, vk::Format::eR32G32Sfloat)
-    , mVelocityAdvect(device, size, "AdvectVelocity.comp.spv")
+    , mVelocityAdvect(device, size, AdvectVelocity_comp)
     , mVelocityAdvectBound(mVelocityAdvect.Bind({velocity, mTmpVelocity}))
-    , mAdvect(device, size, "Advect.comp.spv")
-    , mAdvectParticles(device, Renderer::ComputeSize::Default1D(), "AdvectParticles.comp.spv")
+    , mAdvect(device, size, Advect_comp)
+    , mAdvectParticles(device, Renderer::ComputeSize::Default1D(), AdvectParticles_comp)
     , mAdvectVelocityCmd(device, false)
     , mAdvectCmd(device, false)
     , mAdvectParticlesCmd(device, false)

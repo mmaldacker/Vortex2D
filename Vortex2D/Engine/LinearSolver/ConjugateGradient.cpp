@@ -5,6 +5,8 @@
 
 #include "ConjugateGradient.h"
 
+#include "vortex2d_generated_spirv.h"
+
 namespace Vortex2D { namespace Fluid {
 
 ConjugateGradient::ConjugateGradient(const Renderer::Device& device,
@@ -20,13 +22,13 @@ ConjugateGradient::ConjugateGradient(const Renderer::Device& device,
     , rho(device, 1)
     , rho_new(device, 1)
     , sigma(device, 1)
-    , error(device, 1)
+    , error(device)
     , localError(device, 1, VMA_MEMORY_USAGE_GPU_TO_CPU)
-    , matrixMultiply(device, size, "MultiplyMatrix.comp.spv")
-    , scalarDivision(device, glm::ivec2(1), "Divide.comp.spv")
-    , scalarMultiply(device, size, "Multiply.comp.spv")
-    , multiplyAdd(device, size, "MultiplyAdd.comp.spv")
-    , multiplySub(device, size, "MultiplySub.comp.spv")
+    , matrixMultiply(device, size, MultiplyMatrix_comp)
+    , scalarDivision(device, glm::ivec2(1), Divide_comp)
+    , scalarMultiply(device, size, Multiply_comp)
+    , multiplyAdd(device, size, MultiplyAdd_comp)
+    , multiplySub(device, size, MultiplySub_comp)
     , reduceSum(device, size)
     , reduceMax(device, size)
     , reduceMaxBound(reduceMax.Bind(r, error))

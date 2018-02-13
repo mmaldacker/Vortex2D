@@ -94,54 +94,34 @@ add_subdirectory(${vkLoader_SOURCE_DIR} ${vkLoader_BINARY_DIR})
 
 function(compile_shader)
     set(options "")
-    set(oneValueArgs TARGET)
+    set(oneValueArgs OUTPUT)
     set(multiValueArgs SOURCES)
 
     cmake_parse_arguments(SHADER "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-    # TODO this only works for Win32
     find_program(GLSL_VALIDATOR glslc hints "$ENV{VULKAN_SDK}/Bin")
     message("Using compiler: ${GLSL_VALIDATOR}")
-
-    foreach(SHADER_SOURCE ${SHADER_SOURCES})
-        get_filename_component(SHADER_FILENAME ${SHADER_SOURCE} NAME)
-        set(SHADER "${CMAKE_CURRENT_BINARY_DIR}/${SHADER_FILENAME}.spv")
-        add_custom_command(
-            OUTPUT ${SHADER}
-            COMMAND ${GLSL_VALIDATOR} -c ${SHADER_SOURCE} -o ${SHADER}
-            DEPENDS ${SHADER_SOURCE})
-        list(APPEND SHADERS ${SHADER})
-    endforeach(SHADER_SOURCE)
-
-    add_custom_target("${SHADER_TARGET}_SHADERS" DEPENDS ${SHADERS})
-    set_target_properties("${SHADER_TARGET}_SHADERS" PROPERTIES SHADERS_OUTPUT "${SHADERS}")
-    add_dependencies(${SHADER_TARGET} "${SHADER_TARGET}_SHADERS")
-endfunction()
-
-function(copy_shader)
-  set(options "")
-  set(oneValueArgs TARGET)
-  set(multiValueArgs SOURCES)
-
-  cmake_parse_arguments(SHADER "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
-
-  foreach(SHADER_SOURCE ${SHADER_SOURCES})
-    get_target_property(SHADER_FILES "${SHADER_SOURCE}_SHADERS" SHADERS_OUTPUT)
-    foreach(SHADER_FILE ${SHADER_FILES})
-      get_filename_component(SHADER_FILENAME ${SHADER_FILE} NAME)
-      add_custom_command(
-        TARGET ${SHADER_TARGET}
-        POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${SHADER_FILE} $<TARGET_FILE_DIR:${SHADER_TARGET}>
-        DEPENDS ${SHADER_FILE})
-    endforeach()
-  endforeach(SHADER_SOURCE)
+    
+    set(COMPILE_SCRIPT ${CMAKE_SOURCE_DIR}/Scripts/GenerateSPIRV.py)
+    add_custom_command(
+       OUTPUT "${SHADER_OUTPUT}.h" "${SHADER_OUTPUT}.cpp"
+       COMMAND python ${COMPILE_SCRIPT} --compiler ${GLSL_VALIDATOR} --output ${SHADER_OUTPUT} ${SHADER_SOURCES}
+       DEPENDS ${SHADER_SOURCES} ${COMPILE_SCRIPT})
 
 endfunction()
 
-add_library(vortex2d STATIC ${LIB_SOURCES} ${SHADERS} ${SHADER_SOURCES} "Engine/Kernels/CommonAdvect.comp" "Engine/Kernels/CommonProject.comp" "Engine/Kernels/CommonPreScan.comp")
-compile_shader(TARGET vortex2d SOURCES ${SHADER_SOURCES})
+compile_shader(SOURCES ${SHADER_SOURCES} OUTPUT "vortex2d_generated_spirv")
+add_library(vortex2d
+  STATIC
+    ${LIB_SOURCES}
+    ${SHADER_SOURCES}
+    "Engine/Kernels/CommonAdvect.comp"
+    "Engine/Kernels/CommonProject.comp"
+    "Engine/Kernels/CommonPreScan.comp"
+    vortex2d_generated_spirv.cpp
+    vortex2d_generated_spirv.h)
+
 target_link_libraries(vortex2d PUBLIC glm spirv-cross-core vk_loader)
-target_include_directories(vortex2d PUBLIC ../)
+target_include_directories(vortex2d PUBLIC ../ ${CMAKE_CURRENT_BINARY_DIR})
 
 target_compile_features(vortex2d PRIVATE cxx_variadic_templates cxx_generic_lambdas)

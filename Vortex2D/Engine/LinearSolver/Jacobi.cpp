@@ -7,6 +7,8 @@
 #include <cmath>
 #include <glm/gtc/constants.hpp>
 
+#include "vortex2d_generated_spirv.h"
+
 namespace Vortex2D { namespace Fluid {
 
 
@@ -14,7 +16,7 @@ Jacobi::Jacobi(const Renderer::Device& device, const glm::ivec2& size)
   : mW(1.0f)
   , mPreconditionerIterations(1)
   , mBackPressure(device, size.x * size.y)
-  , mJacobi(device, size, "DampedJacobi.comp.spv")
+  , mJacobi(device, size, DampedJacobi_comp)
 {
 }
 

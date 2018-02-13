@@ -16,6 +16,9 @@
 
 #include "Verify.h"
 
+#include "vortex2d_generated_spirv.h"
+#include "vortex2d_tests_generated_spirv.h"
+
 using namespace Vortex2D::Renderer;
 using namespace Vortex2D::SPIRV;
 
@@ -93,8 +96,8 @@ TEST(ComputeTests, BufferCompute)
     CopyFrom(buffer, particles);
     CopyFrom(uboBuffer, ubo);
 
-    auto shader = device->GetShaderModule("Buffer.comp.spv");
-    Reflection reflection(device->GetShaderSPIRV("Buffer.comp.spv"));
+    auto shader = device->GetShaderModule(Buffer_comp);
+    Reflection reflection(Buffer_comp);
 
     PipelineLayout layout = {{reflection}};
     DescriptorSet descriptorSet = device->GetLayoutManager().MakeDescriptorSet(layout);
@@ -133,8 +136,8 @@ TEST(ComputeTests, ImageCompute)
     std::vector<float> data(50*50,1.0f);
     stagingTexture.CopyFrom(data);
 
-    auto shader = device->GetShaderModule("Image.comp.spv");
-    Reflection reflection(device->GetShaderSPIRV("Image.comp.spv"));
+    auto shader = device->GetShaderModule(Image_comp);
+    Reflection reflection(Image_comp);
 
     PipelineLayout layout = {{reflection}};
     DescriptorSet descriptorSet = device->GetLayoutManager().MakeDescriptorSet(layout);
@@ -158,7 +161,7 @@ TEST(ComputeTests, ImageCompute)
 TEST(ComputeTests, Work)
 {
     Buffer<float> buffer(*device, 16*16, VMA_MEMORY_USAGE_CPU_ONLY);
-    Work work(*device, glm::ivec2(16), "Work.comp.spv");
+    Work work(*device, glm::ivec2(16), Work_comp);
 
     auto boundWork = work.Bind({buffer});
 
@@ -200,7 +203,7 @@ TEST(ComputeTests, WorkIndirect)
     computeSize.WorkSize.x = 0;
     computeSize.LocalSize.x = 8;
 
-    Work work(*device, computeSize, "WorkIndirect.comp.spv");
+    Work work(*device, computeSize, WorkIndirect_comp);
     auto bound = work.Bind({buffer, dispatchParams});
 
     CommandBuffer cmd(*device, true);
@@ -262,7 +265,7 @@ TEST(ComputeTests, Stencil)
 
     auto computeSize = MakeStencilComputeSize(size, 1);
 
-    Work work(*device, computeSize, "Stencil.comp.spv");
+    Work work(*device, computeSize, Stencil_comp);
 
     auto boundWork = work.Bind({input, output});
 
@@ -318,7 +321,7 @@ TEST(ComputeTests, Checkerboard)
 
     ComputeSize computeSize = MakeCheckerboardComputeSize(size);
 
-    Work work(*device, computeSize, "Checkerboard.comp.spv");
+    Work work(*device, computeSize, Checkerboard_comp);
 
     auto boundWork = work.Bind({buffer});
 
@@ -354,7 +357,7 @@ TEST(ComputeTests, Timer)
     glm::ivec2 size(500);
 
     Buffer<float> buffer(*device, size.x*size.y);
-    Work work(*device, size, "Work.comp.spv");
+    Work work(*device, size, Work_comp);
 
     auto boundWork = work.Bind({buffer});
 
@@ -413,37 +416,23 @@ TEST(ComputeTests, Statistics)
     std::cout << "Timestamp " << timestamps[2].first << ": " << timestamps[2].second << std::endl;
 }
 
-std::vector<uint32_t> ReadFile(const std::string& filename)
-{
-    std::ifstream is(filename, std::ios::binary | std::ios::in | std::ios::ate);
-    std::vector<uint32_t> content;
-
-    size_t size = is.tellg();
-    is.seekg(0, std::ios::beg);
-    content.resize(size / 4);
-    is.read(reinterpret_cast<char*>(content.data()), size);
-    is.close();
-
-    return content;
-}
-
 TEST(ComputeTests, Reflection)
 {
-  Reflection spirv1(ReadFile("Stencil.comp.spv"));
+  Reflection spirv1(Stencil_comp);
 
   auto descriptorTypes = spirv1.GetDescriptorTypesMap();
   DescriptorTypeBindings expectedDescriptorTypes = {{0, vk::DescriptorType::eStorageBuffer}, {1, vk::DescriptorType::eStorageBuffer}};
 
   EXPECT_EQ(expectedDescriptorTypes, descriptorTypes);
 
-  Reflection spirv2(ReadFile("Image.comp.spv"));
+  Reflection spirv2(Image_comp);
 
   descriptorTypes = spirv2.GetDescriptorTypesMap();
   expectedDescriptorTypes = {{0, vk::DescriptorType::eStorageImage}, {1, vk::DescriptorType::eStorageImage}};
 
   EXPECT_EQ(expectedDescriptorTypes, descriptorTypes);
 
-  Reflection spirv3(ReadFile("Redistance.comp.spv"));
+  Reflection spirv3(Redistance_comp);
 
   descriptorTypes = spirv3.GetDescriptorTypesMap();
   expectedDescriptorTypes = {{0, vk::DescriptorType::eCombinedImageSampler}, {1, vk::DescriptorType::eCombinedImageSampler}, {2, vk::DescriptorType::eStorageImage}};

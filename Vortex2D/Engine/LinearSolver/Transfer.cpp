@@ -5,12 +5,14 @@
 
 #include "Transfer.h"
 
+#include "vortex2d_generated_spirv.h"
+
 namespace Vortex2D { namespace Fluid {
 
 Transfer::Transfer(const Renderer::Device& device)
     : mDevice(device)
-    , mProlongateWork(device, Renderer::ComputeSize::Default2D(), "Prolongate.comp.spv")
-    , mRestrictWork(device, Renderer::ComputeSize::Default2D(), "Restrict.comp.spv")
+    , mProlongateWork(device, Renderer::ComputeSize::Default2D(), Prolongate_comp)
+    , mRestrictWork(device, Renderer::ComputeSize::Default2D(), Restrict_comp)
 {
 
 }

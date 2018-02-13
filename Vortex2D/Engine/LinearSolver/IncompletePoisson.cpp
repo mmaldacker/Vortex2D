@@ -5,10 +5,12 @@
 
 #include "IncompletePoisson.h"
 
+#include "vortex2d_generated_spirv.h"
+
 namespace Vortex2D { namespace Fluid {
 
 IncompletePoisson::IncompletePoisson(const Renderer::Device& device, const glm::ivec2& size)
-    : mIncompletePoisson(device, size, "IncompletePoisson.comp.spv")
+    : mIncompletePoisson(device, size, IncompletePoisson_comp)
 {
 
 }

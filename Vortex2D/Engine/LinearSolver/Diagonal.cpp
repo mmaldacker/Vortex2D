@@ -5,10 +5,12 @@
 
 #include "Diagonal.h"
 
+#include "vortex2d_generated_spirv.h"
+
 namespace Vortex2D { namespace Fluid {
 
 Diagonal::Diagonal(const Renderer::Device& device, const glm::ivec2& size)
-    : mDiagonal(device, size, "Diagonal.comp.spv")
+    : mDiagonal(device, size, Diagonal_comp)
 {
 
 }

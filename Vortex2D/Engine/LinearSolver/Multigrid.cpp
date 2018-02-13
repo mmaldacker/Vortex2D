@@ -7,6 +7,8 @@
 
 #include <Vortex2D/Engine/Pressure.h>
 
+#include "vortex2d_generated_spirv.h"
+
 namespace Vortex2D { namespace Fluid {
 
 Depth::Depth(const glm::ivec2& size)
@@ -38,9 +40,9 @@ glm::ivec2 Depth::GetDepthSize(int i) const
 Multigrid::Multigrid(const Renderer::Device& device, const glm::ivec2& size, float delta)
     : mDepth(size)
     , mDelta(delta)
-    , mResidualWork(device, size, "Residual.comp.spv")
+    , mResidualWork(device, size, Residual_comp)
     , mTransfer(device)
-    , mPhiScaleWork(device, size, "PhiScale.comp.spv")
+    , mPhiScaleWork(device, size, PhiScale_comp)
     , mSmoother(device, mDepth.GetDepthSize(mDepth.GetMaxDepth()))
     , mBuildHierarchies(device, false)
 {

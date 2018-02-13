@@ -13,6 +13,37 @@
 
 namespace Vortex2D { namespace Renderer {
 
+class SpirvBinary
+{
+public:
+
+    template<std::size_t N>
+    SpirvBinary(const uint32_t (&spirv)[N])
+        : mData(spirv)
+        , mSize(N * 4)
+    {
+    }
+
+    const uint32_t* data() const
+    {
+        return mData;
+    }
+
+    std::size_t size() const
+    {
+        return mSize;
+    }
+
+    std::size_t words() const
+    {
+        return mSize / 4;
+    }
+
+private:
+    const uint32_t* mData;
+    std::size_t mSize;
+};
+
 class Device
 {
 public:
@@ -38,9 +69,7 @@ public:
     VmaAllocator Allocator() const;
     LayoutManager& GetLayoutManager() const;
 
-
-    vk::ShaderModule GetShaderModule(const std::string& filename) const;
-    const std::vector<uint32_t> GetShaderSPIRV(const std::string& filename) const;
+    vk::ShaderModule GetShaderModule(const SpirvBinary& spirv) const;
 
 private:
     vk::PhysicalDevice mPhysicalDevice;
@@ -51,13 +80,7 @@ private:
     vk::UniqueDescriptorPool mDescriptorPool;
     VmaAllocator mAllocator;
 
-    struct SPIRVModule
-    {
-      std::vector<uint32_t> Binary;
-      vk::UniqueShaderModule Module;
-    };
-
-    mutable std::map<std::string, SPIRVModule> mShaders;
+    mutable std::map<const uint32_t*, vk::UniqueShaderModule> mShaders;
     mutable LayoutManager mLayoutManager;
 };
 

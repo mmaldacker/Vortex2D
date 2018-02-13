@@ -8,6 +8,8 @@
 #include <Vortex2D/Engine/Boundaries.h>
 #include <Vortex2D/Renderer/CommandBuffer.h>
 
+#include "vortex2d_generated_spirv.h"
+
 namespace Vortex2D { namespace  Fluid {
 
 LevelSet::LevelSet(const Renderer::Device& device, const glm::ivec2& size, int reinitializeIterations)
@@ -17,8 +19,8 @@ LevelSet::LevelSet(const Renderer::Device& device, const glm::ivec2& size, int r
     , mSampler(Renderer::SamplerBuilder()
                .AddressMode(vk::SamplerAddressMode::eClampToEdge)
                .Create(device.Handle()))
-    , mExtrapolate(device, size, "Extrapolate.comp.spv")
-    , mRedistance(device, size, "Redistance.comp.spv")
+    , mExtrapolate(device, size, Extrapolate_comp)
+    , mRedistance(device, size, Redistance_comp)
     , mRedistanceFront(mRedistance.Bind({{*mSampler, mLevelSet0}, {*mSampler, *this}, mLevelSetBack}))
     , mRedistanceBack(mRedistance.Bind({{*mSampler, mLevelSet0}, {*mSampler, mLevelSetBack}, *this}))
     , mExtrapolateCmd(device, false)

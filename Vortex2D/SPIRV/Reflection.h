@@ -8,6 +8,7 @@
 
 #include <Vortex2D/Renderer/Common.h>
 #include <Vortex2D/Renderer/DescriptorSet.h>
+#include <Vortex2D/Renderer/Device.h>
 
 #include <spirv_cross.hpp>
 #include <map>
@@ -19,7 +20,7 @@ class Reflection
 public:
   using DescriptorTypesMap = std::map<unsigned, vk::DescriptorType>;
 
-  Reflection(const std::vector<uint32_t>& spirv);
+  Reflection(const Renderer::SpirvBinary& spirv);
 
   DescriptorTypesMap GetDescriptorTypesMap() const;
   unsigned GetPushConstantsSize() const;
