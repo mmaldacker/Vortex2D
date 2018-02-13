@@ -70,6 +70,7 @@ file(GLOB SHADER_SOURCES
     "Engine/Kernels/PreScan.comp"
     "Engine/Kernels/PreScanStoreSum.comp"
     "Engine/Kernels/ParticleCount.comp"
+    "Engine/Kernels/ParticleClamp.comp"
     "Engine/Kernels/ParticleSpawn.comp"
     "Engine/Kernels/ParticleBucket.comp"
     "Engine/Kernels/ParticleCloud.vert"

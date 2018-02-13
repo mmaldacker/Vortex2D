@@ -7,6 +7,7 @@
 #include "VariationalHelpers.h"
 
 #include <random>
+#include <numeric>
 #include <glm/gtx/io.hpp>
 
 #include <Vortex2D/Renderer/Shapes.h>
@@ -150,22 +151,10 @@ TEST(ParticleTests, ParticleCounting)
 
     ParticleCount particleCount(*device, size, particles, {numParticles});
 
-    particleCount.Count();
+    particleCount.Scan();
     device->Handle().waitIdle();
 
-    Texture localCount(*device, size.x, size.y, vk::Format::eR32Sint, VMA_MEMORY_USAGE_CPU_ONLY);
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-        localCount.CopyFrom(commandBuffer, particleCount);
-    });
-
-    std::vector<int> outData(size.x*size.y);
-    localCount.CopyTo(outData);
-
-    glm::ivec2 pos1(3, 2);
-    glm::ivec2 pos2(5, 6);
-    EXPECT_EQ(2, outData[pos1.x + pos1.y * size.x]);
-    EXPECT_EQ(1, outData[pos2.x + pos2.y * size.x]);
+    ASSERT_EQ(numParticles, particleCount.GetTotalCount());
 }
 
 TEST(ParticleTests, ParticleDelete)
@@ -184,11 +173,11 @@ TEST(ParticleTests, ParticleDelete)
     ParticleCount particleCount(*device, size, particles, {numParticles});
 
     // Count particles
-    particleCount.Count();
+    particleCount.Scan();
     device->Handle().waitIdle();
 
     // Delete some particles
-    IntRectangle rect(*device, {10, 10}, glm::ivec4(0));
+    IntRectangle rect(*device, {10, 10}, glm::ivec4(-8));
     rect.Position = glm::vec2(10.0f, 10.0f);
 
     particleCount.Record({rect}).Submit();
@@ -197,7 +186,7 @@ TEST(ParticleTests, ParticleDelete)
     particleCount.Scan();
     device->Queue().waitIdle();
 
-    ASSERT_EQ(2, particleCount.GetCount());
+    ASSERT_EQ(2, particleCount.GetTotalCount());
 
     // Read particles
     std::vector<Particle> outParticlesData(size.x*size.y*8);
@@ -208,6 +197,29 @@ TEST(ParticleTests, ParticleDelete)
                 outParticlesData[0].Position == particlesData[2].Position);
     EXPECT_TRUE(outParticlesData[1].Position == particlesData[0].Position ||
                 outParticlesData[1].Position == particlesData[2].Position);
+}
+
+TEST(ParticleTests, ParticleClamp)
+{
+    glm::ivec2 size(20);
+
+    std::vector<Particle> particlesData(size.x*size.y*8);
+
+    int numParticles = 10;
+    for (int i = 0; i < numParticles; i++)
+    {
+        particlesData[i].Position = glm::vec2(3.4f, 2.3f);
+    }
+
+    Buffer<Particle> particles(*device, 8*size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+    CopyFrom(particles, particlesData);
+
+    ParticleCount particleCount(*device, size, particles, {numParticles});
+
+    particleCount.Scan();
+    device->Handle().waitIdle();
+
+    ASSERT_EQ(8, particleCount.GetTotalCount());
 }
 
 TEST(ParticleTests, ParticleSpawn)
@@ -227,7 +239,7 @@ TEST(ParticleTests, ParticleSpawn)
     particleCount.Scan();
     device->Queue().waitIdle();
 
-    int particleNum = particleCount.GetCount();
+    int particleNum = particleCount.GetTotalCount();
     ASSERT_EQ(4, particleNum);
 
     // Read particles
@@ -270,11 +282,10 @@ TEST(ParticleTests, ParticleAddDelete)
 
     // Now scan and spawn them
     particleCount.Scan();
-    particleCount.Count();
     device->Queue().waitIdle();
 
     // Remove some particles
-    IntRectangle rectRemove(*device, {1, 4}, glm::ivec4(0));
+    IntRectangle rectRemove(*device, {1, 4}, glm::ivec4(-8));
     rectRemove.Position = glm::vec2(10.0f, 10.0f);
 
     particleCount.Record({rectRemove}).Submit();
@@ -287,7 +298,7 @@ TEST(ParticleTests, ParticleAddDelete)
     std::vector<Particle> outParticlesData(size.x*size.y*8);
     CopyTo(particles, outParticlesData);
 
-    ASSERT_EQ(4, particleCount.GetCount());
+    ASSERT_EQ(4, particleCount.GetTotalCount());
 
     EXPECT_EQ(glm::ivec2(outParticlesData[0].Position), glm::ivec2(11, 10));
     EXPECT_EQ(glm::ivec2(outParticlesData[1].Position), glm::ivec2(11, 11));
@@ -354,7 +365,6 @@ TEST(ParticleTests, Phi)
 
     ParticleCount particleCount(*device, size, particles, {(int)sim.particles.size()});
 
-    particleCount.Count();
     particleCount.Scan();
     device->Handle().waitIdle();
 
@@ -403,11 +413,10 @@ TEST(ParticleTests, FromGrid)
 
    ParticleCount particleCount(*device, size, particles, {(int)sim.particles.size()});
 
-   particleCount.Count();
    particleCount.Scan();
    device->Handle().waitIdle();
 
-   ASSERT_EQ(sim.particles.size(), particleCount.GetCount());
+   ASSERT_EQ(sim.particles.size(), particleCount.GetTotalCount());
 
    // FromGrid test
    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
@@ -481,11 +490,10 @@ TEST(ParticleTests, ToGrid)
 
    ParticleCount particleCount(*device, size, particles, {(int)sim.particles.size()});
 
-   particleCount.Count();
    particleCount.Scan();
    device->Handle().waitIdle();
 
-   ASSERT_EQ(sim.particles.size(), particleCount.GetCount());
+   ASSERT_EQ(sim.particles.size(), particleCount.GetTotalCount());
 
    // ToGrid test
    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);

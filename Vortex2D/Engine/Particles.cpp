@@ -20,6 +20,7 @@ ParticleCount::ParticleCount(const Renderer::Device& device,
     , mDevice(device)
     , mParticles(particles)
     , mNewParticles(device, 8*size.x*size.y)
+    , mDelta(device, size.x*size.y)
     , mCount(device, size.x*size.y)
     , mIndex(device, size.x*size.y)
     , mSeeds(device, 4, VMA_MEMORY_USAGE_CPU_TO_GPU)
@@ -27,21 +28,22 @@ ParticleCount::ParticleCount(const Renderer::Device& device,
     , mLocalDispatchParams(device, 1, VMA_MEMORY_USAGE_CPU_ONLY)
     , mNewDispatchParams(device)
     , mParticleCountWork(device, Renderer::ComputeSize::Default1D(), ParticleCount_comp)
-    , mParticleCountBound(mParticleCountWork.Bind({particles, mDispatchParams, *this}))
+    , mParticleCountBound(mParticleCountWork.Bind(size, {particles, mDispatchParams, mDelta}))
+    , mParticleClampWork(device, size, ParticleClamp_comp)
+    , mParticleClampBound(mParticleClampWork.Bind(size, {mDelta }))
     , mPrefixScan(device, size)
-    , mPrefixScanBound(mPrefixScan.Bind(mCount, mIndex, mNewDispatchParams))
+    , mPrefixScanBound(mPrefixScan.Bind(mDelta, mIndex, mNewDispatchParams))
     , mParticleBucketWork(device, Renderer::ComputeSize::Default1D(), ParticleBucket_comp)
     , mParticleBucketBound(mParticleBucketWork.Bind(size, {particles,
                                                            mNewParticles,
                                                            mIndex,
-                                                           mCount,
+                                                           mDelta,
                                                            mDispatchParams}))
     , mParticleSpawnWork(device, size, ParticleSpawn_comp)
-    , mParticleSpawnBound(mParticleSpawnWork.Bind({mNewParticles, mIndex, mCount, mSeeds}))
+    , mParticleSpawnBound(mParticleSpawnWork.Bind({mNewParticles, mIndex, mDelta, mSeeds}))
     , mParticlePhiWork(device, size, ParticlePhi_comp)
     , mParticleToGridWork(device, size, ParticleToGrid_comp)
     , mParticleFromGridWork(device, Renderer::ComputeSize::Default1D(), ParticleFromGrid_comp)
-    , mCountWork(device, false)
     , mScanWork(device, false)
     , mDispatchCountWork(device)
     , mParticlePhi(device, false)
@@ -54,22 +56,20 @@ ParticleCount::ParticleCount(const Renderer::Device& device,
         mDispatchParams.CopyFrom(commandBuffer, mLocalDispatchParams);
     });
 
-    // TODO should limit to 4 (or 8) particles
-    mCountWork.Record([&](vk::CommandBuffer commandBuffer)
-    {
-        commandBuffer.debugMarkerBeginEXT({"Particle count", {{ 0.14f, 0.39f, 0.12f, 1.0f}}});
-        Clear(commandBuffer, std::array<int, 4>{0, 0, 0, 0});
-        mParticleCountBound.RecordIndirect(commandBuffer, mDispatchParams);
-        Barrier(commandBuffer,
-                vk::ImageLayout::eGeneral, vk::AccessFlagBits::eShaderWrite,
-                vk::ImageLayout::eGeneral, vk::AccessFlagBits::eShaderRead);
-        commandBuffer.debugMarkerEndEXT();
-    });
-
+    // TODO clamp should be configurable
     mScanWork.Record([&](vk::CommandBuffer commandBuffer)
     {
+		commandBuffer.debugMarkerBeginEXT({ "Particle count",{ { 0.14f, 0.39f, 0.12f, 1.0f } } });
+        mDelta.CopyFrom(commandBuffer, *this);
+        Clear(commandBuffer, std::array<int, 4>{0, 0, 0, 0});
+        mParticleCountBound.RecordIndirect(commandBuffer, mDispatchParams);
+        mDelta.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        mParticleClampBound.Record(commandBuffer);
+        mDelta.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        mCount.CopyFrom(commandBuffer, mDelta);
+		commandBuffer.debugMarkerEndEXT();
+
         commandBuffer.debugMarkerBeginEXT({"Particle scan", {{ 0.59f, 0.20f, 0.35f, 1.0f}}});
-        mCount.CopyFrom(commandBuffer, *this);
         mPrefixScanBound.Record(commandBuffer);
         mParticleBucketBound.RecordIndirect(commandBuffer, mDispatchParams);
         mNewParticles.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
@@ -78,17 +78,13 @@ ParticleCount::ParticleCount(const Renderer::Device& device,
         particles.CopyFrom(commandBuffer, mNewParticles);
         mDispatchParams.CopyFrom(commandBuffer, mNewDispatchParams);
         commandBuffer.debugMarkerEndEXT();
+
     });
 
     mDispatchCountWork.Record([&](vk::CommandBuffer commandBuffer)
     {
         mLocalDispatchParams.CopyFrom(commandBuffer, mDispatchParams);
     });
-}
-
-void ParticleCount::Count()
-{
-    mCountWork.Submit();
 }
 
 void ParticleCount::Scan()
@@ -106,7 +102,7 @@ void ParticleCount::Scan()
     mScanWork.Submit();
 }
 
-int ParticleCount::GetCount()
+int ParticleCount::GetTotalCount()
 {
     mDispatchCountWork.Submit();
     mDispatchCountWork.Wait();
@@ -124,7 +120,7 @@ Renderer::GenericBuffer& ParticleCount::GetDispatchParams()
 void ParticleCount::InitLevelSet(LevelSet& levelSet)
 {
     // TODO should shrink wrap wholes and redistance
-    mParticlePhiBound = mParticlePhiWork.Bind({*this, mParticles, mIndex, levelSet});
+    mParticlePhiBound = mParticlePhiWork.Bind({mCount, mParticles, mIndex, levelSet});
     mParticlePhi.Record([&](vk::CommandBuffer commandBuffer)
     {
         commandBuffer.debugMarkerBeginEXT({"Particle phi", {{ 0.86f, 0.72f, 0.29f, 1.0f}}});
@@ -144,7 +140,7 @@ void ParticleCount::Phi()
 
 void ParticleCount::InitVelocities(Renderer::Texture& velocity, Renderer::GenericBuffer& valid)
 {
-    mParticleToGridBound = mParticleToGridWork.Bind({*this, mParticles, mIndex, velocity, valid});
+    mParticleToGridBound = mParticleToGridWork.Bind({mCount, mParticles, mIndex, velocity, valid});
     mParticleToGrid.Record([&](vk::CommandBuffer commandBuffer)
     {
         commandBuffer.debugMarkerBeginEXT({"Particle to grid", {{ 0.71f, 0.15f, 0.48f, 1.0f}}});

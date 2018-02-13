@@ -1,0 +1,27 @@
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+layout (local_size_x_id = 1, local_size_y_id = 2) in;
+
+layout(push_constant) uniform Consts
+{
+  int width;
+  int height;
+}consts;
+
+layout(std430, binding = 0) buffer Count
+{
+  int value[];
+}count;
+
+void main()
+{
+    uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
+
+    ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
+    if (pos.x < consts.width && pos.y < consts.height)
+    {
+      int index = pos.x + pos.y * consts.width;
+      count.value[index] = max(0, min(count.value[index], 8));
+    }
+}

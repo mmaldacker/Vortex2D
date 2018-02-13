@@ -16,3 +16,4 @@ qt-creator-build-release/
 
 *.svg
 *.txt
+build-vs/

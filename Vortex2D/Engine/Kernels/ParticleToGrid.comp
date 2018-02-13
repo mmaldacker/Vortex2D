@@ -16,7 +16,10 @@ struct Particle
   vec2 Velocity;
 };
 
-layout(binding = 0, r32i) uniform iimage2D ParticleCount;
+layout(std430, binding = 0) buffer Count
+{
+  int value[];
+}count;
 
 layout(std430, binding = 1) buffer Particles
 {
@@ -63,21 +66,24 @@ void main()
             for (int j = -1; j <= 1; j++)
             {
                 ivec2 newPos = ivec2(pos) + ivec2(i, j);
-                int index = newPos.x + newPos.y * consts.width;
-                int count = imageLoad(ParticleCount, newPos).x;
-
-                for (int k = 0; k < count; k++)
+                if (newPos.x >= 0 && newPos.x < consts.width && newPos.y >=0 && newPos.y < consts.height)
                 {
-                    Particle p = particles.value[scanIndex.value[index] + k];
+                    int index = newPos.x + newPos.y * consts.width;
+                    int count = count.value[index];
 
-                    vec2 up = p.Position - vec2(0.0, 0.5);
-                    vec2 vp = p.Position - vec2(0.5, 0.0);
+                    for (int k = 0; k < count; k++)
+                    {
+                        Particle p = particles.value[scanIndex.value[index] + k];
 
-                    weight.x = get_weight(up, pos);
-                    weight.y = get_weight(vp, pos);
+                        vec2 up = p.Position - vec2(0.0, 0.5);
+                        vec2 vp = p.Position - vec2(0.5, 0.0);
 
-                    accum += weight * p.Velocity;
-                    sum += weight;
+                        weight.x = get_weight(up, pos);
+                        weight.y = get_weight(vp, pos);
+
+                        accum += weight * p.Velocity;
+                        sum += weight;
+                    }
                 }
             }
         }
