@@ -103,16 +103,24 @@ function(compile_shader)
     
     set(COMPILE_SCRIPT ${CMAKE_SOURCE_DIR}/Scripts/GenerateSPIRV.py)
     add_custom_command(
-       OUTPUT ${SHADER_OUTPUT}
+       OUTPUT "${SHADER_OUTPUT}.h" "${SHADER_OUTPUT}.cpp"
        COMMAND python ${COMPILE_SCRIPT} --compiler ${GLSL_VALIDATOR} --output ${SHADER_OUTPUT} ${SHADER_SOURCES}
-       DEPENDS ${SHADER_SOURCES})
+       DEPENDS ${SHADER_SOURCES} ${COMPILE_SCRIPT})
 
 endfunction()
 
-compile_shader(SOURCES ${SHADER_SOURCES} OUTPUT "vortex2d_generated_spirv.h")
-add_library(vortex2d STATIC ${LIB_SOURCES} ${SHADERS} ${SHADER_SOURCES} "Engine/Kernels/CommonAdvect.comp" "Engine/Kernels/CommonProject.comp" "Engine/Kernels/CommonPreScan.comp" ${CMAKE_CURRENT_BINARY_DIR}/vortex2d_generated_spirv.h)
+compile_shader(SOURCES ${SHADER_SOURCES} OUTPUT "vortex2d_generated_spirv")
+add_library(vortex2d
+  STATIC
+    ${LIB_SOURCES}
+    ${SHADER_SOURCES}
+    "Engine/Kernels/CommonAdvect.comp"
+    "Engine/Kernels/CommonProject.comp"
+    "Engine/Kernels/CommonPreScan.comp"
+    vortex2d_generated_spirv.cpp
+    vortex2d_generated_spirv.h)
 
 target_link_libraries(vortex2d PUBLIC glm spirv-cross-core vk_loader)
-target_include_directories(vortex2d PUBLIC ../)
+target_include_directories(vortex2d PUBLIC ../ ${CMAKE_CURRENT_BINARY_DIR})
 
 target_compile_features(vortex2d PRIVATE cxx_variadic_templates cxx_generic_lambdas)

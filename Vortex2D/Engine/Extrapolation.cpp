@@ -4,6 +4,8 @@
 
 #include "Extrapolation.h"
 
+#include "vortex2d_generated_spirv.h"
+
 namespace Vortex2D { namespace Fluid {
 
 Extrapolation::Extrapolation(const Renderer::Device& device,
@@ -14,10 +16,10 @@ Extrapolation::Extrapolation(const Renderer::Device& device,
     : mValid(device,size.x*size.y)
     , mVelocity(velocity)
     , mTempVelocity(device, size.x, size.y, vk::Format::eR32G32Sfloat, false)
-    , mExtrapolateVelocity(device, size, "../Vortex2D/ExtrapolateVelocity.comp.spv")
+    , mExtrapolateVelocity(device, size, ExtrapolateVelocity_comp)
     , mExtrapolateVelocityFrontBound(mExtrapolateVelocity.Bind({valid, mValid, velocity}))
     , mExtrapolateVelocityBackBound(mExtrapolateVelocity.Bind({mValid, valid, velocity}))
-    , mConstrainVelocity(device, size, "../Vortex2D/ConstrainVelocity.comp.spv")
+    , mConstrainVelocity(device, size, ConstrainVelocity_comp)
     , mExtrapolateCmd(device, false)
     , mConstrainCmd(device, false)
 {

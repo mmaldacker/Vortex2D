@@ -28,7 +28,7 @@ public:
     // TODO have colour has member variable and updated in the Update function
     // do this also for Ellipse
     AbstractShape(const Device& device,
-                  const std::string& fragShader,
+                  const SpirvBinary& fragShader,
                   const std::vector<glm::vec2>& vertices,
                   const glm::vec4& colour);
 

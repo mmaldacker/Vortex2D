@@ -7,6 +7,8 @@
 
 #include <Vortex2D/Renderer/Pipeline.h>
 
+#include "vortex2d_generated_spirv.h"
+
 namespace Vortex2D { namespace Fluid {
 
 Pressure::Pressure(const Renderer::Device& device,
@@ -18,19 +20,19 @@ Pressure::Pressure(const Renderer::Device& device,
                    Renderer::Texture& liquidPhi,
                    Renderer::Texture& solidVelocity,
                    Renderer::GenericBuffer& valid)
-    : mBuildMatrix(device, size, "../Vortex2D/BuildMatrix.comp.spv")
+    : mBuildMatrix(device, size, BuildMatrix_comp)
     , mBuildMatrixBound(mBuildMatrix.Bind({data.Diagonal,
                                            data.Lower,
                                            liquidPhi,
                                            solidPhi}))
-    , mBuildDiv(device, size, "../Vortex2D/BuildDiv.comp.spv")
+    , mBuildDiv(device, size, BuildDiv_comp)
     , mBuildDivBound(mBuildDiv.Bind({data.B,
                                      data.Diagonal,
                                      liquidPhi,
                                      solidPhi,
                                      velocity,
                                      solidVelocity}))
-    , mProject(device, size, "../Vortex2D/Project.comp.spv")
+    , mProject(device, size, Project_comp)
     , mProjectBound(mProject.Bind({data.X, liquidPhi, solidPhi, velocity, valid}))
     , mBuildEquationCmd(device, false)
     , mProjectCmd(device, false)

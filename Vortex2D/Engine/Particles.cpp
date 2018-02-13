@@ -8,6 +8,7 @@
 #include <Vortex2D/Engine/LevelSet.h>
 
 #include <random>
+#include "vortex2d_generated_spirv.h"
 
 namespace Vortex2D { namespace Fluid {
 
@@ -25,21 +26,21 @@ ParticleCount::ParticleCount(const Renderer::Device& device,
     , mDispatchParams(device)
     , mLocalDispatchParams(device, 1, true)
     , mNewDispatchParams(device)
-    , mParticleCountWork(device, Renderer::ComputeSize::Default1D(), "../Vortex2D/ParticleCount.comp.spv")
+    , mParticleCountWork(device, Renderer::ComputeSize::Default1D(), ParticleCount_comp)
     , mParticleCountBound(mParticleCountWork.Bind({particles, mDispatchParams, *this}))
     , mPrefixScan(device, size)
     , mPrefixScanBound(mPrefixScan.Bind(mCount, mIndex, mNewDispatchParams))
-    , mParticleBucketWork(device, Renderer::ComputeSize::Default1D(), "../Vortex2D/ParticleBucket.comp.spv")
+    , mParticleBucketWork(device, Renderer::ComputeSize::Default1D(), ParticleBucket_comp)
     , mParticleBucketBound(mParticleBucketWork.Bind(size, {particles,
                                                            mNewParticles,
                                                            mIndex,
                                                            mCount,
                                                            mDispatchParams}))
-    , mParticleSpawnWork(device, size, "../Vortex2D/ParticleSpawn.comp.spv")
+    , mParticleSpawnWork(device, size, ParticleSpawn_comp)
     , mParticleSpawnBound(mParticleSpawnWork.Bind({mNewParticles, mIndex, mCount, mSeeds}))
-    , mParticlePhiWork(device, size, "../Vortex2D/ParticlePhi.comp.spv")
-    , mParticleToGridWork(device, size, "../Vortex2D/ParticleToGrid.comp.spv")
-    , mParticleFromGridWork(device, Renderer::ComputeSize::Default1D(), "../Vortex2D/ParticleFromGrid.comp.spv")
+    , mParticlePhiWork(device, size, ParticlePhi_comp)
+    , mParticleToGridWork(device, size, ParticleToGrid_comp)
+    , mParticleFromGridWork(device, Renderer::ComputeSize::Default1D(), ParticleFromGrid_comp)
     , mCountWork(device, false)
     , mScanWork(device, false)
     , mDispatchCountWork(device)

@@ -7,6 +7,8 @@
 #include <cmath>
 #include <glm/gtc/constants.hpp>
 
+#include "vortex2d_generated_spirv.h"
+
 namespace Vortex2D { namespace Fluid {
 
 
@@ -15,8 +17,8 @@ GaussSeidel::GaussSeidel(const Renderer::Device& device, const glm::ivec2& size)
     , mPreconditionerIterations(1)
     , mResidual(device, size.x*size.y)
     , mError(device)
-    , mGaussSeidel(device, Renderer::MakeCheckerboardComputeSize(size), "../Vortex2D/GaussSeidel.comp.spv")
-    , mResidualWork(device, size, "../Vortex2D/Residual.comp.spv")
+    , mGaussSeidel(device, Renderer::MakeCheckerboardComputeSize(size), GaussSeidel_comp)
+    , mResidualWork(device, size, Residual_comp)
     , mReduceMax(device, size)
     , mReduceMaxBound(mReduceMax.Bind(mResidual, mError))
     , mGaussSeidelCmd(device, false)
@@ -119,7 +121,7 @@ Renderer::ComputeSize MakeLocalSize(const glm::ivec2& size)
 }
 
 LocalGaussSeidel::LocalGaussSeidel(const Renderer::Device& device, const glm::ivec2& size)
-  : mLocalGaussSeidel(device, MakeLocalSize(size), "../Vortex2D/LocalGaussSeidel.comp.spv")
+  : mLocalGaussSeidel(device, MakeLocalSize(size), LocalGaussSeidel_comp)
 {
     // TODO check size is within local size
 }

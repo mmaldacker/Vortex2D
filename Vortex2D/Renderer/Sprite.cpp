@@ -9,9 +9,11 @@
 #include <Vortex2D/SPIRV/Reflection.h>
 #include <Vortex2D/Renderer/CommandBuffer.h>
 
+#include "vortex2d_generated_spirv.h"
+
 namespace Vortex2D { namespace Renderer {
 
-AbstractSprite::AbstractSprite(const Device& device, const std::string& fragShaderName, Texture& texture)
+AbstractSprite::AbstractSprite(const Device& device, const SpirvBinary& fragShaderName, Texture& texture)
     : mDevice(device)
     , mMVPBuffer(device)
     , mVertexBuffer(device, 6, false)
@@ -32,8 +34,8 @@ AbstractSprite::AbstractSprite(const Device& device, const std::string& fragShad
         mVertexBuffer.CopyFrom(commandBuffer, localBuffer);
     });
 
-    SPIRV::Reflection reflectionVert(device.GetShaderSPIRV("../Vortex2D/TexturePosition.vert.spv"));
-    SPIRV::Reflection reflectionFrag(device.GetShaderSPIRV(fragShaderName));
+    SPIRV::Reflection reflectionVert(TexturePosition_vert);
+    SPIRV::Reflection reflectionFrag(fragShaderName);
 
     PipelineLayout layout = {{reflectionVert, reflectionFrag}};
     mDescriptorSet = device.GetLayoutManager().MakeDescriptorSet(layout);
@@ -43,7 +45,7 @@ AbstractSprite::AbstractSprite(const Device& device, const std::string& fragShad
 
     Bind(device, *mDescriptorSet.descriptorSet, layout, {{mMVPBuffer, 0}, {*mSampler, texture, 1}});
 
-    vk::ShaderModule vertexShader = device.GetShaderModule("../Vortex2D/TexturePosition.vert.spv");
+    vk::ShaderModule vertexShader = device.GetShaderModule(TexturePosition_vert);
     vk::ShaderModule fragShader = device.GetShaderModule(fragShaderName);
 
     mPipeline = GraphicsPipeline::Builder()
@@ -79,7 +81,7 @@ void AbstractSprite::Draw(vk::CommandBuffer commandBuffer, const RenderState& re
 }
 
 Sprite::Sprite(const Device& device, Texture& texture)
-    : AbstractSprite(device, "../Vortex2D/TexturePosition.frag.spv", texture)
+    : AbstractSprite(device, TexturePosition_frag, texture)
 {
 
 }
