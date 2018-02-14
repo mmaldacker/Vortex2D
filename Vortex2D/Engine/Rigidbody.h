@@ -34,6 +34,7 @@ public:
     void SetVelocities(const glm::vec2& velocity, float angularVelocity);
 
     void UpdatePosition();
+    const glm::mat4& View();
 
     Renderer::RenderCommand RecordLocalPhi();
     Renderer::RenderCommand RecordPhi(Renderer::RenderTexture& phi);

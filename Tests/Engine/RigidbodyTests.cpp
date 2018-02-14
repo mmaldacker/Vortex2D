@@ -18,6 +18,20 @@ using namespace Vortex2D::Fluid;
 
 extern Device* device;
 
+void PrintRigidBody(const glm::ivec2& size, FluidSim& sim)
+{
+    for (int i = 0; i < size.x; i++)
+    {
+        for (int j = 0; j < size.y; j++)
+        {
+            Vec2f pos((i + 0.5f) / size.x, (j + 0.5) / size.x);
+            std::cout << "(" << sim.rbd->getSignedDist(pos) * size.x << ")";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+}
+
 TEST(RgidibodyTests, Div)
 {
     glm::ivec2 size(20);
@@ -28,12 +42,18 @@ TEST(RgidibodyTests, Div)
 
     AddParticles(size, sim, boundary_phi);
 
+    // setup rigid body
     sim.rigidgeom = new Box2DGeometry(0.3f, 0.2f);
     sim.rbd = new ::RigidBody(0.4f, *sim.rigidgeom);
     sim.rbd->setCOM(Vec2f(0.5f, 0.5f));
     sim.rbd->setAngle(0.0);
-    sim.rbd->setAngularMomentum(0.5f);
-    sim.rbd->setLinearVelocity(Vec2f(1.0f, 0.0f));
+    sim.rbd->setAngularMomentum(0.2f);
+    sim.rbd->setLinearVelocity(Vec2f(0.1f, 0.0f));
+
+    // get velocities
+    float w; Vec2f v;
+    sim.rbd->getAngularVelocity(w);
+    sim.rbd->getLinearVelocity(v);
 
     sim.update_rigid_body_grids();
 
@@ -51,15 +71,19 @@ TEST(RgidibodyTests, Div)
 
     Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
 
-    Vortex2D::Fluid::Rectangle rectangle(*device, {15.0f, 10.0f});
+    Vortex2D::Fluid::Rectangle rectangle(*device, {6.0f, 4.0f});
+    rectangle.Anchor = {3.0f, 2.0f};
+
     Vortex2D::Fluid::RigidBody rigidBody(*device, Dimensions(size, 1.0f), rectangle, {0.0f, 0.0f});
 
+    rigidBody.Position = {10.0f, 10.0f};
+    rigidBody.UpdatePosition();
+
+    solidPhi.View = rigidBody.View();
     rigidBody.RecordPhi(solidPhi).Submit();
     rigidBody.RecordLocalPhi().Submit();
 
-    float w;
-    sim.rbd->getAngularVelocity(w);
-    rigidBody.SetVelocities({1.0f, 0.0f}, w);
+    rigidBody.SetVelocities(glm::vec2(v[0], v[1]) * glm::vec2(size.x), w);
 
     rigidBody.BindDiv(data.B, data.Diagonal, liquidPhi);
 
@@ -69,5 +93,5 @@ TEST(RgidibodyTests, Div)
 
     PrintDiv(size, sim);
     PrintBuffer<float>(size, data.B);
-    CheckDiv(size, data.B, sim);
+    CheckDiv(size, data.B, sim, 1e-2); // TODO improve accuracy
 }

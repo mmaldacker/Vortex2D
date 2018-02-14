@@ -30,7 +30,6 @@ RigidBody::RigidBody(const Renderer::Device& device,
     , mConstrainCmd(device)
     , mPressureCmd(device)
 {
-
 }
 
 void RigidBody::SetVelocities(const glm::vec2& velocity, float angularVelocity)
@@ -58,7 +57,13 @@ RigidBody::Velocity RigidBody::GetVelocities() const
 
 void RigidBody::UpdatePosition()
 {
+    mPhi.View = View();
+    Renderer::CopyFrom(mMVBuffer, mPhi.View);
+}
 
+const glm::mat4& RigidBody::View()
+{
+    return mView * GetTransform();
 }
 
 Renderer::RenderCommand RigidBody::RecordLocalPhi()
