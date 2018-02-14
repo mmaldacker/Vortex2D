@@ -48,7 +48,7 @@ class Work
 public:
     Work(const Device& device,
          const ComputeSize& computeSize,
-         const std::string& shader);
+         const SpirvBinary& spirv);
 
     class Bound
     {

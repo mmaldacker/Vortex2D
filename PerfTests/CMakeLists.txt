@@ -5,3 +5,5 @@ add_executable(vortex2d_perftests "main.cpp" )
 
 target_compile_features(vortex2d_perftests PRIVATE cxx_variadic_templates)
 target_link_libraries(vortex2d_perftests vortex2d fluidrigidcoupling2d_lib benchmark gtest gmock Threads::Threads)
+
+copy_shader(TARGET vortex2d_perftests SOURCES vortex2d)

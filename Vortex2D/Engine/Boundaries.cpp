@@ -11,6 +11,8 @@
 
 #include <glm/gtx/transform.hpp>
 
+#include "vortex2d_generated_spirv.h"
+
 namespace Vortex2D { namespace Fluid {
 
 namespace
@@ -83,8 +85,8 @@ Polygon::Polygon(const Renderer::Device& device, std::vector<glm::vec2> points, 
         mVertexBuffer.CopyFrom(commandBuffer, localVertexBuffer);
     });
 
-    SPIRV::Reflection reflectionVert(device.GetShaderSPIRV("../Vortex2D/Position.vert.spv"));
-    SPIRV::Reflection reflectionFrag(device.GetShaderSPIRV("../Vortex2D/PolygonDist.frag.spv"));
+    SPIRV::Reflection reflectionVert(Position_vert);
+    SPIRV::Reflection reflectionFrag(PolygonDist_frag);
 
     Renderer::PipelineLayout layout = {{reflectionVert, reflectionFrag}};
     mDescriptorSet = device.GetLayoutManager().MakeDescriptorSet(layout);
@@ -92,8 +94,8 @@ Polygon::Polygon(const Renderer::Device& device, std::vector<glm::vec2> points, 
 
     mPipeline = Renderer::GraphicsPipeline::Builder()
             .Topology(vk::PrimitiveTopology::eTriangleList)
-            .Shader(device.GetShaderModule("../Vortex2D/Position.vert.spv"), vk::ShaderStageFlagBits::eVertex)
-            .Shader(device.GetShaderModule("../Vortex2D/PolygonDist.frag.spv"), vk::ShaderStageFlagBits::eFragment)
+            .Shader(device.GetShaderModule(Position_vert), vk::ShaderStageFlagBits::eVertex)
+            .Shader(device.GetShaderModule(PolygonDist_frag), vk::ShaderStageFlagBits::eFragment)
             .VertexAttribute(0, 0, vk::Format::eR32G32Sfloat, 0)
             .VertexBinding(0, sizeof(glm::vec2))
             .Layout(mDescriptorSet.pipelineLayout);
@@ -144,8 +146,8 @@ Circle::Circle(const Renderer::Device& device, float radius, int extent)
         mVertexBuffer.CopyFrom(commandBuffer, localVertexBuffer);
     });
 
-    SPIRV::Reflection reflectionVert(device.GetShaderSPIRV("../Vortex2D/Position.vert.spv"));
-    SPIRV::Reflection reflectionFrag(device.GetShaderSPIRV("../Vortex2D/CircleDist.frag.spv"));
+    SPIRV::Reflection reflectionVert(Position_vert);
+    SPIRV::Reflection reflectionFrag(CircleDist_frag);
 
     Renderer::PipelineLayout layout = {{reflectionVert, reflectionFrag}};
     mDescriptorSet = device.GetLayoutManager().MakeDescriptorSet(layout);
@@ -153,8 +155,8 @@ Circle::Circle(const Renderer::Device& device, float radius, int extent)
 
     mPipeline = Renderer::GraphicsPipeline::Builder()
             .Topology(vk::PrimitiveTopology::eTriangleList)
-            .Shader(device.GetShaderModule("../Vortex2D/Position.vert.spv"), vk::ShaderStageFlagBits::eVertex)
-            .Shader(device.GetShaderModule("../Vortex2D/CircleDist.frag.spv"), vk::ShaderStageFlagBits::eFragment)
+            .Shader(device.GetShaderModule(Position_vert), vk::ShaderStageFlagBits::eVertex)
+            .Shader(device.GetShaderModule(CircleDist_frag), vk::ShaderStageFlagBits::eFragment)
             .VertexAttribute(0, 0, vk::Format::eR32G32Sfloat, 0)
             .VertexBinding(0, sizeof(glm::vec2))
             .Layout(mDescriptorSet.pipelineLayout);
@@ -200,7 +202,7 @@ DistanceField::DistanceField(const Renderer::Device& device,
                              const glm::vec4& colour,
                              float scale)
     : Renderer::AbstractSprite(device,
-                               "../Vortex2D/DistanceField.frag.spv",
+                               DistanceField_frag,
                                levelSet)
     , mColour(colour)
     , mScale(scale)
@@ -223,8 +225,8 @@ ParticleCloud::ParticleCloud(const Renderer::Device& device, Renderer::GenericBu
 {
     Renderer::CopyFrom(mColourBuffer, colour);
 
-    SPIRV::Reflection reflectionVert(device.GetShaderSPIRV("../Vortex2D/ParticleCloud.vert.spv"));
-    SPIRV::Reflection reflectionFrag(device.GetShaderSPIRV("../Vortex2D/ParticleCloud.frag.spv"));
+    SPIRV::Reflection reflectionVert(ParticleCloud_vert);
+    SPIRV::Reflection reflectionFrag(ParticleCloud_frag);
 
     Renderer::PipelineLayout layout = {{reflectionVert, reflectionFrag}};
     mDescriptorSet = device.GetLayoutManager().MakeDescriptorSet(layout);
@@ -232,8 +234,8 @@ ParticleCloud::ParticleCloud(const Renderer::Device& device, Renderer::GenericBu
 
     mPipeline = Renderer::GraphicsPipeline::Builder()
             .Topology(vk::PrimitiveTopology::ePointList)
-            .Shader(device.GetShaderModule("../Vortex2D/ParticleCloud.vert.spv"), vk::ShaderStageFlagBits::eVertex)
-            .Shader(device.GetShaderModule("../Vortex2D/ParticleCloud.frag.spv"), vk::ShaderStageFlagBits::eFragment)
+            .Shader(device.GetShaderModule(ParticleCloud_vert), vk::ShaderStageFlagBits::eVertex)
+            .Shader(device.GetShaderModule(ParticleCloud_frag), vk::ShaderStageFlagBits::eFragment)
             .VertexAttribute(0, 0, vk::Format::eR32G32Sfloat, offsetof(Particle, Position))
             .VertexBinding(0, sizeof(Particle))
             .Layout(mDescriptorSet.pipelineLayout);

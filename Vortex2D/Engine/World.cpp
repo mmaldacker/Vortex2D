@@ -114,7 +114,6 @@ void World::SolveDynamic()
 
     // 7)
     mAdvection.AdvectParticles();
-    mParticleCount.Count();
     mClearVelocity.Submit();
     mClearValid.Submit();
 }

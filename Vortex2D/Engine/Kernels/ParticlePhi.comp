@@ -16,7 +16,10 @@ struct Particle
   vec2 Velocity;
 };
 
-layout(binding = 0, r32i) uniform iimage2D ParticleCount;
+layout(std430, binding = 0) buffer Count
+{
+  int value[];
+}count;
 
 layout(std430, binding = 1) buffer Particles
 {
@@ -45,16 +48,19 @@ void main()
             for (int j = -off; j <= off; j++)
             {
                 ivec2 newPos = ivec2(pos) + ivec2(i, j);
-                int index = newPos.x + newPos.y * consts.width;
-                int count = imageLoad(ParticleCount, newPos).x;
-
-                for (int k = 0; k < count; k++)
+                if (newPos.x >= 0 && newPos.x < consts.width && newPos.y >=0 && newPos.y < consts.height)
                 {
-                    Particle p = particles.value[scanIndex.value[index] + k];
-                    float phi_temp = distance(pos + 0.5, p.Position) - 1.02 * particle_radius;
+                    int index = newPos.x + newPos.y * consts.width;
+                    int count = count.value[index];
 
-                    float phi = imageLoad(LevelSet, pos).x;
-                    imageStore(LevelSet, pos, vec4(min(phi, phi_temp), 0.0, 0.0, 0.0));
+                    for (int k = 0; k < count; k++)
+                    {
+                        Particle p = particles.value[scanIndex.value[index] + k];
+                        float phi_temp = distance(pos + 0.5, p.Position) - 1.02 * particle_radius;
+
+                        float phi = imageLoad(LevelSet, pos).x;
+                        imageStore(LevelSet, pos, vec4(min(phi, phi_temp), 0.0, 0.0, 0.0));
+                    }
                 }
             }
         }

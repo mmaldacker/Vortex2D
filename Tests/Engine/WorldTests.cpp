@@ -27,7 +27,7 @@ void PrintParticles(const glm::ivec2& size, World& world)
 
     CopyTo(particles, particleData);
 
-    int particleCount = world.Count().GetCount();
+    int particleCount = world.Count().GetTotalCount();
     for (int i = 0; i < particleCount; i++)
     {
         std::cout << "(" << particleData[i].Position.x << "," << particleData[i].Position.y << ")"
@@ -75,7 +75,7 @@ TEST(WorldTests, Velocity)
 
     glm::vec2 expectedVelocity(0.0f, -0.1f);
 
-    int particleCount = world.Count().GetCount();
+    int particleCount = world.Count().GetTotalCount();
     for (int i = 0; i < particleCount; i++)
     {
         EXPECT_NEAR(expectedVelocity.x, particleData[i].Velocity.x, 1e-5f);

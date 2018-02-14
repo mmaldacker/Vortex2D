@@ -90,12 +90,12 @@ DispatchParams::DispatchParams(int count)
 
 Work::Work(const Device& device,
            const ComputeSize& computeSize,
-           const std::string& shader)
+           const SpirvBinary& spirv)
     : mComputeSize(computeSize)
     , mDevice(device)
 {
-    vk::ShaderModule shaderModule = device.GetShaderModule(shader);
-    SPIRV::Reflection reflection(device.GetShaderSPIRV(shader));
+    vk::ShaderModule shaderModule = device.GetShaderModule(spirv);
+    SPIRV::Reflection reflection(spirv);
     if (reflection.GetShaderStage() != vk::ShaderStageFlagBits::eCompute) throw std::runtime_error("only compute supported");
 
     mPipelineLayout = {{reflection}};

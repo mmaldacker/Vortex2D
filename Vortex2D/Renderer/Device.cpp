@@ -198,42 +198,24 @@ VmaAllocator Device::Allocator() const
     return mAllocator;
 }
 
-vk::ShaderModule Device::GetShaderModule(const std::string& filename) const
+vk::ShaderModule Device::GetShaderModule(const SpirvBinary& spirv) const
 {
-    auto shaderIt = mShaders.find(filename);
-    if (shaderIt != mShaders.end())
+    auto it = mShaders.find(spirv.data());
+    if (it != mShaders.end())
     {
-        return *shaderIt->second.Module;
+        return *it->second;
     }
 
-    std::ifstream is(filename, std::ios::binary | std::ios::in | std::ios::ate);
-    if (!is.is_open())
-    {
-        throw std::runtime_error("Couldn't open file:" + filename);
-    }
-
-    std::vector<uint32_t> content;
-
-    size_t size = is.tellg();
-    is.seekg(0, std::ios::beg);
-    content.resize((size + 3) / 4);
-    is.read(reinterpret_cast<char*>(content.data()), size);
-    is.close();
+    if (spirv.size() == 0) throw std::runtime_error("Invalid SPIRV");
 
     auto shaderInfo = vk::ShaderModuleCreateInfo()
-            .setCodeSize(size)
-            .setPCode(content.data());
+            .setCodeSize(spirv.size())
+            .setPCode(spirv.data());
 
     auto shaderModule = mDevice->createShaderModuleUnique(shaderInfo);
     auto shader = *shaderModule;
-    mShaders[filename] = {content, std::move(shaderModule)};
+    mShaders[spirv.data()] = std::move(shaderModule);
     return shader;
-}
-
-const std::vector<uint32_t> Device::GetShaderSPIRV(const std::string& filename) const
-{
-  GetShaderModule(filename);
-  return mShaders[filename].Binary;
 }
 
 }}

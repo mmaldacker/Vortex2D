@@ -32,7 +32,7 @@ public:
 
 protected:
     Reduce(const Renderer::Device& device,
-           const std::string& fileName,
+           const Renderer::SpirvBinary& spirv,
            const glm::ivec2& size);
 
 private:

@@ -13,8 +13,8 @@ All computing is done on the GPU with Vulkan using compute shaders.
 
 ## Compiling/Dependencies
 
-CMake is used to get any required dependency. The only dependency needs is the glslc compiler and the vulkan library
-* On windows, both come with the LunarG SDK.
+CMake is used to get any required dependency. The only dependencies needed are the glslc compiler, the vulkan library and python.
+* On windows, glslc and  vulkan come with the LunarG SDK.
 * On Linux, get the LunarG SDK and run the `build_tools.sh` command. You also need to set some env variables with `source setup-env.sh`.
 
 Any other dependencies is downloader by Cmake. For reference they are:

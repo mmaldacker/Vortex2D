@@ -8,6 +8,8 @@
 #include <Vortex2D/Renderer/DescriptorSet.h>
 #include <Vortex2D/Renderer/Work.h>
 
+#include "vortex2d_generated_spirv.h"
+
 namespace Vortex2D { namespace Fluid {
 
 namespace
@@ -31,10 +33,10 @@ Renderer::ComputeSize MakeComputeSize(int size)
 }
 
 Reduce::Reduce(const Renderer::Device& device,
-               const std::string& fileName,
+               const Renderer::SpirvBinary& spirv,
                const glm::ivec2& size)
     : mSize(size.x*size.y)
-    , mReduce(device, Renderer::ComputeSize::Default1D(), fileName)
+    , mReduce(device, Renderer::ComputeSize::Default1D(), spirv)
 {
     auto localSize = Renderer::ComputeSize::GetLocalSize1D();
     int workGroupSize = mSize;
@@ -95,14 +97,14 @@ void Reduce::Bound::Record(vk::CommandBuffer commandBuffer)
 
 ReduceSum::ReduceSum(const Renderer::Device& device,
                      const glm::ivec2& size)
-    : Reduce(device, "../Vortex2D/Sum.comp.spv", size)
+    : Reduce(device, Sum_comp, size)
 {
 
 }
 
 ReduceMax::ReduceMax(const Renderer::Device& device,
                      const glm::ivec2& size)
-    : Reduce(device, "../Vortex2D/Max.comp.spv", size)
+    : Reduce(device, Max_comp, size)
 {
 
 }

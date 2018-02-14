@@ -33,17 +33,23 @@ layout(std430, binding = 1) buffer Params
     DispatchParams params;
 };
 
-layout(binding = 2, r32i) uniform iimage2D ParticleCount;
+layout(std430, binding = 2) buffer Count
+{
+  int value[];
+}count;
 
 void main()
 {
     uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
 
     uint index = gl_GlobalInvocationID.x;
-    // TODO also check is within bounds with width/height?
     if (index < params.count)
     {
         ivec2 pos = ivec2(particles.value[index].Position);
-        imageAtomicAdd(ParticleCount, pos, 1);
+        if (pos.x < consts.width && pos.y < consts.height)
+        {
+          int index = pos.x + pos.y * consts.width;
+          atomicAdd(count.value[index], 1);
+        }
     }
 }

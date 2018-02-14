@@ -28,10 +28,9 @@ public:
                   Renderer::GenericBuffer& particles,
                   const Renderer::DispatchParams& params = {0});
 
-    void Count();
     void Scan();
 
-    int GetCount();
+    int GetTotalCount();
     Renderer::GenericBuffer& GetDispatchParams();
 
     void InitLevelSet(LevelSet& levelSet);
@@ -45,7 +44,7 @@ private:
     const Renderer::Device& mDevice;
     Renderer::GenericBuffer& mParticles;
     Renderer::Buffer<Particle> mNewParticles;
-    Renderer::Buffer<int> mCount;
+    Renderer::Buffer<int> mDelta, mCount;
     Renderer::Buffer<int> mIndex;
     Renderer::Buffer<glm::ivec2> mSeeds;
 
@@ -54,6 +53,8 @@ private:
 
     Renderer::Work mParticleCountWork;
     Renderer::Work::Bound mParticleCountBound;
+	Renderer::Work mParticleClampWork;
+	Renderer::Work::Bound mParticleClampBound;
     PrefixScan mPrefixScan;
     PrefixScan::Bound mPrefixScanBound;
     Renderer::Work mParticleBucketWork;
@@ -67,7 +68,6 @@ private:
     Renderer::Work mParticleFromGridWork;
     Renderer::Work::Bound mParticleFromGridBound;
 
-    Renderer::CommandBuffer mCountWork;
     Renderer::CommandBuffer mScanWork;
     Renderer::CommandBuffer mDispatchCountWork;
     Renderer::CommandBuffer mParticlePhi;

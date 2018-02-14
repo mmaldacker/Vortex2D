@@ -8,6 +8,8 @@
 #include <Vortex2D/Renderer/CommandBuffer.h>
 #include <Vortex2D/Engine/Boundaries.h>
 
+#include "vortex2d_generated_spirv.h"
+
 namespace Vortex2D { namespace Fluid {
 
 RigidBody::RigidBody(const Renderer::Device& device,
@@ -21,9 +23,9 @@ RigidBody::RigidBody(const Renderer::Device& device,
     , mView(dimensions.InvScale)
     , mVelocity(device)
     , mMVBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
-    , mDiv(device, dimensions.Size, "../Vortex2D/BuildRigidbodyDiv.comp.spv")
-    , mConstrain(device, dimensions.Size, "../Vortex2D/ConstrainRigidbodyVelocity.comp.spv")
-    , mPressure(device, dimensions.Size, "../Vortex2D/Pressure.comp.spv")
+    , mDiv(device, dimensions.Size, BuildRigidbodyDiv_comp)
+    , mConstrain(device, dimensions.Size, ConstrainRigidbodyVelocity_comp)
+    , mPressure(device, dimensions.Size, Pressure_comp)
     , mDivCmd(device)
     , mConstrainCmd(device)
     , mPressureCmd(device)
