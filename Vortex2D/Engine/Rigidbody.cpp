@@ -29,6 +29,7 @@ RigidBody::RigidBody(const Renderer::Device& device,
     , mDivCmd(device)
     , mConstrainCmd(device)
     , mPressureCmd(device)
+    , mSum(device, dimensions.Size)
 {
 }
 
@@ -93,14 +94,29 @@ void RigidBody::BindVelocityConstrain(Renderer::GenericBuffer& velocity)
 
 }
 
-void RigidBody::BindPressure(Renderer::GenericBuffer& pressure)
+void RigidBody::BindPressure(Renderer::Texture& fluidLevelSet,
+                             Renderer::GenericBuffer& pressure,
+                             Renderer::GenericBuffer& force)
 {
-
+    mPressureBound = mPressure.Bind({fluidLevelSet, mPhi, pressure, force, mMVBuffer});
+    mSumBound = mSum.Bind(force, mVelocity);
+    mPressureCmd.Record([&](vk::CommandBuffer commandBuffer)
+    {
+        mPressureBound.Record(commandBuffer);
+        force.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        mSumBound.Record(commandBuffer);
+        mVelocity.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+    });
 }
 
 void RigidBody::Div()
 {
     mDivCmd.Submit();
+}
+
+void RigidBody::Pressure()
+{
+    mPressureCmd.Submit();
 }
 
 void RigidBody::VelocityConstrain()

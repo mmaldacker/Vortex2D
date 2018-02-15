@@ -12,6 +12,7 @@
 #include <Vortex2D/Renderer/Pipeline.h>
 #include <Vortex2D/Renderer/RenderTexture.h>
 #include <Vortex2D/Renderer/Work.h>
+#include <Vortex2D/Engine/LinearSolver/Reduce.h>
 
 #include <Vortex2D/Engine/Size.h>
 
@@ -44,9 +45,12 @@ public:
                  Renderer::Texture& fluidLevelSet);
 
     void BindVelocityConstrain(Renderer::GenericBuffer& velocity);
-    void BindPressure(Renderer::GenericBuffer& pressure);
+    void BindPressure(Renderer::Texture& fluidLevelSet,
+                      Renderer::GenericBuffer& pressure,
+                      Renderer::GenericBuffer& force);
 
     void Div();
+    void Pressure();
     void VelocityConstrain();
     Velocity GetVelocities() const;
 
@@ -62,6 +66,8 @@ private:
     Renderer::Work mDiv, mConstrain, mPressure;
     Renderer::Work::Bound mDivBound, mConstrainBound, mPressureBound;
     Renderer::CommandBuffer mDivCmd, mConstrainCmd, mPressureCmd;
+    ReduceJ mSum;
+    ReduceSum::Bound mSumBound;
 };
 
 }}

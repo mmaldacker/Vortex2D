@@ -7,22 +7,32 @@ layout(push_constant) uniform Consts
 {
   int width;
   int height;
-  float delta;
+  vec2 centre;
 }consts;
 
-layout(std430, binding = 0) buffer Pressure
+layout(binding = 0, r32f) uniform image2D FluidLevelSet;
+layout(binding = 1, r32f) uniform image2D SolidLevelSet;
+
+layout(std430, binding = 2) buffer Pressure
 {
   float value[];
 }pressure;
 
-layout(binding = 1, r32f) uniform image2D FluidLevelSet;
-layout(binding = 2, r32f) uniform image2D SolidLevelSet;
-layout(binding = 3, rgba32f) uniform image2D Velocity;
-
-layout(std430, binding = 4) buffer Valid
+struct J
 {
-  ivec2 value[];
-}valid;
+    vec2 force;
+    float torque;
+};
+
+layout(std430, binding = 3) buffer Force
+{
+  J value[];
+}force;
+
+layout(binding = 4) uniform MV
+{
+    mat4 mv;
+};
 
 #include "CommonProject.comp"
 
@@ -31,47 +41,21 @@ void main()
   uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
 
   ivec2 pos = ivec2(gl_GlobalInvocationID);
-  if (pos.x > 0 && pos.y > 0 && pos.x < consts.width && pos.y < consts.height)
+  if (pos.x > 0 && pos.y > 0 && pos.x < consts.width - 1 && pos.y < consts.height - 1)
   {
-    vec2 cell = imageLoad(Velocity, pos).xy;
+      float liquid_phi = imageLoad(FluidLevelSet, pos).x;
+      if (liquid_phi < 0.0)
+      {
+          float u_term = get_weightxp(pos).x - get_weight(pos).x;
+          float v_term = get_weightyp(pos).y - get_weight(pos).y;
 
-    float p = pressure.value[pos.x + pos.y * consts.width];
-    float pxn = pressure.value[(pos.x - 1) + pos.y * consts.width];
-    float pyn = pressure.value[pos.x + (pos.y - 1) * consts.width];
+          vec4 centre = mv * vec4(consts.centre, 0.0, 1.0);
+          vec2 rad = (pos + vec2(0.5) - centre.xy) / vec2(consts.width);
 
-    vec2 pGrad = vec2(p-pxn, p-pyn);
-
-    float phi = imageLoad(FluidLevelSet, pos).x;
-    float phixn = imageLoad(FluidLevelSet, pos + ivec2(-1,0)).x;
-    float phiyn = imageLoad(FluidLevelSet, pos + ivec2(0,-1)).x;
-
-    vec2 theta = vec2(1.0);
-    if (phi >= 0 || phixn >= 0)
-    {
-      theta.x = fraction_inside(phixn, phi);
-    }
-    
-    if (phi >= 0 || phiyn >= 0)
-    {
-      theta.y = fraction_inside(phiyn, phi);
-    }    
-
-    pGrad /= max(theta, 0.01);
-    vec2 mask = vec2(0.0);
-
-    vec2 wuv = get_weight(pos);
-    if (wuv.x > 0.0 && (phi < 0.0 || phixn < 0.0))
-    {
-      mask.x = 1.0;
-      valid.value[pos.x + pos.y * consts.width].x = 1;
-    }
-    if (wuv.y > 0.0 && (phi < 0.0 || phiyn < 0.0))
-    {
-      mask.y = 1.0;
-      valid.value[pos.x + pos.y * consts.width].y = 1;
-    }
-
-    vec2 new_cell = cell - consts.delta * pGrad * consts.width;
-    imageStore(Velocity, pos, vec4(mask * new_cell, 0.0, 0.0));
+          int index = pos.x + pos.y * consts.width;
+          force.value[index].force.x = u_term * pressure.value[index];
+          force.value[index].force.y = v_term * pressure.value[index];
+          force.value[index].torque = (v_term * rad.x - u_term * rad.y) * pressure.value[index];
+      }
   }
 }

@@ -1,0 +1,84 @@
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+// set local size to something like local_size_x = 256
+// set num work group to  (n + (local_size_x * 2 - 1)) / (local_size_x * 2)
+// then use above formula recurisvely with num work group as n untill num work group is 1
+
+struct J
+{
+    vec2 force;
+    float torque;
+};
+
+layout(std430, binding = 0) buffer Input
+{
+   J inputs[];
+};
+
+layout(std430, binding = 1) buffer Output
+{
+   J outputs[];
+};
+
+layout (local_size_x_id = 1, local_size_y_id = 2) in;
+layout (constant_id = 1) const int blockSize = 256; // same as gl_WorkGroupSize.x or local_size_x
+
+layout(push_constant) uniform PushConsts
+{
+  int n;
+} consts;
+
+
+shared J sdata[blockSize];
+
+void main()
+{
+  uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
+
+  uint tid = gl_LocalInvocationID.x;
+  uint i = gl_WorkGroupID.x * blockSize * 2 + gl_LocalInvocationID.x;
+  uint gridSize = blockSize * 2 * gl_NumWorkGroups.x;
+
+  // perform first level of reduction,
+  // reading from global memory, writing to shared memory
+  // TODO can replace while with if (if gridSize is big enough to cover the whole array)
+  J sum = J(vec2(0.0), 0.0);
+  while (i < consts.n)
+  {
+    sum.force += inputs[i].force;
+    sum.torque += inputs[i].torque;
+    if (i + blockSize < consts.n)
+    {
+      sum.force += inputs[i + blockSize].force;
+      sum.torque += inputs[i + blockSize].torque;
+    }
+
+    i += gridSize;
+  }
+
+  sdata[tid] = sum;
+
+  memoryBarrierShared();
+  barrier();
+
+  // do reduction in shared mem
+  for (int s = blockSize / 2; s > 0; s >>= 1)
+  {
+    if (tid < s)
+    {
+      sdata[tid].force += sdata[tid + s].force;
+      sdata[tid].torque += sdata[tid + s].torque;
+    }
+
+    memoryBarrierShared();
+    barrier();
+  }
+
+  // write result for this block to global mem
+  if (tid == 0)
+  {
+    outputs[gl_WorkGroupID.x].force = sdata[0].force;
+    outputs[gl_WorkGroupID.x].torque = sdata[0].torque;
+  }
+}
