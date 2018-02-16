@@ -4,6 +4,7 @@
 //
 
 #include <gtest/gtest.h>
+#include <glm/gtx/io.hpp>
 
 #include <Vortex2D/Renderer/Texture.h>
 #include <Vortex2D/Renderer/Buffer.h>

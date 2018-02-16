@@ -16,6 +16,7 @@ file(GLOB RENDERER_TEST_SOURCES  "Renderer/ShapeDrawer.h"
                                  "Renderer/ComputeTests.cpp")
 
 file(GLOB SHADER_TEST_SOURCES "Kernels/Image.comp"
+                              "Kernels/ImageFloat.comp"
                               "Kernels/Buffer.comp"
                               "Kernels/Work.comp"
                               "Kernels/WorkIndirect.comp"

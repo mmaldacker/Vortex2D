@@ -99,6 +99,28 @@ TEST(RenderingTest, ClearTexture)
     CheckTexture(data, outTexture);
 }
 
+TEST(RenderingTest, IntClearTexture)
+{
+    RenderTexture texture(*device, 50, 50, vk::Format::eR32Sint);
+    
+    std::vector<int> data(50*50, 3);
+    
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+        texture.Clear(commandBuffer, std::array<int, 4>{3, 0, 0, 0});
+    });
+    
+    Texture outTexture(*device, 50, 50, vk::Format::eR32Sint, VMA_MEMORY_USAGE_CPU_ONLY);
+    
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+        outTexture.CopyFrom(commandBuffer, texture);
+    });
+    
+    CheckTexture(data, outTexture);
+}
+
+
 TEST(RenderingTest, MoveCommandBuffer)
 {
     RenderCommand renderCommand;

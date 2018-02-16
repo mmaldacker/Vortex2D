@@ -8,10 +8,10 @@ layout(std140, binding = 1) uniform Size
 {
     vec2 view;
     vec2 radius;
-    mat2 rotation;
+    mat2x4 rotation;
 } s;
 
-layout(binding = 2) uniform UBO
+layout(std140, binding = 2) uniform UBO
 {
     vec4 colour;
 } u;
@@ -21,7 +21,7 @@ void main()
     vec2 halfDim = s.view;
 
     vec2 pos = gl_FragCoord.xy - (halfDim * a_Centre.xy + halfDim);
-    pos = s.rotation * pos;
+    pos = (s.rotation * pos).xy;
     float distance = dot(pos / s.radius, pos / s.radius);
 
     // when centre is not aligned with grid, we have small error, hence check with 1e-6

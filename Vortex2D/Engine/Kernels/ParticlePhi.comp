@@ -51,9 +51,9 @@ void main()
                 if (newPos.x >= 0 && newPos.x < consts.width && newPos.y >=0 && newPos.y < consts.height)
                 {
                     int index = newPos.x + newPos.y * consts.width;
-                    int count = count.value[index];
+                    int total = count.value[index];
 
-                    for (int k = 0; k < count; k++)
+                    for (int k = 0; k < total; k++)
                     {
                         Particle p = particles.value[scanIndex.value[index] + k];
                         float phi_temp = distance(pos + 0.5, p.Position) - 1.02 * particle_radius;
