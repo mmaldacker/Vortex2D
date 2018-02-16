@@ -8,6 +8,7 @@
 #include <Vortex2D/Renderer/Work.h>
 #include <Vortex2D/Renderer/CommandBuffer.h>
 #include <Vortex2D/Engine/LinearSolver/LinearSolver.h>
+#include <Vortex2D/Engine/Velocity.h>
 
 namespace Vortex2D { namespace Fluid {
 
@@ -18,10 +19,10 @@ public:
              float dt,
              const glm::ivec2& size,
              LinearSolver::Data& data,
-             Renderer::Texture& velocity,
+             Velocity& velocity,
              Renderer::Texture& solidPhi,
              Renderer::Texture& liquidPhi,
-             Renderer::Texture& solidVelocity,
+             Velocity& solidVelocity,
              Renderer::GenericBuffer& valid);
 
     Renderer::Work::Bound BindMatrixBuild(const glm::ivec2& size,

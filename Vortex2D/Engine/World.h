@@ -18,6 +18,7 @@
 #include <Vortex2D/Engine/Pressure.h>
 #include <Vortex2D/Engine/Advection.h>
 #include <Vortex2D/Engine/Particles.h>
+#include <Vortex2D/Engine/Velocity.h>
 
 #include <vector>
 
@@ -60,8 +61,8 @@ private:
     ConjugateGradient mLinearSolver;
 
     LinearSolver::Data mData;
-    Renderer::RenderTexture mVelocity;
-    Renderer::RenderTexture mBoundariesVelocity;
+    Fluid::Velocity mVelocity;
+    Fluid::Velocity mBoundariesVelocity;
     LevelSet mFluidLevelSet;
     LevelSet mObstacleLevelSet;
 

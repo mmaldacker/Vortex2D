@@ -16,8 +16,8 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
     , mPreconditioner(device, dimensions.Size, dt)
     , mLinearSolver(device, dimensions.Size, mPreconditioner)
     , mData(device, dimensions.Size)
-    , mVelocity(device, dimensions.Size.x, dimensions.Size.y, vk::Format::eR32G32Sfloat)
-    , mBoundariesVelocity(device, dimensions.Size.x, dimensions.Size.y, vk::Format::eR32G32Sfloat)
+    , mVelocity(device, dimensions.Size)
+    , mBoundariesVelocity(device, dimensions.Size)
     , mFluidLevelSet(device, dimensions.Size)
     , mObstacleLevelSet(device, dimensions.Size)
     , mValid(device, dimensions.Size.x*dimensions.Size.y)
@@ -42,7 +42,7 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
 
     mClearVelocity.Record([&](vk::CommandBuffer commandBuffer)
     {
-        mVelocity.Clear(commandBuffer, std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f});
+        mVelocity.Clear(commandBuffer);
     });
 
     mClearValid.Record([&](vk::CommandBuffer commandBuffer)
@@ -127,12 +127,12 @@ void World::SolveDynamic()
 
 Renderer::RenderTexture& World::Velocity()
 {
-    return mVelocity;
+    return mVelocity.Input();
 }
 
 Renderer::RenderTexture& World::ObstacleVelocity()
 {
-    return mBoundariesVelocity;
+    return mBoundariesVelocity.Input();
 }
 
 LevelSet& World::LiquidPhi()

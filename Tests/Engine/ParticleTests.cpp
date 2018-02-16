@@ -419,7 +419,7 @@ TEST(ParticleTests, FromGrid)
    ASSERT_EQ(sim.particles.size(), particleCount.GetTotalCount());
 
    // FromGrid test
-   Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
+   Velocity velocity(*device, size);
    Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
    SetVelocity(*device, size, velocity, sim);
@@ -496,7 +496,7 @@ TEST(ParticleTests, ToGrid)
    ASSERT_EQ(sim.particles.size(), particleCount.GetTotalCount());
 
    // ToGrid test
-   Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
+   Velocity velocity(*device, size);
    Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
    particleCount.InitVelocities(velocity, valid);

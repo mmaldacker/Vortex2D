@@ -19,7 +19,8 @@ layout(std430, binding = 1) buffer Valid
   ivec2 value[];
 }valid;
 
-layout(binding = 2, rg32f) uniform image2D Velocity;
+layout(binding = 2, rgba32f) uniform image2D InVelocity;
+layout(binding = 3, rgba32f) uniform image2D OutVelocity;
 
 void Extrapolate(ivec2 pos, int i, inout float value)
 {
@@ -31,22 +32,22 @@ void Extrapolate(ivec2 pos, int i, inout float value)
 
         if (oldValid.value[index + 1][i] == 1)
         {
-            sum += imageLoad(Velocity, pos + ivec2(1,0))[i];
+            sum += imageLoad(InVelocity, pos + ivec2(1,0))[i];
             count += 1.0;
         }
         if (oldValid.value[index + consts.width][i] == 1)
         {
-            sum += imageLoad(Velocity, pos + ivec2(0,1))[i];
+            sum += imageLoad(InVelocity, pos + ivec2(0,1))[i];
             count += 1.0;
         }
         if (oldValid.value[index - 1][i] == 1)
         {
-            sum += imageLoad(Velocity, pos + ivec2(-1,0))[i];
+            sum += imageLoad(InVelocity, pos + ivec2(-1,0))[i];
             count += 1.0;
         }
         if (oldValid.value[index - consts.width][i] == 1)
         {
-            sum += imageLoad(Velocity, pos + ivec2(0,-1))[i];
+            sum += imageLoad(InVelocity, pos + ivec2(0,-1))[i];
             count += 1.0;
         }
 
@@ -66,13 +67,13 @@ void main()
     if (pos.x > 0 && pos.y > 0 && pos.x < consts.width - 1 && pos.y < consts.height - 1)
     {
         int index = pos.x + pos.y * consts.width;
-        vec2 extrapolated_velocity = imageLoad(Velocity, pos).xy;
+        vec2 extrapolated_velocity = imageLoad(InVelocity, pos).xy;
 
         valid.value[index] = oldValid.value[index];
 
         Extrapolate(pos, 0, extrapolated_velocity.x);
         Extrapolate(pos, 1, extrapolated_velocity.y);
 
-        imageStore(Velocity, pos, vec4(extrapolated_velocity, 0.0, 0.0));
+        imageStore(OutVelocity, pos, vec4(extrapolated_velocity, 0.0, 0.0));
     }
 }

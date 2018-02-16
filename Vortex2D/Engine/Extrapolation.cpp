@@ -11,14 +11,12 @@ namespace Vortex2D { namespace Fluid {
 Extrapolation::Extrapolation(const Renderer::Device& device,
                              const glm::ivec2& size,
                              Renderer::GenericBuffer& valid,
-                             Renderer::Texture& velocity,
+                             Velocity& velocity,
                              int iterations)
     : mValid(device,size.x*size.y)
     , mVelocity(velocity)
-    , mTempVelocity(device, size.x, size.y, vk::Format::eR32G32Sfloat)
     , mExtrapolateVelocity(device, size, ExtrapolateVelocity_comp)
-    , mExtrapolateVelocityFrontBound(mExtrapolateVelocity.Bind({valid, mValid, velocity}))
-    , mExtrapolateVelocityBackBound(mExtrapolateVelocity.Bind({mValid, valid, velocity}))
+    , mExtrapolateVelocityBound(mExtrapolateVelocity.Bind({valid, mValid, velocity.Input(), velocity.Output()}))
     , mConstrainVelocity(device, size, ConstrainVelocity_comp)
     , mExtrapolateCmd(device, false)
     , mConstrainCmd(device, false)
@@ -26,26 +24,14 @@ Extrapolation::Extrapolation(const Renderer::Device& device,
     mExtrapolateCmd.Record([&, iterations](vk::CommandBuffer commandBuffer)
     {
         commandBuffer.debugMarkerBeginEXT({"Extrapolate", {{ 0.60f, 0.87f, 0.12f, 1.0f}}});
-        for (int i = 0; i < iterations / 2; i++)
+        for (int i = 0; i < iterations; i++)
         {
-            mExtrapolateVelocityFrontBound.Record(commandBuffer);
-            velocity.Barrier(commandBuffer,
-                             vk::ImageLayout::eGeneral,
-                             vk::AccessFlagBits::eShaderWrite,
-                             vk::ImageLayout::eGeneral,
-                             vk::AccessFlagBits::eShaderRead);
+            mExtrapolateVelocityBound.Record(commandBuffer);
+            velocity.CopyBack(commandBuffer);
             mValid.Barrier(commandBuffer,
                            vk::AccessFlagBits::eShaderWrite,
                            vk::AccessFlagBits::eShaderRead);
-            mExtrapolateVelocityBackBound.Record(commandBuffer);
-            velocity.Barrier(commandBuffer,
-                             vk::ImageLayout::eGeneral,
-                             vk::AccessFlagBits::eShaderWrite,
-                             vk::ImageLayout::eGeneral,
-                             vk::AccessFlagBits::eShaderRead);
-            valid.Barrier(commandBuffer,
-                          vk::AccessFlagBits::eShaderWrite,
-                          vk::AccessFlagBits::eShaderRead);
+            valid.CopyFrom(commandBuffer, mValid);
         }
         commandBuffer.debugMarkerEndEXT();
     });
@@ -56,20 +42,15 @@ void Extrapolation::Extrapolate()
     mExtrapolateCmd.Submit();
 }
 
-void Extrapolation::ConstrainInit(Renderer::Texture& solidVelocity, Renderer::Texture& solidPhi)
+void Extrapolation::ConstrainInit(Velocity& solidVelocity, Renderer::Texture& solidPhi)
 {
-    mConstrainVelocityBound = mConstrainVelocity.Bind({solidPhi, mVelocity, solidVelocity, mTempVelocity});
+    mConstrainVelocityBound = mConstrainVelocity.Bind({solidPhi, mVelocity.Input(), solidVelocity.Input(), mVelocity.Output()});
 
     mConstrainCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
         commandBuffer.debugMarkerBeginEXT({"Constrain Velocity", {{ 0.82f, 0.20f, 0.20f, 1.0f}}});
         mConstrainVelocityBound.Record(commandBuffer);
-        mTempVelocity.Barrier(commandBuffer,
-                          vk::ImageLayout::eGeneral,
-                          vk::AccessFlagBits::eShaderWrite,
-                          vk::ImageLayout::eGeneral,
-                          vk::AccessFlagBits::eShaderRead);
-        mVelocity.CopyFrom(commandBuffer, mTempVelocity);
+        mVelocity.CopyBack(commandBuffer);
         commandBuffer.debugMarkerEndEXT();
     });
 }

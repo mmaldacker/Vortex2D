@@ -105,10 +105,10 @@ TEST(PressureTest, LinearEquationSetup_Simple)
 
     sim.add_force(0.01f);
 
-    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
+    Velocity velocity(*device, size);
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-    Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
+    Velocity solidVelocity(*device, size);
 
     BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
 
@@ -137,10 +137,10 @@ TEST(PressureTest, LinearEquationSetup_Complex)
 
     sim.add_force(0.01f);
 
-    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
+    Velocity velocity(*device, size);
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-    Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
+    Velocity solidVelocity(*device, size);
 
     BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
 
@@ -161,10 +161,10 @@ TEST(PressureTest, ZeroDivs)
 {
     glm::ivec2 size(50);
 
-    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
+    Velocity velocity(*device, size);
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-    Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
+    Velocity solidVelocity(*device, size);
 
     Texture input(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
     std::vector<float> inputData(size.x * size.y);
@@ -206,10 +206,10 @@ TEST(PressureTest, Project_Simple)
 
     sim.add_force(0.01f);
 
-    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
+    Velocity velocity(*device, size);
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-    Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
+    Velocity solidVelocity(*device, size);
 
     BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
 
@@ -245,10 +245,10 @@ TEST(PressureTest, Project_Complex)
 
     sim.add_force(0.01f);
 
-    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
+    Velocity velocity(*device, size);
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-    Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
+    Velocity solidVelocity(*device, size);
 
     BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
 

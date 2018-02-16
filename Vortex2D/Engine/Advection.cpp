@@ -13,13 +13,12 @@
 namespace Vortex2D { namespace Fluid {
 
 
-Advection::Advection(const Renderer::Device& device, const glm::ivec2& size, float dt, Renderer::Texture& velocity)
+Advection::Advection(const Renderer::Device& device, const glm::ivec2& size, float dt, Velocity& velocity)
     : mDt(dt)
     , mSize(size)
     , mVelocity(velocity)
-    , mTmpVelocity(device, size.x, size.y, vk::Format::eR32G32Sfloat)
     , mVelocityAdvect(device, size, AdvectVelocity_comp)
-    , mVelocityAdvectBound(mVelocityAdvect.Bind({velocity, mTmpVelocity}))
+    , mVelocityAdvectBound(mVelocityAdvect.Bind({velocity.Input(), velocity.Output()}))
     , mAdvect(device, size, Advect_comp)
     , mAdvectParticles(device, Renderer::ComputeSize::Default1D(), AdvectParticles_comp)
     , mAdvectVelocityCmd(device, false)
@@ -30,12 +29,7 @@ Advection::Advection(const Renderer::Device& device, const glm::ivec2& size, flo
     {
         mVelocityAdvectBound.PushConstant(commandBuffer, 8, dt);
         mVelocityAdvectBound.Record(commandBuffer);
-        mTmpVelocity.Barrier(commandBuffer,
-                          vk::ImageLayout::eGeneral,
-                          vk::AccessFlagBits::eShaderWrite,
-                          vk::ImageLayout::eGeneral,
-                          vk::AccessFlagBits::eShaderRead);
-        velocity.CopyFrom(commandBuffer, mTmpVelocity);
+        velocity.CopyBack(commandBuffer);
     });
 }
 
@@ -46,7 +40,7 @@ void Advection::AdvectVelocity()
 
 void Advection::AdvectInit(Density& density)
 {
-    mAdvectBound = mAdvect.Bind({mVelocity, density, density.mFieldBack});
+    mAdvectBound = mAdvect.Bind({mVelocity.Input(), density, density.mFieldBack});
     mAdvectCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
         mAdvectBound.PushConstant(commandBuffer, 8, mDt);
@@ -69,7 +63,7 @@ void Advection::AdvectParticleInit(Renderer::GenericBuffer& particles,
                                    Renderer::Texture& levelSet,
                                    Renderer::GenericBuffer& dispatchParams)
 {
-    mAdvectParticlesBound = mAdvectParticles.Bind(mSize, {particles, dispatchParams, mVelocity, levelSet});
+    mAdvectParticlesBound = mAdvectParticles.Bind(mSize, {particles, dispatchParams, mVelocity.Input(), levelSet});
     mAdvectParticlesCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
         commandBuffer.debugMarkerBeginEXT({"Particle advect", {{ 0.09f, 0.17f, 0.36f, 1.0f}}});

@@ -9,6 +9,7 @@
 #include <Vortex2D/Renderer/Buffer.h>
 #include <Vortex2D/Renderer/RenderTexture.h>
 #include <Vortex2D/Engine/PrefixScan.h>
+#include <Vortex2D/Engine/Velocity.h>
 
 namespace Vortex2D { namespace Fluid {
 
@@ -36,7 +37,7 @@ public:
     void InitLevelSet(LevelSet& levelSet);
     void Phi();
 
-    void InitVelocities(Renderer::Texture& velocity, Renderer::GenericBuffer& valid);
+    void InitVelocities(Velocity& velocity, Renderer::GenericBuffer& valid);
     void TransferToGrid();
     void TransferFromGrid();
 

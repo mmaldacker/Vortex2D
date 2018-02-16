@@ -15,10 +15,10 @@ Pressure::Pressure(const Renderer::Device& device,
                    float dt,
                    const glm::ivec2& size,
                    LinearSolver::Data& data,
-                   Renderer::Texture& velocity,
+                   Velocity& velocity,
                    Renderer::Texture& solidPhi,
                    Renderer::Texture& liquidPhi,
-                   Renderer::Texture& solidVelocity,
+                   Velocity& solidVelocity,
                    Renderer::GenericBuffer& valid)
     : mBuildMatrix(device, size, BuildMatrix_comp)
     , mBuildMatrixBound(mBuildMatrix.Bind({data.Diagonal,
@@ -30,10 +30,10 @@ Pressure::Pressure(const Renderer::Device& device,
                                      data.Diagonal,
                                      liquidPhi,
                                      solidPhi,
-                                     velocity,
-                                     solidVelocity}))
+                                     velocity.Input(),
+                                     solidVelocity.Input()}))
     , mProject(device, size, Project_comp)
-    , mProjectBound(mProject.Bind({data.X, liquidPhi, solidPhi, velocity, valid}))
+    , mProjectBound(mProject.Bind({data.X, liquidPhi, solidPhi, velocity.Input(), velocity.Output(), valid}))
     , mBuildEquationCmd(device, false)
     , mProjectCmd(device, false)
 {
@@ -55,9 +55,7 @@ Pressure::Pressure(const Renderer::Device& device,
         valid.Clear(commandBuffer);
         mProjectBound.PushConstant(commandBuffer, 8, dt);
         mProjectBound.Record(commandBuffer);
-        velocity.Barrier(commandBuffer,
-                         vk::ImageLayout::eGeneral, vk::AccessFlagBits::eShaderWrite,
-                         vk::ImageLayout::eGeneral, vk::AccessFlagBits::eShaderRead);
+        velocity.CopyBack(commandBuffer);
         commandBuffer.debugMarkerEndEXT();
     });
 

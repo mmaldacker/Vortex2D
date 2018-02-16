@@ -10,6 +10,8 @@
 #include <Vortex2D/Renderer/Work.h>
 #include <Vortex2D/Renderer/CommandBuffer.h>
 
+#include <Vortex2D/Engine/Velocity.h>
+
 namespace Vortex2D { namespace Fluid {
 
 class Density;
@@ -17,7 +19,7 @@ class Density;
 class Advection
 {
 public:
-    Advection(const Renderer::Device& device, const glm::ivec2& size, float dt, Renderer::Texture& velocity);
+    Advection(const Renderer::Device& device, const glm::ivec2& size, float dt, Velocity& velocity);
 
     void AdvectVelocity();
 
@@ -33,9 +35,7 @@ public:
 private:
     float mDt;
     glm::ivec2 mSize;
-    Renderer::Texture& mVelocity;
-    // TODO use a common temp velocity texture
-    Renderer::Texture mTmpVelocity;
+    Velocity& mVelocity;
 
     Renderer::Work mVelocityAdvect;
     Renderer::Work::Bound mVelocityAdvectBound;

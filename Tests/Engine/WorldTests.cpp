@@ -98,8 +98,8 @@ TEST(WorldTests, ObstacleVelocity)
     LevelSet fluidLevelSet(*device, size);
     LevelSet obstacleLevelSet(*device, size);
 
-    RenderTexture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
-    RenderTexture boundariesVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
+    Velocity velocity(*device, size);
+    Velocity boundariesVelocity(*device, size);
 
     Pressure projection(*device, 0.01f, size, data, velocity, obstacleLevelSet, fluidLevelSet, boundariesVelocity, valid);
 
@@ -122,7 +122,7 @@ TEST(WorldTests, ObstacleVelocity)
     solidVelocity.Position = glm::vec2(5.0f);
     solidVelocity.Rotation = 45.0f;
 
-    boundariesVelocity.Record({solidVelocity}).Submit();
+    boundariesVelocity.Input().Record({solidVelocity}).Submit();
 
     // Solve
     LinearSolver::Parameters params(300, 1e-3f);

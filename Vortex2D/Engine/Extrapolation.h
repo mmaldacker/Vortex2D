@@ -9,6 +9,7 @@
 #include <Vortex2D/Renderer/CommandBuffer.h>
 #include <Vortex2D/Renderer/Work.h>
 #include <Vortex2D/Engine/LevelSet.h>
+#include <Vortex2D/Engine/Velocity.h>
 
 namespace Vortex2D { namespace Fluid {
 
@@ -21,7 +22,7 @@ public:
     Extrapolation(const Renderer::Device& device,
                   const glm::ivec2& size,
                   Renderer::GenericBuffer& valid,
-                  Renderer::Texture& velocity,
+                  Velocity& velocity,
                   int iterations = 10);
 
     /**
@@ -30,18 +31,16 @@ public:
      */
     void Extrapolate();
 
-    void ConstrainInit(Renderer::Texture& solidVelocity, Renderer::Texture& solidPhi);
+    void ConstrainInit(Velocity& solidVelocity, Renderer::Texture& solidPhi);
     void ConstrainVelocity();
 
 
 private:
     Renderer::Buffer<glm::ivec2> mValid;
-    Renderer::Texture& mVelocity;
-    // TODO use a common temp velocity texture
-    Renderer::Texture mTempVelocity;
+    Velocity& mVelocity;
 
     Renderer::Work mExtrapolateVelocity;
-    Renderer::Work::Bound mExtrapolateVelocityFrontBound, mExtrapolateVelocityBackBound;
+    Renderer::Work::Bound mExtrapolateVelocityBound;
     Renderer::Work mConstrainVelocity;
     Renderer::Work::Bound mConstrainVelocityBound;
 

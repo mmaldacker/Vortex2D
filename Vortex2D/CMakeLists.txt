@@ -22,6 +22,8 @@ file(GLOB LIB_SOURCES
     "Engine/Particles.cpp"
     "Engine/Rigidbody.h"
     "Engine/Rigidbody.cpp"
+    "Engine/Velocity.h"
+    "Engine/Velocity.cpp"
     "Engine/LinearSolver/LinearSolver.h"
     "Engine/LinearSolver/LinearSolver.cpp"
     "Engine/LinearSolver/Preconditioner.h"

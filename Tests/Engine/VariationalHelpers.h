@@ -15,6 +15,7 @@
 #include <Vortex2D/Renderer/CommandBuffer.h>
 
 #include <Vortex2D/Engine/LinearSolver/LinearSolver.h>
+#include <Vortex2D/Engine/Velocity.h>
 
 #include "fluidsim.h"
 
@@ -69,7 +70,7 @@ static void AddParticles(const glm::vec2& size, FluidSim& sim, float (*phi)(cons
 
 static void SetVelocity(const Vortex2D::Renderer::Device& device,
                         const glm::ivec2& size,
-                        Vortex2D::Renderer::Texture& velocity,
+                        Vortex2D::Fluid::Velocity& velocity,
                         FluidSim& sim)
 {
     Vortex2D::Renderer::Texture input(device, size.x, size.y, vk::Format::eR32G32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
@@ -88,7 +89,7 @@ static void SetVelocity(const Vortex2D::Renderer::Device& device,
     input.CopyFrom(velocityData);
     ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
     {
-        velocity.CopyFrom(commandBuffer, input);
+        velocity.Input().CopyFrom(commandBuffer, input);
     });
 }
 
@@ -145,7 +146,7 @@ static void SetLiquidPhi(const Vortex2D::Renderer::Device& device,
 static void BuildInputs(const Vortex2D::Renderer::Device& device,
                         const glm::ivec2& size,
                         FluidSim& sim,
-                        Vortex2D::Renderer::Texture& velocity,
+                        Vortex2D::Fluid::Velocity& velocity,
                         Vortex2D::Renderer::Texture& solidPhi,
                         Vortex2D::Renderer::Texture& liquidPhi)
 {
@@ -222,10 +223,10 @@ static void PrintWeights(const glm::ivec2& size, FluidSim& sim)
     std::cout << std::endl;
 }
 
-static void PrintVelocity(const glm::ivec2& size, Vortex2D::Renderer::Texture& buffer)
+static void PrintVelocity(const glm::ivec2& size, Vortex2D::Fluid::Velocity& velocity)
 {
     std::vector<glm::vec2> pixels(size.x * size.y);
-    buffer.CopyTo(pixels);
+    velocity.Input().CopyTo(pixels);
 
     for (std::size_t j = 0; j < size.y; j++)
     {
@@ -254,14 +255,14 @@ static void PrintVelocity(const glm::ivec2& size, FluidSim& sim)
 
 static void CheckVelocity(const Vortex2D::Renderer::Device& device,
                           const glm::ivec2& size,
-                          Vortex2D::Renderer::Texture& velocity,
+                          Vortex2D::Fluid::Velocity& velocity,
                           FluidSim& sim,
                           float error = 1e-6)
 {
     Vortex2D::Renderer::Texture output(device, size.x, size.y, vk::Format::eR32G32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
     ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
     {
-        output.CopyFrom(commandBuffer, velocity);
+        output.CopyFrom(commandBuffer, velocity.Input());
     });
 
     std::vector<glm::vec2> pixels(size.x * size.y);

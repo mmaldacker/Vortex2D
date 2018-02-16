@@ -26,7 +26,7 @@ TEST(AdvectionTests, AdvectVelocity_Simple)
 
     sim.advance(0.01f);
 
-    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
+    Velocity velocity(*device, size);
     SetVelocity(*device, size, velocity, sim);
 
     sim.advect(0.01f);
@@ -52,7 +52,7 @@ TEST(AdvectionTests, AdvectVelocity_Complex)
     sim.add_force(0.01f);
     sim.advance(0.01f);
 
-    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
+    Velocity velocity(*device, size);
     SetVelocity(*device, size, velocity, sim);
 
     sim.advect(0.01f);
@@ -90,14 +90,14 @@ TEST(AdvectionTests, Advect)
     glm::ivec2 pos(3, 4);
 
     Texture velocityInput(*device, size.x, size.y, vk::Format::eR32G32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
-    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
+    Velocity velocity(*device, size);
 
     std::vector<glm::vec2> velocityData(size.x * size.y, vel / glm::vec2(size));
     velocityInput.CopyFrom(velocityData);
 
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
-        velocity.CopyFrom(commandBuffer, velocityInput);
+        velocity.Input().CopyFrom(commandBuffer, velocityInput);
     });
 
     Texture fieldInput(*device, size.x, size.y, vk::Format::eB8G8R8A8Unorm, VMA_MEMORY_USAGE_CPU_ONLY);
@@ -160,7 +160,7 @@ TEST(AdvectionTests, ParticleAdvect)
     CopyFrom(particles, particlesData);
 
     // setup velocities
-    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
+    Velocity velocity(*device, size);
 
     SetVelocity(*device, size, velocity, sim);
 
@@ -225,7 +225,7 @@ TEST(AdvectionTests, ParticleProject)
     CopyFrom(particles, particlesData);
 
     // setup velocities
-    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
+    Velocity velocity(*device, size);
 
     // setup level set
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);

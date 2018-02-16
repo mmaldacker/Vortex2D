@@ -452,10 +452,10 @@ TEST(LinearSolverTests, Multigrid_Simple_PCG)
 
     LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
 
-    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
+    Velocity velocity(*device, size);
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-    Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
+    Velocity solidVelocity(*device, size);
     Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
     SetSolidPhi(*device, size, solidPhi, sim, size.x);
