@@ -56,7 +56,7 @@ void PrintForce(const glm::ivec2& size, Buffer<Vortex2D::Fluid::RigidBody::Veloc
     std::cout << std::endl;
 }
 
-TEST(RgidibodyTests, Div)
+TEST(RigidbodyTests, Div)
 {
     glm::ivec2 size(20);
 
@@ -82,20 +82,19 @@ TEST(RgidibodyTests, Div)
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
 
     BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
+    SetSolidPhi(*device, size, solidPhi, sim, size.x);
 
     LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
     Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
     Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
 
     Vortex2D::Fluid::Rectangle rectangle(*device, {6.0f, 4.0f});
-    rectangle.Anchor = {3.0f, 2.0f};
+    Vortex2D::Fluid::RigidBody rigidBody(*device, Dimensions(size, 1.0f), rectangle, {3.0f, 2.0f});
 
-    Vortex2D::Fluid::RigidBody rigidBody(*device, Dimensions(size, 1.0f), rectangle, {0.0f, 0.0f});
-
+    rigidBody.Anchor = {3.0f, 2.0f};
     rigidBody.Position = {10.0f, 10.0f};
     rigidBody.UpdatePosition();
 
-    solidPhi.View = rigidBody.View();
     rigidBody.RecordPhi(solidPhi).Submit();
     rigidBody.RecordLocalPhi().Submit();
 
@@ -105,10 +104,10 @@ TEST(RgidibodyTests, Div)
     rigidBody.Div();
     device->Handle().waitIdle();
 
-    CheckDiv(size, data.B, sim, 1e-2f); // TODO improve accuracy
+    CheckDiv(size, data.B, sim);
 }
 
-TEST(RgidibodyTests, VelocityDiv)
+TEST(RigidbodyTests, VelocityDiv)
 {
     glm::ivec2 size(20);
 
@@ -138,20 +137,19 @@ TEST(RgidibodyTests, VelocityDiv)
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
 
     BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
+    SetSolidPhi(*device, size, solidPhi, sim, size.x);
 
     LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
     Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
     Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
 
     Vortex2D::Fluid::Rectangle rectangle(*device, {6.0f, 4.0f});
-    rectangle.Anchor = {3.0f, 2.0f};
-
     Vortex2D::Fluid::RigidBody rigidBody(*device, Dimensions(size, 1.0f), rectangle, {0.0f, 0.0f});
 
+    rigidBody.Anchor = {3.0f, 2.0f};
     rigidBody.Position = {10.0f, 10.0f};
     rigidBody.UpdatePosition();
 
-    solidPhi.View = rigidBody.View();
     rigidBody.RecordPhi(solidPhi).Submit();
     rigidBody.RecordLocalPhi().Submit();
 
@@ -161,10 +159,10 @@ TEST(RgidibodyTests, VelocityDiv)
     rigidBody.Div();
     device->Handle().waitIdle();
 
-    CheckDiv(size, data.B, sim, 1e-2f); // TODO improve accuracy
+    CheckDiv(size, data.B, sim);
 }
 
-TEST(RgidibodyTests, RotationDiv)
+TEST(RigidbodyTests, RotationDiv)
 {
     glm::ivec2 size(20);
 
@@ -195,20 +193,19 @@ TEST(RgidibodyTests, RotationDiv)
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
 
     BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
+    SetSolidPhi(*device, size, solidPhi, sim, size.x);
 
     LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
     Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
     Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
 
     Vortex2D::Fluid::Rectangle rectangle(*device, {6.0f, 4.0f});
-    rectangle.Anchor = {3.0f, 2.0f};
+    Vortex2D::Fluid::RigidBody rigidBody(*device, Dimensions(size, 1.0f), rectangle, {3.0f, 2.0f});
 
-    Vortex2D::Fluid::RigidBody rigidBody(*device, Dimensions(size, 1.0f), rectangle, {0.0f, 0.0f});
-
+    rigidBody.Anchor = {3.0f, 2.0f};
     rigidBody.Position = {10.0f, 10.0f};
     rigidBody.UpdatePosition();
 
-    solidPhi.View = rigidBody.View();
     rigidBody.RecordPhi(solidPhi).Submit();
     rigidBody.RecordLocalPhi().Submit();
 
@@ -218,10 +215,10 @@ TEST(RgidibodyTests, RotationDiv)
     rigidBody.Div();
     device->Handle().waitIdle();
 
-    CheckDiv(size, data.B, sim, 1e-2f); // TODO improve accuracy
+    CheckDiv(size, data.B, sim, 1e-3f);
 }
 
-TEST(RgidibodyTests, VelocityRotationDiv)
+TEST(RigidbodyTests, VelocityRotationDiv)
 {
     glm::ivec2 size(20);
 
@@ -252,20 +249,19 @@ TEST(RgidibodyTests, VelocityRotationDiv)
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
 
     BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
+    SetSolidPhi(*device, size, solidPhi, sim, size.x);
 
     LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
     Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
     Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
 
     Vortex2D::Fluid::Rectangle rectangle(*device, {6.0f, 4.0f});
-    rectangle.Anchor = {3.0f, 2.0f};
+    Vortex2D::Fluid::RigidBody rigidBody(*device, Dimensions(size, 1.0f), rectangle, {3.0f, 2.0f});
 
-    Vortex2D::Fluid::RigidBody rigidBody(*device, Dimensions(size, 1.0f), rectangle, {0.0f, 0.0f});
-
+    rigidBody.Anchor = {3.0f, 2.0f};
     rigidBody.Position = {10.0f, 10.0f};
     rigidBody.UpdatePosition();
 
-    solidPhi.View = rigidBody.View();
     rigidBody.RecordPhi(solidPhi).Submit();
     rigidBody.RecordLocalPhi().Submit();
 
@@ -275,10 +271,10 @@ TEST(RgidibodyTests, VelocityRotationDiv)
     rigidBody.Div();
     device->Handle().waitIdle();
 
-    CheckDiv(size, data.B, sim, 1e-2f); // TODO improve accuracy
+    CheckDiv(size, data.B, sim, 1e-3f);
 }
 
-TEST(RgidibodyTests, ReduceJSum)
+TEST(RigidbodyTests, ReduceJSum)
 {
     glm::ivec2 size(10, 15);
     int n = size.x * size.y;
@@ -311,7 +307,7 @@ TEST(RgidibodyTests, ReduceJSum)
     ASSERT_EQ(-2.0f * n, outputData[0].velocity.y);
 }
 
-TEST(RgidibodyTests, Pressure)
+TEST(RigidbodyTests, Pressure)
 {
     glm::ivec2 size(20);
 
@@ -343,6 +339,7 @@ TEST(RgidibodyTests, Pressure)
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
 
     BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
+    SetSolidPhi(*device, size, solidPhi, sim, size.x);
 
     Buffer<float> pressure(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
@@ -354,14 +351,12 @@ TEST(RgidibodyTests, Pressure)
     CopyFrom(pressure, computedPressureData);
 
     Vortex2D::Fluid::Rectangle rectangle(*device, {6.0f, 4.0f});
-    rectangle.Anchor = {3.0f, 2.0f};
-
-    Vortex2D::Fluid::RigidBody rigidBody(*device, Dimensions(size, 1.0f), rectangle, {0.0f, 0.0f});
+    Vortex2D::Fluid::RigidBody rigidBody(*device, Dimensions(size, 1.0f), rectangle, {3.0, 2.0f});
 
     rigidBody.Position = {10.0f, 10.0f};
+    rigidBody.Anchor = {3.0f, 2.0f};
     rigidBody.UpdatePosition();
 
-    solidPhi.View = rigidBody.View();
     rigidBody.RecordPhi(solidPhi).Submit();
     rigidBody.RecordLocalPhi().Submit();
 
@@ -370,8 +365,6 @@ TEST(RgidibodyTests, Pressure)
     rigidBody.BindPressure(liquidPhi, pressure, force);
     rigidBody.Pressure();
     device->Handle().waitIdle();
-
-    PrintForce(size, force);
 
     float new_angular_momentum; Vec2f new_vel;
     sim.rbd->getLinearVelocity(new_vel);

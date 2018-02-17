@@ -14,7 +14,7 @@ namespace Vortex2D { namespace Fluid {
 
 RigidBody::RigidBody(const Renderer::Device& device,
                      const Dimensions& dimensions,
-                     Renderer::Drawable& drawable,
+                     ObjectDrawable& drawable,
                      const glm::vec2& centre)
     : mDevice(device)
     , mPhi(device, dimensions.Size.x, dimensions.Size.y, vk::Format::eR32Sfloat)
@@ -32,6 +32,7 @@ RigidBody::RigidBody(const Renderer::Device& device,
     , mPressureCmd(device)
     , mSum(device, dimensions.Size)
 {
+    mPhi.View = mView;
 }
 
 void RigidBody::SetVelocities(const glm::vec2& velocity, float angularVelocity)
@@ -57,13 +58,11 @@ RigidBody::Velocity RigidBody::GetForces()
 
 void RigidBody::UpdatePosition()
 {
-    mPhi.View = View();
-    Renderer::CopyFrom(mMVBuffer, mPhi.View);
-}
-
-const glm::mat4& RigidBody::View()
-{
-    return mView * GetTransform();
+    mDrawable.Position = (glm::vec2)Position;
+    mDrawable.Anchor = (glm::vec2)Anchor;
+    mDrawable.Rotation = (float)Rotation;
+    mDrawable.Scale = (glm::vec2)Scale;
+    Renderer::CopyFrom(mMVBuffer, mView * GetTransform());
 }
 
 Renderer::RenderCommand RigidBody::RecordLocalPhi()
@@ -101,6 +100,7 @@ void RigidBody::BindPressure(Renderer::Texture& fluidLevelSet,
     mSumBound = mSum.Bind(force, mForce);
     mPressureCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
+        mPressureBound.PushConstant(commandBuffer, 8, mCentre);
         mPressureBound.Record(commandBuffer);
         force.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         mSumBound.Record(commandBuffer);

@@ -13,7 +13,7 @@
 #include <Vortex2D/Renderer/RenderTexture.h>
 #include <Vortex2D/Renderer/Work.h>
 #include <Vortex2D/Engine/LinearSolver/Reduce.h>
-
+#include <Vortex2D/Engine/Boundaries.h>
 #include <Vortex2D/Engine/Size.h>
 
 namespace Vortex2D { namespace Fluid {
@@ -29,13 +29,12 @@ public:
 
     RigidBody(const Renderer::Device& device,
               const Dimensions& dimensions,
-              Renderer::Drawable& drawable,
+              ObjectDrawable& drawable,
               const glm::vec2& centre);
 
     void SetVelocities(const glm::vec2& velocity, float angularVelocity);
 
     void UpdatePosition();
-    const glm::mat4& View();
 
     Renderer::RenderCommand RecordLocalPhi();
     Renderer::RenderCommand RecordPhi(Renderer::RenderTexture& phi);
@@ -57,7 +56,7 @@ public:
 private:
     const Renderer::Device& mDevice;
     Renderer::RenderTexture mPhi;
-    Renderer::Drawable& mDrawable;
+    ObjectDrawable& mDrawable;
     glm::vec2 mCentre;
     glm::mat4 mView;
     Renderer::UniformBuffer<Velocity> mVelocity;

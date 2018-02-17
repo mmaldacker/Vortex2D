@@ -50,12 +50,12 @@ void main()
           float v_term = get_weight(pos).y - get_weightyp(pos);
 
           vec4 centre = mv * vec4(consts.centre, 0.0, 1.0);
-          vec2 rad = (pos + vec2(0.5) - centre.xy) / vec2(consts.width);
+          vec2 rad = (pos + vec2(0.5) - centre.xy);
 
           int index = pos.x + pos.y * consts.width;
           force.value[index].force.x = u_term * pressure.value[index] * consts.width;
           force.value[index].force.y = v_term * pressure.value[index] * consts.width;
-          force.value[index].torque = (v_term * rad.x - u_term * rad.y) * pressure.value[index] * consts.width;
+          force.value[index].torque = (v_term * rad.x - u_term * rad.y) * pressure.value[index];
       }
   }
 }

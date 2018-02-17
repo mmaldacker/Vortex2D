@@ -51,21 +51,11 @@ void Transformable::Update()
     mTransform = glm::scale(mTransform, glm::vec3{(glm::vec2)Scale, 1.0f});
     mTransform = glm::rotate(mTransform, glm::radians((float)Rotation), glm::vec3{0.0f, 0.0f, 1.0f});
     mTransform = glm::translate(mTransform, glm::vec3{-(glm::vec2)Anchor, 0.0f});
-
-    mInverseTransform = glm::inverse(mTransform);
 }
 
 const glm::mat4 & Transformable::GetTransform() const
 {
     return mTransform;
-}
-
-/**
- * @brief Returns the inverse transform matrix
- */
-const glm::mat4 & Transformable::GetInverseTransform() const
-{
-    return mInverseTransform;
 }
 
 }}

@@ -44,11 +44,6 @@ struct Transformable
     const glm::mat4& GetTransform() const;
 
     /**
-     * @brief Returns the inverse transform matrix
-     */
-    const glm::mat4& GetInverseTransform() const;
-
-    /**
      * @brief absolute position
      */
     property<glm::vec2> Position;
@@ -75,7 +70,6 @@ struct Transformable
 
 private:
     glm::mat4 mTransform;
-    glm::mat4 mInverseTransform;
 };
 
 }}
