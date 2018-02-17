@@ -1,0 +1,61 @@
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+layout (local_size_x_id = 1, local_size_y_id = 2) in;
+
+layout(push_constant) uniform Consts
+{
+  int width;
+  int height;
+  vec2 centre;
+}consts;
+
+layout(binding = 0, r32f) uniform image2D FluidLevelSet;
+layout(binding = 1, r32f) uniform image2D SolidLevelSet;
+
+layout(std430, binding = 2) buffer Pressure
+{
+  float value[];
+}pressure;
+
+struct J
+{
+    vec2 force;
+    float torque;
+};
+
+layout(std430, binding = 3) buffer Force
+{
+  J value[];
+}force;
+
+layout(binding = 4) uniform MV
+{
+    mat4 mv;
+};
+
+#include "CommonProject.comp"
+
+void main()
+{
+  uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
+
+  ivec2 pos = ivec2(gl_GlobalInvocationID);
+  if (pos.x > 0 && pos.y > 0 && pos.x < consts.width - 1 && pos.y < consts.height - 1)
+  {
+      float liquid_phi = imageLoad(FluidLevelSet, pos).x;
+      if (liquid_phi < 0.0)
+      {
+          float u_term = get_weight(pos).x - get_weightxp(pos);
+          float v_term = get_weight(pos).y - get_weightyp(pos);
+
+          vec4 centre = mv * vec4(consts.centre, 0.0, 1.0);
+          vec2 rad = (pos + vec2(0.5) - centre.xy) / vec2(consts.width);
+
+          int index = pos.x + pos.y * consts.width;
+          force.value[index].force.x = u_term * pressure.value[index] * consts.width;
+          force.value[index].force.y = v_term * pressure.value[index] * consts.width;
+          force.value[index].torque = (v_term * rad.x - u_term * rad.y) * pressure.value[index] * consts.width;
+      }
+  }
+}

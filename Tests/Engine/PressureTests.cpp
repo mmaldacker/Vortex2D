@@ -8,6 +8,7 @@
 #include "Renderer/ShapeDrawer.h"
 
 #include <Vortex2D/Engine/Pressure.h>
+#include <Vortex2D/Engine/Boundaries.h>
 #include <iostream>
 
 using namespace Vortex2D::Renderer;
@@ -17,22 +18,6 @@ using ::testing::Invoke;
 using ::testing::_;
 
 extern Device* device;
-
-void PrintDiv(const glm::ivec2& size, Buffer<float>& buffer)
-{
-    std::vector<float> pixels(size.x * size.y);
-    CopyTo(buffer, pixels);
-
-    for (std::size_t j = 0; j < size.y; j++)
-    {
-        for (std::size_t i = 0; i < size.x; i++)
-        {
-            std::size_t index = i + size.x * j;
-            std::cout << "(" <<  pixels[index] << ")";
-        }
-        std::cout << std::endl;
-    }
-}
 
 void PrintDiagonal(const glm::ivec2& size, FluidSim& sim)
 {
@@ -78,21 +63,6 @@ void CheckWeights(const glm::ivec2& size, Buffer<glm::vec2>& buffer, FluidSim& s
     }
 }
 
-void CheckDiv(const glm::ivec2& size, Buffer<float>& buffer, FluidSim& sim, float error = 1e-6)
-{
-    std::vector<float> pixels(size.x * size.y);
-    CopyTo(buffer, pixels);
-
-    for (std::size_t i = 0; i < size.x; i++)
-    {
-        for (std::size_t j = 0; j < size.y; j++)
-        {
-            std::size_t index = i + size.x * j;
-            EXPECT_NEAR(sim.rhs[index], pixels[index], error);
-        }
-    }
-}
-
 TEST(PressureTest, LinearEquationSetup_Simple)
 {
     glm::ivec2 size(50);
@@ -108,14 +78,13 @@ TEST(PressureTest, LinearEquationSetup_Simple)
     Velocity velocity(*device, size);
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-    Velocity solidVelocity(*device, size);
 
     BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
 
     LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
     Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
-    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, solidVelocity, valid);
+    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
 
     pressure.BuildLinearEquation();
     device->Handle().waitIdle();
@@ -140,14 +109,13 @@ TEST(PressureTest, LinearEquationSetup_Complex)
     Velocity velocity(*device, size);
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-    Velocity solidVelocity(*device, size);
 
     BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
 
     LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
     Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
-    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, solidVelocity, valid);
+    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
 
     pressure.BuildLinearEquation();
     device->Handle().waitIdle();
@@ -164,7 +132,6 @@ TEST(PressureTest, ZeroDivs)
     Velocity velocity(*device, size);
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-    Velocity solidVelocity(*device, size);
 
     Texture input(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
     std::vector<float> inputData(size.x * size.y);
@@ -178,7 +145,7 @@ TEST(PressureTest, ZeroDivs)
     LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
     Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
-    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, solidVelocity, valid);
+    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
 
     pressure.BuildLinearEquation();
     device->Handle().waitIdle();
@@ -209,7 +176,6 @@ TEST(PressureTest, Project_Simple)
     Velocity velocity(*device, size);
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-    Velocity solidVelocity(*device, size);
 
     BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
 
@@ -224,7 +190,7 @@ TEST(PressureTest, Project_Simple)
 
     Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
-    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, solidVelocity, valid);
+    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
 
     pressure.ApplyPressure();
     device->Handle().waitIdle();
@@ -248,7 +214,6 @@ TEST(PressureTest, Project_Complex)
     Velocity velocity(*device, size);
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-    Velocity solidVelocity(*device, size);
 
     BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
 
@@ -263,7 +228,7 @@ TEST(PressureTest, Project_Complex)
 
     Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
-    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, solidVelocity, valid);
+    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
 
     pressure.ApplyPressure();
     device->Handle().waitIdle();

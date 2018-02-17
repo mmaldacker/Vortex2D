@@ -141,13 +141,12 @@ static void MultigridCG(benchmark::State& state)
     Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-    Texture solidVelocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
     Buffer<glm::ivec2> valid(*device, size.x*size.y);
 
     SetSolidPhi(*device, size, solidPhi, sim, size.x);
     SetLiquidPhi(*device, size, liquidPhi, sim, size.x);
 
-    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, solidVelocity, valid);
+    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
 
     Multigrid preconditioner(*device, size, 0.01f);
     preconditioner.BuildHierarchiesInit(pressure, solidPhi, liquidPhi);

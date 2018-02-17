@@ -44,7 +44,6 @@ public:
     void SolveDynamic();
 
     Renderer::RenderTexture& Velocity();
-    Renderer::RenderTexture& ObstacleVelocity();
     LevelSet& LiquidPhi();
     LevelSet& SolidPhi();
     Renderer::GenericBuffer& Particles();
@@ -62,7 +61,6 @@ private:
 
     LinearSolver::Data mData;
     Fluid::Velocity mVelocity;
-    Fluid::Velocity mBoundariesVelocity;
     LevelSet mFluidLevelSet;
     LevelSet mObstacleLevelSet;
 
@@ -71,7 +69,6 @@ private:
     Advection mAdvection;
     Pressure mProjection;
     Extrapolation mExtrapolation;
-    Extrapolation mObstacleExtrapolation;
 
     Renderer::CommandBuffer mClearVelocity, mClearValid;
 };

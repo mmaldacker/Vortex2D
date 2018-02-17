@@ -20,24 +20,20 @@ vec2 get_weight(ivec2 pos)
   return clamp(weight, vec2(0.0), vec2(1.0));
 }
 
-vec2 get_weightxp(ivec2 pos)
+float get_weightxp(ivec2 pos)
 {
-  vec2 weight;
-  weight.x = 1.0 - fraction_inside(imageLoad(SolidLevelSet, pos + ivec2(1,1)).x,
-                                   imageLoad(SolidLevelSet, pos + ivec2(1,0)).x);
-  weight.y = 1.0 - fraction_inside(imageLoad(SolidLevelSet, pos + ivec2(2,0)).x,
+  float weight;
+  weight = 1.0 - fraction_inside(imageLoad(SolidLevelSet, pos + ivec2(1,1)).x,
                                    imageLoad(SolidLevelSet, pos + ivec2(1,0)).x);
 
-  return clamp(weight, vec2(0.0), vec2(1.0));
+  return clamp(weight, 0.0, 1.0);
 }
 
-vec2 get_weightyp(ivec2 pos)
+float get_weightyp(ivec2 pos)
 {
-  vec2 weight;
-  weight.x = 1.0 - fraction_inside(imageLoad(SolidLevelSet, pos + ivec2(0,2)).x,
-                                   imageLoad(SolidLevelSet, pos + ivec2(0,1)).x);
-  weight.y = 1.0 - fraction_inside(imageLoad(SolidLevelSet, pos + ivec2(1,1)).x,
+  float weight;
+  weight = 1.0 - fraction_inside(imageLoad(SolidLevelSet, pos + ivec2(1,1)).x,
                                    imageLoad(SolidLevelSet, pos + ivec2(0,1)).x);
 
-  return clamp(weight, vec2(0.0), vec2(1.0));
+  return clamp(weight, 0.0, 1.0);
 }

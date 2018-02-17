@@ -17,6 +17,8 @@ public:
     class Bound
     {
     public:
+        Bound() = default;
+
         void Record(vk::CommandBuffer commandBuffer);
 
         friend class Reduce;
@@ -46,6 +48,13 @@ class ReduceSum : public Reduce
 public:
     ReduceSum(const Renderer::Device& device,
               const glm::ivec2& size);
+};
+
+class ReduceJ : public Reduce
+{
+public:
+    ReduceJ(const Renderer::Device& device,
+            const glm::ivec2& size);
 };
 
 class ReduceMax : public Reduce

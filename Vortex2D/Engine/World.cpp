@@ -17,7 +17,6 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
     , mLinearSolver(device, dimensions.Size, mPreconditioner)
     , mData(device, dimensions.Size)
     , mVelocity(device, dimensions.Size)
-    , mBoundariesVelocity(device, dimensions.Size)
     , mFluidLevelSet(device, dimensions.Size)
     , mObstacleLevelSet(device, dimensions.Size)
     , mValid(device, dimensions.Size.x*dimensions.Size.y)
@@ -27,14 +26,12 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
                   mVelocity,
                   mObstacleLevelSet,
                   mFluidLevelSet,
-                  mBoundariesVelocity,
                   mValid)
     , mExtrapolation(device, dimensions.Size, mValid, mVelocity)
-    , mObstacleExtrapolation(device, dimensions.Size, mValid, mBoundariesVelocity, 2)
     , mClearVelocity(device, false)
     , mClearValid(device, false)
 {
-    mExtrapolation.ConstrainInit(mBoundariesVelocity, mObstacleLevelSet);
+    mExtrapolation.ConstrainInit(mObstacleLevelSet);
     mParticleCount.InitLevelSet(mFluidLevelSet);
     mParticleCount.InitVelocities(mVelocity, mValid);
     mFluidLevelSet.ExtrapolateInit(mObstacleLevelSet);
@@ -61,8 +58,6 @@ void World::InitField(Density& density)
 
 void World::SolveStatic()
 {
-    mObstacleExtrapolation.Extrapolate();
-
     LinearSolver::Parameters params(300, 1e-3f);
     mPreconditioner.BuildHierarchies();
     mProjection.BuildLinearEquation();
@@ -80,8 +75,6 @@ void World::SolveStatic()
 
 void World::SolveDynamic()
 {
-    mObstacleExtrapolation.Extrapolate();
-
     /*
      1) From particles, construct fluid level set
      2) Transfer velocities from particles to grid
@@ -128,11 +121,6 @@ void World::SolveDynamic()
 Renderer::RenderTexture& World::Velocity()
 {
     return mVelocity.Input();
-}
-
-Renderer::RenderTexture& World::ObstacleVelocity()
-{
-    return mBoundariesVelocity.Input();
 }
 
 LevelSet& World::LiquidPhi()

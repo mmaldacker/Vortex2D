@@ -102,6 +102,13 @@ ReduceSum::ReduceSum(const Renderer::Device& device,
 
 }
 
+ReduceJ::ReduceJ(const Renderer::Device &device,
+                 const glm::ivec2 &size)
+    : Reduce(device, SumJ_comp, size)
+{
+
+}
+
 ReduceMax::ReduceMax(const Renderer::Device& device,
                      const glm::ivec2& size)
     : Reduce(device, Max_comp, size)
