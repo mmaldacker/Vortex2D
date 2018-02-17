@@ -52,14 +52,14 @@ void main()
     float liquid_phi = imageLoad(FluidLevelSet, pos).x;
     if (liquid_phi < 0.0 && diagonal.value[index] != 0.0) // ensure linear system is well formed
     {
-      float u_term = get_weightxp(pos).x - get_weight(pos).x;
-      float v_term = get_weightyp(pos).y - get_weight(pos).y;
+        float u_term = get_weight(pos).x - get_weightxp(pos);
+        float v_term = get_weight(pos).y - get_weightyp(pos);
 
-      vec4 centre = mv * vec4(consts.centre, 0.0, 1.0);
-      vec2 rad = pos + vec2(0.5) - centre.xy;
-      div.value[index] += u_term * velocity.value.velocity.x +
-                          v_term * velocity.value.velocity.y +
-                          (v_term * rad.x - u_term * rad.y) * velocity.value.angular_velocity;
+        vec4 centre = mv * vec4(consts.centre, 0.0, 1.0);
+        vec2 rad = pos + vec2(0.5) - centre.xy;
+        div.value[index] -= u_term * velocity.value.velocity.x +
+                            v_term * velocity.value.velocity.y +
+                            (v_term * rad.x - u_term * rad.y) * velocity.value.angular_velocity;
     }
   }
 }

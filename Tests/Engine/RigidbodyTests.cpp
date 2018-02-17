@@ -32,7 +32,196 @@ void PrintRigidBody(const glm::ivec2& size, FluidSim& sim)
     std::cout << std::endl;
 }
 
+void PrintForce(const glm::ivec2& size, Buffer<Vortex2D::Fluid::RigidBody::Velocity>& force)
+{
+    std::vector<Vortex2D::Fluid::RigidBody::Velocity> outForce(size.x*size.y);
+    CopyTo(force, outForce);
+    for (int i = 0; i < size.x; i++)
+    {
+        for (int j = 0; j < size.y; j++)
+        {
+            int index = i + j * size.x;
+            std::cout << "(("
+                      << outForce[index].velocity.x
+                      << ","
+                      << outForce[index].velocity.y
+                      << "),"
+                      << outForce[index].angular_velocity
+                      << ")";
+        }
+
+        std::cout << std::endl;
+    }
+
+    std::cout << std::endl;
+}
+
 TEST(RgidibodyTests, Div)
+{
+    glm::ivec2 size(20);
+
+    FluidSim sim;
+    sim.initialize(1.0f, size.x, size.y);
+    sim.set_boundary(boundary_phi);
+
+    AddParticles(size, sim, boundary_phi);
+
+    // setup rigid body
+    sim.rigidgeom = new Box2DGeometry(0.3f, 0.2f);
+    sim.rbd = new ::RigidBody(0.4f, *sim.rigidgeom);
+    sim.rbd->setCOM(Vec2f(0.5f, 0.5f));
+    sim.rbd->setAngle(0.0);
+    sim.rbd->setAngularMomentum(0.0f);
+    sim.rbd->setLinearVelocity(Vec2f(0.0f, 0.0f));
+
+    sim.update_rigid_body_grids();
+    sim.add_force(0.01f);
+
+    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
+    RenderTexture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+    Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+
+    BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
+
+    LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
+    Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
+
+    Vortex2D::Fluid::Rectangle rectangle(*device, {6.0f, 4.0f});
+    rectangle.Anchor = {3.0f, 2.0f};
+
+    Vortex2D::Fluid::RigidBody rigidBody(*device, Dimensions(size, 1.0f), rectangle, {0.0f, 0.0f});
+
+    rigidBody.Position = {10.0f, 10.0f};
+    rigidBody.UpdatePosition();
+
+    solidPhi.View = rigidBody.View();
+    rigidBody.RecordPhi(solidPhi).Submit();
+    rigidBody.RecordLocalPhi().Submit();
+
+    rigidBody.SetVelocities(glm::vec2(0.0f, 0.0f), 0.0f);
+    rigidBody.BindDiv(data.B, data.Diagonal, liquidPhi);
+    pressure.BuildLinearEquation();
+    rigidBody.Div();
+    device->Handle().waitIdle();
+
+    CheckDiv(size, data.B, sim, 1e-2f); // TODO improve accuracy
+}
+
+TEST(RgidibodyTests, VelocityDiv)
+{
+    glm::ivec2 size(20);
+
+    FluidSim sim;
+    sim.initialize(1.0f, size.x, size.y);
+    sim.set_boundary(boundary_phi);
+
+    AddParticles(size, sim, boundary_phi);
+
+    // setup rigid body
+    sim.rigidgeom = new Box2DGeometry(0.3f, 0.2f);
+    sim.rbd = new ::RigidBody(0.4f, *sim.rigidgeom);
+    sim.rbd->setCOM(Vec2f(0.5f, 0.5f));
+    sim.rbd->setAngle(0.0);
+    sim.rbd->setAngularMomentum(0.0f);
+    sim.rbd->setLinearVelocity(Vec2f(0.1f, 0.0f));
+
+    // get velocities
+    Vec2f v;
+    sim.rbd->getLinearVelocity(v);
+
+    sim.update_rigid_body_grids();
+    sim.add_force(0.01f);
+
+    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
+    RenderTexture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+    Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+
+    BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
+
+    LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
+    Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
+
+    Vortex2D::Fluid::Rectangle rectangle(*device, {6.0f, 4.0f});
+    rectangle.Anchor = {3.0f, 2.0f};
+
+    Vortex2D::Fluid::RigidBody rigidBody(*device, Dimensions(size, 1.0f), rectangle, {0.0f, 0.0f});
+
+    rigidBody.Position = {10.0f, 10.0f};
+    rigidBody.UpdatePosition();
+
+    solidPhi.View = rigidBody.View();
+    rigidBody.RecordPhi(solidPhi).Submit();
+    rigidBody.RecordLocalPhi().Submit();
+
+    rigidBody.SetVelocities(glm::vec2(v[0], v[1]) * glm::vec2(size.x), 0.0f);
+    rigidBody.BindDiv(data.B, data.Diagonal, liquidPhi);
+    pressure.BuildLinearEquation();
+    rigidBody.Div();
+    device->Handle().waitIdle();
+
+    CheckDiv(size, data.B, sim, 1e-2f); // TODO improve accuracy
+}
+
+TEST(RgidibodyTests, RotationDiv)
+{
+    glm::ivec2 size(20);
+
+    FluidSim sim;
+    sim.initialize(1.0f, size.x, size.y);
+    sim.set_boundary(boundary_phi);
+
+    AddParticles(size, sim, boundary_phi);
+
+    // setup rigid body
+    sim.rigidgeom = new Box2DGeometry(0.3f, 0.2f);
+    sim.rbd = new ::RigidBody(0.4f, *sim.rigidgeom);
+    sim.rbd->setCOM(Vec2f(0.5f, 0.5f));
+    sim.rbd->setAngle(0.0);
+    sim.rbd->setAngularMomentum(0.2f);
+    sim.rbd->setLinearVelocity(Vec2f(0.0f, 0.0f));
+
+    // get velocities
+    float w; Vec2f v;
+    sim.rbd->getAngularVelocity(w);
+    sim.rbd->getLinearVelocity(v);
+
+    sim.update_rigid_body_grids();
+    sim.add_force(0.01f);
+
+    Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
+    RenderTexture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+    Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+
+    BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
+
+    LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
+    Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
+
+    Vortex2D::Fluid::Rectangle rectangle(*device, {6.0f, 4.0f});
+    rectangle.Anchor = {3.0f, 2.0f};
+
+    Vortex2D::Fluid::RigidBody rigidBody(*device, Dimensions(size, 1.0f), rectangle, {0.0f, 0.0f});
+
+    rigidBody.Position = {10.0f, 10.0f};
+    rigidBody.UpdatePosition();
+
+    solidPhi.View = rigidBody.View();
+    rigidBody.RecordPhi(solidPhi).Submit();
+    rigidBody.RecordLocalPhi().Submit();
+
+    rigidBody.SetVelocities(glm::vec2(0.0f, 0.0f), w);
+    rigidBody.BindDiv(data.B, data.Diagonal, liquidPhi);
+    pressure.BuildLinearEquation();
+    rigidBody.Div();
+    device->Handle().waitIdle();
+
+    CheckDiv(size, data.B, sim, 1e-2f); // TODO improve accuracy
+}
+
+TEST(RgidibodyTests, VelocityRotationDiv)
 {
     glm::ivec2 size(20);
 
@@ -56,7 +245,6 @@ TEST(RgidibodyTests, Div)
     sim.rbd->getLinearVelocity(v);
 
     sim.update_rigid_body_grids();
-
     sim.add_force(0.01f);
 
     Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
@@ -66,9 +254,7 @@ TEST(RgidibodyTests, Div)
     BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
 
     LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
-
     Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
-
     Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
 
     Vortex2D::Fluid::Rectangle rectangle(*device, {6.0f, 4.0f});
@@ -84,16 +270,12 @@ TEST(RgidibodyTests, Div)
     rigidBody.RecordLocalPhi().Submit();
 
     rigidBody.SetVelocities(glm::vec2(v[0], v[1]) * glm::vec2(size.x), w);
-
     rigidBody.BindDiv(data.B, data.Diagonal, liquidPhi);
-
     pressure.BuildLinearEquation();
     rigidBody.Div();
     device->Handle().waitIdle();
 
-    PrintDiv(size, sim);
-    PrintBuffer<float>(size, data.B);
-    CheckDiv(size, data.B, sim, 1e-2); // TODO improve accuracy
+    CheckDiv(size, data.B, sim, 1e-2f); // TODO improve accuracy
 }
 
 TEST(RgidibodyTests, ReduceJSum)
@@ -148,12 +330,12 @@ TEST(RgidibodyTests, Pressure)
     sim.rbd->setLinearVelocity(Vec2f(0.1f, 0.0f));
 
     // get velocities
-    float w; Vec2f v;
+    float w, angular_momentum; Vec2f v;
+    sim.rbd->getAngularMomentum(angular_momentum);
     sim.rbd->getAngularVelocity(w);
     sim.rbd->getLinearVelocity(v);
 
     sim.update_rigid_body_grids();
-
     sim.add_force(0.01f);
 
     Texture velocity(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
@@ -162,18 +344,14 @@ TEST(RgidibodyTests, Pressure)
 
     BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
 
-    LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
+    Buffer<float> pressure(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
     std::vector<float> computedPressureData(size.x*size.y, 0.0f);
     for (std::size_t i = 0; i < computedPressureData.size(); i++)
     {
         computedPressureData[i] = (float)sim.pressure[i];
     }
-    CopyFrom(data.X, computedPressureData);
-
-    Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
-
-    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
+    CopyFrom(pressure, computedPressureData);
 
     Vortex2D::Fluid::Rectangle rectangle(*device, {6.0f, 4.0f});
     rectangle.Anchor = {3.0f, 2.0f};
@@ -187,21 +365,26 @@ TEST(RgidibodyTests, Pressure)
     rigidBody.RecordPhi(solidPhi).Submit();
     rigidBody.RecordLocalPhi().Submit();
 
-    rigidBody.SetVelocities(glm::vec2(v[0], v[1]) * glm::vec2(size.x), w);
-
     Buffer<Vortex2D::Fluid::RigidBody::Velocity> force(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
-    rigidBody.BindPressure(liquidPhi, data.X, force);
-
-    pressure.ApplyPressure();
+    rigidBody.BindPressure(liquidPhi, pressure, force);
     rigidBody.Pressure();
-
     device->Handle().waitIdle();
 
-    auto rigidbodyForce = rigidBody.GetVelocities();
+    PrintForce(size, force);
 
-    std::cout << rigidbodyForce.velocity.x << ","
-              << rigidbodyForce.velocity.y << ","
-              << rigidbodyForce.angular_velocity << std::endl;
-    FAIL();
+    float new_angular_momentum; Vec2f new_vel;
+    sim.rbd->getLinearVelocity(new_vel);
+    sim.rbd->getAngularMomentum(new_angular_momentum);
+
+    auto rigidbodyForce = rigidBody.GetForces();
+
+    Vortex2D::Fluid::RigidBody::Velocity newForce;
+    newForce.velocity.x = v[0] + 0.01f * rigidbodyForce.velocity.x / sim.rigid_u_mass;
+    newForce.velocity.y = v[1] + 0.01f * rigidbodyForce.velocity.y / sim.rigid_v_mass;
+    newForce.angular_velocity = angular_momentum + 0.01f * rigidbodyForce.angular_velocity;
+
+    EXPECT_NEAR(new_angular_momentum, newForce.angular_velocity, 1e-5f);
+    EXPECT_NEAR(new_vel[0], newForce.velocity.x, 1e-5f);
+    EXPECT_NEAR(new_vel[1], newForce.velocity.y, 1e-5f);
 }

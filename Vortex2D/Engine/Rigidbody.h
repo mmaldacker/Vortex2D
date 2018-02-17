@@ -52,7 +52,7 @@ public:
     void Div();
     void Pressure();
     void VelocityConstrain();
-    Velocity GetVelocities() const;
+    Velocity GetForces();
 
 private:
     const Renderer::Device& mDevice;
@@ -61,6 +61,7 @@ private:
     glm::vec2 mCentre;
     glm::mat4 mView;
     Renderer::UniformBuffer<Velocity> mVelocity;
+    Renderer::Buffer<Velocity> mForce;
     Renderer::UniformBuffer<glm::mat4> mMVBuffer;
 
     Renderer::Work mDiv, mConstrain, mPressure;

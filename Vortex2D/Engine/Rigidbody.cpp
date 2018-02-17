@@ -22,10 +22,11 @@ RigidBody::RigidBody(const Renderer::Device& device,
     , mCentre(centre)
     , mView(dimensions.InvScale)
     , mVelocity(device)
+    , mForce(device, 1, VMA_MEMORY_USAGE_GPU_TO_CPU)
     , mMVBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
     , mDiv(device, dimensions.Size, BuildRigidbodyDiv_comp)
     , mConstrain(device, dimensions.Size, ConstrainRigidbodyVelocity_comp)
-    , mPressure(device, dimensions.Size, Pressure_comp)
+    , mPressure(device, dimensions.Size, RigidbodyPressure_comp)
     , mDivCmd(device)
     , mConstrainCmd(device)
     , mPressureCmd(device)
@@ -46,14 +47,12 @@ void RigidBody::SetVelocities(const glm::vec2& velocity, float angularVelocity)
     });
 }
 
-RigidBody::Velocity RigidBody::GetVelocities() const
+RigidBody::Velocity RigidBody::GetForces()
 {
-    Renderer::UniformBuffer<Velocity> localVelocity(mDevice, VMA_MEMORY_USAGE_CPU_ONLY);
+    Velocity force;
+    Renderer::CopyTo(mForce, force);
 
-    Velocity velocity;
-    Renderer::CopyTo(localVelocity, velocity);
-
-    return velocity;
+    return force;
 }
 
 void RigidBody::UpdatePosition()
@@ -99,7 +98,7 @@ void RigidBody::BindPressure(Renderer::Texture& fluidLevelSet,
                              Renderer::GenericBuffer& force)
 {
     mPressureBound = mPressure.Bind({fluidLevelSet, mPhi, pressure, force, mMVBuffer});
-    mSumBound = mSum.Bind(force, mVelocity);
+    mSumBound = mSum.Bind(force, mForce);
     mPressureCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
         mPressureBound.Record(commandBuffer);

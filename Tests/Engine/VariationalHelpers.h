@@ -305,7 +305,7 @@ static void CheckDiv(const glm::ivec2& size, Vortex2D::Renderer::Buffer<float>& 
         for (std::size_t j = 0; j < size.y; j++)
         {
             std::size_t index = i + size.x * j;
-            EXPECT_NEAR(sim.rhs[index], pixels[index], error);
+            EXPECT_NEAR(sim.rhs[index], pixels[index], error) << "Mismatch at (" << i << "," << j << ")";
         }
     }
 }

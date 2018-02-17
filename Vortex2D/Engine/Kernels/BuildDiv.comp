@@ -41,8 +41,8 @@ void main()
       float vyp = imageLoad(Velocity, pos + ivec2(0,1)).y;
 
       vec2 wuv = get_weight(pos);
-      float wxp = get_weightxp(pos).x;
-      float wyp = get_weightyp(pos).y;
+      float wxp = get_weightxp(pos);
+      float wyp = get_weightyp(pos);
 
       float b = (wuv.x * uv.x - wxp * uxp + wuv.y * uv.y - wyp * vyp) * consts.width;
 

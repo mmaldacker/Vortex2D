@@ -58,7 +58,7 @@ file(GLOB SHADER_SOURCES
     "Engine/Kernels/BuildMatrix.comp"
     "Engine/Kernels/Extrapolate.comp"
     "Engine/Kernels/Project.comp"
-    "Engine/Kernels/Pressure.comp"
+    "Engine/Kernels/RigidbodyPressure.comp"
     "Engine/Kernels/Redistance.comp"
     "Engine/Kernels/ConstrainVelocity.comp"
     "Engine/Kernels/ConstrainRigidbodyVelocity.comp"
