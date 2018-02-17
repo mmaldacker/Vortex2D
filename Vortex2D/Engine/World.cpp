@@ -10,7 +10,8 @@
 namespace Vortex2D { namespace Fluid {
 
 World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
-    : mDimensions(dimensions)
+    : mDevice(device)
+    , mDimensions(dimensions)
     , mParticles(device, vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eVertexBuffer, VMA_MEMORY_USAGE_GPU_ONLY, 8*dimensions.Size.x*dimensions.Size.y*sizeof(Particle))
     , mParticleCount(device, dimensions.Size, mParticles)
     , mPreconditioner(device, dimensions.Size, dt)
@@ -141,6 +142,12 @@ Renderer::GenericBuffer& World::Particles()
 ParticleCount& World::Count()
 {
     return mParticleCount;
+}
+
+RigidbodyRef World::CreateRigidbody(ObjectDrawable& drawable, const glm::vec2& centre)
+{
+    mRigidbodies.push_back(std::make_unique<RigidBody>(mDevice, mDimensions, drawable, centre));
+    return *mRigidbodies.back();
 }
 
 }}
