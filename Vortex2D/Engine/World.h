@@ -48,7 +48,6 @@ public:
     LevelSet& SolidPhi();
     Renderer::GenericBuffer& Particles();
     ParticleCount& Count();
-    Renderer::GenericBuffer& Valid();
 
 private:
     Dimensions mDimensions;

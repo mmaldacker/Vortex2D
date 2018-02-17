@@ -37,7 +37,7 @@ public:
         , solidPhi(device, world.SolidPhi(), green, dimensions.Scale)
         , clearObstacles({1000.0f, 0.0f, 0.0f, 0.0f})
         , rWorld({0.0f, 0.0f})
-        , body(device, rWorld, dimensions, world.Valid(), b2_dynamicBody, {200.0f, 50.0f})
+        , body(device, rWorld, dimensions, b2_dynamicBody, {200.0f, 50.0f})
     {
         solidPhi.Scale = density.Scale = (glm::vec2)dimensions.Scale;
 

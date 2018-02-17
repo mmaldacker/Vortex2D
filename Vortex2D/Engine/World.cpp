@@ -143,9 +143,4 @@ ParticleCount& World::Count()
     return mParticleCount;
 }
 
-Renderer::GenericBuffer& World::Valid()
-{
-    return mValid;
-}
-
 }}

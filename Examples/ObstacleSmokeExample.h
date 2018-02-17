@@ -39,15 +39,15 @@ public:
         , velocityClear({0.0f, 0.0f, 0.0f, 0.0f})
         , obstaclesClear({1000.0f, 0.0f, 0.0f, 0.0f})
         , rWorld({0.0f, 10.0f})
-        , body1(device, rWorld, dimensions, world.Valid(), b2_dynamicBody, {100.0f, 50.0f})
-        , body2(device, rWorld, dimensions, world.Valid(), b2_dynamicBody, {50.0f, 50.0f})
-        , bottom(device, rWorld, dimensions, world.Valid(), b2_staticBody, {500.0f, 20.0f})
+        , body1(device, rWorld, dimensions, b2_dynamicBody, {100.0f, 50.0f})
+        , body2(device, rWorld, dimensions, b2_dynamicBody, {50.0f, 50.0f})
+        , bottom(device, rWorld, dimensions, b2_staticBody, {500.0f, 20.0f})
     {
         solidPhi.Scale = density.Scale = glm::vec2(dimensions.Scale);
 
         world.InitField(density);
 
-        velocityRender = world.ObstacleVelocity().Record({velocityClear, body1.VelocityObject(), body2.VelocityObject()});
+        //velocityRender = world.ObstacleVelocity().Record({velocityClear, body1.VelocityObject(), body2.VelocityObject()});
 
         // Draw density
         Vortex2D::Renderer::Rectangle source(device, {800.0f, 400.0f}, gray);

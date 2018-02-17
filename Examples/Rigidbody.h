@@ -21,14 +21,12 @@ public:
   PolygonRigidbody(const Vortex2D::Renderer::Device& device,
                    b2World& world,
                    const Vortex2D::Fluid::Dimensions& dimensions,
-                   Vortex2D::Renderer::GenericBuffer& valid,
                    b2BodyType type,
                    const std::vector<glm::vec2>& points);
 
   b2Body& Body();
 
   Vortex2D::Renderer::Drawable& SignedObject();
-  Vortex2D::Renderer::Drawable& VelocityObject();
 
   void UpdatePosition();
   void UpdateVelocities();
@@ -48,10 +46,9 @@ public:
   BoxRigidbody(const Vortex2D::Renderer::Device& device,
                b2World& world,
                const Vortex2D::Fluid::Dimensions& dimensions,
-               Vortex2D::Renderer::GenericBuffer& valid,
                b2BodyType type,
                const glm::vec2& halfSize)
-    : PolygonRigidbody(device, world, dimensions, valid, type,
+    : PolygonRigidbody(device, world, dimensions, type,
                       {{-halfSize.x, -halfSize.y},
                       {halfSize.x, -halfSize.y},
                       {halfSize.x, halfSize.y},

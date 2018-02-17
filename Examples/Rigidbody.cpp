@@ -19,12 +19,11 @@ float sign(float value)
 PolygonRigidbody::PolygonRigidbody(const Vortex2D::Renderer::Device& device,
                                    b2World& world,
                                    const Vortex2D::Fluid::Dimensions& dimensions,
-                                   Vortex2D::Renderer::GenericBuffer& valid,
                                    b2BodyType type,
                                    const std::vector<glm::vec2>& points)
     : mScale(dimensions.Scale)
     , mDrawPolygon(device, points)
-    , mVelocityPolygon(device, dimensions.Size, valid, points, {})
+    , mVelocityPolygon(device, dimensions, mDrawPolygon, {})
 {
   b2PolygonShape shape;
 
@@ -58,11 +57,6 @@ Vortex2D::Renderer::Drawable& PolygonRigidbody::SignedObject()
   return mDrawPolygon;
 }
 
-Vortex2D::Renderer::Drawable& PolygonRigidbody::VelocityObject()
-{
-    return mVelocityPolygon;
-}
-
 void PolygonRigidbody::UpdatePosition()
 {
   auto pos = mB2Body->GetPosition();
@@ -75,13 +69,13 @@ void PolygonRigidbody::UpdateVelocities()
     glm::vec2 vel = {mB2Body->GetLinearVelocity().x, mB2Body->GetLinearVelocity().y};
     float angularVelocity = mB2Body->GetAngularVelocity();
     float scale = box2dScale / mScale;
-    mVelocityPolygon.UpdateVelocities(vel * scale, angularVelocity);
+    mVelocityPolygon.SetVelocities(vel * scale, angularVelocity);
 }
 
 void PolygonRigidbody::Update(const glm::mat4& projection, const glm::mat4& view)
 {
     mDrawPolygon.Update(projection, view);
-    mVelocityPolygon.Update(projection, view);
+    //mVelocityPolygon.Update(projection, view);
 }
 
 void PolygonRigidbody::SetTransform(const glm::vec2& pos, float angle)
