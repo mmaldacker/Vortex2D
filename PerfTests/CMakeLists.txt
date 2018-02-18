@@ -1,3 +1,11 @@
+enable_testing()
+set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
+download_project(PROJ                benchmark
+                 GIT_REPOSITORY      https://github.com/google/benchmark.git
+                 GIT_TAG             v1.2.0
+                 ${UPDATE_DISCONNECTED_IF_AVAILABLE})
+add_subdirectory(${benchmark_SOURCE_DIR} ${benchmark_BINARY_DIR})
+
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 

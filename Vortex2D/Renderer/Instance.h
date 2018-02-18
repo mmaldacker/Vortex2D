@@ -18,7 +18,7 @@ namespace Vortex2D { namespace Renderer {
 class Instance
 {
 public:
-    void Create(const std::string& name, std::vector<const char*> extensions, bool validation);
+    Instance(const std::string& name, std::vector<const char*> extensions, bool validation);
 
     vk::PhysicalDevice GetPhysicalDevice() const;
     vk::Instance GetInstance() const;

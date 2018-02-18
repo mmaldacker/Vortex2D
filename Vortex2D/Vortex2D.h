@@ -4,6 +4,7 @@
 //
 
 #include <Vortex2D/Renderer/Common.h>
+#include <Vortex2D/Renderer/Instance.h>
 #include <Vortex2D/Renderer/Device.h>
 #include <Vortex2D/Renderer/Shapes.h>
 #include <Vortex2D/Renderer/CommandBuffer.h>
