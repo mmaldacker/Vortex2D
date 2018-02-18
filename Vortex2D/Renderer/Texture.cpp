@@ -43,9 +43,6 @@ Texture::Texture(const Device& device, uint32_t width, uint32_t height, vk::Form
     , mHeight(height)
     , mFormat(format)
 {
-    auto formatProperties = device.GetPhysicalDevice().getFormatProperties(format);
-
-    // TODO perhaps only set transferSrc or transferDst depending on how it's used?
     vk::ImageUsageFlags usageFlags = vk::ImageUsageFlagBits::eTransferSrc |
                                      vk::ImageUsageFlagBits::eTransferDst;
 
@@ -144,6 +141,7 @@ Texture::Texture(Texture&& other)
   , mImageView(std::move(other.mImageView))
 {
   other.mImage = VK_NULL_HANDLE;
+  other.mAllocation = VK_NULL_HANDLE;
 }
 
 void Texture::Clear(vk::CommandBuffer commandBuffer, const std::array<int, 4>& colour)

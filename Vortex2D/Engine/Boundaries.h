@@ -20,7 +20,11 @@ namespace Vortex2D { namespace Fluid {
 
 class LevelSet;
 
-class Polygon : public Renderer::Transformable, public Renderer::Drawable
+class ObjectDrawable : public Renderer::Transformable, public Renderer::Drawable
+{
+};
+
+class Polygon : public ObjectDrawable
 {
 public:
     // TODO number should be calculated
@@ -48,7 +52,7 @@ public:
     Rectangle(const Renderer::Device& device, const glm::vec2& size, bool inverse = false);
 };
 
-class Circle : public Renderer::Transformable, public Renderer::Drawable
+class Circle : public ObjectDrawable
 {
 public:
     // TODO number should be calculated

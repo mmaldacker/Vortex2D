@@ -7,6 +7,7 @@ layout(push_constant) uniform Consts
 {
   int width;
   int height;
+  vec2 centre;
 }consts;
 
 layout(std430, binding = 0) buffer Div
@@ -21,7 +22,22 @@ layout(std430, binding = 1) buffer Diagonal
 
 layout(binding = 2, r32f) uniform image2D FluidLevelSet;
 layout(binding = 3, r32f) uniform image2D SolidLevelSet;
-layout(binding = 4, rgba32f) uniform image2D Velocity;
+
+struct Velocity
+{
+    vec2 velocity;
+    float angular_velocity;
+};
+
+layout(binding = 4) uniform RigidbodyVelocity
+{
+    Velocity value;
+}velocity;
+
+layout(binding = 5) uniform MV
+{
+    mat4 mv;
+};
 
 #include "CommonProject.comp"
 
@@ -36,21 +52,14 @@ void main()
     float liquid_phi = imageLoad(FluidLevelSet, pos).x;
     if (liquid_phi < 0.0 && diagonal.value[index] != 0.0) // ensure linear system is well formed
     {
-      vec2  uv  = imageLoad(Velocity, pos).xy;
-      float uxp = imageLoad(Velocity, pos + ivec2(1,0)).x;
-      float vyp = imageLoad(Velocity, pos + ivec2(0,1)).y;
+        float u_term = get_weight(pos).x - get_weightxp(pos);
+        float v_term = get_weight(pos).y - get_weightyp(pos);
 
-      vec2 wuv = get_weight(pos);
-      float wxp = get_weightxp(pos);
-      float wyp = get_weightyp(pos);
-
-      float b = (wuv.x * uv.x - wxp * uxp + wuv.y * uv.y - wyp * vyp) * consts.width;
-
-      div.value[index] = b;
-    }
-    else
-    {
-      div.value[index] = 0.0;
+        vec4 centre = mv * vec4(consts.centre, 0.0, 1.0);
+        vec2 rad = pos + vec2(0.5) - centre.xy;
+        div.value[index] -= u_term * velocity.value.velocity.x +
+                            v_term * velocity.value.velocity.y +
+                            (v_term * rad.x - u_term * rad.y) * velocity.value.angular_velocity;
     }
   }
 }

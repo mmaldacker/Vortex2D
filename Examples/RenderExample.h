@@ -3,10 +3,11 @@
 //  Vortex2D
 //
 
-#include <Vortex2D/Renderer/Drawable.h>
-#include <Vortex2D/Renderer/Shapes.h>
+#include <Vortex2D/Vortex2D.h>
 
-class RenderExample : public Vortex2D::Renderer::Drawable
+#include "Runner.h"
+
+class RenderExample : public Runner
 {
 public:
     RenderExample(const Vortex2D::Renderer::Device& device, const glm::vec2& size)
@@ -19,25 +20,28 @@ public:
         circle.Position = {500, 500};
     }
 
-    void Initialize(const Vortex2D::Renderer::RenderState& renderState) override
+    void Init(const Vortex2D::Renderer::Device& device,
+              Vortex2D::Renderer::RenderTarget& renderTarget) override
     {
-        rectangle.Initialize(renderState);
-        circle.Initialize(renderState);
+        auto blendMode = vk::PipelineColorBlendAttachmentState()
+                .setBlendEnable(true)
+                .setAlphaBlendOp(vk::BlendOp::eAdd)
+                .setColorBlendOp(vk::BlendOp::eAdd)
+                .setSrcColorBlendFactor(vk::BlendFactor::eSrcAlpha)
+                .setSrcAlphaBlendFactor(vk::BlendFactor::eOne)
+                .setDstColorBlendFactor(vk::BlendFactor::eOneMinusSrcAlpha)
+                .setDstAlphaBlendFactor(vk::BlendFactor::eZero);
+
+        render = renderTarget.Record({rectangle, circle}, blendMode);
     }
 
-    void Update(const glm::mat4& projection, const glm::mat4& view) override
+    void Step() override
     {
-        rectangle.Update(projection, view);
-        circle.Update(projection, view);
-    }
-
-    void Draw(vk::CommandBuffer commandBuffer, const Vortex2D::Renderer::RenderState& renderState) override
-    {
-        rectangle.Draw(commandBuffer, renderState);
-        circle.Draw(commandBuffer, renderState);
+        render.Submit();
     }
 
 private:
     Vortex2D::Renderer::Rectangle rectangle;
     Vortex2D::Renderer::Ellipse circle;
+    Vortex2D::Renderer::RenderCommand render;
 };

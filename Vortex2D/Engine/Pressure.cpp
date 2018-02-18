@@ -18,9 +18,9 @@ Pressure::Pressure(const Renderer::Device& device,
                    Velocity& velocity,
                    Renderer::Texture& solidPhi,
                    Renderer::Texture& liquidPhi,
-                   Velocity& solidVelocity,
                    Renderer::GenericBuffer& valid)
-    : mBuildMatrix(device, size, BuildMatrix_comp)
+    : mData(data)
+    , mBuildMatrix(device, size, BuildMatrix_comp)
     , mBuildMatrixBound(mBuildMatrix.Bind({data.Diagonal,
                                            data.Lower,
                                            liquidPhi,
@@ -30,8 +30,7 @@ Pressure::Pressure(const Renderer::Device& device,
                                      data.Diagonal,
                                      liquidPhi,
                                      solidPhi,
-                                     velocity.Input(),
-                                     solidVelocity.Input()}))
+                                     velocity.Input()}))
     , mProject(device, size, Project_comp)
     , mProjectBound(mProject.Bind({data.X, liquidPhi, solidPhi, velocity.Input(), velocity.Output(), valid}))
     , mBuildEquationCmd(device, false)

@@ -37,8 +37,8 @@ void main()
     if (liquid_phi < 0.0)
     {
       vec2 wuv = get_weight(pos);
-      float wxp = get_weightxp(pos).x;
-      float wyp = get_weightyp(pos).y;
+      float wxp = get_weightxp(pos);
+      float wyp = get_weightyp(pos);
 
       float pxp = imageLoad(FluidLevelSet, pos + ivec2(1,0)).x;
       float pxn = imageLoad(FluidLevelSet, pos + ivec2(-1,0)).x;

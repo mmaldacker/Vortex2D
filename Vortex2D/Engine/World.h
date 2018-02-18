@@ -19,10 +19,15 @@
 #include <Vortex2D/Engine/Advection.h>
 #include <Vortex2D/Engine/Particles.h>
 #include <Vortex2D/Engine/Velocity.h>
+#include <Vortex2D/Engine/Rigidbody.h>
 
 #include <vector>
+#include <memory>
+#include <functional>
 
 namespace Vortex2D { namespace Fluid {
+
+using RigidbodyRef = std::reference_wrapper<RigidBody>;
 
 /**
  * @brief The main class of the framework. Each instance manages a grid and this class
@@ -44,14 +49,15 @@ public:
     void SolveDynamic();
 
     Renderer::RenderTexture& Velocity();
-    Renderer::RenderTexture& ObstacleVelocity();
     LevelSet& LiquidPhi();
     LevelSet& SolidPhi();
     Renderer::GenericBuffer& Particles();
     ParticleCount& Count();
-    Renderer::GenericBuffer& Valid();
+
+    RigidbodyRef CreateRigidbody(ObjectDrawable& drawable, const glm::vec2& centre);
 
 private:
+    const Renderer::Device& mDevice;
     Dimensions mDimensions;
 
     Renderer::GenericBuffer mParticles;
@@ -62,7 +68,6 @@ private:
 
     LinearSolver::Data mData;
     Fluid::Velocity mVelocity;
-    Fluid::Velocity mBoundariesVelocity;
     LevelSet mFluidLevelSet;
     LevelSet mObstacleLevelSet;
 
@@ -71,9 +76,10 @@ private:
     Advection mAdvection;
     Pressure mProjection;
     Extrapolation mExtrapolation;
-    Extrapolation mObstacleExtrapolation;
 
     Renderer::CommandBuffer mClearVelocity, mClearValid;
+
+    std::vector<std::unique_ptr<RigidBody>> mRigidbodies;
 };
 
 }}

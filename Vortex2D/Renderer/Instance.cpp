@@ -23,7 +23,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugReportFlagsEXT flags,
 
 namespace Vortex2D { namespace Renderer {
 
-void Instance::Create(const std::string& name, std::vector<const char*> extraExtensions, bool validation)
+Instance::Instance(const std::string& name, std::vector<const char*> extraExtensions, bool validation)
 {
     auto availableLayers = vk::enumerateInstanceLayerProperties();
     auto availableExtensions = vk::enumerateInstanceExtensionProperties();

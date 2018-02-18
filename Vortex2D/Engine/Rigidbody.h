@@ -10,42 +10,64 @@
 #include <Vortex2D/Renderer/Drawable.h>
 #include <Vortex2D/Renderer/Transformable.h>
 #include <Vortex2D/Renderer/Pipeline.h>
+#include <Vortex2D/Renderer/RenderTexture.h>
+#include <Vortex2D/Renderer/Work.h>
+#include <Vortex2D/Engine/LinearSolver/Reduce.h>
+#include <Vortex2D/Engine/Boundaries.h>
+#include <Vortex2D/Engine/Size.h>
 
 namespace Vortex2D { namespace Fluid {
 
-class PolygonVelocity : public Renderer::Drawable, public Renderer::Transformable
+class RigidBody : public Renderer::Transformable
 {
 public:
-    PolygonVelocity(const Renderer::Device& device,
-                    const glm::ivec2& size,
-                    Renderer::GenericBuffer& valid,
-                    const std::vector<glm::vec2>& points,
-                    const glm::vec2& centre);
-
-    void SetCentre(const glm::vec2& centre);
-    void UpdateVelocities(const glm::vec2& velocity, float angularVelocity);
-
-    void Initialize(const Renderer::RenderState& renderState) override;
-    void Update(const glm::mat4& projection, const glm::mat4& view) override;
-    void Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState) override;
-
-private:
     struct Velocity
     {
         alignas(8) glm::vec2 velocity;
         alignas(4) float angular_velocity;
     };
 
+    RigidBody(const Renderer::Device& device,
+              const Dimensions& dimensions,
+              ObjectDrawable& drawable,
+              const glm::vec2& centre);
+
+    void SetVelocities(const glm::vec2& velocity, float angularVelocity);
+
+    void UpdatePosition();
+
+    Renderer::RenderCommand RecordLocalPhi();
+    Renderer::RenderCommand RecordPhi(Renderer::RenderTexture& phi);
+
+    void BindDiv(Renderer::GenericBuffer& div,
+                 Renderer::GenericBuffer& diagonal,
+                 Renderer::Texture& fluidLevelSet);
+
+    void BindVelocityConstrain(Renderer::GenericBuffer& velocity);
+    void BindPressure(Renderer::Texture& fluidLevelSet,
+                      Renderer::GenericBuffer& pressure,
+                      Renderer::GenericBuffer& force);
+
+    void Div();
+    void Pressure();
+    void VelocityConstrain();
+    Velocity GetForces();
+
+private:
     const Renderer::Device& mDevice;
-    glm::ivec2 mSize;
+    Renderer::RenderTexture mPhi;
+    ObjectDrawable& mDrawable;
     glm::vec2 mCentre;
-    Renderer::UniformBuffer<glm::mat4> mMVPBuffer;
-    Renderer::UniformBuffer<glm::mat4> mMVBuffer;
+    glm::mat4 mView;
     Renderer::UniformBuffer<Velocity> mVelocity;
-    Renderer::VertexBuffer<glm::vec2> mVertexBuffer;
-    Renderer::DescriptorSet mDescriptorSet;
-    Renderer::GraphicsPipeline mPipeline;
-    uint32_t mNumVertices;
+    Renderer::Buffer<Velocity> mForce;
+    Renderer::UniformBuffer<glm::mat4> mMVBuffer;
+
+    Renderer::Work mDiv, mConstrain, mPressure;
+    Renderer::Work::Bound mDivBound, mConstrainBound, mPressureBound;
+    Renderer::CommandBuffer mDivCmd, mConstrainCmd, mPressureCmd;
+    ReduceJ mSum;
+    ReduceSum::Bound mSumBound;
 };
 
 }}

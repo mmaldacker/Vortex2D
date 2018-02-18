@@ -4,16 +4,11 @@
 //
 
 #include <Vortex2D/Vortex2D.h>
-#include <Vortex2D/Renderer/Drawable.h>
-#include <Vortex2D/Engine/World.h>
-#include <Vortex2D/Engine/Density.h>
-#include <Vortex2D/Renderer/RenderTexture.h>
-#include <Vortex2D/Renderer/Sprite.h>
-#include <Vortex2D/Engine/Boundaries.h>
 
 #include <Box2D/Box2D.h>
 
 #include "Rigidbody.h"
+#include "Runner.h"
 
 #include <functional>
 #include <vector>
@@ -22,7 +17,7 @@
 extern glm::vec4 green;
 extern glm::vec4 gray;
 
-class SmokeVelocityExample : public Vortex2D::Renderer::Drawable
+class SmokeVelocityExample : public Runner
 {
 public:
     SmokeVelocityExample(const Vortex2D::Renderer::Device& device,
@@ -37,12 +32,16 @@ public:
         , solidPhi(device, world.SolidPhi(), green, dimensions.Scale)
         , clearObstacles({1000.0f, 0.0f, 0.0f, 0.0f})
         , rWorld({0.0f, 0.0f})
-        , body(device, rWorld, dimensions, world.Valid(), b2_dynamicBody, {200.0f, 50.0f})
+        , body(device, rWorld, dimensions, b2_dynamicBody, {200.0f, 50.0f})
     {
         solidPhi.Scale = density.Scale = (glm::vec2)dimensions.Scale;
 
         source.Position = force.Position = {100.0f, 100.0f};
+    }
 
+    void Init(const Vortex2D::Renderer::Device& device,
+              Vortex2D::Renderer::RenderTarget& renderTarget) override
+    {
         // Draw liquid boundaries
         Vortex2D::Renderer::Rectangle area(device, dimensions.Size - glm::ivec2(2.0f), glm::vec4(-1.0f));
         Vortex2D::Renderer::Clear clearLiquid({1.0f, 0.0f, 0.0f, 0.0f});
@@ -68,22 +67,23 @@ public:
 
         // wait for drawing to finish
         device.Handle().waitIdle();
+
+        auto blendMode = vk::PipelineColorBlendAttachmentState()
+                .setBlendEnable(true)
+                .setAlphaBlendOp(vk::BlendOp::eAdd)
+                .setColorBlendOp(vk::BlendOp::eAdd)
+                .setSrcColorBlendFactor(vk::BlendFactor::eSrcAlpha)
+                .setSrcAlphaBlendFactor(vk::BlendFactor::eOne)
+                .setDstColorBlendFactor(vk::BlendFactor::eOneMinusSrcAlpha)
+                .setDstAlphaBlendFactor(vk::BlendFactor::eZero);
+
+        windowRender = renderTarget.Record({density, solidPhi}, blendMode);
     }
 
-    void Initialize(const Vortex2D::Renderer::RenderState& renderState) override
-    {
-        density.Initialize(renderState);
-        solidPhi.Initialize(renderState);
-    }
-
-    void Update(const glm::mat4& projection, const glm::mat4& view) override
+    void Step() override
     {
         body.UpdatePosition();
         body.UpdateVelocities();
-        body.Update(world.SolidPhi().Orth, dimensions.InvScale);
-
-        density.Update(projection, view);
-        solidPhi.Update(projection, view);
 
         obstaclesRender.Submit();
         velocityRender.Submit();
@@ -94,12 +94,8 @@ public:
         const int velocityStep = 8;
         const int positionStep = 3;
         rWorld.Step(delta, velocityStep, positionStep);
-    }
 
-    void Draw(vk::CommandBuffer commandBuffer, const Vortex2D::Renderer::RenderState& renderState) override
-    {
-        density.Draw(commandBuffer, renderState);
-        solidPhi.Draw(commandBuffer, renderState);
+        windowRender.Submit();
     }
 
 private:
@@ -111,7 +107,7 @@ private:
     Vortex2D::Fluid::World world;
     Vortex2D::Fluid::DistanceField solidPhi;
     Vortex2D::Renderer::Clear clearObstacles;
-    Vortex2D::Renderer::RenderCommand velocityRender, densityRender, obstaclesRender;
+    Vortex2D::Renderer::RenderCommand velocityRender, densityRender, obstaclesRender, windowRender;
 
     b2World rWorld;
 

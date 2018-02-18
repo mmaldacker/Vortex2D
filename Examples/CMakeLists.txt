@@ -1,4 +1,11 @@
-
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+download_project(PROJ                glfw3
+                 GIT_REPOSITORY      https://github.com/glfw/glfw.git
+                 GIT_TAG             master
+                 ${UPDATE_DISCONNECTED_IF_AVAILABLE})
+add_subdirectory(${glfw3_SOURCE_DIR} ${glfw3_BINARY_DIR})
 
 download_project(PROJ                Box2D
                  GIT_REPOSITORY      https://github.com/erincatto/Box2D.git
@@ -12,16 +19,22 @@ file(GLOB EXAMPLES_SOURCES
         "main.cpp"
         "RenderExample.h"
         "ObstacleSmokeExample.h"
-        "ScaleWaterExample.h"
         "SmokeExample.h"
         "SmokeVelocityExample.h"
         "WaterExample.h"
+        "Runner.h")
+
+file(GLOB EXAMPLES_BOX2D_SOURCES
         "Rigidbody.h"
         "Rigidbody.cpp")
 
-# Necessary since Box2D CMakeLists.txt doesn't use modern cmake
-include_directories(${Box2D_SOURCE_DIR}/Box2D)
+# Build Box2D stuff separately
+add_library(vortex2d_examples_box2d STATIC ${EXAMPLES_BOX2D_SOURCES})
+target_include_directories(vortex2d_examples_box2d PUBLIC ${Box2D_SOURCE_DIR}/Box2D)
+target_link_libraries(vortex2d_examples_box2d PUBLIC vortex2d Box2D)
 
 add_executable(vortex2d_examples ${EXAMPLES_SOURCES})
 target_compile_features(vortex2d_examples PRIVATE cxx_nullptr)
-target_link_libraries(vortex2d_examples vortex2d vortex2d_window Box2D)
+target_link_libraries(vortex2d_examples vortex2d glfw vortex2d_examples_box2d)
+
+

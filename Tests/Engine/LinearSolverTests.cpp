@@ -455,7 +455,6 @@ TEST(LinearSolverTests, Multigrid_Simple_PCG)
     Velocity velocity(*device, size);
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-    Velocity solidVelocity(*device, size);
     Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
     SetSolidPhi(*device, size, solidPhi, sim, size.x);
@@ -463,7 +462,7 @@ TEST(LinearSolverTests, Multigrid_Simple_PCG)
 
     BuildLinearEquation(size, data.Diagonal, data.Lower, data.B, sim);
 
-    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, solidVelocity, valid);
+    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
 
     Multigrid preconditioner(*device, size, 0.01f);
     preconditioner.BuildHierarchiesInit(pressure, solidPhi, liquidPhi);

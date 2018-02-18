@@ -19,9 +19,6 @@ TEST(Vulkan, Init)
 
 int main(int argc, char **argv)
 {
-    std::vector<const char*> extensions;
-    Vortex2D::Renderer::Instance instance_;
-
     bool debug;
 
 #ifdef NDEBUG
@@ -33,8 +30,9 @@ int main(int argc, char **argv)
     // load symbols
     if (!vkLoaderInit()) throw std::runtime_error("cannot load vulkan library!");
 
-    instance_.Create("Tests", extensions, debug);
-    Vortex2D::Renderer::Device device_(instance_.GetPhysicalDevice());
+    std::vector<const char*> extensions;
+    Vortex2D::Renderer::Instance instance("Tests", extensions, debug);
+    Vortex2D::Renderer::Device device_(instance.GetPhysicalDevice());
 
     device = &device_;
 

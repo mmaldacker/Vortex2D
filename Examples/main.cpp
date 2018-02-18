@@ -1,8 +1,5 @@
-#include "glfw.h"
-
 #include <Vortex2D/Vortex2D.h>
-#include <Vortex2D/Renderer/Device.h>
-#include <Vortex2D/Renderer/RenderWindow.h>
+#include <GLFW/glfw3.h>
 
 #include "RenderExample.h"
 #include "SmokeExample.h"
@@ -22,6 +19,53 @@ glm::vec4 green = glm::vec4(35.0f, 163.0f, 143.0f, 255.0f)/glm::vec4(255.0f);
 glm::vec4 gray = glm::vec4(182.0f,172.0f,164.0f, 255.0f)/glm::vec4(255.0f);
 glm::vec4 blue = glm::vec4(188.0f, 155.0f, 99.0f, 255.0f)/glm::vec4(255.0f);
 
+static void ErrorCallback(int error, const char* description)
+{
+    throw std::runtime_error("GLFW Error: " +
+                             std::to_string(error) +
+                             " What: " +
+                             std::string(description));
+}
+
+std::vector<const char*> GetGLFWExtensions()
+{
+    std::vector<const char*> extensions;
+    unsigned int glfwExtensionCount = 0;
+    const char** glfwExtensions;
+
+    // get the required extensions from GLFW
+    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+    for (int i = 0; i < glfwExtensionCount; i++)
+    {
+        extensions.push_back(glfwExtensions[i]);
+    }
+
+    return extensions;
+}
+
+vk::UniqueSurfaceKHR GetGLFWSurface(GLFWwindow* window, vk::Instance instance)
+{
+    // create surface
+    VkSurfaceKHR surface;
+    if (glfwCreateWindowSurface(static_cast<VkInstance>(instance), window, nullptr, &surface) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create window surface!");
+    }
+
+    return vk::UniqueSurfaceKHR(surface, vk::SurfaceKHRDeleter{instance});
+}
+
+GLFWwindow* GetGLFWWindow(const glm::ivec2& size)
+{
+    GLFWwindow* window = glfwCreateWindow(size.x, size.y, "Vortex2D App", nullptr, nullptr);
+    if (window == nullptr)
+    {
+        throw std::runtime_error("Could not create glfw window");
+    }
+
+    return window;
+}
+
 class App
 {
 public:
@@ -29,30 +73,34 @@ public:
     float scale = 4;
     float delta = 0.016f;
 
-    App()
-        : mainWindow(size.x, size.y)
-        , device(mainWindow.GetPhysicalDevice(), mainWindow.GetSurface())
-        , window(device, mainWindow.GetSurface(), size.x, size.y)
+    App(bool validation = true)
+        : glfwWindow(GetGLFWWindow(size))
+        , instance("Vortex2D", GetGLFWExtensions(), validation)
+        , surface(GetGLFWSurface(glfwWindow, static_cast<VkInstance>(instance.GetInstance())))
+        , device(instance.GetPhysicalDevice(), *surface, validation)
+        , window(device, *surface, size.x, size.y)
         , clearRender(window.Record({clear}))
     {
-        glfwSetWindowUserPointer(mainWindow.GetWindow(), this);
-
+        // setup callback
+        glfwSetWindowUserPointer(glfwWindow, this);
         auto func = [](GLFWwindow* window, int key, int scancode, int action, int mods)
         {
             static_cast<App*>(glfwGetWindowUserPointer(window))->KeyCallback(key, action);
         };
-
-        glfwSetKeyCallback(mainWindow.GetWindow(), func);
+        glfwSetKeyCallback(glfwWindow, func);
     }
 
     ~App()
     {
         device.Handle().waitIdle();
+        glfwDestroyWindow(glfwWindow);
     }
 
     void KeyCallback(int key, int action)
     {
         if (action != GLFW_PRESS) return;
+
+        device.Handle().waitIdle();
 
         switch (key)
         {
@@ -75,16 +123,7 @@ public:
             return;
         }
 
-        auto blendMode = vk::PipelineColorBlendAttachmentState()
-                .setBlendEnable(true)
-                .setAlphaBlendOp(vk::BlendOp::eAdd)
-                .setColorBlendOp(vk::BlendOp::eAdd)
-                .setSrcColorBlendFactor(vk::BlendFactor::eSrcAlpha)
-                .setSrcAlphaBlendFactor(vk::BlendFactor::eOne)
-                .setDstColorBlendFactor(vk::BlendFactor::eOneMinusSrcAlpha)
-                .setDstAlphaBlendFactor(vk::BlendFactor::eZero);
-
-        exampleRender = window.Record({*example}, blendMode);
+        example->Init(device, window);
     }
 
     void Run()
@@ -93,14 +132,14 @@ public:
         std::vector<uint64_t> timePoints(windowSize, 0);
         int timePointIndex = 0;
 
-        while(!mainWindow.ShoudCloseWindow())
+        while(!glfwWindowShouldClose(glfwWindow))
         {
             glfwPollEvents();
 
             auto start = std::chrono::system_clock::now();
 
             clearRender.Submit();
-            exampleRender.Submit();
+            if (example) example->Step();
             window.Display();
 
             auto end = std::chrono::system_clock::now();
@@ -109,23 +148,36 @@ public:
 
             auto average = std::accumulate(timePoints.begin(), timePoints.end(), 0) / windowSize;
             auto title = std::to_string(average) + "ms";
-            glfwSetWindowTitle(mainWindow.GetWindow(), title.c_str());
+            glfwSetWindowTitle(glfwWindow, title.c_str());
         }
     }
 
-    GLFWApp mainWindow;
+    GLFWwindow* glfwWindow;
+    Vortex2D::Renderer::Instance instance;
+    vk::UniqueSurfaceKHR surface;
     Vortex2D::Renderer::Device device;
     Renderer::RenderWindow window;
     Renderer::Clear clear = {{0.5f, 0.5f, 0.5f, 1.0f}};
-    std::unique_ptr<Vortex2D::Renderer::Drawable> example;
+    std::unique_ptr<Runner> example;
     Vortex2D::Renderer::RenderCommand clearRender;
-    Vortex2D::Renderer::RenderCommand exampleRender;
 };
 
 int main()
 {
+    if (!glfwInit())
+    {
+        throw std::runtime_error("Could not initialise GLFW!");
+    }
+
     try
     {
+        glfwSetErrorCallback(ErrorCallback);
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+        glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+
+        // load symbols
+        if (!vkLoaderInit()) throw std::runtime_error("cannot load vulkan library!");
+
         App app;
         app.Run();
     }
@@ -133,4 +185,6 @@ int main()
     {
         std::cout << "exception: " << error.what() << std::endl;
     }
+
+    glfwTerminate();
 }
