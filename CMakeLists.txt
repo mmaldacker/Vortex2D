@@ -30,11 +30,6 @@ download_project(PROJ                FluidRigidCoupling2D
 add_subdirectory(${FluidRigidCoupling2D_SOURCE_DIR} ${FluidRigidCoupling2D_BINARY_DIR})
 endif ()
 
-download_project(PROJ                glm
-                 GIT_REPOSITORY      https://github.com/g-truc/glm.git
-                 GIT_TAG             0.9.8.4
-                 ${UPDATE_DISCONNECTED_IF_AVAILABLE})
-add_subdirectory(${glm_SOURCE_DIR} ${glm_BINARY_DIR})
 add_subdirectory(Vortex2D)
 
 if (VORTEX2D_ENABLE_EXAMPLES)
