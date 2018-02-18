@@ -256,6 +256,39 @@ TEST(ComputeTests, WorkIndirect)
     ASSERT_EQ(outputData, bufferData2);
 }
 
+TEST(ComputeTests, FloatImage)
+{
+    glm::ivec2 size(20);
+    
+    Texture localTexture(*device, size.x, size.y, vk::Format::eR32G32B32A32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
+    Texture texture(*device, size.x, size.y, vk::Format::eR32G32B32A32Sfloat);
+
+    Work work(*device, size, ImageFloat_comp);
+    
+    std::vector<glm::vec4> data(size.x*size.y, glm::vec4(2.0f, 3.0f, 0.0f, 0.0f));
+    localTexture.CopyFrom(data);
+    
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+       texture.CopyFrom(commandBuffer, localTexture);
+    });
+    
+    PrintTexture<glm::vec4>(localTexture);
+    
+    auto boundWork = work.Bind({texture});
+    
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+       boundWork.Record(commandBuffer);
+       texture.Barrier(commandBuffer,
+                       vk::ImageLayout::eGeneral, vk::AccessFlagBits::eShaderWrite,
+                       vk::ImageLayout::eGeneral, vk::AccessFlagBits::eShaderRead);
+       localTexture.CopyFrom(commandBuffer, texture);
+    });
+    
+    PrintTexture<glm::vec4>(localTexture);
+}
+
 TEST(ComputeTests, Stencil)
 {
     glm::ivec2 size(50);
@@ -296,7 +329,7 @@ TEST(ComputeTests, Stencil)
             inputData[index - size.x];
       }
     }
-
+    
     std::vector<float> bufferOutput(size.x * size.y);
     CopyTo(output, bufferOutput);
 
@@ -311,6 +344,7 @@ TEST(ComputeTests, Stencil)
         EXPECT_EQ(expectedValue, value) << "Value not equal at " << index;
       }
     }
+
 }
 
 TEST(ComputeTests, Checkerboard)
@@ -382,7 +416,7 @@ TEST(ComputeTests, Timer)
     std::cout << "Elapsed time: " << time << std::endl;
 }
 
-TEST(ComputeTests, Statistics)
+TEST(ComputeTests, DISABLED_Statistics)
 {
     glm::ivec2 size(500);
 

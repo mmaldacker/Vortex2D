@@ -65,23 +65,6 @@ TEST(AdvectionTests, AdvectVelocity_Complex)
     CheckVelocity(*device, size, velocity, sim, 1e-5f);
 }
 
-void PrintRGBA8(Texture& texture)
-{
-    std::vector<glm::u8vec4> pixels(texture.GetWidth() * texture.GetHeight());
-    texture.CopyTo(pixels);
-
-    for (uint32_t j = 0; j < texture.GetHeight(); j++)
-    {
-        for (uint32_t i = 0; i < texture.GetWidth(); i++)
-        {
-            uint8_t value = pixels[i + j * texture.GetWidth()].x;
-            std::cout << "(" << (int)value << ")";
-        }
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
-}
-
 TEST(AdvectionTests, Advect)
 {
     glm::ivec2 size(10);

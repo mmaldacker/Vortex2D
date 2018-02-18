@@ -210,3 +210,33 @@ TEST(BoundariesTests, Intersection)
 
     CheckLevelSet(data, outTexture);
 }
+
+TEST(BoundariesTest, DistanceField)
+{
+    glm::ivec2 size(50);
+    
+    LevelSet levelSet(*device, size);
+    
+    std::vector<float> data(size.x*size.y, 0.1f);
+    Texture localLevelSet(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+        localLevelSet.CopyFrom(data);
+        levelSet.CopyFrom(commandBuffer, localLevelSet);
+    });
+    
+    DistanceField distance(*device, levelSet, {1.0f, 1.0f, 1.0f, 1.0f});
+    
+    RenderTexture output(*device, size.x, size.y, vk::Format::eR8G8B8A8Unorm);
+    Texture localOutput(*device, size.x, size.y, vk::Format::eR8G8B8A8Unorm, VMA_MEMORY_USAGE_CPU_ONLY);
+    
+    output.Record({distance}).Submit();
+    device->Handle().waitIdle();
+    
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+        localOutput.CopyFrom(commandBuffer, output);
+    });
+    
+    PrintRGBA8(localOutput);
+}
