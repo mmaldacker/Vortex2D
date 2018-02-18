@@ -54,6 +54,8 @@ public:
     {
         if (action != GLFW_PRESS) return;
 
+        device.Handle().waitIdle();
+
         switch (key)
         {
         case GLFW_KEY_1:
@@ -75,16 +77,7 @@ public:
             return;
         }
 
-        auto blendMode = vk::PipelineColorBlendAttachmentState()
-                .setBlendEnable(true)
-                .setAlphaBlendOp(vk::BlendOp::eAdd)
-                .setColorBlendOp(vk::BlendOp::eAdd)
-                .setSrcColorBlendFactor(vk::BlendFactor::eSrcAlpha)
-                .setSrcAlphaBlendFactor(vk::BlendFactor::eOne)
-                .setDstColorBlendFactor(vk::BlendFactor::eOneMinusSrcAlpha)
-                .setDstAlphaBlendFactor(vk::BlendFactor::eZero);
-
-        exampleRender = window.Record({*example}, blendMode);
+        example->Init(device, window);
     }
 
     void Run()
@@ -100,7 +93,7 @@ public:
             auto start = std::chrono::system_clock::now();
 
             clearRender.Submit();
-            exampleRender.Submit();
+            if (example) example->Step();
             window.Display();
 
             auto end = std::chrono::system_clock::now();
@@ -117,9 +110,8 @@ public:
     Vortex2D::Renderer::Device device;
     Renderer::RenderWindow window;
     Renderer::Clear clear = {{0.5f, 0.5f, 0.5f, 1.0f}};
-    std::unique_ptr<Vortex2D::Renderer::Drawable> example;
+    std::unique_ptr<Runner> example;
     Vortex2D::Renderer::RenderCommand clearRender;
-    Vortex2D::Renderer::RenderCommand exampleRender;
 };
 
 int main()

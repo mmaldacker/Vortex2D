@@ -25,18 +25,16 @@ public:
                    const std::vector<glm::vec2>& points);
 
   b2Body& Body();
-
   Vortex2D::Renderer::Drawable& SignedObject();
 
   void UpdatePosition();
   void UpdateVelocities();
-  void Update(const glm::mat4& projection, const glm::mat4& view);
   void SetTransform(const glm::vec2& pos, float angle);
 
 private:
   float mScale;
   Vortex2D::Fluid::Polygon mDrawPolygon;
-  Vortex2D::Fluid::RigidBody mVelocityPolygon;
+  Vortex2D::Fluid::RigidBody mRigidbody;
   b2Body* mB2Body;
 };
 

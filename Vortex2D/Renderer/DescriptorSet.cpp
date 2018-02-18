@@ -73,9 +73,9 @@ void LayoutManager::CreateDescriptorPool()
     // TODO size should be configurable
     // TODO check when we allocate more than what is allowed (might get it for free already)
     std::vector<vk::DescriptorPoolSize> poolSizes;
-    poolSizes.emplace_back(vk::DescriptorType::eUniformBuffer, 256);
-    poolSizes.emplace_back(vk::DescriptorType::eCombinedImageSampler, 256);
-    poolSizes.emplace_back(vk::DescriptorType::eStorageImage, 256);
+    poolSizes.emplace_back(vk::DescriptorType::eUniformBuffer, 512);
+    poolSizes.emplace_back(vk::DescriptorType::eCombinedImageSampler, 512);
+    poolSizes.emplace_back(vk::DescriptorType::eStorageImage, 512);
     poolSizes.emplace_back(vk::DescriptorType::eStorageBuffer, 512);
 
     vk::DescriptorPoolCreateInfo descriptorPoolInfo{};

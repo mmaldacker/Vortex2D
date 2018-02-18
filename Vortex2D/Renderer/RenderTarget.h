@@ -18,8 +18,8 @@ class RenderCommand;
 struct Drawable;
 
 /**
- * @brief And interface to represent a target that can be rendered to.
- * This is implemented by the RenderWindow and the RenderTexture
+ * @brief A target that can be rendered to.
+ * This is implemented by the @ref RenderWindow and the @ref RenderTexture
  */
 struct RenderTarget
 {
@@ -28,10 +28,13 @@ struct RenderTarget
 
     virtual ~RenderTarget();
 
+    // TODO should use shared_ptr?
     using DrawableList = std::initializer_list<std::reference_wrapper<Drawable>>;
 
     virtual RenderCommand Record(DrawableList drawables,
                                  vk::PipelineColorBlendAttachmentState blendMode = {}) = 0;
+
+    // TODO should use shared_ptr?
     virtual void Submit(RenderCommand& renderCommand) = 0;
 
     uint32_t Width;

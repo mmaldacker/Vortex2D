@@ -1,17 +1,12 @@
 //
-//  ObstacleSmoke.cpp
+//  ObstacleSmoke.h
 //  Vortex2D
 //
 
 #include <Vortex2D/Vortex2D.h>
-#include <Vortex2D/Renderer/Drawable.h>
-#include <Vortex2D/Engine/World.h>
-#include <Vortex2D/Engine/Density.h>
-#include <Vortex2D/Renderer/RenderTexture.h>
-#include <Vortex2D/Renderer/Sprite.h>
-#include <Vortex2D/Engine/Boundaries.h>
 
 #include "Rigidbody.h"
+#include "Runner.h"
 
 #include <Box2D/Box2D.h>
 
@@ -25,7 +20,7 @@ extern glm::vec4 green;
 extern glm::vec4 gray;
 extern glm::vec4 blue;
 
-class ObstacleSmokeExample : public Vortex2D::Renderer::Drawable
+class ObstacleSmokeExample : public Runner
 {
 public:
     ObstacleSmokeExample(const Vortex2D::Renderer::Device& device,
@@ -46,9 +41,11 @@ public:
         solidPhi.Scale = density.Scale = glm::vec2(dimensions.Scale);
 
         world.InitField(density);
+    }
 
-        //velocityRender = world.ObstacleVelocity().Record({velocityClear, body1.VelocityObject(), body2.VelocityObject()});
-
+    void Init(const Vortex2D::Renderer::Device& device,
+              Vortex2D::Renderer::RenderTarget& renderTarget) override
+    {
         // Draw density
         Vortex2D::Renderer::Rectangle source(device, {800.0f, 400.0f}, gray);
         source.Position = {100.0f, 500.0f};
@@ -86,26 +83,27 @@ public:
 
         // wait for drawing to finish
         device.Handle().waitIdle();
+
+        auto blendMode = vk::PipelineColorBlendAttachmentState()
+                .setBlendEnable(true)
+                .setAlphaBlendOp(vk::BlendOp::eAdd)
+                .setColorBlendOp(vk::BlendOp::eAdd)
+                .setSrcColorBlendFactor(vk::BlendFactor::eSrcAlpha)
+                .setSrcAlphaBlendFactor(vk::BlendFactor::eOne)
+                .setDstColorBlendFactor(vk::BlendFactor::eOneMinusSrcAlpha)
+                .setDstAlphaBlendFactor(vk::BlendFactor::eZero);
+
+
+        windowRender = renderTarget.Record({density, solidPhi}, blendMode);
     }
 
-    void Initialize(const Vortex2D::Renderer::RenderState& renderState) override
-    {
-        density.Initialize(renderState);
-        solidPhi.Initialize(renderState);
-    }
-
-    void Update(const glm::mat4& projection, const glm::mat4& view) override
+    void Step() override
     {
         body1.UpdatePosition();
         body1.UpdateVelocities();
-        body1.Update(world.SolidPhi().Orth, dimensions.InvScale);
 
         body2.UpdatePosition();
         body2.UpdateVelocities();
-        body2.Update(world.SolidPhi().Orth, dimensions.InvScale);
-
-        density.Update(projection, view);
-        solidPhi.Update(projection, view);
 
         obstaclesRender.Submit();
         world.SolidPhi().Reinitialise();
@@ -116,12 +114,8 @@ public:
         const int velocityStep = 8;
         const int positionStep = 3;
         rWorld.Step(delta, velocityStep, positionStep);
-    }
 
-    void Draw(vk::CommandBuffer commandBuffer, const Vortex2D::Renderer::RenderState& renderState) override
-    {
-        density.Draw(commandBuffer, renderState);
-        solidPhi.Draw(commandBuffer, renderState);
+        windowRender.Submit();
     }
 
 private:
@@ -133,7 +127,7 @@ private:
 
     Vortex2D::Renderer::Clear velocityClear;
     Vortex2D::Renderer::Clear obstaclesClear;
-    Vortex2D::Renderer::RenderCommand velocityRender, obstaclesRender;
+    Vortex2D::Renderer::RenderCommand velocityRender, obstaclesRender, windowRender;
 
     b2World rWorld;
 

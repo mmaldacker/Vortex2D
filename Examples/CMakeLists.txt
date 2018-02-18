@@ -12,12 +12,12 @@ file(GLOB EXAMPLES_SOURCES
         "main.cpp"
         "RenderExample.h"
         "ObstacleSmokeExample.h"
-        "ScaleWaterExample.h"
         "SmokeExample.h"
         "SmokeVelocityExample.h"
         "WaterExample.h"
         "Rigidbody.h"
-        "Rigidbody.cpp")
+        "Rigidbody.cpp"
+        "Runner.h")
 
 # Necessary since Box2D CMakeLists.txt doesn't use modern cmake
 include_directories(${Box2D_SOURCE_DIR}/Box2D)

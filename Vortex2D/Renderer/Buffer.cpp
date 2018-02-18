@@ -80,6 +80,7 @@ GenericBuffer::GenericBuffer(GenericBuffer&& other)
   , mAllocationInfo(other.mAllocationInfo)
 {
   other.mBuffer = VK_NULL_HANDLE;
+  other.mAllocation = VK_NULL_HANDLE;
   other.mSize = 0;
 }
 
