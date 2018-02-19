@@ -17,13 +17,14 @@ float sign(float value)
 }
 
 PolygonRigidbody::PolygonRigidbody(const Vortex2D::Renderer::Device& device,
-                                   b2World& world,
+                                   b2World& rWorld,
                                    const Vortex2D::Fluid::Dimensions& dimensions,
+                                   Vortex2D::Fluid::World& world,
                                    b2BodyType type,
                                    const std::vector<glm::vec2>& points)
     : mScale(dimensions.Scale)
     , mDrawPolygon(device, points)
-    , mRigidbody(device, dimensions, mDrawPolygon, {})
+    , mRigidbody(world.CreateRigidbody(mDrawPolygon, {}))
 {
   b2PolygonShape shape;
 
@@ -43,7 +44,7 @@ PolygonRigidbody::PolygonRigidbody(const Vortex2D::Renderer::Device& device,
   b2BodyDef def;
   def.type = type;
 
-  mB2Body = world.CreateBody(&def);
+  mB2Body = rWorld.CreateBody(&def);
   mB2Body->CreateFixture(&fixtureDef);
 }
 
@@ -60,9 +61,9 @@ Vortex2D::Renderer::Drawable& PolygonRigidbody::SignedObject()
 void PolygonRigidbody::UpdatePosition()
 {
   auto pos = mB2Body->GetPosition();
-  mRigidbody.Position = {pos.x * box2dScale, pos.y * box2dScale};
-  mRigidbody.Rotation = glm::degrees(mB2Body->GetAngle());
-  mRigidbody.UpdatePosition();
+  mRigidbody.get().Position = {pos.x * box2dScale, pos.y * box2dScale};
+  mRigidbody.get().Rotation = glm::degrees(mB2Body->GetAngle());
+  mRigidbody.get().UpdatePosition();
 }
 
 void PolygonRigidbody::UpdateVelocities()
@@ -70,12 +71,12 @@ void PolygonRigidbody::UpdateVelocities()
     glm::vec2 vel = {mB2Body->GetLinearVelocity().x, mB2Body->GetLinearVelocity().y};
     float angularVelocity = mB2Body->GetAngularVelocity();
     float scale = box2dScale / mScale;
-    mRigidbody.SetVelocities(vel * scale, angularVelocity);
+    mRigidbody.get().SetVelocities(vel * scale, angularVelocity);
 }
 
 void PolygonRigidbody::SetTransform(const glm::vec2& pos, float angle)
 {
-  mRigidbody.Position = mDrawPolygon.Position = pos;
-  mRigidbody.Rotation = mDrawPolygon.Rotation = angle;
+  mRigidbody.get().Position = mDrawPolygon.Position = pos;
+  mRigidbody.get().Rotation = mDrawPolygon.Rotation = angle;
   mB2Body->SetTransform({pos.x / box2dScale, pos.y / box2dScale}, angle);
 }

@@ -12,6 +12,7 @@
 #include <Vortex2D/Renderer/Pipeline.h>
 #include <Vortex2D/Renderer/RenderTexture.h>
 #include <Vortex2D/Renderer/Work.h>
+#include <Vortex2D/Renderer/Shapes.h>
 #include <Vortex2D/Engine/LinearSolver/Reduce.h>
 #include <Vortex2D/Engine/Boundaries.h>
 #include <Vortex2D/Engine/Size.h>
@@ -30,14 +31,13 @@ public:
     RigidBody(const Renderer::Device& device,
               const Dimensions& dimensions,
               ObjectDrawable& drawable,
-              const glm::vec2& centre);
+              const glm::vec2& centre,
+              Renderer::RenderTexture& phi);
 
     void SetVelocities(const glm::vec2& velocity, float angularVelocity);
 
     void UpdatePosition();
-
-    Renderer::RenderCommand RecordLocalPhi();
-    Renderer::RenderCommand RecordPhi(Renderer::RenderTexture& phi);
+    void RenderPhi();
 
     void BindDiv(Renderer::GenericBuffer& div,
                  Renderer::GenericBuffer& diagonal,
@@ -62,6 +62,8 @@ private:
     Renderer::UniformBuffer<Velocity> mVelocity;
     Renderer::Buffer<Velocity> mForce;
     Renderer::UniformBuffer<glm::mat4> mMVBuffer;
+
+    Renderer::RenderCommand mLocalPhiRender, mPhiRender;
 
     Renderer::Work mDiv, mConstrain, mPressure;
     Renderer::Work::Bound mDivBound, mConstrainBound, mPressureBound;

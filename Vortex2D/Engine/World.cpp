@@ -18,25 +18,27 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
     , mLinearSolver(device, dimensions.Size, mPreconditioner)
     , mData(device, dimensions.Size)
     , mVelocity(device, dimensions.Size)
-    , mFluidLevelSet(device, dimensions.Size)
-    , mObstacleLevelSet(device, dimensions.Size)
+    , mFluidPhi(device, dimensions.Size)
+    , mStaticSolidPhi(device, dimensions.Size)
+    , mDynamicSolidPhi(device, dimensions.Size)
     , mValid(device, dimensions.Size.x*dimensions.Size.y)
     , mAdvection(device, dimensions.Size, dt, mVelocity)
     , mProjection(device, dt, dimensions.Size,
                   mData,
                   mVelocity,
-                  mObstacleLevelSet,
-                  mFluidLevelSet,
+                  mDynamicSolidPhi,
+                  mFluidPhi,
                   mValid)
     , mExtrapolation(device, dimensions.Size, mValid, mVelocity)
-    , mClearVelocity(device, false)
-    , mClearValid(device, false)
+    , mClearVelocity(device)
+    , mClearValid(device)
+    , mCopySolidPhi(device)
 {
-    mExtrapolation.ConstrainInit(mObstacleLevelSet);
-    mParticleCount.InitLevelSet(mFluidLevelSet);
+    mExtrapolation.ConstrainInit(mDynamicSolidPhi);
+    mParticleCount.InitLevelSet(mFluidPhi);
     mParticleCount.InitVelocities(mVelocity, mValid);
-    mFluidLevelSet.ExtrapolateInit(mObstacleLevelSet);
-    mAdvection.AdvectParticleInit(mParticles, mObstacleLevelSet, mParticleCount.GetDispatchParams());
+    mFluidPhi.ExtrapolateInit(mDynamicSolidPhi);
+    mAdvection.AdvectParticleInit(mParticles, mDynamicSolidPhi, mParticleCount.GetDispatchParams());
 
     mClearVelocity.Record([&](vk::CommandBuffer commandBuffer)
     {
@@ -48,8 +50,16 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
         mValid.Clear(commandBuffer);
     });
 
-    mPreconditioner.BuildHierarchiesInit(mProjection, mObstacleLevelSet, mFluidLevelSet);
+    mCopySolidPhi.Record([&](vk::CommandBuffer commandBuffer)
+    {
+        mDynamicSolidPhi.CopyFrom(commandBuffer, mStaticSolidPhi);
+    });
+
+    mPreconditioner.BuildHierarchiesInit(mProjection, mDynamicSolidPhi, mFluidPhi);
     mLinearSolver.Init(mData.Diagonal, mData.Lower, mData.B, mData.X);
+
+    mDynamicSolidPhi.View = dimensions.InvScale;
+    mStaticSolidPhi.View = dimensions.InvScale;
 }
 
 void World::InitField(Density& density)
@@ -59,9 +69,21 @@ void World::InitField(Density& density)
 
 void World::SolveStatic()
 {
+    mCopySolidPhi.Submit();
+    for (auto&& rigidbody: mRigidbodies)
+    {
+        rigidbody->RenderPhi();
+    }
+
     LinearSolver::Parameters params(300, 1e-3f);
     mPreconditioner.BuildHierarchies();
     mProjection.BuildLinearEquation();
+
+    for (auto&& rigidbody: mRigidbodies)
+    {
+        rigidbody->Div();
+    }
+
     mLinearSolver.Solve(params);
     mProjection.ApplyPressure();
 
@@ -99,7 +121,7 @@ void World::SolveDynamic()
 
     // 4)
     mPreconditioner.BuildHierarchies();
-    mFluidLevelSet.Extrapolate();
+    mFluidPhi.Extrapolate();
 
     // 5)
     LinearSolver::Parameters params(1000, 1e-5f);
@@ -126,12 +148,17 @@ Renderer::RenderTexture& World::Velocity()
 
 LevelSet& World::LiquidPhi()
 {
-    return mFluidLevelSet;
+    return mFluidPhi;
 }
 
-LevelSet& World::SolidPhi()
+LevelSet& World::StaticSolidPhi()
 {
-    return mObstacleLevelSet;
+    return mStaticSolidPhi;
+}
+
+LevelSet& World::DynamicSolidPhi()
+{
+    return mDynamicSolidPhi;
 }
 
 Renderer::GenericBuffer& World::Particles()
@@ -146,7 +173,8 @@ ParticleCount& World::Count()
 
 RigidbodyRef World::CreateRigidbody(ObjectDrawable& drawable, const glm::vec2& centre)
 {
-    mRigidbodies.push_back(std::make_unique<RigidBody>(mDevice, mDimensions, drawable, centre));
+    mRigidbodies.push_back(std::make_unique<RigidBody>(mDevice, mDimensions, drawable, centre, mDynamicSolidPhi));
+    mRigidbodies.back()->BindDiv(mData.B, mData.Diagonal, mFluidPhi);
     return *mRigidbodies.back();
 }
 

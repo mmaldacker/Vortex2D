@@ -15,7 +15,8 @@ namespace Vortex2D { namespace Fluid {
 RigidBody::RigidBody(const Renderer::Device& device,
                      const Dimensions& dimensions,
                      ObjectDrawable& drawable,
-                     const glm::vec2& centre)
+                     const glm::vec2& centre,
+                     Renderer::RenderTexture& phi)
     : mDevice(device)
     , mPhi(device, dimensions.Size.x, dimensions.Size.y, vk::Format::eR32Sfloat)
     , mDrawable(drawable)
@@ -33,6 +34,9 @@ RigidBody::RigidBody(const Renderer::Device& device,
     , mSum(device, dimensions.Size)
 {
     mPhi.View = mView;
+
+    mLocalPhiRender = mPhi.Record({mDrawable});
+    mPhiRender = phi.Record({mDrawable}, UnionBlend);
 }
 
 void RigidBody::SetVelocities(const glm::vec2& velocity, float angularVelocity)
@@ -65,14 +69,10 @@ void RigidBody::UpdatePosition()
     Renderer::CopyFrom(mMVBuffer, mView * GetTransform());
 }
 
-Renderer::RenderCommand RigidBody::RecordLocalPhi()
+void RigidBody::RenderPhi()
 {
-    return mPhi.Record({mDrawable});
-}
-
-Renderer::RenderCommand RigidBody::RecordPhi(Renderer::RenderTexture& phi)
-{
-    return phi.Record({mDrawable}, UnionBlend);
+    mLocalPhiRender.Submit();
+    mPhiRender.Submit();
 }
 
 void RigidBody::BindDiv(Renderer::GenericBuffer& div,
@@ -82,8 +82,10 @@ void RigidBody::BindDiv(Renderer::GenericBuffer& div,
     mDivBound = mDiv.Bind({div, diagonal, fluidLevelSet, mPhi, mVelocity, mMVBuffer});
     mDivCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
+        commandBuffer.debugMarkerBeginEXT({"Rigidbody build equation", {{ 0.02f, 0.68f, 0.84f, 1.0f}}});
         mDivBound.PushConstant(commandBuffer, 8, mCentre);
         mDivBound.Record(commandBuffer);
+        commandBuffer.debugMarkerEndEXT();
     });
 }
 

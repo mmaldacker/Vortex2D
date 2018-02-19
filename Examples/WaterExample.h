@@ -24,7 +24,7 @@ public:
         : dimensions(dimensions)
         , gravity(device, dimensions.Size, {0.0f, 0.01f, 0.0f, 0.0f})
         , world(device, dimensions, dt)
-        , solidPhi(device, world.SolidPhi(), green, dimensions.Scale)
+        , solidPhi(device, world.StaticSolidPhi(), green, dimensions.Scale)
         , liquidPhi(device, world.LiquidPhi(), blue, dimensions.Scale)
     {
         liquidPhi.Scale = solidPhi.Scale = glm::vec2(dimensions.Scale);
@@ -55,8 +55,7 @@ public:
         obstacle2.Position = {700.0f, 600.0f};
         obstacle2.Rotation = 30.0f;
 
-        world.SolidPhi().View = dimensions.InvScale;
-        world.SolidPhi().Record({area, obstacle1, obstacle2}).Submit();
+        world.StaticSolidPhi().Record({area, obstacle1, obstacle2}).Submit();
         device.Handle().waitIdle();
 
         // Set gravity

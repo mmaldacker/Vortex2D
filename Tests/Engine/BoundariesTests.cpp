@@ -237,6 +237,9 @@ TEST(BoundariesTest, DistanceField)
     {
         localOutput.CopyFrom(commandBuffer, output);
     });
+
+    uint8_t alpha = 256 * (0.1f + 0.5f);
+    std::vector<glm::u8vec4> outData(size.x*size.y, {255, 255, 255, 256 - alpha});
     
-    PrintRGBA8(localOutput);
+    CheckTexture<glm::u8vec4>(outData, localOutput);
 }

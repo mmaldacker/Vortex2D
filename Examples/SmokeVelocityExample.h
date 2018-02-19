@@ -29,10 +29,10 @@ public:
         , force(device, glm::vec2(20.0f), {0.5f, 0.5f, 0.0f, 0.0f})
         , density(device, dimensions.Size, vk::Format::eB8G8R8A8Unorm)
         , world(device, dimensions, dt)
-        , solidPhi(device, world.SolidPhi(), green, dimensions.Scale)
+        , solidPhi(device, world.DynamicSolidPhi(), green, dimensions.Scale)
         , clearObstacles({1000.0f, 0.0f, 0.0f, 0.0f})
         , rWorld({0.0f, 0.0f})
-        , body(device, rWorld, dimensions, b2_dynamicBody, {200.0f, 50.0f})
+        , body(device, rWorld, dimensions, world, b2_dynamicBody, {200.0f, 50.0f})
     {
         solidPhi.Scale = density.Scale = (glm::vec2)dimensions.Scale;
 
@@ -61,9 +61,8 @@ public:
 
         // Draw rigid body
         body.SetTransform({300.0f, 500.0f}, -45.0f);
-        world.SolidPhi().View = dimensions.InvScale;
-        obstaclesRender = world.SolidPhi().Record({clearObstacles, body.SignedObject()},
-                                                  Vortex2D::Fluid::UnionBlend);
+        obstaclesRender = world.StaticSolidPhi().Record({clearObstacles, body.SignedObject()},
+                                                        Vortex2D::Fluid::UnionBlend);
 
         // wait for drawing to finish
         device.Handle().waitIdle();

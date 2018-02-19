@@ -50,7 +50,8 @@ public:
 
     Renderer::RenderTexture& Velocity();
     LevelSet& LiquidPhi();
-    LevelSet& SolidPhi();
+    LevelSet& StaticSolidPhi();
+    LevelSet& DynamicSolidPhi();
     Renderer::GenericBuffer& Particles();
     ParticleCount& Count();
 
@@ -68,8 +69,9 @@ private:
 
     LinearSolver::Data mData;
     Fluid::Velocity mVelocity;
-    LevelSet mFluidLevelSet;
-    LevelSet mObstacleLevelSet;
+    LevelSet mFluidPhi;
+    LevelSet mStaticSolidPhi;
+    LevelSet mDynamicSolidPhi;
 
     Renderer::Buffer<glm::ivec2> mValid;
 
@@ -77,7 +79,7 @@ private:
     Pressure mProjection;
     Extrapolation mExtrapolation;
 
-    Renderer::CommandBuffer mClearVelocity, mClearValid;
+    Renderer::CommandBuffer mClearVelocity, mClearValid, mCopySolidPhi;
 
     std::vector<std::unique_ptr<RigidBody>> mRigidbodies;
 };

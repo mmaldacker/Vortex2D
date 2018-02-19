@@ -30,13 +30,12 @@ public:
         , dimensions(dimensions)
         , density(device, dimensions.Size, vk::Format::eB8G8R8A8Unorm)
         , world(device, dimensions, dt)
-        , solidPhi(device, world.SolidPhi(), green, dimensions.Scale)
+        , solidPhi(device, world.DynamicSolidPhi(), green, dimensions.Scale)
         , velocityClear({0.0f, 0.0f, 0.0f, 0.0f})
-        , obstaclesClear({1000.0f, 0.0f, 0.0f, 0.0f})
         , rWorld({0.0f, 10.0f})
-        , body1(device, rWorld, dimensions, b2_dynamicBody, {100.0f, 50.0f})
-        , body2(device, rWorld, dimensions, b2_dynamicBody, {50.0f, 50.0f})
-        , bottom(device, rWorld, dimensions, b2_staticBody, {500.0f, 20.0f})
+        , body1(device, rWorld, dimensions, world, b2_dynamicBody, {100.0f, 50.0f})
+        , body2(device, rWorld, dimensions, world, b2_dynamicBody, {50.0f, 50.0f})
+        , bottom(device, rWorld, dimensions, world, b2_staticBody, {500.0f, 20.0f})
     {
         solidPhi.Scale = density.Scale = glm::vec2(dimensions.Scale);
 
@@ -77,9 +76,8 @@ public:
         // Bottom
         bottom.SetTransform({512.5f, 1000.5f}, 0.0f);
 
-        world.SolidPhi().View = dimensions.InvScale;
-        obstaclesRender = world.SolidPhi().Record({obstaclesClear, bottom.SignedObject(), body1.SignedObject(), body2.SignedObject()},
-                                                  Vortex2D::Fluid::UnionBlend);
+        Vortex2D::Renderer::Clear obstaclesClear({1000.0f, 0.0f, 0.0f, 0.0f});
+        world.StaticSolidPhi().Record({obstaclesClear, bottom.SignedObject()}, Vortex2D::Fluid::UnionBlend).Submit();
 
         // wait for drawing to finish
         device.Handle().waitIdle();
@@ -105,10 +103,6 @@ public:
         body2.UpdatePosition();
         body2.UpdateVelocities();
 
-        obstaclesRender.Submit();
-        world.SolidPhi().Reinitialise();
-        velocityRender.Submit();
-
         world.SolveStatic();
 
         const int velocityStep = 8;
@@ -126,8 +120,7 @@ private:
     Vortex2D::Fluid::DistanceField solidPhi;
 
     Vortex2D::Renderer::Clear velocityClear;
-    Vortex2D::Renderer::Clear obstaclesClear;
-    Vortex2D::Renderer::RenderCommand velocityRender, obstaclesRender, windowRender;
+    Vortex2D::Renderer::RenderCommand windowRender;
 
     b2World rWorld;
 

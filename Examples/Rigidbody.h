@@ -8,6 +8,7 @@
 
 #include <glm/trigonometric.hpp>
 
+#include <Vortex2D/Engine/World.h>
 #include <Vortex2D/Engine/Boundaries.h>
 #include <Vortex2D/Engine/Rigidbody.h>
 #include <Vortex2D/Engine/Size.h>
@@ -19,8 +20,9 @@ class PolygonRigidbody
 {
 public:
   PolygonRigidbody(const Vortex2D::Renderer::Device& device,
-                   b2World& world,
+                   b2World& rWorld,
                    const Vortex2D::Fluid::Dimensions& dimensions,
+                   Vortex2D::Fluid::World& world,
                    b2BodyType type,
                    const std::vector<glm::vec2>& points);
 
@@ -34,7 +36,7 @@ public:
 private:
   float mScale;
   Vortex2D::Fluid::Polygon mDrawPolygon;
-  Vortex2D::Fluid::RigidBody mRigidbody;
+  Vortex2D::Fluid::RigidbodyRef mRigidbody;
   b2Body* mB2Body;
 };
 
@@ -42,11 +44,12 @@ class BoxRigidbody : public PolygonRigidbody
 {
 public:
   BoxRigidbody(const Vortex2D::Renderer::Device& device,
-               b2World& world,
+               b2World& rWorld,
                const Vortex2D::Fluid::Dimensions& dimensions,
+               Vortex2D::Fluid::World& world,
                b2BodyType type,
                const glm::vec2& halfSize)
-    : PolygonRigidbody(device, world, dimensions, type,
+    : PolygonRigidbody(device, rWorld, dimensions, world, type,
                       {{-halfSize.x, -halfSize.y},
                       {halfSize.x, -halfSize.y},
                       {halfSize.x, halfSize.y},

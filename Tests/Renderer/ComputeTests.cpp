@@ -272,9 +272,7 @@ TEST(ComputeTests, FloatImage)
     {
        texture.CopyFrom(commandBuffer, localTexture);
     });
-    
-    PrintTexture<glm::vec4>(localTexture);
-    
+        
     auto boundWork = work.Bind({texture});
     
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
@@ -286,7 +284,7 @@ TEST(ComputeTests, FloatImage)
        localTexture.CopyFrom(commandBuffer, texture);
     });
     
-    PrintTexture<glm::vec4>(localTexture);
+    CheckTexture<glm::vec4>(data, localTexture);
 }
 
 TEST(ComputeTests, Stencil)

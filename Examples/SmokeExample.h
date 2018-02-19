@@ -27,7 +27,7 @@ public:
         , force2(device, glm::vec2(20.0f), {0.0f, -0.5f, 0.0f, 0.0f})
         , density(device, dimensions.Size, vk::Format::eB8G8R8A8Unorm)
         , world(device, dimensions, dt)
-        , solidPhi(device, world.SolidPhi(), green, dimensions.Scale)
+        , solidPhi(device, world.DynamicSolidPhi(), green, dimensions.Scale)
     {
         solidPhi.Scale = density.Scale = (glm::vec2)dimensions.Scale;
 
@@ -54,8 +54,8 @@ public:
         obstacle1.Position = {250.0f, 400.0f};
         obstacle2.Position = {750.0f, 600.0f};
 
-        world.SolidPhi().View = dimensions.InvScale;
-        world.SolidPhi().Record({clearObstacles, obstacle1, obstacle2}, Vortex2D::Fluid::UnionBlend).Submit();
+        world.StaticSolidPhi().View = dimensions.InvScale;
+        world.StaticSolidPhi().Record({clearObstacles, obstacle1, obstacle2}, Vortex2D::Fluid::UnionBlend).Submit();
 
         // Draw sources and forces
         world.InitField(density);
