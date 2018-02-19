@@ -42,27 +42,18 @@ public:
      */
     World(const Renderer::Device& device, Dimensions dimensions, float dt);
 
-    void InitField(Density& density);
-
-    void SolveStatic();
-
-    void SolveDynamic();
+    virtual void Solve() = 0;
 
     Renderer::RenderTexture& Velocity();
     LevelSet& LiquidPhi();
     LevelSet& StaticSolidPhi();
     LevelSet& DynamicSolidPhi();
-    Renderer::GenericBuffer& Particles();
-    ParticleCount& Count();
 
     RigidbodyRef CreateRigidbody(ObjectDrawable& drawable, const glm::vec2& centre);
 
-private:
+protected:
     const Renderer::Device& mDevice;
     Dimensions mDimensions;
-
-    Renderer::GenericBuffer mParticles;
-    ParticleCount mParticleCount;
 
     Multigrid mPreconditioner;
     ConjugateGradient mLinearSolver;
@@ -79,9 +70,34 @@ private:
     Pressure mProjection;
     Extrapolation mExtrapolation;
 
-    Renderer::CommandBuffer mClearVelocity, mClearValid, mCopySolidPhi;
+    Renderer::CommandBuffer mClearValid, mCopySolidPhi;
 
     std::vector<std::unique_ptr<RigidBody>> mRigidbodies;
+};
+
+class SmokeWorld : public World
+{
+public:
+    SmokeWorld(const Renderer::Device& device, Dimensions dimensions, float dt);
+
+    void Solve() override;
+
+    void InitField(Density& density);
+};
+
+class WaterWorld : public World
+{
+public:
+    WaterWorld(const Renderer::Device& device, Dimensions dimensions, float dt);
+
+    void Solve() override;
+    ParticleCount& Count();
+    Renderer::GenericBuffer& Particles();
+
+private:
+    Renderer::GenericBuffer mParticles;
+    ParticleCount mParticleCount;
+    Renderer::CommandBuffer mClearVelocity;
 };
 
 }}

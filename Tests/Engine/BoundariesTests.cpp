@@ -239,7 +239,7 @@ TEST(BoundariesTest, DistanceField)
     });
 
     uint8_t alpha = 256 * (0.1f + 0.5f);
-    std::vector<glm::u8vec4> outData(size.x*size.y, {255, 255, 255, 256 - alpha});
+    std::vector<glm::u8vec4> outData(size.x*size.y, {255, 255, 255, 255 - alpha});
     
     CheckTexture<glm::u8vec4>(outData, localOutput);
 }

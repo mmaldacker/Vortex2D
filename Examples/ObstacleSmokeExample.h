@@ -27,7 +27,6 @@ public:
                          const Vortex2D::Fluid::Dimensions& dimensions,
                          float dt)
         : delta(dt)
-        , dimensions(dimensions)
         , density(device, dimensions.Size, vk::Format::eB8G8R8A8Unorm)
         , world(device, dimensions, dt)
         , solidPhi(device, world.DynamicSolidPhi(), green, dimensions.Scale)
@@ -38,7 +37,7 @@ public:
         , bottom(device, rWorld, dimensions, world, b2_staticBody, {500.0f, 20.0f})
     {
         solidPhi.Scale = density.Scale = glm::vec2(dimensions.Scale);
-
+        density.View = dimensions.InvScale;
         world.InitField(density);
     }
 
@@ -49,7 +48,6 @@ public:
         Vortex2D::Renderer::Rectangle source(device, {800.0f, 400.0f}, gray);
         source.Position = {100.0f, 500.0f};
 
-        density.View = dimensions.InvScale;
         density.Record({source}).Submit();
 
         // Draw liquid boundaries
@@ -58,7 +56,6 @@ public:
 
         liquidArea.Position = {12.0f, 12.0};
 
-        world.LiquidPhi().View = dimensions.InvScale;
         world.LiquidPhi().Record({clear, liquidArea}).Submit();
 
         // Draw solid boundaries
@@ -103,7 +100,7 @@ public:
         body2.UpdatePosition();
         body2.UpdateVelocities();
 
-        world.SolveStatic();
+        world.Solve();
 
         const int velocityStep = 8;
         const int positionStep = 3;
@@ -114,9 +111,8 @@ public:
 
 private:
     float delta;
-    Vortex2D::Fluid::Dimensions dimensions;
     Vortex2D::Fluid::Density density;
-    Vortex2D::Fluid::World world;
+    Vortex2D::Fluid::SmokeWorld world;
     Vortex2D::Fluid::DistanceField solidPhi;
 
     Vortex2D::Renderer::Clear velocityClear;

@@ -15,7 +15,7 @@ using namespace Vortex2D::Fluid;
 
 extern Device* device;
 
-void PrintParticles(const glm::ivec2& size, World& world)
+void PrintParticles(const glm::ivec2& size, WaterWorld& world)
 {
     Buffer<Particle> particles(*device, 8*size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
     std::vector<Particle> particleData(8*size.x*size.y);
@@ -39,7 +39,7 @@ void PrintParticles(const glm::ivec2& size, World& world)
 TEST(WorldTests, Velocity)
 {
     Dimensions size(glm::ivec2(20), 1.0f);
-    Vortex2D::Fluid::World world(*device, size, 0.01f);
+    Vortex2D::Fluid::WaterWorld world(*device, size, 0.01f);
 
     // Add particles
     Vortex2D::Renderer::IntRectangle fluidArea(*device, glm::vec2(1.0f), glm::ivec4(4));
@@ -56,7 +56,7 @@ TEST(WorldTests, Velocity)
     for (int i = 0; i < 10; i++)
     {
       gravityRender.Submit();
-      world.SolveDynamic();
+      world.Solve();
     }
 
     // wait to finish

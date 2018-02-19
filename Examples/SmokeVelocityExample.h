@@ -24,7 +24,6 @@ public:
                  const Vortex2D::Fluid::Dimensions& dimensions,
                  float dt)
         : delta(dt)
-        , dimensions(dimensions)
         , source(device, glm::vec2(20.0f), gray)
         , force(device, glm::vec2(20.0f), {0.5f, 0.5f, 0.0f, 0.0f})
         , density(device, dimensions.Size, vk::Format::eB8G8R8A8Unorm)
@@ -35,7 +34,8 @@ public:
         , body(device, rWorld, dimensions, world, b2_dynamicBody, {200.0f, 50.0f})
     {
         solidPhi.Scale = density.Scale = (glm::vec2)dimensions.Scale;
-
+        density.View = dimensions.InvScale;
+        world.InitField(density);
         source.Position = force.Position = {100.0f, 100.0f};
     }
 
@@ -43,7 +43,7 @@ public:
               Vortex2D::Renderer::RenderTarget& renderTarget) override
     {
         // Draw liquid boundaries
-        Vortex2D::Renderer::Rectangle area(device, dimensions.Size - glm::ivec2(2.0f), glm::vec4(-1.0f));
+        Vortex2D::Renderer::Rectangle area(device, glm::ivec2(1024) - glm::ivec2(24), glm::vec4(-1.0f));
         Vortex2D::Renderer::Clear clearLiquid({1.0f, 0.0f, 0.0f, 0.0f});
 
         area.Position = glm::vec2(1.0f);
@@ -51,12 +51,8 @@ public:
         world.LiquidPhi().Record({clearLiquid, area}).Submit();
 
         // Draw sources and forces
-        world.InitField(density);
 
-        world.Velocity().View = dimensions.InvScale;
         velocityRender = world.Velocity().Record({force});
-
-        density.View = dimensions.InvScale;
         densityRender = density.Record({source});
 
         // Draw rigid body
@@ -88,7 +84,7 @@ public:
         velocityRender.Submit();
         densityRender.Submit();
 
-        world.SolveStatic();
+        world.Solve();
 
         const int velocityStep = 8;
         const int positionStep = 3;
@@ -99,11 +95,10 @@ public:
 
 private:
     float delta;
-    Vortex2D::Fluid::Dimensions dimensions;
     Vortex2D::Renderer::Ellipse source;
     Vortex2D::Renderer::Ellipse force;
     Vortex2D::Fluid::Density density;
-    Vortex2D::Fluid::World world;
+    Vortex2D::Fluid::SmokeWorld world;
     Vortex2D::Fluid::DistanceField solidPhi;
     Vortex2D::Renderer::Clear clearObstacles;
     Vortex2D::Renderer::RenderCommand velocityRender, densityRender, obstaclesRender, windowRender;

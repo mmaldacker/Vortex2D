@@ -20,8 +20,7 @@ public:
     SmokeExample(const Vortex2D::Renderer::Device& device,
                  const Vortex2D::Fluid::Dimensions& dimensions,
                  float dt)
-        : dimensions(dimensions)
-        , source1(device, glm::vec2(20.0f), gray)
+        : source1(device, glm::vec2(20.0f), gray)
         , source2(device, glm::vec2(20.0f), gray)
         , force1(device, glm::vec2(20.0f), {0.0f, 0.5f, 0.0f, 0.0f})
         , force2(device, glm::vec2(20.0f), {0.0f, -0.5f, 0.0f, 0.0f})
@@ -30,6 +29,8 @@ public:
         , solidPhi(device, world.DynamicSolidPhi(), green, dimensions.Scale)
     {
         solidPhi.Scale = density.Scale = (glm::vec2)dimensions.Scale;
+        density.View = dimensions.InvScale;
+        world.InitField(density);
 
         source1.Position = force1.Position = {250.0f, 100.0f};
         source2.Position = force2.Position = {750.0f, 900.0f};
@@ -39,10 +40,10 @@ public:
               Vortex2D::Renderer::RenderTarget& renderTarget) override
     {
         // Draw liquid boundaries
-        Vortex2D::Renderer::Rectangle area(device, dimensions.Size - glm::ivec2(2.0f), glm::vec4(-1.0f));
+        Vortex2D::Renderer::Rectangle area(device, glm::ivec2(1024) - glm::ivec2(24), glm::vec4(-1));
         Vortex2D::Renderer::Clear clearLiquid({1.0f, 0.0f, 0.0f, 0.0f});
 
-        area.Position = glm::vec2(1.0f);
+        area.Position = glm::vec2(12.0f);
 
         world.LiquidPhi().Record({clearLiquid, area}).Submit();
 
@@ -54,14 +55,9 @@ public:
         obstacle1.Position = {250.0f, 400.0f};
         obstacle2.Position = {750.0f, 600.0f};
 
-        world.StaticSolidPhi().View = dimensions.InvScale;
         world.StaticSolidPhi().Record({clearObstacles, obstacle1, obstacle2}, Vortex2D::Fluid::UnionBlend).Submit();
 
         // Draw sources and forces
-        world.InitField(density);
-
-        world.Velocity().View = dimensions.InvScale;
-        density.View = dimensions.InvScale;
 
         velocityRender = world.Velocity().Record({force1, force2});
         densityRender = density.Record({source1, source2});
@@ -86,17 +82,16 @@ public:
         velocityRender.Submit();
         densityRender.Submit();
 
-        world.SolveStatic();
+        world.Solve();
 
         windowRender.Submit();
     }
 
 private:
-    const Vortex2D::Fluid::Dimensions& dimensions;
     Vortex2D::Renderer::Ellipse source1, source2;
     Vortex2D::Renderer::Ellipse force1, force2;
     Vortex2D::Fluid::Density density;
-    Vortex2D::Fluid::World world;
+    Vortex2D::Fluid::SmokeWorld world;
     Vortex2D::Fluid::DistanceField solidPhi;
     Vortex2D::Renderer::RenderCommand velocityRender, densityRender, windowRender;
 };

@@ -12,8 +12,6 @@ namespace Vortex2D { namespace Fluid {
 World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
     : mDevice(device)
     , mDimensions(dimensions)
-    , mParticles(device, vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eVertexBuffer, VMA_MEMORY_USAGE_GPU_ONLY, 8*dimensions.Size.x*dimensions.Size.y*sizeof(Particle))
-    , mParticleCount(device, dimensions.Size, mParticles)
     , mPreconditioner(device, dimensions.Size, dt)
     , mLinearSolver(device, dimensions.Size, mPreconditioner)
     , mData(device, dimensions.Size)
@@ -30,20 +28,11 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
                   mFluidPhi,
                   mValid)
     , mExtrapolation(device, dimensions.Size, mValid, mVelocity)
-    , mClearVelocity(device)
     , mClearValid(device)
     , mCopySolidPhi(device)
 {
     mExtrapolation.ConstrainInit(mDynamicSolidPhi);
-    mParticleCount.InitLevelSet(mFluidPhi);
-    mParticleCount.InitVelocities(mVelocity, mValid);
     mFluidPhi.ExtrapolateInit(mDynamicSolidPhi);
-    mAdvection.AdvectParticleInit(mParticles, mDynamicSolidPhi, mParticleCount.GetDispatchParams());
-
-    mClearVelocity.Record([&](vk::CommandBuffer commandBuffer)
-    {
-        mVelocity.Clear(commandBuffer);
-    });
 
     mClearValid.Record([&](vk::CommandBuffer commandBuffer)
     {
@@ -58,16 +47,45 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
     mPreconditioner.BuildHierarchiesInit(mProjection, mDynamicSolidPhi, mFluidPhi);
     mLinearSolver.Init(mData.Diagonal, mData.Lower, mData.B, mData.X);
 
+    mFluidPhi.View = dimensions.InvScale;
     mDynamicSolidPhi.View = dimensions.InvScale;
     mStaticSolidPhi.View = dimensions.InvScale;
+    mVelocity.Input().View = dimensions.InvScale;
 }
 
-void World::InitField(Density& density)
+Renderer::RenderTexture& World::Velocity()
 {
-    mAdvection.AdvectInit(density);
+    return mVelocity.Input();
 }
 
-void World::SolveStatic()
+LevelSet& World::LiquidPhi()
+{
+    return mFluidPhi;
+}
+
+LevelSet& World::StaticSolidPhi()
+{
+    return mStaticSolidPhi;
+}
+
+LevelSet& World::DynamicSolidPhi()
+{
+    return mDynamicSolidPhi;
+}
+
+RigidbodyRef World::CreateRigidbody(ObjectDrawable& drawable, const glm::vec2& centre)
+{
+    mRigidbodies.push_back(std::make_unique<RigidBody>(mDevice, mDimensions, drawable, centre, mDynamicSolidPhi));
+    mRigidbodies.back()->BindDiv(mData.B, mData.Diagonal, mFluidPhi);
+    return *mRigidbodies.back();
+}
+
+SmokeWorld::SmokeWorld(const Renderer::Device& device, Dimensions dimensions, float dt)
+    : World(device, dimensions, dt)
+{
+}
+
+void SmokeWorld::Solve()
 {
     mCopySolidPhi.Submit();
     for (auto&& rigidbody: mRigidbodies)
@@ -75,7 +93,6 @@ void World::SolveStatic()
         rigidbody->RenderPhi();
     }
 
-    LinearSolver::Parameters params(300, 1e-3f);
     mPreconditioner.BuildHierarchies();
     mProjection.BuildLinearEquation();
 
@@ -84,6 +101,7 @@ void World::SolveStatic()
         rigidbody->Div();
     }
 
+    LinearSolver::Parameters params(300, 1e-3f);
     mLinearSolver.Solve(params);
     mProjection.ApplyPressure();
 
@@ -96,7 +114,30 @@ void World::SolveStatic()
     mClearValid.Submit();
 }
 
-void World::SolveDynamic()
+void SmokeWorld::InitField(Density& density)
+{
+    mAdvection.AdvectInit(density);
+}
+
+WaterWorld::WaterWorld(const Renderer::Device& device, Dimensions dimensions, float dt)
+    : World(device, dimensions, dt)
+    , mParticles(device, vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eVertexBuffer, VMA_MEMORY_USAGE_GPU_ONLY, 8*dimensions.Size.x*dimensions.Size.y*sizeof(Particle))
+    , mParticleCount(device, dimensions.Size, mParticles)
+    , mClearVelocity(device)
+{
+    mParticleCount.InitLevelSet(mFluidPhi);
+    mParticleCount.InitVelocities(mVelocity, mValid);
+    mAdvection.AdvectParticleInit(mParticles, mDynamicSolidPhi, mParticleCount.GetDispatchParams());
+
+    mClearVelocity.Record([&](vk::CommandBuffer commandBuffer)
+    {
+        mVelocity.Clear(commandBuffer);
+    });
+
+    mParticleCount.View = dimensions.InvScale;
+}
+
+void WaterWorld::Solve()
 {
     /*
      1) From particles, construct fluid level set
@@ -120,12 +161,18 @@ void World::SolveDynamic()
     // transfer to grid adds to the velocity, so we can set the values before
 
     // 4)
+    mCopySolidPhi.Submit();
+    for (auto&& rigidbody: mRigidbodies)
+    {
+        rigidbody->RenderPhi();
+    }
+
     mPreconditioner.BuildHierarchies();
     mFluidPhi.Extrapolate();
 
     // 5)
-    LinearSolver::Parameters params(1000, 1e-5f);
     mProjection.BuildLinearEquation();
+    LinearSolver::Parameters params(1000, 1e-5f);
     mLinearSolver.Solve(params);
     mProjection.ApplyPressure();
 
@@ -141,41 +188,14 @@ void World::SolveDynamic()
     mClearValid.Submit();
 }
 
-Renderer::RenderTexture& World::Velocity()
-{
-    return mVelocity.Input();
-}
-
-LevelSet& World::LiquidPhi()
-{
-    return mFluidPhi;
-}
-
-LevelSet& World::StaticSolidPhi()
-{
-    return mStaticSolidPhi;
-}
-
-LevelSet& World::DynamicSolidPhi()
-{
-    return mDynamicSolidPhi;
-}
-
-Renderer::GenericBuffer& World::Particles()
+Renderer::GenericBuffer& WaterWorld::Particles()
 {
     return mParticles;
 }
 
-ParticleCount& World::Count()
+ParticleCount& WaterWorld::Count()
 {
     return mParticleCount;
-}
-
-RigidbodyRef World::CreateRigidbody(ObjectDrawable& drawable, const glm::vec2& centre)
-{
-    mRigidbodies.push_back(std::make_unique<RigidBody>(mDevice, mDimensions, drawable, centre, mDynamicSolidPhi));
-    mRigidbodies.back()->BindDiv(mData.B, mData.Diagonal, mFluidPhi);
-    return *mRigidbodies.back();
 }
 
 }}

@@ -21,8 +21,7 @@ public:
     WaterExample(const Vortex2D::Renderer::Device& device,
                  const Vortex2D::Fluid::Dimensions& dimensions,
                  float dt)
-        : dimensions(dimensions)
-        , gravity(device, dimensions.Size, {0.0f, 0.01f, 0.0f, 0.0f})
+        : gravity(device, {1024.0f, 1024.0f}, {0.0f, 0.01f, 0.0f, 0.0f})
         , world(device, dimensions, dt)
         , solidPhi(device, world.StaticSolidPhi(), green, dimensions.Scale)
         , liquidPhi(device, world.LiquidPhi(), blue, dimensions.Scale)
@@ -37,12 +36,9 @@ public:
         Vortex2D::Renderer::IntRectangle fluid(device, {600.0f, 200.0f}, glm::ivec4(4));
         fluid.Position = {200.0f, 100.0f};
 
-        // TODO should be set in World (same for other render textures)
-        world.Count().View = dimensions.InvScale;
         world.Count().Record({fluid}).Submit();
 
         // Draw solid boundaries
-        Vortex2D::Renderer::Clear clear({1000.0f, 0.0f, 0.0f, 0.0f});
         Vortex2D::Fluid::Rectangle obstacle1(device, {200.0f, 100.0f});
         Vortex2D::Fluid::Rectangle obstacle2(device, {200.0f, 100.0f});
         Vortex2D::Fluid::Rectangle area(device, {1000.0f, 1000.0f}, true);
@@ -56,13 +52,12 @@ public:
         obstacle2.Rotation = 30.0f;
 
         world.StaticSolidPhi().Record({area, obstacle1, obstacle2}).Submit();
+
+        // wait for drawing to finish
         device.Handle().waitIdle();
 
         // Set gravity
         velocityRender = world.Velocity().Record({gravity});
-
-        // wait for drawing to finish
-        device.Handle().waitIdle();
 
         auto blendMode = vk::PipelineColorBlendAttachmentState()
                 .setBlendEnable(true)
@@ -79,15 +74,14 @@ public:
     void Step() override
     {
         velocityRender.Submit();
-        world.SolveDynamic();
+        world.Solve();
 
         windowRender.Submit();
     }
 
 private:
-    const Vortex2D::Fluid::Dimensions& dimensions;
     Vortex2D::Renderer::Rectangle gravity;
-    Vortex2D::Fluid::World world;
+    Vortex2D::Fluid::WaterWorld world;
     Vortex2D::Fluid::DistanceField solidPhi, liquidPhi;
     Vortex2D::Renderer::RenderCommand velocityRender, windowRender;
 };
