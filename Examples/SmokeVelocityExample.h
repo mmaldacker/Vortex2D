@@ -31,7 +31,7 @@ public:
         , solidPhi(device, world.DynamicSolidPhi(), green, dimensions.Scale)
         , clearObstacles({1000.0f, 0.0f, 0.0f, 0.0f})
         , rWorld({0.0f, 0.0f})
-        , body(device, rWorld, dimensions, world, b2_dynamicBody, {200.0f, 50.0f})
+        , body(device, rWorld, dimensions, world, b2_dynamicBody, Vortex2D::Fluid::RigidBody::Type::eWeak, {200.0f, 50.0f})
     {
         solidPhi.Scale = density.Scale = (glm::vec2)dimensions.Scale;
         density.View = dimensions.InvScale;
@@ -51,14 +51,14 @@ public:
         world.LiquidPhi().Record({clearLiquid, area}).Submit();
 
         // Draw sources and forces
-
         velocityRender = world.Velocity().Record({force});
         densityRender = density.Record({source});
 
         // Draw rigid body
         body.SetTransform({300.0f, 500.0f}, -45.0f);
-        obstaclesRender = world.StaticSolidPhi().Record({clearObstacles, body.SignedObject()},
-                                                        Vortex2D::Fluid::UnionBlend);
+
+        Vortex2D::Renderer::Clear obstaclesClear({1000.0f, 0.0f, 0.0f, 0.0f});
+        world.StaticSolidPhi().Record({obstaclesClear}).Submit();
 
         // wait for drawing to finish
         device.Handle().waitIdle();
@@ -77,8 +77,7 @@ public:
 
     void Step() override
     {
-        body.UpdatePosition();
-        body.UpdateVelocities();
+        body.Update();
 
         obstaclesRender.Submit();
         velocityRender.Submit();

@@ -22,6 +22,13 @@ namespace Vortex2D { namespace Fluid {
 class RigidBody : public Renderer::Transformable
 {
 public:
+    enum class Type
+    {
+        eStatic = 0x01,
+        eWeak = 0x02,
+        eStrong = 0x3,
+    };
+
     struct Velocity
     {
         alignas(8) glm::vec2 velocity;
@@ -32,7 +39,8 @@ public:
               const Dimensions& dimensions,
               ObjectDrawable& drawable,
               const glm::vec2& centre,
-              Renderer::RenderTexture& phi);
+              Renderer::RenderTexture& phi,
+              vk::Flags<Type> type);
 
     void SetVelocities(const glm::vec2& velocity, float angularVelocity);
 
@@ -52,6 +60,7 @@ public:
     void Pressure();
     void VelocityConstrain();
     Velocity GetForces();
+    vk::Flags<Type> GetType();
 
 private:
     const Renderer::Device& mDevice;
@@ -63,6 +72,7 @@ private:
     Renderer::Buffer<Velocity> mForce;
     Renderer::UniformBuffer<glm::mat4> mMVBuffer;
 
+    Renderer::Clear mClear;
     Renderer::RenderCommand mLocalPhiRender, mPhiRender;
 
     Renderer::Work mDiv, mConstrain, mPressure;
@@ -70,6 +80,8 @@ private:
     Renderer::CommandBuffer mDivCmd, mConstrainCmd, mPressureCmd;
     ReduceJ mSum;
     ReduceSum::Bound mSumBound;
+
+    vk::Flags<Type> mType;
 };
 
 }}

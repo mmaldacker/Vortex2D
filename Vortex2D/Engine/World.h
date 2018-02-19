@@ -49,7 +49,7 @@ public:
     LevelSet& StaticSolidPhi();
     LevelSet& DynamicSolidPhi();
 
-    RigidbodyRef CreateRigidbody(ObjectDrawable& drawable, const glm::vec2& centre);
+    RigidbodyRef CreateRigidbody(vk::Flags<RigidBody::Type> type, ObjectDrawable& drawable, const glm::vec2& centre);
 
 protected:
     const Renderer::Device& mDevice;
@@ -71,6 +71,7 @@ protected:
     Extrapolation mExtrapolation;
 
     Renderer::CommandBuffer mClearValid, mCopySolidPhi;
+    Renderer::Buffer<RigidBody::Velocity> mForce;
 
     std::vector<std::unique_ptr<RigidBody>> mRigidbodies;
 };

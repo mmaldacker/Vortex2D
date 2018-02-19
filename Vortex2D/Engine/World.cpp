@@ -30,6 +30,7 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
     , mExtrapolation(device, dimensions.Size, mValid, mVelocity)
     , mClearValid(device)
     , mCopySolidPhi(device)
+    , mForce(device, dimensions.Size.x*dimensions.Size.y)
 {
     mExtrapolation.ConstrainInit(mDynamicSolidPhi);
     mFluidPhi.ExtrapolateInit(mDynamicSolidPhi);
@@ -73,10 +74,20 @@ LevelSet& World::DynamicSolidPhi()
     return mDynamicSolidPhi;
 }
 
-RigidbodyRef World::CreateRigidbody(ObjectDrawable& drawable, const glm::vec2& centre)
+RigidbodyRef World::CreateRigidbody(vk::Flags<RigidBody::Type> type, ObjectDrawable& drawable, const glm::vec2& centre)
 {
-    mRigidbodies.push_back(std::make_unique<RigidBody>(mDevice, mDimensions, drawable, centre, mDynamicSolidPhi));
-    mRigidbodies.back()->BindDiv(mData.B, mData.Diagonal, mFluidPhi);
+    mRigidbodies.push_back(std::make_unique<RigidBody>(mDevice, mDimensions, drawable, centre, mDynamicSolidPhi, type));
+
+    if (type & RigidBody::Type::eStatic)
+    {
+        mRigidbodies.back()->BindDiv(mData.B, mData.Diagonal, mFluidPhi);
+    }
+
+    if (type & RigidBody::Type::eWeak)
+    {
+        mRigidbodies.back()->BindPressure(mFluidPhi, mData.X, mForce);
+    }
+
     return *mRigidbodies.back();
 }
 
@@ -98,12 +109,23 @@ void SmokeWorld::Solve()
 
     for (auto&& rigidbody: mRigidbodies)
     {
-        rigidbody->Div();
+        if (rigidbody.get()->GetType() & RigidBody::Type::eStatic)
+        {
+            rigidbody->Div();
+        }
     }
 
     LinearSolver::Parameters params(300, 1e-3f);
     mLinearSolver.Solve(params);
     mProjection.ApplyPressure();
+
+    for (auto&& rigidbody: mRigidbodies)
+    {
+        if (rigidbody.get()->GetType() & RigidBody::Type::eWeak)
+        {
+            rigidbody.get()->Pressure();
+        }
+    }
 
     mExtrapolation.Extrapolate();
     mExtrapolation.ConstrainVelocity();
@@ -164,7 +186,10 @@ void WaterWorld::Solve()
     mCopySolidPhi.Submit();
     for (auto&& rigidbody: mRigidbodies)
     {
-        rigidbody->RenderPhi();
+        if (rigidbody.get()->GetType() & RigidBody::Type::eStatic)
+        {
+            rigidbody->Div();
+        }
     }
 
     mPreconditioner.BuildHierarchies();
@@ -175,6 +200,14 @@ void WaterWorld::Solve()
     LinearSolver::Parameters params(1000, 1e-5f);
     mLinearSolver.Solve(params);
     mProjection.ApplyPressure();
+
+    for (auto&& rigidbody: mRigidbodies)
+    {
+        if (rigidbody.get()->GetType() & RigidBody::Type::eWeak)
+        {
+            rigidbody.get()->Pressure();
+        }
+    }
 
     mExtrapolation.Extrapolate();
     mExtrapolation.ConstrainVelocity();

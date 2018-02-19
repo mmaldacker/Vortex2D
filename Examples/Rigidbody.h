@@ -23,20 +23,22 @@ public:
                    b2World& rWorld,
                    const Vortex2D::Fluid::Dimensions& dimensions,
                    Vortex2D::Fluid::World& world,
-                   b2BodyType type,
+                   b2BodyType rType,
+                   Vortex2D::Fluid::RigidBody::Type type,
                    const std::vector<glm::vec2>& points);
 
   b2Body& Body();
   Vortex2D::Renderer::Drawable& SignedObject();
 
-  void UpdatePosition();
-  void UpdateVelocities();
+  void Update();
+
   void SetTransform(const glm::vec2& pos, float angle);
 
 private:
   float mScale;
   Vortex2D::Fluid::Polygon mDrawPolygon;
   Vortex2D::Fluid::RigidbodyRef mRigidbody;
+  vk::Flags<Vortex2D::Fluid::RigidBody::Type> mType;
   b2Body* mB2Body;
 };
 
@@ -47,9 +49,10 @@ public:
                b2World& rWorld,
                const Vortex2D::Fluid::Dimensions& dimensions,
                Vortex2D::Fluid::World& world,
-               b2BodyType type,
+               b2BodyType rType,
+               Vortex2D::Fluid::RigidBody::Type type,
                const glm::vec2& halfSize)
-    : PolygonRigidbody(device, rWorld, dimensions, world, type,
+    : PolygonRigidbody(device, rWorld, dimensions, world, rType, type,
                       {{-halfSize.x, -halfSize.y},
                       {halfSize.x, -halfSize.y},
                       {halfSize.x, halfSize.y},

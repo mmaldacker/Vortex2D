@@ -16,7 +16,8 @@ RigidBody::RigidBody(const Renderer::Device& device,
                      const Dimensions& dimensions,
                      ObjectDrawable& drawable,
                      const glm::vec2& centre,
-                     Renderer::RenderTexture& phi)
+                     Renderer::RenderTexture& phi,
+                     vk::Flags<Type> type)
     : mDevice(device)
     , mPhi(device, dimensions.Size.x, dimensions.Size.y, vk::Format::eR32Sfloat)
     , mDrawable(drawable)
@@ -25,6 +26,7 @@ RigidBody::RigidBody(const Renderer::Device& device,
     , mVelocity(device)
     , mForce(device, 1, VMA_MEMORY_USAGE_GPU_TO_CPU)
     , mMVBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
+    , mClear({1000.0f, 0.0f, 0.0f, 0.0f})
     , mDiv(device, dimensions.Size, BuildRigidbodyDiv_comp)
     , mConstrain(device, dimensions.Size, ConstrainRigidbodyVelocity_comp)
     , mPressure(device, dimensions.Size, RigidbodyPressure_comp)
@@ -32,10 +34,11 @@ RigidBody::RigidBody(const Renderer::Device& device,
     , mConstrainCmd(device)
     , mPressureCmd(device)
     , mSum(device, dimensions.Size)
+    , mType(type)
 {
     mPhi.View = mView;
 
-    mLocalPhiRender = mPhi.Record({mDrawable});
+    mLocalPhiRender = mPhi.Record({mClear, mDrawable}, UnionBlend);
     mPhiRender = phi.Record({mDrawable}, UnionBlend);
 }
 
@@ -102,11 +105,12 @@ void RigidBody::BindPressure(Renderer::Texture& fluidLevelSet,
     mSumBound = mSum.Bind(force, mForce);
     mPressureCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
+        commandBuffer.debugMarkerBeginEXT({"Rigidbody pressure", {{ 0.70f, 0.59f, 0.63f, 1.0f}}});
         mPressureBound.PushConstant(commandBuffer, 8, mCentre);
         mPressureBound.Record(commandBuffer);
         force.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         mSumBound.Record(commandBuffer);
-        mVelocity.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        commandBuffer.debugMarkerEndEXT();
     });
 }
 
@@ -123,6 +127,11 @@ void RigidBody::Pressure()
 void RigidBody::VelocityConstrain()
 {
 
+}
+
+vk::Flags<RigidBody::Type> RigidBody::GetType()
+{
+    return mType;
 }
 
 }}

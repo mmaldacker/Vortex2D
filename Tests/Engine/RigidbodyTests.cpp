@@ -89,7 +89,11 @@ TEST(RigidbodyTests, Div)
     Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
 
     Vortex2D::Fluid::Rectangle rectangle(*device, {6.0f, 4.0f});
-    Vortex2D::Fluid::RigidBody rigidBody(*device, Dimensions(size, 1.0f), rectangle, {3.0f, 2.0f}, solidPhi);
+    Vortex2D::Fluid::RigidBody rigidBody(*device,
+                                         Dimensions(size, 1.0f),
+                                         rectangle, {3.0f, 2.0f},
+                                         solidPhi,
+                                         Vortex2D::Fluid::RigidBody::Type::eStatic);
 
     rigidBody.Anchor = {3.0f, 2.0f};
     rigidBody.Position = {10.0f, 10.0f};
@@ -143,7 +147,11 @@ TEST(RigidbodyTests, VelocityDiv)
     Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
 
     Vortex2D::Fluid::Rectangle rectangle(*device, {6.0f, 4.0f});
-    Vortex2D::Fluid::RigidBody rigidBody(*device, Dimensions(size, 1.0f), rectangle, {0.0f, 0.0f}, solidPhi);
+    Vortex2D::Fluid::RigidBody rigidBody(*device,
+                                         Dimensions(size, 1.0f),
+                                         rectangle, {0.0f, 0.0f},
+                                         solidPhi,
+                                         Vortex2D::Fluid::RigidBody::Type::eStatic);
 
     rigidBody.Anchor = {3.0f, 2.0f};
     rigidBody.Position = {10.0f, 10.0f};
@@ -198,7 +206,11 @@ TEST(RigidbodyTests, RotationDiv)
     Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
 
     Vortex2D::Fluid::Rectangle rectangle(*device, {6.0f, 4.0f});
-    Vortex2D::Fluid::RigidBody rigidBody(*device, Dimensions(size, 1.0f), rectangle, {3.0f, 2.0f}, solidPhi);
+    Vortex2D::Fluid::RigidBody rigidBody(*device,
+                                         Dimensions(size, 1.0f),
+                                         rectangle, {3.0f, 2.0f},
+                                         solidPhi,
+                                         Vortex2D::Fluid::RigidBody::Type::eStatic);
 
     rigidBody.Anchor = {3.0f, 2.0f};
     rigidBody.Position = {10.0f, 10.0f};
@@ -253,7 +265,11 @@ TEST(RigidbodyTests, VelocityRotationDiv)
     Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
 
     Vortex2D::Fluid::Rectangle rectangle(*device, {6.0f, 4.0f});
-    Vortex2D::Fluid::RigidBody rigidBody(*device, Dimensions(size, 1.0f), rectangle, {3.0f, 2.0f}, solidPhi);
+    Vortex2D::Fluid::RigidBody rigidBody(*device,
+                                         Dimensions(size, 1.0f),
+                                         rectangle, {3.0f, 2.0f},
+                                         solidPhi,
+                                         Vortex2D::Fluid::RigidBody::Type::eStatic);
 
     rigidBody.Anchor = {3.0f, 2.0f};
     rigidBody.Position = {10.0f, 10.0f};
@@ -347,7 +363,11 @@ TEST(RigidbodyTests, Pressure)
     CopyFrom(pressure, computedPressureData);
 
     Vortex2D::Fluid::Rectangle rectangle(*device, {6.0f, 4.0f});
-    Vortex2D::Fluid::RigidBody rigidBody(*device, Dimensions(size, 1.0f), rectangle, {3.0, 2.0f}, solidPhi);
+    Vortex2D::Fluid::RigidBody rigidBody(*device,
+                                         Dimensions(size, 1.0f),
+                                         rectangle, {3.0, 2.0f},
+                                         solidPhi,
+                                         Vortex2D::Fluid::RigidBody::Type::eStatic);
 
     rigidBody.Position = {10.0f, 10.0f};
     rigidBody.Anchor = {3.0f, 2.0f};
