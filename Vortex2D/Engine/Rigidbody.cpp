@@ -106,6 +106,7 @@ void RigidBody::BindPressure(Renderer::Texture& fluidLevelSet,
     mPressureCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
         commandBuffer.debugMarkerBeginEXT({"Rigidbody pressure", {{ 0.70f, 0.59f, 0.63f, 1.0f}}});
+        force.Clear(commandBuffer);
         mPressureBound.PushConstant(commandBuffer, 8, mCentre);
         mPressureBound.Record(commandBuffer);
         force.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);

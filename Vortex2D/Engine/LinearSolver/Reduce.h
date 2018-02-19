@@ -35,12 +35,13 @@ public:
 protected:
     Reduce(const Renderer::Device& device,
            const Renderer::SpirvBinary& spirv,
-           const glm::ivec2& size);
+           const glm::ivec2& size,
+           std::size_t typeSize);
 
 private:
     int mSize;
     Renderer::Work mReduce;
-    std::vector<Renderer::Buffer<float>> mBuffers;
+    std::vector<Renderer::GenericBuffer> mBuffers;
 };
 
 class ReduceSum : public Reduce

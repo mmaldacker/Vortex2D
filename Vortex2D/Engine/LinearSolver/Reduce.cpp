@@ -34,7 +34,8 @@ Renderer::ComputeSize MakeComputeSize(int size)
 
 Reduce::Reduce(const Renderer::Device& device,
                const Renderer::SpirvBinary& spirv,
-               const glm::ivec2& size)
+               const glm::ivec2& size,
+               std::size_t typeSize)
     : mSize(size.x*size.y)
     , mReduce(device, Renderer::ComputeSize::Default1D(), spirv)
 {
@@ -43,7 +44,10 @@ Reduce::Reduce(const Renderer::Device& device,
 
     while ((workGroupSize = GetWorkGroupSize(workGroupSize, localSize)) > 1)
     {
-        mBuffers.emplace_back(device, workGroupSize);
+        mBuffers.emplace_back(device,
+                              vk::BufferUsageFlagBits::eStorageBuffer,
+                              VMA_MEMORY_USAGE_GPU_ONLY,
+                              typeSize*workGroupSize);
     }
 
     assert(workGroupSize);
@@ -97,21 +101,28 @@ void Reduce::Bound::Record(vk::CommandBuffer commandBuffer)
 
 ReduceSum::ReduceSum(const Renderer::Device& device,
                      const glm::ivec2& size)
-    : Reduce(device, Sum_comp, size)
+    : Reduce(device, Sum_comp, size, sizeof(float))
 {
 
 }
 
+// TODO should merge with struct in Rigidbody
+struct J
+{
+    alignas(8) glm::vec2 linear;
+    alignas(4) float angular;
+};
+
 ReduceJ::ReduceJ(const Renderer::Device &device,
                  const glm::ivec2 &size)
-    : Reduce(device, SumJ_comp, size)
+    : Reduce(device, SumJ_comp, size, sizeof(J))
 {
 
 }
 
 ReduceMax::ReduceMax(const Renderer::Device& device,
                      const glm::ivec2& size)
-    : Reduce(device, Max_comp, size)
+    : Reduce(device, Max_comp, size, sizeof(float))
 {
 
 }
