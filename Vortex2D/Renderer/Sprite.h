@@ -21,6 +21,7 @@ class AbstractSprite : public Drawable, public Transformable
 {
 public:
     AbstractSprite(const Device& device, const SpirvBinary& fragShaderName, Texture& texture);
+    virtual ~AbstractSprite() {}
 
     void Initialize(const RenderState& renderState) override;
     void Update(const glm::mat4& projection, const glm::mat4& view) override;

@@ -36,7 +36,7 @@ public:
             vk::Format format,
             VmaMemoryUsage memoryUsage = VMA_MEMORY_USAGE_GPU_ONLY);
 
-    ~Texture();
+    virtual ~Texture();
     Texture(Texture&& other);
 
     template<typename T>
