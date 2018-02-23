@@ -37,9 +37,13 @@ RigidBody::RigidBody(const Renderer::Device& device,
     , mType(type)
 {
     mPhi.View = mView;
-
     mLocalPhiRender = mPhi.Record({mClear, mDrawable}, UnionBlend);
-    mPhiRender = phi.Record({mDrawable}, UnionBlend);
+    SetVelocities(glm::vec2(0.0f), 0.0f);
+
+    if (type & Type::eStatic)
+    {
+        mPhiRender = phi.Record({mDrawable}, UnionBlend);
+    }
 }
 
 void RigidBody::SetVelocities(const glm::vec2& velocity, float angularVelocity)
@@ -75,7 +79,10 @@ void RigidBody::UpdatePosition()
 void RigidBody::RenderPhi()
 {
     mLocalPhiRender.Submit();
-    mPhiRender.Submit();
+    if (mType & Type::eStatic)
+    {
+        mPhiRender.Submit();
+    }
 }
 
 void RigidBody::BindDiv(Renderer::GenericBuffer& div,
@@ -133,6 +140,11 @@ void RigidBody::VelocityConstrain()
 vk::Flags<RigidBody::Type> RigidBody::GetType()
 {
     return mType;
+}
+
+Renderer::RenderTexture& RigidBody::Phi()
+{
+    return mPhi;
 }
 
 }}

@@ -52,6 +52,11 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
     mDynamicSolidPhi.View = dimensions.InvScale;
     mStaticSolidPhi.View = dimensions.InvScale;
     mVelocity.Input().View = dimensions.InvScale;
+
+    Renderer::ExecuteCommand(mDevice, [&](vk::CommandBuffer commandBuffer)
+    {
+        mStaticSolidPhi.Clear(commandBuffer, std::array<float, 4>{{1000.0f, 0.0f, 0.0f, 0.0f}});
+    });
 }
 
 Renderer::RenderTexture& World::Velocity()

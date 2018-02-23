@@ -71,10 +71,8 @@ public:
         body2.Body().ApplyForceToCenter({-1000.0f, 0.0f}, true);
 
         // Bottom
-        bottom.SetTransform({512.5f, 1000.5f}, 0.0f);
-
-        Vortex2D::Renderer::Clear obstaclesClear({1000.0f, 0.0f, 0.0f, 0.0f});
-        world.StaticSolidPhi().Record({obstaclesClear, bottom.SignedObject()}, Vortex2D::Fluid::UnionBlend).Submit();
+        bottom.SetTransform({512.0f, 1000.0f}, 0.0f);
+        bottom.Update();
 
         // wait for drawing to finish
         device.Handle().waitIdle();

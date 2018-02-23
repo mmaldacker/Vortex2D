@@ -198,7 +198,7 @@ vk::PipelineColorBlendAttachmentState UnionBlend = vk::PipelineColorBlendAttachm
         .setColorWriteMask(vk::ColorComponentFlagBits::eR);
 
 DistanceField::DistanceField(const Renderer::Device& device,
-                             LevelSet& levelSet,
+                             Renderer::RenderTexture& levelSet,
                              const glm::vec4& colour,
                              float scale)
     : Renderer::AbstractSprite(device,

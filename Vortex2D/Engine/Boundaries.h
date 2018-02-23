@@ -80,7 +80,7 @@ class DistanceField : public Renderer::AbstractSprite
 {
 public:
     DistanceField(const Renderer::Device& device,
-                  LevelSet& levelSet,
+                  Renderer::RenderTexture& levelSet,
                   const glm::vec4& colour,
                   float scale = 1.0f);
 

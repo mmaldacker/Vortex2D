@@ -61,6 +61,7 @@ public:
     void VelocityConstrain();
     Velocity GetForces();
     vk::Flags<Type> GetType();
+    Renderer::RenderTexture& Phi();
 
 private:
     const Renderer::Device& mDevice;

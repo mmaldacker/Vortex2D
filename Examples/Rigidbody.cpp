@@ -55,9 +55,9 @@ b2Body& PolygonRigidbody::Body()
     return *mB2Body;
 }
 
-Vortex2D::Renderer::Drawable& PolygonRigidbody::SignedObject()
+Vortex2D::Renderer::RenderTexture& PolygonRigidbody::Phi()
 {
-    return mDrawPolygon;
+    return mRigidbody.get().Phi();
 }
 
 void PolygonRigidbody::Update()
@@ -78,9 +78,10 @@ void PolygonRigidbody::Update()
     if (mType & Vortex2D::Fluid::RigidBody::Type::eWeak)
     {
         auto force = mRigidbody.get().GetForces();
-        b2Vec2 b2Force = {force.velocity.x, force.velocity.y};
+        float scale = mScale / box2dScale;
+        b2Vec2 b2Force = {scale * force.velocity.x, scale * force.velocity.y};
         mB2Body->ApplyForceToCenter(b2Force, true);
-        mB2Body->ApplyTorque(force.angular_velocity, true);
+        mB2Body->ApplyTorque(scale * force.angular_velocity, true);
     }
 }
 

@@ -28,7 +28,7 @@ public:
                    const std::vector<glm::vec2>& points);
 
   b2Body& Body();
-  Vortex2D::Renderer::Drawable& SignedObject();
+  Vortex2D::Renderer::RenderTexture& Phi();
 
   void Update();
 

@@ -24,19 +24,22 @@ public:
                  const Vortex2D::Fluid::Dimensions& dimensions,
                  float dt)
         : delta(dt)
-        , source(device, glm::vec2(20.0f), gray)
-        , force(device, glm::vec2(20.0f), {0.5f, 0.5f, 0.0f, 0.0f})
+        , source1(device, glm::vec2(20.0f), gray)
+        , source2(device, glm::vec2(20.0f), gray)
+        , force1(device, glm::vec2(20.0f), {0.5f, 0.5f, 0.0f, 0.0f})
+        , force2(device, glm::vec2(20.0f), {-0.5f, -0.5f, 0.0f, 0.0f})
         , density(device, dimensions.Size, vk::Format::eB8G8R8A8Unorm)
         , world(device, dimensions, dt)
-        , solidPhi(device, world.DynamicSolidPhi(), green, dimensions.Scale)
         , clearObstacles({1000.0f, 0.0f, 0.0f, 0.0f})
         , rWorld({0.0f, 0.0f})
         , body(device, rWorld, dimensions, world, b2_dynamicBody, Vortex2D::Fluid::RigidBody::Type::eWeak, {200.0f, 50.0f})
+        , solidPhi(device, body.Phi(), green, dimensions.Scale)
     {
         solidPhi.Scale = density.Scale = (glm::vec2)dimensions.Scale;
         density.View = dimensions.InvScale;
         world.InitField(density);
-        source.Position = force.Position = {100.0f, 100.0f};
+        source1.Position = force1.Position = {100.0f, 100.0f};
+        source2.Position = force2.Position = {500.0f, 900.0f};
     }
 
     void Init(const Vortex2D::Renderer::Device& device,
@@ -51,8 +54,8 @@ public:
         world.LiquidPhi().Record({clearLiquid, area}).Submit();
 
         // Draw sources and forces
-        velocityRender = world.Velocity().Record({force});
-        densityRender = density.Record({source});
+        velocityRender = world.Velocity().Record({force1, force2});
+        densityRender = density.Record({source1, source2});
 
         // Draw rigid body
         body.SetTransform({300.0f, 500.0f}, -45.0f);
@@ -94,15 +97,15 @@ public:
 
 private:
     float delta;
-    Vortex2D::Renderer::Ellipse source;
-    Vortex2D::Renderer::Ellipse force;
+    Vortex2D::Renderer::Ellipse source1, source2;
+    Vortex2D::Renderer::Ellipse force1, force2;
     Vortex2D::Fluid::Density density;
     Vortex2D::Fluid::SmokeWorld world;
-    Vortex2D::Fluid::DistanceField solidPhi;
     Vortex2D::Renderer::Clear clearObstacles;
     Vortex2D::Renderer::RenderCommand velocityRender, densityRender, obstaclesRender, windowRender;
 
     b2World rWorld;
 
     BoxRigidbody body;
+    Vortex2D::Fluid::DistanceField solidPhi;
 };
