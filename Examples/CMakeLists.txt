@@ -22,6 +22,7 @@ file(GLOB EXAMPLES_SOURCES
         "SmokeExample.h"
         "SmokeVelocityExample.h"
         "WaterExample.h"
+        "BallWaterExample.h"
         "Runner.h")
 
 file(GLOB EXAMPLES_BOX2D_SOURCES

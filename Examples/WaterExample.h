@@ -1,5 +1,5 @@
 //
-//  Water.cpp
+//  Water.h
 //  Vortex2D
 //
 

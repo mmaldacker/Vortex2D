@@ -6,6 +6,7 @@
 #include "ObstacleSmokeExample.h"
 #include "WaterExample.h"
 #include "SmokeVelocityExample.h"
+#include "BallWaterExample.h"
 
 #include <iostream>
 #include <memory>
@@ -118,6 +119,9 @@ public:
             break;
         case GLFW_KEY_5:
             example.reset(new SmokeVelocityExample(device, {size, scale}, delta));
+            break;
+        case GLFW_KEY_6:
+            example.reset(new BallWaterExample(device, {size, scale}, delta));
             break;
         default:
             return;

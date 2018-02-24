@@ -28,8 +28,8 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
                   mFluidPhi,
                   mValid)
     , mExtrapolation(device, dimensions.Size, mValid, mVelocity)
-    , mClearValid(device)
-    , mCopySolidPhi(device)
+    , mClearValid(device, false)
+    , mCopySolidPhi(device, false)
     , mForce(device, dimensions.Size.x*dimensions.Size.y)
 {
     mExtrapolation.ConstrainInit(mDynamicSolidPhi);
@@ -79,7 +79,7 @@ LevelSet& World::DynamicSolidPhi()
     return mDynamicSolidPhi;
 }
 
-RigidbodyRef World::CreateRigidbody(vk::Flags<RigidBody::Type> type, ObjectDrawable& drawable, const glm::vec2& centre)
+RigidBody* World::CreateRigidbody(vk::Flags<RigidBody::Type> type, ObjectDrawable& drawable, const glm::vec2& centre)
 {
     mRigidbodies.push_back(std::make_unique<RigidBody>(mDevice, mDimensions, drawable, centre, mDynamicSolidPhi, type));
 
@@ -93,7 +93,7 @@ RigidbodyRef World::CreateRigidbody(vk::Flags<RigidBody::Type> type, ObjectDrawa
         mRigidbodies.back()->BindPressure(mFluidPhi, mData.X, mForce);
     }
 
-    return *mRigidbodies.back();
+    return mRigidbodies.back().get();
 }
 
 SmokeWorld::SmokeWorld(const Renderer::Device& device, Dimensions dimensions, float dt)
@@ -109,6 +109,7 @@ void SmokeWorld::Solve()
         rigidbody->RenderPhi();
     }
 
+    mDynamicSolidPhi.Reinitialise();
     mPreconditioner.BuildHierarchies();
     mProjection.BuildLinearEquation();
 
@@ -189,6 +190,12 @@ void WaterWorld::Solve()
 
     // 4)
     mCopySolidPhi.Submit();
+    for (auto&& rigidbody: mRigidbodies)
+    {
+        rigidbody->RenderPhi();
+    }
+    mDynamicSolidPhi.Reinitialise();
+
     for (auto&& rigidbody: mRigidbodies)
     {
         if (rigidbody.get()->GetType() & RigidBody::Type::eStatic)

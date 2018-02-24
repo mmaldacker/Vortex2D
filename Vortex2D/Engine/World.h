@@ -27,8 +27,6 @@
 
 namespace Vortex2D { namespace Fluid {
 
-using RigidbodyRef = std::reference_wrapper<RigidBody>;
-
 /**
  * @brief The main class of the framework. Each instance manages a grid and this class
  * is used to set forces, define boundaries, solve the incompressbility equations and do the
@@ -50,7 +48,7 @@ public:
     LevelSet& StaticSolidPhi();
     LevelSet& DynamicSolidPhi();
 
-    RigidbodyRef CreateRigidbody(vk::Flags<RigidBody::Type> type, ObjectDrawable& drawable, const glm::vec2& centre);
+    RigidBody* CreateRigidbody(vk::Flags<RigidBody::Type> type, ObjectDrawable& drawable, const glm::vec2& centre);
 
 protected:
     const Renderer::Device& mDevice;

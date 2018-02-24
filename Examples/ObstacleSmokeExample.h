@@ -32,9 +32,9 @@ public:
         , solidPhi(device, world.DynamicSolidPhi(), green, dimensions.Scale)
         , velocityClear({0.0f, 0.0f, 0.0f, 0.0f})
         , rWorld({0.0f, 10.0f})
-        , body1(device, rWorld, dimensions, world, b2_dynamicBody, Vortex2D::Fluid::RigidBody::Type::eStatic, {100.0f, 50.0f})
-        , body2(device, rWorld, dimensions, world, b2_dynamicBody, Vortex2D::Fluid::RigidBody::Type::eStatic, {50.0f, 50.0f})
-        , bottom(device, rWorld, dimensions, world, b2_staticBody, Vortex2D::Fluid::RigidBody::Type::eStatic, {500.0f, 20.0f})
+        , body1(device, dimensions, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {100.0f, 50.0f})
+        , body2(device, dimensions, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {50.0f, 50.0f})
+        , bottom(device, dimensions, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {500.0f, 20.0f})
     {
         solidPhi.Scale = density.Scale = glm::vec2(dimensions.Scale);
         density.View = dimensions.InvScale;
@@ -71,7 +71,7 @@ public:
         body2.Body().ApplyForceToCenter({-1000.0f, 0.0f}, true);
 
         // Bottom
-        bottom.SetTransform({512.0f, 1000.0f}, 0.0f);
+        bottom.SetTransform({512.0f, 1000.5f}, 0.0f);
         bottom.Update();
 
         // wait for drawing to finish

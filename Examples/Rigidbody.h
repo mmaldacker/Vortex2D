@@ -16,50 +16,76 @@
 
 const float box2dScale = 32.0f;
 
-class PolygonRigidbody
+class Rigidbody
 {
 public:
-  PolygonRigidbody(const Vortex2D::Renderer::Device& device,
-                   b2World& rWorld,
-                   const Vortex2D::Fluid::Dimensions& dimensions,
-                   Vortex2D::Fluid::World& world,
-                   b2BodyType rType,
-                   Vortex2D::Fluid::RigidBody::Type type,
-                   const std::vector<glm::vec2>& points);
+    Rigidbody(const Vortex2D::Fluid::Dimensions& dimensions,
+              b2World& rWorld,
+              b2BodyType rType,
+              b2FixtureDef fixtureDef);
 
-  b2Body& Body();
-  Vortex2D::Renderer::RenderTexture& Phi();
+    b2Body& Body();
+    Vortex2D::Renderer::RenderTexture& Phi();
 
-  void Update();
+    void Update();
+    void SetTransform(const glm::vec2& pos, float angle);
 
-  void SetTransform(const glm::vec2& pos, float angle);
+    void CreateBody(Vortex2D::Fluid::World& world,
+                    Vortex2D::Fluid::RigidBody::Type type,
+                    Vortex2D::Fluid::ObjectDrawable& drawable);
+private:
+    float mScale;
+    Vortex2D::Fluid::RigidBody* mRigidbody;
+    b2Body* mB2Body;
+};
+
+class PolygonRigidbody : public Rigidbody
+{
+public:
+    PolygonRigidbody(const Vortex2D::Renderer::Device& device,
+                     const Vortex2D::Fluid::Dimensions& dimensions,
+                     b2World& rWorld,
+                     b2BodyType rType,
+                     Vortex2D::Fluid::World& world,
+                     Vortex2D::Fluid::RigidBody::Type type,
+                     const std::vector<glm::vec2>& points);
 
 private:
-  float mScale;
-  Vortex2D::Fluid::Polygon mDrawPolygon;
-  Vortex2D::Fluid::RigidbodyRef mRigidbody;
-  vk::Flags<Vortex2D::Fluid::RigidBody::Type> mType;
-  b2Body* mB2Body;
+    Vortex2D::Fluid::Polygon mPolygon;
 };
 
 class BoxRigidbody : public PolygonRigidbody
 {
 public:
-  BoxRigidbody(const Vortex2D::Renderer::Device& device,
-               b2World& rWorld,
-               const Vortex2D::Fluid::Dimensions& dimensions,
-               Vortex2D::Fluid::World& world,
-               b2BodyType rType,
-               Vortex2D::Fluid::RigidBody::Type type,
-               const glm::vec2& halfSize)
-    : PolygonRigidbody(device, rWorld, dimensions, world, rType, type,
-                      {{-halfSize.x, -halfSize.y},
-                      {halfSize.x, -halfSize.y},
-                      {halfSize.x, halfSize.y},
-                      {-halfSize.x, halfSize.y}})
-  {
-  }
+    BoxRigidbody(const Vortex2D::Renderer::Device& device,
+                 const Vortex2D::Fluid::Dimensions& dimensions,
+                 b2World& rWorld,
+                 b2BodyType rType,
+                 Vortex2D::Fluid::World& world,
+                 Vortex2D::Fluid::RigidBody::Type type,
+                 const glm::vec2& halfSize)
+        : PolygonRigidbody(device, dimensions, rWorld, rType, world, type,
+                           {{-halfSize.x, -halfSize.y},
+                           {halfSize.x, -halfSize.y},
+                           {halfSize.x, halfSize.y},
+                           {-halfSize.x, halfSize.y}})
+    {
+    }
+};
 
+class CircleRigidbody : public Rigidbody
+{
+public:
+    CircleRigidbody(const Vortex2D::Renderer::Device& device,
+                    const Vortex2D::Fluid::Dimensions& dimensions,
+                    b2World& rWorld,
+                    b2BodyType rType,
+                    Vortex2D::Fluid::World& world,
+                    Vortex2D::Fluid::RigidBody::Type type,
+                    const float radius);
+
+private:
+    Vortex2D::Fluid::Circle mCircle;
 };
 
 #endif

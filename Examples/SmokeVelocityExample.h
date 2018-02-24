@@ -1,5 +1,5 @@
 //
-//  SmokeVelocity.cpp
+//  SmokeVelocity.h
 //  Vortex2D
 //
 
@@ -32,7 +32,7 @@ public:
         , world(device, dimensions, dt)
         , clearObstacles({1000.0f, 0.0f, 0.0f, 0.0f})
         , rWorld({0.0f, 0.0f})
-        , body(device, rWorld, dimensions, world, b2_dynamicBody, Vortex2D::Fluid::RigidBody::Type::eWeak, {200.0f, 50.0f})
+        , body(device, dimensions, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eWeak, {200.0f, 50.0f})
         , solidPhi(device, body.Phi(), green, dimensions.Scale)
     {
         solidPhi.Scale = density.Scale = (glm::vec2)dimensions.Scale;
