@@ -101,7 +101,7 @@ void Reduce::Bound::Record(vk::CommandBuffer commandBuffer)
 
 ReduceSum::ReduceSum(const Renderer::Device& device,
                      const glm::ivec2& size)
-    : Reduce(device, Sum_comp, size, sizeof(float))
+    : Reduce(device, SPIRV::Sum_comp, size, sizeof(float))
 {
 
 }
@@ -115,14 +115,14 @@ struct J
 
 ReduceJ::ReduceJ(const Renderer::Device &device,
                  const glm::ivec2 &size)
-    : Reduce(device, SumJ_comp, size, sizeof(J))
+    : Reduce(device, SPIRV::SumJ_comp, size, sizeof(J))
 {
 
 }
 
 ReduceMax::ReduceMax(const Renderer::Device& device,
                      const glm::ivec2& size)
-    : Reduce(device, Max_comp, size, sizeof(float))
+    : Reduce(device, SPIRV::Max_comp, size, sizeof(float))
 {
 
 }

@@ -18,8 +18,8 @@ GaussSeidel::GaussSeidel(const Renderer::Device& device, const glm::ivec2& size)
     , mResidual(device, size.x*size.y)
     , mError(device)
     , mLocalError(device, 1, VMA_MEMORY_USAGE_GPU_TO_CPU)
-    , mGaussSeidel(device, Renderer::MakeCheckerboardComputeSize(size), GaussSeidel_comp)
-    , mResidualWork(device, size, Residual_comp)
+    , mGaussSeidel(device, Renderer::MakeCheckerboardComputeSize(size), SPIRV::GaussSeidel_comp)
+    , mResidualWork(device, size, SPIRV::Residual_comp)
     , mReduceMax(device, size)
     , mReduceMaxBound(mReduceMax.Bind(mResidual, mError))
     , mGaussSeidelCmd(device, false)
@@ -122,7 +122,7 @@ Renderer::ComputeSize MakeLocalSize(const glm::ivec2& size)
 }
 
 LocalGaussSeidel::LocalGaussSeidel(const Renderer::Device& device, const glm::ivec2& size)
-  : mLocalGaussSeidel(device, MakeLocalSize(size), LocalGaussSeidel_comp)
+  : mLocalGaussSeidel(device, MakeLocalSize(size), SPIRV::LocalGaussSeidel_comp)
 {
     // TODO check size is within local size
 }

@@ -34,14 +34,19 @@ namespace Renderer
 {
 class SpirvBinary;
 }
-}
 
+namespace SPIRV
+{
 ''')
 
   for file in args.files:
     f.write(genCArrayDef(file))
     
-  f.write('''#endif
+  f.write('''
+}
+}
+
+#endif
 
 ''')
 
@@ -51,6 +56,19 @@ with open(args.output + '.cpp', 'w') as f:
 #include <Vortex2D/Renderer/Device.h>
 ''')
   f.write('#include "' + ntpath.basename(args.output) +  '.h"\n\n')
+  f.write('''
+
+namespace Vortex2D
+{
+namespace SPIRV
+{
+''')
 
   for file in args.files:
     f.write(genCArray(file))
+
+  f.write('''
+}
+}
+
+''')

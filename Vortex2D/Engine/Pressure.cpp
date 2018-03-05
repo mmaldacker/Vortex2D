@@ -20,18 +20,18 @@ Pressure::Pressure(const Renderer::Device& device,
                    Renderer::Texture& liquidPhi,
                    Renderer::GenericBuffer& valid)
     : mData(data)
-    , mBuildMatrix(device, size, BuildMatrix_comp)
+    , mBuildMatrix(device, size, SPIRV::BuildMatrix_comp)
     , mBuildMatrixBound(mBuildMatrix.Bind({data.Diagonal,
                                            data.Lower,
                                            liquidPhi,
                                            solidPhi}))
-    , mBuildDiv(device, size, BuildDiv_comp)
+    , mBuildDiv(device, size, SPIRV::BuildDiv_comp)
     , mBuildDivBound(mBuildDiv.Bind({data.B,
                                      data.Diagonal,
                                      liquidPhi,
                                      solidPhi,
                                      velocity.Input()}))
-    , mProject(device, size, Project_comp)
+    , mProject(device, size, SPIRV::Project_comp)
     , mProjectBound(mProject.Bind({data.X, liquidPhi, solidPhi, velocity.Input(), velocity.Output(), valid}))
     , mBuildEquationCmd(device, false)
     , mProjectCmd(device, false)

@@ -15,9 +15,9 @@ Extrapolation::Extrapolation(const Renderer::Device& device,
                              int iterations)
     : mValid(device,size.x*size.y)
     , mVelocity(velocity)
-    , mExtrapolateVelocity(device, size, ExtrapolateVelocity_comp)
+    , mExtrapolateVelocity(device, size, SPIRV::ExtrapolateVelocity_comp)
     , mExtrapolateVelocityBound(mExtrapolateVelocity.Bind({valid, mValid, velocity.Input(), velocity.Output()}))
-    , mConstrainVelocity(device, size, ConstrainVelocity_comp)
+    , mConstrainVelocity(device, size, SPIRV::ConstrainVelocity_comp)
     , mExtrapolateCmd(device, false)
     , mConstrainCmd(device, false)
 {

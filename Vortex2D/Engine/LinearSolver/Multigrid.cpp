@@ -40,9 +40,9 @@ glm::ivec2 Depth::GetDepthSize(int i) const
 Multigrid::Multigrid(const Renderer::Device& device, const glm::ivec2& size, float delta)
     : mDepth(size)
     , mDelta(delta)
-    , mResidualWork(device, size, Residual_comp)
+    , mResidualWork(device, size, SPIRV::Residual_comp)
     , mTransfer(device)
-    , mPhiScaleWork(device, size, PhiScale_comp)
+    , mPhiScaleWork(device, size, SPIRV::PhiScale_comp)
     , mSmoother(device, mDepth.GetDepthSize(mDepth.GetMaxDepth()))
     , mBuildHierarchies(device, false)
 {

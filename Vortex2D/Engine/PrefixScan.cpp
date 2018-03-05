@@ -31,9 +31,9 @@ namespace
 
 PrefixScan::PrefixScan(const Renderer::Device& device, const glm::ivec2& size)
     : mSize(size.x*size.y)
-    , mAddWork(device, Renderer::ComputeSize::Default1D(), PreScanAdd_comp)
-    , mPreScanWork(device, Renderer::ComputeSize::Default1D(), PreScan_comp)
-    , mPreScanStoreSumWork(device, Renderer::ComputeSize::Default1D(), PreScanStoreSum_comp)
+    , mAddWork(device, Renderer::ComputeSize::Default1D(), SPIRV::PreScanAdd_comp)
+    , mPreScanWork(device, Renderer::ComputeSize::Default1D(), SPIRV::PreScan_comp)
+    , mPreScanStoreSumWork(device, Renderer::ComputeSize::Default1D(), SPIRV::PreScanStoreSum_comp)
 {
 
     auto localSize = Renderer::ComputeSize::GetLocalSize1D();

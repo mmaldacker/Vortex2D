@@ -34,14 +34,14 @@ AbstractShape::AbstractShape(const Device& device,
         mVertexBuffer.CopyFrom(commandBuffer, localVertices);
     });
 
-    SPIRV::Reflection reflectionVert(Position_vert);
+    SPIRV::Reflection reflectionVert(SPIRV::Position_vert);
     SPIRV::Reflection reflectionFrag(fragName);
 
     PipelineLayout layout = {{reflectionVert, reflectionFrag}};
     mDescriptorSet = device.GetLayoutManager().MakeDescriptorSet(layout);
     Bind(device, *mDescriptorSet.descriptorSet, layout, {{mMVPBuffer, 0}, {mColourBuffer, 1}});
 
-    vk::ShaderModule vertexShader = device.GetShaderModule(Position_vert);
+    vk::ShaderModule vertexShader = device.GetShaderModule(SPIRV::Position_vert);
     vk::ShaderModule fragShader = device.GetShaderModule(fragName);
 
     mPipeline = GraphicsPipeline::Builder()
@@ -73,7 +73,7 @@ void AbstractShape::Draw(vk::CommandBuffer commandBuffer, const RenderState& ren
 }
 
 Rectangle::Rectangle(const Device& device, const glm::vec2& size, const glm::vec4& colour)
-    : AbstractShape(device, Position_frag,
+    : AbstractShape(device, SPIRV::Position_frag,
                     {{0.0f, 0.0f},
                      {size.x, 0.0f},
                      {0.0f, size.y},
@@ -85,7 +85,7 @@ Rectangle::Rectangle(const Device& device, const glm::vec2& size, const glm::vec
 }
 
 IntRectangle::IntRectangle(const Device& device, const glm::vec2& size, const glm::ivec4& colour)
-    : AbstractShape(device, IntPosition_frag,
+    : AbstractShape(device, SPIRV::IntPosition_frag,
                     {{0.0f, 0.0f},
                      {size.x, 0.0f},
                      {0.0f, size.y},
@@ -130,15 +130,15 @@ Ellipse::Ellipse(const Device& device, const glm::vec2& radius, const glm::vec4&
         mVertexBuffer.CopyFrom(commandBuffer, localVertices);
     });
 
-    SPIRV::Reflection reflectionVert(Ellipse_vert);
-    SPIRV::Reflection reflectionFrag(Ellipse_frag);
+    SPIRV::Reflection reflectionVert(SPIRV::Ellipse_vert);
+    SPIRV::Reflection reflectionFrag(SPIRV::Ellipse_frag);
 
     Renderer::PipelineLayout layout = {{reflectionVert, reflectionFrag}};
     mDescriptorSet = device.GetLayoutManager().MakeDescriptorSet(layout);
     Bind(device, *mDescriptorSet.descriptorSet, layout, {{mMVPBuffer}, {mSizeBuffer}, {mColourBuffer}});
 
-    vk::ShaderModule vertexShader = device.GetShaderModule(Ellipse_vert);
-    vk::ShaderModule fragShader = device.GetShaderModule(Ellipse_frag);
+    vk::ShaderModule vertexShader = device.GetShaderModule(SPIRV::Ellipse_vert);
+    vk::ShaderModule fragShader = device.GetShaderModule(SPIRV::Ellipse_frag);
 
     mPipeline = GraphicsPipeline::Builder()
             .Shader(vertexShader, vk::ShaderStageFlagBits::eVertex)
