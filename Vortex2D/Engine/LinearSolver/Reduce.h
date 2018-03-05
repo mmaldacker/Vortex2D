@@ -14,6 +14,8 @@ namespace Vortex2D { namespace Fluid {
 class Reduce
 {
 public:
+    virtual ~Reduce() {}
+
     class Bound
     {
     public:
