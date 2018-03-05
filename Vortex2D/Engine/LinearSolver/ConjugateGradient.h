@@ -24,7 +24,7 @@ class ConjugateGradient : public LinearSolver
 public:
     ConjugateGradient(const Renderer::Device& device, const glm::ivec2& size, Preconditioner& preconditioner);
 
-    void Init(Renderer::GenericBuffer& d,
+    void Bind(Renderer::GenericBuffer& d,
               Renderer::GenericBuffer& l,
               Renderer::GenericBuffer& b,
               Renderer::GenericBuffer& pressure) override;

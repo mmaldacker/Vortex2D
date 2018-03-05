@@ -131,7 +131,7 @@ TEST(LevelSetTests, Extrapolate)
 
     LevelSet liquidPhi(*device, size);
 
-    liquidPhi.ExtrapolateInit(solidPhi);
+    liquidPhi.ExtrapolateBind(solidPhi);
 
     liquidPhi.Extrapolate();
 

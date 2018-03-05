@@ -117,7 +117,7 @@ Renderer::GenericBuffer& ParticleCount::GetDispatchParams()
     return mDispatchParams;
 }
 
-void ParticleCount::InitLevelSet(LevelSet& levelSet)
+void ParticleCount::LevelSetBind(LevelSet& levelSet)
 {
     // TODO should shrink wrap wholes and redistance
     mParticlePhiBound = mParticlePhiWork.Bind({mCount, mParticles, mIndex, levelSet});
@@ -138,7 +138,7 @@ void ParticleCount::Phi()
     mParticlePhi.Submit();
 }
 
-void ParticleCount::InitVelocities(Velocity& velocity, Renderer::GenericBuffer& valid)
+void ParticleCount::VelocitiesBind(Velocity& velocity, Renderer::GenericBuffer& valid)
 {
     mParticleToGridBound = mParticleToGridWork.Bind({mCount, mParticles, mIndex, velocity.Input(), velocity.Output(), valid});
     mParticleToGrid.Record([&](vk::CommandBuffer commandBuffer)

@@ -38,12 +38,12 @@ class Multigrid : public Preconditioner
 public:
     Multigrid(const Renderer::Device& device, const glm::ivec2& size, float delta);
 
-    void Init(Renderer::GenericBuffer& d,
+    void Bind(Renderer::GenericBuffer& d,
               Renderer::GenericBuffer& l,
               Renderer::GenericBuffer& b,
               Renderer::GenericBuffer& x) override;
 
-    void BuildHierarchiesInit(Pressure& pressure,
+    void BuildHierarchiesBind(Pressure& pressure,
                               Renderer::Texture& solidPhi,
                               Renderer::Texture& liquidPhi);
 

@@ -19,7 +19,7 @@ struct Preconditioner
 {
     virtual ~Preconditioner() {}
 
-    virtual void Init(Renderer::GenericBuffer& d,
+    virtual void Bind(Renderer::GenericBuffer& d,
                       Renderer::GenericBuffer& l,
                       Renderer::GenericBuffer& b,
                       Renderer::GenericBuffer& x) = 0;

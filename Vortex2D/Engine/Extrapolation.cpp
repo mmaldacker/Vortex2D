@@ -42,7 +42,7 @@ void Extrapolation::Extrapolate()
     mExtrapolateCmd.Submit();
 }
 
-void Extrapolation::ConstrainInit(Renderer::Texture& solidPhi)
+void Extrapolation::ConstrainBind(Renderer::Texture& solidPhi)
 {
     mConstrainVelocityBound = mConstrainVelocity.Bind({solidPhi, mVelocity.Input(), mVelocity.Output()});
 

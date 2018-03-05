@@ -63,14 +63,14 @@ Multigrid::Multigrid(const Renderer::Device& device, const glm::ivec2& size, flo
     }
 
     int depth = mDepth.GetMaxDepth() - 1;
-    mSmoother.Init(mDatas[depth].Diagonal,
+    mSmoother.Bind(mDatas[depth].Diagonal,
                    mDatas[depth].Lower,
                    mDatas[depth].B,
                    mDatas[depth].X);
     mResidualWorkBound.resize(mDepth.GetMaxDepth() + 1);
 }
 
-void Multigrid::Init(Renderer::GenericBuffer& d,
+void Multigrid::Bind(Renderer::GenericBuffer& d,
                      Renderer::GenericBuffer& l,
                      Renderer::GenericBuffer& b,
                      Renderer::GenericBuffer& pressure)
@@ -80,14 +80,14 @@ void Multigrid::Init(Renderer::GenericBuffer& d,
 
     mResidualWorkBound[0] =
                 mResidualWork.Bind({pressure, d, l, b, mResiduals[0]});
-    mSmoothers[0].Init(d, l, b, pressure);
+    mSmoothers[0].Bind(d, l, b, pressure);
 
     auto s = mDepth.GetDepthSize(0);
-    mTransfer.InitRestrict(0, s, mResiduals[0], d, mDatas[0].B, mDatas[0].Diagonal);
-    mTransfer.InitProlongate(0, s, pressure, d, mDatas[0].X, mDatas[0].Diagonal);
+    mTransfer.RestrictBind(0, s, mResiduals[0], d, mDatas[0].B, mDatas[0].Diagonal);
+    mTransfer.ProlongateBind(0, s, pressure, d, mDatas[0].X, mDatas[0].Diagonal);
 }
 
-void Multigrid::BuildHierarchiesInit(Pressure& pressure,
+void Multigrid::BuildHierarchiesBind(Pressure& pressure,
                                      Renderer::Texture& solidPhi,
                                      Renderer::Texture& liquidPhi)
 {
@@ -149,19 +149,19 @@ void Multigrid::BindRecursive(Pressure& pressure, std::size_t depth)
                                            mDatas[depth-1].B,
                                            mResiduals[depth]});
 
-        mTransfer.InitRestrict(depth, s0,
+        mTransfer.RestrictBind(depth, s0,
                                mResiduals[depth],
                                mDatas[depth-1].Diagonal,
                                mDatas[depth].B,
                                mDatas[depth].Diagonal);
 
-        mTransfer.InitProlongate(depth, s0,
+        mTransfer.ProlongateBind(depth, s0,
                                  mDatas[depth-1].X,
                                  mDatas[depth-1].Diagonal,
                                  mDatas[depth].X,
                                  mDatas[depth].Diagonal);
 
-        mSmoothers[depth].Init(mDatas[depth-1].Diagonal,
+        mSmoothers[depth].Bind(mDatas[depth-1].Diagonal,
             mDatas[depth-1].Lower,
             mDatas[depth-1].B,
             mDatas[depth-1].X);

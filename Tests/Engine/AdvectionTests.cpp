@@ -96,7 +96,7 @@ TEST(AdvectionTests, Advect)
     });
 
     Advection advection(*device, size, 1.0f, velocity);
-    advection.AdvectInit(field);
+    advection.AdvectBind(field);
     advection.Advect();
 
     device->Handle().waitIdle();
@@ -153,7 +153,7 @@ TEST(AdvectionTests, ParticleAdvect)
 
     // advection
     Advection advection(*device, size, 0.01f, velocity);
-    advection.AdvectParticleInit(particles, solidPhi, dispatchParams);
+    advection.AdvectParticleBind(particles, solidPhi, dispatchParams);
     advection.AdvectParticles();
     device->Handle().waitIdle();
 
@@ -216,7 +216,7 @@ TEST(AdvectionTests, ParticleProject)
 
     // advection
     Advection advection(*device, size, 0.01f, velocity);
-    advection.AdvectParticleInit(particles, solidPhi, dispatchParams);
+    advection.AdvectParticleBind(particles, solidPhi, dispatchParams);
     advection.AdvectParticles();
     device->Handle().waitIdle();
 

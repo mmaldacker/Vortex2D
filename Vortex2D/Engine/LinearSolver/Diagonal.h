@@ -18,7 +18,7 @@ class Diagonal : public Preconditioner
 public:
     Diagonal(const Renderer::Device& device, const glm::ivec2& size);
 
-    void Init(Renderer::GenericBuffer& d,
+    void Bind(Renderer::GenericBuffer& d,
               Renderer::GenericBuffer& l,
               Renderer::GenericBuffer& b,
               Renderer::GenericBuffer& pressure) override;

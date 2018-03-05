@@ -24,10 +24,10 @@ public:
     void AdvectVelocity();
 
     // TODO can only advect one field, need to be able to do as many as we want
-    void AdvectInit(Density& density);
+    void AdvectBind(Density& density);
     void Advect();
 
-    void AdvectParticleInit(Renderer::GenericBuffer& particles,
+    void AdvectParticleBind(Renderer::GenericBuffer& particles,
                             Renderer::Texture& levelSet,
                             Renderer::GenericBuffer& dispatchParams);
     void AdvectParticles();

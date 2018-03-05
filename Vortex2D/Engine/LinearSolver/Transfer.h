@@ -16,14 +16,14 @@ class Transfer
 public:
     Transfer(const Renderer::Device& device);
 
-    void InitProlongate(int level,
+    void ProlongateBind(int level,
                         const glm::ivec2& fineSize,
                         Renderer::GenericBuffer& fine, 
                         Renderer::GenericBuffer& fineDiagonal, 
                         Renderer::GenericBuffer& coarse, 
                         Renderer::GenericBuffer& coarseDiagonal);
                         
-    void InitRestrict(int level,
+    void RestrictBind(int level,
                       const glm::ivec2& fineSize,
                       Renderer::GenericBuffer& fine, 
                       Renderer::GenericBuffer& fineDiagonal, 

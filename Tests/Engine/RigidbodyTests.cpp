@@ -454,7 +454,7 @@ TEST(RigidbodyTests, VelocityConstrain)
     Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
     Extrapolation extrapolation(*device, size, valid, velocity);
-    extrapolation.ConstrainInit(solidPhi);
+    extrapolation.ConstrainBind(solidPhi);
     extrapolation.ConstrainVelocity();
 
     rigidBody.SetVelocities(solid_velocity * glm::vec2(size.x), 0.0f);
@@ -523,7 +523,7 @@ TEST(RigidbodyTests, RotationConstrain)
     Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
     Extrapolation extrapolation(*device, size, valid, velocity);
-    extrapolation.ConstrainInit(solidPhi);
+    extrapolation.ConstrainBind(solidPhi);
     extrapolation.ConstrainVelocity();
 
     rigidBody.SetVelocities(glm::vec2(0.0f, 0.0f), w);

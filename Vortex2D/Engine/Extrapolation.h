@@ -31,7 +31,7 @@ public:
      */
     void Extrapolate();
 
-    void ConstrainInit(Renderer::Texture& solidPhi);
+    void ConstrainBind(Renderer::Texture& solidPhi);
     void ConstrainVelocity();
 
 

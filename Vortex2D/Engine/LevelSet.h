@@ -22,7 +22,7 @@ class LevelSet : public Renderer::RenderTexture
 public:
     LevelSet(const Renderer::Device& device, const glm::ivec2& size, int reinitializeIterations = 100);
 
-    void ExtrapolateInit(Renderer::Texture& solidPhi);
+    void ExtrapolateBind(Renderer::Texture& solidPhi);
 
     void Reinitialise();
     void Extrapolate();

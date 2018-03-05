@@ -52,12 +52,12 @@ ConjugateGradient::ConjugateGradient(const Renderer::Device& device,
     });
 }
 
-void ConjugateGradient::Init(Renderer::GenericBuffer& d,
+void ConjugateGradient::Bind(Renderer::GenericBuffer& d,
                              Renderer::GenericBuffer& l,
                              Renderer::GenericBuffer& b,
                              Renderer::GenericBuffer& pressure)
 {
-    mPreconditioner.Init(d, l, r, z);
+    mPreconditioner.Bind(d, l, r, z);
 
     matrixMultiplyBound = matrixMultiply.Bind({d, l, s, z});
     multiplyAddPBound = multiplyAdd.Bind({pressure, s, alpha, pressure});

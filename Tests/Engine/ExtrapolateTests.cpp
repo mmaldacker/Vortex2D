@@ -106,7 +106,7 @@ TEST(ExtrapolateTest, Constrain)
     sim.constrain_velocity();
 
     Extrapolation extrapolation(*device, size, valid, velocity);
-    extrapolation.ConstrainInit(solidPhi);
+    extrapolation.ConstrainBind(solidPhi);
     extrapolation.ConstrainVelocity();
 
     device->Queue().waitIdle();

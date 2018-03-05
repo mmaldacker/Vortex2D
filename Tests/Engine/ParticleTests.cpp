@@ -370,7 +370,7 @@ TEST(ParticleTests, Phi)
 
     LevelSet phi(*device, size);
 
-    particleCount.InitLevelSet(phi);
+    particleCount.LevelSetBind(phi);
     particleCount.Phi();
     device->Handle().waitIdle();
 
@@ -424,7 +424,7 @@ TEST(ParticleTests, FromGrid)
 
    SetVelocity(*device, size, velocity, sim);
 
-   particleCount.InitVelocities(velocity, valid);
+   particleCount.VelocitiesBind(velocity, valid);
    particleCount.TransferFromGrid();
    device->Handle().waitIdle();
 
@@ -499,7 +499,7 @@ TEST(ParticleTests, ToGrid)
    Velocity velocity(*device, size);
    Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
-   particleCount.InitVelocities(velocity, valid);
+   particleCount.VelocitiesBind(velocity, valid);
    particleCount.TransferToGrid();
    device->Handle().waitIdle();
 

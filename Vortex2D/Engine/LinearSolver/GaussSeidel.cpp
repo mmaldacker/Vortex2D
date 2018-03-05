@@ -38,7 +38,7 @@ void GaussSeidel::SetPreconditionerIterations(int iterations)
     mPreconditionerIterations = iterations;
 }
 
-void GaussSeidel::Init(Renderer::GenericBuffer& d,
+void GaussSeidel::Bind(Renderer::GenericBuffer& d,
                        Renderer::GenericBuffer& l,
                        Renderer::GenericBuffer& div,
                        Renderer::GenericBuffer& pressure)
@@ -127,7 +127,7 @@ LocalGaussSeidel::LocalGaussSeidel(const Renderer::Device& device, const glm::iv
     // TODO check size is within local size
 }
 
-void LocalGaussSeidel::Init(Renderer::GenericBuffer& d,
+void LocalGaussSeidel::Bind(Renderer::GenericBuffer& d,
                   Renderer::GenericBuffer& l,
                   Renderer::GenericBuffer& div,
                   Renderer::GenericBuffer& pressure)

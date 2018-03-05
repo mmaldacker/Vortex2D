@@ -82,7 +82,7 @@ public:
 
     void Solve() override;
 
-    void InitField(Density& density);
+    void FieldBind(Density& density);
 };
 
 class WaterWorld : public World

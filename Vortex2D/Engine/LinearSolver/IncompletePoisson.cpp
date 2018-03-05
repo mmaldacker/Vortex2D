@@ -15,7 +15,7 @@ IncompletePoisson::IncompletePoisson(const Renderer::Device& device, const glm::
 
 }
 
-void IncompletePoisson::Init(Renderer::GenericBuffer& d,
+void IncompletePoisson::Bind(Renderer::GenericBuffer& d,
                              Renderer::GenericBuffer& l,
                              Renderer::GenericBuffer& b,
                              Renderer::GenericBuffer& pressure)

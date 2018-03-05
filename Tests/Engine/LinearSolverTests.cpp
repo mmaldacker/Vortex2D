@@ -137,7 +137,7 @@ TEST(LinearSolverTests, Transfer_Prolongate)
     std::iota(data.begin(), data.end(), 1.0f);
     CopyFrom(input, data);
 
-    t.InitProlongate(0, fineSize, output, fineDiagonal, input, coarseDiagonal);
+    t.ProlongateBind(0, fineSize, output, fineDiagonal, input, coarseDiagonal);
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
         t.Prolongate(commandBuffer, 0);
@@ -174,7 +174,7 @@ TEST(LinearSolverTests, Transfer_Restrict)
     std::iota(data.begin(), data.end(), 1.0f);
     CopyFrom(input, data);
 
-    t.InitRestrict(0, fineSize, input, fineDiagonal, output, coarseDiagonal);
+    t.RestrictBind(0, fineSize, input, fineDiagonal, output, coarseDiagonal);
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
         t.Restrict(commandBuffer, 0);
@@ -227,7 +227,7 @@ TEST(LinearSolverTests, Simple_SOR)
     LinearSolver::Parameters params(1000, 1e-4f);
     GaussSeidel solver(*device, size);
 
-    solver.Init(data.Diagonal, data.Lower, data.B, data.X);
+    solver.Bind(data.Diagonal, data.Lower, data.B, data.X);
     solver.Solve(params);
 
     device->Queue().waitIdle();
@@ -259,7 +259,7 @@ TEST(LinearSolverTests, Complex_SOR)
     LinearSolver::Parameters params(1000, 1e-4f);
     GaussSeidel solver(*device, size);
 
-    solver.Init(data.Diagonal, data.Lower, data.B, data.X);
+    solver.Bind(data.Diagonal, data.Lower, data.B, data.X);
     solver.Solve(params);
 
     device->Queue().waitIdle();
@@ -290,7 +290,7 @@ TEST(LinearSolverTests, LocalGaussSeidel)
 
     LocalGaussSeidel solver(*device, size);
 
-    solver.Init(data.Diagonal, data.Lower, data.B, data.X);
+    solver.Bind(data.Diagonal, data.Lower, data.B, data.X);
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
         solver.Record(commandBuffer);
@@ -325,7 +325,7 @@ TEST(LinearSolverTests, Diagonal_Simple_PCG)
     LinearSolver::Parameters params(1000, 1e-5f);
     ConjugateGradient solver(*device, size, preconditioner);
 
-    solver.Init(data.Diagonal, data.Lower, data.B, data.X);
+    solver.Bind(data.Diagonal, data.Lower, data.B, data.X);
     solver.Solve(params);
 
     device->Queue().waitIdle();
@@ -361,7 +361,7 @@ TEST(LinearSolverTests, GaussSeidel_Simple_PCG)
     LinearSolver::Parameters params(1000, 1e-5f);
     ConjugateGradient solver(*device, size, preconditioner);
 
-    solver.Init(data.Diagonal, data.Lower, data.B, data.X);
+    solver.Bind(data.Diagonal, data.Lower, data.B, data.X);
     solver.Solve(params);
 
     device->Queue().waitIdle();
@@ -395,7 +395,7 @@ TEST(LinearSolverTests, IncompletePoisson_Simple_PCG)
     LinearSolver::Parameters params(1000, 1e-5f);
     ConjugateGradient solver(*device, size, preconditioner);
 
-    solver.Init(data.Diagonal, data.Lower, data.B, data.X);
+    solver.Bind(data.Diagonal, data.Lower, data.B, data.X);
     solver.Solve(params);
 
     device->Queue().waitIdle();
@@ -416,7 +416,7 @@ TEST(LinearSolverTests, Zero_PCG)
     LinearSolver::Parameters params(1000, 1e-5f);
     ConjugateGradient solver(*device, size, preconditioner);
 
-    solver.Init(data.Diagonal, data.Lower, data.B, data.X);
+    solver.Bind(data.Diagonal, data.Lower, data.B, data.X);
     solver.Solve(params);
 
     device->Queue().waitIdle();
@@ -465,12 +465,12 @@ TEST(LinearSolverTests, Multigrid_Simple_PCG)
     Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
 
     Multigrid preconditioner(*device, size, 0.01f);
-    preconditioner.BuildHierarchiesInit(pressure, solidPhi, liquidPhi);
+    preconditioner.BuildHierarchiesBind(pressure, solidPhi, liquidPhi);
 
     LinearSolver::Parameters params(1000, 1e-5f);
     ConjugateGradient solver(*device, size, preconditioner);
 
-    solver.Init(data.Diagonal, data.Lower, data.B, data.X);
+    solver.Bind(data.Diagonal, data.Lower, data.B, data.X);
 
     preconditioner.BuildHierarchies();
     solver.Solve(params);

@@ -38,7 +38,7 @@ public:
     {
         solidPhi.Scale = density.Scale = glm::vec2(dimensions.Scale);
         density.View = dimensions.InvScale;
-        world.InitField(density);
+        world.FieldBind(density);
     }
 
     void Init(const Vortex2D::Renderer::Device& device,

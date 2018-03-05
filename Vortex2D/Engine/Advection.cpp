@@ -38,7 +38,7 @@ void Advection::AdvectVelocity()
     mAdvectVelocityCmd.Submit();
 }
 
-void Advection::AdvectInit(Density& density)
+void Advection::AdvectBind(Density& density)
 {
     mAdvectBound = mAdvect.Bind({mVelocity.Input(), density, density.mFieldBack});
     mAdvectCmd.Record([&](vk::CommandBuffer commandBuffer)
@@ -59,7 +59,7 @@ void Advection::Advect()
     mAdvectCmd.Submit();
 }
 
-void Advection::AdvectParticleInit(Renderer::GenericBuffer& particles,
+void Advection::AdvectParticleBind(Renderer::GenericBuffer& particles,
                                    Renderer::Texture& levelSet,
                                    Renderer::GenericBuffer& dispatchParams)
 {

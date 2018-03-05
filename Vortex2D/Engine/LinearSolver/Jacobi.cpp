@@ -30,7 +30,7 @@ void Jacobi::SetPreconditionerIterations(int iterations)
   mPreconditionerIterations = iterations;
 }
 
-void Jacobi::Init(Renderer::GenericBuffer& d,
+void Jacobi::Bind(Renderer::GenericBuffer& d,
                   Renderer::GenericBuffer& l,
                   Renderer::GenericBuffer& div,
                   Renderer::GenericBuffer& pressure)

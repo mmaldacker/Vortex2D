@@ -32,8 +32,8 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
     , mCopySolidPhi(device, false)
     , mForce(device, dimensions.Size.x*dimensions.Size.y)
 {
-    mExtrapolation.ConstrainInit(mDynamicSolidPhi);
-    mFluidPhi.ExtrapolateInit(mDynamicSolidPhi);
+    mExtrapolation.ConstrainBind(mDynamicSolidPhi);
+    mFluidPhi.ExtrapolateBind(mDynamicSolidPhi);
 
     mClearValid.Record([&](vk::CommandBuffer commandBuffer)
     {
@@ -45,8 +45,8 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
         mDynamicSolidPhi.CopyFrom(commandBuffer, mStaticSolidPhi);
     });
 
-    mPreconditioner.BuildHierarchiesInit(mProjection, mDynamicSolidPhi, mFluidPhi);
-    mLinearSolver.Init(mData.Diagonal, mData.Lower, mData.B, mData.X);
+    mPreconditioner.BuildHierarchiesBind(mProjection, mDynamicSolidPhi, mFluidPhi);
+    mLinearSolver.Bind(mData.Diagonal, mData.Lower, mData.B, mData.X);
 
     mFluidPhi.View = dimensions.InvScale;
     mDynamicSolidPhi.View = dimensions.InvScale;
@@ -151,9 +151,9 @@ void SmokeWorld::Solve()
     mClearValid.Submit();
 }
 
-void SmokeWorld::InitField(Density& density)
+void SmokeWorld::FieldBind(Density& density)
 {
-    mAdvection.AdvectInit(density);
+    mAdvection.AdvectBind(density);
 }
 
 WaterWorld::WaterWorld(const Renderer::Device& device, Dimensions dimensions, float dt)
@@ -162,9 +162,9 @@ WaterWorld::WaterWorld(const Renderer::Device& device, Dimensions dimensions, fl
     , mParticleCount(device, dimensions.Size, mParticles)
     , mClearVelocity(device)
 {
-    mParticleCount.InitLevelSet(mFluidPhi);
-    mParticleCount.InitVelocities(mVelocity, mValid);
-    mAdvection.AdvectParticleInit(mParticles, mDynamicSolidPhi, mParticleCount.GetDispatchParams());
+    mParticleCount.LevelSetBind(mFluidPhi);
+    mParticleCount.VelocitiesBind(mVelocity, mValid);
+    mAdvection.AdvectParticleBind(mParticles, mDynamicSolidPhi, mParticleCount.GetDispatchParams());
 
     mClearVelocity.Record([&](vk::CommandBuffer commandBuffer)
     {

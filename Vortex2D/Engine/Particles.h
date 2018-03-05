@@ -34,10 +34,10 @@ public:
     int GetTotalCount();
     Renderer::GenericBuffer& GetDispatchParams();
 
-    void InitLevelSet(LevelSet& levelSet);
+    void LevelSetBind(LevelSet& levelSet);
     void Phi();
 
-    void InitVelocities(Velocity& velocity, Renderer::GenericBuffer& valid);
+    void VelocitiesBind(Velocity& velocity, Renderer::GenericBuffer& valid);
     void TransferToGrid();
     void TransferFromGrid();
 
