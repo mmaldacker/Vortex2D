@@ -7,20 +7,45 @@ layout(push_constant) uniform Consts
 {
   int width;
   int height;
+  vec2 centre;
 }consts;
 
-layout(binding = 0, r32f) uniform image2D SolidLevelSet;
-layout(binding = 1, rgba32f) uniform image2D Velocity;
-layout(binding = 2, rgba32f) uniform image2D OutVelocity;
+layout(binding = 0, rgba32f) uniform image2D InVelocity;
+layout(binding = 1, rgba32f) uniform image2D OutVelocity;
+layout(binding = 2, r32f) uniform image2D SolidLevelSet;
+
+struct Velocity
+{
+    vec2 velocity;
+    float angular_velocity;
+};
+
+layout(binding = 3) uniform RigidbodyVelocity
+{
+    Velocity value;
+}velocity;
+
+layout(binding = 4) uniform MV
+{
+    mat4 mv;
+};
 
 #include "CommonProject.comp"
+
+vec2 get_velocity(vec2 pos)
+{
+    vec2 dir = vec2(-pos.y, pos.x);
+    return (velocity.value.velocity + dir * velocity.value.angular_velocity) / vec2(consts.width);
+}
 
 void main()
 {
     uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
 
     ivec2 pos = ivec2(gl_GlobalInvocationID);
-    vec2 uv = imageLoad(Velocity, pos).xy;
+    vec4 centre = mv * vec4(consts.centre, 0.0, 1.0);
+
+    vec2 uv = imageLoad(InVelocity, pos).xy;
 
     float v00 = imageLoad(SolidLevelSet, pos).x;
     float v10 = imageLoad(SolidLevelSet, pos + ivec2(1,0)).x;
@@ -33,33 +58,41 @@ void main()
     if (wuv.x == 0.0)
     {
         vec2 normal = vec2(mix(v10 - v00, v11 - v01, 0.5), v01 - v00);
-        normal /= sqrt(dot(normal, normal));
+        float sqr_length = sqrt(dot(normal, normal));
+        if (sqr_length > 0.001)
+        {
+            normal /= sqr_length;
+        }
+        else
+        {
+            normal = vec2(0.0, 1.0);
+        }
 
-        float vn = imageLoad(Velocity, pos + ivec2(-1, 0)).y;
-        float vp = imageLoad(Velocity, pos + ivec2(-1, 1)).y;
-        float up = imageLoad(Velocity, pos + ivec2(0, 1)).y;
+        vec2 rad = pos + vec2(0.0, 0.5) - centre.xy;
+        vec2 solid_vel = get_velocity(rad);
+        float perp_component = dot(normal, solid_vel);
 
-        float v = (vn + uv.y + vp + up) * 0.25;
-
-        float perp_component = dot(normal, vec2(uv.x, v));
-
-        constrained.x = normal.x * perp_component;
+        constrained.x = -normal.x * perp_component;
     }
 
     if (wuv.y == 0.0)
     {
         vec2 normal = vec2(v10 - v00, mix(v01 - v00, v11 - v10, 0.5));
-        normal /= sqrt(dot(normal, normal));
+        float sqr_length = sqrt(dot(normal, normal));
+        if (sqr_length > 0.001)
+        {
+            normal /= sqr_length;
+        }
+        else
+        {
+            normal = vec2(0.0, 1.0);
+        }
 
-        float vn = imageLoad(Velocity, pos + ivec2(0, -1)).x;
-        float vp = imageLoad(Velocity, pos + ivec2(1, -1)).x;
-        float up = imageLoad(Velocity, pos + ivec2(1, 0)).x;
+        vec2 rad = pos + vec2(0.5, 0.0) - centre.xy;
+        vec2 solid_vel = get_velocity(rad);
+        float perp_component = dot(normal, solid_vel);
 
-        float u = (vn + uv.x + vp + up) * 0.25;
-
-        float perp_component = dot(normal, vec2(u, uv.y));
-
-        constrained.y = normal.y * perp_component;
+        constrained.y = -normal.y * perp_component;
     }
 
     imageStore(OutVelocity, pos, vec4(uv - constrained, 0.0, 0.0));

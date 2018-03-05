@@ -19,6 +19,8 @@
 
 #include "fluidsim.h"
 
+extern Vortex2D::Renderer::Device* device;
+
 //Boundary definition - several circles in a circular domain.
 
 const Vec2f c0(0.5f,0.5f), c1(0.7f,0.5f), c2(0.3f,0.35f), c3(0.5f,0.7f);
@@ -225,8 +227,14 @@ static void PrintWeights(const glm::ivec2& size, FluidSim& sim)
 
 static void PrintVelocity(const glm::ivec2& size, Vortex2D::Fluid::Velocity& velocity)
 {
+    Vortex2D::Renderer::Texture output(*device, size.x, size.y, vk::Format::eR32G32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+        output.CopyFrom(commandBuffer, velocity.Input());
+    });
+
     std::vector<glm::vec2> pixels(size.x * size.y);
-    velocity.Input().CopyTo(pixels);
+    output.CopyTo(pixels);
 
     for (std::size_t j = 0; j < size.y; j++)
     {

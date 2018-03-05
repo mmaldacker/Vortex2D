@@ -16,6 +16,7 @@
 #include <Vortex2D/Engine/LinearSolver/Reduce.h>
 #include <Vortex2D/Engine/Boundaries.h>
 #include <Vortex2D/Engine/Size.h>
+#include <Vortex2D/Engine/Velocity.h>
 
 namespace Vortex2D { namespace Fluid {
 
@@ -51,7 +52,7 @@ public:
                  Renderer::GenericBuffer& diagonal,
                  Renderer::Texture& fluidLevelSet);
 
-    void BindVelocityConstrain(Renderer::GenericBuffer& velocity);
+    void BindVelocityConstrain(Fluid::Velocity& velocity);
     void BindPressure(Renderer::Texture& fluidLevelSet,
                       Renderer::GenericBuffer& pressure,
                       Renderer::GenericBuffer& force);

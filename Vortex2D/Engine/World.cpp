@@ -86,6 +86,7 @@ RigidBody* World::CreateRigidbody(vk::Flags<RigidBody::Type> type, ObjectDrawabl
     if (type & RigidBody::Type::eStatic)
     {
         mRigidbodies.back()->BindDiv(mData.B, mData.Diagonal, mFluidPhi);
+        mRigidbodies.back()->BindVelocityConstrain(mVelocity);
     }
 
     if (type & RigidBody::Type::eWeak)
@@ -135,6 +136,14 @@ void SmokeWorld::Solve()
 
     mExtrapolation.Extrapolate();
     mExtrapolation.ConstrainVelocity();
+
+    for (auto&& rigidbody: mRigidbodies)
+    {
+        if (rigidbody.get()->GetType() & RigidBody::Type::eStatic)
+        {
+            rigidbody.get()->VelocityConstrain();
+        }
+    }
 
     mAdvection.AdvectVelocity();
     mAdvection.Advect();
@@ -223,6 +232,14 @@ void WaterWorld::Solve()
 
     mExtrapolation.Extrapolate();
     mExtrapolation.ConstrainVelocity();
+
+    for (auto&& rigidbody: mRigidbodies)
+    {
+        if (rigidbody.get()->GetType() & RigidBody::Type::eStatic)
+        {
+            rigidbody.get()->VelocityConstrain();
+        }
+    }
 
     // 6)
     mParticleCount.TransferFromGrid();

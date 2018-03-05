@@ -12,6 +12,7 @@
 #include <Vortex2D/Engine/Pressure.h>
 #include <Vortex2D/Engine/Rigidbody.h>
 #include <Vortex2D/Engine/Boundaries.h>
+#include <Vortex2D/Engine/Extrapolation.h>
 
 using namespace Vortex2D::Renderer;
 using namespace Vortex2D::Fluid;
@@ -395,4 +396,143 @@ TEST(RigidbodyTests, Pressure)
     EXPECT_NEAR(new_angular_momentum, newForce.angular_velocity, 1e-5f);
     EXPECT_NEAR(new_vel[0], newForce.velocity.x, 1e-5f);
     EXPECT_NEAR(new_vel[1], newForce.velocity.y, 1e-5f);
+}
+
+TEST(RigidbodyTests, VelocityConstrain)
+{
+    glm::ivec2 size(20);
+
+    glm::vec2 solid_velocity(0.1f, -0.6f);
+
+    FluidSim sim;
+    sim.initialize(1.0f, size.x, size.y);
+    sim.set_boundary(boundary_phi);
+
+    AddParticles(size, sim, boundary_phi);
+
+    // setup rigid body
+    sim.rigidgeom = new Box2DGeometry(0.3f, 0.2f);
+    sim.rbd = new ::RigidBody(0.4f, *sim.rigidgeom);
+    sim.rbd->setCOM(Vec2f(0.5f, 0.5f));
+    sim.rbd->setAngle(0.0);
+
+    sim.update_rigid_body_grids();
+    sim.add_force(0.01f);
+    sim.apply_projection(0.01f);
+
+    // ensure velocities
+    sim.rbd->setAngularMomentum(0.0f);
+    sim.rbd->setLinearVelocity(Vec2f(solid_velocity.x, solid_velocity.y));
+
+    RenderTexture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+    // FIXME should set the scale to size.x
+    SetSolidPhi(*device, size, solidPhi, sim);
+
+    extrapolate(sim.u, sim.u_valid);
+    extrapolate(sim.v, sim.v_valid);
+
+    sim.recompute_solid_velocity();
+
+    Velocity velocity(*device, size);
+    SetVelocity(*device, size, velocity, sim);
+
+    sim.constrain_velocity();
+
+    Vortex2D::Fluid::Rectangle rectangle(*device, {6.0f, 4.0f});
+    Vortex2D::Fluid::RigidBody rigidBody(*device,
+                                         Dimensions(size, 1.0f),
+                                         rectangle, {0.0f, 0.0f},
+                                         solidPhi,
+                                         Vortex2D::Fluid::RigidBody::Type::eStatic);
+
+    rigidBody.Anchor = {3.0f, 2.0f};
+    rigidBody.Position = {10.0f, 10.0f};
+    rigidBody.UpdatePosition();
+
+    rigidBody.RenderPhi();
+
+    Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+
+    Extrapolation extrapolation(*device, size, valid, velocity);
+    extrapolation.ConstrainInit(solidPhi);
+    extrapolation.ConstrainVelocity();
+
+    rigidBody.SetVelocities(solid_velocity * glm::vec2(size.x), 0.0f);
+    rigidBody.BindVelocityConstrain(velocity);
+    rigidBody.VelocityConstrain();
+
+    device->Handle().waitIdle();
+
+    CheckVelocity(*device, size, velocity, sim, 1e-5f);
+}
+
+TEST(RigidbodyTests, RotationConstrain)
+{
+    glm::ivec2 size(20);
+
+    FluidSim sim;
+    sim.initialize(1.0f, size.x, size.y);
+    sim.set_boundary(boundary_phi);
+
+    AddParticles(size, sim, boundary_phi);
+
+    // setup rigid body
+    sim.rigidgeom = new Box2DGeometry(0.3f, 0.2f);
+    sim.rbd = new ::RigidBody(0.4f, *sim.rigidgeom);
+    sim.rbd->setCOM(Vec2f(0.5f, 0.5f));
+    sim.rbd->setAngle(0.0);
+
+    sim.update_rigid_body_grids();
+    sim.add_force(0.01f);
+    sim.apply_projection(0.01f);
+
+    // set velocities
+    sim.rbd->setAngularMomentum(-0.34f);
+    sim.rbd->setLinearVelocity(Vec2f(0.0f, 0.0f));
+
+    float w;
+    sim.rbd->getAngularVelocity(w);
+
+    RenderTexture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+    // FIXME should set the scale to size.x
+    SetSolidPhi(*device, size, solidPhi, sim);
+
+    extrapolate(sim.u, sim.u_valid);
+    extrapolate(sim.v, sim.v_valid);
+
+    sim.recompute_solid_velocity();
+
+    Velocity velocity(*device, size);
+    SetVelocity(*device, size, velocity, sim);
+
+    sim.constrain_velocity();
+
+    Vortex2D::Fluid::Rectangle rectangle(*device, {6.0f, 4.0f});
+    Vortex2D::Fluid::RigidBody rigidBody(*device,
+                                         Dimensions(size, 1.0f),
+                                         rectangle, {3.0f, 2.0f},
+                                         solidPhi,
+                                         Vortex2D::Fluid::RigidBody::Type::eStatic);
+
+    rigidBody.Anchor = {3.0f, 2.0f};
+    rigidBody.Position = {10.0f, 10.0f};
+    rigidBody.UpdatePosition();
+
+    rigidBody.RenderPhi();
+
+    Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+
+    Extrapolation extrapolation(*device, size, valid, velocity);
+    extrapolation.ConstrainInit(solidPhi);
+    extrapolation.ConstrainVelocity();
+
+    rigidBody.SetVelocities(glm::vec2(0.0f, 0.0f), w);
+    rigidBody.BindVelocityConstrain(velocity);
+    rigidBody.VelocityConstrain();
+
+    device->Handle().waitIdle();
+
+    PrintVelocity(size, sim);
+    PrintVelocity(size, velocity);
+    CheckVelocity(*device, size, velocity, sim, 1e-3f);
 }
