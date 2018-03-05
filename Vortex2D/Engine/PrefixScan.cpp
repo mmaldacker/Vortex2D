@@ -122,7 +122,7 @@ PrefixScan::Bound::Bound(const std::vector<Renderer::CommandBuffer::CommandFn>& 
 
 void PrefixScan::Bound::Record(vk::CommandBuffer commandBuffer)
 {
-    for (int i = 0; i < mBounds.size(); i++)
+    for (std::size_t i = 0; i < mBounds.size(); i++)
     {
         mBounds[i].Record(commandBuffer);
         mBufferBarriers[i](commandBuffer);

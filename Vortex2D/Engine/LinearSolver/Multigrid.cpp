@@ -136,7 +136,7 @@ void Multigrid::RecursiveBind(Pressure& pressure, std::size_t depth)
 {
     auto s0 = mDepth.GetDepthSize(depth);
 
-    if (depth < mDepth.GetMaxDepth())
+    if (static_cast<int32_t>(depth) < mDepth.GetMaxDepth())
     {
         auto s1 = mDepth.GetDepthSize(depth + 1);
         mLiquidPhiScaleWorkBound.push_back(mPhiScaleWork.Bind(s1, {mLiquidPhis[depth - 1], mLiquidPhis[depth]}));
