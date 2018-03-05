@@ -532,7 +532,5 @@ TEST(RigidbodyTests, RotationConstrain)
 
     device->Handle().waitIdle();
 
-    PrintVelocity(size, sim);
-    PrintVelocity(size, velocity);
     CheckVelocity(*device, size, velocity, sim, 1e-3f);
 }
