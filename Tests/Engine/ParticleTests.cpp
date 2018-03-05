@@ -435,10 +435,10 @@ TEST(ParticleTests, FromGrid)
    std::vector<Particle> outParticlesData(size.x*size.y*8);
    CopyTo(particles, outParticlesData);
 
-   for (int i = 0; i < sim.particles.size(); i++)
+   for (std::size_t i = 0; i < sim.particles.size(); i++)
    {
-       int index = -1;
-       for (int j = 0; j < sim.particles.size(); j++)
+       std::size_t index = static_cast<std::size_t>(-1);
+       for (std::size_t j = 0; j < sim.particles.size(); j++)
        {
            glm::vec2 pos(sim.particles[j][0] * size.x, sim.particles[j][1] * size.x);
            if (pos == outParticlesData[i].Position)
@@ -447,7 +447,7 @@ TEST(ParticleTests, FromGrid)
            }
        }
 
-       ASSERT_NE(-1, index);
+       ASSERT_NE(static_cast<std::size_t>(-1), index);
 
        glm::vec2 vel(sim.particles_velocity[index][0], sim.particles_velocity[index][1]);
        EXPECT_NEAR(vel.x, outParticlesData[i].Velocity.x, 1e-5f);

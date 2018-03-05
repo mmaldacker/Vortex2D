@@ -85,7 +85,7 @@ void CheckBuffer(const std::vector<T>& data, Vortex2D::Renderer::Buffer<T>& buff
     std::vector<T> pixels(data.size(), T());
     CopyTo(buffer, pixels);
 
-    for (int i = 0; i < data.size(); i++)
+    for (std::size_t i = 0; i < data.size(); i++)
     {
         T expectedValue = data[i];
         T value = pixels[i];

@@ -100,7 +100,7 @@ void Multigrid::BuildHierarchiesBind(Pressure& pressure,
     mBuildHierarchies.Record([&](vk::CommandBuffer commandBuffer)
     {
         commandBuffer.debugMarkerBeginEXT({"Build hierarchies", {{ 0.36f, 0.85f, 0.55f, 1.0f}}});
-        for (std::size_t i = 0; i < mDepth.GetMaxDepth(); i++)
+        for (int i = 0; i < mDepth.GetMaxDepth(); i++)
         {
             mLiquidPhiScaleWorkBound[i].Record(commandBuffer);
             mLiquidPhis[i].Barrier(commandBuffer,
@@ -123,7 +123,7 @@ void Multigrid::BuildHierarchiesBind(Pressure& pressure,
             mDatas[i].B.Clear(commandBuffer);
         }
 
-        std::size_t maxDepth = mDepth.GetMaxDepth();
+        int maxDepth = mDepth.GetMaxDepth();
         mMatrixBuildBound[maxDepth - 1].PushConstant(commandBuffer, 8, mDelta);
         mMatrixBuildBound[maxDepth - 1].Record(commandBuffer);
         mDatas[maxDepth - 1].Diagonal.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);

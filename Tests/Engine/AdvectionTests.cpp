@@ -226,7 +226,7 @@ TEST(AdvectionTests, ParticleProject)
     std::vector<Particle> outParticlesData(size.x*size.y*8);
     CopyTo(particles, outParticlesData);
 
-    for (int i = 0; i < sim.particles.size(); i++)
+    for (std::size_t i = 0; i < sim.particles.size(); i++)
     {
         glm::vec2 pos(sim.particles[i][0] * size.x, sim.particles[i][1] * size.x);
 

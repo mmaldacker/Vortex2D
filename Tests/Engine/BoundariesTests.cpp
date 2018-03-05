@@ -191,7 +191,7 @@ TEST(BoundariesTests, Intersection)
     DrawSignedSquare(size, points, data2, square2.Position);
 
     std::vector<float> data(size.x*size.y, 100.0f);
-    for (int i = 0; i < data.size(); i++)
+    for (std::size_t i = 0; i < data.size(); i++)
     {
         data[i] = std::min(data1[i], data2[i]);
     }

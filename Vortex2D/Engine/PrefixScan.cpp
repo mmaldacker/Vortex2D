@@ -53,7 +53,7 @@ void PrefixScan::BindRecursive(std::vector<Renderer::CommandBuffer::CommandFn>& 
                                Renderer::GenericBuffer& output,
                                Renderer::GenericBuffer& dispatchParams,
                                Renderer::ComputeSize computeSize,
-                               int level)
+                               std::size_t level)
 {
     if (computeSize.WorkSize.x > 1)
     {

@@ -175,11 +175,11 @@ void PrintDiagonal(const glm::ivec2& size, Vortex2D::Renderer::Buffer<float>& bu
     std::vector<float> pixels(size.x * size.y);
     Vortex2D::Renderer::CopyTo(buffer, pixels);
 
-    for (std::size_t j = 0; j < size.y; j++)
+    for (int j = 0; j < size.y; j++)
     {
-        for (std::size_t i = 0; i < size.x; i++)
+        for (int i = 0; i < size.x; i++)
         {
-            std::size_t index = i + size.x * j;
+            int index = i + size.x * j;
             std::cout << "(" <<  pixels[index] << ")";
         }
         std::cout << std::endl;
@@ -215,11 +215,11 @@ void PrintVelocity(const Vortex2D::Renderer::Device& device, const glm::ivec2& s
     std::vector<glm::vec2> pixels(size.x * size.y);
     output.CopyTo(pixels);
 
-    for (std::size_t j = 0; j < size.y; j++)
+    for (int j = 0; j < size.y; j++)
     {
-        for (std::size_t i = 0; i < size.x; i++)
+        for (int i = 0; i < size.x; i++)
         {
-            std::size_t index = i + size.x * j;
+            int index = i + size.x * j;
             std::cout << "(" <<  pixels[index].x << "," << pixels[index].y << ")";
         }
         std::cout << std::endl;
@@ -288,9 +288,9 @@ void CheckDiv(const glm::ivec2& size, Vortex2D::Renderer::Buffer<float>& buffer,
     std::vector<float> pixels(size.x * size.y);
     Vortex2D::Renderer::CopyTo(buffer, pixels);
 
-    for (std::size_t i = 0; i < size.x; i++)
+    for (int i = 0; i < size.x; i++)
     {
-        for (std::size_t j = 0; j < size.y; j++)
+        for (int j = 0; j < size.y; j++)
         {
             std::size_t index = i + size.x * j;
             EXPECT_NEAR(sim.rhs[index], pixels[index], error) << "Mismatch at (" << i << "," << j << ")";
@@ -300,11 +300,11 @@ void CheckDiv(const glm::ivec2& size, Vortex2D::Renderer::Buffer<float>& buffer,
 
 void PrintDiv(const glm::ivec2& size, FluidSim& sim)
 {
-    for (std::size_t j = 0; j < size.y; j++)
+    for (int j = 0; j < size.y; j++)
     {
-        for (std::size_t i = 0; i < size.x; i++)
+        for (int i = 0; i < size.x; i++)
         {
-            std::size_t index = i + size.x * j;
+            int index = i + size.x * j;
             std::cout << "(" <<  sim.rhs[index] << ")";
         }
         std::cout << std::endl;

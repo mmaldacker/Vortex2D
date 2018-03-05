@@ -68,7 +68,7 @@ Reduce::Bound Reduce::Bind(Renderer::GenericBuffer& input,
     std::vector<Renderer::Work::Bound> bounds;
 
     auto computeSize = MakeComputeSize(mSize);
-    for (int i = 0; i < buffers.size() - 1; i++)
+    for (std::size_t i = 0; i < buffers.size() - 1; i++)
     {
         bounds.emplace_back(mReduce.Bind(computeSize, {*buffers[i], *buffers[i+1]}));
         computeSize = MakeComputeSize(computeSize.WorkSize.x);
@@ -92,7 +92,7 @@ Reduce::Bound::Bound(const std::vector<Renderer::CommandBuffer::CommandFn>& buff
 
 void Reduce::Bound::Record(vk::CommandBuffer commandBuffer)
 {
-    for (int i = 0; i < mBounds.size(); i++)
+    for (std::size_t i = 0; i < mBounds.size(); i++)
     {
         mBounds[i].Record(commandBuffer);
         mBufferBarriers[i](commandBuffer);

@@ -51,7 +51,7 @@ void Transfer::RestrictBind(std::size_t level, const glm::ivec2& fineSize,
     mRestrictBuffer[level] = &coarse;
 }
 
-void Transfer::Prolongate(vk::CommandBuffer commandBuffer, int level)
+void Transfer::Prolongate(vk::CommandBuffer commandBuffer, std::size_t level)
 {
     assert(level < mProlongateBound.size());
 
@@ -59,7 +59,7 @@ void Transfer::Prolongate(vk::CommandBuffer commandBuffer, int level)
     mProlongateBuffer[level]->Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
 }
 
-void Transfer::Restrict(vk::CommandBuffer commandBuffer, int level)
+void Transfer::Restrict(vk::CommandBuffer commandBuffer, std::size_t level)
 {
     assert(level < mRestrictBound.size());
 

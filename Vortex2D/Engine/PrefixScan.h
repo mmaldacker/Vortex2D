@@ -39,7 +39,7 @@ private:
                        Renderer::GenericBuffer& output,
                        Renderer::GenericBuffer& dispatchParams,
                        Renderer::ComputeSize computeSize,
-                       int level);
+                       std::size_t level);
 
     int mSize;
     Renderer::Work mAddWork;

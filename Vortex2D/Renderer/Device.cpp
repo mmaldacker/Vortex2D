@@ -22,14 +22,14 @@ int ComputeFamilyIndex(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface
 {
     int index = -1;
     const auto& familyProperties = physicalDevice.getQueueFamilyProperties();
-    for (int i = 0; i < familyProperties.size(); i++)
+    for (std::size_t i = 0; i < familyProperties.size(); i++)
     {
         const auto& property = familyProperties[i];
         if ((property.queueFlags & vk::QueueFlagBits::eCompute) &&
                 (property.queueFlags & vk::QueueFlagBits::eGraphics) &&
-                physicalDevice.getSurfaceSupportKHR(i, surface))
+                physicalDevice.getSurfaceSupportKHR(static_cast<uint32_t>(i), surface))
         {
-            index = i;
+            index = static_cast<int32_t>(i);
         }
     }
 

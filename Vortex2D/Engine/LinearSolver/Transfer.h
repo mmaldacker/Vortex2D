@@ -30,8 +30,8 @@ public:
                       Renderer::GenericBuffer& coarse, 
                       Renderer::GenericBuffer& coarseDiagonal);
 
-    void Prolongate(vk::CommandBuffer commandBuffer, int level);
-    void Restrict(vk::CommandBuffer commandBuffer, int level);
+    void Prolongate(vk::CommandBuffer commandBuffer, std::size_t level);
+    void Restrict(vk::CommandBuffer commandBuffer, std::size_t level);
 
 private:
     const Renderer::Device& mDevice;

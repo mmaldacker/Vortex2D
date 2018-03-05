@@ -133,7 +133,7 @@ vk::PipelineLayout LayoutManager::GetPipelineLayout(const PipelineLayout& layout
     {
         vk::DescriptorSetLayout descriptorSetlayouts[] = {GetDescriptorSetLayout(layout)};
         std::vector<vk::PushConstantRange> pushConstantRanges;
-        unsigned totalPushConstantSize = 0;
+        uint32_t totalPushConstantSize = 0;
         for (auto& shaderLayout: layout.layouts)
         {
             if (shaderLayout.pushConstantSize > 0)
@@ -178,20 +178,20 @@ DescriptorSet LayoutManager::MakeDescriptorSet(const PipelineLayout& layout)
     return descriptorSet;
 }
 
-BindingInput::BindingInput(Renderer::GenericBuffer& buffer, unsigned bind)
+BindingInput::BindingInput(Renderer::GenericBuffer& buffer, uint32_t bind)
     : Bind(bind)
     , Input(&buffer)
 
 {
 }
 
-BindingInput::BindingInput(Renderer::Texture& texture, unsigned bind)
+BindingInput::BindingInput(Renderer::Texture& texture, uint32_t bind)
     : Bind(bind)
     , Input(DescriptorImage(texture))
 {
 }
 
-BindingInput::BindingInput(vk::Sampler sampler, Renderer::Texture& texture, unsigned bind)
+BindingInput::BindingInput(vk::Sampler sampler, Renderer::Texture& texture, uint32_t bind)
     : Bind(bind)
     , Input(DescriptorImage(sampler, texture))
 {
@@ -209,7 +209,7 @@ DescriptorImage::DescriptorImage(Renderer::Texture& texture)
 {
 }
 
-vk::DescriptorType GetDescriptorType(unsigned bind, const PipelineLayout& layout)
+vk::DescriptorType GetDescriptorType(uint32_t bind, const PipelineLayout& layout)
 {
     for (auto& shaderLayout: layout.layouts)
     {
@@ -228,15 +228,15 @@ void Bind(const Device& device, vk::DescriptorSet dstSet, const PipelineLayout& 
     std::vector<vk::DescriptorBufferInfo> bufferInfo(20);
     std::vector<vk::DescriptorImageInfo> imageInfo(20);
     std::vector<vk::WriteDescriptorSet> descriptorWrites;
-    int numBuffers = 0;
-    int numImages = 0;
+    std::size_t numBuffers = 0;
+    std::size_t numImages = 0;
 
-    for (int i = 0; i < bindingInputs.size(); i++)
+    for (std::size_t i = 0; i < bindingInputs.size(); i++)
     {
         auto visitor = make_visitor(
             [&](Renderer::GenericBuffer* buffer)
             {
-                unsigned bind = bindingInputs[i].Bind == BindingInput::DefaultBind ? i : bindingInputs[i].Bind;
+                uint32_t bind = bindingInputs[i].Bind == BindingInput::DefaultBind ? static_cast<uint32_t>(i) : bindingInputs[i].Bind;
 
                 auto descriptorType = GetDescriptorType(bind, layout);
                 if (descriptorType != vk::DescriptorType::eStorageBuffer &&
@@ -262,7 +262,7 @@ void Bind(const Device& device, vk::DescriptorSet dstSet, const PipelineLayout& 
             },
             [&](DescriptorImage image)
             {
-                unsigned bind = bindingInputs[i].Bind == BindingInput::DefaultBind ? i : bindingInputs[i].Bind;
+                uint32_t bind = bindingInputs[i].Bind == BindingInput::DefaultBind ? i : bindingInputs[i].Bind;
 
                 auto descriptorType = GetDescriptorType(bind, layout);
                 if (descriptorType != vk::DescriptorType::eStorageImage &&

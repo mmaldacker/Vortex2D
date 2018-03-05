@@ -22,7 +22,7 @@ class Reflection;
 namespace Renderer {
 
 class Device;
-using DescriptorTypeBindings = std::map<unsigned, vk::DescriptorType>;
+using DescriptorTypeBindings = std::map<uint32_t, vk::DescriptorType>;
 
 struct ShaderLayout
 {
@@ -77,13 +77,13 @@ struct DescriptorImage
 
 struct BindingInput
 {
-    static constexpr unsigned DefaultBind = static_cast<unsigned>(-1);
+    static constexpr uint32_t DefaultBind = static_cast<uint32_t>(-1);
 
-    BindingInput(Renderer::GenericBuffer& buffer, unsigned bind = DefaultBind);
-    BindingInput(Renderer::Texture& texture,  unsigned bind = DefaultBind);
-    BindingInput(vk::Sampler sampler, Renderer::Texture& texture,  unsigned bind = DefaultBind);
+    BindingInput(Renderer::GenericBuffer& buffer, uint32_t bind = DefaultBind);
+    BindingInput(Renderer::Texture& texture,  uint32_t bind = DefaultBind);
+    BindingInput(vk::Sampler sampler, Renderer::Texture& texture,  uint32_t bind = DefaultBind);
 
-    unsigned Bind;
+    uint32_t Bind;
     mpark::variant<Renderer::GenericBuffer*, DescriptorImage> Input;
 };
 
