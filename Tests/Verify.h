@@ -62,42 +62,6 @@ void PrintBuffer(const glm::ivec2& size, Vortex2D::Renderer::Buffer<T>& buffer)
     std::cout << std::endl;
 }
 
-static void PrintRGBA8(Vortex2D::Renderer::Texture& texture)
-{
-    std::vector<glm::u8vec4> pixels(texture.GetWidth() * texture.GetHeight());
-    texture.CopyTo(pixels);
-    
-    for (uint32_t j = 0; j < texture.GetHeight(); j++)
-    {
-        for (uint32_t i = 0; i < texture.GetWidth(); i++)
-        {
-            glm::u8vec4 value = pixels[i + j * texture.GetWidth()];
-            std::cout << "(" << (int)value.r << "," << (int)value.g << "," << (int)value.b << "," << (int)value.a << ")";
-        }
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
-}
-
-static void PrintWeights(const glm::ivec2& size, Vortex2D::Renderer::Buffer<glm::vec2>& buffer)
-{
-    std::vector<glm::vec2> pixels(size.x * size.y);
-    Vortex2D::Renderer::CopyTo(buffer, pixels);
-
-    for (int j = 0; j < size.x; j++)
-    {
-        for (int i = 0; i < size.y; i++)
-        {
-            glm::vec2 value = pixels[i + j * size.x];
-            std::cout << "("
-                      << value.x << ","
-                      << value.y << ")";
-        }
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
-}
-
 template<typename T>
 void CheckTexture(const std::vector<T>& data, Vortex2D::Renderer::Texture& texture)
 {

@@ -132,7 +132,7 @@ public:
 
     void Run()
     {
-        const int windowSize = 20;
+        const uint64_t windowSize = 20;
         std::vector<uint64_t> timePoints(windowSize, 0);
         int timePointIndex = 0;
 
@@ -150,7 +150,7 @@ public:
             timePoints[timePointIndex] = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
             timePointIndex = (timePointIndex + 1) % windowSize;
 
-            auto average = std::accumulate(timePoints.begin(), timePoints.end(), 0) / windowSize;
+            auto average = std::accumulate(timePoints.begin(), timePoints.end(), 0ll) / windowSize;
             auto title = std::to_string(average) + "ms";
             glfwSetWindowTitle(glfwWindow, title.c_str());
         }

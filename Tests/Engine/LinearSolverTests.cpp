@@ -26,14 +26,14 @@ extern Device* device;
 TEST(LinearSolverTests, ReduceSum)
 {
     glm::ivec2 size(10, 15);
-    int n = size.x * size.y;
-    Buffer<float> input(*device, n, VMA_MEMORY_USAGE_CPU_ONLY);
+    int total_size = size.x * size.y;
+    Buffer<float> input(*device, total_size, VMA_MEMORY_USAGE_CPU_ONLY);
     Buffer<float> output(*device, 1, VMA_MEMORY_USAGE_CPU_ONLY);
 
     ReduceSum reduce(*device, size);
     auto reduceBound = reduce.Bind(input, output);
 
-    std::vector<float> inputData(n);
+    std::vector<float> inputData(total_size);
 
     {
         float n = 1.0f;
@@ -50,21 +50,21 @@ TEST(LinearSolverTests, ReduceSum)
     std::vector<float> outputData(1, 0.0f);
     CopyTo(output, outputData);
 
-    ASSERT_EQ(0.5f * n * (n + 1), outputData[0]);
+    ASSERT_EQ(0.5f * total_size * (total_size + 1), outputData[0]);
 }
 
 TEST(LinearSolverTests, ReduceBigSum)
 {
     glm::ivec2 size(500);
-    int n = size.x * size.y; // 1 million
+    int total_size = size.x * size.y; // 1 million
 
-    Buffer<float> input(*device, n, VMA_MEMORY_USAGE_CPU_ONLY);
+    Buffer<float> input(*device, total_size, VMA_MEMORY_USAGE_CPU_ONLY);
     Buffer<float> output(*device, 1, VMA_MEMORY_USAGE_CPU_ONLY);
 
     ReduceSum reduce(*device, size);
     auto reduceBound = reduce.Bind(input, output);
 
-    std::vector<float> inputData(n, 1.0f);
+    std::vector<float> inputData(total_size, 1.0f);
 
     {
         float n = 1.0f;
@@ -81,15 +81,15 @@ TEST(LinearSolverTests, ReduceBigSum)
     std::vector<float> outputData(1, 0.0f);
     CopyTo(output, outputData);
 
-    ASSERT_EQ(0.5f * n * (n + 1), outputData[0]);
+    ASSERT_EQ(0.5f * total_size * (total_size + 1), outputData[0]);
 }
 
 TEST(LinearSolverTests, ReduceMax)
 {
     glm::ivec2 size(10, 15);
-    int n = size.x * size.y;
+    int total_size = size.x * size.y;
 
-    Buffer<float> input(*device, n, VMA_MEMORY_USAGE_CPU_ONLY);
+    Buffer<float> input(*device, total_size, VMA_MEMORY_USAGE_CPU_ONLY);
     Buffer<float> output(*device, 1, VMA_MEMORY_USAGE_CPU_ONLY);
 
     ReduceMax reduce(*device, size);

@@ -3,8 +3,8 @@
 //  Vortex2D
 //
 
-#ifndef Buffer_h
-#define Buffer_h
+#ifndef Vortex2D_Buffer_h
+#define Vortex2D_Buffer_h
 
 #include <Vortex2D/Renderer/Common.h>
 #include <Vortex2D/Utils/vk_mem_alloc.h>

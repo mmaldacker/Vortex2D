@@ -17,7 +17,7 @@ namespace
     {
         if (validBits == 64)
         {
-            return -1;
+            return static_cast<uint64_t>(-1);
         }
         else
         {
@@ -87,7 +87,7 @@ uint64_t Timer::GetElapsedNs()
     }
     else
     {
-        return -1;
+        return static_cast<uint64_t>(-1);
     }
 }
 

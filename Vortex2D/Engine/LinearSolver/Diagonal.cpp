@@ -16,7 +16,7 @@ Diagonal::Diagonal(const Renderer::Device& device, const glm::ivec2& size)
 }
 
 void Diagonal::Bind(Renderer::GenericBuffer& d,
-                    Renderer::GenericBuffer& l,
+                    Renderer::GenericBuffer& /*l*/,
                     Renderer::GenericBuffer& b,
                     Renderer::GenericBuffer& pressure)
 {

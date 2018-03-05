@@ -137,8 +137,8 @@ target_include_directories(vortex2d PUBLIC ../ ${CMAKE_CURRENT_BINARY_DIR})
 target_compile_features(vortex2d PRIVATE cxx_variadic_templates cxx_generic_lambdas)
 
 if(MSVC)
-    target_compile_definitions(vortex2d PUBLIC "/W4")
+    target_compile_options(vortex2d PUBLIC "/W3")
 else()
-    target_compile_definitions(vortex2d PUBLIC "-Wall")
+    target_compile_options(vortex2d PUBLIC "-Wall")
 endif()
 

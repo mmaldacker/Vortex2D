@@ -22,7 +22,7 @@ void DrawCircle(int width,
                 float radius);
 
 template<typename T>
-void DrawSquare(int width, int height, std::vector<T>& data, const glm::vec2& centre, const glm::vec2& size, T value)
+void DrawSquare(int width, int /*height*/, std::vector<T>& data, const glm::vec2& centre, const glm::vec2& size, T value)
 {
     for (int i = 0; i < size.x; i++)
     {

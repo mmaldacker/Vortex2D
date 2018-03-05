@@ -7,7 +7,8 @@ file(GLOB ENGINE_TEST_SOURCES "Engine/LevelSetTests.cpp"
                               "Engine/ParticleTests.cpp"
                               "Engine/WorldTests.cpp"
                               "Engine/RigidbodyTests.cpp"
-                              "Engine/VariationalHelpers.h")
+                              "Engine/VariationalHelpers.h"
+                              "Engine/VariationalHelpers.cpp")
 
 file(GLOB RENDERER_TEST_SOURCES  "Renderer/ShapeDrawer.h"
                                  "Renderer/ShapeDrawer.cpp"
