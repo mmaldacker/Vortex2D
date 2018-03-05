@@ -23,7 +23,7 @@ AbstractShape::AbstractShape(const Device& device,
     , mMVPBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
     , mColourBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
     , mVertexBuffer(device, vertices.size())
-    , mNumVertices(vertices.size())
+    , mNumVertices(static_cast<uint32_t>(vertices.size()))
 {
     Renderer::CopyFrom(mColourBuffer, colour);
 
@@ -187,12 +187,12 @@ Clear::Clear(const glm::vec4& colour)
 {
 }
 
-void Clear::Initialize(const RenderState& renderState)
+void Clear::Initialize(const RenderState& /*renderState*/)
 {
 
 }
 
-void Clear::Update(const glm::mat4& projection, const glm::mat4& view)
+void Clear::Update(const glm::mat4& /*projection*/, const glm::mat4& /*view*/)
 {
 
 }

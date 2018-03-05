@@ -126,9 +126,9 @@ void CommandBuffer::Submit(const std::initializer_list<vk::Semaphore>& waitSemap
     auto submitInfo = vk::SubmitInfo()
             .setCommandBufferCount(1)
             .setPCommandBuffers(&mCommandBuffer)
-            .setWaitSemaphoreCount(waitSemaphores.size())
+            .setWaitSemaphoreCount(static_cast<uint32_t>(waitSemaphores.size()))
             .setPWaitSemaphores(waitSemaphores.begin())
-            .setSignalSemaphoreCount(signalSemaphores.size())
+            .setSignalSemaphoreCount(static_cast<uint32_t>(signalSemaphores.size()))
             .setPSignalSemaphores(signalSemaphores.begin())
             .setPWaitDstStageMask(waitStages.data());
 

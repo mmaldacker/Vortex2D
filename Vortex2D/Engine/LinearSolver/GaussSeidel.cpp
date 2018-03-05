@@ -100,7 +100,7 @@ void GaussSeidel::Record(vk::CommandBuffer commandBuffer)
 
 void GaussSeidel::Record(vk::CommandBuffer commandBuffer, int iterations)
 {
-    for (unsigned i  = 0; i < iterations; ++i)
+    for (int i  = 0; i < iterations; ++i)
     {
         mGaussSeidelBound.PushConstant(commandBuffer, 8, mW);
         mGaussSeidelBound.PushConstant(commandBuffer, 12, 1);

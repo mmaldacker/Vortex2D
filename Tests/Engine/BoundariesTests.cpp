@@ -58,11 +58,11 @@ void DrawSignedSquare(const glm::ivec2& size, const std::vector<glm::vec2>& poin
         for (int j = 0; j < size.y; j++)
         {
             int index = i + j * size.x;
-            float value = -std::max(size.x, size.y);
-            for (int k = points.size() - 1, l = 0; l < points.size(); k = l++)
+            float value = (float)-std::max(size.x, size.y);
+            for (std::size_t k = points.size() - 1, l = 0; l < points.size(); k = l++)
             {
-                float udist = DistToSegment(points[k] + pos, points[l] + pos, glm::vec2(i + 0.5, j + 0.5));
-                float dist = -Orientation(points[k] + pos, points[l] + pos, glm::vec2(i + 0.5, j + 0.5)) * udist;
+                float udist = DistToSegment(points[k] + pos, points[l] + pos, glm::vec2(i + 0.5f, j + 0.5f));
+                float dist = -Orientation(points[k] + pos, points[l] + pos, glm::vec2(i + 0.5f, j + 0.5f)) * udist;
                 value = std::max(value, dist);
             }
 
@@ -238,7 +238,7 @@ TEST(BoundariesTest, DistanceField)
         localOutput.CopyFrom(commandBuffer, output);
     });
 
-    uint8_t alpha = 256 * (0.1f + 0.5f);
+    uint8_t alpha = static_cast<uint8_t>(256 * (0.1f + 0.5f));
     std::vector<glm::u8vec4> outData(size.x*size.y, {255, 255, 255, 255 - alpha});
     
     CheckTexture<glm::u8vec4>(outData, localOutput);

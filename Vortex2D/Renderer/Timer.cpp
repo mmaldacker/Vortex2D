@@ -78,7 +78,7 @@ uint64_t Timer::GetElapsedNs()
         auto properties = mDevice.GetPhysicalDevice().getProperties();
         assert(properties.limits.timestampComputeAndGraphics);
 
-        double period = properties.limits.timestampPeriod;
+        uint64_t period = static_cast<uint64_t>(properties.limits.timestampPeriod);
 
         auto queueProperties = mDevice.GetPhysicalDevice().getQueueFamilyProperties();
         auto validBits = queueProperties[familyIndex].timestampValidBits;

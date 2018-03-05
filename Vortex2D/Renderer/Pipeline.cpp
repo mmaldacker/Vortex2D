@@ -76,7 +76,7 @@ vk::UniquePipeline GraphicsPipeline::Builder::Create(vk::Device device, const Re
             .setVertexAttributeDescriptionCount((uint32_t)mVertexAttributeDescriptions.size())
             .setPVertexAttributeDescriptions(mVertexAttributeDescriptions.data());
 
-    auto viewPort = vk::Viewport(0, 0, renderState.Width, renderState.Height, 0.0f, 1.0f);
+    auto viewPort = vk::Viewport(0, 0, static_cast<float>(renderState.Width), static_cast<float>(renderState.Height), 0.0f, 1.0f);
     auto scissor = vk::Rect2D({0, 0}, {renderState.Width, renderState.Height});
 
     auto viewPortState = vk::PipelineViewportStateCreateInfo()
@@ -154,7 +154,7 @@ vk::UniquePipeline MakeComputePipeline(vk::Device device,
                                                           {2, offsetof(glm::uvec2, y), sizeof(glm::uvec2::y)}};
 
     auto specialisationConst = vk::SpecializationInfo()
-            .setMapEntryCount(mapEntries.size())
+            .setMapEntryCount(static_cast<uint32_t>(mapEntries.size()))
             .setPMapEntries(mapEntries.data())
             .setDataSize(sizeof(glm::uvec2))
             .setPData(&localSize);

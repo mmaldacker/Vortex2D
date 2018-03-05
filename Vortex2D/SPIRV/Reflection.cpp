@@ -63,7 +63,7 @@ unsigned Reflection::GetPushConstantsSize() const
 
     unsigned id = resources.push_constant_buffers[0].id;
     auto type = mCompiler.get_type_from_variable(id);
-    return mCompiler.get_declared_struct_size(type);
+    return static_cast<unsigned>(mCompiler.get_declared_struct_size(type));
 }
 
 vk::ShaderStageFlagBits Reflection::GetShaderStage() const

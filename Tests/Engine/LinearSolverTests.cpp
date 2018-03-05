@@ -407,7 +407,7 @@ TEST(LinearSolverTests, IncompletePoisson_Simple_PCG)
 
 TEST(LinearSolverTests, Zero_PCG)
 {
-    glm::vec2 size(50);
+    glm::ivec2 size(50);
 
     LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
 
@@ -457,8 +457,8 @@ TEST(LinearSolverTests, Multigrid_Simple_PCG)
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
     Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
-    SetSolidPhi(*device, size, solidPhi, sim, size.x);
-    SetLiquidPhi(*device, size, liquidPhi, sim, size.x);
+    SetSolidPhi(*device, size, solidPhi, sim, (float)size.x);
+    SetLiquidPhi(*device, size, liquidPhi, sim, (float)size.x);
 
     BuildLinearEquation(size, data.Diagonal, data.Lower, data.B, sim);
 

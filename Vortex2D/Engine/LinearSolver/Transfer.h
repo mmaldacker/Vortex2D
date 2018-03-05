@@ -16,14 +16,14 @@ class Transfer
 public:
     Transfer(const Renderer::Device& device);
 
-    void ProlongateBind(int level,
+    void ProlongateBind(std::size_t level,
                         const glm::ivec2& fineSize,
                         Renderer::GenericBuffer& fine, 
                         Renderer::GenericBuffer& fineDiagonal, 
                         Renderer::GenericBuffer& coarse, 
                         Renderer::GenericBuffer& coarseDiagonal);
                         
-    void RestrictBind(int level,
+    void RestrictBind(std::size_t level,
                       const glm::ivec2& fineSize,
                       Renderer::GenericBuffer& fine, 
                       Renderer::GenericBuffer& fineDiagonal, 

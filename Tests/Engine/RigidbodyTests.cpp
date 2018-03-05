@@ -25,7 +25,7 @@ void PrintRigidBody(const glm::ivec2& size, FluidSim& sim)
     {
         for (int j = 0; j < size.y; j++)
         {
-            Vec2f pos((i + 0.5f) / size.x, (j + 0.5) / size.x);
+            Vec2f pos((i + 0.5f) / size.x, (j + 0.5f) / size.x);
             std::cout << "(" << sim.rbd->getSignedDist(pos) * size.x << ")";
         }
         std::cout << std::endl;
@@ -83,7 +83,7 @@ TEST(RigidbodyTests, Div)
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
 
     BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
-    SetSolidPhi(*device, size, solidPhi, sim, size.x);
+    SetSolidPhi(*device, size, solidPhi, sim, (float)size.x);
 
     LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
     Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
@@ -141,7 +141,7 @@ TEST(RigidbodyTests, VelocityDiv)
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
 
     BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
-    SetSolidPhi(*device, size, solidPhi, sim, size.x);
+    SetSolidPhi(*device, size, solidPhi, sim, (float)size.x);
 
     LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
     Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
@@ -160,7 +160,7 @@ TEST(RigidbodyTests, VelocityDiv)
 
     rigidBody.RenderPhi();
 
-    rigidBody.SetVelocities(glm::vec2(v[0], v[1]) * glm::vec2(size.x), 0.0f);
+    rigidBody.SetVelocities(glm::vec2(v[0], v[1]) * glm::vec2((float)size.x), 0.0f);
     rigidBody.BindDiv(data.B, data.Diagonal, liquidPhi);
     pressure.BuildLinearEquation();
     rigidBody.Div();
@@ -200,7 +200,7 @@ TEST(RigidbodyTests, RotationDiv)
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
 
     BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
-    SetSolidPhi(*device, size, solidPhi, sim, size.x);
+    SetSolidPhi(*device, size, solidPhi, sim, (float)size.x);
 
     LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
     Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
@@ -259,7 +259,7 @@ TEST(RigidbodyTests, VelocityRotationDiv)
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
 
     BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
-    SetSolidPhi(*device, size, solidPhi, sim, size.x);
+    SetSolidPhi(*device, size, solidPhi, sim, (float)size.x);
 
     LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
     Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
@@ -278,7 +278,7 @@ TEST(RigidbodyTests, VelocityRotationDiv)
 
     rigidBody.RenderPhi();
 
-    rigidBody.SetVelocities(glm::vec2(v[0], v[1]) * glm::vec2(size.x), w);
+    rigidBody.SetVelocities(glm::vec2(v[0], v[1]) * glm::vec2((float)size.x), w);
     rigidBody.BindDiv(data.B, data.Diagonal, liquidPhi);
     pressure.BuildLinearEquation();
     rigidBody.Div();
@@ -352,7 +352,7 @@ TEST(RigidbodyTests, Pressure)
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
 
     BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
-    SetSolidPhi(*device, size, solidPhi, sim, size.x);
+    SetSolidPhi(*device, size, solidPhi, sim, (float)size.x);
 
     Buffer<float> pressure(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
@@ -457,7 +457,7 @@ TEST(RigidbodyTests, VelocityConstrain)
     extrapolation.ConstrainBind(solidPhi);
     extrapolation.ConstrainVelocity();
 
-    rigidBody.SetVelocities(solid_velocity * glm::vec2(size.x), 0.0f);
+    rigidBody.SetVelocities(solid_velocity * glm::vec2((float)size.x), 0.0f);
     rigidBody.BindVelocityConstrain(velocity);
     rigidBody.VelocityConstrain();
 

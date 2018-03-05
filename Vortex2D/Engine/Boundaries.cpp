@@ -17,12 +17,11 @@ namespace Vortex2D { namespace Fluid {
 
 namespace
 {
-const int extent = 3;
 
 bool IsClockwise(const std::vector<glm::vec2>& points)
 {
     float total = 0.0f;
-    for (int i = points.size() - 1, j = 0; j < points.size(); i = j++)
+    for (std::size_t i = points.size() - 1, j = 0; j < points.size(); i = j++)
     {
         total += (points[j].x - points[i].x) * (points[i].y + points[j].y);
     }
@@ -30,7 +29,7 @@ bool IsClockwise(const std::vector<glm::vec2>& points)
     return total > 0.0;
 }
 
-std::vector<glm::vec2> GetBoundingBox(const std::vector<glm::vec2>& points, int extent)
+std::vector<glm::vec2> GetBoundingBox(const std::vector<glm::vec2>& points, float extent)
 {
     glm::vec2 topLeft(std::numeric_limits<float>::max());
     glm::vec2 bottomRight(std::numeric_limits<float>::min());
@@ -57,14 +56,14 @@ std::vector<glm::vec2> GetBoundingBox(const std::vector<glm::vec2>& points, int 
 
 }
 
-Polygon::Polygon(const Renderer::Device& device, std::vector<glm::vec2> points, bool inverse, int extent)
+Polygon::Polygon(const Renderer::Device& device, std::vector<glm::vec2> points, bool inverse, float extent)
     : mDevice(device)
-    , mSize(points.size())
+    , mSize(static_cast<uint32_t>(points.size()))
     , mInv(inverse)
     , mMVPBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
     , mMVBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
-    , mVertexBuffer(device, 6)
-    , mPolygonVertexBuffer(device, points.size())
+    , mVertexBuffer(device, 6ul)
+    , mPolygonVertexBuffer(device, static_cast<unsigned>(points.size()))
 {
     assert(!IsClockwise(points));
     if (inverse)
@@ -128,7 +127,7 @@ Rectangle::Rectangle(const Renderer::Device& device, const glm::vec2& size, bool
 {
 }
 
-Circle::Circle(const Renderer::Device& device, float radius, int extent)
+Circle::Circle(const Renderer::Device& device, float radius, float extent)
     : mDevice(device)
     , mSize(radius)
     , mMVPBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)

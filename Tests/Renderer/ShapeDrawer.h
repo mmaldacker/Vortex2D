@@ -28,8 +28,8 @@ void DrawSquare(int width, int height, std::vector<T>& data, const glm::vec2& ce
     {
         for (int j = 0; j < size.y; j++)
         {
-            int x = i + centre.x;
-            int y = j + centre.y;
+            int x = static_cast<int>(i + centre.x);
+            int y = static_cast<int>(j + centre.y);
             data[x + y * width] = value;
         }
     }

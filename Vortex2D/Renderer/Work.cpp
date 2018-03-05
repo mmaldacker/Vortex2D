@@ -83,7 +83,7 @@ ComputeSize MakeCheckerboardComputeSize(const glm::ivec2& size)
 }
 
 DispatchParams::DispatchParams(int count)
-    : workSize(std::ceil((float)count / Renderer::ComputeSize::GetLocalSize1D()), 1, 1)
+    : workSize(static_cast<uint32_t>(std::ceil(static_cast<float>(count) / Renderer::ComputeSize::GetLocalSize1D())), 1, 1)
     , count(count)
 {
 }

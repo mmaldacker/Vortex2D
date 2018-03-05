@@ -25,7 +25,7 @@ b2FixtureDef GetPolygonFixtureDef(const std::vector<glm::vec2>& points)
                             point.y / box2dScale - sign(point.y) * b2_polygonRadius});
     }
 
-    shape.Set(b2Points.data(), b2Points.size());
+    shape.Set(b2Points.data(), static_cast<int>(b2Points.size()));
 
     static b2FixtureDef fixtureDef;
     fixtureDef.shape = &shape;

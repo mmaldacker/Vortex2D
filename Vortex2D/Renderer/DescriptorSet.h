@@ -77,7 +77,7 @@ struct DescriptorImage
 
 struct BindingInput
 {
-    static constexpr unsigned DefaultBind = -1;
+    static constexpr unsigned DefaultBind = static_cast<unsigned>(-1);
 
     BindingInput(Renderer::GenericBuffer& buffer, unsigned bind = DefaultBind);
     BindingInput(Renderer::Texture& texture,  unsigned bind = DefaultBind);

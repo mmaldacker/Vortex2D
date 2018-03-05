@@ -129,7 +129,7 @@ TEST(AdvectionTests, ParticleAdvect)
     Buffer<Particle> particles(*device, 8 * size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
     Buffer<DispatchParams> dispatchParams(*device, 1, VMA_MEMORY_USAGE_CPU_ONLY);
 
-    DispatchParams params(sim.particles.size());
+    DispatchParams params(static_cast<int32_t>(sim.particles.size()));
     CopyFrom(dispatchParams, params);
 
     std::vector<Particle> particlesData;
@@ -149,7 +149,7 @@ TEST(AdvectionTests, ParticleAdvect)
 
     // setup level set
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-    SetSolidPhi(*device, size, solidPhi, sim, size.x);
+    SetSolidPhi(*device, size, solidPhi, sim, (float)size.x);
 
     // advection
     Advection advection(*device, size, 0.01f, velocity);
@@ -194,7 +194,7 @@ TEST(AdvectionTests, ParticleProject)
     Buffer<Particle> particles(*device, 8*size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
     Buffer<DispatchParams> dispatchParams(*device, 1, VMA_MEMORY_USAGE_CPU_ONLY);
 
-    DispatchParams params(sim.particles.size());
+    DispatchParams params(static_cast<int32_t>(sim.particles.size()));
     CopyFrom(dispatchParams, params);
 
     std::vector<Particle> particlesData;
@@ -212,7 +212,7 @@ TEST(AdvectionTests, ParticleProject)
 
     // setup level set
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-    SetSolidPhi(*device, size, solidPhi, sim, size.x);
+    SetSolidPhi(*device, size, solidPhi, sim, (float)size.x);
 
     // advection
     Advection advection(*device, size, 0.01f, velocity);

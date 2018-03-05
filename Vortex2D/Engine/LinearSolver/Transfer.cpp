@@ -17,7 +17,7 @@ Transfer::Transfer(const Renderer::Device& device)
 
 }
 
-void Transfer::ProlongateBind(int level, const glm::ivec2& fineSize,
+void Transfer::ProlongateBind(std::size_t level, const glm::ivec2& fineSize,
                               Renderer::GenericBuffer& fine, 
                               Renderer::GenericBuffer& fineDiagonal, 
                               Renderer::GenericBuffer& coarse, 
@@ -33,7 +33,7 @@ void Transfer::ProlongateBind(int level, const glm::ivec2& fineSize,
   mProlongateBuffer[level] = &fine;
 }
 
-void Transfer::RestrictBind(int level, const glm::ivec2& fineSize,
+void Transfer::RestrictBind(std::size_t level, const glm::ivec2& fineSize,
                             Renderer::GenericBuffer& fine,
                             Renderer::GenericBuffer& fineDiagonal,
                             Renderer::GenericBuffer& coarse,

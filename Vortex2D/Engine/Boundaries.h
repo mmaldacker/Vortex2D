@@ -28,7 +28,7 @@ class Polygon : public ObjectDrawable
 {
 public:
     // TODO number should be calculated
-    Polygon(const Renderer::Device& device, std::vector<glm::vec2> points, bool inverse = false, int extent = 10);
+    Polygon(const Renderer::Device& device, std::vector<glm::vec2> points, bool inverse = false, float extent = 10.0f);
 
     void Initialize(const Renderer::RenderState& renderState) override;
     void Update(const glm::mat4& projection, const glm::mat4& view) override;
@@ -56,7 +56,7 @@ class Circle : public ObjectDrawable
 {
 public:
     // TODO number should be calculated
-    Circle(const Renderer::Device& device, float radius, int extent = 10);
+    Circle(const Renderer::Device& device, float radius, float extent = 10.0f);
 
     void Initialize(const Renderer::RenderState& renderState) override;
     void Update(const glm::mat4& projection, const glm::mat4& view) override;

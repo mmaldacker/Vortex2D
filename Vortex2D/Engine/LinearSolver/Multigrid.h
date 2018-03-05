@@ -25,7 +25,7 @@ public:
   Depth(const glm::ivec2& size);
 
   int GetMaxDepth() const;
-  glm::ivec2 GetDepthSize(int i) const;
+  glm::ivec2 GetDepthSize(std::size_t i) const;
 
 private:
   std::vector<glm::ivec2> mDepths;
@@ -54,7 +54,7 @@ public:
 private:
     void Smoother(vk::CommandBuffer commandBuffer, int n, int iterations);
 
-    void BindRecursive(Pressure& pressure, std::size_t depth);
+    void RecursiveBind(Pressure& pressure, std::size_t depth);
 
     Depth mDepth;
     float mDelta;

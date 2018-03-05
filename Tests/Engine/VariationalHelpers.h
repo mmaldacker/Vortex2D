@@ -48,7 +48,7 @@ static float complex_boundary_phi(const Vec2f& position)
     return min(min(phi0,phi1),min(phi2,phi3));
 }
 
-static void AddParticles(const glm::vec2& size, FluidSim& sim, float (*phi)(const Vec2f&))
+static void AddParticles(const glm::ivec2& size, FluidSim& sim, float (*phi)(const Vec2f&))
 {
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -277,9 +277,9 @@ static void CheckVelocity(const Vortex2D::Renderer::Device& device,
     output.CopyTo(pixels);
 
     // FIXME need to check the entire velocity buffer
-    for (std::size_t i = 1; i < size.x - 1; i++)
+    for (int i = 1; i < size.x - 1; i++)
     {
-        for (std::size_t j = 1; j < size.y - 1; j++)
+        for (int j = 1; j < size.y - 1; j++)
         {
             auto uv = pixels[i + j * size.x];
             EXPECT_NEAR(sim.u(i, j), uv.x, error) << "Mismatch at " << i << "," << j;

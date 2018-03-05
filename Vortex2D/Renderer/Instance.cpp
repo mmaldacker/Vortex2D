@@ -8,14 +8,14 @@
 #include <vk_loader/vk_loader.h>
 #include <iostream>
 
-VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugReportFlagsEXT flags,
-                                             VkDebugReportObjectTypeEXT objType,
-                                             uint64_t obj,
-                                             size_t location,
-                                             int32_t code,
-                                             const char* layerPrefix,
+VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugReportFlagsEXT /*flags*/,
+                                             VkDebugReportObjectTypeEXT /*objType*/,
+                                             uint64_t /*obj*/,
+                                             size_t /*location*/,
+                                             int32_t /*code*/,
+                                             const char* /*layerPrefix*/,
                                              const char* msg,
-                                             void* userData)
+                                             void* /*userData*/)
 {
     std::cout << "validation layer: " << msg << std::endl;
     return VK_FALSE;

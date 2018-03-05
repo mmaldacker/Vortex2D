@@ -56,7 +56,7 @@ TEST(ShapeTests, IntSquare)
 
     texture.Record({rect}).Submit();
 
-    std::vector<int> data(50*50, 0.0f);
+    std::vector<int> data(50*50, 0);
     DrawSquare(50, 50, data, rect.Position, size, 1);
 
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)

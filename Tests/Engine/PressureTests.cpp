@@ -21,11 +21,11 @@ extern Device* device;
 
 void PrintDiagonal(const glm::ivec2& size, FluidSim& sim)
 {
-    for (std::size_t j = 0; j < size.y; j++)
+    for (int j = 0; j < size.y; j++)
     {
-        for (std::size_t i = 0; i < size.x; i++)
+        for (int i = 0; i < size.x; i++)
         {
-            std::size_t index = i + size.x * j;
+            int index = i + size.x * j;
             std::cout << "(" <<  sim.matrix(index, index) << ")";
         }
         std::cout << std::endl;
@@ -37,11 +37,11 @@ void CheckDiagonal(const glm::ivec2& size, Buffer<float>& buffer, FluidSim& sim,
     std::vector<float> pixels(size.x * size.y);
     CopyTo(buffer, pixels);
 
-    for (std::size_t i = 0; i < size.x; i++)
+    for (int i = 0; i < size.x; i++)
     {
-        for (std::size_t j = 0; j < size.y; j++)
+        for (int j = 0; j < size.y; j++)
         {
-            std::size_t index = i + size.x * j;
+            int index = i + size.x * j;
             EXPECT_NEAR(sim.matrix(index, index), pixels[index], error);
         }
     }
@@ -52,11 +52,11 @@ void CheckWeights(const glm::ivec2& size, Buffer<glm::vec2>& buffer, FluidSim& s
     std::vector<glm::vec2> pixels(size.x * size.y);
     CopyTo(buffer, pixels);
 
-    for (std::size_t i = 1; i < size.x - 1; i++)
+    for (int i = 1; i < size.x - 1; i++)
     {
-        for (std::size_t j = 1; j < size.y - 1; j++)
+        for (int j = 1; j < size.y - 1; j++)
         {
-            std::size_t index = i + size.x * j;
+            int index = i + size.x * j;
             EXPECT_NEAR(sim.matrix(index - 1, index), pixels[index].x, error);
             EXPECT_NEAR(sim.matrix(index, index - size.x), pixels[index].y, error);
         }

@@ -28,10 +28,10 @@ Depth::Depth(const glm::ivec2& size)
 
 int Depth::GetMaxDepth() const
 {
-    return mDepths.size() - 1;
+    return static_cast<int>(mDepths.size() - 1);
 }
 
-glm::ivec2 Depth::GetDepthSize(int i) const
+glm::ivec2 Depth::GetDepthSize(std::size_t i) const
 {
     assert(i < mDepths.size());
     return mDepths[i];
@@ -95,7 +95,7 @@ void Multigrid::BuildHierarchiesBind(Pressure& pressure,
     mLiquidPhiScaleWorkBound.push_back(mPhiScaleWork.Bind(s, {liquidPhi, mLiquidPhis[0]}));
     mSolidPhiScaleWorkBound.push_back(mPhiScaleWork.Bind(s, {solidPhi, mSolidPhis[0]}));
 
-    BindRecursive(pressure, 1);
+    RecursiveBind(pressure, 1);
 
     mBuildHierarchies.Record([&](vk::CommandBuffer commandBuffer)
     {
@@ -132,7 +132,7 @@ void Multigrid::BuildHierarchiesBind(Pressure& pressure,
     });
 }
 
-void Multigrid::BindRecursive(Pressure& pressure, std::size_t depth)
+void Multigrid::RecursiveBind(Pressure& pressure, std::size_t depth)
 {
     auto s0 = mDepth.GetDepthSize(depth);
 
@@ -166,7 +166,7 @@ void Multigrid::BindRecursive(Pressure& pressure, std::size_t depth)
             mDatas[depth-1].B,
             mDatas[depth-1].X);
 
-        BindRecursive(pressure, depth+1);
+        RecursiveBind(pressure, depth+1);
     }
 
     mMatrixBuildBound.push_back(

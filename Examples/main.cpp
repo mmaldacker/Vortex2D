@@ -36,7 +36,7 @@ std::vector<const char*> GetGLFWExtensions()
 
     // get the required extensions from GLFW
     glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-    for (int i = 0; i < glfwExtensionCount; i++)
+    for (unsigned int i = 0; i < glfwExtensionCount; i++)
     {
         extensions.push_back(glfwExtensions[i]);
     }

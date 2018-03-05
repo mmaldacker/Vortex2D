@@ -21,9 +21,7 @@ void PrintLevelSet(int size, float (*phi)(const Vec2f&))
     {
         for (int j = 0; j < size; j++)
         {
-            Vec2f pos(i,j);
-            pos += Vec2f(1.0f);
-            pos /= (float)size;
+            Vec2f pos((i + 1.0f) / size, (j + 1.0f) / size);
             std::cout << "(" << size * phi(pos) << ")";
         }
         std::cout << std::endl;
@@ -40,9 +38,8 @@ void CheckDifference(Texture& texture, float (*phi)(const Vec2f&), float error =
     {
         for (uint32_t i = 0; i < texture.GetWidth(); i++)
         {
-            Vec2f pos(i,j);
-            pos += Vec2f(1.0f);
-            pos /= (float)texture.GetWidth();
+            float size = (float)texture.GetWidth();
+            Vec2f pos((i + 1.0f) / size, (j + 1.0f) / size);
             float value = texture.GetWidth() * phi(pos);
 
             float readerValue = pixels[i + j * texture.GetWidth()];

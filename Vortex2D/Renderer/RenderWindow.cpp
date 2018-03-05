@@ -32,7 +32,7 @@ struct SwapChainSupportDetails
 RenderWindow::RenderWindow(const Device& device, vk::SurfaceKHR surface, uint32_t width, uint32_t height)
     : RenderTarget(width, height)
     , mDevice(device)
-    , mIndex(-1)
+    , mIndex(static_cast<uint32_t>(-1))
 {
     // get swap chain support details
     SwapChainSupportDetails details(device.GetPhysicalDevice(), surface);
@@ -174,7 +174,7 @@ void RenderWindow::Display()
             .setWaitSemaphoreCount(1);
 
     mDevice.Queue().presentKHR(presentInfo);
-    mIndex = -1;
+    mIndex = static_cast<uint32_t>(-1);
     mRenderCommands.clear();
 }
 
