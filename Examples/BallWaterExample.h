@@ -26,7 +26,7 @@ public:
         , gravity(device, {1024.0f, 1024.0f}, {0.0f, 0.01f, 0.0f, 0.0f})
         , world(device, dimensions, dt)
         , solidPhi(world.SolidDistanceField(green))
-        , liquidPhi(world.LiquidDistanceField(blu))
+        , liquidPhi(world.LiquidDistanceField(blue))
         , rWorld({0.0f, 10.0f})
         , circle1(device, dimensions, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 40.0f)
         , circle2(device, dimensions, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 40.0f)
