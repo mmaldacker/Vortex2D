@@ -16,21 +16,24 @@ extern glm::vec4 green;
 extern glm::vec4 gray;
 extern glm::vec4 blue;
 
+
 class BallWaterExample : public Runner
 {
+    const float gravityForce = 300.0f;
+
 public:
     BallWaterExample(const Vortex2D::Renderer::Device& device,
                      const Vortex2D::Fluid::Dimensions& dimensions,
                      float dt)
         : delta(dt)
-        , gravity(device, {1024.0f, 1024.0f}, {0.0f, 0.01f, 0.0f, 0.0f})
+        , gravity(device, glm::vec2(1024.0f, 1024.0f), glm::vec4(0.0f, dt * gravityForce / (dimensions.Scale * dimensions.Size.x), 0.0f, 0.0f))
         , world(device, dimensions, dt)
         , solidPhi(world.SolidDistanceField(green))
         , liquidPhi(world.LiquidDistanceField(blue))
-        , rWorld({0.0f, 10.0f})
-        , circle1(device, dimensions, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 40.0f)
-        , circle2(device, dimensions, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 40.0f)
-        , circle3(device, dimensions, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 40.0f)
+        , rWorld(b2Vec2(0.0f, gravityForce / box2dScale))
+        , circle1(device, dimensions, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 40.0f, 0.3f)
+        , circle2(device, dimensions, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 40.0f, 0.5f)
+        , circle3(device, dimensions, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 40.0f, 0.8f)
         , left(device, dimensions, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {20.0f, 500.0f})
         , right(device, dimensions, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {20.0f, 500.0f})
         , bottom(device, dimensions, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {1000.0f, 20.0f})

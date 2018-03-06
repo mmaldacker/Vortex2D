@@ -31,6 +31,7 @@ public:
                   const SpirvBinary& fragShader,
                   const std::vector<glm::vec2>& vertices,
                   const glm::vec4& colour);
+    AbstractShape(AbstractShape&& other);
     virtual ~AbstractShape() {}
 
     void Initialize(const RenderState& renderState) override;

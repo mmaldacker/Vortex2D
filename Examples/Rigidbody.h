@@ -22,7 +22,8 @@ public:
     Rigidbody(const Vortex2D::Fluid::Dimensions& dimensions,
               b2World& rWorld,
               b2BodyType rType,
-              b2FixtureDef fixtureDef);
+              b2FixtureDef fixtureDef,
+              float density = 1.0f);
 
     b2Body& Body();
     Vortex2D::Renderer::RenderTexture& Phi();
@@ -48,7 +49,8 @@ public:
                      b2BodyType rType,
                      Vortex2D::Fluid::World& world,
                      Vortex2D::Fluid::RigidBody::Type type,
-                     const std::vector<glm::vec2>& points);
+                     const std::vector<glm::vec2>& points,
+                     float density = 1.0f);
 
 private:
     Vortex2D::Fluid::Polygon mPolygon;
@@ -63,12 +65,14 @@ public:
                  b2BodyType rType,
                  Vortex2D::Fluid::World& world,
                  Vortex2D::Fluid::RigidBody::Type type,
-                 const glm::vec2& halfSize)
+                 const glm::vec2& halfSize,
+                 float density = 1.0f)
         : PolygonRigidbody(device, dimensions, rWorld, rType, world, type,
                            {{-halfSize.x, -halfSize.y},
                            {halfSize.x, -halfSize.y},
                            {halfSize.x, halfSize.y},
-                           {-halfSize.x, halfSize.y}})
+                           {-halfSize.x, halfSize.y}},
+                           density)
     {
     }
 };
@@ -82,7 +86,8 @@ public:
                     b2BodyType rType,
                     Vortex2D::Fluid::World& world,
                     Vortex2D::Fluid::RigidBody::Type type,
-                    const float radius);
+                    const float radius,
+                    float density = 1.0f);
 
 private:
     Vortex2D::Fluid::Circle mCircle;

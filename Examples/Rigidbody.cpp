@@ -49,7 +49,8 @@ b2FixtureDef GetCircleFixtureDef(float radius)
 Rigidbody::Rigidbody(const Vortex2D::Fluid::Dimensions& dimensions,
                      b2World& rWorld,
                      b2BodyType rType,
-                     b2FixtureDef fixtureDef)
+                     b2FixtureDef fixtureDef,
+                     float density)
     : mScale(dimensions.Scale)
 {
     b2BodyDef def;
@@ -57,7 +58,7 @@ Rigidbody::Rigidbody(const Vortex2D::Fluid::Dimensions& dimensions,
 
     mB2Body = rWorld.CreateBody(&def);
 
-    fixtureDef.density = 1.0f;
+    fixtureDef.density = density;
     mB2Body->CreateFixture(&fixtureDef);
 }
 
@@ -99,7 +100,7 @@ void Rigidbody::Update()
         float scale = mScale / box2dScale;
         b2Vec2 b2Force = {scale * force.velocity.x, scale * force.velocity.y};
         mB2Body->ApplyForceToCenter(b2Force, true);
-        mB2Body->ApplyTorque(scale * force.angular_velocity, true);
+        mB2Body->ApplyTorque(force.angular_velocity * scale, true);
     }
 }
 
@@ -116,8 +117,9 @@ PolygonRigidbody::PolygonRigidbody(const Vortex2D::Renderer::Device& device,
                                    b2BodyType rType,
                                    Vortex2D::Fluid::World& world,
                                    Vortex2D::Fluid::RigidBody::Type type,
-                                   const std::vector<glm::vec2>& points)
-    : Rigidbody(dimensions, rWorld, rType, GetPolygonFixtureDef(points))
+                                   const std::vector<glm::vec2>& points,
+                                   float density)
+    : Rigidbody(dimensions, rWorld, rType, GetPolygonFixtureDef(points), density)
     , mPolygon(device, points)
 {
     CreateBody(world, type, mPolygon);
@@ -129,8 +131,9 @@ CircleRigidbody::CircleRigidbody(const Vortex2D::Renderer::Device& device,
                                  b2BodyType rType,
                                  Vortex2D::Fluid::World& world,
                                  Vortex2D::Fluid::RigidBody::Type type,
-                                 const float radius)
-    : Rigidbody(dimensions, rWorld, rType, GetCircleFixtureDef(radius))
+                                 const float radius,
+                                 float density)
+    : Rigidbody(dimensions, rWorld, rType, GetCircleFixtureDef(radius), density)
     , mCircle(device, radius)
 {
     CreateBody(world, type, mCircle);

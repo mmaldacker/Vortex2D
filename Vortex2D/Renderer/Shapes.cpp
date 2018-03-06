@@ -52,6 +52,18 @@ AbstractShape::AbstractShape(const Device& device,
             .Layout(mDescriptorSet.pipelineLayout);
 }
 
+AbstractShape::AbstractShape(AbstractShape&& other)
+    : mDevice(other.mDevice)
+    , mMVPBuffer(std::move(other.mDevice))
+    , mColourBuffer(std::move(other.mColourBuffer))
+    , mVertexBuffer(std::move(other.mVertexBuffer))
+    , mDescriptorSet(std::move(other.mDescriptorSet))
+    , mPipeline(std::move(other.mPipeline))
+    , mNumVertices(other.mNumVertices)
+{
+    other.mNumVertices = 0;
+}
+
 void AbstractShape::Initialize(const RenderState& renderState)
 {
     mPipeline.Create(mDevice.Handle(), renderState);
