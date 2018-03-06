@@ -3,11 +3,12 @@
 //  Vortex2D
 //
 
-#ifndef Vortex_Engine_h
-#define Vortex_Engine_h
+#ifndef Vortex2D_Engine_h
+#define Vortex2D_Engine_h
 
 #include <Vortex2D/Renderer/Drawable.h>
 #include <Vortex2D/Renderer/Shapes.h>
+#include <Vortex2D/Renderer/CommandBuffer.h>
 
 #include <Vortex2D/Engine/LinearSolver/LinearSolver.h>
 #include <Vortex2D/Engine/LinearSolver/ConjugateGradient.h>
@@ -20,6 +21,7 @@
 #include <Vortex2D/Engine/Particles.h>
 #include <Vortex2D/Engine/Velocity.h>
 #include <Vortex2D/Engine/Rigidbody.h>
+#include <Vortex2D/Engine/Boundaries.h>
 
 #include <vector>
 #include <memory>
@@ -43,10 +45,12 @@ public:
 
     virtual void Solve() = 0;
 
-    Renderer::RenderTexture& Velocity();
-    LevelSet& LiquidPhi();
-    LevelSet& StaticSolidPhi();
-    LevelSet& DynamicSolidPhi();
+    Renderer::RenderCommand RecordVelocity(Renderer::RenderTarget::DrawableList drawables);
+    Renderer::RenderCommand RecordLiquidPhi(Renderer::RenderTarget::DrawableList drawables);
+    Renderer::RenderCommand RecordStaticSolidPhi(Renderer::RenderTarget::DrawableList drawables);
+
+    DistanceField LiquidDistanceField(const glm::vec4& colour);
+    DistanceField SolidDistanceField(const glm::vec4& colour);
 
     RigidBody* CreateRigidbody(vk::Flags<RigidBody::Type> type, ObjectDrawable& drawable, const glm::vec2& centre);
 
@@ -59,7 +63,7 @@ protected:
 
     LinearSolver::Data mData;
     Fluid::Velocity mVelocity;
-    LevelSet mFluidPhi;
+    LevelSet mLiquidPhi;
     LevelSet mStaticSolidPhi;
     LevelSet mDynamicSolidPhi;
 
@@ -91,8 +95,8 @@ public:
     WaterWorld(const Renderer::Device& device, Dimensions dimensions, float dt);
 
     void Solve() override;
-    ParticleCount& Count();
-    Renderer::GenericBuffer& Particles();
+
+    Renderer::RenderCommand RecordParticleCount(Renderer::RenderTarget::DrawableList drawables);
 
 private:
     Renderer::GenericBuffer mParticles;

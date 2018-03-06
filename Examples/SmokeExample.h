@@ -26,7 +26,7 @@ public:
         , force2(device, glm::vec2(20.0f), {0.0f, -0.5f, 0.0f, 0.0f})
         , density(device, dimensions.Size, vk::Format::eB8G8R8A8Unorm)
         , world(device, dimensions, dt)
-        , solidPhi(device, world.DynamicSolidPhi(), green, dimensions.Scale)
+        , solidPhi(world.SolidDistanceField(green))
     {
         solidPhi.Scale = density.Scale = (glm::vec2)dimensions.Scale;
         density.View = dimensions.InvScale;
@@ -45,7 +45,7 @@ public:
 
         area.Position = glm::vec2(12.0f);
 
-        world.LiquidPhi().Record({clearLiquid, area}).Submit();
+        world.RecordLiquidPhi({clearLiquid, area}).Submit();
 
         // Draw solid boundaries
         Vortex2D::Renderer::Clear clearObstacles({1000.0, 0.0f, 0.0f, 0.0f});
@@ -55,11 +55,11 @@ public:
         obstacle1.Position = {250.0f, 400.0f};
         obstacle2.Position = {750.0f, 600.0f};
 
-        world.StaticSolidPhi().Record({clearObstacles, obstacle1, obstacle2}, Vortex2D::Fluid::UnionBlend).Submit();
+        world.RecordStaticSolidPhi({clearObstacles, obstacle1, obstacle2}).Submit();
 
         // Draw sources and forces
 
-        velocityRender = world.Velocity().Record({force1, force2});
+        velocityRender = world.RecordVelocity({force1, force2});
         densityRender = density.Record({source1, source2});
 
         // wait for all drawing to finish

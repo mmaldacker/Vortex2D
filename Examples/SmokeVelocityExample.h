@@ -51,17 +51,17 @@ public:
 
         area.Position = glm::vec2(1.0f);
 
-        world.LiquidPhi().Record({clearLiquid, area}).Submit();
+        world.RecordLiquidPhi({clearLiquid, area}).Submit();
 
         // Draw sources and forces
-        velocityRender = world.Velocity().Record({force1, force2});
+        velocityRender = world.RecordVelocity({force1, force2});
         densityRender = density.Record({source1, source2});
 
         // Draw rigid body
         body.SetTransform({300.0f, 500.0f}, -45.0f);
 
         Vortex2D::Renderer::Clear obstaclesClear({1000.0f, 0.0f, 0.0f, 0.0f});
-        world.StaticSolidPhi().Record({obstaclesClear}).Submit();
+        world.RecordStaticSolidPhi({obstaclesClear}).Submit();
 
         // wait for drawing to finish
         device.Handle().waitIdle();

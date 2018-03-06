@@ -57,6 +57,17 @@ AbstractSprite::AbstractSprite(const Device& device, const SpirvBinary& fragShad
             .Layout(mDescriptorSet.pipelineLayout);
 }
 
+AbstractSprite::AbstractSprite(AbstractSprite&& other)
+    : mDevice(other.mDevice)
+    , mMVPBuffer(std::move(other.mMVPBuffer))
+    , mVertexBuffer(std::move(other.mVertexBuffer))
+    , mSampler(std::move(other.mSampler))
+    , mDescriptorSet(std::move(other.mDescriptorSet))
+    , mPipeline(std::move(other.mPipeline))
+{
+
+}
+
 void AbstractSprite::Update(const glm::mat4& projection, const glm::mat4& view)
 {
     Renderer::CopyFrom(mMVPBuffer, projection * view * GetTransform());

@@ -29,7 +29,7 @@ public:
         : delta(dt)
         , density(device, dimensions.Size, vk::Format::eB8G8R8A8Unorm)
         , world(device, dimensions, dt)
-        , solidPhi(device, world.DynamicSolidPhi(), green, dimensions.Scale)
+        , solidPhi(world.SolidDistanceField(green))
         , velocityClear({0.0f, 0.0f, 0.0f, 0.0f})
         , rWorld({0.0f, 10.0f})
         , body1(device, dimensions, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {100.0f, 50.0f})
@@ -56,7 +56,7 @@ public:
 
         liquidArea.Position = {12.0f, 12.0};
 
-        world.LiquidPhi().Record({clear, liquidArea}).Submit();
+        world.RecordLiquidPhi({clear, liquidArea}).Submit();
 
         // Draw solid boundaries
 

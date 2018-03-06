@@ -23,8 +23,8 @@ public:
                  float dt)
         : gravity(device, {1024.0f, 1024.0f}, {0.0f, 0.01f, 0.0f, 0.0f})
         , world(device, dimensions, dt)
-        , solidPhi(device, world.StaticSolidPhi(), green, dimensions.Scale)
-        , liquidPhi(device, world.LiquidPhi(), blue, dimensions.Scale)
+        , solidPhi(world.SolidDistanceField(green))
+        , liquidPhi(world.LiquidDistanceField(blue))
     {
         liquidPhi.Scale = solidPhi.Scale = glm::vec2(dimensions.Scale);
     }
@@ -36,7 +36,7 @@ public:
         Vortex2D::Renderer::IntRectangle fluid(device, {600.0f, 200.0f}, glm::ivec4(4));
         fluid.Position = {200.0f, 100.0f};
 
-        world.Count().Record({fluid}).Submit();
+        world.RecordParticleCount({fluid}).Submit();
 
         // Draw solid boundaries
         Vortex2D::Fluid::Rectangle obstacle1(device, {200.0f, 100.0f});
@@ -51,13 +51,13 @@ public:
         obstacle2.Position = {700.0f, 600.0f};
         obstacle2.Rotation = 30.0f;
 
-        world.StaticSolidPhi().Record({area, obstacle1, obstacle2}).Submit();
+        world.RecordStaticSolidPhi({area, obstacle1, obstacle2}).Submit();
 
         // wait for drawing to finish
         device.Handle().waitIdle();
 
         // Set gravity
-        velocityRender = world.Velocity().Record({gravity});
+        velocityRender = world.RecordVelocity({gravity});
 
         auto blendMode = vk::PipelineColorBlendAttachmentState()
                 .setBlendEnable(true)

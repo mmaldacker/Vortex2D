@@ -16,7 +16,7 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
     , mLinearSolver(device, dimensions.Size, mPreconditioner)
     , mData(device, dimensions.Size)
     , mVelocity(device, dimensions.Size)
-    , mFluidPhi(device, dimensions.Size)
+    , mLiquidPhi(device, dimensions.Size)
     , mStaticSolidPhi(device, dimensions.Size)
     , mDynamicSolidPhi(device, dimensions.Size)
     , mValid(device, dimensions.Size.x*dimensions.Size.y)
@@ -25,7 +25,7 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
                   mData,
                   mVelocity,
                   mDynamicSolidPhi,
-                  mFluidPhi,
+                  mLiquidPhi,
                   mValid)
     , mExtrapolation(device, dimensions.Size, mValid, mVelocity)
     , mClearValid(device, false)
@@ -33,7 +33,7 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
     , mForce(device, dimensions.Size.x*dimensions.Size.y)
 {
     mExtrapolation.ConstrainBind(mDynamicSolidPhi);
-    mFluidPhi.ExtrapolateBind(mDynamicSolidPhi);
+    mLiquidPhi.ExtrapolateBind(mDynamicSolidPhi);
 
     mClearValid.Record([&](vk::CommandBuffer commandBuffer)
     {
@@ -45,10 +45,10 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
         mDynamicSolidPhi.CopyFrom(commandBuffer, mStaticSolidPhi);
     });
 
-    mPreconditioner.BuildHierarchiesBind(mProjection, mDynamicSolidPhi, mFluidPhi);
+    mPreconditioner.BuildHierarchiesBind(mProjection, mDynamicSolidPhi, mLiquidPhi);
     mLinearSolver.Bind(mData.Diagonal, mData.Lower, mData.B, mData.X);
 
-    mFluidPhi.View = dimensions.InvScale;
+    mLiquidPhi.View = dimensions.InvScale;
     mDynamicSolidPhi.View = dimensions.InvScale;
     mStaticSolidPhi.View = dimensions.InvScale;
     mVelocity.Input().View = dimensions.InvScale;
@@ -59,24 +59,29 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
     });
 }
 
-Renderer::RenderTexture& World::Velocity()
+Renderer::RenderCommand World::RecordVelocity(Renderer::RenderTarget::DrawableList drawables)
 {
-    return mVelocity.Input();
+    return mVelocity.Input().Record(drawables);
 }
 
-LevelSet& World::LiquidPhi()
+Renderer::RenderCommand World::RecordLiquidPhi(Renderer::RenderTarget::DrawableList drawables)
 {
-    return mFluidPhi;
+    return mLiquidPhi.Record(drawables);
 }
 
-LevelSet& World::StaticSolidPhi()
+Renderer::RenderCommand World::RecordStaticSolidPhi(Renderer::RenderTarget::DrawableList drawables)
 {
-    return mStaticSolidPhi;
+    return mStaticSolidPhi.Record(drawables, UnionBlend);
 }
 
-LevelSet& World::DynamicSolidPhi()
+DistanceField  World::LiquidDistanceField(const glm::vec4& colour)
 {
-    return mDynamicSolidPhi;
+    return  {mDevice, mLiquidPhi, colour, mDimensions.Scale};
+}
+
+DistanceField  World::SolidDistanceField(const glm::vec4& colour)
+{
+    return {mDevice, mDynamicSolidPhi, colour, mDimensions.Scale};
 }
 
 RigidBody* World::CreateRigidbody(vk::Flags<RigidBody::Type> type, ObjectDrawable& drawable, const glm::vec2& centre)
@@ -85,13 +90,13 @@ RigidBody* World::CreateRigidbody(vk::Flags<RigidBody::Type> type, ObjectDrawabl
 
     if (type & RigidBody::Type::eStatic)
     {
-        mRigidbodies.back()->BindDiv(mData.B, mData.Diagonal, mFluidPhi);
+        mRigidbodies.back()->BindDiv(mData.B, mData.Diagonal, mLiquidPhi);
         mRigidbodies.back()->BindVelocityConstrain(mVelocity);
     }
 
     if (type & RigidBody::Type::eWeak)
     {
-        mRigidbodies.back()->BindPressure(mFluidPhi, mData.X, mForce);
+        mRigidbodies.back()->BindPressure(mLiquidPhi, mData.X, mForce);
     }
 
     return mRigidbodies.back().get();
@@ -162,7 +167,7 @@ WaterWorld::WaterWorld(const Renderer::Device& device, Dimensions dimensions, fl
     , mParticleCount(device, dimensions.Size, mParticles)
     , mClearVelocity(device)
 {
-    mParticleCount.LevelSetBind(mFluidPhi);
+    mParticleCount.LevelSetBind(mLiquidPhi);
     mParticleCount.VelocitiesBind(mVelocity, mValid);
     mAdvection.AdvectParticleBind(mParticles, mDynamicSolidPhi, mParticleCount.GetDispatchParams());
 
@@ -214,7 +219,7 @@ void WaterWorld::Solve()
     }
 
     mPreconditioner.BuildHierarchies();
-    mFluidPhi.Extrapolate();
+    mLiquidPhi.Extrapolate();
 
     // 5)
     mProjection.BuildLinearEquation();
@@ -250,14 +255,9 @@ void WaterWorld::Solve()
     mClearValid.Submit();
 }
 
-Renderer::GenericBuffer& WaterWorld::Particles()
+Renderer::RenderCommand WaterWorld::RecordParticleCount(Renderer::RenderTarget::DrawableList drawables)
 {
-    return mParticles;
-}
-
-ParticleCount& WaterWorld::Count()
-{
-    return mParticleCount;
+    return mParticleCount.Record(drawables);
 }
 
 }}
