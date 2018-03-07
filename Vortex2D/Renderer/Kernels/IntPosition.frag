@@ -3,12 +3,12 @@
 
 layout(binding = 1) uniform UBO
 {
-  ivec4 colour;
+  vec4 colour;
 } u;
 
 layout(location = 0) out ivec4 out_colour;
 
 void main()
 {
-    out_colour = u.colour;
+    out_colour = ivec4(u.colour);
 }

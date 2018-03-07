@@ -24,10 +24,10 @@ public:
                  const Vortex2D::Fluid::Dimensions& dimensions,
                  float dt)
         : delta(dt)
-        , source1(device, glm::vec2(20.0f), gray)
-        , source2(device, glm::vec2(20.0f), gray)
-        , force1(device, glm::vec2(20.0f), {0.5f, 0.5f, 0.0f, 0.0f})
-        , force2(device, glm::vec2(20.0f), {-0.5f, -0.5f, 0.0f, 0.0f})
+        , source1(device, glm::vec2(20.0f))
+        , source2(device, glm::vec2(20.0f))
+        , force1(device, glm::vec2(20.0f))
+        , force2(device, glm::vec2(20.0f))
         , density(device, dimensions.Size, vk::Format::eB8G8R8A8Unorm)
         , world(device, dimensions, dt)
         , clearObstacles({1000.0f, 0.0f, 0.0f, 0.0f})
@@ -40,16 +40,23 @@ public:
         world.FieldBind(density);
         source1.Position = force1.Position = {100.0f, 100.0f};
         source2.Position = force2.Position = {500.0f, 900.0f};
+
+        source1.Colour = source2.Colour = gray;
+
+        force1.Colour = {0.5f, 0.5f, 0.0f, 0.0f};
+        force2.Colour = {-0.5f, -0.5f, 0.0f, 0.0f};
     }
 
     void Init(const Vortex2D::Renderer::Device& device,
               Vortex2D::Renderer::RenderTarget& renderTarget) override
     {
         // Draw liquid boundaries
-        Vortex2D::Renderer::Rectangle area(device, glm::ivec2(1024) - glm::ivec2(24), glm::vec4(-1.0f));
+        Vortex2D::Renderer::Rectangle area(device, glm::ivec2(1024) - glm::ivec2(24));
+        area.Colour = glm::vec4(-1.0f);
+        area.Position = glm::vec2(1.0f);
+
         Vortex2D::Renderer::Clear clearLiquid({1.0f, 0.0f, 0.0f, 0.0f});
 
-        area.Position = glm::vec2(1.0f);
 
         world.RecordLiquidPhi({clearLiquid, area}).Submit();
 

@@ -17,16 +17,13 @@ namespace Vortex2D { namespace Renderer {
 
 AbstractShape::AbstractShape(const Device& device,
                              const SpirvBinary& fragName,
-                             const std::vector<glm::vec2>& vertices,
-                             const glm::vec4& colour)
+                             const std::vector<glm::vec2>& vertices)
     : mDevice(device)
     , mMVPBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
     , mColourBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
     , mVertexBuffer(device, vertices.size())
     , mNumVertices(static_cast<uint32_t>(vertices.size()))
 {
-    Renderer::CopyFrom(mColourBuffer, colour);
-
     VertexBuffer<glm::vec2> localVertices(device, vertices.size(), VMA_MEMORY_USAGE_CPU_ONLY);
     Renderer::CopyFrom(localVertices, vertices);
     ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
@@ -72,7 +69,7 @@ void AbstractShape::Initialize(const RenderState& renderState)
 void AbstractShape::Update(const glm::mat4& projection, const glm::mat4& view)
 {
     Renderer::CopyFrom(mMVPBuffer, projection * view * GetTransform());
-    // TODO no way to update colour
+    Renderer::CopyFrom(mColourBuffer, Colour);
 }
 
 void AbstractShape::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState)
@@ -84,42 +81,29 @@ void AbstractShape::Draw(vk::CommandBuffer commandBuffer, const RenderState& ren
     commandBuffer.draw(mNumVertices, 1, 0, 0);
 }
 
-Rectangle::Rectangle(const Device& device, const glm::vec2& size, const glm::vec4& colour)
+Rectangle::Rectangle(const Device& device, const glm::vec2& size)
     : AbstractShape(device, SPIRV::Position_frag,
                     {{0.0f, 0.0f},
                      {size.x, 0.0f},
                      {0.0f, size.y},
                      {size.x, 0.0f,},
                      {size.x, size.y},
-                     {0.0f, size.y}},
-                    colour)
+                     {0.0f, size.y}})
 {
 }
 
-IntRectangle::IntRectangle(const Device& device, const glm::vec2& size, const glm::ivec4& colour)
+IntRectangle::IntRectangle(const Device& device, const glm::vec2& size)
     : AbstractShape(device, SPIRV::IntPosition_frag,
                     {{0.0f, 0.0f},
                      {size.x, 0.0f},
                      {0.0f, size.y},
                      {size.x, 0.0f,},
                      {size.x, size.y},
-                     {0.0f, size.y}},
-                    colour)
+                     {0.0f, size.y}})
 {
-    UniformBuffer<glm::ivec4> localColour(device, VMA_MEMORY_USAGE_CPU_ONLY);
-    CopyFrom(localColour, colour);
-    ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
-    {
-        mColourBuffer.CopyFrom(commandBuffer, localColour);
-    });
 }
 
-void IntRectangle::Update(const glm::mat4& projection, const glm::mat4& view)
-{
-    Renderer::CopyFrom(mMVPBuffer, projection * view * GetTransform());
-}
-
-Ellipse::Ellipse(const Device& device, const glm::vec2& radius, const glm::vec4& colour)
+Ellipse::Ellipse(const Device& device, const glm::vec2& radius)
     : mDevice(device)
     , mRadius(radius)
     , mMVPBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
@@ -127,8 +111,6 @@ Ellipse::Ellipse(const Device& device, const glm::vec2& radius, const glm::vec4&
     , mVertexBuffer(device, 6)
     , mSizeBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
 {
-    Renderer::CopyFrom(mColourBuffer, colour);
-
     VertexBuffer<glm::vec2> localVertices(device, 6, VMA_MEMORY_USAGE_CPU_ONLY);
     std::vector<glm::vec2> vertices = {{-radius.x, -radius.y},
                                 {radius.x + 1.0f, -radius.y},
@@ -167,6 +149,7 @@ void Ellipse::Initialize(const RenderState& renderState)
 
 void Ellipse::Update(const glm::mat4& projection, const glm::mat4& view)
 {
+    Renderer::CopyFrom(mColourBuffer, Colour);
     Renderer::CopyFrom(mMVPBuffer, projection * view * GetTransform());
 
     Size size;

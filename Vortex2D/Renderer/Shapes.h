@@ -20,23 +20,21 @@ namespace Vortex2D { namespace Renderer {
 
 typedef std::vector<glm::vec2> Path;
 struct RenderTarget;
-
-// TODO all buffer are host local, not the most performant...
 class AbstractShape : public Drawable, public Transformable
 {
 public:
-    // TODO have colour has member variable and updated in the Update function
-    // do this also for Ellipse
+
     AbstractShape(const Device& device,
                   const SpirvBinary& fragShader,
-                  const std::vector<glm::vec2>& vertices,
-                  const glm::vec4& colour);
+                  const std::vector<glm::vec2>& vertices);
     AbstractShape(AbstractShape&& other);
     virtual ~AbstractShape() {}
 
     void Initialize(const RenderState& renderState) override;
     void Update(const glm::mat4& projection, const glm::mat4& view) override;
     void Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState) override;
+
+    glm::vec4 Colour;
 
 protected:
     const Device& mDevice;
@@ -54,15 +52,13 @@ protected:
 class Rectangle : public AbstractShape
 {
 public:
-    Rectangle(const Device& device, const glm::vec2& size, const glm::vec4& colour);
+    Rectangle(const Device& device, const glm::vec2& size);
 };
 
 class IntRectangle : public AbstractShape
 {
 public:
-    IntRectangle(const Device& device, const glm::vec2& size, const glm::ivec4& colour);
-
-    void Update(const glm::mat4& projection, const glm::mat4& view) override;
+    IntRectangle(const Device& device, const glm::vec2& size);
 };
 
 /**
@@ -71,11 +67,13 @@ public:
 class Ellipse : public Drawable, public Transformable
 {
 public:
-    Ellipse(const Device& device, const glm::vec2& radius, const glm::vec4& colour);
+    Ellipse(const Device& device, const glm::vec2& radius);
 
     void Initialize(const RenderState& renderState) override;
     void Update(const glm::mat4& projection, const glm::mat4& view) override;
     void Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState) override;
+
+    glm::vec4 Colour;
 
 private:
     // std140 aligned structure

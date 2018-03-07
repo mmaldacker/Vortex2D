@@ -26,7 +26,7 @@ public:
                      const Vortex2D::Fluid::Dimensions& dimensions,
                      float dt)
         : delta(dt)
-        , gravity(device, glm::vec2(1024.0f, 1024.0f), glm::vec4(0.0f, dt * gravityForce / (dimensions.Scale * dimensions.Size.x), 0.0f, 0.0f))
+        , gravity(device, glm::vec2(1024.0f, 1024.0f))
         , world(device, dimensions, dt)
         , solidPhi(world.SolidDistanceField(green))
         , liquidPhi(world.LiquidDistanceField(blue))
@@ -39,14 +39,16 @@ public:
         , bottom(device, dimensions, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {1000.0f, 20.0f})
     {
         liquidPhi.Scale = solidPhi.Scale = glm::vec2(dimensions.Scale);
+        gravity.Colour = glm::vec4(0.0f, dt * gravityForce / (dimensions.Scale * dimensions.Size.x), 0.0f, 0.0f);
     }
 
     void Init(const Vortex2D::Renderer::Device& device,
               Vortex2D::Renderer::RenderTarget& renderTarget) override
     {
         // Add particles
-        Vortex2D::Renderer::IntRectangle fluid(device, {900.0f, 300.0f}, glm::ivec4(4));
+        Vortex2D::Renderer::IntRectangle fluid(device, {900.0f, 300.0f});
         fluid.Position = {40.0f, 600.0f};
+        fluid.Colour = glm::vec4(4);
 
         world.RecordParticleCount({fluid}).Submit();
 

@@ -177,8 +177,9 @@ TEST(ParticleTests, ParticleDelete)
     device->Handle().waitIdle();
 
     // Delete some particles
-    IntRectangle rect(*device, {10, 10}, glm::ivec4(-8));
+    IntRectangle rect(*device, {10, 10});
     rect.Position = glm::vec2(10.0f, 10.0f);
+    rect.Colour = glm::vec4(-8);
 
     particleCount.Record({rect}).Submit();
 
@@ -230,8 +231,9 @@ TEST(ParticleTests, ParticleSpawn)
     ParticleCount particleCount(*device, size, particles);
 
     // Add some particles
-    IntRectangle rect(*device, {1, 1}, glm::ivec4(4));
+    IntRectangle rect(*device, {1, 1});
     rect.Position = glm::vec2(10.0f, 10.0f);
+    rect.Colour = glm::ivec4(4);
 
     particleCount.Record({rect}).Submit();
 
@@ -275,8 +277,9 @@ TEST(ParticleTests, ParticleAddDelete)
     ParticleCount particleCount(*device, size, particles);
 
     // Add some particles
-    IntRectangle rectAdd(*device, {2, 4}, glm::ivec4(1));
+    IntRectangle rectAdd(*device, {2, 4});
     rectAdd.Position = glm::vec2(10.0f, 10.0f);
+    rectAdd.Colour = glm::vec4(1);
 
     particleCount.Record({rectAdd}).Submit();
 
@@ -285,8 +288,9 @@ TEST(ParticleTests, ParticleAddDelete)
     device->Queue().waitIdle();
 
     // Remove some particles
-    IntRectangle rectRemove(*device, {1, 4}, glm::ivec4(-8));
+    IntRectangle rectRemove(*device, {1, 4});
     rectRemove.Position = glm::vec2(10.0f, 10.0f);
+    rectRemove.Colour = glm::ivec4(-8);
 
     particleCount.Record({rectRemove}).Submit();
 

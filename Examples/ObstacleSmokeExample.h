@@ -45,15 +45,17 @@ public:
               Vortex2D::Renderer::RenderTarget& renderTarget) override
     {
         // Draw density
-        Vortex2D::Renderer::Rectangle source(device, {800.0f, 400.0f}, gray);
+        Vortex2D::Renderer::Rectangle source(device, {800.0f, 400.0f});
         source.Position = {100.0f, 500.0f};
+        source.Colour = gray;
 
         density.Record({source}).Submit();
 
         // Draw liquid boundaries
         Vortex2D::Renderer::Clear clear({1.0f, 0.0f, 0.0f, 0.0f});
-        Vortex2D::Renderer::Rectangle liquidArea(device, {1000.0f, 1000.0f}, {-1.0f, 0.0f, 0.0f, 0.0f});
 
+        Vortex2D::Renderer::Rectangle liquidArea(device, {1000.0f, 1000.0f});
+        liquidArea.Colour = {-1.0f, 0.0f, 0.0f, 0.0f};
         liquidArea.Position = {12.0f, 12.0};
 
         world.RecordLiquidPhi({clear, liquidArea}).Submit();

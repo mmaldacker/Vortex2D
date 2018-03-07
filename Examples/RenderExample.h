@@ -11,13 +11,15 @@ class RenderExample : public Runner
 {
 public:
     RenderExample(const Vortex2D::Renderer::Device& device, const glm::vec2& /*size*/)
-        : rectangle(device, {100,100}, {1.0f, 1.0f, 1.0f, 1.0f})
-        , circle(device, glm::vec2(50), glm::vec4(1.0f))
+        : rectangle(device, {100,100})
+        , circle(device, glm::vec2(50))
     {
         rectangle.Position = {200, 200};
         rectangle.Rotation = 45.0f;
+        rectangle.Colour = glm::vec4(1.0f);
 
         circle.Position = {500, 500};
+        circle.Colour = {1.0f, 1.0f, 1.0f, 1.0f};
     }
 
     void Init(const Vortex2D::Renderer::Device& device,
