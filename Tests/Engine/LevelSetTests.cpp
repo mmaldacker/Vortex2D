@@ -17,9 +17,9 @@ extern Device* device;
 
 void PrintLevelSet(int size, float (*phi)(const Vec2f&))
 {
-    for (int i = 0; i < size; i++)
+    for (int j = 0; j < size; j++)
     {
-        for (int j = 0; j < size; j++)
+        for (int i = 0; i < size; i++)
         {
             Vec2f pos((i + 1.0f) / size, (j + 1.0f) / size);
             std::cout << "(" << size * phi(pos) << ")";

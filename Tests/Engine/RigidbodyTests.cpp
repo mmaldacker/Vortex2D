@@ -21,12 +21,11 @@ extern Device* device;
 
 void PrintRigidBody(const glm::ivec2& size, FluidSim& sim)
 {
-    for (int i = 0; i < size.x; i++)
+    for (int j = 0; j < size.y; j++)
     {
-        for (int j = 0; j < size.y; j++)
+        for (int i = 0; i < size.x; i++)
         {
-            Vec2f pos((i + 0.5f) / size.x, (j + 0.5f) / size.x);
-            std::cout << "(" << sim.rbd->getSignedDist(pos) * size.x << ")";
+            std::cout << "(" << sim.nodal_rigid_phi(i, j) * size.x << ")";
         }
         std::cout << std::endl;
     }
@@ -37,9 +36,10 @@ void PrintForce(const glm::ivec2& size, Buffer<Vortex2D::Fluid::RigidBody::Veloc
 {
     std::vector<Vortex2D::Fluid::RigidBody::Velocity> outForce(size.x*size.y);
     CopyTo(force, outForce);
-    for (int i = 0; i < size.x; i++)
+
+    for (int j = 0; j < size.y; j++)
     {
-        for (int j = 0; j < size.y; j++)
+        for (int i = 0; i < size.x; i++)
         {
             int index = i + j * size.x;
             std::cout << "(("
@@ -55,6 +55,68 @@ void PrintForce(const glm::ivec2& size, Buffer<Vortex2D::Fluid::RigidBody::Veloc
     }
 
     std::cout << std::endl;
+}
+
+void CheckPhi(const glm::ivec2& size, FluidSim& sim, Texture& phi, float error = 1e-5f)
+{
+    std::vector<float> data(size.x*size.y);
+    phi.CopyTo(data);
+
+    for (int i = 0; i < size.x; i++)
+    {
+        for (int j = 0; j < size.y; j++)
+        {
+            int index = i + j * size.x;
+            EXPECT_NEAR(sim.nodal_rigid_phi(i, j) * size.x, data[index], error);
+        }
+    }
+}
+
+// TODO increase sizes of all tests below to 50
+
+TEST(RigidbodyTests, Phi)
+{
+    glm::ivec2 size(20);
+
+    FluidSim sim;
+    sim.initialize(1.0f, size.x, size.y);
+
+    // setup rigid body
+    sim.rigidgeom = new Box2DGeometry(0.3f, 0.2f);
+    sim.rbd = new ::RigidBody(0.4f, *sim.rigidgeom);
+    sim.rbd->setCOM(Vec2f(0.5f, 0.5f));
+    sim.rbd->setAngle(0.0);
+
+    sim.update_rigid_body_grids();
+
+    RenderTexture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+        solidPhi.Clear(commandBuffer, std::array<float, 4>{{1000.0f, 0.0f, 0.0f, 0.0f}});
+    });
+
+    Vortex2D::Fluid::Rectangle rectangle(*device, {6.0f, 4.0f});
+    Vortex2D::Fluid::RigidBody rigidBody(*device,
+                                         Dimensions(size, 1.0f),
+                                         rectangle, {3.0f, 2.0f},
+                                         solidPhi,
+                                         Vortex2D::Fluid::RigidBody::Type::eStatic);
+
+    rigidBody.Anchor = {3.0f, 2.0f};
+    rigidBody.Position = {10.0f, 10.0f};
+    rigidBody.UpdatePosition();
+
+    rigidBody.RenderPhi();
+
+    device->Handle().waitIdle();
+
+    Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+       outTexture.CopyFrom(commandBuffer, solidPhi);
+    });
+
+    CheckPhi(size, sim, outTexture);
 }
 
 TEST(RigidbodyTests, Div)

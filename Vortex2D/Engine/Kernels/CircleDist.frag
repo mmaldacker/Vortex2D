@@ -17,12 +17,12 @@ const float max_dist = 100000.0;
 
 void main(void)
 {
-    vec2 pos = gl_FragCoord.xy;
+    vec2 pos = gl_FragCoord.xy - vec2(0.5);
 
     float value = -max_dist;
     vec2 p = (u.mv * vec4(0.0, 0.0, 0.0, 1.0)).xy;
     vec2 dir = p - pos;
-    float scale = sqrt(u.mv[0][0] * u.mv[1][1]);
+    float scale = length(u.mv[0]);
     float dist = length(dir) - consts.radius * scale;
 
     out_colour = vec4(dist);

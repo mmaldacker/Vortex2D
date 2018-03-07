@@ -50,9 +50,9 @@ void PrintBuffer(const glm::ivec2& size, Vortex2D::Renderer::Buffer<T>& buffer)
     std::vector<T> pixels(size.x * size.y);
     Vortex2D::Renderer::CopyTo(buffer, pixels);
 
-    for (int j = 0; j < size.x; j++)
+    for (int j = 0; j < size.y; j++)
     {
-        for (int i = 0; i < size.y; i++)
+        for (int i = 0; i < size.x; i++)
         {
             T value = pixels[i + j * size.x];
             std::cout << "(" << value << ")";

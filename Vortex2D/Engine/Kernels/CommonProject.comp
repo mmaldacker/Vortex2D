@@ -24,7 +24,7 @@ float get_weightxp(ivec2 pos)
 {
   float weight;
   weight = 1.0 - fraction_inside(imageLoad(SolidLevelSet, pos + ivec2(1,1)).x,
-                                   imageLoad(SolidLevelSet, pos + ivec2(1,0)).x);
+                                 imageLoad(SolidLevelSet, pos + ivec2(1,0)).x);
 
   return clamp(weight, 0.0, 1.0);
 }
@@ -33,7 +33,7 @@ float get_weightyp(ivec2 pos)
 {
   float weight;
   weight = 1.0 - fraction_inside(imageLoad(SolidLevelSet, pos + ivec2(1,1)).x,
-                                   imageLoad(SolidLevelSet, pos + ivec2(0,1)).x);
+                                 imageLoad(SolidLevelSet, pos + ivec2(0,1)).x);
 
   return clamp(weight, 0.0, 1.0);
 }

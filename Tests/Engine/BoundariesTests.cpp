@@ -25,7 +25,7 @@ void DrawCircle(const glm::ivec2& size, std::vector<float>& data,  float radius,
     {
         for (int j = 0; j < size.y; j++)
         {
-            glm::vec2 pos(i + 0.5, j + 0.5);
+            glm::vec2 pos(i, j);
             auto p = pos - centre;
             int index = i + j * size.x;
             data[index] = glm::length(p) - radius;
@@ -61,8 +61,8 @@ void DrawSignedSquare(const glm::ivec2& size, const std::vector<glm::vec2>& poin
             float value = (float)-std::max(size.x, size.y);
             for (std::size_t k = points.size() - 1, l = 0; l < points.size(); k = l++)
             {
-                float udist = DistToSegment(points[k] + pos, points[l] + pos, glm::vec2(i + 0.5f, j + 0.5f));
-                float dist = -Orientation(points[k] + pos, points[l] + pos, glm::vec2(i + 0.5f, j + 0.5f)) * udist;
+                float udist = DistToSegment(points[k] + pos, points[l] + pos, glm::vec2(i, j));
+                float dist = -Orientation(points[k] + pos, points[l] + pos, glm::vec2(i, j)) * udist;
                 value = std::max(value, dist);
             }
 

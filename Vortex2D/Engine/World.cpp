@@ -223,7 +223,7 @@ void WaterWorld::Solve()
 
     // 5)
     mProjection.BuildLinearEquation();
-    LinearSolver::Parameters params(1000, 1e-5f);
+    LinearSolver::Parameters params(300, 1e-5f);
     mLinearSolver.Solve(params);
     mProjection.ApplyPressure();
 

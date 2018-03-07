@@ -308,9 +308,9 @@ TEST(ParticleTests, ParticleAddDelete)
 
 void PrintLiquidPhi(const glm::ivec2& size, FluidSim& sim)
 {
-    for (int i = 0; i < sim.liquid_phi.ni; i++)
+    for (int j = 0; j < sim.liquid_phi.nj; j++)
     {
-        for (int j = 0; j < sim.liquid_phi.nj; j++)
+        for (int i = 0; i < sim.liquid_phi.ni; i++)
         {
             std::cout << "(" << size.x * sim.liquid_phi(j, i) << ")";
         }

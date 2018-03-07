@@ -41,7 +41,7 @@ const float max_dist = 100000.0;
 
 void main(void)
 {
-    vec2 pos = gl_FragCoord.xy;
+    vec2 pos = gl_FragCoord.xy - vec2(0.5);
     float value = (consts.inv == 1 ? 1.0 : -1.0) * max_dist;
     for (int i = consts.n - 1, j = 0; j < consts.n; i = j++)
     {
