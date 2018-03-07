@@ -6,6 +6,7 @@
 #include <gtest/gtest.h>
 
 #include <Vortex2D/Renderer/Shapes.h>
+#include <Vortex2D/Renderer/Sprite.h>
 #include <Vortex2D/Renderer/Texture.h>
 #include <Vortex2D/Renderer/RenderTexture.h>
 #include <Vortex2D/Renderer/CommandBuffer.h>
@@ -192,4 +193,33 @@ TEST(RenderingTest, CommandBufferWait)
     ASSERT_EQ(i, result);
   }
 
+}
+
+TEST(RenderingTest, Sprite)
+{
+    glm::ivec2 size(20);
+
+    Texture texture(*device, size.x, size.y, vk::Format::eR8G8B8A8Unorm);
+    Texture localTexture(*device, size.x, size.y, vk::Format::eR8G8B8A8Unorm, VMA_MEMORY_USAGE_CPU_ONLY);
+
+    std::vector<glm::u8vec4> data(size.x*size.y, glm::u8vec4(1, 2, 3, 4));
+    localTexture.CopyFrom(data);
+
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+        texture.CopyFrom(commandBuffer, localTexture);
+    });
+
+    RenderTexture output(*device, size.x, size.y, vk::Format::eR8G8B8A8Unorm);
+    Sprite sprite(*device, texture);
+
+    output.Record({sprite}).Submit();
+    device->Handle().waitIdle();
+
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+        localTexture.CopyFrom(commandBuffer, output);
+    });
+
+    CheckTexture<glm::u8vec4>(data, localTexture);
 }

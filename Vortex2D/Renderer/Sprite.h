@@ -34,7 +34,9 @@ public:
         commandBuffer.pushConstants(mDescriptorSet.pipelineLayout, vk::ShaderStageFlagBits::eFragment, offset, sizeof(T), &data);
     }
 
-private:
+    glm::vec4 Colour = {1.0f, 1.0f, 1.0f, 1.0f};
+
+protected:
     struct Vertex
     {
         glm::vec2 uv;
@@ -44,6 +46,7 @@ private:
     const Device& mDevice;
     UniformBuffer<glm::mat4> mMVPBuffer;
     VertexBuffer<Vertex> mVertexBuffer;
+    Renderer::UniformBuffer<glm::vec4> mColourBuffer;
     vk::UniqueSampler mSampler;
     DescriptorSet mDescriptorSet;
     GraphicsPipeline mPipeline;

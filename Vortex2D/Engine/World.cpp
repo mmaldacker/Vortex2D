@@ -74,14 +74,14 @@ Renderer::RenderCommand World::RecordStaticSolidPhi(Renderer::RenderTarget::Draw
     return mStaticSolidPhi.Record(drawables, UnionBlend);
 }
 
-DistanceField  World::LiquidDistanceField(const glm::vec4& colour)
+DistanceField  World::LiquidDistanceField()
 {
-    return  {mDevice, mLiquidPhi, colour, mDimensions.Scale};
+    return  {mDevice, mLiquidPhi, mDimensions.Scale};
 }
 
-DistanceField  World::SolidDistanceField(const glm::vec4& colour)
+DistanceField  World::SolidDistanceField()
 {
-    return {mDevice, mDynamicSolidPhi, colour, mDimensions.Scale};
+    return {mDevice, mDynamicSolidPhi, mDimensions.Scale};
 }
 
 RigidBody* World::CreateRigidbody(vk::Flags<RigidBody::Type> type, ObjectDrawable& drawable, const glm::vec2& centre)

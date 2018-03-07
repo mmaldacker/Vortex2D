@@ -26,7 +26,7 @@ public:
         , force2(device, glm::vec2(20.0f))
         , density(device, dimensions.Size, vk::Format::eB8G8R8A8Unorm)
         , world(device, dimensions, dt)
-        , solidPhi(world.SolidDistanceField(green))
+        , solidPhi(world.SolidDistanceField())
     {
         solidPhi.Scale = density.Scale = (glm::vec2)dimensions.Scale;
         density.View = dimensions.InvScale;
@@ -39,6 +39,8 @@ public:
 
         force1.Colour = {0.0f, 0.5f, 0.0f, 0.0f};
         force2.Colour = {0.0f, -0.5f, 0.0f, 0.0f};
+
+        solidPhi.Colour = green;
     }
 
     void Init(const Vortex2D::Renderer::Device& device,

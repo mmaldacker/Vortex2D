@@ -17,6 +17,7 @@ AbstractSprite::AbstractSprite(const Device& device, const SpirvBinary& fragShad
     : mDevice(device)
     , mMVPBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
     , mVertexBuffer(device, 6)
+    , mColourBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
 {
     VertexBuffer<Vertex> localBuffer(device, 6, VMA_MEMORY_USAGE_CPU_ONLY);
     std::vector<Vertex> vertices = {
@@ -43,7 +44,7 @@ AbstractSprite::AbstractSprite(const Device& device, const SpirvBinary& fragShad
     // TODO add as parameter
     mSampler = SamplerBuilder().Filter(vk::Filter::eLinear).Create(device.Handle());
 
-    Bind(device, *mDescriptorSet.descriptorSet, layout, {{mMVPBuffer, 0}, {*mSampler, texture, 1}});
+    Bind(device, *mDescriptorSet.descriptorSet, layout, {{mMVPBuffer, 0}, {*mSampler, texture, 1}, {mColourBuffer, 2}});
 
     vk::ShaderModule vertexShader = device.GetShaderModule(SPIRV::TexturePosition_vert);
     vk::ShaderModule fragShader = device.GetShaderModule(fragShaderName);
@@ -61,6 +62,7 @@ AbstractSprite::AbstractSprite(AbstractSprite&& other)
     : mDevice(other.mDevice)
     , mMVPBuffer(std::move(other.mMVPBuffer))
     , mVertexBuffer(std::move(other.mVertexBuffer))
+    , mColourBuffer(std::move(other.mColourBuffer))
     , mSampler(std::move(other.mSampler))
     , mDescriptorSet(std::move(other.mDescriptorSet))
     , mPipeline(std::move(other.mPipeline))
@@ -70,6 +72,7 @@ AbstractSprite::AbstractSprite(AbstractSprite&& other)
 
 void AbstractSprite::Update(const glm::mat4& projection, const glm::mat4& view)
 {
+    Renderer::CopyFrom(mColourBuffer, Colour);
     Renderer::CopyFrom(mMVPBuffer, projection * view * GetTransform());
 }
 

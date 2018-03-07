@@ -29,7 +29,7 @@ public:
         : delta(dt)
         , density(device, dimensions.Size, vk::Format::eB8G8R8A8Unorm)
         , world(device, dimensions, dt)
-        , solidPhi(world.SolidDistanceField(green))
+        , solidPhi(world.SolidDistanceField())
         , velocityClear({0.0f, 0.0f, 0.0f, 0.0f})
         , rWorld({0.0f, 10.0f})
         , body1(device, dimensions, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {100.0f, 50.0f})
@@ -39,6 +39,7 @@ public:
         solidPhi.Scale = density.Scale = glm::vec2(dimensions.Scale);
         density.View = dimensions.InvScale;
         world.FieldBind(density);
+        solidPhi.Colour = green;
     }
 
     void Init(const Vortex2D::Renderer::Device& device,

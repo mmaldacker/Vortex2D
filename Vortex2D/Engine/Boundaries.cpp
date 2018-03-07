@@ -198,70 +198,18 @@ vk::PipelineColorBlendAttachmentState UnionBlend = vk::PipelineColorBlendAttachm
 
 DistanceField::DistanceField(const Renderer::Device& device,
                              Renderer::RenderTexture& levelSet,
-                             const glm::vec4& colour,
                              float scale)
     : Renderer::AbstractSprite(device,
                                SPIRV::DistanceField_frag,
                                levelSet)
-    , mColour(colour)
     , mScale(scale)
 {
 }
 
 void DistanceField::Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState)
 {
-    PushConstant(commandBuffer, 0, mColour);
-    PushConstant(commandBuffer, 16, mScale);
+    PushConstant(commandBuffer, 0, mScale);
     AbstractSprite::Draw(commandBuffer, renderState);
-}
-
-ParticleCloud::ParticleCloud(const Renderer::Device& device, Renderer::GenericBuffer& particles, int numParticles, const glm::vec4& colour)
-    : mDevice(device.Handle())
-    , mMVPBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
-    , mColourBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
-    , mVertexBuffer(particles)
-    , mNumVertices(numParticles)
-{
-    Renderer::CopyFrom(mColourBuffer, colour);
-
-    SPIRV::Reflection reflectionVert(SPIRV::ParticleCloud_vert);
-    SPIRV::Reflection reflectionFrag(SPIRV::ParticleCloud_frag);
-
-    Renderer::PipelineLayout layout = {{reflectionVert, reflectionFrag}};
-    mDescriptorSet = device.GetLayoutManager().MakeDescriptorSet(layout);
-    Bind(device, *mDescriptorSet.descriptorSet, layout, {{mMVPBuffer}, {mColourBuffer}});
-
-    mPipeline = Renderer::GraphicsPipeline::Builder()
-            .Topology(vk::PrimitiveTopology::ePointList)
-            .Shader(device.GetShaderModule(SPIRV::ParticleCloud_vert), vk::ShaderStageFlagBits::eVertex)
-            .Shader(device.GetShaderModule(SPIRV::ParticleCloud_frag), vk::ShaderStageFlagBits::eFragment)
-            .VertexAttribute(0, 0, vk::Format::eR32G32Sfloat, offsetof(Particle, Position))
-            .VertexBinding(0, sizeof(Particle))
-            .Layout(mDescriptorSet.pipelineLayout);
-}
-
-void ParticleCloud::SetNumParticles(int numParticles)
-{
-    mNumVertices = numParticles;
-}
-
-void ParticleCloud::Initialize(const Renderer::RenderState& renderState)
-{
-    mPipeline.Create(mDevice, renderState);
-}
-
-void ParticleCloud::Update(const glm::mat4& projection, const glm::mat4& view)
-{
-    Renderer::CopyFrom(mMVPBuffer, projection * view * GetTransform());
-}
-
-void ParticleCloud::Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState)
-{
-    mPipeline.Bind(commandBuffer, renderState);
-    commandBuffer.bindVertexBuffers(0, {mVertexBuffer.Handle()}, {0ul});
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
-                                     mDescriptorSet.pipelineLayout, 0, {*mDescriptorSet.descriptorSet}, {});
-    commandBuffer.draw(mNumVertices, 1, 0, 0);
 }
 
 }}

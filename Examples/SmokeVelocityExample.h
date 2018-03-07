@@ -33,7 +33,7 @@ public:
         , clearObstacles({1000.0f, 0.0f, 0.0f, 0.0f})
         , rWorld({0.0f, 0.0f})
         , body(device, dimensions, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eWeak, {200.0f, 50.0f})
-        , solidPhi(device, body.Phi(), green, dimensions.Scale)
+        , solidPhi(device, body.Phi(), dimensions.Scale)
     {
         solidPhi.Scale = density.Scale = (glm::vec2)dimensions.Scale;
         density.View = dimensions.InvScale;
@@ -45,6 +45,8 @@ public:
 
         force1.Colour = {0.5f, 0.5f, 0.0f, 0.0f};
         force2.Colour = {-0.5f, -0.5f, 0.0f, 0.0f};
+
+        solidPhi.Colour = green;
     }
 
     void Init(const Vortex2D::Renderer::Device& device,
@@ -57,7 +59,6 @@ public:
 
         Vortex2D::Renderer::Clear clearLiquid({1.0f, 0.0f, 0.0f, 0.0f});
 
-
         world.RecordLiquidPhi({clearLiquid, area}).Submit();
 
         // Draw sources and forces
@@ -66,9 +67,6 @@ public:
 
         // Draw rigid body
         body.SetTransform({300.0f, 500.0f}, -45.0f);
-
-        Vortex2D::Renderer::Clear obstaclesClear({1000.0f, 0.0f, 0.0f, 0.0f});
-        world.RecordStaticSolidPhi({obstaclesClear}).Submit();
 
         // wait for drawing to finish
         device.Handle().waitIdle();
@@ -89,7 +87,6 @@ public:
     {
         body.Update();
 
-        obstaclesRender.Submit();
         velocityRender.Submit();
         densityRender.Submit();
 
@@ -109,7 +106,7 @@ private:
     Vortex2D::Fluid::Density density;
     Vortex2D::Fluid::SmokeWorld world;
     Vortex2D::Renderer::Clear clearObstacles;
-    Vortex2D::Renderer::RenderCommand velocityRender, densityRender, obstaclesRender, windowRender;
+    Vortex2D::Renderer::RenderCommand velocityRender, densityRender, windowRender;
 
     b2World rWorld;
 

@@ -75,41 +75,17 @@ private:
 extern vk::PipelineColorBlendAttachmentState IntersectionBlend;
 extern vk::PipelineColorBlendAttachmentState UnionBlend;
 
-// TODO have colour has member variable and updated in the Update function
 class DistanceField : public Renderer::AbstractSprite
 {
 public:
     DistanceField(const Renderer::Device& device,
                   Renderer::RenderTexture& levelSet,
-                  const glm::vec4& colour,
                   float scale = 1.0f);
 
     void Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState) override;
 
 private:
-    glm::vec4 mColour;
     float mScale;
-};
-
-class ParticleCloud : public Renderer::Drawable, public Renderer::Transformable
-{
-public:
-    ParticleCloud(const Renderer::Device& device, Renderer::GenericBuffer& particles, int numParticles, const glm::vec4& colour);
-
-    void SetNumParticles(int numParticles);
-
-    void Initialize(const Renderer::RenderState& renderState) override;
-    void Update(const glm::mat4& projection, const glm::mat4& view) override;
-    void Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState) override;
-
-private:
-    vk::Device mDevice;
-    Renderer::UniformBuffer<glm::mat4> mMVPBuffer;
-    Renderer::UniformBuffer<glm::vec4> mColourBuffer;
-    Renderer::GenericBuffer& mVertexBuffer;
-    Renderer::DescriptorSet mDescriptorSet;
-    Renderer::GraphicsPipeline mPipeline;
-    uint32_t mNumVertices;
 };
 
 }}

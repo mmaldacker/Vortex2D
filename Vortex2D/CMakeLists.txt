@@ -76,8 +76,6 @@ file(GLOB SHADER_SOURCES
     "Engine/Kernels/ParticleClamp.comp"
     "Engine/Kernels/ParticleSpawn.comp"
     "Engine/Kernels/ParticleBucket.comp"
-    "Engine/Kernels/ParticleCloud.vert"
-    "Engine/Kernels/ParticleCloud.frag"
     "Engine/Kernels/ParticlePhi.comp"
     "Engine/Kernels/ParticleToGrid.comp"
     "Engine/Kernels/ParticleFromGrid.comp"

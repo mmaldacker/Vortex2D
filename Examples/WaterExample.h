@@ -23,11 +23,14 @@ public:
                  float dt)
         : gravity(device, {1024.0f, 1024.0f})
         , world(device, dimensions, dt)
-        , solidPhi(world.SolidDistanceField(green))
-        , liquidPhi(world.LiquidDistanceField(blue))
+        , solidPhi(world.SolidDistanceField())
+        , liquidPhi(world.LiquidDistanceField())
     {
         liquidPhi.Scale = solidPhi.Scale = glm::vec2(dimensions.Scale);
         gravity.Colour = {0.0f, 0.01f, 0.0f, 0.0f};
+
+        solidPhi.Colour = green;
+        liquidPhi.Colour = blue;
     }
 
     void Init(const Vortex2D::Renderer::Device& device,

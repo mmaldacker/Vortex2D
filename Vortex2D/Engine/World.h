@@ -49,8 +49,8 @@ public:
     Renderer::RenderCommand RecordLiquidPhi(Renderer::RenderTarget::DrawableList drawables);
     Renderer::RenderCommand RecordStaticSolidPhi(Renderer::RenderTarget::DrawableList drawables);
 
-    DistanceField LiquidDistanceField(const glm::vec4& colour);
-    DistanceField SolidDistanceField(const glm::vec4& colour);
+    DistanceField LiquidDistanceField();
+    DistanceField SolidDistanceField();
 
     RigidBody* CreateRigidbody(vk::Flags<RigidBody::Type> type, ObjectDrawable& drawable, const glm::vec2& centre);
 

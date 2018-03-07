@@ -225,7 +225,7 @@ TEST(BoundariesTest, DistanceField)
         levelSet.CopyFrom(commandBuffer, localLevelSet);
     });
     
-    DistanceField distance(*device, levelSet, {1.0f, 1.0f, 1.0f, 1.0f});
+    DistanceField distance(*device, levelSet);
     
     RenderTexture output(*device, size.x, size.y, vk::Format::eR8G8B8A8Unorm);
     Texture localOutput(*device, size.x, size.y, vk::Format::eR8G8B8A8Unorm, VMA_MEMORY_USAGE_CPU_ONLY);
@@ -241,5 +241,5 @@ TEST(BoundariesTest, DistanceField)
     uint8_t alpha = static_cast<uint8_t>(256 * (0.1f + 0.5f));
     std::vector<glm::u8vec4> outData(size.x*size.y, {255, 255, 255, 255 - alpha});
     
-    CheckTexture<glm::u8vec4>(outData, localOutput);
+   CheckTexture<glm::u8vec4>(outData, localOutput);
 }

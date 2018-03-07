@@ -28,8 +28,8 @@ public:
         : delta(dt)
         , gravity(device, glm::vec2(1024.0f, 1024.0f))
         , world(device, dimensions, dt)
-        , solidPhi(world.SolidDistanceField(green))
-        , liquidPhi(world.LiquidDistanceField(blue))
+        , solidPhi(world.SolidDistanceField())
+        , liquidPhi(world.LiquidDistanceField())
         , rWorld(b2Vec2(0.0f, gravityForce / box2dScale))
         , circle1(device, dimensions, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 40.0f, 0.3f)
         , circle2(device, dimensions, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 40.0f, 0.5f)
@@ -40,6 +40,9 @@ public:
     {
         liquidPhi.Scale = solidPhi.Scale = glm::vec2(dimensions.Scale);
         gravity.Colour = glm::vec4(0.0f, dt * gravityForce / (dimensions.Scale * dimensions.Size.x), 0.0f, 0.0f);
+
+        solidPhi.Colour = green;
+        liquidPhi.Colour = blue;
     }
 
     void Init(const Vortex2D::Renderer::Device& device,
