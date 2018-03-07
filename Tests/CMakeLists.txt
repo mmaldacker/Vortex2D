@@ -36,6 +36,12 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
 add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
 
+download_project(PROJ                FluidRigidCoupling2D
+                 GIT_REPOSITORY      https://github.com/mmaldacker/FluidRigidCoupling2D.git
+                 GIT_TAG             master
+                 ${UPDATE_DISCONNECTED_IF_AVAILABLE})
+add_subdirectory(${FluidRigidCoupling2D_SOURCE_DIR} ${FluidRigidCoupling2D_BINARY_DIR})
+
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 

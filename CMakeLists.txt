@@ -22,14 +22,6 @@ endif ()
 include(cmake/DownloadProject.cmake)
 set(UPDATE_DISCONNECTED_IF_AVAILABLE "UPDATE_DISCONNECTED 1")
 
-if (VORTEX2D_ENABLE_TESTS OR VORTEX2D_ENABLE_PERFTESTS)
-download_project(PROJ                FluidRigidCoupling2D
-                 GIT_REPOSITORY      https://github.com/mmaldacker/FluidRigidCoupling2D.git
-                 GIT_TAG             master
-                 ${UPDATE_DISCONNECTED_IF_AVAILABLE})
-add_subdirectory(${FluidRigidCoupling2D_SOURCE_DIR} ${FluidRigidCoupling2D_BINARY_DIR})
-endif ()
-
 add_subdirectory(Vortex2D)
 
 if (VORTEX2D_ENABLE_EXAMPLES)
@@ -38,8 +30,4 @@ endif ()
 
 if (VORTEX2D_ENABLE_TESTS)
   add_subdirectory(Tests)
-endif ()
-
-if (VORTEX2D_ENABLE_PERFTESTS)
-  add_subdirectory(PerfTests)
 endif ()
