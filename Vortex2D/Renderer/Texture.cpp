@@ -50,7 +50,6 @@ Texture::Texture(const Device& device, uint32_t width, uint32_t height, vk::Form
 
     if (memoryUsage != VMA_MEMORY_USAGE_CPU_ONLY)
     {
-        // TODO color attachement only for render textures
         usageFlags |= vk::ImageUsageFlagBits::eSampled |
                       vk::ImageUsageFlagBits::eStorage |
                       vk::ImageUsageFlagBits::eColorAttachment;
@@ -266,8 +265,6 @@ void Texture::CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcImage)
     {
         throw std::runtime_error("Invalid source texture to copy");
     }
-
-    // TODO too many barrier maybe?
 
     srcImage.Barrier(commandBuffer,
                      vk::ImageLayout::eGeneral,

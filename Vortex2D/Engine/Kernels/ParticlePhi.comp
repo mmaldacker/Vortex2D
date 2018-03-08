@@ -9,12 +9,7 @@ layout(push_constant) uniform Consts
   int height;
 }consts;
 
-
-struct Particle
-{
-  vec2 Position;
-  vec2 Velocity;
-};
+#include "CommonParticles.comp"
 
 layout(std430, binding = 0) buffer Count
 {

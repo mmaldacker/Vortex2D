@@ -164,8 +164,6 @@ void Ellipse::Update(const glm::mat4& projection, const glm::mat4& view)
     size.view.y = 1.0f / projection[1][1];
 
     Renderer::CopyFrom(mSizeBuffer, size);
-
-    // TODO no way to update colour
 }
 
 void Ellipse::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState)

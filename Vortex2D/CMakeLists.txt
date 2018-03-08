@@ -126,6 +126,7 @@ add_library(vortex2d
     "Engine/Kernels/CommonAdvect.comp"
     "Engine/Kernels/CommonProject.comp"
     "Engine/Kernels/CommonPreScan.comp"
+    "Engine/Kernels/CommonParticles.comp"
     vortex2d_generated_spirv.cpp
     vortex2d_generated_spirv.h)
 
