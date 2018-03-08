@@ -12,7 +12,6 @@
 #include <memory>
 
 extern glm::vec4 green;
-extern glm::vec4 gray;
 extern glm::vec4 blue;
 
 class WaterExample : public Runner
@@ -46,7 +45,7 @@ public:
         // Draw solid boundaries
         Vortex2D::Fluid::Rectangle obstacle1(device, {200.0f, 100.0f});
         Vortex2D::Fluid::Rectangle obstacle2(device, {200.0f, 100.0f});
-        Vortex2D::Fluid::Rectangle area(device, {1000.0f, 1000.0f}, true);
+        Vortex2D::Fluid::Rectangle area(device, {1000.0f, 1000.0f}, true, 20.0f);
 
         area.Position = glm::vec2(12.0f);
 

@@ -12,10 +12,8 @@
 #include <vector>
 #include <memory>
 
-extern glm::vec4 green;
-extern glm::vec4 gray;
+extern glm::vec4 red;
 extern glm::vec4 blue;
-
 
 class BallWaterExample : public Runner
 {
@@ -41,7 +39,7 @@ public:
         liquidPhi.Scale = solidPhi.Scale = glm::vec2(dimensions.Scale);
         gravity.Colour = glm::vec4(0.0f, dt * gravityForce / (dimensions.Scale * dimensions.Size.x), 0.0f, 0.0f);
 
-        solidPhi.Colour = green;
+        solidPhi.Colour = red;
         liquidPhi.Colour = blue;
     }
 

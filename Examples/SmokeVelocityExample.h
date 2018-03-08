@@ -15,7 +15,7 @@
 #include <memory>
 
 extern glm::vec4 green;
-extern glm::vec4 gray;
+extern glm::vec4 yellow;
 
 class SmokeVelocityExample : public Runner
 {
@@ -28,7 +28,7 @@ public:
         , source2(device, glm::vec2(20.0f))
         , force1(device, glm::vec2(20.0f))
         , force2(device, glm::vec2(20.0f))
-        , density(device, dimensions.Size, vk::Format::eB8G8R8A8Unorm)
+        , density(device, dimensions.Size, vk::Format::eR8G8B8A8Unorm)
         , world(device, dimensions, dt)
         , clearObstacles({1000.0f, 0.0f, 0.0f, 0.0f})
         , rWorld({0.0f, 0.0f})
@@ -41,7 +41,7 @@ public:
         source1.Position = force1.Position = {100.0f, 100.0f};
         source2.Position = force2.Position = {500.0f, 900.0f};
 
-        source1.Colour = source2.Colour = gray;
+        source1.Colour = source2.Colour = yellow;
 
         force1.Colour = {0.5f, 0.5f, 0.0f, 0.0f};
         force2.Colour = {-0.5f, -0.5f, 0.0f, 0.0f};

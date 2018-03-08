@@ -17,7 +17,7 @@
 #include <memory>
 
 extern glm::vec4 green;
-extern glm::vec4 gray;
+extern glm::vec4 yellow;
 extern glm::vec4 blue;
 
 class ObstacleSmokeExample : public Runner
@@ -27,7 +27,7 @@ public:
                          const Vortex2D::Fluid::Dimensions& dimensions,
                          float dt)
         : delta(dt)
-        , density(device, dimensions.Size, vk::Format::eB8G8R8A8Unorm)
+        , density(device, dimensions.Size, vk::Format::eR8G8B8A8Unorm)
         , world(device, dimensions, dt)
         , solidPhi(world.SolidDistanceField())
         , velocityClear({0.0f, 0.0f, 0.0f, 0.0f})
@@ -48,7 +48,7 @@ public:
         // Draw density
         Vortex2D::Renderer::Rectangle source(device, {800.0f, 400.0f});
         source.Position = {100.0f, 500.0f};
-        source.Colour = gray;
+        source.Colour = yellow;
 
         density.Record({source}).Submit();
 

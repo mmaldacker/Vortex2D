@@ -226,6 +226,7 @@ TEST(BoundariesTest, DistanceField)
     });
     
     DistanceField distance(*device, levelSet);
+    distance.Colour = glm::vec4(0.5f, 1.0f, 0.1f, 1.0f);
     
     RenderTexture output(*device, size.x, size.y, vk::Format::eR8G8B8A8Unorm);
     Texture localOutput(*device, size.x, size.y, vk::Format::eR8G8B8A8Unorm, VMA_MEMORY_USAGE_CPU_ONLY);
@@ -238,8 +239,11 @@ TEST(BoundariesTest, DistanceField)
         localOutput.CopyFrom(commandBuffer, output);
     });
 
-    uint8_t alpha = static_cast<uint8_t>(256 * (0.1f + 0.5f));
-    std::vector<glm::u8vec4> outData(size.x*size.y, {255, 255, 255, 255 - alpha});
+    uint8_t alpha = static_cast<uint8_t>(255 * (0.1f + 0.5f));
+    uint8_t r = 255 * distance.Colour.r;
+    uint8_t g = 255 * distance.Colour.g;
+    uint8_t b = 255 * distance.Colour.b;
+    std::vector<glm::u8vec4> outData(size.x*size.y, {r, g, b, 255 - alpha});
     
-   CheckTexture<glm::u8vec4>(outData, localOutput);
+    CheckTexture<glm::u8vec4>(outData, localOutput);
 }

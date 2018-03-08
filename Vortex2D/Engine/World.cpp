@@ -55,7 +55,7 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
 
     Renderer::ExecuteCommand(mDevice, [&](vk::CommandBuffer commandBuffer)
     {
-        mStaticSolidPhi.Clear(commandBuffer, std::array<float, 4>{{1000.0f, 0.0f, 0.0f, 0.0f}});
+        mStaticSolidPhi.Clear(commandBuffer, std::array<float, 4>{{10000.0f, 0.0f, 0.0f, 0.0f}});
     });
 }
 

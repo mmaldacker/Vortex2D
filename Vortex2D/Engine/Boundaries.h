@@ -49,7 +49,7 @@ private:
 class Rectangle : public Polygon
 {
 public:
-    Rectangle(const Renderer::Device& device, const glm::vec2& size, bool inverse = false);
+    Rectangle(const Renderer::Device& device, const glm::vec2& size, bool inverse = false, float extent = 10.0f);
 };
 
 class Circle : public ObjectDrawable

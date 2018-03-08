@@ -122,8 +122,8 @@ void Polygon::Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState&
     commandBuffer.draw(6, 1, 0, 0);
 }
 
-Rectangle::Rectangle(const Renderer::Device& device, const glm::vec2& size, bool inverse)
-    : Polygon(device, {{0.0f, 0.0f}, {size.x, 0.0f}, {size.x, size.y}, {0.0f, size.y}}, inverse)
+Rectangle::Rectangle(const Renderer::Device& device, const glm::vec2& size, bool inverse, float extent)
+    : Polygon(device, {{0.0f, 0.0f}, {size.x, 0.0f}, {size.x, size.y}, {0.0f, size.y}}, inverse, extent)
 {
 }
 

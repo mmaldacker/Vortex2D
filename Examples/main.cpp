@@ -16,9 +16,11 @@
 
 using namespace Vortex2D;
 
-glm::vec4 green = glm::vec4(35.0f, 163.0f, 143.0f, 255.0f)/glm::vec4(255.0f);
-glm::vec4 gray = glm::vec4(182.0f,172.0f,164.0f, 255.0f)/glm::vec4(255.0f);
-glm::vec4 blue = glm::vec4(188.0f, 155.0f, 99.0f, 255.0f)/glm::vec4(255.0f);
+glm::vec4 red = glm::vec4(242.0f, 95.0f, 92.0f, 255.0f) / glm::vec4(255.0f);
+glm::vec4 green = glm::vec4(112.0f, 193.0f, 179.0f, 255.0f) / glm::vec4(255.0f);
+glm::vec4 gray = glm::vec4(80.0f, 81.0f, 79.0f, 255.0f) / glm::vec4(255.0f);
+glm::vec4 blue = glm::vec4(36.0f, 123.0f, 160.0f, 255.0f) / glm::vec4(255.0f);
+glm::vec4 yellow = glm::vec4(255.0f, 224.0f, 102.0f, 255.0f) / glm::vec4(255.0f);
 
 static void ErrorCallback(int error, const char* description)
 {

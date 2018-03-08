@@ -12,7 +12,7 @@
 #include <memory>
 
 extern glm::vec4 green;
-extern glm::vec4 gray;
+extern glm::vec4 red;
 
 class SmokeExample : public Runner
 {
@@ -24,7 +24,7 @@ public:
         , source2(device, glm::vec2(20.0f))
         , force1(device, glm::vec2(20.0f))
         , force2(device, glm::vec2(20.0f))
-        , density(device, dimensions.Size, vk::Format::eB8G8R8A8Unorm)
+        , density(device, dimensions.Size, vk::Format::eR8G8B8A8Unorm)
         , world(device, dimensions, dt)
         , solidPhi(world.SolidDistanceField())
     {
@@ -35,7 +35,7 @@ public:
         source1.Position = force1.Position = {250.0f, 100.0f};
         source2.Position = force2.Position = {750.0f, 900.0f};
 
-        source1.Colour = source2.Colour = gray;
+        source1.Colour = source2.Colour = red;
 
         force1.Colour = {0.0f, 0.5f, 0.0f, 0.0f};
         force2.Colour = {0.0f, -0.5f, 0.0f, 0.0f};
