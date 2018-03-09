@@ -25,9 +25,11 @@ public:
 
         friend class Reduce;
     private:
-        Bound(const std::vector<Renderer::CommandBuffer::CommandFn>& bufferBarriers,
+        Bound(int size,
+              const std::vector<Renderer::CommandBuffer::CommandFn>& bufferBarriers,
               std::vector<Renderer::Work::Bound>&& bounds);
 
+        int mSize;
         std::vector<Renderer::CommandBuffer::CommandFn> mBufferBarriers;
         std::vector<Renderer::Work::Bound> mBounds;
     };

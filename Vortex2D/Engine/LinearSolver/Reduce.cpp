@@ -14,11 +14,6 @@ namespace Vortex2D { namespace Fluid {
 
 namespace
 {
-int GetWorkGroupSize(int n, int localSize)
-{
-    return (n + (localSize * 2 - 1)) / (localSize * 2);
-}
-
 Renderer::ComputeSize MakeComputeSize(int size)
 {
     Renderer::ComputeSize computeSize(Renderer::ComputeSize::Default1D());
@@ -26,7 +21,7 @@ Renderer::ComputeSize MakeComputeSize(int size)
     auto localSize = Renderer::ComputeSize::GetLocalSize1D();
     computeSize.DomainSize = glm::ivec2(size, 1);
     computeSize.LocalSize = glm::ivec2(localSize, 1);
-    computeSize.WorkSize = glm::ceil(glm::vec2(size, 1.0f) / (glm::vec2(localSize, 1.0f) * glm::vec2(2.0f, 1.0f)));
+    computeSize.WorkSize = glm::ceil(glm::vec2(size, 1.0f) / glm::vec2(localSize * 2, 1.0f));
 
     return computeSize;
 }
@@ -39,18 +34,18 @@ Reduce::Reduce(const Renderer::Device& device,
     : mSize(size.x*size.y)
     , mReduce(device, Renderer::ComputeSize::Default1D(), spirv)
 {
-    auto localSize = Renderer::ComputeSize::GetLocalSize1D();
-    int workGroupSize = mSize;
-
-    while ((workGroupSize = GetWorkGroupSize(workGroupSize, localSize)) > 1)
+    auto computeSize = MakeComputeSize(mSize);
+    while (computeSize.WorkSize.x > 1)
     {
         mBuffers.emplace_back(device,
                               vk::BufferUsageFlagBits::eStorageBuffer,
                               VMA_MEMORY_USAGE_GPU_ONLY,
-                              typeSize*workGroupSize);
+                              typeSize * computeSize.WorkSize.x);
+
+        computeSize = MakeComputeSize(computeSize.WorkSize.x);
     }
 
-    assert(workGroupSize);
+    assert(computeSize.WorkSize.x == 1);
 }
 
 Reduce::Bound Reduce::Bind(Renderer::GenericBuffer& input,
@@ -80,22 +75,30 @@ Reduce::Bound Reduce::Bind(Renderer::GenericBuffer& input,
         });
     }
 
-    return Bound(bufferBarriers, std::move(bounds));
+    return Bound(mSize, bufferBarriers, std::move(bounds));
 }
 
-Reduce::Bound::Bound(const std::vector<Renderer::CommandBuffer::CommandFn>& bufferBarriers,
+Reduce::Bound::Bound(int size,
+                     const std::vector<Renderer::CommandBuffer::CommandFn>& bufferBarriers,
                      std::vector<Renderer::Work::Bound>&& bounds)
-    : mBufferBarriers(bufferBarriers)
+    : mSize(size)
+    , mBufferBarriers(bufferBarriers)
     , mBounds(std::move(bounds))
 {
 }
 
 void Reduce::Bound::Record(vk::CommandBuffer commandBuffer)
 {
+    int localSize = 2 * Renderer::ComputeSize::GetLocalSize1D();
+    int workGroupSize = mSize;
+
     for (std::size_t i = 0; i < mBounds.size(); i++)
     {
-        mBounds[i].Record(commandBuffer);
+        mBounds[i].PushConstant(commandBuffer, 0, workGroupSize);
+        mBounds[i].Dispatch(commandBuffer);
         mBufferBarriers[i](commandBuffer);
+
+        workGroupSize = (workGroupSize + localSize - 1) / localSize;
     }
 }
 

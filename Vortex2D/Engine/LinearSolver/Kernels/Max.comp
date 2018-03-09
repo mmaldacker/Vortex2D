@@ -35,17 +35,14 @@ void main()
 
   // perform first level of reduction,
   // reading from global memory, writing to shared memory
-  // TODO can replace while with if (if gridSize is big enough to cover the whole array)
   float maximum = 0.0;
-  while (i < consts.n)
+  if (i < consts.n)
   {
     maximum = max(abs(inputs[i]), maximum);
     if (i + blockSize < consts.n)
     {
       maximum = max(abs(inputs[i + blockSize]), maximum);
     }
-
-    i += gridSize;
   }
 
   sdata[tid] = maximum;

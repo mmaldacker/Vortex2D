@@ -30,7 +30,7 @@ void main()
 
     ivec2 pos = ivec2(gl_GlobalInvocationID);
 
-    if (pos.x*pos.y < consts.width*consts.height)
+    if (pos.x < consts.width && pos.y < consts.height)
     {
         int index = pos.x + pos.y * consts.width;
         z.value[index] = x.value[index] / y.value[index];

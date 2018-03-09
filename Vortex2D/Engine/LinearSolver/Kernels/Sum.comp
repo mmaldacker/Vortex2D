@@ -35,9 +35,8 @@ void main()
 
   // perform first level of reduction,
   // reading from global memory, writing to shared memory
-  // TODO can replace while with if (if gridSize is big enough to cover the whole array)
   float sum = 0.0;
-  while (i < consts.n)
+  if (i < consts.n)
   {
     sum += inputs[i];
     if (i + blockSize < consts.n)
@@ -45,7 +44,6 @@ void main()
       sum += inputs[i + blockSize];
     }
 
-    i += gridSize;
   }
 
   sdata[tid] = sum;
