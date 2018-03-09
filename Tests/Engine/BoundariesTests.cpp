@@ -226,7 +226,7 @@ TEST(BoundariesTest, DistanceField)
     });
     
     DistanceField distance(*device, levelSet);
-    distance.Colour = glm::vec4(0.5f, 1.0f, 0.1f, 1.0f);
+    distance.Colour = glm::vec4(0.2f, 1.0f, 0.8f, 1.0f);
     
     RenderTexture output(*device, size.x, size.y, vk::Format::eR8G8B8A8Unorm);
     Texture localOutput(*device, size.x, size.y, vk::Format::eR8G8B8A8Unorm, VMA_MEMORY_USAGE_CPU_ONLY);
