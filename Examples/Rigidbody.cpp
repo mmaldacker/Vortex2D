@@ -97,7 +97,8 @@ void Rigidbody::Update()
     if (mRigidbody->GetType() & Vortex2D::Fluid::RigidBody::Type::eWeak)
     {
         auto force = mRigidbody->GetForces();
-        float scale = mScale / box2dScale;
+        //float scale = mScale / box2dScale;
+        float scale = 1.0f;
         b2Vec2 b2Force = {scale * force.velocity.x, scale * force.velocity.y};
         mB2Body->ApplyForceToCenter(b2Force, true);
         mB2Body->ApplyTorque(force.angular_velocity * scale, true);

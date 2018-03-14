@@ -1,5 +1,5 @@
 //
-//  BallWater.h
+//  HydrostaticWaterExample.h
 //  Vortex2D
 //
 
@@ -15,12 +15,12 @@
 extern glm::vec4 red;
 extern glm::vec4 blue;
 
-class BallWaterExample : public Runner
+class HydrostaticWaterExample : public Runner
 {
     const float gravityForce = 300.0f;
 
 public:
-    BallWaterExample(const Vortex2D::Renderer::Device& device,
+    HydrostaticWaterExample(const Vortex2D::Renderer::Device& device,
                      const Vortex2D::Fluid::Dimensions& dimensions,
                      float dt)
         : delta(dt)
@@ -29,9 +29,9 @@ public:
         , solidPhi(world.SolidDistanceField())
         , liquidPhi(world.LiquidDistanceField())
         , rWorld(b2Vec2(0.0f, gravityForce / box2dScale))
-        , circle1(device, dimensions, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 40.0f, 0.3f)
-        , circle2(device, dimensions, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 40.0f, 0.5f)
-        , circle3(device, dimensions, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 40.0f, 0.8f)
+        , circle1(device, dimensions, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 40.0f, 0.5f)
+        , circle2(device, dimensions, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 40.0f, 0.9f)
+        , circle3(device, dimensions, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 40.0f, 1.1f)
         , left(device, dimensions, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {20.0f, 500.0f})
         , right(device, dimensions, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {20.0f, 500.0f})
         , bottom(device, dimensions, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {1000.0f, 20.0f})
