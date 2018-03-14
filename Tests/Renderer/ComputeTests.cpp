@@ -414,40 +414,6 @@ TEST(ComputeTests, Timer)
     std::cout << "Elapsed time: " << time << std::endl;
 }
 
-TEST(ComputeTests, DISABLED_Statistics)
-{
-    glm::ivec2 size(500);
-
-    Statistics stats(*device);
-
-    Buffer<float> flop(*device, size.x*size.y);
-    Buffer<float> flip(*device, size.x*size.y);
-
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
-    {
-        for (int i = 0; i < 10; i++)
-        {
-            stats.Start(commandBuffer);
-            flop.CopyFrom(commandBuffer, flip);
-            stats.Tick(commandBuffer, "Copy1");
-            flip.CopyFrom(commandBuffer, flop);
-            stats.Tick(commandBuffer, "Copy2");
-            flop.CopyFrom(commandBuffer, flip);
-            stats.End(commandBuffer, "Copy3");
-        }
-    });
-
-    auto timestamps = stats.GetTimestamps();
-    ASSERT_EQ(3, timestamps.size());
-    ASSERT_EQ("Copy1", timestamps[0].first);
-    ASSERT_EQ("Copy2", timestamps[1].first);
-    ASSERT_EQ("Copy3", timestamps[2].first);
-
-    std::cout << "Timestamp " << timestamps[0].first << ": " << timestamps[0].second << std::endl;
-    std::cout << "Timestamp " << timestamps[1].first << ": " << timestamps[1].second << std::endl;
-    std::cout << "Timestamp " << timestamps[2].first << ": " << timestamps[2].second << std::endl;
-}
-
 TEST(ComputeTests, Reflection)
 {
   Reflection spirv1(Stencil_comp);
