@@ -66,7 +66,7 @@ void main()
     // TODO also check is within bounds with width/height?
     if (index < params.count)
     {
-        particles.value[index].Position = trace_rk3(Velocity, particles.value[index].Position, -consts.delta);
+        particles.value[index].Position = trace_rk3(particles.value[index].Position, -consts.delta);
 
         float phi = interpolate_phi(particles.value[index].Position);
         if (phi < 0.0)

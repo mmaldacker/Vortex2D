@@ -35,6 +35,38 @@ layout(binding = 3, rgba32f) uniform image2D DVelocity;
 
 #include "CommonAdvect.comp"
 
+// FIXME below is duplicated
+
+// TODO use cubic interpolation instead
+float interpolate_value_du(vec2 xy)
+{
+    ivec2 ij = ivec2(floor(xy));
+    vec2 f = xy - vec2(ij);
+
+    return mix(mix(imageLoad(DVelocity, ij + ivec2(0, 0)).x, imageLoad(DVelocity, ij + ivec2(1, 0)).x, f.x),
+               mix(imageLoad(DVelocity, ij + ivec2(0, 1)).x, imageLoad(DVelocity, ij + ivec2(1, 1)).x, f.x),
+               f.y);
+}
+
+// TODO use cubic interpolation instead
+float interpolate_value_dv(vec2 xy)
+{
+    ivec2 ij = ivec2(floor(xy));
+    vec2 f = xy - vec2(ij);
+
+    return mix(mix(imageLoad(DVelocity, ij + ivec2(0, 0)).y, imageLoad(DVelocity, ij + ivec2(1, 0)).y, f.x),
+               mix(imageLoad(DVelocity, ij + ivec2(0, 1)).y, imageLoad(DVelocity, ij + ivec2(1, 1)).y, f.x),
+               f.y);
+}
+
+vec2 get_dvelocity(vec2 xy)
+{
+    float u = interpolate_value_du(xy - vec2(0.0, 0.5));
+    float v = interpolate_value_dv(xy - vec2(0.5, 0.0));
+
+    return vec2(u, v);
+}
+
 void main()
 {
     uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
@@ -43,8 +75,8 @@ void main()
     if (index < params.count)
     {
         vec2 pos = particles.value[index].Position;
-        vec2 pic = get_velocity(Velocity, pos);
-        vec2 flip = particles.value[index].Velocity + get_velocity(DVelocity, pos);
+        vec2 pic = get_velocity(pos);
+        vec2 flip = particles.value[index].Velocity + get_dvelocity(pos);
         particles.value[index].Velocity = mix(flip, pic, consts.alpha);
     }
 }
