@@ -80,6 +80,7 @@ file(GLOB SHADER_SOURCES
     "Engine/Kernels/ParticleToGrid.comp"
     "Engine/Kernels/ParticleFromGrid.comp"
     "Engine/Kernels/AdvectParticles.comp"
+    "Engine/Kernels/VelocityDifference.comp"
     "Engine/LinearSolver/Kernels/*.comp")
 
 download_project(PROJ                glm

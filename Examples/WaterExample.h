@@ -72,12 +72,12 @@ public:
                 .setDstColorBlendFactor(vk::BlendFactor::eOneMinusSrcAlpha)
                 .setDstAlphaBlendFactor(vk::BlendFactor::eZero);
 
-        windowRender = renderTarget.Record({solidPhi, liquidPhi}, blendMode);
+        windowRender = renderTarget.Record({liquidPhi, solidPhi}, blendMode);
     }
 
     void Step() override
     {
-        velocityRender.Submit();
+        world.SubmitVelocity(velocityRender);
         world.Solve();
 
         windowRender.Submit();

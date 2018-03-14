@@ -92,7 +92,7 @@ public:
         circle2.Update();
         circle3.Update();
 
-        velocityRender.Submit();
+        world.SubmitVelocity(velocityRender);
         world.Solve();
 
         const int velocityStep = 8;

@@ -31,7 +31,7 @@ RenderState::RenderState(const RenderTarget& renderTarget,
 bool operator==(const RenderState& left, const RenderState right)
 {
     return left.RenderPass == right.RenderPass &&
-            left.ColorBlend == right.ColorBlend;
+           left.ColorBlend == right.ColorBlend;
 }
 
 }}

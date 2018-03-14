@@ -27,7 +27,8 @@ public:
     ParticleCount(const Renderer::Device& device,
                   const glm::ivec2& size,
                   Renderer::GenericBuffer& particles,
-                  const Renderer::DispatchParams& params = {0});
+                  const Renderer::DispatchParams& params = {0},
+                  float alpha = 1.0f);
 
     void Scan();
 
@@ -74,6 +75,8 @@ private:
     Renderer::CommandBuffer mParticlePhi;
     Renderer::CommandBuffer mParticleToGrid;
     Renderer::CommandBuffer mParticleFromGrid;
+
+    float mAlpha;
 };
 
 }}

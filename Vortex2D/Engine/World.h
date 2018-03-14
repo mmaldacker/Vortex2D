@@ -46,6 +46,7 @@ public:
     virtual void Solve() = 0;
 
     Renderer::RenderCommand RecordVelocity(Renderer::RenderTarget::DrawableList drawables);
+    void SubmitVelocity(Renderer::RenderCommand& renderCommand);
     Renderer::RenderCommand RecordLiquidPhi(Renderer::RenderTarget::DrawableList drawables);
     Renderer::RenderCommand RecordStaticSolidPhi(Renderer::RenderTarget::DrawableList drawables);
 
@@ -77,6 +78,8 @@ protected:
     Renderer::Buffer<RigidBody::Velocity> mForce;
 
     std::vector<std::unique_ptr<RigidBody>> mRigidbodies;
+
+    std::vector<std::reference_wrapper<Renderer::RenderCommand>> mVelocities;
 };
 
 class SmokeWorld : public World

@@ -7,6 +7,7 @@ layout(push_constant) uniform Consts
 {
   int width;
   int height;
+  float alpha;
 }consts;
 
 #include "CommonParticles.comp"
@@ -30,6 +31,7 @@ layout(std430, binding = 1) buffer Params
 };
 
 layout(binding = 2, rgba32f) uniform image2D Velocity;
+layout(binding = 3, rgba32f) uniform image2D DVelocity;
 
 #include "CommonAdvect.comp"
 
@@ -38,9 +40,11 @@ void main()
     uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
 
     uint index = gl_GlobalInvocationID.x;
-    // TODO also check is within bounds with width/height?
     if (index < params.count)
     {
-        particles.value[index].Velocity = get_velocity(particles.value[index].Position);
+        vec2 pos = particles.value[index].Position;
+        vec2 pic = get_velocity(Velocity, pos);
+        vec2 flip = particles.value[index].Velocity + get_velocity(DVelocity, pos);
+        particles.value[index].Velocity = mix(flip, pic, consts.alpha);
     }
 }

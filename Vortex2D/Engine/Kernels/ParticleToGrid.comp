@@ -26,15 +26,12 @@ layout(std430, binding = 2) buffer Index
   int value[];
 }scanIndex;
 
-layout(binding = 3, rgba32f) uniform image2D InVelocity;
-layout(binding = 4, rgba32f) uniform image2D OutVelocity;
+layout(binding = 3, rgba32f) uniform image2D Velocity;
 
-
-layout(std430, binding = 5) buffer Valid
+layout(std430, binding = 4) buffer Valid
 {
   ivec2 value[];
 }valid;
-
 
 float hat(float t)
 {
@@ -97,6 +94,6 @@ void main()
             valid.value[pos.x + pos.y * consts.width].y = 1;
         }
 
-        imageStore(OutVelocity, pos, vec4(value + imageLoad(InVelocity, pos).xy, 0.0, 0.0));
+        imageStore(Velocity, pos, vec4(value, 0.0, 0.0));
     }
 }

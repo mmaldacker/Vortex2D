@@ -61,7 +61,18 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
 
 Renderer::RenderCommand World::RecordVelocity(Renderer::RenderTarget::DrawableList drawables)
 {
-    return mVelocity.Input().Record(drawables);
+    auto addBlend = vk::PipelineColorBlendAttachmentState()
+            .setBlendEnable(true)
+            .setColorBlendOp(vk::BlendOp::eAdd)
+            .setSrcColorBlendFactor(vk::BlendFactor::eOne)
+            .setDstColorBlendFactor(vk::BlendFactor::eOne);
+
+    return mVelocity.Input().Record(drawables, addBlend);
+}
+
+void World::SubmitVelocity(Renderer::RenderCommand& renderCommand)
+{
+    mVelocities.push_back({renderCommand});
 }
 
 Renderer::RenderCommand World::RecordLiquidPhi(Renderer::RenderTarget::DrawableList drawables)
@@ -164,7 +175,7 @@ void SmokeWorld::FieldBind(Density& density)
 WaterWorld::WaterWorld(const Renderer::Device& device, Dimensions dimensions, float dt)
     : World(device, dimensions, dt)
     , mParticles(device, vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eVertexBuffer, VMA_MEMORY_USAGE_GPU_ONLY, 8*dimensions.Size.x*dimensions.Size.y*sizeof(Particle))
-    , mParticleCount(device, dimensions.Size, mParticles)
+    , mParticleCount(device, dimensions.Size, mParticles, {0}, 0.02f)
     , mClearVelocity(device)
 {
     mParticleCount.LevelSetBind(mLiquidPhi);
@@ -198,9 +209,14 @@ void WaterWorld::Solve()
     // 2)
     mParticleCount.TransferToGrid();
     mExtrapolation.Extrapolate();
+    mVelocity.SaveCopy();
 
     // 3)
-    // transfer to grid adds to the velocity, so we can set the values before
+    for (auto& velocity: mVelocities)
+    {
+        velocity.get().Submit();
+    }
+    mVelocities.clear();
 
     // 4)
     mCopySolidPhi.Submit();
@@ -247,6 +263,7 @@ void WaterWorld::Solve()
     }
 
     // 6)
+    mVelocity.VelocityDiff();
     mParticleCount.TransferFromGrid();
 
     // 7)

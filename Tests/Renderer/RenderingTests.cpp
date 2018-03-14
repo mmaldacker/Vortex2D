@@ -121,6 +121,43 @@ TEST(RenderingTest, IntClearTexture)
     CheckTexture(data, outTexture);
 }
 
+TEST(RenderingTest, BlendAdd)
+{
+    glm::ivec2 size(50);
+
+    RenderTexture texture(*device, size.x, size.y, vk::Format::eR32G32Sfloat);
+
+    std::vector<glm::vec2> data(size.x*size.y, glm::vec2(0.1f, 0.0f));
+    Texture localTexture(*device, size.x, size.y, vk::Format::eR32G32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
+    localTexture.CopyFrom(data);
+
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+        texture.CopyFrom(commandBuffer, localTexture);
+    });
+
+    Rectangle rectangle(*device, size);
+    rectangle.Colour = glm::vec4(0.5f, 0.0f, 0.0f, 0.0f);
+
+    auto addBlend = vk::PipelineColorBlendAttachmentState()
+            .setBlendEnable(true)
+            .setColorBlendOp(vk::BlendOp::eAdd)
+            .setSrcColorBlendFactor(vk::BlendFactor::eOne)
+            .setDstColorBlendFactor(vk::BlendFactor::eOne);
+
+    texture.Record({rectangle}, addBlend).Submit();
+    texture.Record({rectangle}, addBlend).Submit();
+
+    device->Handle().waitIdle();
+
+    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+        localTexture.CopyFrom(commandBuffer, texture);
+    });
+
+    std::vector<glm::vec2> outData(size.x*size.y, glm::vec2(1.1f, 0.0f));
+    CheckTexture<glm::vec2>(outData, localTexture);
+}
 
 TEST(RenderingTest, MoveCommandBuffer)
 {
