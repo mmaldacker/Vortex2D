@@ -4,7 +4,8 @@ project(Vortex2D)
 
 option(VORTEX2D_ENABLE_EXAMPLES "Build examples" OFF)
 option(VORTEX2D_ENABLE_TESTS "Build tests" OFF)
-option(VORTEX2D_ENABLE_PERFTESTS "Build performance tests" OFF)
+option(VORTEX2D_ENABLE_DOCS "Build docs" OFF)
+
 
 # Only do coverage builds for gcc for the moment
 if (CMAKE_COMPILER_IS_GNUCXX)
@@ -30,4 +31,8 @@ endif ()
 
 if (VORTEX2D_ENABLE_TESTS)
   add_subdirectory(Tests)
+endif ()
+
+if (VORTEX2D_ENABLE_DOCS)
+  add_subdirectory(Docs)
 endif ()
