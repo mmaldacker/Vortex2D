@@ -23,9 +23,7 @@ addons:
       - libxcursor-dev
       - libxi-dev
 
-cache:
-  directories:
-    - VulkanSDK
+cache: ccache
 
 install:
 # Doxyrest
