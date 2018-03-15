@@ -34,4 +34,4 @@ make -j 4
 
 ## Documentation
 
-Doxygen generated documentation can be found [here](http://mmaldacker.github.io/Vortex2D/html). Those are automatically generated after each commit.
+Doxygen generated documentation can be found [here](https://vortex2d.readthedocs.io). Those are automatically generated after each commit.
