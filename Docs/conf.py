@@ -18,6 +18,8 @@
 #
 import os
 import sys
+import subprocess
+import pip
 
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
