@@ -95,7 +95,7 @@ DistanceField  World::SolidDistanceField()
     return {mDevice, mDynamicSolidPhi, mDimensions.Scale};
 }
 
-RigidBody* World::CreateRigidbody(vk::Flags<RigidBody::Type> type, ObjectDrawable& drawable, const glm::vec2& centre)
+RigidBody* World::CreateRigidbody(vk::Flags<RigidBody::Type> type, Renderer::Drawable& drawable, const glm::vec2& centre)
 {
     mRigidbodies.push_back(std::make_unique<RigidBody>(mDevice, mDimensions, drawable, centre, mDynamicSolidPhi, type));
 
@@ -169,6 +169,7 @@ void SmokeWorld::Solve()
 
 void SmokeWorld::FieldBind(Density& density)
 {
+    density.View = mDimensions.InvScale;
     mAdvection.AdvectBind(density);
 }
 

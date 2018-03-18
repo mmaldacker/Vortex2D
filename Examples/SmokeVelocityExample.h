@@ -36,7 +36,6 @@ public:
         , solidPhi(device, body.Phi(), dimensions.Scale)
     {
         solidPhi.Scale = density.Scale = (glm::vec2)dimensions.Scale;
-        density.View = dimensions.InvScale;
         world.FieldBind(density);
         source1.Position = force1.Position = {100.0f, 100.0f};
         source2.Position = force2.Position = {500.0f, 900.0f};

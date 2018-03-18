@@ -244,8 +244,10 @@ RenderCommand::RenderCommand(const Device& device,
     }
 }
 
-void RenderCommand::Submit()
+void RenderCommand::Submit(const glm::mat4& view)
 {
+    mView = view;
+
     if (mRenderTarget)
     {
         mRenderTarget->Submit(*this);
@@ -261,7 +263,7 @@ void RenderCommand::Render(const std::initializer_list<vk::Semaphore>& waitSemap
     for (auto& drawable: mDrawables)
     {
         assert(mRenderTarget);
-        drawable.get().Update(mRenderTarget->Orth, mRenderTarget->View);
+        drawable.get().Update(mRenderTarget->Orth, mRenderTarget->View * mView);
     }
 
     mCmds[*mIndex].Submit(waitSemaphores, signalSemaphores);

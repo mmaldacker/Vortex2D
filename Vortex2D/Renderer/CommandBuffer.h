@@ -53,7 +53,7 @@ public:
     RenderCommand(RenderCommand&&);
     RenderCommand& operator=(RenderCommand&&);
 
-    void Submit();
+    void Submit(const glm::mat4& view = glm::mat4());
 
     friend class RenderTexture;
     friend class RenderWindow;
@@ -79,6 +79,7 @@ private:
     std::vector<CommandBuffer> mCmds;
     const uint32_t* mIndex;
     std::vector<std::reference_wrapper<Drawable>> mDrawables;
+    glm::mat4 mView;
 };
 
 

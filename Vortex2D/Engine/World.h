@@ -22,6 +22,7 @@
 #include <Vortex2D/Engine/Velocity.h>
 #include <Vortex2D/Engine/Rigidbody.h>
 #include <Vortex2D/Engine/Boundaries.h>
+#include <Vortex2D/Engine/Density.h>
 
 #include <vector>
 #include <memory>
@@ -53,7 +54,7 @@ public:
     DistanceField LiquidDistanceField();
     DistanceField SolidDistanceField();
 
-    RigidBody* CreateRigidbody(vk::Flags<RigidBody::Type> type, ObjectDrawable& drawable, const glm::vec2& centre);
+    RigidBody* CreateRigidbody(vk::Flags<RigidBody::Type> type, Renderer::Drawable& drawable, const glm::vec2& centre);
 
 protected:
     const Renderer::Device& mDevice;

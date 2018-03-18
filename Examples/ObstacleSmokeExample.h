@@ -37,7 +37,6 @@ public:
         , bottom(device, dimensions, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {500.0f, 20.0f})
     {
         solidPhi.Scale = density.Scale = glm::vec2(dimensions.Scale);
-        density.View = dimensions.InvScale;
         world.FieldBind(density);
         solidPhi.Colour = green;
     }

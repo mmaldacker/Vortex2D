@@ -38,7 +38,7 @@ public:
 
     RigidBody(const Renderer::Device& device,
               const Dimensions& dimensions,
-              ObjectDrawable& drawable,
+              Renderer::Drawable& drawable,
               const glm::vec2& centre,
               Renderer::RenderTexture& phi,
               vk::Flags<Type> type);
@@ -67,7 +67,7 @@ public:
 private:
     const Renderer::Device& mDevice;
     Renderer::RenderTexture mPhi;
-    ObjectDrawable& mDrawable;
+    Renderer::Drawable& mDrawable;
     glm::vec2 mCentre;
     glm::mat4 mView;
     Renderer::UniformBuffer<Velocity> mVelocity;

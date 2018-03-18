@@ -13,18 +13,13 @@
 #include <Vortex2D/Renderer/CommandBuffer.h>
 #include <Vortex2D/Renderer/Drawable.h>
 #include <Vortex2D/Renderer/Sprite.h>
+#include <Vortex2D/Renderer/Shapes.h>
 
 #include <Vortex2D/Engine/Particles.h>
 
 namespace Vortex2D { namespace Fluid {
 
-class LevelSet;
-
-class ObjectDrawable : public Renderer::Transformable, public Renderer::Drawable
-{
-};
-
-class Polygon : public ObjectDrawable
+class Polygon : public Renderer::Transformable, public Renderer::Drawable
 {
 public:
     // TODO number should be calculated
@@ -52,7 +47,7 @@ public:
     Rectangle(const Renderer::Device& device, const glm::vec2& size, bool inverse = false, float extent = 10.0f);
 };
 
-class Circle : public ObjectDrawable
+class Circle : public Renderer::Transformable, public Renderer::Drawable
 {
 public:
     // TODO number should be calculated
@@ -74,6 +69,7 @@ private:
 
 extern vk::PipelineColorBlendAttachmentState IntersectionBlend;
 extern vk::PipelineColorBlendAttachmentState UnionBlend;
+extern Renderer::Clear BoundariesClear;
 
 class DistanceField : public Renderer::AbstractSprite
 {

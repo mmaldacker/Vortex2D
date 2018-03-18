@@ -29,7 +29,6 @@ public:
         , solidPhi(world.SolidDistanceField())
     {
         solidPhi.Scale = density.Scale = (glm::vec2)dimensions.Scale;
-        density.View = dimensions.InvScale;
         world.FieldBind(density);
 
         source1.Position = force1.Position = {250.0f, 100.0f};
@@ -56,14 +55,14 @@ public:
         world.RecordLiquidPhi({clearLiquid, area}).Submit();
 
         // Draw solid boundaries
-        Vortex2D::Renderer::Clear clearObstacles({1000.0, 0.0f, 0.0f, 0.0f});
         Vortex2D::Fluid::Circle obstacle1(device, 50.0f);
         Vortex2D::Fluid::Circle obstacle2(device, 50.0f);
 
         obstacle1.Position = {250.0f, 400.0f};
         obstacle2.Position = {750.0f, 600.0f};
 
-        world.RecordStaticSolidPhi({clearObstacles, obstacle1, obstacle2}).Submit();
+        world.RecordStaticSolidPhi({Vortex2D::Fluid::BoundariesClear, obstacle1, obstacle2})
+             .Submit();
 
         // Draw sources and forces
 

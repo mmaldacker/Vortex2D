@@ -33,7 +33,7 @@ public:
 
     void CreateBody(Vortex2D::Fluid::World& world,
                     Vortex2D::Fluid::RigidBody::Type type,
-                    Vortex2D::Fluid::ObjectDrawable& drawable);
+                    Vortex2D::Renderer::Drawable& drawable);
 private:
     float mScale;
     Vortex2D::Fluid::RigidBody* mRigidbody;

@@ -64,7 +64,7 @@ Rigidbody::Rigidbody(const Vortex2D::Fluid::Dimensions& dimensions,
 
 void Rigidbody::CreateBody(Vortex2D::Fluid::World& world,
                            Vortex2D::Fluid::RigidBody::Type type,
-                           Vortex2D::Fluid::ObjectDrawable& drawable)
+                           Vortex2D::Renderer::Drawable& drawable)
 {
     mRigidbody = world.CreateRigidbody(type, drawable, {});
 }

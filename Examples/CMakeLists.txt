@@ -24,6 +24,7 @@ file(GLOB EXAMPLES_SOURCES
         "WaterExample.h"
         "HydrostaticWaterExample.h"
         "WaterFallExample.h"
+        "WindmillWater.h"
         "Runner.h")
 
 file(GLOB EXAMPLES_BOX2D_SOURCES

@@ -196,6 +196,8 @@ vk::PipelineColorBlendAttachmentState UnionBlend = vk::PipelineColorBlendAttachm
         .setDstColorBlendFactor(vk::BlendFactor::eOne)
         .setColorWriteMask(vk::ColorComponentFlagBits::eR);
 
+Vortex2D::Renderer::Clear BoundariesClear = Vortex2D::Renderer::Clear({10000.0f, 0.0f, 0.0f, 0.0f});
+
 DistanceField::DistanceField(const Renderer::Device& device,
                              Renderer::RenderTexture& levelSet,
                              float scale)

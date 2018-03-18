@@ -14,7 +14,7 @@ namespace Vortex2D { namespace Fluid {
 
 RigidBody::RigidBody(const Renderer::Device& device,
                      const Dimensions& dimensions,
-                     ObjectDrawable& drawable,
+                     Renderer::Drawable& drawable,
                      const glm::vec2& centre,
                      Renderer::RenderTexture& phi,
                      vk::Flags<Type> type)
@@ -69,19 +69,15 @@ RigidBody::Velocity RigidBody::GetForces()
 
 void RigidBody::UpdatePosition()
 {
-    mDrawable.Position = (glm::vec2)Position;
-    mDrawable.Anchor = (glm::vec2)Anchor;
-    mDrawable.Rotation = (float)Rotation;
-    mDrawable.Scale = (glm::vec2)Scale;
     Renderer::CopyFrom(mMVBuffer, mView * GetTransform());
 }
 
 void RigidBody::RenderPhi()
 {
-    mLocalPhiRender.Submit();
+    mLocalPhiRender.Submit(GetTransform());
     if (mType & Type::eStatic)
     {
-        mPhiRender.Submit();
+        mPhiRender.Submit(GetTransform());
     }
 }
 
