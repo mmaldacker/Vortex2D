@@ -10,28 +10,22 @@ A C++ real time fluid simulation engine based on the incompressible Navier-Stoke
 This implementation is a hybrid method using particles for advection and a grid for solving the incompressible equations.
 All computing is done on the GPU with Vulkan using compute shaders.
 
-## Compiling/Dependencies
+Documentation can be found at https://vortex2d.readthedocs.io.
+
+## Quick start
 
 CMake is used to get any required dependency. The only dependencies needed are the glslc compiler, the vulkan library and python.
 * On windows, glslc and  vulkan come with the LunarG SDK.
 * On Linux, get the LunarG SDK and run the `build_tools.sh` command. You also need to set some env variables with `source setup-env.sh`.
 
-Any other dependencies is downloader by Cmake. For reference they are:
-* GLM
-* vkLoader
-* gtest
-* benchmark
-* GLFW3
-* Box2D
+Any other dependencies is downloader by Cmake. To compile the project, standard cmake is used. 
 
-To compile the project, standard cmake is used:
+For example on linux:
 
 ```
 mkdir build && cd build
-cmake .. -DVORTEX2D_ENABLE_EXAMPLES=On -DVORTEX2D_ENABLE_TESTS=On -DVORTEX2D_ENABLE_PERFTESTS=On
+cmake .. -DVORTEX2D_ENABLE_EXAMPLES=On -DVORTEX2D_ENABLE_TESTS=On
 make -j 4
 ```
 
-## Documentation
 
-Doxygen generated documentation can be found [here](https://vortex2d.readthedocs.io). Those are automatically generated after each commit.

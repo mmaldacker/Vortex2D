@@ -4,3 +4,4 @@ CMakeLists.txt.user
 *.json
 *.svg
 *.txt
+Docs/xml_output/
