@@ -3,6 +3,9 @@
 //  Vortex2D
 //
 
+#ifndef Vortex2d_Pressure_h
+#define Vortex2d_Pressure_h
+
 #include <Vortex2D/Renderer/Buffer.h>
 #include <Vortex2D/Renderer/Texture.h>
 #include <Vortex2D/Renderer/Work.h>
@@ -13,6 +16,9 @@
 
 namespace Vortex2D { namespace Fluid {
 
+/**
+ * @brief build the linear equation and compute the divergence from the resulting solution.
+ */
 class Pressure
 {
 public:
@@ -34,7 +40,6 @@ public:
     void BuildLinearEquation();
     void ApplyPressure();
 
-
 private:
     LinearSolver::Data& mData;
     Renderer::Work mBuildMatrix;
@@ -48,3 +53,5 @@ private:
 };
 
 }}
+
+#endif

@@ -13,9 +13,7 @@
 namespace Vortex2D { namespace Fluid {
 
 /**
- * @brief A LevelSet class, which extends the Buffer class, with one dimension
- * The additional functionality ensures that the buffer represents a distance set.
- * This set can be reinitialised (or improved).
+ * @brief A signed distance field, which can be re-initialized. In other words, a level set.
  */
 class LevelSet : public Renderer::RenderTexture
 {

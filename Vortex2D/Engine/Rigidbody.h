@@ -20,6 +20,9 @@
 
 namespace Vortex2D { namespace Fluid {
 
+/**
+ * @brief Rigidbody that can interact with the fluid: either be push by it, or influence it, or both.
+ */
 class RigidBody : public Renderer::Transformable
 {
 public:

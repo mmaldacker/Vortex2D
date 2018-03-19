@@ -3,8 +3,8 @@
 //  Vortex2D
 //
 
-#ifndef Extrapolation_h
-#define Extrapolation_h
+#ifndef Vortex2d_Extrapolation_h
+#define Vortex2d_Extrapolation_h
 
 #include <Vortex2D/Renderer/CommandBuffer.h>
 #include <Vortex2D/Renderer/Work.h>

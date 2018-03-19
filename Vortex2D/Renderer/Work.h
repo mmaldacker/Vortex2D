@@ -43,6 +43,9 @@ struct DispatchParams
     alignas(4) uint32_t count;
 };
 
+/**
+ * @brief Represents a compute shader.
+ */
 class Work
 {
 public:

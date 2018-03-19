@@ -3,8 +3,8 @@
 //  Vortex2D
 //
 
-#ifndef Vortex_Shader_h
-#define Vortex_Shader_h
+#ifndef Vortex2d_Shader_h
+#define Vortex2d_Shader_h
 
 #include <Vortex2D/Renderer/Common.h>
 #include <Vortex2D/Renderer/Device.h>

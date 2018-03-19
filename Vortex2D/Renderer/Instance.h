@@ -3,8 +3,8 @@
 //  Vortex2D
 //
 
-#ifndef Instance_h
-#define Instance_h
+#ifndef Vortex2d_Instance_h
+#define Vortex2d_Instance_h
 
 #include <Vortex2D/Renderer/Common.h>
 
@@ -15,6 +15,9 @@
 
 namespace Vortex2D { namespace Renderer {
 
+/**
+ * @brief Vulkan instance, which extensions enabled.
+ */
 class Instance
 {
 public:

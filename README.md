@@ -27,5 +27,3 @@ mkdir build && cd build
 cmake .. -DVORTEX2D_ENABLE_EXAMPLES=On -DVORTEX2D_ENABLE_TESTS=On
 make -j 4
 ```
-
-

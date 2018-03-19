@@ -11,6 +11,9 @@
 
 namespace Vortex2D { namespace Renderer {
 
+/**
+ * @brief Calculates the ellapsed time on the GPU.
+ */
 class Timer
 {
 public:

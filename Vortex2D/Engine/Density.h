@@ -11,6 +11,9 @@
 
 namespace Vortex2D { namespace Fluid {
 
+/**
+ * @brief Density field, used to represent smoke swirling.
+ */
 class Density : public Renderer::RenderTexture, public Renderer::Sprite
 {
 public:

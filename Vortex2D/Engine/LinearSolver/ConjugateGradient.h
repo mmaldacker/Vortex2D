@@ -16,12 +16,17 @@
 namespace Vortex2D { namespace Fluid {
 
 /**
- * @brief An iterative preconditioned conjugate linear solver.
- * The preconditioning operator is a simple diagonal preconditioner.
+ * @brief An iterative preconditioned conjugate linear solver. The preconditioner can be specified.
  */
 class ConjugateGradient : public LinearSolver
 {
 public:
+    /**
+     * @brief Initialize the solver with a size and preconditioner
+     * @param device vulkan device
+     * @param size
+     * @param preconditioner
+     */
     ConjugateGradient(const Renderer::Device& device, const glm::ivec2& size, Preconditioner& preconditioner);
 
     void Bind(Renderer::GenericBuffer& d,

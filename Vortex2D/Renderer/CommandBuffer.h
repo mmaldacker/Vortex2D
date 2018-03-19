@@ -3,8 +3,8 @@
 //  Vortex2D
 //
 
-#ifndef CommandBuffer_h
-#define CommandBuffer_h
+#ifndef Vortex2d_CommandBuffer_h
+#define Vortex2d_CommandBuffer_h
 
 #include <Vortex2D/Renderer/Common.h>
 #include <Vortex2D/Renderer/Device.h>

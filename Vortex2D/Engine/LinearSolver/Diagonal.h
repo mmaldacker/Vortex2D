@@ -12,7 +12,9 @@
 
 namespace Vortex2D { namespace Fluid {
 
-
+/**
+ * @brief Diagonal preconditioner. Simplest of preconditioner, useful to verify if the preconditioned conjugate gradient works.
+ */
 class Diagonal : public Preconditioner
 {
 public:

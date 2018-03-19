@@ -17,10 +17,24 @@ namespace Vortex2D { namespace Fluid {
  */
 struct LinearSolver
 {
+    /**
+     * @brief Parameters for an iterative linear solvers.
+     */
     struct Parameters
     {
+        /**
+         * @brief Construct parameters with max iterations and max error
+         * @param iterations max number of iterations to perform
+         * @param errorTolerance solver stops when the error is smaller than this.
+         */
         Parameters(unsigned iterations, float errorTolerance = 0.0f);
 
+        /**
+         * @brief Checks if we've reacched the parameters.
+         * @param iterations the current number of iterations
+         * @param error the current error
+         * @return if we can stop the linear solver.
+         */
         bool IsFinished(unsigned iterations, float error) const;
 
         unsigned Iterations;
@@ -29,6 +43,9 @@ struct LinearSolver
         float OutError;
     };
 
+    /**
+     * @brief The various parts of linear equations.
+     */
     struct Data
     {
         Data(const Renderer::Device& device, const glm::ivec2& size, VmaMemoryUsage memoryUsage = VMA_MEMORY_USAGE_GPU_ONLY);
@@ -41,6 +58,13 @@ struct LinearSolver
 
     virtual ~LinearSolver() {}
 
+    /**
+     * @brief Bind the buffers for the linear solver
+     * @param d the diagonal of the matrxi
+     * @param l the lower matrix
+     * @param b the right hand side
+     * @param x the unknowns
+     */
     virtual void Bind(Renderer::GenericBuffer& d,
                       Renderer::GenericBuffer& l,
                       Renderer::GenericBuffer& b,

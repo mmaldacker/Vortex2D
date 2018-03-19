@@ -3,8 +3,8 @@
 //  Vortex2D
 //
 
-#ifndef Multigrid_h
-#define Multigrid_h
+#ifndef Vortex2D_Multigrid_h
+#define Vortex2D_Multigrid_h
 
 #include <Vortex2D/Engine/LinearSolver/LinearSolver.h>
 #include <Vortex2D/Engine/LinearSolver/Preconditioner.h>
@@ -19,23 +19,51 @@
 
 namespace Vortex2D { namespace Fluid {
 
+/**
+ * @brief Contains the sizes of the multigrid hierarchy.
+ */
 class Depth
 {
 public:
-  Depth(const glm::ivec2& size);
+    /**
+     * @brief Initialize with the finest size.
+     * @param size the base size.
+     */
+    Depth(const glm::ivec2& size);
 
-  int GetMaxDepth() const;
-  glm::ivec2 GetDepthSize(std::size_t i) const;
+    /**
+     * @brief The calculated depth of the multigrid.
+     * @return the depth.
+     */
+    int GetMaxDepth() const;
+
+    /**
+     * @brief Gets the depth for a given level
+     * @param i the level
+     * @return the size
+     */
+    glm::ivec2 GetDepthSize(std::size_t i) const;
 
 private:
-  std::vector<glm::ivec2> mDepths;
+    std::vector<glm::ivec2> mDepths;
 };
 
 class Pressure;
 
+/**
+ * @brief Multigrid preconditioner. It creates a hierarchy of twice as small set of linear equations.
+ * It applies a few iterations of jacobi on each level and transfers the error on the level above.
+ * It then copies the error down, adds to the current solution and apply a few more iterations of jacobi.
+ */
 class Multigrid : public Preconditioner
 {
 public:
+    /**
+     * @brief Initialize multigrid for given size and delta.
+     * @param device vulkan device
+     * @param size of the linear equations
+     * @param delta timestep delta
+     */
     Multigrid(const Renderer::Device& device, const glm::ivec2& size, float delta);
 
     void Bind(Renderer::GenericBuffer& d,
@@ -43,10 +71,19 @@ public:
               Renderer::GenericBuffer& b,
               Renderer::GenericBuffer& x) override;
 
+    /**
+     * @brief Bind the level sets from which the hierarchy is built.
+     * @param pressure The current linear equations
+     * @param solidPhi the solid level set
+     * @param liquidPhi the liquid level set
+     */
     void BuildHierarchiesBind(Pressure& pressure,
                               Renderer::Texture& solidPhi,
                               Renderer::Texture& liquidPhi);
 
+    /**
+     * @brief Computes the hierarchy to be used by the multigrid. Asynchronous operation.
+     */
     void BuildHierarchies();
 
     void Record(vk::CommandBuffer commandBuffer) override;

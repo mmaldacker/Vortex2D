@@ -39,7 +39,7 @@ class World
 {
 public:
     /**
-     * @brief Construct an Engine with a size, linear solver and time step.
+     * @brief Construct an Engine with a size and time step.
      */
     World(const Renderer::Device& device, Dimensions dimensions, float dt);
     virtual ~World() {}

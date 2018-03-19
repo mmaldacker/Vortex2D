@@ -19,10 +19,20 @@
 
 namespace Vortex2D { namespace Fluid {
 
+/**
+ * @brief Signed distance field of a poylgon.
+ */
 class Polygon : public Renderer::Transformable, public Renderer::Drawable
 {
 public:
     // TODO number should be calculated
+    /**
+     * @brief Initialize polygon with set of points and extent of signed distance
+     * @param device vulkan device
+     * @param points clockwise oriented set of points (mininum 3).
+     * @param inverse flag if the distance field should be inversed.
+     * @param extent extend how far from the poylon the signed distance field is calculated.
+     */
     Polygon(const Renderer::Device& device, std::vector<glm::vec2> points, bool inverse = false, float extent = 10.0f);
 
     void Initialize(const Renderer::RenderState& renderState) override;
@@ -41,16 +51,35 @@ private:
     Renderer::Buffer<glm::vec2> mPolygonVertexBuffer;
 };
 
+/**
+ * @brief Signed distance field of a rectangle.
+ */
 class Rectangle : public Polygon
 {
 public:
+    /**
+     * @brief Initialize rectangle with size and extend of signed distance.
+     * @param device vulkan device.
+     * @param size rectangle size
+     * @param inverse flag if the distance field should be inverted.
+     * @param extent extent how far from the rectangle the signed distance field is calculated.
+     */
     Rectangle(const Renderer::Device& device, const glm::vec2& size, bool inverse = false, float extent = 10.0f);
 };
 
+/**
+ * @brief Signed distance field of circle.
+ */
 class Circle : public Renderer::Transformable, public Renderer::Drawable
 {
 public:
     // TODO number should be calculated
+    /**
+     * @brief Initialize the circle with radius and extend of signed distance.
+     * @param device vulkan device.
+     * @param radius radius of circle.
+     * @param extent extend how far from the circle the signed distance field is calculated.
+     */
     Circle(const Renderer::Device& device, float radius, float extent = 10.0f);
 
     void Initialize(const Renderer::RenderState& renderState) override;
@@ -71,9 +100,18 @@ extern vk::PipelineColorBlendAttachmentState IntersectionBlend;
 extern vk::PipelineColorBlendAttachmentState UnionBlend;
 extern Renderer::Clear BoundariesClear;
 
+/**
+ * @brief Sprite of a distance field
+ */
 class DistanceField : public Renderer::AbstractSprite
 {
 public:
+    /**
+     * @brief Initialize the price with the level set and scale
+     * @param device vulkan device
+     * @param levelSet level set to use as sprite
+     * @param scale scale of the level set
+     */
     DistanceField(const Renderer::Device& device,
                   Renderer::RenderTexture& levelSet,
                   float scale = 1.0f);

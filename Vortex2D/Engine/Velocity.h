@@ -14,6 +14,9 @@
 
 namespace Vortex2D { namespace Fluid {
 
+/**
+ * @brief The Velocity field. Can be used to calculate a difference between different states.
+ */
 class Velocity
 {
 public:

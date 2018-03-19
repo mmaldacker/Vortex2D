@@ -3,8 +3,8 @@
 //  Vortex2D
 //
 
-#ifndef Vortex_Transformable_h
-#define Vortex_Transformable_h
+#ifndef Vortex2d_Transformable_h
+#define Vortex2d_Transformable_h
 
 #include <Vortex2D/Renderer/Common.h>
 

@@ -12,6 +12,9 @@
 
 namespace Vortex2D { namespace Fluid {
 
+/**
+ * @brief Incomplete poisson preconditioner. Slightly better than a simple diagonal preconditioner.
+ */
 class IncompletePoisson : public Preconditioner
 {
 public:
