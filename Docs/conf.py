@@ -44,7 +44,6 @@ extensions = ['breathe']
 
 breathe_projects = {'Vortex2D' : 'xml_output/xml'}
 breathe_default_project = 'Vortex2D'
-breathe_default_members = ('members', 'undoc-members')
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

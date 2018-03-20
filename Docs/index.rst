@@ -23,3 +23,7 @@ Table of content
 .. toctree::
 	rendering
 	levelsets
+	world
+	rigidbody
+	rendererapiref
+	fluidapirref
