@@ -68,6 +68,7 @@ public:
     Renderer::RenderTexture& Phi();
 
 private:
+    float mScale;
     const Renderer::Device& mDevice;
     Renderer::RenderTexture mPhi;
     Renderer::Drawable& mDrawable;

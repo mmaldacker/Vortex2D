@@ -18,7 +18,8 @@ RigidBody::RigidBody(const Renderer::Device& device,
                      const glm::vec2& centre,
                      Renderer::RenderTexture& phi,
                      vk::Flags<Type> type)
-    : mDevice(device)
+    : mScale(dimensions.Scale)
+    , mDevice(device)
     , mPhi(device, dimensions.Size.x, dimensions.Size.y, vk::Format::eR32Sfloat)
     , mDrawable(drawable)
     , mCentre(centre)
@@ -48,7 +49,7 @@ RigidBody::RigidBody(const Renderer::Device& device,
 
 void RigidBody::SetVelocities(const glm::vec2& velocity, float angularVelocity)
 {
-    Velocity v{velocity, angularVelocity};
+    Velocity v{velocity / glm::vec2(mScale), angularVelocity};
 
     Renderer::UniformBuffer<Velocity> localVelocity(mDevice, VMA_MEMORY_USAGE_CPU_ONLY);
     Renderer::CopyFrom(localVelocity, v);
@@ -61,8 +62,12 @@ void RigidBody::SetVelocities(const glm::vec2& velocity, float angularVelocity)
 
 RigidBody::Velocity RigidBody::GetForces()
 {
+    // TODO looks like we need to wait on the command buffer here
     Velocity force;
     Renderer::CopyTo(mForce, force);
+
+    force.angular_velocity *= mScale * mScale * mScale;
+    force.velocity *= glm::vec2(mScale * mScale * mScale);
 
     return force;
 }

@@ -17,15 +17,13 @@
 extern glm::vec4 red;
 extern glm::vec4 blue;
 
-class Windmill
+class Watermill
 {
 public:
-    Windmill(const Vortex2D::Renderer::Device& device,
-             const Vortex2D::Fluid::Dimensions& dimensions,
+    Watermill(const Vortex2D::Renderer::Device& device,
              b2World& rWorld,
              Vortex2D::Fluid::World& world)
-        : mScale(dimensions.Scale)
-        , mWindmillTexture(device, 600, 600, vk::Format::eR32Sfloat)
+        : mWindmillTexture(device, 600, 600, vk::Format::eR32Sfloat)
         , mWindmill(device, mWindmillTexture)
         , mRigidbody(world.CreateRigidbody(Vortex2D::Fluid::RigidBody::Type::eStrong, mWindmill, {300.0f, 300.0f}))
     {
@@ -51,7 +49,7 @@ public:
         { // create wings body and joint
             b2BodyDef def;
             def.type =  b2_dynamicBody;
-            def.angularDamping = 0.1f;
+            def.angularDamping = 3.0f;
             mWings = rWorld.CreateBody(&def);
 
             b2RevoluteJointDef joint;
@@ -112,13 +110,13 @@ public:
 
         glm::vec2 vel = {mWings->GetLinearVelocity().x, mWings->GetLinearVelocity().y};
         float angularVelocity = mWings->GetAngularVelocity();
-        float scale = box2dScale / mScale;
-        mRigidbody->SetVelocities(vel * scale, angularVelocity);
+        mRigidbody->SetVelocities(vel * box2dScale, angularVelocity);
 
         auto force = mRigidbody->GetForces();
-        b2Vec2 b2Force = {force.velocity.x, force.velocity.y};
+        float scale = 1.0f / box2dScale;
+        b2Vec2 b2Force = {force.velocity.x * scale, force.velocity.y * scale};
         mWings->ApplyForceToCenter(b2Force, true);
-        mWings->ApplyTorque(force.angular_velocity * scale, true);
+        mWings->ApplyTorque(force.angular_velocity, true);
     }
 
 private:
@@ -130,12 +128,12 @@ private:
     b2Body* mWings;
 };
 
-class WindmillWaterExample : public Runner
+class WatermillExample : public Runner
 {
     const float gravityForce = 300.0f;
 
 public:
-    WindmillWaterExample(const Vortex2D::Renderer::Device& device,
+    WatermillExample(const Vortex2D::Renderer::Device& device,
                          const Vortex2D::Fluid::Dimensions& dimensions,
                          float dt)
         : delta(dt)
@@ -146,9 +144,9 @@ public:
         , solidPhi(world.SolidDistanceField())
         , liquidPhi(world.LiquidDistanceField())
         , rWorld(b2Vec2(0.0f, gravityForce / box2dScale))
-        , left(device, dimensions, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {200.0f, 20.0f})
-        , bottom(device, dimensions, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {1000.0f, 20.0f})
-        , windmill(device, dimensions, rWorld, world)
+        , left(device, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {200.0f, 20.0f})
+        , bottom(device, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {1000.0f, 20.0f})
+        , windmill(device, rWorld, world)
     {
         liquidPhi.Scale = solidPhi.Scale = glm::vec2(dimensions.Scale);
         gravity.Colour = glm::vec4(0.0f, dt * gravityForce / (dimensions.Scale * dimensions.Size.x), 0.0f, 0.0f);
@@ -221,5 +219,5 @@ private:
 
     b2World rWorld;
     BoxRigidbody left, bottom;
-    Windmill windmill;
+    Watermill windmill;
 };

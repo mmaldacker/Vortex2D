@@ -78,8 +78,7 @@ Instance::Instance(const std::string& name, std::vector<const char*> extraExtens
     // add the validation calback if necessary
     if (validation && HasExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME, availableExtensions))
     {
-        vk::DebugReportCallbackCreateInfoEXT debugCallbackInfo;
-        debugCallbackInfo
+        auto debugCallbackInfo = vk::DebugReportCallbackCreateInfoEXT()
                 .setPfnCallback(debugCallback)
                 .setFlags(vk::DebugReportFlagBitsEXT::eWarning | vk::DebugReportFlagBitsEXT::eError);
 

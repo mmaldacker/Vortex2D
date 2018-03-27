@@ -22,9 +22,9 @@ file(GLOB EXAMPLES_SOURCES
         "SmokeExample.h"
         "SmokeVelocityExample.h"
         "WaterExample.h"
-        "HydrostaticWaterExample.h"
+        "BuoyancyWaterExample.h"
         "WaterFallExample.h"
-        "WindmillWater.h"
+        "WatermillExample.h"
         "Runner.h")
 
 file(GLOB EXAMPLES_BOX2D_SOURCES
