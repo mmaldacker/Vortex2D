@@ -119,19 +119,19 @@ public:
             example.reset(new ObstacleSmokeExample(device, {size, scale}, delta));
             break;
         case GLFW_KEY_4:
-            example.reset(new WaterExample(device, {size, scale}, delta));
-            break;
-        case GLFW_KEY_5:
             example.reset(new SmokeVelocityExample(device, {size, scale}, delta));
             break;
-        case GLFW_KEY_6:
-            example.reset(new HydrostaticWaterExample(device, {size, scale}, delta));
+        case GLFW_KEY_5:
+            example.reset(new WaterExample(device, {size, scale}, delta));
             break;
-        case GLFW_KEY_7:
+        case GLFW_KEY_6:
             example.reset(new WaterFallExample(device, {size, scale}, delta));
             break;
-        case GLFW_KEY_8:
+        case GLFW_KEY_7:
             example.reset(new WatermillExample(device, {size, scale}, delta));
+            break;
+        case GLFW_KEY_8:
+            example.reset(new HydrostaticWaterExample(device, {size, scale}, delta));
             break;
         default:
             return;
