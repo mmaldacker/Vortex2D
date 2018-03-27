@@ -57,7 +57,7 @@ public:
      */
     void AdvectParticleBind(Renderer::GenericBuffer& particles,
                             Renderer::Texture& levelSet,
-                            Renderer::GenericBuffer& dispatchParams);
+                            Renderer::IndirectBuffer<Renderer::DispatchParams>& dispatchParams);
     /**
      * @brief Advect particles. Asynchrounous operation.
      */

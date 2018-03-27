@@ -33,7 +33,7 @@ public:
     void Scan();
 
     int GetTotalCount();
-    Renderer::GenericBuffer& GetDispatchParams();
+    Renderer::IndirectBuffer<Renderer::DispatchParams>& GetDispatchParams();
 
     void LevelSetBind(LevelSet& levelSet);
     void Phi();

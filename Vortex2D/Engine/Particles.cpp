@@ -114,7 +114,7 @@ int ParticleCount::GetTotalCount()
     return params.count;
 }
 
-Renderer::GenericBuffer& ParticleCount::GetDispatchParams()
+Renderer::IndirectBuffer<Renderer::DispatchParams>& ParticleCount::GetDispatchParams()
 {
     return mDispatchParams;
 }

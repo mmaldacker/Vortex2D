@@ -14,18 +14,59 @@
 
 namespace Vortex2D { namespace Renderer {
 
+/**
+ * @brief Used for a compute shader, and defines the group size, local size and domain size.
+ */
 struct ComputeSize
 {
+    /**
+     * @brief The default local size for 2D compute shaders
+     * @return a 2d vector
+     */
     static glm::ivec2 GetLocalSize2D();
+
+    /**
+     * @brief The default local size for 1D compute shaders
+     * @return a integer value
+     */
     static int GetLocalSize1D();
 
+    /**
+     * @brief Computes the 2D group size given a domain size
+     * @param size the domain size of the shader
+     * @return the group size
+     */
     static glm::ivec2 GetWorkSize(const glm::ivec2& size);
+
+    /**
+     * @brief Computes the 1D group size given a domain size
+     * @param size the domain size of the shader
+     * @return the group size
+     */
     static glm::ivec2 GetWorkSize(int size);
 
+    /**
+     * @brief A default ComputeSize using the default 2D local size. The domain size is (1,1)
+     * @return a default compute size
+     */
     static ComputeSize Default2D();
+
+    /**
+     * @brief A default ComputeSize using the default 1D local size. The domain size is (1,1)
+     * @return a default compute size
+     */
     static ComputeSize Default1D();
 
+    /**
+     * @brief Creates a ComputeSize using a 2D domain size and the default 2D local size.
+     * @param size the domain size
+     */
     ComputeSize(const glm::ivec2& size);
+
+    /**
+     * @brief Creates a ComputeSize using a 1D domain size and the default 1D local size.
+     * @param size the domain size
+     */
     ComputeSize(int size);
 
     glm::ivec2 DomainSize;
@@ -33,7 +74,20 @@ struct ComputeSize
     glm::ivec2 LocalSize;
 };
 
+/**
+ * @brief Create a ComputeSize for a stencil type shader
+ * @param size the domain size
+ * @param radius the stencil size
+ * @return calculate ComputeSize
+ */
 ComputeSize MakeStencilComputeSize(const glm::ivec2& size, int radius);
+
+/**
+ * @brief Create a ComputeSize for a checkerboard type shader
+ * @param size the domain size
+ * @param radius the stencil size
+ * @return calculate ComputeSize
+ */
 ComputeSize MakeCheckerboardComputeSize(const glm::ivec2& size);
 
 struct DispatchParams
@@ -44,20 +98,35 @@ struct DispatchParams
 };
 
 /**
- * @brief Represents a compute shader.
+ * @brief Represents a compute shader. It simplifies the process of binding, setting push constants and recording.
  */
 class Work
 {
 public:
+    /**
+     * @brief Constructs an object using a SPIRV binary. It is not bound to any buffers or textures.
+     * @param device vulkan device
+     * @param computeSize the compute size. Can be a default one with size (1,1) or one with an actual size.
+     * @param spirv binary spirv
+     */
     Work(const Device& device,
          const ComputeSize& computeSize,
          const SpirvBinary& spirv);
 
+    /**
+     * @brief Is a bound version of @ref Work. This means a buffer or texture was bound and this can be recorded in a command buffer.
+     */
     class Bound
     {
     public:
         Bound();
 
+        /**
+         * @brief Adds a constant value, i.e. a push constant.
+         * @param commandBuffer the command buffer where the compute work will also be recorded.
+         * @param offset the offset in which the push constant is to be placed.
+         * @param data the data to push. A total of 128 bytes can be used.
+         */
         template<typename T>
         void PushConstant(vk::CommandBuffer commandBuffer, uint32_t offset, const T& data)
         {
@@ -67,8 +136,23 @@ public:
             }
         }
 
+        /**
+         * @brief Record the compute work in this command buffer. This will also set two additional push constants: the 2D domain size.
+         * @param commandBuffer the command buffer to record into.
+         */
         void Record(vk::CommandBuffer commandBuffer);
-        void RecordIndirect(vk::CommandBuffer commandBuffer, GenericBuffer& dispatchParams);
+
+        /**
+         * @brief Record the compute work in this command buffer. Use the provided parameters to run the compute shader.
+         * @param commandBuffer the command buffer to record into.
+         * @param dispatchParams the indirect buffer containing the parameters.
+         */
+        void RecordIndirect(vk::CommandBuffer commandBuffer, IndirectBuffer<DispatchParams>& dispatchParams);
+
+        /**
+         * @brief Record the compute work in this command buffer.
+         * @param commandBuffer the command buffer to record into.
+         */
         void Dispatch(vk::CommandBuffer commandBuffer);
 
         friend class Work;
@@ -87,7 +171,19 @@ public:
         vk::UniqueDescriptorSet mDescriptor;
     };
 
+    /**
+     * @brief Bind the buffers and/or textures.
+     * @param inputs a list of buffers and/or textures
+     * @return a bound object, ready to be recorded in a command buffer.
+     */
     Bound Bind(const std::vector<BindingInput>& inputs);
+
+    /**
+     * @brief Bind the buffers and/or textures. This overrides the provided compute size in @ref Work.
+     * @param computeSize the compute shader compute size.
+     * @param inputs a list of buffers and/or textures
+     * @return a bound object, ready to be recorded in a command buffer.
+     */
     Bound Bind(ComputeSize computeSize, const std::vector<BindingInput>& inputs);
 
 private:

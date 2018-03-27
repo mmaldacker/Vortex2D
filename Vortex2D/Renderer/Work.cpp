@@ -152,7 +152,7 @@ void Work::Bound::Record(vk::CommandBuffer commandBuffer)
     Dispatch(commandBuffer);
 }
 
-void Work::Bound::RecordIndirect(vk::CommandBuffer commandBuffer, GenericBuffer& dispatchParams)
+void Work::Bound::RecordIndirect(vk::CommandBuffer commandBuffer, IndirectBuffer<DispatchParams>& dispatchParams)
 {
     PushConstant(commandBuffer, 0, mComputeSize.DomainSize.x);
     PushConstant(commandBuffer, 4, mComputeSize.DomainSize.y);

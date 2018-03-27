@@ -127,7 +127,7 @@ TEST(AdvectionTests, ParticleAdvect)
 
     // setup particles
     Buffer<Particle> particles(*device, 8 * size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
-    Buffer<DispatchParams> dispatchParams(*device, 1, VMA_MEMORY_USAGE_CPU_ONLY);
+    IndirectBuffer<DispatchParams> dispatchParams(*device, VMA_MEMORY_USAGE_CPU_ONLY);
 
     DispatchParams params(static_cast<int32_t>(sim.particles.size()));
     CopyFrom(dispatchParams, params);
@@ -192,7 +192,7 @@ TEST(AdvectionTests, ParticleProject)
 
     // setup particles
     Buffer<Particle> particles(*device, 8*size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
-    Buffer<DispatchParams> dispatchParams(*device, 1, VMA_MEMORY_USAGE_CPU_ONLY);
+    IndirectBuffer<DispatchParams> dispatchParams(*device, VMA_MEMORY_USAGE_CPU_ONLY);
 
     DispatchParams params(static_cast<int32_t>(sim.particles.size()));
     CopyFrom(dispatchParams, params);
