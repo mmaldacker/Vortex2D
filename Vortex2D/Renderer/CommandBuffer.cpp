@@ -142,6 +142,11 @@ void CommandBuffer::Submit(const std::initializer_list<vk::Semaphore>& waitSemap
     }
 }
 
+CommandBuffer::operator bool() const
+{
+    return mRecorded;
+}
+
 void ExecuteCommand(const Device& device, CommandBuffer::CommandFn commandFn)
 {
     CommandBuffer cmd(device);

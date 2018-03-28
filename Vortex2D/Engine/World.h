@@ -40,20 +40,66 @@ class World
 public:
     /**
      * @brief Construct an Engine with a size and time step.
+     * @param device vulkan device
+     * @param dimensions dimensions of the simulation
+     * @param dt timestamp of the simulation, e.g. 0.016 for 60FPS simulations.
      */
     World(const Renderer::Device& device, Dimensions dimensions, float dt);
     virtual ~World() {}
 
+    /**
+     * @brief Perform one step of the simulation.
+     */
     virtual void Solve() = 0;
 
+    /**
+     * @brief Record drawables to the velocity field. The colour (r,g) will be used as the velocity (x, y)
+     * @param drawables a list of drawable field
+     * @return render command
+     */
     Renderer::RenderCommand RecordVelocity(Renderer::RenderTarget::DrawableList drawables);
+
+    /**
+     * @brief submit the render command created with @ref RecordVelocity
+     * @param renderCommand the render command
+     */
     void SubmitVelocity(Renderer::RenderCommand& renderCommand);
+
+    /**
+     * @brief Record drawables to the liquid level set, i.e. to define the fluid area.
+     * The drawables need to make a signed distance field, if not the result is undefined.
+     * @param drawables a list of signed distance field drawables
+     * @return render command
+     */
     Renderer::RenderCommand RecordLiquidPhi(Renderer::RenderTarget::DrawableList drawables);
+
+    /**
+     * @brief Record drawables to the solid level set, i.e. to define the boundary area.
+     * The drawables need to make a signed distance field, if not the result is undefined.
+     * @param drawables a list of signed distance field drawables
+     * @return render command
+     */
     Renderer::RenderCommand RecordStaticSolidPhi(Renderer::RenderTarget::DrawableList drawables);
 
+    /**
+     * @brief Create sprite that can be rendered to visualize the liquid level set.
+     * @return a sprite
+     */
     DistanceField LiquidDistanceField();
+
+    /**
+     * @brief Create sprite that can be rendered to visualize the solid level set.
+     * @return a sprite
+     */
     DistanceField SolidDistanceField();
 
+    /**
+     * @brief Create a rigid body and add it to the World. The lifetime of the rigidbody is tied to the lifetime of the World.
+     * @param type type of the rigidbody: static, weak or strong
+     * @param drawable a drawable that renders a signed distance field. This can be the sprite of a level set.
+     * @param centre the centre of the drawable. Use for rotations.
+     * @return a pointer to the rigid body.
+     */
     RigidBody* CreateRigidbody(vk::Flags<RigidBody::Type> type, Renderer::Drawable& drawable, const glm::vec2& centre);
 
 protected:
@@ -83,6 +129,10 @@ protected:
     std::vector<std::reference_wrapper<Renderer::RenderCommand>> mVelocities;
 };
 
+/**
+ * @brief A concrete implementation of @ref World to simulate 'smoke', or more accurately dye in a liquid.
+ * The liquid cannot change location or size.
+ */
 class SmokeWorld : public World
 {
 public:
@@ -90,9 +140,16 @@ public:
 
     void Solve() override;
 
+    /**
+     * @brief Bind a density field to be moved around with the fluid
+     * @param density the density field
+     */
     void FieldBind(Density& density);
 };
 
+/**
+ * @brief A concrete implementation of @ref World to simulate water.
+ */
 class WaterWorld : public World
 {
 public:
@@ -100,6 +157,14 @@ public:
 
     void Solve() override;
 
+    /**
+     * @brief The water simulation uses particles to define the water area.
+     * In fact, the level set is built from the particles. This means to be able to set an area,
+     * we can't use @ref RecordLiquidPhi. To define the particle area, simply draw a regular shape.
+     * The colour r is used to determine if we add or remove particles, use r = 4 to add and r = -4 to remove.
+     * @param drawables
+     * @return
+     */
     Renderer::RenderCommand RecordParticleCount(Renderer::RenderTarget::DrawableList drawables);
 
 private:

@@ -56,7 +56,10 @@ void Advection::AdvectBind(Density& density)
 
 void Advection::Advect()
 {
-    mAdvectCmd.Submit();
+    if (mAdvectCmd)
+    {
+        mAdvectCmd.Submit();
+    }
 }
 
 void Advection::AdvectParticleBind(Renderer::GenericBuffer& particles,

@@ -15,13 +15,13 @@ Documentation can be found at https://vortex2d.readthedocs.io.
 ## Examples
 
 <p align="middle">
-  <img src="https://github.com/mmaldacker/Vortex2D/raw/master/Docs/vortex2d_example1.gif " width="300"/> 
-  <img src="https://github.com/mmaldacker/Vortex2D/raw/master/Docs/vortex2d_example2.gif " width="300"/> 
+  <img src="https://github.com/mmaldacker/Vortex2D/raw/master/Docs/vortex2d_example1.gif " width="350"/> 
+  <img src="https://github.com/mmaldacker/Vortex2D/raw/master/Docs/vortex2d_example2.gif " width="350"/> 
 </p>
 
 <p align="middle">
-  <img src="https://github.com/mmaldacker/Vortex2D/raw/master/Docs/vortex2d_example3.gif " width="300"/>
-  <img src="https://github.com/mmaldacker/Vortex2D/raw/master/Docs/vortex2d_example4.gif " width="300"/> 
+  <img src="https://github.com/mmaldacker/Vortex2D/raw/master/Docs/vortex2d_example3.gif " width="350"/>
+  <img src="https://github.com/mmaldacker/Vortex2D/raw/master/Docs/vortex2d_example4.gif " width="350"/> 
 </p>
 
 ## Quick start

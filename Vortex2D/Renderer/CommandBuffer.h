@@ -34,6 +34,8 @@ public:
     void Submit(const std::initializer_list<vk::Semaphore>& waitSemaphores = {},
                 const std::initializer_list<vk::Semaphore>& signalSemaphores = {});
 
+    explicit operator bool() const;
+
 private:
     const Device& mDevice;
     bool mSynchronise;
