@@ -14,6 +14,9 @@ namespace Vortex2D { namespace Renderer {
 class Texture;
 class Device;
 
+/**
+ * @brief A vulkan buffer which can be on the host or the device.
+ */
 class GenericBuffer
 {
 public:
