@@ -28,3 +28,5 @@ API Reference
 =============
 
 .. doxygennamespace:: Vortex2D::Renderer
+    :members:
+    :undoc-members:

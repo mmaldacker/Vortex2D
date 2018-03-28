@@ -41,3 +41,5 @@ API Reference
 =============
 
 .. doxygennamespace:: Vortex2D::Fluid
+    :members:
+    :undoc-members:
