@@ -12,6 +12,18 @@ All computing is done on the GPU with Vulkan using compute shaders.
 
 Documentation can be found at https://vortex2d.readthedocs.io.
 
+## Examples
+
+<p align="middle">
+  <img src="https://github.com/mmaldacker/Vortex2D/raw/master/Docs/vortex2d_example1.gif " width="300"/> 
+  <img src="https://github.com/mmaldacker/Vortex2D/raw/master/Docs/vortex2d_example2.gif " width="300"/> 
+</p>
+
+<p align="middle">
+  <img src="https://github.com/mmaldacker/Vortex2D/raw/master/Docs/vortex2d_example3.gif " width="300"/>
+  <img src="https://github.com/mmaldacker/Vortex2D/raw/master/Docs/vortex2d_example4.gif " width="300"/> 
+</p>
+
 ## Quick start
 
 CMake is used to get any required dependency. The only dependencies needed are the glslc compiler, the vulkan library and python.
