@@ -142,7 +142,7 @@ void ParticleCount::Phi()
 
 void ParticleCount::VelocitiesBind(Velocity& velocity, Renderer::GenericBuffer& valid)
 {
-    mParticleToGridBound = mParticleToGridWork.Bind({mCount, mParticles, mIndex, velocity.Input(), valid});
+    mParticleToGridBound = mParticleToGridWork.Bind({mCount, mParticles, mIndex, velocity, valid});
     mParticleToGrid.Record([&](vk::CommandBuffer commandBuffer)
     {
         commandBuffer.debugMarkerBeginEXT({"Particle to grid", {{ 0.71f, 0.15f, 0.48f, 1.0f}}});
@@ -151,7 +151,7 @@ void ParticleCount::VelocitiesBind(Velocity& velocity, Renderer::GenericBuffer& 
         commandBuffer.debugMarkerEndEXT();
     });
 
-    mParticleFromGridBound = mParticleFromGridWork.Bind({mParticles, mDispatchParams, velocity.Input(), velocity.D()});
+    mParticleFromGridBound = mParticleFromGridWork.Bind({mParticles, mDispatchParams, velocity, velocity.D()});
     mParticleFromGrid.Record([&](vk::CommandBuffer commandBuffer)
     {
         commandBuffer.debugMarkerBeginEXT({"Particle from grid", {{ 0.35f, 0.11f, 0.87f, 1.0f}}});

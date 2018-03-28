@@ -80,7 +80,7 @@ TEST(AdvectionTests, Advect)
 
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
-        velocity.Input().CopyFrom(commandBuffer, velocityInput);
+        velocity.CopyFrom(commandBuffer, velocityInput);
     });
 
     Texture fieldInput(*device, size.x, size.y, vk::Format::eB8G8R8A8Unorm, VMA_MEMORY_USAGE_CPU_ONLY);

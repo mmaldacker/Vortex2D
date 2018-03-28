@@ -70,7 +70,7 @@ void SetVelocity(const Vortex2D::Renderer::Device& device,
     input.CopyFrom(velocityData);
     ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
     {
-        velocity.Input().CopyFrom(commandBuffer, input);
+        velocity.CopyFrom(commandBuffer, input);
     });
 }
 
@@ -209,7 +209,7 @@ void PrintVelocity(const Vortex2D::Renderer::Device& device, const glm::ivec2& s
     Vortex2D::Renderer::Texture output(device, size.x, size.y, vk::Format::eR32G32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
     ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
     {
-        output.CopyFrom(commandBuffer, velocity.Input());
+        output.CopyFrom(commandBuffer, velocity);
     });
 
     std::vector<glm::vec2> pixels(size.x * size.y);
@@ -249,7 +249,7 @@ void CheckVelocity(const Vortex2D::Renderer::Device& device,
     Vortex2D::Renderer::Texture output(device, size.x, size.y, vk::Format::eR32G32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
     ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
     {
-        output.CopyFrom(commandBuffer, velocity.Input());
+        output.CopyFrom(commandBuffer, velocity);
     });
 
     std::vector<glm::vec2> pixels(size.x * size.y);

@@ -30,9 +30,9 @@ Pressure::Pressure(const Renderer::Device& device,
                                      data.Diagonal,
                                      liquidPhi,
                                      solidPhi,
-                                     velocity.Input()}))
+                                     velocity}))
     , mProject(device, size, SPIRV::Project_comp)
-    , mProjectBound(mProject.Bind({data.X, liquidPhi, solidPhi, velocity.Input(), velocity.Output(), valid}))
+    , mProjectBound(mProject.Bind({data.X, liquidPhi, solidPhi, velocity, velocity.Output(), valid}))
     , mBuildEquationCmd(device, false)
     , mProjectCmd(device, false)
 {

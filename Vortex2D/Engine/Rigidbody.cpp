@@ -102,7 +102,7 @@ void RigidBody::BindDiv(Renderer::GenericBuffer& div,
 
 void RigidBody::BindVelocityConstrain(Fluid::Velocity& velocity)
 {
-    mConstrainBound = mConstrain.Bind({velocity.Input(), velocity.Output(), mPhi, mVelocity, mMVBuffer});
+    mConstrainBound = mConstrain.Bind({velocity, velocity.Output(), mPhi, mVelocity, mMVBuffer});
     mConstrainCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
         commandBuffer.debugMarkerBeginEXT({"Rigidbody constrain", {{ 0.29f, 0.36f, 0.21f, 1.0f}}});

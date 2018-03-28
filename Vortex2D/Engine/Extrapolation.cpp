@@ -16,7 +16,7 @@ Extrapolation::Extrapolation(const Renderer::Device& device,
     : mValid(device,size.x*size.y)
     , mVelocity(velocity)
     , mExtrapolateVelocity(device, size, SPIRV::ExtrapolateVelocity_comp)
-    , mExtrapolateVelocityBound(mExtrapolateVelocity.Bind({valid, mValid, velocity.Input(), velocity.Output()}))
+    , mExtrapolateVelocityBound(mExtrapolateVelocity.Bind({valid, mValid, velocity, velocity.Output()}))
     , mConstrainVelocity(device, size, SPIRV::ConstrainVelocity_comp)
     , mExtrapolateCmd(device, false)
     , mConstrainCmd(device, false)
@@ -44,7 +44,7 @@ void Extrapolation::Extrapolate()
 
 void Extrapolation::ConstrainBind(Renderer::Texture& solidPhi)
 {
-    mConstrainVelocityBound = mConstrainVelocity.Bind({solidPhi, mVelocity.Input(), mVelocity.Output()});
+    mConstrainVelocityBound = mConstrainVelocity.Bind({solidPhi, mVelocity, mVelocity.Output()});
 
     mConstrainCmd.Record([&](vk::CommandBuffer commandBuffer)
     {

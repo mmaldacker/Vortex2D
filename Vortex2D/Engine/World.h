@@ -162,8 +162,8 @@ public:
      * In fact, the level set is built from the particles. This means to be able to set an area,
      * we can't use @ref RecordLiquidPhi. To define the particle area, simply draw a regular shape.
      * The colour r is used to determine if we add or remove particles, use r = 4 to add and r = -4 to remove.
-     * @param drawables
-     * @return
+     * @param drawables list of drawables object with colour 4 or -4
+     * @return render command
      */
     Renderer::RenderCommand RecordParticleCount(Renderer::RenderTarget::DrawableList drawables);
 

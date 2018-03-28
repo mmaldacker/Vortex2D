@@ -51,7 +51,7 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
     mLiquidPhi.View = dimensions.InvScale;
     mDynamicSolidPhi.View = dimensions.InvScale;
     mStaticSolidPhi.View = dimensions.InvScale;
-    mVelocity.Input().View = dimensions.InvScale;
+    mVelocity.View = dimensions.InvScale;
 
     Renderer::ExecuteCommand(mDevice, [&](vk::CommandBuffer commandBuffer)
     {
@@ -67,7 +67,7 @@ Renderer::RenderCommand World::RecordVelocity(Renderer::RenderTarget::DrawableLi
             .setSrcColorBlendFactor(vk::BlendFactor::eOne)
             .setDstColorBlendFactor(vk::BlendFactor::eOne);
 
-    return mVelocity.Input().Record(drawables, addBlend);
+    return mVelocity.Record(drawables, addBlend);
 }
 
 void World::SubmitVelocity(Renderer::RenderCommand& renderCommand)

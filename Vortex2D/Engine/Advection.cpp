@@ -18,7 +18,7 @@ Advection::Advection(const Renderer::Device& device, const glm::ivec2& size, flo
     , mSize(size)
     , mVelocity(velocity)
     , mVelocityAdvect(device, size, SPIRV::AdvectVelocity_comp)
-    , mVelocityAdvectBound(mVelocityAdvect.Bind({velocity.Input(), velocity.Output()}))
+    , mVelocityAdvectBound(mVelocityAdvect.Bind({velocity, velocity.Output()}))
     , mAdvect(device, size, SPIRV::Advect_comp)
     , mAdvectParticles(device, Renderer::ComputeSize::Default1D(), SPIRV::AdvectParticles_comp)
     , mAdvectVelocityCmd(device, false)
@@ -40,7 +40,7 @@ void Advection::AdvectVelocity()
 
 void Advection::AdvectBind(Density& density)
 {
-    mAdvectBound = mAdvect.Bind({mVelocity.Input(), density, density.mFieldBack});
+    mAdvectBound = mAdvect.Bind({mVelocity, density, density.mFieldBack});
     mAdvectCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
         mAdvectBound.PushConstant(commandBuffer, 8, mDt);
@@ -66,7 +66,7 @@ void Advection::AdvectParticleBind(Renderer::GenericBuffer& particles,
                                    Renderer::Texture& levelSet,
                                    Renderer::IndirectBuffer<Renderer::DispatchParams>& dispatchParams)
 {
-    mAdvectParticlesBound = mAdvectParticles.Bind(mSize, {particles, dispatchParams, mVelocity.Input(), levelSet});
+    mAdvectParticlesBound = mAdvectParticles.Bind(mSize, {particles, dispatchParams, mVelocity, levelSet});
     mAdvectParticlesCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
         commandBuffer.debugMarkerBeginEXT({"Particle advect", {{ 0.09f, 0.17f, 0.36f, 1.0f}}});
