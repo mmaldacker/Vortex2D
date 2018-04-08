@@ -22,14 +22,14 @@ namespace Vortex2D { namespace Fluid {
 class Pressure
 {
 public:
-    Pressure(const Renderer::Device& device,
-             float dt,
-             const glm::ivec2& size,
-             LinearSolver::Data& data,
-             Velocity& velocity,
-             Renderer::Texture& solidPhi,
-             Renderer::Texture& liquidPhi,
-             Renderer::GenericBuffer& valid);
+    VORTEX2D_API Pressure(const Renderer::Device& device,
+                          float dt,
+                          const glm::ivec2& size,
+                          LinearSolver::Data& data,
+                          Velocity& velocity,
+                          Renderer::Texture& solidPhi,
+                          Renderer::Texture& liquidPhi,
+                          Renderer::GenericBuffer& valid);
 
     Renderer::Work::Bound BindMatrixBuild(const glm::ivec2& size,
                                           Renderer::GenericBuffer& diagonal,
@@ -37,8 +37,8 @@ public:
                                           Renderer::Texture& liquidPhi,
                                           Renderer::Texture& solidPhi);
 
-    void BuildLinearEquation();
-    void ApplyPressure();
+    VORTEX2D_API void BuildLinearEquation();
+    VORTEX2D_API void ApplyPressure();
 
 private:
     LinearSolver::Data& mData;

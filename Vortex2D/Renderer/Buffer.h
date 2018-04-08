@@ -20,24 +20,24 @@ class Device;
 class GenericBuffer
 {
 public:
-    GenericBuffer(const Device& device,
-                  vk::BufferUsageFlags usageFlags,
-                  VmaMemoryUsage memoryUsage,
-                  vk::DeviceSize deviceSize);
+    VORTEX2D_API GenericBuffer(const Device& device,
+                              vk::BufferUsageFlags usageFlags,
+                              VmaMemoryUsage memoryUsage,
+                              vk::DeviceSize deviceSize);
 
-    virtual ~GenericBuffer();
+    VORTEX2D_API virtual ~GenericBuffer();
 
-    GenericBuffer(GenericBuffer&& other);
+    VORTEX2D_API GenericBuffer(GenericBuffer&& other);
 
-    void CopyFrom(vk::CommandBuffer commandBuffer, GenericBuffer& srcBuffer);
-    void CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcTexture);
+    VORTEX2D_API void CopyFrom(vk::CommandBuffer commandBuffer, GenericBuffer& srcBuffer);
+    VORTEX2D_API void CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcTexture);
 
-    vk::Buffer Handle() const;
-    vk::DeviceSize Size() const;
+    VORTEX2D_API vk::Buffer Handle() const;
+    VORTEX2D_API vk::DeviceSize Size() const;
 
-    void Barrier(vk::CommandBuffer commandBuffer, vk::AccessFlags oldAccess, vk::AccessFlags newAccess);
+    VORTEX2D_API void Barrier(vk::CommandBuffer commandBuffer, vk::AccessFlags oldAccess, vk::AccessFlags newAccess);
 
-    void Clear(vk::CommandBuffer commandBuffer);
+    VORTEX2D_API void Clear(vk::CommandBuffer commandBuffer);
 
     // Template friend functions for copying to and from buffers
     template<template<typename> class BufferType, typename T>
@@ -51,8 +51,8 @@ public:
     friend void CopyFrom(BufferType<T>&, const std::vector<T>&);
 
 protected:
-    void CopyFrom(const void* data);
-    void CopyTo(void* data);
+    VORTEX2D_API void CopyFrom(const void* data);
+    VORTEX2D_API void CopyTo(void* data);
 
     const Device& mDevice;
     vk::DeviceSize mSize;

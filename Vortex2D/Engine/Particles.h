@@ -24,23 +24,23 @@ struct Particle
 class ParticleCount : public Renderer::RenderTexture
 {
 public:
-    ParticleCount(const Renderer::Device& device,
-                  const glm::ivec2& size,
-                  Renderer::GenericBuffer& particles,
-                  const Renderer::DispatchParams& params = {0},
-                  float alpha = 1.0f);
+    VORTEX2D_API ParticleCount(const Renderer::Device& device,
+                               const glm::ivec2& size,
+                               Renderer::GenericBuffer& particles,
+                               const Renderer::DispatchParams& params = {0},
+                               float alpha = 1.0f);
 
-    void Scan();
+    VORTEX2D_API void Scan();
 
-    int GetTotalCount();
-    Renderer::IndirectBuffer<Renderer::DispatchParams>& GetDispatchParams();
+    VORTEX2D_API int GetTotalCount();
+    VORTEX2D_API Renderer::IndirectBuffer<Renderer::DispatchParams>& GetDispatchParams();
 
-    void LevelSetBind(LevelSet& levelSet);
-    void Phi();
+    VORTEX2D_API void LevelSetBind(LevelSet& levelSet);
+    VORTEX2D_API void Phi();
 
-    void VelocitiesBind(Velocity& velocity, Renderer::GenericBuffer& valid);
-    void TransferToGrid();
-    void TransferFromGrid();
+    VORTEX2D_API void VelocitiesBind(Velocity& velocity, Renderer::GenericBuffer& valid);
+    VORTEX2D_API void TransferToGrid();
+    VORTEX2D_API void TransferFromGrid();
 
 private:
     const Renderer::Device& mDevice;

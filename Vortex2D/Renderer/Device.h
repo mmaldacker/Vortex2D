@@ -47,29 +47,29 @@ private:
 class Device
 {
 public:
-    Device(vk::PhysicalDevice physicalDevice, bool validation = true);
-    Device(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface, bool validation = true);
-    Device(vk::PhysicalDevice physicalDevice, int familyIndex, bool validation = true);
-    ~Device();
+    VORTEX2D_API Device(vk::PhysicalDevice physicalDevice, bool validation = true);
+    VORTEX2D_API Device(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface, bool validation = true);
+    VORTEX2D_API Device(vk::PhysicalDevice physicalDevice, int familyIndex, bool validation = true);
+    VORTEX2D_API ~Device();
 
     Device(Device&&) = delete;
     Device& operator=(Device&&) = delete;
 
     // Vulkan handles and helpers
-    vk::Device Handle() const;
-    vk::Queue Queue() const;
-    vk::PhysicalDevice GetPhysicalDevice() const;
-    int GetFamilyIndex() const;
+    VORTEX2D_API vk::Device Handle() const;
+    VORTEX2D_API vk::Queue Queue() const;
+    VORTEX2D_API vk::PhysicalDevice GetPhysicalDevice() const;
+    VORTEX2D_API int GetFamilyIndex() const;
 
     // Command buffer functions
-    std::vector<vk::CommandBuffer> CreateCommandBuffers(uint32_t size) const;
-    void FreeCommandBuffers(vk::ArrayProxy<const vk::CommandBuffer> commandBuffers) const;
+    VORTEX2D_API std::vector<vk::CommandBuffer> CreateCommandBuffers(uint32_t size) const;
+    VORTEX2D_API void FreeCommandBuffers(vk::ArrayProxy<const vk::CommandBuffer> commandBuffers) const;
 
     // Memory allocator
-    VmaAllocator Allocator() const;
-    LayoutManager& GetLayoutManager() const;
+    VORTEX2D_API VmaAllocator Allocator() const;
+    VORTEX2D_API LayoutManager& GetLayoutManager() const;
 
-    vk::ShaderModule GetShaderModule(const SpirvBinary& spirv) const;
+    VORTEX2D_API vk::ShaderModule GetShaderModule(const SpirvBinary& spirv) const;
 
 private:
     vk::PhysicalDevice mPhysicalDevice;

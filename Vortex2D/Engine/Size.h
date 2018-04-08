@@ -21,7 +21,7 @@ struct Dimensions
      * @param size the size at which we will draw boundaries, forces, etc
      * @param scale the scale of the actual grid
      */
-    Dimensions(const glm::ivec2 & size, const float scale);
+    VORTEX2D_API Dimensions(const glm::ivec2 & size, const float scale);
 
     const float Scale;
     const glm::ivec2 Size;

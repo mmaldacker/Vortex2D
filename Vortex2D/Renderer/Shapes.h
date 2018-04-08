@@ -25,16 +25,15 @@ struct RenderTarget;
 class AbstractShape : public Drawable, public Transformable
 {
 public:
+    VORTEX2D_API AbstractShape(const Device& device,
+                               const SpirvBinary& fragShader,
+                               const std::vector<glm::vec2>& vertices);
+    VORTEX2D_API AbstractShape(AbstractShape&& other);
+    VORTEX2D_API virtual ~AbstractShape() {}
 
-    AbstractShape(const Device& device,
-                  const SpirvBinary& fragShader,
-                  const std::vector<glm::vec2>& vertices);
-    AbstractShape(AbstractShape&& other);
-    virtual ~AbstractShape() {}
-
-    void Initialize(const RenderState& renderState) override;
-    void Update(const glm::mat4& projection, const glm::mat4& view) override;
-    void Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState) override;
+    VORTEX2D_API void Initialize(const RenderState& renderState) override;
+    VORTEX2D_API void Update(const glm::mat4& projection, const glm::mat4& view) override;
+    VORTEX2D_API void Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState) override;
 
     glm::vec4 Colour;
 
@@ -54,13 +53,13 @@ protected:
 class Rectangle : public AbstractShape
 {
 public:
-    Rectangle(const Device& device, const glm::vec2& size);
+    VORTEX2D_API Rectangle(const Device& device, const glm::vec2& size);
 };
 
 class IntRectangle : public AbstractShape
 {
 public:
-    IntRectangle(const Device& device, const glm::vec2& size);
+    VORTEX2D_API IntRectangle(const Device& device, const glm::vec2& size);
 };
 
 /**
@@ -69,7 +68,7 @@ public:
 class Ellipse : public Drawable, public Transformable
 {
 public:
-    Ellipse(const Device& device, const glm::vec2& radius);
+    VORTEX2D_API Ellipse(const Device& device, const glm::vec2& radius);
 
     void Initialize(const RenderState& renderState) override;
     void Update(const glm::mat4& projection, const glm::mat4& view) override;
@@ -100,7 +99,7 @@ private:
 class Clear : public Drawable
 {
 public:
-    Clear(const glm::vec4& colour);
+    VORTEX2D_API Clear(const glm::vec4& colour);
 
     void Initialize(const RenderState& renderState) override;
     void Update(const glm::mat4& projection, const glm::mat4& view) override;

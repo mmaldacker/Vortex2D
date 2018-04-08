@@ -430,11 +430,6 @@ TEST(ComputeTests, Reflection)
 
   EXPECT_EQ(expectedDescriptorTypes, descriptorTypes);
 
-  Reflection spirv3(Redistance_comp);
-
-  descriptorTypes = spirv3.GetDescriptorTypesMap();
-  expectedDescriptorTypes = {{0, vk::DescriptorType::eCombinedImageSampler}, {1, vk::DescriptorType::eCombinedImageSampler}, {2, vk::DescriptorType::eStorageImage}};
-
-  EXPECT_EQ(expectedDescriptorTypes, descriptorTypes);
+  Reflection spirv3(Checkerboard_comp);
   EXPECT_EQ(12, spirv3.GetPushConstantsSize());
 }

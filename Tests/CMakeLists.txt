@@ -34,6 +34,10 @@ download_project(PROJ                googletest
 # when building with Visual Studio
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
+# Disable install
+set(INSTALL_GMOCK OFF CACHE BOOL "" FORCE)
+set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
+
 add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
 
 download_project(PROJ                FluidRigidCoupling2D
@@ -52,6 +56,4 @@ target_compile_features(vortex2d_tests PRIVATE cxx_variadic_templates cxx_generi
 target_link_libraries(vortex2d_tests vortex2d gtest gmock gmock_main Threads::Threads fluidrigidcoupling2d_lib)
 target_include_directories(vortex2d_tests PRIVATE ./ ${CMAKE_CURRENT_BINARY_DIR})
 
-
 add_test(AllTests vortex2d_tests)
-

@@ -23,19 +23,19 @@ struct Drawable;
  */
 struct RenderTarget
 {
-    RenderTarget(uint32_t width, uint32_t height);
-    RenderTarget(RenderTarget&& other);
+    VORTEX2D_API RenderTarget(uint32_t width, uint32_t height);
+    VORTEX2D_API RenderTarget(RenderTarget&& other);
 
-    virtual ~RenderTarget();
+    VORTEX2D_API virtual ~RenderTarget();
 
     // TODO should use shared_ptr?
     using DrawableList = std::initializer_list<std::reference_wrapper<Drawable>>;
 
-    virtual RenderCommand Record(DrawableList drawables,
-                                 vk::PipelineColorBlendAttachmentState blendMode = {}) = 0;
+    VORTEX2D_API virtual RenderCommand Record(DrawableList drawables,
+                                              vk::PipelineColorBlendAttachmentState blendMode = {}) = 0;
 
     // TODO should use shared_ptr?
-    virtual void Submit(RenderCommand& renderCommand) = 0;
+    VORTEX2D_API virtual void Submit(RenderCommand& renderCommand) = 0;
 
     uint32_t Width;
     uint32_t Height;

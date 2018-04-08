@@ -17,7 +17,7 @@ public:
     class Bound
     {
     public:
-        void Record(vk::CommandBuffer commandBuffer);
+        VORTEX2D_API void Record(vk::CommandBuffer commandBuffer);
 
         friend class PrefixScan;
     private:
@@ -28,9 +28,9 @@ public:
         std::vector<Renderer::Work::Bound> mBounds;
     };
 
-    PrefixScan(const Renderer::Device& device, const glm::ivec2& size);
+    VORTEX2D_API PrefixScan(const Renderer::Device& device, const glm::ivec2& size);
 
-    Bound Bind(Renderer::GenericBuffer& input, Renderer::GenericBuffer& output, Renderer::GenericBuffer& dispatchParams);
+    VORTEX2D_API Bound Bind(Renderer::GenericBuffer& input, Renderer::GenericBuffer& output, Renderer::GenericBuffer& dispatchParams);
 
 private:
     void BindRecursive(std::vector<Renderer::CommandBuffer::CommandFn>& bufferBarriers,

@@ -5,3 +5,4 @@ CMakeLists.txt.user
 *.svg
 *.txt
 Docs/xml_output/
+install/

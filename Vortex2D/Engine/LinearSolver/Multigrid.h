@@ -64,7 +64,7 @@ public:
      * @param size of the linear equations
      * @param delta timestep delta
      */
-    Multigrid(const Renderer::Device& device, const glm::ivec2& size, float delta);
+    VORTEX2D_API Multigrid(const Renderer::Device& device, const glm::ivec2& size, float delta);
 
     void Bind(Renderer::GenericBuffer& d,
               Renderer::GenericBuffer& l,
@@ -77,14 +77,14 @@ public:
      * @param solidPhi the solid level set
      * @param liquidPhi the liquid level set
      */
-    void BuildHierarchiesBind(Pressure& pressure,
-                              Renderer::Texture& solidPhi,
-                              Renderer::Texture& liquidPhi);
+    VORTEX2D_API void BuildHierarchiesBind(Pressure& pressure,
+                                           Renderer::Texture& solidPhi,
+                                           Renderer::Texture& liquidPhi);
 
     /**
      * @brief Computes the hierarchy to be used by the multigrid. Asynchronous operation.
      */
-    void BuildHierarchies();
+    VORTEX2D_API void BuildHierarchies();
 
     void Record(vk::CommandBuffer commandBuffer) override;
 

@@ -39,33 +39,33 @@ public:
         alignas(4) float angular_velocity;
     };
 
-    RigidBody(const Renderer::Device& device,
-              const Dimensions& dimensions,
-              Renderer::Drawable& drawable,
-              const glm::vec2& centre,
-              Renderer::RenderTexture& phi,
-              vk::Flags<Type> type);
+    VORTEX2D_API RigidBody(const Renderer::Device& device,
+                           const Dimensions& dimensions,
+                           Renderer::Drawable& drawable,
+                           const glm::vec2& centre,
+                           Renderer::RenderTexture& phi,
+                           vk::Flags<Type> type);
 
-    void SetVelocities(const glm::vec2& velocity, float angularVelocity);
+    VORTEX2D_API void SetVelocities(const glm::vec2& velocity, float angularVelocity);
 
-    void UpdatePosition();
-    void RenderPhi();
+    VORTEX2D_API void UpdatePosition();
+    VORTEX2D_API void RenderPhi();
 
-    void BindDiv(Renderer::GenericBuffer& div,
-                 Renderer::GenericBuffer& diagonal,
-                 Renderer::Texture& fluidLevelSet);
+    VORTEX2D_API void BindDiv(Renderer::GenericBuffer& div,
+                              Renderer::GenericBuffer& diagonal,
+                              Renderer::Texture& fluidLevelSet);
 
-    void BindVelocityConstrain(Fluid::Velocity& velocity);
-    void BindPressure(Renderer::Texture& fluidLevelSet,
-                      Renderer::GenericBuffer& pressure,
-                      Renderer::GenericBuffer& force);
+    VORTEX2D_API void BindVelocityConstrain(Fluid::Velocity& velocity);
+    VORTEX2D_API void BindPressure(Renderer::Texture& fluidLevelSet,
+                                   Renderer::GenericBuffer& pressure,
+                                   Renderer::GenericBuffer& force);
 
-    void Div();
-    void Pressure();
-    void VelocityConstrain();
-    Velocity GetForces();
-    vk::Flags<Type> GetType();
-    Renderer::RenderTexture& Phi();
+    VORTEX2D_API void Div();
+    VORTEX2D_API void Pressure();
+    VORTEX2D_API void VelocityConstrain();
+    VORTEX2D_API Velocity GetForces();
+    VORTEX2D_API vk::Flags<Type> GetType();
+    VORTEX2D_API Renderer::RenderTexture& Phi();
 
 private:
     float mScale;

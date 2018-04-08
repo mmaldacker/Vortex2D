@@ -26,7 +26,7 @@ public:
      * @param width
      * @param height
      */
-    RenderWindow(const Device& device, vk::SurfaceKHR surface, uint32_t width, uint32_t height);
+    VORTEX2D_API RenderWindow(const Device& device, vk::SurfaceKHR surface, uint32_t width, uint32_t height);
 
     RenderCommand Record(DrawableList drawables,
                          vk::PipelineColorBlendAttachmentState blendMode = {}) override;
@@ -35,7 +35,7 @@ public:
     /**
      * @brief Submits all the render command and present the surface for display.
      */
-    void Display();
+    VORTEX2D_API void Display();
 
 private:
     const Device& mDevice;

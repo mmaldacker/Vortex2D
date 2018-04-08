@@ -29,24 +29,24 @@ public:
      * @param dt delta time for integration
      * @param velocity velocity field
      */
-    Advection(const Renderer::Device& device, const glm::ivec2& size, float dt, Velocity& velocity);
+    VORTEX2D_API Advection(const Renderer::Device& device, const glm::ivec2& size, float dt, Velocity& velocity);
 
     /**
      * @brief Self advect velocity
      */
-    void AdvectVelocity();
+    VORTEX2D_API void AdvectVelocity();
 
     // TODO can only advect one field, need to be able to do as many as we want
     /**
      * @brief Binds a density field to be advected.
      * @param density density field
      */
-    void AdvectBind(Density& density);
+    VORTEX2D_API void AdvectBind(Density& density);
 
     /**
      * @brief Performs an advection of the density field. Asynchronous operation.
      */
-    void Advect();
+    VORTEX2D_API void Advect();
 
     /**
      * @brief Binds praticles to be advected.
@@ -55,13 +55,13 @@ public:
      * @param levelSet level set to project out particles
      * @param dispatchParams contains number of particles
      */
-    void AdvectParticleBind(Renderer::GenericBuffer& particles,
-                            Renderer::Texture& levelSet,
-                            Renderer::IndirectBuffer<Renderer::DispatchParams>& dispatchParams);
+    VORTEX2D_API void AdvectParticleBind(Renderer::GenericBuffer& particles,
+                                         Renderer::Texture& levelSet,
+                                         Renderer::IndirectBuffer<Renderer::DispatchParams>& dispatchParams);
     /**
      * @brief Advect particles. Asynchrounous operation.
      */
-    void AdvectParticles();
+    VORTEX2D_API void AdvectParticles();
 
 private:
     float mDt;

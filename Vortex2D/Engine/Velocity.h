@@ -21,7 +21,7 @@ namespace Vortex2D { namespace Fluid {
 class Velocity : public Renderer::RenderTexture
 {
 public:
-    Velocity(const Renderer::Device& device, const glm::ivec2& size);
+    VORTEX2D_API Velocity(const Renderer::Device& device, const glm::ivec2& size);
 
     /**
      * @brief An output texture used for algorithms that used the velocity as input and need to create a new velocity field
@@ -55,7 +55,7 @@ public:
     /**
      * @brief Calculate the difference between the difference field and this velocity field, store it in the diference field.
      */
-    void VelocityDiff();
+    VORTEX2D_API void VelocityDiff();
 
 private:
     Renderer::Texture mOutputVelocity;

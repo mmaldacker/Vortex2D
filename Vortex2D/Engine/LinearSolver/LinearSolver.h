@@ -27,7 +27,7 @@ struct LinearSolver
          * @param iterations max number of iterations to perform
          * @param errorTolerance solver stops when the error is smaller than this.
          */
-        Parameters(unsigned iterations, float errorTolerance = 0.0f);
+        VORTEX2D_API Parameters(unsigned iterations, float errorTolerance = 0.0f);
 
         /**
          * @brief Checks if we've reacched the parameters.
@@ -48,7 +48,7 @@ struct LinearSolver
      */
     struct Data
     {
-        Data(const Renderer::Device& device, const glm::ivec2& size, VmaMemoryUsage memoryUsage = VMA_MEMORY_USAGE_GPU_ONLY);
+        VORTEX2D_API Data(const Renderer::Device& device, const glm::ivec2& size, VmaMemoryUsage memoryUsage = VMA_MEMORY_USAGE_GPU_ONLY);
 
         Renderer::Buffer<float> Diagonal;
         Renderer::Buffer<glm::vec2> Lower;

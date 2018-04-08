@@ -18,12 +18,12 @@ namespace Vortex2D { namespace Fluid {
 class LevelSet : public Renderer::RenderTexture
 {
 public:
-    LevelSet(const Renderer::Device& device, const glm::ivec2& size, int reinitializeIterations = 100);
+    VORTEX2D_API LevelSet(const Renderer::Device& device, const glm::ivec2& size, int reinitializeIterations = 100);
 
-    void ExtrapolateBind(Renderer::Texture& solidPhi);
+    VORTEX2D_API void ExtrapolateBind(Renderer::Texture& solidPhi);
 
-    void Reinitialise();
-    void Extrapolate();
+    VORTEX2D_API void Reinitialise();
+    VORTEX2D_API void Extrapolate();
     void ExtrapolateRecord(vk::CommandBuffer commandBuffer);
 
 private:

@@ -26,7 +26,7 @@ using DescriptorTypeBindings = std::map<uint32_t, vk::DescriptorType>;
 
 struct ShaderLayout
 {
-    ShaderLayout(const SPIRV::Reflection& reflection);
+    VORTEX2D_API ShaderLayout(const SPIRV::Reflection& reflection);
 
     vk::ShaderStageFlags shaderStage;
     DescriptorTypeBindings bindings;
@@ -52,10 +52,10 @@ struct DescriptorSet
 class LayoutManager
 {
 public:
-    LayoutManager(const Device& device);
+    VORTEX2D_API LayoutManager(const Device& device);
 
     void CreateDescriptorPool();
-    DescriptorSet MakeDescriptorSet(const PipelineLayout& layout);
+    VORTEX2D_API DescriptorSet MakeDescriptorSet(const PipelineLayout& layout);
     vk::DescriptorSetLayout GetDescriptorSetLayout(const PipelineLayout& layout);
     vk::PipelineLayout GetPipelineLayout(const PipelineLayout& layout);
 
@@ -79,15 +79,15 @@ struct BindingInput
 {
     static constexpr uint32_t DefaultBind = static_cast<uint32_t>(-1);
 
-    BindingInput(Renderer::GenericBuffer& buffer, uint32_t bind = DefaultBind);
-    BindingInput(Renderer::Texture& texture,  uint32_t bind = DefaultBind);
-    BindingInput(vk::Sampler sampler, Renderer::Texture& texture,  uint32_t bind = DefaultBind);
+    VORTEX2D_API BindingInput(Renderer::GenericBuffer& buffer, uint32_t bind = DefaultBind);
+    VORTEX2D_API BindingInput(Renderer::Texture& texture,  uint32_t bind = DefaultBind);
+    VORTEX2D_API BindingInput(vk::Sampler sampler, Renderer::Texture& texture,  uint32_t bind = DefaultBind);
 
     uint32_t Bind;
     mpark::variant<Renderer::GenericBuffer*, DescriptorImage> Input;
 };
 
-void Bind(const Device& device, vk::DescriptorSet dstSet, const PipelineLayout& layout, const std::vector<BindingInput>& bindingInputs);
+VORTEX2D_API void Bind(const Device& device, vk::DescriptorSet dstSet, const PipelineLayout& layout, const std::vector<BindingInput>& bindingInputs);
 
 }}
 

@@ -21,7 +21,7 @@ public:
      * @brief Initialize prolongate and restrict compute pipelines
      * @param device
      */
-    Transfer(const Renderer::Device& device);
+    VORTEX2D_API Transfer(const Renderer::Device& device);
 
     /**
      * @brief Prolongate a level set on a finer level set. Setting the 4 cells to the value of the coarser grid.
@@ -33,12 +33,12 @@ public:
      * @param coarse the coarse level set
      * @param coarseDiagonal the diagonal of the linear equation matrix at size half of @ref fine
      */
-    void ProlongateBind(std::size_t level,
-                        const glm::ivec2& fineSize,
-                        Renderer::GenericBuffer& fine, 
-                        Renderer::GenericBuffer& fineDiagonal, 
-                        Renderer::GenericBuffer& coarse, 
-                        Renderer::GenericBuffer& coarseDiagonal);
+    VORTEX2D_API void ProlongateBind(std::size_t level,
+                                     const glm::ivec2& fineSize,
+                                     Renderer::GenericBuffer& fine,
+                                     Renderer::GenericBuffer& fineDiagonal,
+                                     Renderer::GenericBuffer& coarse,
+                                     Renderer::GenericBuffer& coarseDiagonal);
 
     /**
      * @brief Restricing the level set on a coarser level set. Averages 4 cells into one.
@@ -50,26 +50,26 @@ public:
      * @param coarse the coarse level set
      * @param coarseDiagonal the diagonal of the linear equation matrix at size half of @ref fine
      */
-    void RestrictBind(std::size_t level,
-                      const glm::ivec2& fineSize,
-                      Renderer::GenericBuffer& fine, 
-                      Renderer::GenericBuffer& fineDiagonal, 
-                      Renderer::GenericBuffer& coarse, 
-                      Renderer::GenericBuffer& coarseDiagonal);
+    VORTEX2D_API void RestrictBind(std::size_t level,
+                                   const glm::ivec2& fineSize,
+                                   Renderer::GenericBuffer& fine,
+                                   Renderer::GenericBuffer& fineDiagonal,
+                                   Renderer::GenericBuffer& coarse,
+                                   Renderer::GenericBuffer& coarseDiagonal);
 
     /**
      * @brief Prolongate the level set, using the bound level sets at the specified index.
      * @param commandBuffer command buffer to record into.
      * @param level index of bound level sets.
      */
-    void Prolongate(vk::CommandBuffer commandBuffer, std::size_t level);
+    VORTEX2D_API void Prolongate(vk::CommandBuffer commandBuffer, std::size_t level);
 
     /**
      * @brief Restrict the level set, using the bound level sets at the specified index.
      * @param commandBuffer command buffer to record into.
      * @param level index of bound level sets.
      */
-    void Restrict(vk::CommandBuffer commandBuffer, std::size_t level);
+    VORTEX2D_API void Restrict(vk::CommandBuffer commandBuffer, std::size_t level);
 
 private:
     const Renderer::Device& mDevice;

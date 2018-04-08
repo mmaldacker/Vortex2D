@@ -45,7 +45,7 @@ public:
      * @param dt timestamp of the simulation, e.g. 0.016 for 60FPS simulations.
      */
     World(const Renderer::Device& device, Dimensions dimensions, float dt);
-    virtual ~World() {}
+    virtual ~World() = default;
 
     /**
      * @brief Perform one step of the simulation.
@@ -57,13 +57,13 @@ public:
      * @param drawables a list of drawable field
      * @return render command
      */
-    Renderer::RenderCommand RecordVelocity(Renderer::RenderTarget::DrawableList drawables);
+    VORTEX2D_API Renderer::RenderCommand RecordVelocity(Renderer::RenderTarget::DrawableList drawables);
 
     /**
      * @brief submit the render command created with @ref RecordVelocity
      * @param renderCommand the render command
      */
-    void SubmitVelocity(Renderer::RenderCommand& renderCommand);
+    VORTEX2D_API void SubmitVelocity(Renderer::RenderCommand& renderCommand);
 
     /**
      * @brief Record drawables to the liquid level set, i.e. to define the fluid area.
@@ -71,7 +71,7 @@ public:
      * @param drawables a list of signed distance field drawables
      * @return render command
      */
-    Renderer::RenderCommand RecordLiquidPhi(Renderer::RenderTarget::DrawableList drawables);
+    VORTEX2D_API Renderer::RenderCommand RecordLiquidPhi(Renderer::RenderTarget::DrawableList drawables);
 
     /**
      * @brief Record drawables to the solid level set, i.e. to define the boundary area.
@@ -79,19 +79,19 @@ public:
      * @param drawables a list of signed distance field drawables
      * @return render command
      */
-    Renderer::RenderCommand RecordStaticSolidPhi(Renderer::RenderTarget::DrawableList drawables);
+    VORTEX2D_API Renderer::RenderCommand RecordStaticSolidPhi(Renderer::RenderTarget::DrawableList drawables);
 
     /**
      * @brief Create sprite that can be rendered to visualize the liquid level set.
      * @return a sprite
      */
-    DistanceField LiquidDistanceField();
+    VORTEX2D_API DistanceField LiquidDistanceField();
 
     /**
      * @brief Create sprite that can be rendered to visualize the solid level set.
      * @return a sprite
      */
-    DistanceField SolidDistanceField();
+    VORTEX2D_API DistanceField SolidDistanceField();
 
     /**
      * @brief Create a rigid body and add it to the World. The lifetime of the rigidbody is tied to the lifetime of the World.
@@ -100,7 +100,7 @@ public:
      * @param centre the centre of the drawable. Use for rotations.
      * @return a pointer to the rigid body.
      */
-    RigidBody* CreateRigidbody(vk::Flags<RigidBody::Type> type, Renderer::Drawable& drawable, const glm::vec2& centre);
+    VORTEX2D_API RigidBody* CreateRigidbody(vk::Flags<RigidBody::Type> type, Renderer::Drawable& drawable, const glm::vec2& centre);
 
 protected:
     const Renderer::Device& mDevice;
@@ -136,15 +136,15 @@ protected:
 class SmokeWorld : public World
 {
 public:
-    SmokeWorld(const Renderer::Device& device, Dimensions dimensions, float dt);
+    VORTEX2D_API SmokeWorld(const Renderer::Device& device, Dimensions dimensions, float dt);
 
-    void Solve() override;
+    VORTEX2D_API void Solve() override;
 
     /**
      * @brief Bind a density field to be moved around with the fluid
      * @param density the density field
      */
-    void FieldBind(Density& density);
+    VORTEX2D_API void FieldBind(Density& density);
 };
 
 /**
@@ -153,9 +153,9 @@ public:
 class WaterWorld : public World
 {
 public:
-    WaterWorld(const Renderer::Device& device, Dimensions dimensions, float dt);
+    VORTEX2D_API WaterWorld(const Renderer::Device& device, Dimensions dimensions, float dt);
 
-    void Solve() override;
+    VORTEX2D_API void Solve() override;
 
     /**
      * @brief The water simulation uses particles to define the water area.
@@ -165,7 +165,7 @@ public:
      * @param drawables list of drawables object with colour 4 or -4
      * @return render command
      */
-    Renderer::RenderCommand RecordParticleCount(Renderer::RenderTarget::DrawableList drawables);
+    VORTEX2D_API Renderer::RenderCommand RecordParticleCount(Renderer::RenderTarget::DrawableList drawables);
 
 private:
     Renderer::GenericBuffer mParticles;

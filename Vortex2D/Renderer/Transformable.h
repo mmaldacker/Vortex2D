@@ -19,10 +19,10 @@ template<typename T>
 class property
 {
 public:
-    property(Transformable& t);
+    VORTEX2D_API property(Transformable& t);
 
-    T& operator = (const T& i);
-    operator T const & () const;
+    VORTEX2D_API T& operator= (const T& i);
+    VORTEX2D_API operator T const & () const;
 
 private:
     T value;

@@ -61,13 +61,13 @@ struct ComputeSize
      * @brief Creates a ComputeSize using a 2D domain size and the default 2D local size.
      * @param size the domain size
      */
-    ComputeSize(const glm::ivec2& size);
+    VORTEX2D_API ComputeSize(const glm::ivec2& size);
 
     /**
      * @brief Creates a ComputeSize using a 1D domain size and the default 1D local size.
      * @param size the domain size
      */
-    ComputeSize(int size);
+    VORTEX2D_API ComputeSize(int size);
 
     glm::ivec2 DomainSize;
     glm::ivec2 WorkSize;
@@ -80,7 +80,7 @@ struct ComputeSize
  * @param radius the stencil size
  * @return calculate ComputeSize
  */
-ComputeSize MakeStencilComputeSize(const glm::ivec2& size, int radius);
+VORTEX2D_API ComputeSize MakeStencilComputeSize(const glm::ivec2& size, int radius);
 
 /**
  * @brief Create a ComputeSize for a checkerboard type shader
@@ -88,11 +88,11 @@ ComputeSize MakeStencilComputeSize(const glm::ivec2& size, int radius);
  * @param radius the stencil size
  * @return calculate ComputeSize
  */
-ComputeSize MakeCheckerboardComputeSize(const glm::ivec2& size);
+VORTEX2D_API ComputeSize MakeCheckerboardComputeSize(const glm::ivec2& size);
 
 struct DispatchParams
 {
-    DispatchParams(int count);
+    VORTEX2D_API DispatchParams(int count);
     alignas(16) vk::DispatchIndirectCommand workSize;
     alignas(4) uint32_t count;
 };
@@ -109,9 +109,9 @@ public:
      * @param computeSize the compute size. Can be a default one with size (1,1) or one with an actual size.
      * @param spirv binary spirv
      */
-    Work(const Device& device,
-         const ComputeSize& computeSize,
-         const SpirvBinary& spirv);
+    VORTEX2D_API Work(const Device& device,
+                      const ComputeSize& computeSize,
+                      const SpirvBinary& spirv);
 
     /**
      * @brief Is a bound version of @ref Work. This means a buffer or texture was bound and this can be recorded in a command buffer.
@@ -119,7 +119,7 @@ public:
     class Bound
     {
     public:
-        Bound();
+        VORTEX2D_API Bound();
 
         /**
          * @brief Adds a constant value, i.e. a push constant.
@@ -140,20 +140,20 @@ public:
          * @brief Record the compute work in this command buffer. This will also set two additional push constants: the 2D domain size.
          * @param commandBuffer the command buffer to record into.
          */
-        void Record(vk::CommandBuffer commandBuffer);
+        VORTEX2D_API void Record(vk::CommandBuffer commandBuffer);
 
         /**
          * @brief Record the compute work in this command buffer. Use the provided parameters to run the compute shader.
          * @param commandBuffer the command buffer to record into.
          * @param dispatchParams the indirect buffer containing the parameters.
          */
-        void RecordIndirect(vk::CommandBuffer commandBuffer, IndirectBuffer<DispatchParams>& dispatchParams);
+        VORTEX2D_API void RecordIndirect(vk::CommandBuffer commandBuffer, IndirectBuffer<DispatchParams>& dispatchParams);
 
         /**
          * @brief Record the compute work in this command buffer.
          * @param commandBuffer the command buffer to record into.
          */
-        void Dispatch(vk::CommandBuffer commandBuffer);
+        VORTEX2D_API void Dispatch(vk::CommandBuffer commandBuffer);
 
         friend class Work;
 
@@ -176,7 +176,7 @@ public:
      * @param inputs a list of buffers and/or textures
      * @return a bound object, ready to be recorded in a command buffer.
      */
-    Bound Bind(const std::vector<BindingInput>& inputs);
+    VORTEX2D_API Bound Bind(const std::vector<BindingInput>& inputs);
 
     /**
      * @brief Bind the buffers and/or textures. This overrides the provided compute size in @ref Work.
@@ -184,7 +184,7 @@ public:
      * @param inputs a list of buffers and/or textures
      * @return a bound object, ready to be recorded in a command buffer.
      */
-    Bound Bind(ComputeSize computeSize, const std::vector<BindingInput>& inputs);
+    VORTEX2D_API Bound Bind(ComputeSize computeSize, const std::vector<BindingInput>& inputs);
 
 private:
     ComputeSize mComputeSize;

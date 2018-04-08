@@ -33,7 +33,7 @@ public:
      * @param inverse flag if the distance field should be inversed.
      * @param extent extend how far from the poylon the signed distance field is calculated.
      */
-    Polygon(const Renderer::Device& device, std::vector<glm::vec2> points, bool inverse = false, float extent = 10.0f);
+    VORTEX2D_API Polygon(const Renderer::Device& device, std::vector<glm::vec2> points, bool inverse = false, float extent = 10.0f);
 
     void Initialize(const Renderer::RenderState& renderState) override;
     void Update(const glm::mat4& projection, const glm::mat4& view) override;
@@ -64,7 +64,7 @@ public:
      * @param inverse flag if the distance field should be inverted.
      * @param extent extent how far from the rectangle the signed distance field is calculated.
      */
-    Rectangle(const Renderer::Device& device, const glm::vec2& size, bool inverse = false, float extent = 10.0f);
+    VORTEX2D_API Rectangle(const Renderer::Device& device, const glm::vec2& size, bool inverse = false, float extent = 10.0f);
 };
 
 /**
@@ -80,7 +80,7 @@ public:
      * @param radius radius of circle.
      * @param extent extend how far from the circle the signed distance field is calculated.
      */
-    Circle(const Renderer::Device& device, float radius, float extent = 10.0f);
+    VORTEX2D_API Circle(const Renderer::Device& device, float radius, float extent = 10.0f);
 
     void Initialize(const Renderer::RenderState& renderState) override;
     void Update(const glm::mat4& projection, const glm::mat4& view) override;
@@ -96,9 +96,9 @@ private:
     Renderer::GraphicsPipeline mPipeline;
 };
 
-extern vk::PipelineColorBlendAttachmentState IntersectionBlend;
-extern vk::PipelineColorBlendAttachmentState UnionBlend;
-extern Renderer::Clear BoundariesClear;
+extern VORTEX2D_API vk::PipelineColorBlendAttachmentState IntersectionBlend;
+extern VORTEX2D_API vk::PipelineColorBlendAttachmentState UnionBlend;
+extern VORTEX2D_API Renderer::Clear BoundariesClear;
 
 /**
  * @brief Sprite of a distance field
@@ -112,9 +112,9 @@ public:
      * @param levelSet level set to use as sprite
      * @param scale scale of the level set
      */
-    DistanceField(const Renderer::Device& device,
-                  Renderer::RenderTexture& levelSet,
-                  float scale = 1.0f);
+    VORTEX2D_API DistanceField(const Renderer::Device& device,
+                               Renderer::RenderTexture& levelSet,
+                               float scale = 1.0f);
 
     void Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState) override;
 

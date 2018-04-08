@@ -1,52 +1,86 @@
-file(GLOB LIB_SOURCES
+set(LIB_SOURCES
+    "Engine/Density.cpp"
+    "Engine/LevelSet.cpp"
+    "Engine/Pressure.cpp"
+    "Engine/Advection.cpp"
+    "Engine/Extrapolation.cpp"
+    "Engine/World.cpp"
+    "Engine/Size.cpp"
+    "Engine/Boundaries.cpp"
+    "Engine/PrefixScan.cpp"
+    "Engine/Particles.cpp"
+    "Engine/Rigidbody.cpp"
+    "Engine/Velocity.cpp"
+    "Engine/LinearSolver/LinearSolver.cpp"
+    "Engine/LinearSolver/Reduce.cpp"
+    "Engine/LinearSolver/GaussSeidel.cpp"
+    "Engine/LinearSolver/Jacobi.cpp"
+    "Engine/LinearSolver/ConjugateGradient.cpp"
+    "Engine/LinearSolver/Diagonal.cpp"
+    "Engine/LinearSolver/IncompletePoisson.cpp"
+    "Engine/LinearSolver/Transfer.cpp"
+    "Engine/LinearSolver/Multigrid.cpp"
+    "Renderer/Buffer.cpp"
+    "Renderer/CommandBuffer.cpp"
+    "Renderer/DescriptorSet.cpp"
+    "Renderer/Device.cpp"
+    "Renderer/Instance.cpp"
+    "Renderer/Pipeline.cpp"
+    "Renderer/RenderState.cpp"
+    "Renderer/RenderTexture.cpp"
+    "Renderer/RenderWindow.cpp"
+    "Renderer/RenderTarget.cpp"
+    "Renderer/Shapes.cpp"
+    "Renderer/Sprite.cpp"
+    "Renderer/Texture.cpp"
+    "Renderer/Timer.cpp"
+    "Renderer/Transformable.cpp"
+    "Renderer/Work.cpp"
+    "SPIRV/Reflection.cpp")
+
+set(LIB_HEADERS
     "Vortex2D.h"
     "Engine/Density.h"
-    "Engine/Density.cpp"
     "Engine/LevelSet.h"
-    "Engine/LevelSet.cpp"
     "Engine/Pressure.h"
-    "Engine/Pressure.cpp"
     "Engine/Advection.h"
-    "Engine/Advection.cpp"
     "Engine/Extrapolation.h"
-    "Engine/Extrapolation.cpp"
     "Engine/World.h"
-    "Engine/World.cpp"
     "Engine/Size.h"
-    "Engine/Size.cpp"
     "Engine/Boundaries.h"
-    "Engine/Boundaries.cpp"
     "Engine/PrefixScan.h"
-    "Engine/PrefixScan.cpp"
     "Engine/Particles.h"
-    "Engine/Particles.cpp"
     "Engine/Rigidbody.h"
-    "Engine/Rigidbody.cpp"
     "Engine/Velocity.h"
-    "Engine/Velocity.cpp"
     "Engine/LinearSolver/LinearSolver.h"
-    "Engine/LinearSolver/LinearSolver.cpp"
     "Engine/LinearSolver/Preconditioner.h"
     "Engine/LinearSolver/Reduce.h"
-    "Engine/LinearSolver/Reduce.cpp"
     "Engine/LinearSolver/GaussSeidel.h"
-    "Engine/LinearSolver/GaussSeidel.cpp"
     "Engine/LinearSolver/Jacobi.h"
-    "Engine/LinearSolver/Jacobi.cpp"
     "Engine/LinearSolver/ConjugateGradient.h"
-    "Engine/LinearSolver/ConjugateGradient.cpp"
     "Engine/LinearSolver/Diagonal.h"
-    "Engine/LinearSolver/Diagonal.cpp"
     "Engine/LinearSolver/IncompletePoisson.h"
-    "Engine/LinearSolver/IncompletePoisson.cpp"
     "Engine/LinearSolver/Transfer.h"
-    "Engine/LinearSolver/Transfer.cpp"
     "Engine/LinearSolver/Multigrid.h"
-    "Engine/LinearSolver/Multigrid.cpp"
-    "Renderer/*.cpp"
-    "Renderer/*.h"
+    "Renderer/Common.h"
+    "Renderer/Drawable.h"
+    "Renderer/Buffer.h"
+    "Renderer/CommandBuffer.h"
+    "Renderer/DescriptorSet.h"
+    "Renderer/Device.h"
+    "Renderer/Instance.h"
+    "Renderer/Pipeline.h"
+    "Renderer/RenderState.h"
+    "Renderer/RenderTexture.h"
+    "Renderer/RenderWindow.h"
+    "Renderer/RenderTarget.h"
+    "Renderer/Shapes.h"
+    "Renderer/Sprite.h"
+    "Renderer/Texture.h"
+    "Renderer/Timer.h"
+    "Renderer/Transformable.h"
+    "Renderer/Work.h"
     "SPIRV/Reflection.h"
-    "SPIRV/Reflection.cpp"
     "Utils/variant.hpp"
     "Utils/vk_mem_alloc.h")
 
@@ -120,9 +154,11 @@ function(compile_shader)
 endfunction()
 
 compile_shader(SOURCES ${SHADER_SOURCES} OUTPUT "vortex2d_generated_spirv")
+
 add_library(vortex2d
-  STATIC
+  SHARED
     ${LIB_SOURCES}
+    ${LIB_HEADERS}
     ${SHADER_SOURCES}
     "Engine/Kernels/CommonAdvect.comp"
     "Engine/Kernels/CommonProject.comp"
@@ -136,9 +172,19 @@ target_include_directories(vortex2d PUBLIC ../ ${CMAKE_CURRENT_BINARY_DIR})
 
 target_compile_features(vortex2d PRIVATE cxx_variadic_templates cxx_generic_lambdas)
 
+if(WIN32)
+    target_compile_definitions(vortex2d PRIVATE VORTEX2D_API_EXPORTS)
+endif()
+
 if(MSVC)
     target_compile_options(vortex2d PUBLIC "/W3")
 else()
     target_compile_options(vortex2d PUBLIC "-Wall")
 endif()
 
+install(TARGETS vortex2d
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib)
+install(DIRECTORY . DESTINATION include/Vortex2D
+        FILES_MATCHING PATTERN "*.h")

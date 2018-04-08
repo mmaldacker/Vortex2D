@@ -30,17 +30,17 @@ public:
      * @param device vulkan device
      * @param synchronise flag to determine if the command buffer can be waited on.
      */
-    CommandBuffer(const Device& device, bool synchronise = true);
-    ~CommandBuffer();
+    VORTEX2D_API explicit CommandBuffer(const Device& device, bool synchronise = true);
+    VORTEX2D_API ~CommandBuffer();
 
-    CommandBuffer(CommandBuffer&&);
-    CommandBuffer& operator=(CommandBuffer&&);
+    VORTEX2D_API CommandBuffer(CommandBuffer&&);
+    VORTEX2D_API CommandBuffer& operator=(CommandBuffer&&);
 
     /**
      * @brief Record some commands. The commads are recorded in the lambda which is immediately executed.
      * @param commandFn a functor, or simply a lambda, where commands are recorded.
      */
-    void Record(CommandFn commandFn);
+    VORTEX2D_API void Record(CommandFn commandFn);
 
     /**
      * @brief Record some commands inside a render pass. The commads are recorded in the lambda which is immediately executed.
@@ -48,28 +48,28 @@ public:
      * @param framebuffer the frame buffer where the render pass will render.
      * @param commandFn a functor, or simply a lambda, where commands are recorded.
      */
-    void Record(const RenderTarget& renderTarget, vk::Framebuffer framebuffer, CommandFn commandFn);
+    VORTEX2D_API void Record(const RenderTarget& renderTarget, vk::Framebuffer framebuffer, CommandFn commandFn);
 
     /**
      * @brief Wait for the command submit to finish. Does nothing if the synchronise flag was false.
      */
-    void Wait();
+    VORTEX2D_API void Wait();
 
     /**
      * @brief Reset the command buffer so it can be recorded again.
      */
-    void Reset();
+    VORTEX2D_API void Reset();
 
     /**
       * @brief submit the command buffer
       */
-    void Submit(const std::initializer_list<vk::Semaphore>& waitSemaphores = {},
-                const std::initializer_list<vk::Semaphore>& signalSemaphores = {});
+    VORTEX2D_API void Submit(const std::initializer_list<vk::Semaphore>& waitSemaphores = {},
+                             const std::initializer_list<vk::Semaphore>& signalSemaphores = {});
 
     /**
      * @brief explicit conversion operator to bool, indicates if the command was properly recorded and can be sumitted.
      */
-    explicit operator bool() const;
+    VORTEX2D_API explicit operator bool() const;
 
 private:
     const Device& mDevice;
@@ -79,7 +79,7 @@ private:
     vk::UniqueFence mFence;
 };
 
-void ExecuteCommand(const Device& device, CommandBuffer::CommandFn commandFn);
+void VORTEX2D_API ExecuteCommand(const Device& device, CommandBuffer::CommandFn commandFn);
 
 /**
  * @brief A special command buffer that has been recorded by a @ref RenderTarget.
@@ -88,17 +88,17 @@ void ExecuteCommand(const Device& device, CommandBuffer::CommandFn commandFn);
 class RenderCommand
 {
 public:
-    RenderCommand();
-    ~RenderCommand();
+    VORTEX2D_API RenderCommand();
+    VORTEX2D_API ~RenderCommand();
 
-    RenderCommand(RenderCommand&&);
-    RenderCommand& operator=(RenderCommand&&);
+    VORTEX2D_API RenderCommand(RenderCommand&&);
+    VORTEX2D_API RenderCommand& operator=(RenderCommand&&);
 
     /**
      * @brief Submit the render command with a transform matrix
      * @param view a transform matrix
      */
-    void Submit(const glm::mat4& view = glm::mat4());
+    void VORTEX2D_API Submit(const glm::mat4& view = glm::mat4());
 
     friend class RenderTexture;
     friend class RenderWindow;

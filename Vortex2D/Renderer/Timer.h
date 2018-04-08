@@ -17,12 +17,12 @@ namespace Vortex2D { namespace Renderer {
 class Timer
 {
 public:
-    Timer(const Device& device);
+    VORTEX2D_API Timer(const Device& device);
 
-    void Start();
-    void Stop();
+    VORTEX2D_API void Start();
+    VORTEX2D_API void Stop();
 
-    uint64_t GetElapsedNs();
+    VORTEX2D_API uint64_t GetElapsedNs();
 
 private:
     const Device& mDevice;

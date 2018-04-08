@@ -18,12 +18,12 @@ namespace Vortex2D { namespace Fluid {
 class IncompletePoisson : public Preconditioner
 {
 public:
-    IncompletePoisson(const Renderer::Device& device, const glm::ivec2& size);
+    VORTEX2D_API IncompletePoisson(const Renderer::Device& device, const glm::ivec2& size);
 
-    void Bind(Renderer::GenericBuffer& d,
-              Renderer::GenericBuffer& l,
-              Renderer::GenericBuffer& b,
-              Renderer::GenericBuffer& pressure) override;
+    VORTEX2D_API void Bind(Renderer::GenericBuffer& d,
+                           Renderer::GenericBuffer& l,
+                           Renderer::GenericBuffer& b,
+                           Renderer::GenericBuffer& pressure) override;
 
     void Record(vk::CommandBuffer ) override;
 

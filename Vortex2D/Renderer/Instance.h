@@ -21,10 +21,10 @@ namespace Vortex2D { namespace Renderer {
 class Instance
 {
 public:
-    Instance(const std::string& name, std::vector<const char*> extensions, bool validation);
+    VORTEX2D_API Instance(const std::string& name, std::vector<const char*> extensions, bool validation);
 
-    vk::PhysicalDevice GetPhysicalDevice() const;
-    vk::Instance GetInstance() const;
+    VORTEX2D_API vk::PhysicalDevice GetPhysicalDevice() const;
+    VORTEX2D_API vk::Instance GetInstance() const;
 
 private:
     vk::UniqueInstance mInstance;

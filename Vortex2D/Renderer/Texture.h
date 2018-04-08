@@ -30,14 +30,14 @@ private:
 class Texture
 {
 public:
-    Texture(const Device& device,
-            uint32_t width,
-            uint32_t height,
-            vk::Format format,
-            VmaMemoryUsage memoryUsage = VMA_MEMORY_USAGE_GPU_ONLY);
+    VORTEX2D_API Texture(const Device& device,
+                         uint32_t width,
+                         uint32_t height,
+                         vk::Format format,
+                         VmaMemoryUsage memoryUsage = VMA_MEMORY_USAGE_GPU_ONLY);
 
-    virtual ~Texture();
-    Texture(Texture&& other);
+    VORTEX2D_API virtual ~Texture();
+    VORTEX2D_API Texture(Texture&& other);
 
     template<typename T>
     void CopyFrom(const std::vector<T>& data)
@@ -53,29 +53,29 @@ public:
         CopyTo(data.data(), sizeof(T));
     }
 
-    void CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcImage);
+    void VORTEX2D_API CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcImage);
 
-    void Barrier(vk::CommandBuffer commandBuffer,
+    void VORTEX2D_API Barrier(vk::CommandBuffer commandBuffer,
                  vk::ImageLayout oldLayout,
                  vk::AccessFlags oldAccess,
                  vk::ImageLayout newLayout,
                  vk::AccessFlags newAccess);
 
-    vk::ImageView GetView() const;
-    uint32_t GetWidth() const;
-    uint32_t GetHeight() const;
-    vk::Format GetFormat() const;
+    VORTEX2D_API vk::ImageView GetView() const;
+    VORTEX2D_API uint32_t GetWidth() const;
+    VORTEX2D_API uint32_t GetHeight() const;
+    VORTEX2D_API vk::Format GetFormat() const;
 
-    void Clear(vk::CommandBuffer commandBuffer, const std::array<int, 4>& colour);
-    void Clear(vk::CommandBuffer commandBuffer, const std::array<float, 4>& colour);
+    VORTEX2D_API void Clear(vk::CommandBuffer commandBuffer, const std::array<int, 4>& colour);
+    VORTEX2D_API void Clear(vk::CommandBuffer commandBuffer, const std::array<float, 4>& colour);
 
     friend class GenericBuffer;
 
 private:
     void Clear(vk::CommandBuffer commandBuffer, vk::ClearColorValue colourValue);
 
-    void CopyFrom(const void* data, vk::DeviceSize bytesPerPixel);
-    void CopyTo(void* data, vk::DeviceSize bytesPerPixel);
+    void VORTEX2D_API CopyFrom(const void* data, vk::DeviceSize bytesPerPixel);
+    void VORTEX2D_API CopyTo(void* data, vk::DeviceSize bytesPerPixel);
 
     const Device& mDevice;
     uint32_t mWidth;
