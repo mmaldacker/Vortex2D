@@ -135,6 +135,8 @@ download_project(PROJ                vkLoader
                  ${UPDATE_DISCONNECTED_IF_AVAILABLE})
 add_subdirectory(${vkLoader_SOURCE_DIR} ${vkLoader_BINARY_DIR})
 
+find_package(PythonInterp REQUIRED)
+
 function(compile_shader)
     set(options "")
     set(oneValueArgs OUTPUT)
@@ -148,7 +150,7 @@ function(compile_shader)
     set(COMPILE_SCRIPT ${CMAKE_SOURCE_DIR}/Scripts/GenerateSPIRV.py)
     add_custom_command(
        OUTPUT "${SHADER_OUTPUT}.h" "${SHADER_OUTPUT}.cpp"
-       COMMAND python ${COMPILE_SCRIPT} --compiler ${GLSL_VALIDATOR} --output ${SHADER_OUTPUT} ${SHADER_SOURCES}
+       COMMAND ${PYTHON_EXECUTABLE} ${COMPILE_SCRIPT} --compiler ${GLSL_VALIDATOR} --output ${SHADER_OUTPUT} ${SHADER_SOURCES}
        DEPENDS ${SHADER_SOURCES} ${COMPILE_SCRIPT})
 
 endfunction()
