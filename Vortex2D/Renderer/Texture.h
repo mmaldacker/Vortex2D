@@ -27,6 +27,9 @@ private:
     vk::SamplerCreateInfo mSamplerInfo;
 };
 
+/**
+ * @brief A texture, or in vulkan terms, an image.
+ */
 class Texture
 {
 public:
@@ -74,8 +77,8 @@ public:
 private:
     void Clear(vk::CommandBuffer commandBuffer, vk::ClearColorValue colourValue);
 
-    void VORTEX2D_API CopyFrom(const void* data, vk::DeviceSize bytesPerPixel);
-    void VORTEX2D_API CopyTo(void* data, vk::DeviceSize bytesPerPixel);
+    VORTEX2D_API void CopyFrom(const void* data, vk::DeviceSize bytesPerPixel);
+    VORTEX2D_API void CopyTo(void* data, vk::DeviceSize bytesPerPixel);
 
     const Device& mDevice;
     uint32_t mWidth;

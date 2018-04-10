@@ -17,6 +17,9 @@ namespace Vortex2D { namespace Renderer {
 
 class RenderCommand;
 
+/**
+ * @brief A render target that renders into a texture.
+ */
 class RenderTexture : public RenderTarget, public Texture
 {
 public:

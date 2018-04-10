@@ -79,6 +79,11 @@ private:
     vk::UniqueFence mFence;
 };
 
+/**
+ * @brief Runs immediately a set of commands and waits for them to finish.
+ * @param device vulkan device
+ * @param commandFn lambda that runs the commands.
+ */
 void VORTEX2D_API ExecuteCommand(const Device& device, CommandBuffer::CommandFn commandFn);
 
 /**

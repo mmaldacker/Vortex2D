@@ -29,14 +29,42 @@ public:
 
     VORTEX2D_API GenericBuffer(GenericBuffer&& other);
 
+    /**
+     * @brief Copy a buffer to this buffer
+     * @param commandBuffer command buffer to run the copy on.
+     * @param srcBuffer the source buffer.
+     */
     VORTEX2D_API void CopyFrom(vk::CommandBuffer commandBuffer, GenericBuffer& srcBuffer);
+
+    /**
+     * @brief Copy a texture to this buffer
+     * @param commandBuffer command buffer to run the copy on.
+     * @param srcTexture the source texture
+     */
     VORTEX2D_API void CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcTexture);
 
+    /**
+     * @brief The vulkan handle
+     */
     VORTEX2D_API vk::Buffer Handle() const;
+
+    /**
+     * @brief The size in bytes of the buffer
+     */
     VORTEX2D_API vk::DeviceSize Size() const;
 
+    /**
+     * @brief Inserts a barrier for this buffer
+     * @param commandBuffer the command buffer to run the barrier
+     * @param oldAccess old access
+     * @param newAccess new access
+     */
     VORTEX2D_API void Barrier(vk::CommandBuffer commandBuffer, vk::AccessFlags oldAccess, vk::AccessFlags newAccess);
 
+    /**
+     * @brief Clear the buffer with 0
+     * @param commandBuffer the command buffer to clear on
+     */
     VORTEX2D_API void Clear(vk::CommandBuffer commandBuffer);
 
     // Template friend functions for copying to and from buffers
@@ -61,6 +89,9 @@ protected:
     VmaAllocationInfo mAllocationInfo;
 };
 
+/**
+ * @brief a vertex buffer type of buffer
+ */
 template<typename T>
 class VertexBuffer : public GenericBuffer
 {
@@ -71,6 +102,9 @@ public:
     }
 };
 
+/**
+ * @brief a uniform buffer type of buffer
+ */
 template<typename T>
 class UniformBuffer : public GenericBuffer
 {
@@ -81,6 +115,9 @@ public:
     }
 };
 
+/**
+ * @brief a storage buffer type of buffer
+ */
 template<typename T>
 class Buffer : public GenericBuffer
 {
@@ -91,6 +128,9 @@ public:
     }
 };
 
+/**
+ * @brief an indirect buffer type of buffer, used for compute indirect dispatch
+ */
 template<typename T>
 class IndirectBuffer : public GenericBuffer
 {
@@ -101,6 +141,9 @@ public:
     }
 };
 
+/**
+ * @brief Copy the content of a buffer in an object
+ */
 template<template<typename> class BufferType, typename T>
 void CopyTo(BufferType<T>& buffer, T& t)
 {
@@ -108,6 +151,9 @@ void CopyTo(BufferType<T>& buffer, T& t)
     buffer.CopyTo(&t);
 }
 
+/**
+ * @brief Copy the content of a buffer to a vector. Vector needs to have the correct size already.
+ */
 template<template<typename> class BufferType, typename T>
 void CopyTo(BufferType<T>& buffer, std::vector<T>& t)
 {
@@ -115,6 +161,9 @@ void CopyTo(BufferType<T>& buffer, std::vector<T>& t)
     buffer.CopyTo(t.data());
 }
 
+/**
+ * @brief Copy the content of an object to the buffer.
+ */
 template<template<typename> class BufferType, typename T>
 void CopyFrom(BufferType<T>& buffer, const T& t)
 {
@@ -122,6 +171,9 @@ void CopyFrom(BufferType<T>& buffer, const T& t)
     buffer.CopyFrom(&t);
 }
 
+/**
+ * @brief Copy the content of a vector to the buffer
+ */
 template<template<typename> class BufferType, typename T>
 void CopyFrom(BufferType<T>& buffer, const std::vector<T>& t)
 {
@@ -129,6 +181,13 @@ void CopyFrom(BufferType<T>& buffer, const std::vector<T>& t)
     buffer.CopyFrom(t.data());
 }
 
+/**
+ * @brief Inserts a barrier for the given buffer, command buffer and access.
+ * @param buffer the vulkan buffer handle
+ * @param commandBuffer the command buffer to inserts the barrier
+ * @param oldAccess old access
+ * @param newAccess new access
+ */
 void BufferBarrier(vk::Buffer buffer, vk::CommandBuffer commandBuffer, vk::AccessFlags oldAccess, vk::AccessFlags newAccess);
 
 }}

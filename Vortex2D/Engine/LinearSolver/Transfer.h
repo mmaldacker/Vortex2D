@@ -29,9 +29,9 @@ public:
      * @param level the index of the bound level set to prolongate
      * @param fineSize size of the finer level set
      * @param fine the finer level set
-     * @param fineDiagonal the diagonal of the linear equation matrix at size @ref fine
+     * @param fineDiagonal the diagonal of the linear equation matrix at size @ref fineSize
      * @param coarse the coarse level set
-     * @param coarseDiagonal the diagonal of the linear equation matrix at size half of @ref fine
+     * @param coarseDiagonal the diagonal of the linear equation matrix at size half of @ref fineSize
      */
     VORTEX2D_API void ProlongateBind(std::size_t level,
                                      const glm::ivec2& fineSize,
@@ -46,9 +46,9 @@ public:
      * @param level the index of the bound level set to prolongate
      * @param fineSize size of the finer level set
      * @param fine the finer level set
-     * @param fineDiagonal the diagonal of the linear equation matrix at size @ref fine
+     * @param fineDiagonal the diagonal of the linear equation matrix at size @ref fineSize
      * @param coarse the coarse level set
-     * @param coarseDiagonal the diagonal of the linear equation matrix at size half of @ref fine
+     * @param coarseDiagonal the diagonal of the linear equation matrix at size half of @ref fineSize
      */
     VORTEX2D_API void RestrictBind(std::size_t level,
                                    const glm::ivec2& fineSize,

@@ -13,6 +13,9 @@
 
 namespace Vortex2D { namespace Renderer {
 
+/**
+ * @brief A binary SPIRV shader, to be feed to vulkan.
+ */
 class SpirvBinary
 {
 public:
@@ -44,6 +47,9 @@ private:
     std::size_t mSize;
 };
 
+/**
+ * @brief Encapsulation around the vulkan device. Allows to create command buffers, layout, bindings, memory and shaders.
+ */
 class Device
 {
 public:

@@ -15,16 +15,45 @@
 
 namespace Vortex2D { namespace Renderer {
 
+/**
+ * @brief graphics pipeline which caches the pipeline per render states.
+ */
 class GraphicsPipeline
 {
 public:
+    /**
+     * @brief Builder for graphics pipeline
+     */
     class Builder
     {
     public:
         Builder();
 
+        /**
+         * @brief Set the shader
+         * @param shader the loaded shader
+         * @param shaderStage shader state (vertex, fragment or compute)
+         * @return *this
+         */
         Builder& Shader(vk::ShaderModule shader, vk::ShaderStageFlagBits shaderStage);
+
+        /**
+         * @brief Sets the vertex attributes
+         * @param location location in the shader
+         * @param binding binding in the shader
+         * @param format vertex format
+         * @param offset offset in the vertex
+         * @return *this
+         */
         Builder& VertexAttribute(uint32_t location, uint32_t binding, vk::Format format, uint32_t offset);
+
+        /**
+         * @brief Sets the vertex binding
+         * @param binding binding in the shader
+         * @param stride stride in bytes
+         * @param inputRate inpute rate
+         * @return *this
+         */
         Builder& VertexBinding(uint32_t binding, uint32_t stride, vk::VertexInputRate inputRate = vk::VertexInputRate::eVertex);
 
         Builder& Topology(vk::PrimitiveTopology topology);

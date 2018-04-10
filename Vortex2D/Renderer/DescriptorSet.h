@@ -24,6 +24,9 @@ namespace Renderer {
 class Device;
 using DescriptorTypeBindings = std::map<uint32_t, vk::DescriptorType>;
 
+/**
+ * @brief Represents the layout of a shader (vertex, fragment or compute)
+ */
 struct ShaderLayout
 {
     VORTEX2D_API ShaderLayout(const SPIRV::Reflection& reflection);
@@ -35,6 +38,9 @@ struct ShaderLayout
 
 bool operator==(const ShaderLayout& left, const ShaderLayout& right);
 
+/**
+ * @brief Represents the layout of a pipeline: vertex + fragment or compute
+ */
 struct PipelineLayout
 {
     std::vector<ShaderLayout> layouts;
@@ -42,6 +48,9 @@ struct PipelineLayout
 
 bool operator==(const PipelineLayout& left, const PipelineLayout& right);
 
+/**
+ * @brief The binding of an object for a shader.
+ */
 struct DescriptorSet
 {
     vk::UniqueDescriptorSet descriptorSet;
@@ -49,6 +58,9 @@ struct DescriptorSet
     vk::DescriptorSetLayout descriptorSetLayout;
 };
 
+/**
+ * @brief Caches and creates layouts and bindings
+ */
 class LayoutManager
 {
 public:
@@ -66,6 +78,9 @@ private:
     std::vector<std::tuple<PipelineLayout, vk::UniquePipelineLayout>> mPipelineLayouts;
 };
 
+/**
+ * @brief The texture or sampler that can be binded to a shader
+ */
 struct DescriptorImage
 {
     DescriptorImage(vk::Sampler sampler, Renderer::Texture& texture);
@@ -75,6 +90,9 @@ struct DescriptorImage
     Renderer::Texture* Texture;
 };
 
+/**
+ * @brief The texture/sampler or buffer that can be binded to a shader.
+ */
 struct BindingInput
 {
     static constexpr uint32_t DefaultBind = static_cast<uint32_t>(-1);
@@ -87,6 +105,13 @@ struct BindingInput
     mpark::variant<Renderer::GenericBuffer*, DescriptorImage> Input;
 };
 
+/**
+ * @brief Bind the resources (buffer or texture/sampler) to a @ref DescriptorSet
+ * @param device vulkan device
+ * @param dstSet vulkan descriptor set
+ * @param layout pipeline layout
+ * @param bindingInputs list of resources (buffer or texture/sampler)
+ */
 VORTEX2D_API void Bind(const Device& device, vk::DescriptorSet dstSet, const PipelineLayout& layout, const std::vector<BindingInput>& bindingInputs);
 
 }}
