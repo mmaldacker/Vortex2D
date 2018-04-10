@@ -85,7 +85,6 @@ VORTEX2D_API ComputeSize MakeStencilComputeSize(const glm::ivec2& size, int radi
 /**
  * @brief Create a ComputeSize for a checkerboard type shader
  * @param size the domain size
- * @param radius the stencil size
  * @return calculate ComputeSize
  */
 VORTEX2D_API ComputeSize MakeCheckerboardComputeSize(const glm::ivec2& size);

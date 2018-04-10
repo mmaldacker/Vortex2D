@@ -27,13 +27,19 @@ public:
 
     /**
      * @brief Will extrapolate values from buffer into the dirichlet and neumann boundaries
-     * @param buffer needs to be double-buffered and with stencil buffer
      */
     VORTEX2D_API void Extrapolate();
 
+    /**
+     * @brief Binds a solid level set to use later and constrain the velocity against
+     * @param solidPhi solid level set
+     */
     VORTEX2D_API void ConstrainBind(Renderer::Texture& solidPhi);
-    VORTEX2D_API void ConstrainVelocity();
 
+    /**
+     * @brief Constrain the velocity, i.e. ensure that the velocity normal to the solid level set is 0.
+     */
+    VORTEX2D_API void ConstrainVelocity();
 
 private:
     Renderer::Buffer<glm::ivec2> mValid;

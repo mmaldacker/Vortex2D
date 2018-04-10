@@ -21,6 +21,10 @@ struct Particle
   alignas(8) glm::vec2 Velocity;
 };
 
+/**
+ * @brief Container for particles used in the advection of the fluid simulation.
+ * Also a level set that is built from the particles.
+ */
 class ParticleCount : public Renderer::RenderTexture
 {
 public:

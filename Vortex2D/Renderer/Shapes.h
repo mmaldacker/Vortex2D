@@ -22,6 +22,9 @@ typedef std::vector<glm::vec2> Path;
 
 struct RenderTarget;
 
+/**
+ * @brief An polygonal shape where the fragment shader can be specified for customisation.
+ */
 class AbstractShape : public Drawable, public Transformable
 {
 public:
@@ -29,7 +32,7 @@ public:
                                const SpirvBinary& fragShader,
                                const std::vector<glm::vec2>& vertices);
     VORTEX2D_API AbstractShape(AbstractShape&& other);
-    VORTEX2D_API virtual ~AbstractShape() {}
+    VORTEX2D_API virtual ~AbstractShape() = default;
 
     VORTEX2D_API void Initialize(const RenderState& renderState) override;
     VORTEX2D_API void Update(const glm::mat4& projection, const glm::mat4& view) override;
@@ -96,6 +99,9 @@ private:
     GraphicsPipeline mPipeline;
 };
 
+/**
+ * @brief A drawable that simply clears the target.
+ */
 class Clear : public Drawable
 {
 public:

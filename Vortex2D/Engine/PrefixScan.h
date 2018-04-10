@@ -11,6 +11,18 @@
 
 namespace Vortex2D { namespace Fluid {
 
+/**
+ * @brief The prefix sum operator.
+ * @code{.cpp}
+void PrefixSym(int input[], int n, int output[])
+{
+    output[0] = input[0];
+
+    for (int i = 1; i < n; i++)
+        output[i] = output[i-1] + input[i];
+}
+   @endcode
+ */
 class PrefixScan
 {
 public:

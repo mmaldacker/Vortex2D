@@ -17,6 +17,9 @@ namespace Vortex2D { namespace Renderer {
 
 struct RenderTarget;
 
+/**
+ * @brief a Sprite, i.e. a drawable that can render a texture. The fragment shader can be specified for customisation.
+ */
 class AbstractSprite : public Drawable, public Transformable
 {
 public:
@@ -52,6 +55,9 @@ protected:
     GraphicsPipeline mPipeline;
 };
 
+/**
+ * @brief A sprite that renders a texture with a simple pass-through fragment shader.
+ */
 class Sprite : public AbstractSprite
 {
 public:
