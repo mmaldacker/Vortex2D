@@ -6,6 +6,7 @@ option(VORTEX2D_ENABLE_EXAMPLES "Build examples" OFF)
 option(VORTEX2D_ENABLE_TESTS "Build tests" OFF)
 option(VORTEX2D_ENABLE_DOCS "Build docs" OFF)
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Only do coverage builds for gcc for the moment
 if (CMAKE_COMPILER_IS_GNUCXX)

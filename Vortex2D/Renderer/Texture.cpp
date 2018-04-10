@@ -247,7 +247,7 @@ void Texture::CopyTo(void* data, vk::DeviceSize bytesPerPixel)
     uint8_t* dst = (uint8_t *)data;
     const uint8_t* src = (const uint8_t *)pData;
 
-    src +=  srcLayout.offset;
+    src += srcLayout.offset;
     for (uint32_t y = 0; y < mHeight; y++)
     {
       std::memcpy(dst, src, mWidth * bytesPerPixel);
@@ -292,13 +292,15 @@ void Texture::CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcImage)
                      vk::ImageLayout::eTransferSrcOptimal,
                      vk::AccessFlagBits::eTransferRead,
                      vk::ImageLayout::eGeneral,
-                     vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eColorAttachmentRead);
+                     vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eHostRead);
 
+    
     Barrier(commandBuffer,
             vk::ImageLayout::eTransferDstOptimal,
             vk::AccessFlagBits::eTransferWrite,
             vk::ImageLayout::eGeneral,
-            vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eColorAttachmentRead);
+            vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eColorAttachmentRead  | vk::AccessFlagBits::eHostRead);
+
 }
 
 void Texture::Barrier(vk::CommandBuffer commandBuffer,
@@ -318,8 +320,8 @@ void Texture::Barrier(vk::CommandBuffer commandBuffer,
             .setSrcAccessMask(srcMask)
             .setDstAccessMask(dstMask);
 
-    commandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eAllCommands,
-                                  vk::PipelineStageFlagBits::eAllCommands,
+    commandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eAllCommands | vk::PipelineStageFlagBits::eHost,
+                                  vk::PipelineStageFlagBits::eAllCommands | vk::PipelineStageFlagBits::eHost,
                                   {},
                                   nullptr,
                                   nullptr,
