@@ -46,6 +46,6 @@ if (WIN32)
     add_custom_command(
         TARGET vortex2d_examples POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
-            "${CMAKE_BINARY_DIR}/Vortex2D/vortex2d.dll"
+            $<TARGET_FILE:vortex2d>
             $<TARGET_FILE_DIR:vortex2d_examples>)
 endif()
