@@ -24,7 +24,7 @@ public:
      * @brief Bind a solid level set, which will be used to extrapolate into this level set
      * @param solidPhi
      */
-    VORTEX2D_API void ExtrapolateBind(LevelSet& solidPhi);
+    VORTEX2D_API void ExtrapolateBind(Renderer::Texture& solidPhi);
 
     /**
      * @brief Reinitialise the level set, i.e. ensure it is a correct signed distance field.
