@@ -54,7 +54,7 @@ LevelSet::LevelSet(const Renderer::Device& device, const glm::ivec2& size, int r
     });
 }
 
-void LevelSet::ExtrapolateBind(Renderer::Texture& solidPhi)
+void LevelSet::ExtrapolateBind(LevelSet& solidPhi)
 {
     mExtrapolateBound = mExtrapolate.Bind({solidPhi, *this});
     mExtrapolateCmd.Record([&](vk::CommandBuffer commandBuffer)

@@ -59,6 +59,10 @@ public:
     VORTEX2D_API Rectangle(const Device& device, const glm::vec2& size);
 };
 
+/**
+ * @brief A solid colour rectangle as \ref Rectangle, however uses integer colors and is meant
+ * to be drawn to a framebuffer wiht integer colours.
+ */
 class IntRectangle : public AbstractShape
 {
 public:

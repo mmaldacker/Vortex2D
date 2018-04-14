@@ -31,13 +31,30 @@ public:
                           Renderer::Texture& liquidPhi,
                           Renderer::GenericBuffer& valid);
 
+    /**
+     * @brief Bind the various buffes for the linear system Ax = b
+     * @param size size of the linear system
+     * @param diagonal diagonal of A
+     * @param lower lower matrix of A
+     * @param liquidPhi liquid level set
+     * @param solidPhi solid level set
+     * @return
+     */
     Renderer::Work::Bound BindMatrixBuild(const glm::ivec2& size,
                                           Renderer::GenericBuffer& diagonal,
                                           Renderer::GenericBuffer& lower,
                                           Renderer::Texture& liquidPhi,
                                           Renderer::Texture& solidPhi);
 
+    /**
+     * @brief Build the matrix A and right hand side b.
+     */
     VORTEX2D_API void BuildLinearEquation();
+
+    /**
+     * @brief Apply the solution of the equation Ax = b, i.e. the pressure to the velocity
+     * to make it non-divergent.
+     */
     VORTEX2D_API void ApplyPressure();
 
 private:

@@ -26,6 +26,9 @@ void PrefixSym(int input[], int n, int output[])
 class PrefixScan
 {
 public:
+    /**
+     * @brief A prefix scan object bound with input/output buffers, ready to be dispatched.
+     */
     class Bound
     {
     public:

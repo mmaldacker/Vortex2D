@@ -89,6 +89,9 @@ VORTEX2D_API ComputeSize MakeStencilComputeSize(const glm::ivec2& size, int radi
  */
 VORTEX2D_API ComputeSize MakeCheckerboardComputeSize(const glm::ivec2& size);
 
+/**
+ * @brief Parameters for indirect compute: group size, local size, etc
+ */
 struct DispatchParams
 {
     VORTEX2D_API DispatchParams(int count);

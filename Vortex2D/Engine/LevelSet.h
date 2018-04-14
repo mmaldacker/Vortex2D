@@ -20,10 +20,27 @@ class LevelSet : public Renderer::RenderTexture
 public:
     VORTEX2D_API LevelSet(const Renderer::Device& device, const glm::ivec2& size, int reinitializeIterations = 100);
 
-    VORTEX2D_API void ExtrapolateBind(Renderer::Texture& solidPhi);
+    /**
+     * @brief Bind a solid level set, which will be used to extrapolate into this level set
+     * @param solidPhi
+     */
+    VORTEX2D_API void ExtrapolateBind(LevelSet& solidPhi);
 
+    /**
+     * @brief Reinitialise the level set, i.e. ensure it is a correct signed distance field.
+     */
     VORTEX2D_API void Reinitialise();
+
+    /**
+     * @brief Extrapolate this level set into the solid level set it was attached to.
+     * This only performs a single cell extrapolation.
+     */
     VORTEX2D_API void Extrapolate();
+
+    /**
+     * @brief Same as \ref Extrapolate but to be recorded as part of other commands
+     * @param commandBuffer
+     */
     void ExtrapolateRecord(vk::CommandBuffer commandBuffer);
 
 private:

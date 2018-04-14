@@ -19,9 +19,22 @@ class Timer
 public:
     VORTEX2D_API Timer(const Device& device);
 
+    /**
+     * @brief Start the timer after the current last command buffer
+     */
     VORTEX2D_API void Start();
+
+
+    /**
+     * @brief Stop the timer after the current last command buffer
+     */
     VORTEX2D_API void Stop();
 
+    /**
+     * @brief Get the elapsed time between the Start and Stop calls.
+     * Blocking function which will download the timestamps from the GPU.
+     * @return timestamp in nanoseconds.
+     */
     VORTEX2D_API uint64_t GetElapsedNs();
 
 private:

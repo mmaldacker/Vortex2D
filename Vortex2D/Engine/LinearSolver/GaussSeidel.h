@@ -60,6 +60,9 @@ private:
     Renderer::GenericBuffer* mPressure;
 };
 
+/**
+ * @brief A version of the gauss seidel that can only be applied on sizes (16,16) or smaller.
+ */
 class LocalGaussSeidel : public Preconditioner
 {
 public:

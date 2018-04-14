@@ -46,25 +46,81 @@ public:
                            Renderer::RenderTexture& phi,
                            vk::Flags<Type> type);
 
+    /**
+     * @brief sets the velocities and angular velocities of the body
+     * @param velocity
+     * @param angularVelocity
+     */
     VORTEX2D_API void SetVelocities(const glm::vec2& velocity, float angularVelocity);
 
+    /**
+     * @brief Upload the transform matrix to the GPU.
+     */
     VORTEX2D_API void UpdatePosition();
+
+    /**
+     * @brief Render the current object orientation in an internal texture and the external one.
+     */
     VORTEX2D_API void RenderPhi();
 
+    /**
+     * @brief Bind a the right hand side and diagonal of the linear system Ax = b.
+     * This is to apply the rigid body influence to the system.
+     * @param div right hand side of the linear system Ax=b
+     * @param diagonal diagonal of matrix A
+     * @param fluidLevelSet fluid level set
+     */
     VORTEX2D_API void BindDiv(Renderer::GenericBuffer& div,
                               Renderer::GenericBuffer& diagonal,
                               Renderer::Texture& fluidLevelSet);
 
+    /**
+     * @brief Bind velocities to constrain based on the body's velocity.
+     * @param velocity
+     */
     VORTEX2D_API void BindVelocityConstrain(Fluid::Velocity& velocity);
+
+    /**
+     * @brief Bind pressure, to have the pressure update the body's forces
+     * @param fluidLevelSet fluid level set, to know if the pressure is applicable
+     * @param pressure solved pressure buffer
+     * @param force a scratch buffer where the forces will be set
+     */
     VORTEX2D_API void BindPressure(Renderer::Texture& fluidLevelSet,
                                    Renderer::GenericBuffer& pressure,
                                    Renderer::GenericBuffer& force);
 
+    /**
+     * @brief Apply the body's velocities to the linear equations matrix A and right hand side b.
+     */
     VORTEX2D_API void Div();
+
+    /**
+     * @brief Apply the pressure to body, updating its forces.
+     */
     VORTEX2D_API void Pressure();
+
+    /**
+     * @brief Constrain the velocities field based on the body's velocity.
+     */
     VORTEX2D_API void VelocityConstrain();
+
+    /**
+     * @brief Download the forces from the GPU and return them.
+     * @return
+     */
     VORTEX2D_API Velocity GetForces();
+
+    /**
+     * @brief Type of this body.
+     * @return
+     */
     VORTEX2D_API vk::Flags<Type> GetType();
+
+    /**
+     * @brief the local level set of the body
+     * @return
+     */
     VORTEX2D_API Renderer::RenderTexture& Phi();
 
 private:

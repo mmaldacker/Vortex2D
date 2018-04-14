@@ -34,16 +34,49 @@ public:
                                const Renderer::DispatchParams& params = {0},
                                float alpha = 1.0f);
 
+    /**
+     * @brief Count the number of particles and update the internal data structures.
+     */
     VORTEX2D_API void Scan();
 
+    /**
+     * @brief Calculate the total number of particles and return it.
+     * @return
+     */
     VORTEX2D_API int GetTotalCount();
+
+    /**
+     * @brief Calculate the dispatch parameters to use on the particle buffer
+     * @return
+     */
     VORTEX2D_API Renderer::IndirectBuffer<Renderer::DispatchParams>& GetDispatchParams();
 
+    /**
+     * @brief Bind a solid level set, which will be used to interpolate the particles out of.
+     * @param levelSet
+     */
     VORTEX2D_API void LevelSetBind(LevelSet& levelSet);
+
+    /**
+     * @brief Calculate the level set from the particles.
+     */
     VORTEX2D_API void Phi();
 
+    /**
+     * @brief Bind the velocities, used for advection of the particles.
+     * @param velocity
+     * @param valid
+     */
     VORTEX2D_API void VelocitiesBind(Velocity& velocity, Renderer::GenericBuffer& valid);
+
+    /**
+     * @brief Interpolate the velocities of the particles to the velocities field.
+     */
     VORTEX2D_API void TransferToGrid();
+
+    /**
+     * @brief Interpolate the velocities field in to the particles' velocity.
+     */
     VORTEX2D_API void TransferFromGrid();
 
 private:

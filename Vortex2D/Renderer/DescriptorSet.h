@@ -66,9 +66,30 @@ class LayoutManager
 public:
     VORTEX2D_API LayoutManager(const Device& device);
 
+    /**
+     * @brief Create or re-create the descriptor pool, will render invalid existing descriptor sets
+     */
     void CreateDescriptorPool();
+
+    /**
+     * @brief Create the descriptor set given the layout
+     * @param layout pipeline/shader layout
+     * @return built descriptor set
+     */
     VORTEX2D_API DescriptorSet MakeDescriptorSet(const PipelineLayout& layout);
+
+    /**
+     * @brief Create, cache and return a descriptor layout given the pipeline layout
+     * @param layout pipeline layout
+     * @return cached descriptor set layout
+     */
     vk::DescriptorSetLayout GetDescriptorSetLayout(const PipelineLayout& layout);
+
+    /**
+     * @brief create, cache and return a vulkan pipeline layout given the layout
+     * @param layout pipeline layout
+     * @return vulkan pipeline layout
+     */
     vk::PipelineLayout GetPipelineLayout(const PipelineLayout& layout);
 
 private:
