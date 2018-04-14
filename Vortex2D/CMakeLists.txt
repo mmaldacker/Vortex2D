@@ -193,9 +193,6 @@ install(TARGETS vortex2d
 install(DIRECTORY . DESTINATION include/Vortex2D
         FILES_MATCHING PATTERN "*.h")
 
-export(TARGETS vortex2d
-       FILE "${PROJECT_BINARY_DIR}/Vortex2DTargets.cmake")
-export(PACKAGE Vortex2D)
 configure_file("${CMAKE_SOURCE_DIR}/cmake/Vortex2DConfig.cmake.in" "${PROJECT_BINARY_DIR}/Vortex2DConfig.cmake" @ONLY)
 
 if(WIN32 AND NOT CYGWIN)
@@ -206,7 +203,7 @@ endif()
 
 set(INSTALL_CMAKE_DIR ${DEF_INSTALL_CMAKE_DIR} CACHE PATH "Installation directory for CMake files")
 
-install(FILES "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/Vortex2DConfig.cmake"
+install(FILES "${PROJECT_BINARY_DIR}/Vortex2DConfig.cmake"
         DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
 
 install(EXPORT Vortex2DTargets DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
