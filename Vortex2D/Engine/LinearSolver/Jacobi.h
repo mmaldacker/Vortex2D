@@ -31,7 +31,17 @@ public:
     void Record(vk::CommandBuffer commandBuffer) override;
 
     void Record(vk::CommandBuffer commandBuffer, int iterations);
+
+    /**
+     * @brief Set the w factor of the GS iterations : x_new = w * x_new + (1-w) * x_old
+     * @param w
+     */
     void SetW(float w);
+
+    /**
+     * @brief set number of iterations to be used when GS is a preconditioner
+     * @param iterations
+     */
     void SetPreconditionerIterations(int iterations);
 
 private:
