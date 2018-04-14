@@ -56,4 +56,12 @@ target_compile_features(vortex2d_tests PRIVATE cxx_variadic_templates cxx_generi
 target_link_libraries(vortex2d_tests vortex2d gtest gmock gmock_main Threads::Threads fluidrigidcoupling2d_lib)
 target_include_directories(vortex2d_tests PRIVATE ./ ${CMAKE_CURRENT_BINARY_DIR})
 
+if (WIN32)
+    add_custom_command(
+        TARGET vortex2d_tests POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+            "${CMAKE_BINARY_DIR}/Vortex2D/vortex2d.dll"
+            $<TARGET_FILE_DIR:vortex2d_tests>)
+endif()
+
 add_test(AllTests vortex2d_tests)

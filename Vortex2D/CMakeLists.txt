@@ -128,14 +128,10 @@ download_project(PROJ                SPIRV_Cross
                  GIT_TAG             master
                  ${UPDATE_DISCONNECTED_IF_AVAILABLE})
 add_subdirectory(${SPIRV_Cross_SOURCE_DIR} ${SPIRV_Cross_BINARY_DIR})
-
-download_project(PROJ                vkLoader
-                 GIT_REPOSITORY      https://github.com/mmaldacker/vkLoader.git
-                 GIT_TAG             master
-                 ${UPDATE_DISCONNECTED_IF_AVAILABLE})
-add_subdirectory(${vkLoader_SOURCE_DIR} ${vkLoader_BINARY_DIR})
+set_property(TARGET spirv-cross-core PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 find_package(PythonInterp REQUIRED)
+find_package(Vulkan REQUIRED)
 
 function(compile_shader)
     set(options "")
@@ -169,8 +165,13 @@ add_library(vortex2d
     vortex2d_generated_spirv.cpp
     vortex2d_generated_spirv.h)
 
-target_link_libraries(vortex2d PUBLIC glm spirv-cross-core vk_loader)
-target_include_directories(vortex2d PUBLIC ../ ${CMAKE_CURRENT_BINARY_DIR})
+target_link_libraries(vortex2d PUBLIC glm Vulkan::Vulkan PRIVATE spirv-cross-core)
+
+target_include_directories(vortex2d
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>
+        $<INSTALL_INTERFACE:include/Vortex2D>
+    PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
 target_compile_features(vortex2d PRIVATE cxx_variadic_templates cxx_generic_lambdas)
 
@@ -185,8 +186,27 @@ else()
 endif()
 
 install(TARGETS vortex2d
+        EXPORT Vortex2DTargets
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib)
 install(DIRECTORY . DESTINATION include/Vortex2D
         FILES_MATCHING PATTERN "*.h")
+
+export(TARGETS vortex2d
+       FILE "${PROJECT_BINARY_DIR}/Vortex2DTargets.cmake")
+export(PACKAGE Vortex2D)
+configure_file("${CMAKE_SOURCE_DIR}/cmake/Vortex2DConfig.cmake.in" "${PROJECT_BINARY_DIR}/Vortex2DConfig.cmake" @ONLY)
+
+if(WIN32 AND NOT CYGWIN)
+  set(DEF_INSTALL_CMAKE_DIR CMake)
+else()
+  set(DEF_INSTALL_CMAKE_DIR lib/CMake/Vortex2D)
+endif()
+
+set(INSTALL_CMAKE_DIR ${DEF_INSTALL_CMAKE_DIR} CACHE PATH "Installation directory for CMake files")
+
+install(FILES "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/Vortex2DConfig.cmake"
+        DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
+
+install(EXPORT Vortex2DTargets DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)

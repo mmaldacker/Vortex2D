@@ -42,4 +42,10 @@ add_executable(vortex2d_examples ${EXAMPLES_SOURCES})
 target_compile_features(vortex2d_examples PRIVATE cxx_nullptr)
 target_link_libraries(vortex2d_examples vortex2d glfw vortex2d_examples_box2d)
 
-
+if (WIN32)
+    add_custom_command(
+        TARGET vortex2d_examples POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+            "${CMAKE_BINARY_DIR}/Vortex2D/vortex2d.dll"
+            $<TARGET_FILE_DIR:vortex2d_examples>)
+endif()

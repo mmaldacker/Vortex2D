@@ -22,6 +22,7 @@ class Instance
 {
 public:
     VORTEX2D_API Instance(const std::string& name, std::vector<const char*> extensions, bool validation);
+    VORTEX2D_API ~Instance();
 
     VORTEX2D_API vk::PhysicalDevice GetPhysicalDevice() const;
     VORTEX2D_API vk::Instance GetInstance() const;
@@ -29,7 +30,7 @@ public:
 private:
     vk::UniqueInstance mInstance;
     vk::PhysicalDevice mPhysicalDevice;
-    vk::UniqueDebugReportCallbackEXT mDebugCallback;
+    vk::DebugReportCallbackEXT mDebugCallback;
 };
 
 bool HasLayer(const char* extension, const std::vector<vk::LayerProperties>& availableExtensions);

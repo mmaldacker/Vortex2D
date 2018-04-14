@@ -6,7 +6,6 @@
 #ifndef Vortex2D_Common_h
 #define Vortex2D_Common_h
 
-#include <vk_loader/vk_loader.h>
 #define VULKAN_HPP_TYPESAFE_CONVERSION 1
 #include <vulkan/vulkan.hpp>
 

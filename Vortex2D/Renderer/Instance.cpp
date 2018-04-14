@@ -5,8 +5,41 @@
 
 #include "Instance.h"
 
-#include <vk_loader/vk_loader.h>
 #include <iostream>
+
+static PFN_vkCreateDebugReportCallbackEXT vortex2d_vkCreateDebugReportCallbackEXT = nullptr;
+static PFN_vkDestroyDebugReportCallbackEXT vortex2d_vkDestroyDebugReportCallbackEXT = nullptr;
+static PFN_vkDebugReportMessageEXT vortex2d_vkDebugReportMessageEXT = nullptr;
+
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateDebugReportCallbackEXT(VkInstance instance,
+                                                              const VkDebugReportCallbackCreateInfoEXT* pCreateInfo,
+                                                              const VkAllocationCallbacks*  pAllocator,
+                                                              VkDebugReportCallbackEXT*  pCallback)
+{
+    if (vortex2d_vkCreateDebugReportCallbackEXT)
+    {
+        return vortex2d_vkCreateDebugReportCallbackEXT(instance,
+                                                       pCreateInfo,
+                                                       pAllocator,
+                                                       pCallback);
+    }
+    else
+    {
+        return VK_INCOMPLETE;
+    }
+}
+
+VKAPI_ATTR void VKAPI_CALL vkDestroyDebugReportCallbackEXT(VkInstance instance,
+                                                           VkDebugReportCallbackEXT callback,
+                                                           const VkAllocationCallbacks*  pAllocator)
+{
+    if (vortex2d_vkDestroyDebugReportCallbackEXT)
+    {
+        vortex2d_vkDestroyDebugReportCallbackEXT(instance,
+                                                 callback,
+                                                 pAllocator);
+    }
+}
 
 VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugReportFlagsEXT /*flags*/,
                                              VkDebugReportObjectTypeEXT /*objType*/,
@@ -68,11 +101,12 @@ Instance::Instance(const std::string& name, std::vector<const char*> extraExtens
 
     mInstance = vk::createInstanceUnique(instanceInfo);
 
-    // load symbols
-    if (!vkLoaderInstanceInit(static_cast<VkInstance>(*mInstance))) throw std::runtime_error("cannot load instance procs");
-    for (auto& extension: extensions)
+    // load debug ext
+    if (HasExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME, availableExtensions))
     {
-        vkLoaderInstanceExtensionInit(static_cast<VkInstance>(*mInstance), extension);
+        vortex2d_vkCreateDebugReportCallbackEXT = (PFN_vkCreateDebugReportCallbackEXT) vkGetInstanceProcAddr(*mInstance, "vkCreateDebugReportCallbackEXT");
+        vortex2d_vkDestroyDebugReportCallbackEXT = (PFN_vkDestroyDebugReportCallbackEXT) vkGetInstanceProcAddr(*mInstance, "vkDestroyDebugReportCallbackEXT");
+        vortex2d_vkDebugReportMessageEXT = (PFN_vkDebugReportMessageEXT) vkGetInstanceProcAddr(*mInstance, "vkDebugReportMessageEXT");
     }
 
     // add the validation calback if necessary
@@ -82,7 +116,7 @@ Instance::Instance(const std::string& name, std::vector<const char*> extraExtens
                 .setPfnCallback(debugCallback)
                 .setFlags(vk::DebugReportFlagBitsEXT::eWarning | vk::DebugReportFlagBitsEXT::eError);
 
-        mDebugCallback = mInstance->createDebugReportCallbackEXTUnique(debugCallbackInfo);
+        mDebugCallback = mInstance->createDebugReportCallbackEXT(debugCallbackInfo);
     }
 
     // get physical device
@@ -94,6 +128,11 @@ Instance::Instance(const std::string& name, std::vector<const char*> extraExtens
     auto properties = mPhysicalDevice.getProperties();
     std::cout << "Device name: " << properties.deviceName << std::endl;
 
+}
+
+Instance::~Instance()
+{
+    mInstance->destroyDebugReportCallbackEXT(mDebugCallback);
 }
 
 vk::PhysicalDevice Instance::GetPhysicalDevice() const

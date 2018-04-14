@@ -4,6 +4,7 @@
 //
 
 #include "Device.h"
+
 #include <iostream>
 #include <fstream>
 
@@ -11,6 +12,25 @@
 
 #define VMA_IMPLEMENTATION
 #include <Vortex2D/Utils/vk_mem_alloc.h>
+
+static PFN_vkCmdDebugMarkerBeginEXT vortex2d_vkCmdDebugMarkerBeginEXT = nullptr;
+static PFN_vkCmdDebugMarkerEndEXT vortex2d_vkCmdDebugMarkerEndEXT = nullptr;
+
+VKAPI_ATTR void VKAPI_CALL vkCmdDebugMarkerBeginEXT(VkCommandBuffer   commandBuffer,const  VkDebugMarkerMarkerInfoEXT *  pMarkerInfo)
+{
+    if (vortex2d_vkCmdDebugMarkerBeginEXT)
+    {
+        vortex2d_vkCmdDebugMarkerBeginEXT(commandBuffer,pMarkerInfo);
+    }
+}
+
+VKAPI_ATTR void VKAPI_CALL vkCmdDebugMarkerEndEXT(VkCommandBuffer   commandBuffer)
+{
+    if (vortex2d_vkCmdDebugMarkerEndEXT)
+    {
+        vortex2d_vkCmdDebugMarkerEndEXT(commandBuffer);
+    }
+}
 
 namespace Vortex2D { namespace Renderer {
 
@@ -122,10 +142,11 @@ Device::Device(vk::PhysicalDevice physicalDevice, int familyIndex, bool validati
     mDevice = physicalDevice.createDeviceUnique(deviceInfo);
     mQueue = mDevice->getQueue(familyIndex, 0);
 
-    // load device extensions symbols
-    for (auto& extension: deviceExtensions)
+    // load marker ext
+    if (HasExtension(VK_EXT_DEBUG_MARKER_EXTENSION_NAME, availableExtensions))
     {
-        vkLoaderDeviceExtensionInit(static_cast<VkDevice>(*mDevice), extension);
+        vortex2d_vkCmdDebugMarkerBeginEXT = (PFN_vkCmdDebugMarkerBeginEXT) vkGetDeviceProcAddr(*mDevice, "vkCmdDebugMarkerBeginEXT");
+        vortex2d_vkCmdDebugMarkerEndEXT = (PFN_vkCmdDebugMarkerEndEXT) vkGetDeviceProcAddr(*mDevice, "vkCmdDebugMarkerEndEXT");
     }
 
     // create command pool

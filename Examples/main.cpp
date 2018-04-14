@@ -189,9 +189,6 @@ int main()
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-        // load symbols
-        if (!vkLoaderInit()) throw std::runtime_error("cannot load vulkan library!");
-
         App app;
         app.Run();
     }

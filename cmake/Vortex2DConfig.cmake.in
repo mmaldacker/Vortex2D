@@ -1,0 +1,16 @@
+# - Config file for the FooBar package
+# It defines the following variables
+#  VORTEX2D_INCLUDE_DIRS - include directories for FooBar
+#  VORTEX2D_LIBRARIES    - libraries to link against
+ 
+# Compute paths
+get_filename_component(VORTEX2D_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+set(VORTEX2D_INCLUDE_DIRS "@CONF_INCLUDE_DIRS@")
+ 
+# Our library dependencies 
+if(NOT TARGET vortex2d AND NOT Vortex2D_BINARY_DIR)
+  include("${FOOBAR_CMAKE_DIR}/Vortex2DTargets.cmake")
+endif()
+ 
+# These are IMPORTED targets
+set(FOOBAR_LIBRARIES vortex2d)

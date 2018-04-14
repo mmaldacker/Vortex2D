@@ -16,7 +16,6 @@
 
 #include "Verify.h"
 
-#include "vortex2d_generated_spirv.h"
 #include "vortex2d_tests_generated_spirv.h"
 
 using namespace Vortex2D::Renderer;

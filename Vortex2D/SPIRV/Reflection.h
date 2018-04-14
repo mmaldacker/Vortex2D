@@ -10,7 +10,6 @@
 #include <Vortex2D/Renderer/DescriptorSet.h>
 #include <Vortex2D/Renderer/Device.h>
 
-#include <spirv_cross.hpp>
 #include <map>
 
 namespace Vortex2D { namespace SPIRV {
@@ -25,13 +24,12 @@ public:
   VORTEX2D_API DescriptorTypesMap GetDescriptorTypesMap() const;
   VORTEX2D_API unsigned GetPushConstantsSize() const;
 
-  VORTEX2D_API vk::ShaderStageFlagBits GetShaderStage() const;
+  VORTEX2D_API vk::ShaderStageFlags GetShaderStage() const;
 
 private:
-  unsigned ReadBinding(unsigned id);
-
-  spirv_cross::Compiler mCompiler;
   DescriptorTypesMap mDescriptorTypes;
+  unsigned mPushConstantSize;
+  vk::ShaderStageFlags mStageFlag;
 };
 
 }}
