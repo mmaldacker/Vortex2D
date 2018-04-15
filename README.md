@@ -41,7 +41,7 @@ make -j 4
 
 ### Windows
 
-Get the lunarG Vulkan SDK and install. That's it, you can then build Vortex2D with cmake. Start the cmake-gui, select the source and build folder and configure. Select `DVORTEX2D_ENABLE_EXAMPLES` to also build the examples.
+Get the lunarG Vulkan SDK and install. That's it, you can then build Vortex2D with cmake. Start the cmake-gui, select the source and build folder and configure. Select `VORTEX2D_ENABLE_EXAMPLES` to also build the examples.
 
 ## Roadmap
 
