@@ -26,16 +26,30 @@ Documentation can be found at https://vortex2d.readthedocs.io.
 
 ## Quick start
 
-CMake is used to get any required dependency. The only dependencies needed are the glslc compiler, the vulkan library and python.
-* On windows, glslc and  vulkan come with the LunarG SDK.
-* On Linux, get the LunarG SDK and run the `build_tools.sh` command. You also need to set some env variables with `source setup-env.sh`.
+### Linux
 
-Any other dependencies is downloader by Cmake. To compile the project, standard cmake is used. 
+Get the LunarG Vulkan SDK, and extract somewhere. Vortex2D requires the `glslc` compiler which can built/installed with the SDK. 
+The script `build_tools.sh` takes care of that. In addition, need to set some env vars so cmake can find the SDK: `source setup-env.sh`.
 
-For example on linux:
+Vortex2D can then be built with cmake as so:
 
 ```
 mkdir build && cd build
 cmake .. -DVORTEX2D_ENABLE_EXAMPLES=On -DVORTEX2D_ENABLE_TESTS=On
 make -j 4
 ```
+
+### Windows
+
+Get the lunarG Vulkan SDK and install. That's it, you can then build Vortex2D with cmake. Start the cmake-gui, select the source and build folder and configure. Select `DVORTEX2D_ENABLE_EXAMPLES` to also build the examples.
+
+## Roadmap
+
+In no particular order:
+
+* Bicubic interpolation
+* Strong rigidbody coupling
+* CFL number
+* Dynamic timestep
+* Improved/faster solver
+* Fire 
