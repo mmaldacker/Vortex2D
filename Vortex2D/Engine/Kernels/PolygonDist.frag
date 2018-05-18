@@ -33,7 +33,7 @@ float dist_to_segment(vec2 a, vec2 b, vec2 p)
     float l = dot(dir, dir);
 
     float t = clamp(dot(p - a, dir) / l, 0.0, 1.0);
-    vec2 proj = a + t * dir;
+    vec2 proj = (1.0 - t) * a + t * b;
     return distance(p, proj);
 }
 
