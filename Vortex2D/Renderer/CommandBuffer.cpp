@@ -236,7 +236,7 @@ RenderCommand::RenderCommand(const Device& device,
 
     for (auto& frameBuffer: frameBuffers)
     {
-        CommandBuffer cmd(device, false);
+        CommandBuffer cmd(device, true);
         cmd.Record(renderTarget, *frameBuffer, [&](vk::CommandBuffer commandBuffer)
         {
             for (auto& drawable: drawables)
@@ -259,7 +259,15 @@ void RenderCommand::Submit(const glm::mat4& view)
     }
 }
 
-void RenderCommand::Render(const std::initializer_list<vk::Semaphore>& waitSemaphores, const std::initializer_list<vk::Semaphore>& signalSemaphores)
+void RenderCommand::Wait()
+{
+    assert(mIndex);
+    assert(*mIndex < mCmds.size());
+    mCmds[*mIndex].Wait();
+}
+
+void RenderCommand::Render(const std::initializer_list<vk::Semaphore>& waitSemaphores,
+                           const std::initializer_list<vk::Semaphore>& signalSemaphores)
 {
     assert(mIndex);
     if (mCmds.empty()) return;
@@ -271,6 +279,7 @@ void RenderCommand::Render(const std::initializer_list<vk::Semaphore>& waitSemap
         drawable.get().Update(mRenderTarget->Orth, mRenderTarget->View * mView);
     }
 
+    mCmds[*mIndex].Wait();
     mCmds[*mIndex].Submit(waitSemaphores, signalSemaphores);
 }
 

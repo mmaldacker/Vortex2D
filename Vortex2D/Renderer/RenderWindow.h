@@ -42,8 +42,8 @@ private:
     vk::UniqueSwapchainKHR mSwapChain;
     std::vector<vk::UniqueImageView> mSwapChainImageViews;
     std::vector<vk::UniqueFramebuffer> mFrameBuffers;
-    vk::UniqueSemaphore mImageAvailableSemaphore;
-    vk::UniqueSemaphore mRenderFinishedSemaphore;
+    std::vector<vk::UniqueSemaphore> mImageAvailableSemaphores;
+    std::vector<vk::UniqueSemaphore> mRenderFinishedSemaphores;
     std::vector<std::reference_wrapper<RenderCommand>> mRenderCommands;
     uint32_t mIndex;
 };
