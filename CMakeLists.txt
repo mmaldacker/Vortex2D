@@ -2,6 +2,13 @@ cmake_minimum_required(VERSION 3.2)
 
 project(Vortex2D)
 
+set(CMAKE_CXX_STANDARD 14)
+
+# setup version numbers
+set(VERSION_MAJOR 1)
+set(VERSION_MINOR 0)
+set(VERSION_PATCH 0)
+
 option(VORTEX2D_ENABLE_EXAMPLES "Build examples" OFF)
 option(VORTEX2D_ENABLE_TESTS "Build tests" OFF)
 option(VORTEX2D_ENABLE_DOCS "Build docs" OFF)
@@ -19,6 +26,7 @@ if (CMAKE_COMPILER_IS_GNUCXX)
 endif ()
 
 # cmake file to download and include dependencies
+include(cmake/Macros.cmake)
 include(cmake/DownloadProject.cmake)
 set(UPDATE_DISCONNECTED_IF_AVAILABLE "UPDATE_DISCONNECTED 1")
 

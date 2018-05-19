@@ -130,8 +130,8 @@ download_project(PROJ                SPIRV_Cross
 add_subdirectory(${SPIRV_Cross_SOURCE_DIR} ${SPIRV_Cross_BINARY_DIR})
 set_property(TARGET spirv-cross-core PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-find_package(PythonInterp REQUIRED)
-find_package(Vulkan REQUIRED)
+vortex2d_find_package(PythonInterp REQUIRED)
+vortex2d_find_vulkan()
 
 function(compile_shader)
     set(options "")
@@ -140,9 +140,9 @@ function(compile_shader)
 
     cmake_parse_arguments(SHADER "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-    find_program(GLSL_VALIDATOR glslc hints "$ENV{VULKAN_SDK}/Bin")
+    vortex2d_find_program(GLSL_VALIDATOR glslc hints "$ENV{VULKAN_SDK}/Bin")
     message("Using compiler: ${GLSL_VALIDATOR}")
-    
+
     set(COMPILE_SCRIPT ${CMAKE_SOURCE_DIR}/Scripts/GenerateSPIRV.py)
     add_custom_command(
        OUTPUT "${SHADER_OUTPUT}.h" "${SHADER_OUTPUT}.cpp"
@@ -165,45 +165,26 @@ add_library(vortex2d
     vortex2d_generated_spirv.cpp
     vortex2d_generated_spirv.h)
 
-target_link_libraries(vortex2d PUBLIC glm Vulkan::Vulkan PRIVATE spirv-cross-core)
+target_link_libraries(vortex2d PUBLIC glm ${VULKAN_LIBRARIES} PRIVATE spirv-cross-core)
 
 target_include_directories(vortex2d
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>
+        $<BUILD_INTERFACE:${VULKAN_INCLUDES}>
         $<INSTALL_INTERFACE:include/Vortex2D>
     PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
-target_compile_features(vortex2d PRIVATE cxx_variadic_templates cxx_generic_lambdas)
-
+# windows definition to correctly generate the dll
 if(WIN32)
     target_compile_definitions(vortex2d PRIVATE VORTEX2D_API_EXPORTS)
 endif()
 
-if(MSVC)
-    target_compile_options(vortex2d PUBLIC "/W3")
-else()
-    target_compile_options(vortex2d PUBLIC "-Wall")
-endif()
-
 install(TARGETS vortex2d
-        EXPORT Vortex2DTargets
+        EXPORT Vortex2DConfigExport
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib)
 install(DIRECTORY . DESTINATION include/Vortex2D
-        FILES_MATCHING PATTERN "*.h")
+        FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp")
 
-configure_file("${CMAKE_SOURCE_DIR}/cmake/Vortex2DConfig.cmake.in" "${PROJECT_BINARY_DIR}/Vortex2DConfig.cmake" @ONLY)
-
-if(WIN32 AND NOT CYGWIN)
-  set(DEF_INSTALL_CMAKE_DIR CMake)
-else()
-  set(DEF_INSTALL_CMAKE_DIR lib/CMake/Vortex2D)
-endif()
-
-set(INSTALL_CMAKE_DIR ${DEF_INSTALL_CMAKE_DIR} CACHE PATH "Installation directory for CMake files")
-
-install(FILES "${PROJECT_BINARY_DIR}/Vortex2DConfig.cmake"
-        DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
-
-install(EXPORT Vortex2DTargets DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
+vortex2d_export_targets()

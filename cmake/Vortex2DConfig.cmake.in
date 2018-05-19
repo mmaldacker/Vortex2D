@@ -2,14 +2,14 @@
 # It defines the following variables
 #  VORTEX2D_INCLUDE_DIRS - include directories for FooBar
 #  VORTEX2D_LIBRARIES    - libraries to link against
- 
-# Compute paths
-get_filename_component(VORTEX2D_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
-set(VORTEX2D_INCLUDE_DIRS "@CONF_INCLUDE_DIRS@")
- 
-if(NOT TARGET vortex2d)
-  include("${FOOBAR_CMAKE_DIR}/Vortex2DTargets.cmake")
+
+set(targets_config_file "${CMAKE_CURRENT_LIST_DIR}/Vortex2DTargets.cmake")
+if (EXISTS "${targets_config_file}")
+    set(VORTEX2D_FOUND TRUE)
+    include("${targets_config_file}")
+    set(VORTEX2D_LIBRARIES vortex2d)
 endif()
 
-# These are IMPORTED targets
-set(VORTEX2D_LIBRARIES vortex2d)
+if (SFML_FOUND AND NOT SFML_FIND_QUIETLY)
+    message(STATUS "Found SFML @VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_PATCH@ in ${CMAKE_CURRENT_LIST_DIR}")
+endif()

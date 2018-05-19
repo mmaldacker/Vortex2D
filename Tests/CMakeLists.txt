@@ -52,7 +52,6 @@ find_package(Threads REQUIRED)
 compile_shader(SOURCES ${SHADER_TEST_SOURCES} OUTPUT "vortex2d_tests_generated_spirv")
 
 add_executable(vortex2d_tests ${ENGINE_TEST_SOURCES} ${RENDERER_TEST_SOURCES} ${SHADER_TEST_SOURCES} "main.cpp" "Verify.h" ${CMAKE_CURRENT_BINARY_DIR}/vortex2d_tests_generated_spirv.cpp ${CMAKE_CURRENT_BINARY_DIR}/vortex2d_tests_generated_spirv.h)
-target_compile_features(vortex2d_tests PRIVATE cxx_variadic_templates cxx_generic_lambdas)
 target_link_libraries(vortex2d_tests vortex2d gtest gmock gmock_main Threads::Threads fluidrigidcoupling2d_lib)
 target_include_directories(vortex2d_tests PRIVATE ./ ${CMAKE_CURRENT_BINARY_DIR})
 

@@ -2,6 +2,7 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
+set(GLFW_VULKAN_STATIC ON  CACHE BOOL "" FORCE)
 download_project(PROJ                glfw3
                  GIT_REPOSITORY      https://github.com/glfw/glfw.git
                  GIT_TAG             master
@@ -34,12 +35,10 @@ file(GLOB EXAMPLES_BOX2D_SOURCES
 
 # Build Box2D stuff separately
 add_library(vortex2d_examples_box2d STATIC ${EXAMPLES_BOX2D_SOURCES})
-target_compile_features(vortex2d_examples_box2d PRIVATE cxx_variadic_templates cxx_generic_lambdas)
 target_include_directories(vortex2d_examples_box2d PUBLIC ${Box2D_SOURCE_DIR}/Box2D)
 target_link_libraries(vortex2d_examples_box2d PUBLIC vortex2d Box2D)
 
 add_executable(vortex2d_examples ${EXAMPLES_SOURCES})
-target_compile_features(vortex2d_examples PRIVATE cxx_nullptr)
 target_link_libraries(vortex2d_examples vortex2d glfw vortex2d_examples_box2d)
 
 if (WIN32)
