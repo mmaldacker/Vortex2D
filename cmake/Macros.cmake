@@ -40,7 +40,7 @@ function(vortex2d_find_vulkan)
   	set(VULKAN_INCLUDES "${MOLTENVK_DIR}/include" PARENT_SCOPE)
   else()
   	find_package(Vulkan REQUIRED)
-  	set(VULKAN_LIBRARIES Vulkan::Vulkan)
+  	set(VULKAN_LIBRARIES Vulkan::Vulkan PARENT_SCOPE)
   endif()
 endfunction()
 
