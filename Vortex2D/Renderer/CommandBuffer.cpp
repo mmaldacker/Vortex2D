@@ -249,7 +249,7 @@ RenderCommand::RenderCommand(const Device& device,
     }
 }
 
-void RenderCommand::Submit(const glm::mat4& view)
+RenderCommand& RenderCommand::Submit(const glm::mat4& view)
 {
     mView = view;
 
@@ -257,6 +257,8 @@ void RenderCommand::Submit(const glm::mat4& view)
     {
         mRenderTarget->Submit(*this);
     }
+
+    return *this;
 }
 
 void RenderCommand::Wait()

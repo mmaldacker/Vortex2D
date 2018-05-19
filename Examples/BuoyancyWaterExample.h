@@ -51,7 +51,7 @@ public:
         fluid.Position = {40.0f, 600.0f};
         fluid.Colour = glm::vec4(4);
 
-        world.RecordParticleCount({fluid}).Submit();
+        world.RecordParticleCount({fluid}).Submit().Wait();
 
         // Draw boundaries
         left.SetTransform({12.0f, 1000.0f}, 0.0f);
@@ -67,9 +67,6 @@ public:
         circle1.SetTransform({200.0f, 200.0f}, 0.0f);
         circle2.SetTransform({500.0f, 200.0f}, 0.0f);
         circle3.SetTransform({800.0f, 200.0f}, 0.0f);
-
-        // wait for drawing to finish
-        device.Handle().waitIdle();
 
         // Set gravity
         velocityRender = world.RecordVelocity({gravity});

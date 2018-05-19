@@ -40,7 +40,7 @@ public:
         fluid.Position = {200.0f, 100.0f};
         fluid.Colour = glm::vec4(4);
 
-        world.RecordParticleCount({fluid}).Submit();
+        world.RecordParticleCount({fluid}).Submit().Wait();
 
         // Draw solid boundaries
         Vortex2D::Fluid::Rectangle obstacle1(device, {200.0f, 100.0f});
@@ -55,10 +55,7 @@ public:
         obstacle2.Position = {700.0f, 600.0f};
         obstacle2.Rotation = 30.0f;
 
-        world.RecordStaticSolidPhi({area, obstacle1, obstacle2}).Submit();
-
-        // wait for drawing to finish
-        device.Handle().waitIdle();
+        world.RecordStaticSolidPhi({area, obstacle1, obstacle2}).Submit().Wait();
 
         // Set gravity
         velocityRender = world.RecordVelocity({gravity});

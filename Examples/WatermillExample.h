@@ -61,7 +61,7 @@ public:
         }
 
         // build wings
-        mWindmillTexture.Record({Vortex2D::Fluid::BoundariesClear}).Submit();
+        mWindmillTexture.Record({Vortex2D::Fluid::BoundariesClear}).Submit().Wait();
 
         int n = 6;
         float dist = 120.0f;
@@ -88,8 +88,7 @@ public:
             fluidWing.Anchor = size / glm::vec2(2.0f);
             fluidWing.Position = glm::vec2(x, y) + centre;
             fluidWing.Rotation = glm::degrees(angle);
-            mWindmillTexture.Record({fluidWing}, Vortex2D::Fluid::UnionBlend).Submit();
-            device.Handle().waitIdle();
+            mWindmillTexture.Record({fluidWing}, Vortex2D::Fluid::UnionBlend).Submit().Wait();
         }
     }
 

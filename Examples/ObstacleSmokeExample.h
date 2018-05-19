@@ -49,7 +49,7 @@ public:
         source.Position = {100.0f, 500.0f};
         source.Colour = yellow;
 
-        density.Record({source}).Submit();
+        density.Record({source}).Submit().Wait();
 
         // Draw liquid boundaries
         Vortex2D::Renderer::Clear clear({1.0f, 0.0f, 0.0f, 0.0f});
@@ -58,7 +58,7 @@ public:
         liquidArea.Colour = {-1.0f, 0.0f, 0.0f, 0.0f};
         liquidArea.Position = {12.0f, 12.0};
 
-        world.RecordLiquidPhi({clear, liquidArea}).Submit();
+        world.RecordLiquidPhi({clear, liquidArea}).Submit().Wait();
 
         // Draw solid boundaries
 
@@ -75,9 +75,6 @@ public:
         // Bottom
         bottom.SetTransform({512.0f, 1000.5f}, 0.0f);
         bottom.Update();
-
-        // wait for drawing to finish
-        device.Handle().waitIdle();
 
         auto blendMode = vk::PipelineColorBlendAttachmentState()
                 .setBlendEnable(true)

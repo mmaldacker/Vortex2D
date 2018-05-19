@@ -52,7 +52,7 @@ public:
 
         Vortex2D::Renderer::Clear clearLiquid({1.0f, 0.0f, 0.0f, 0.0f});
 
-        world.RecordLiquidPhi({clearLiquid, area}).Submit();
+        world.RecordLiquidPhi({clearLiquid, area}).Submit().Wait();
 
         // Draw solid boundaries
         Vortex2D::Fluid::Circle obstacle1(device, 50.0f);
@@ -62,15 +62,12 @@ public:
         obstacle2.Position = {750.0f, 600.0f};
 
         world.RecordStaticSolidPhi({Vortex2D::Fluid::BoundariesClear, obstacle1, obstacle2})
-             .Submit();
+             .Submit().Wait();
 
         // Draw sources and forces
 
         velocityRender = world.RecordVelocity({force1, force2});
         densityRender = density.Record({source1, source2});
-
-        // wait for all drawing to finish
-        device.Handle().waitIdle();
 
         auto blendMode = vk::PipelineColorBlendAttachmentState()
                 .setBlendEnable(true)

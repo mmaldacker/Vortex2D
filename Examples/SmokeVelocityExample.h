@@ -58,7 +58,7 @@ public:
 
         Vortex2D::Renderer::Clear clearLiquid({1.0f, 0.0f, 0.0f, 0.0f});
 
-        world.RecordLiquidPhi({clearLiquid, area}).Submit();
+        world.RecordLiquidPhi({clearLiquid, area}).Submit().Wait();
 
         // Draw sources and forces
         velocityRender = world.RecordVelocity({force1, force2});
@@ -66,9 +66,6 @@ public:
 
         // Draw rigid body
         body.SetTransform({300.0f, 500.0f}, -45.0f);
-
-        // wait for drawing to finish
-        device.Handle().waitIdle();
 
         auto blendMode = vk::PipelineColorBlendAttachmentState()
                 .setBlendEnable(true)

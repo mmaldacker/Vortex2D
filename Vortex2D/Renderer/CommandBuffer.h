@@ -102,13 +102,14 @@ public:
     /**
      * @brief Submit the render command with a transform matrix
      * @param view a transform matrix
+     * @return *this
      */
-    void VORTEX2D_API Submit(const glm::mat4& view = glm::mat4());
+    VORTEX2D_API RenderCommand& Submit(const glm::mat4& view = glm::mat4());
     
     /**
      * @brief Wait for the render command to complete
      */
-    void VORTEX2D_API Wait();
+    VORTEX2D_API void Wait();
 
     friend class RenderTexture;
     friend class RenderWindow;
