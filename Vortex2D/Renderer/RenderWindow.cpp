@@ -32,7 +32,8 @@ struct SwapChainSupportDetails
 RenderWindow::RenderWindow(const Device& device, vk::SurfaceKHR surface, uint32_t width, uint32_t height)
     : RenderTarget(width, height)
     , mDevice(device)
-    , mIndex(static_cast<uint32_t>(0))
+    , mIndex(0)
+    , mFrameIndex(0)
 {
     // get swap chain support details
     SwapChainSupportDetails details(device.GetPhysicalDevice(), surface);
@@ -139,7 +140,7 @@ void RenderWindow::Display()
 {
     if (mRenderCommands.empty()) return; // nothing to draw
 
-    auto result = mDevice.Handle().acquireNextImageKHR(*mSwapChain, UINT64_MAX, *mImageAvailableSemaphores[mIndex], nullptr);
+    auto result = mDevice.Handle().acquireNextImageKHR(*mSwapChain, UINT64_MAX, *mImageAvailableSemaphores[mFrameIndex], nullptr);
     if (result.result == vk::Result::eSuccess)
     {
         mIndex = result.value;
@@ -151,20 +152,20 @@ void RenderWindow::Display()
 
     if (mRenderCommands.size() == 1)
     {
-        mRenderCommands[0].get().Render({*mImageAvailableSemaphores[mIndex]}, {*mRenderFinishedSemaphores[mIndex]});
+        mRenderCommands[0].get().Render({*mImageAvailableSemaphores[mFrameIndex]}, {*mRenderFinishedSemaphores[mFrameIndex]});
     }
     else
     {
-        mRenderCommands.front().get().Render({*mImageAvailableSemaphores[mIndex]});
+        mRenderCommands.front().get().Render({*mImageAvailableSemaphores[mFrameIndex]});
         for (std::size_t i = 1; i < mRenderCommands.size() - 1; i++)
         {
             mRenderCommands[i].get().Render();
         }
-        mRenderCommands.back().get().Render({}, {*mRenderFinishedSemaphores[mIndex]});
+        mRenderCommands.back().get().Render({}, {*mRenderFinishedSemaphores[mFrameIndex]});
     }
 
     vk::SwapchainKHR swapChain[] = {*mSwapChain};
-    vk::Semaphore waitSemaphores[] = {*mRenderFinishedSemaphores[mIndex]};
+    vk::Semaphore waitSemaphores[] = {*mRenderFinishedSemaphores[mFrameIndex]};
 
     auto presentInfo = vk::PresentInfoKHR()
             .setSwapchainCount(1)
@@ -175,6 +176,8 @@ void RenderWindow::Display()
 
     mDevice.Queue().presentKHR(presentInfo);
     mRenderCommands.clear();
+
+    mFrameIndex = (mFrameIndex + 1) % mFrameBuffers.size();
 }
 
 }}

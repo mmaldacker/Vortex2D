@@ -46,6 +46,7 @@ private:
     std::vector<vk::UniqueSemaphore> mRenderFinishedSemaphores;
     std::vector<std::reference_wrapper<RenderCommand>> mRenderCommands;
     uint32_t mIndex;
+    uint32_t mFrameIndex;
 };
 
 }}
