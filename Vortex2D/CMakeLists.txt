@@ -133,24 +133,6 @@ set_property(TARGET spirv-cross-core PROPERTY POSITION_INDEPENDENT_CODE ON)
 vortex2d_find_package(PythonInterp REQUIRED)
 vortex2d_find_vulkan()
 
-function(compile_shader)
-    set(options "")
-    set(oneValueArgs OUTPUT)
-    set(multiValueArgs SOURCES)
-
-    cmake_parse_arguments(SHADER "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
-
-    vortex2d_find_program(GLSL_VALIDATOR glslc hints "$ENV{VULKAN_SDK}/Bin")
-    message("Using compiler: ${GLSL_VALIDATOR}")
-
-    set(COMPILE_SCRIPT ${CMAKE_SOURCE_DIR}/Scripts/GenerateSPIRV.py)
-    add_custom_command(
-       OUTPUT "${SHADER_OUTPUT}.h" "${SHADER_OUTPUT}.cpp"
-       COMMAND ${PYTHON_EXECUTABLE} ${COMPILE_SCRIPT} --compiler ${GLSL_VALIDATOR} --output ${SHADER_OUTPUT} ${SHADER_SOURCES}
-       DEPENDS ${SHADER_SOURCES} ${COMPILE_SCRIPT})
-
-endfunction()
-
 compile_shader(SOURCES ${SHADER_SOURCES} OUTPUT "vortex2d_generated_spirv")
 
 add_library(vortex2d
@@ -164,6 +146,44 @@ add_library(vortex2d
     "Engine/Kernels/CommonParticles.comp"
     vortex2d_generated_spirv.cpp
     vortex2d_generated_spirv.h)
+
+set(CMAKE_DIR "${PROJECT_SOURCE_DIR}/cmake")
+
+# Create framework for macOS/iOS
+if (APPLE)
+  set_target_properties(vortex2d PROPERTIES
+      FRAMEWORK TRUE
+      FRAMEWORK_VERSION A
+      #MACOSX_FRAMEWORK_IDENTIFIER ${FRAMEWORK_BUNDLE_IDENTIFIER}
+      MACOSX_FRAMEWORK_INFO_PLIST ${CMAKE_DIR}/framework.plist.in
+      # "current version" in semantic format in Mach-O binary file
+      VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATH}
+      # "compatibility version" in semantic format in Mach-O binary file
+      SOVERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATH}
+      PUBLIC_HEADER "Vortex2D.h"
+      #XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET ${DEPLOYMENT_TARGET}
+      XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY ${CODE_SIGN_IDENTITY}
+      #XCODE_ATTRIBUTE_DEVELOPMENT_TEAM ${DEVELOPMENT_TEAM_ID}
+      #XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY ${DEVICE_FAMILY}
+      XCODE_ATTRIBUTE_SKIP_INSTALL "YES")
+
+  # TODO this should be simpler
+  add_custom_command(TARGET vortex2d POST_BUILD COMMAND cp -r ${CMAKE_SOURCE_DIR}/Vortex2D/Engine $<TARGET_FILE_DIR:vortex2d>/Headers/Engine)
+  add_custom_command(TARGET vortex2d POST_BUILD COMMAND cp -r ${CMAKE_SOURCE_DIR}/Vortex2D/Renderer $<TARGET_FILE_DIR:vortex2d>/Headers/Renderer)
+  add_custom_command(TARGET vortex2d POST_BUILD COMMAND cp -r ${CMAKE_SOURCE_DIR}/Vortex2D/Utils $<TARGET_FILE_DIR:vortex2d>/Headers/Utils)
+  add_custom_command(TARGET vortex2d POST_BUILD COMMAND cp -r ${CMAKE_SOURCE_DIR}/Vortex2D/SPIRV $<TARGET_FILE_DIR:vortex2d>/Headers/SPIRV)
+
+  add_custom_command(
+      TARGET vortex2d
+      POST_BUILD
+    COMMAND /bin/bash -c "${CMAKE_DIR}/install_name.sh $<TARGET_FILE_DIR:vortex2d>/vortex2d")
+
+  add_custom_command(
+      TARGET vortex2d
+      POST_BUILD
+      COMMAND install_name_tool -id \"@rpath/vortex2d.framework/vortex2d\" $<TARGET_FILE_DIR:vortex2d>/vortex2d)
+
+endif()
 
 target_link_libraries(vortex2d PUBLIC glm ${VULKAN_LIBRARIES} PRIVATE spirv-cross-core)
 
@@ -183,7 +203,8 @@ install(TARGETS vortex2d
         EXPORT Vortex2DConfigExport
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib)
+        ARCHIVE DESTINATION lib
+        FRAMEWORK DESTINATION frameworks)
 install(DIRECTORY . DESTINATION include/Vortex2D
         FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp")
 

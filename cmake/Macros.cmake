@@ -19,6 +19,20 @@ function(vortex2d_find_program)
     endif()
 endfunction()
 
+# Function to compile the shaders and generate a C++ source file to include
+function(compile_shader)
+    cmake_parse_arguments(SHADER "" "OUTPUT" "SOURCES" ${ARGN})
+
+    vortex2d_find_program(GLSL_VALIDATOR glslc hints "$ENV{VULKAN_SDK}/Bin")
+    message("Using compiler: ${GLSL_VALIDATOR}")
+
+    set(COMPILE_SCRIPT ${CMAKE_SOURCE_DIR}/Scripts/GenerateSPIRV.py)
+    add_custom_command(
+       OUTPUT "${SHADER_OUTPUT}.h" "${SHADER_OUTPUT}.cpp"
+       COMMAND ${PYTHON_EXECUTABLE} ${COMPILE_SCRIPT} --compiler ${GLSL_VALIDATOR} --output ${SHADER_OUTPUT} ${SHADER_SOURCES}
+       DEPENDS ${SHADER_SOURCES} ${COMPILE_SCRIPT})
+endfunction()
+
 # Find vulkan or MoltenVK on macOS/iOS
 function(vortex2d_find_vulkan)
   if(APPLE)
