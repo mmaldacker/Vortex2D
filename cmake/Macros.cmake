@@ -90,3 +90,60 @@ function(vortex2d_export_targets)
             DESTINATION ${config_package_location}
             COMPONENT devel)
 endfunction()
+
+function(copy_vortex2d_framework target)
+  # Create Frameworks directory in app bundle
+  add_custom_command(
+      TARGET
+      ${target}
+      POST_BUILD COMMAND /bin/sh -c
+      \"COMMAND_DONE=0 \;
+      if ${CMAKE_COMMAND} -E make_directory
+          ${CMAKE_CURRENT_BINARY_DIR}/\${CONFIGURATION}\${EFFECTIVE_PLATFORM_NAME}/${target}.app/Frameworks
+          \&\>/dev/null \; then
+          COMMAND_DONE=1 \;
+      fi \;
+      if [ \\$$COMMAND_DONE -eq 0 ] \; then
+          echo Failed to create Frameworks directory in app bundle \;
+          exit 1 \;
+      fi\"
+  )
+
+  # Copy the framework into the app bundle
+  add_custom_command(
+      TARGET
+      ${target}
+      POST_BUILD COMMAND /bin/sh -c
+      \"COMMAND_DONE=0 \;
+      if ${CMAKE_COMMAND} -E copy_directory
+          ${PROJECT_BINARY_DIR}/Vortex2D/\${CONFIGURATION}\${EFFECTIVE_PLATFORM_NAME}/vortex2d.framework
+          ${CMAKE_CURRENT_BINARY_DIR}/\${CONFIGURATION}\${EFFECTIVE_PLATFORM_NAME}/${target}.app/Frameworks/vortex2d.framework
+          \&\>/dev/null \; then
+          COMMAND_DONE=1 \;
+      fi \;
+      if [ \\$$COMMAND_DONE -eq 0 ] \; then
+          echo Failed to copy the framework into the app bundle \;
+          exit 1 \;
+      fi\"
+  )
+
+  if (DEFINED CODE_SIGN_IDENTITY)
+    # Codesign the framework in it's new spot
+    add_custom_command(
+        TARGET
+        ${target}
+        POST_BUILD COMMAND /bin/sh -c
+        \"COMMAND_DONE=0 \;
+        if codesign --force --verbose
+            ${CMAKE_CURRENT_BINARY_DIR}/\${CONFIGURATION}\${EFFECTIVE_PLATFORM_NAME}/${target}.app/Frameworks/vortex2d.framework
+            --sign ${CODE_SIGN_IDENTITY}
+            \&\>/dev/null \; then
+            COMMAND_DONE=1 \;
+        fi \;
+        if [ \\$$COMMAND_DONE -eq 0 ] \; then
+            echo Framework codesign failed \;
+            exit 1 \;
+        fi\"
+    )
+  endif()
+endfunction()

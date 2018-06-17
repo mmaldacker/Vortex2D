@@ -43,6 +43,18 @@ make -j 4
 
 Get the lunarG Vulkan SDK and install. That's it, you can then build Vortex2D with cmake. Start the cmake-gui, select the source and build folder and configure. Select `VORTEX2D_ENABLE_EXAMPLES` to also build the examples.
 
+### Mac
+
+Get the LunarG Vulkan SDK or build MoltenVK directly. Vortex2D requires the `glslc` compiler which can built/installed with the SDK. 
+
+Vortex2D can then be built with cmake as so:
+
+```
+mkdir build && cd build
+cmake .. -DVORTEX2D_ENABLE_EXAMPLES=On -DVORTEX2D_ENABLE_TESTS=On -DMOLTENVK_DIR=/path_to_sdk_or_moltenvk/
+make -j 4
+```
+
 ## Roadmap
 
 In no particular order:

@@ -154,24 +154,23 @@ if (APPLE)
   set_target_properties(vortex2d PROPERTIES
       FRAMEWORK TRUE
       FRAMEWORK_VERSION A
-      #MACOSX_FRAMEWORK_IDENTIFIER ${FRAMEWORK_BUNDLE_IDENTIFIER}
-      MACOSX_FRAMEWORK_INFO_PLIST ${CMAKE_DIR}/framework.plist.in
+      MACOSX_FRAMEWORK_IDENTIFIER org.vortex2d
       # "current version" in semantic format in Mach-O binary file
       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATH}
       # "compatibility version" in semantic format in Mach-O binary file
       SOVERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATH}
       PUBLIC_HEADER "Vortex2D.h"
-      #XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET ${DEPLOYMENT_TARGET}
       XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY ${CODE_SIGN_IDENTITY}
-      #XCODE_ATTRIBUTE_DEVELOPMENT_TEAM ${DEVELOPMENT_TEAM_ID}
-      #XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY ${DEVICE_FAMILY}
-      XCODE_ATTRIBUTE_SKIP_INSTALL "YES")
+      XCODE_ATTRIBUTE_DEVELOPMENT_TEAM ${DEVELOPMENT_TEAM_ID}
+    )
 
   # TODO this should be simpler
   add_custom_command(TARGET vortex2d POST_BUILD COMMAND cp -r ${CMAKE_SOURCE_DIR}/Vortex2D/Engine $<TARGET_FILE_DIR:vortex2d>/Headers/Engine)
   add_custom_command(TARGET vortex2d POST_BUILD COMMAND cp -r ${CMAKE_SOURCE_DIR}/Vortex2D/Renderer $<TARGET_FILE_DIR:vortex2d>/Headers/Renderer)
   add_custom_command(TARGET vortex2d POST_BUILD COMMAND cp -r ${CMAKE_SOURCE_DIR}/Vortex2D/Utils $<TARGET_FILE_DIR:vortex2d>/Headers/Utils)
   add_custom_command(TARGET vortex2d POST_BUILD COMMAND cp -r ${CMAKE_SOURCE_DIR}/Vortex2D/SPIRV $<TARGET_FILE_DIR:vortex2d>/Headers/SPIRV)
+
+  # TODO should also copy vulkan and glm
 
   add_custom_command(
       TARGET vortex2d

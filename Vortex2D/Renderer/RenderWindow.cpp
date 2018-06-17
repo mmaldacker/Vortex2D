@@ -88,7 +88,7 @@ RenderWindow::RenderWindow(const Device& device, vk::SurfaceKHR surface, uint32_
     // Create render pass
     RenderPass = RenderpassBuilder()
             .Attachement(format)
-            .AttachementLoadOp(vk::AttachmentLoadOp::eDontCare)
+            .AttachementLoadOp(vk::AttachmentLoadOp::eLoad)
             .AttachementStoreOp(vk::AttachmentStoreOp::eStore)
             .AttachementFinalLayout(vk::ImageLayout::ePresentSrcKHR)
             .Subpass(vk::PipelineBindPoint::eGraphics)
