@@ -11,15 +11,14 @@
 uvec4 GetAddressMapping(uint index)
 {
     uint local_id = gl_LocalInvocationID.x;
-    uint group_size = gl_WorkGroupSize.x;
 
     uvec2 global_index;
     global_index.x = index + local_id;
-    global_index.y = global_index.x + group_size;
+    global_index.y = global_index.x + blockSize;
 
     uvec2 local_index;
     local_index.x = local_id;
-    local_index.y = local_id + group_size;
+    local_index.y = local_id + blockSize;
 
     return uvec4(global_index, local_index);
 }
@@ -70,11 +69,10 @@ void StoreLocalToGlobal(const uvec4 address_pair)
 uint BuildPartialSum()
 {
     uint local_id = gl_LocalInvocationID.x;
-    uint group_size = gl_WorkGroupSize.x;
 
     uint stride = 1;
 
-    for (uint j = group_size; j > 0; j >>= 1)
+    for (uint j = blockSize; j > 0; j >>= 1)
     {
         if (local_id < j)
         {
@@ -101,9 +99,8 @@ uint BuildPartialSum()
 void ScanRootToLeaves(uint stride)
 {
     uint local_id = gl_LocalInvocationID.x;
-    uint group_size = gl_WorkGroupSize.x;
 
-    for (uint j = 1; j <= group_size; j <<= 1)
+    for (uint j = 1; j <= blockSize; j <<= 1)
     {
         stride >>= 1;
 

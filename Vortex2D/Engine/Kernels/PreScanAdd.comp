@@ -27,7 +27,7 @@ void main()
 {
     uint local_id = gl_LocalInvocationID.x;
     uint group_id = gl_WorkGroupID.x;
-    uint group_size = gl_WorkGroupSize.x;
+    uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
 
     if (local_id == 0)
     {
@@ -37,14 +37,14 @@ void main()
     memoryBarrierShared();
     barrier();
 
-    uint address = group_id * group_size * 2 + local_id;
+    uint address = group_id * blockSize * 2 + local_id;
 
     if (address < consts.width)
     {
         o.value[address] += sdata[0];
-        if (address + group_size < consts.width)
+        if (address + blockSize < consts.width)
         {
-            o.value[address + group_size] += sdata[0];
+            o.value[address + blockSize] += sdata[0];
         }
     }
 }

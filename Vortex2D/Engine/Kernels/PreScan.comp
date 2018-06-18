@@ -41,11 +41,10 @@ shared int sdata[2 * blockSize + 2 * blockSize / 16];
 void ClearLastElement()
 {
     uint local_id = gl_LocalInvocationID.x;
-    uint group_size = gl_WorkGroupSize.x;
 
     if (local_id == 0)
     {
-        uint index = (group_size * 2) - 1;
+        uint index = (blockSize * 2) - 1;
         index += MEMORY_BANK_OFFSET(index);
 
         params.count = sdata[index];
@@ -67,9 +66,9 @@ void PreScanGroup()
 void main()
 {
     uint group_id = gl_WorkGroupID.x;
-    uint group_size = gl_WorkGroupSize.x;
+    uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
 
-    uint local_index = group_id * group_size * 2;
+    uint local_index = group_id * blockSize * 2;
     uvec4 address_pair = GetAddressMapping(local_index);
 
     LoadLocalFromGlobal(address_pair);
