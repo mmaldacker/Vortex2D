@@ -57,7 +57,7 @@ vk::UniqueSurfaceKHR GetGLFWSurface(GLFWwindow* window, vk::Instance instance)
         throw std::runtime_error("failed to create window surface!");
     }
 
-    return vk::UniqueSurfaceKHR(surface, vk::SurfaceKHRDeleter{instance});
+    return vk::UniqueSurfaceKHR(surface);
 }
 
 GLFWwindow* GetGLFWWindow(const glm::ivec2& size)
