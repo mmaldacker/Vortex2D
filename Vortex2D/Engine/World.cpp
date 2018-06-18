@@ -120,6 +120,12 @@ SmokeWorld::SmokeWorld(const Renderer::Device& device, Dimensions dimensions, fl
 
 void SmokeWorld::Solve()
 {
+    for (auto& velocity: mVelocities)
+    {
+        velocity.get().Submit();
+    }
+    mVelocities.clear();
+    
     mCopySolidPhi.Submit();
     for (auto&& rigidbody: mRigidbodies)
     {
