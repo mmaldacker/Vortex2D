@@ -61,7 +61,8 @@ set(SOURCE_FILES
 
 set(CMAKE_DIR "${PROJECT_SOURCE_DIR}/cmake")
 
-if (APPLE)
+# create a bundle for unit-tests on ios so they can run on it.
+if (IOS_PLATFORM)
   add_executable(vortex2d_tests MACOSX_BUNDLE ${SOURCE_FILES})
   set_target_properties(vortex2d_tests PROPERTIES
                         XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY ${CODE_SIGN_IDENTITY}

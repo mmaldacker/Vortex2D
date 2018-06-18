@@ -160,17 +160,20 @@ if (APPLE)
       # "compatibility version" in semantic format in Mach-O binary file
       SOVERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATH}
       PUBLIC_HEADER "Vortex2D.h"
+    )
+
+  # Only need signing on iOS
+  if (IOS_PLATFORM)
+    if (NOT DEFINED ${CODE_SIGN_IDENTITY})
+      message(FATAL_ERROR "Need to define variables CODE_SIGN_IDENTITY and DEVELOPMENT_TEAM_ID")
+    endif()
+    set_target_properties(vortex2d PROPERTIES
       XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY ${CODE_SIGN_IDENTITY}
       XCODE_ATTRIBUTE_DEVELOPMENT_TEAM ${DEVELOPMENT_TEAM_ID}
     )
+  endif()
 
-  # TODO this should be simpler
-  add_custom_command(TARGET vortex2d POST_BUILD COMMAND cp -r ${CMAKE_SOURCE_DIR}/Vortex2D/Engine $<TARGET_FILE_DIR:vortex2d>/Headers/Engine)
-  add_custom_command(TARGET vortex2d POST_BUILD COMMAND cp -r ${CMAKE_SOURCE_DIR}/Vortex2D/Renderer $<TARGET_FILE_DIR:vortex2d>/Headers/Renderer)
-  add_custom_command(TARGET vortex2d POST_BUILD COMMAND cp -r ${CMAKE_SOURCE_DIR}/Vortex2D/Utils $<TARGET_FILE_DIR:vortex2d>/Headers/Utils)
-  add_custom_command(TARGET vortex2d POST_BUILD COMMAND cp -r ${CMAKE_SOURCE_DIR}/Vortex2D/SPIRV $<TARGET_FILE_DIR:vortex2d>/Headers/SPIRV)
-
-  # TODO should also copy vulkan and glm
+  add_custom_command(TARGET vortex2d POST_BUILD COMMAND cp -r ${CMAKE_SOURCE_DIR}/Vortex2D/ $<TARGET_FILE_DIR:vortex2d>/Headers/)
 
   add_custom_command(
       TARGET vortex2d
