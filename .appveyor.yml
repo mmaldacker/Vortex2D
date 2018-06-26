@@ -6,10 +6,10 @@ branches:
   only:
     - master
 environment:
-  VULKAN_SDK: "C:\\VulkanSDK\\1.0.68.0\\"
+  VULKAN_SDK: "C:\\VulkanSDK\\1.1.77.0\\"
 install:
 # Download and install Vulkan SDK
-  - appveyor DownloadFile https://vulkan.lunarg.com/sdk/download/1.0.68.0/windows/VulkanSDK-1.0.68.0-Installer.exe -FileName vulkan.exe
+  - appveyor DownloadFile https://vulkan.lunarg.com/sdk/download/1.1.77.0/windows/VulkanSDK-1.1.77.0-Installer.exe -FileName vulkan.exe
   - vulkan.exe /S
 build_script:
   - mkdir build && cd build

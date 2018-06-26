@@ -29,10 +29,10 @@ install:
 # Doxyrest
  - pip install --user sphinx sphinx_rtd_theme breathe
 # LunarG SDK install
- - wget https://vulkan.lunarg.com/sdk/download/1.0.68.0/linux/vulkansdk-linux-x86_64-1.0.68.0.run
- - chmod +x vulkansdk-linux-x86_64-1.0.68.0.run
- - ./vulkansdk-linux-x86_64-1.0.68.0.run
- - cd VulkanSDK/1.0.68.0/
+ - wget https://vulkan.lunarg.com/sdk/download/1.1.77.0/linux/vulkansdk-linux-x86_64-1.1.77.0.run
+ - chmod +x vulkansdk-linux-x86_64-1.1.77.0.run
+ - ./vulkansdk-linux-x86_64-1.1.77.0.run
+ - cd VulkanSDK/1.1.77.0/
  - ./build_tools.sh
  - . setup-env.sh
 
