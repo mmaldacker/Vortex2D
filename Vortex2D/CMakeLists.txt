@@ -164,7 +164,7 @@ if (APPLE)
 
   # Only need signing on iOS
   if (IOS_PLATFORM)
-    if (NOT DEFINED ${CODE_SIGN_IDENTITY})
+    if (NOT DEFINED CODE_SIGN_IDENTITY)
       message(FATAL_ERROR "Need to define variables CODE_SIGN_IDENTITY and DEVELOPMENT_TEAM_ID")
     endif()
     set_target_properties(vortex2d PROPERTIES
