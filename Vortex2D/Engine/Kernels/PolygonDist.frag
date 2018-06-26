@@ -27,14 +27,40 @@ float orientation(vec2 a, vec2 b, vec2 p)
     else return -1.0;
 }
 
-float dist_to_segment(vec2 a, vec2 b, vec2 p)
+float dist_to_segment(vec2 a, vec2 b, vec2 c)
 {
-    vec2 dir = b - a;
-    float l = dot(dir, dir);
+  vec2 ab = b - a;
+  vec2 ac = c - a;
+  vec2 bc = c - b;
 
-    float t = clamp(dot(p - a, dir) / l, 0.0, 1.0);
-    vec2 proj = (1.0 - t) * a + t * b;
-    return distance(p, proj);
+  float e = dot(ac, ab);
+  float d;
+
+  if (e <= 0.0)
+  {
+    d = dot(ac, ac);
+  }
+  else
+  {
+    float f = dot(ab, ab);
+    if (e >= f)
+    {
+      d = dot(bc, bc);
+    }
+    else
+    {
+      d = dot(ac, ac) - e * e / f;
+    }
+  }
+
+  if (d < 1e-5)
+  {
+    return 0.0;
+  }
+  else
+  {
+    return sqrt(d);
+  }
 }
 
 const float max_dist = 100000.0;
