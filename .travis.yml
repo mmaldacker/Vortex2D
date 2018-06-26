@@ -44,6 +44,6 @@ script:
   - cd ${TRAVIS_BUILD_DIR}
   - mkdir build && cd build
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cmake .. -DVORTEX2D_ENABLE_TESTS=On -DVORTEX2D_ENABLE_EXAMPLES=On -DVORTEX2D_ENABLE_DOCS=On -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=gcc-5 -DCMAKE_CXX_COMPILER=g++-5; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then cmake .. -DMOLTENVK_DIR=../../vulkansdk-macos-1.1.77.0/MoltenVK -DVORTEX2D_ENABLE_TESTS=On -DVORTEX2D_ENABLE_EXAMPLES=On -DCMAKE_BUILD_TYPE=Debug; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then cmake .. -DMOLTENVK_DIR=../../vulkansdk-macos-1.1.77.0/MoltenVK -DGLSL_VALIDATOR=../../vulkansdk-macos-1.1.77.0/macOS/bin/glslangValidator -DVORTEX2D_ENABLE_TESTS=On -DVORTEX2D_ENABLE_EXAMPLES=On -DCMAKE_BUILD_TYPE=Debug; fi
   - make -j 4
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then ./Tests/vortex2d_tests; fi
