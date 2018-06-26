@@ -23,7 +23,7 @@ endfunction()
 function(compile_shader)
     cmake_parse_arguments(SHADER "" "OUTPUT" "SOURCES" ${ARGN})
 
-    vortex2d_find_program(GLSL_VALIDATOR glslc hints "$ENV{VULKAN_SDK}/Bin")
+    vortex2d_find_program(GLSL_VALIDATOR glslangValidator hints "$ENV{VULKAN_SDK}/Bin")
     message("Using compiler: ${GLSL_VALIDATOR}")
 
     set(COMPILE_SCRIPT ${CMAKE_SOURCE_DIR}/Scripts/GenerateSPIRV.py)

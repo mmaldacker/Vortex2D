@@ -33,7 +33,6 @@ install:
  - chmod +x vulkansdk-linux-x86_64-1.1.77.0.run
  - ./vulkansdk-linux-x86_64-1.1.77.0.run
  - cd VulkanSDK/1.1.77.0/
- - ./build_tools.sh
  - . setup-env.sh
 
 script:

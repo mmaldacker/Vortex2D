@@ -1,6 +1,8 @@
 import argparse
 import subprocess
 import ntpath
+import tempfile
+import shutil
 
 parser = argparse.ArgumentParser(description='Compile to SPIRV and generate header/implementation')
 parser.add_argument('files', metavar='files', nargs='+', help='list of glsl files')
@@ -9,9 +11,19 @@ parser.add_argument('--compiler', action='store', dest='compiler', help='locatio
 
 args = parser.parse_args()
 
+# create temp dir
+dirpath = tempfile.mkdtemp()
+
 def genCArray(file):
   basename = ntpath.basename(file).replace('.', '_')
-  content = subprocess.check_output([args.compiler,'-c',file,'-mfmt=num','-o','-']).decode('utf-8')
+  temp_file = dirpath + '/' + basename + '.txt'
+  try:
+    subprocess.check_output([args.compiler,'-V',file,'-x','-o',temp_file]).decode('utf-8')
+  except subprocess.CalledProcessError as e:
+    print e.output
+  content = None
+  with open(temp_file, 'r') as content_file:
+    content = content_file.read()
   array = 'const uint32_t _' + basename + '[] = {\n' + content + '\n};\n'
   spirv = 'Vortex2D::Renderer::SpirvBinary ' + basename + '(_' + basename + ');\n'
   return array + spirv
@@ -41,7 +53,7 @@ namespace SPIRV
 
   for file in args.files:
     f.write(genCArrayDef(file))
-    
+
   f.write('''
 }
 }
@@ -72,3 +84,6 @@ namespace SPIRV
 }
 
 ''')
+
+# remove temp dir
+shutil.rmtree(dirpath)
