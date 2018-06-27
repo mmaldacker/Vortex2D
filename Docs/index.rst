@@ -21,7 +21,7 @@ Table of content
 ================
 
 .. toctree::
-  setup
+ 	setup
 	rendering
 	levelsets
 	world

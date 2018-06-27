@@ -20,7 +20,7 @@ def genCArray(file):
   try:
     subprocess.check_output([args.compiler,'-V',file,'-x','-o',temp_file]).decode('utf-8')
   except subprocess.CalledProcessError as e:
-    print e.output
+    print(e.output)
   content = None
   with open(temp_file, 'r') as content_file:
     content = content_file.read()
