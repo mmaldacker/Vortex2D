@@ -32,72 +32,68 @@ layout(std430, binding = 3) buffer B
 }b;
 
 shared float sdata[blockWidth * blockHeight];
-const int iterations = 32; // TODO make configurable
-const float w = 1.5;
+const int iterations = 16;
+const float w = 1.67;
 
 void main()
 {
-    uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
+  uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
 
-    // load pressure in shared data
-    sdata[gl_LocalInvocationIndex] = pressure.value[gl_LocalInvocationIndex];
+  // set pressure to 0
+  sdata[gl_LocalInvocationIndex] = 0;
 
-    memoryBarrierShared();
-    barrier();
+  memoryBarrierShared();
+  barrier();
 
-    ivec2 pos = ivec2(gl_LocalInvocationID);
-    int index = pos.x + pos.y * consts.width;
+  ivec2 pos = ivec2(gl_LocalInvocationID);
+  int index = pos.x + pos.y * consts.width;
+  uint mask = (gl_LocalInvocationID.x + gl_LocalInvocationID.y) % 2;
 
+  float d = diagonal.value[index];
+
+  if (pos.x > 0 && 
+      pos.y > 0 && 
+      pos.x < consts.width - 1 && 
+      pos.y < consts.height - 1 &&
+      d != 0.0)
+  {
     // do a certain number of gauss-seidel iterations
-    for (int i = 0; i < iterations; i++)
+    for (uint i = 0; i < iterations; i++)
     {
-        // red
-        if ((gl_LocalInvocationID.x + gl_LocalInvocationID.y) % 2 == 0)
-        {
-            if (pos.x > 0 && pos.y > 0 && pos.x < consts.width - 1 && pos.y < consts.height - 1)
-            {
-                float d = diagonal.value[index];
-                if (d != 0.0)
-                {
-                  float x = sdata[index];
+      // red
+      if (mask == 0)
+      {
+        float x = sdata[index];
 
-                  float newx = (b.value[index] - sdata[index + 1] * lower.value[index + 1].x
-                                               - sdata[index - 1] * lower.value[index].x
-                                               - sdata[index + consts.width] * lower.value[index + consts.width].y
-                                               - sdata[index - consts.width] * lower.value[index].y) / d;
+        float newx = (b.value[index] - sdata[index + 1] * lower.value[index + 1].x
+                                     - sdata[index - 1] * lower.value[index].x
+                                     - sdata[index + consts.width] * lower.value[index + consts.width].y
+                                     - sdata[index - consts.width] * lower.value[index].y) / d;
 
-                  sdata[index] = mix(x, newx, w);
-                }
-            }
-        }
+        sdata[index] = mix(x, newx, w);
+      }
 
-        memoryBarrierShared();
-        barrier();
+      memoryBarrierShared();
+      barrier();
 
-        // black
-        if ((gl_LocalInvocationID.x + gl_LocalInvocationID.y) % 2 == 1)
-        {
-            if (pos.x > 0 && pos.y > 0 && pos.x < consts.width - 1 && pos.y < consts.height - 1)
-            {
-                float d = diagonal.value[index];
-                if (d != 0.0)
-                {
-                  float x = sdata[index];
+      // black
+      if (mask == 1)
+      {
+        float x = sdata[index];
 
-                  float newx = (b.value[index] - sdata[index + 1] * lower.value[index + 1].x
-                                               - sdata[index - 1] * lower.value[index].x
-                                               - sdata[index + consts.width] * lower.value[index + consts.width].y
-                                               - sdata[index - consts.width] * lower.value[index].y) / d;
+        float newx = (b.value[index] - sdata[index + 1] * lower.value[index + 1].x
+                                     - sdata[index - 1] * lower.value[index].x
+                                     - sdata[index + consts.width] * lower.value[index + consts.width].y
+                                     - sdata[index - consts.width] * lower.value[index].y) / d;
 
-                  sdata[index] = mix(x, newx, w);
-                }
-            }
-        }
+        sdata[index] = mix(x, newx, w);
+      }
 
-        memoryBarrierShared();
-        barrier();
+      memoryBarrierShared();
+      barrier();
     }
+  }
 
-    // copy shared data back
-    pressure.value[gl_LocalInvocationIndex] = sdata[gl_LocalInvocationIndex];
+  // copy shared data back
+  pressure.value[gl_LocalInvocationIndex] = sdata[gl_LocalInvocationIndex];
 }
