@@ -298,7 +298,7 @@ TEST(LinearSolverTests, LocalGaussSeidel)
 
     device->Queue().waitIdle();
 
-    CheckPressure(size, sim.pressure, data.X, 1e-1f); // TODO make number of iterations configurable and increase this
+    CheckPressure(size, sim.pressure, data.X, 1e-3f);
 }
 
 TEST(LinearSolverTests, Diagonal_Simple_PCG)
