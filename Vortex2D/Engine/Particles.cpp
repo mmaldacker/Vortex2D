@@ -155,7 +155,7 @@ void ParticleCount::VelocitiesBind(Velocity& velocity, Renderer::GenericBuffer& 
     mParticleFromGrid.Record([&](vk::CommandBuffer commandBuffer)
     {
         commandBuffer.debugMarkerBeginEXT({"Particle from grid", {{ 0.35f, 0.11f, 0.87f, 1.0f}}});
-        mParticleFromGridBound.PushConstant(commandBuffer, 8, mAlpha);
+        mParticleFromGridBound.PushConstant(commandBuffer, mAlpha);
         mParticleFromGridBound.RecordIndirect(commandBuffer, mDispatchParams);
         mParticles.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         commandBuffer.debugMarkerEndEXT();

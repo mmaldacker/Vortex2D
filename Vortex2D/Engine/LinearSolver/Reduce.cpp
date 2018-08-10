@@ -94,8 +94,7 @@ void Reduce::Bound::Record(vk::CommandBuffer commandBuffer)
 
     for (std::size_t i = 0; i < mBounds.size(); i++)
     {
-        mBounds[i].PushConstant(commandBuffer, 0, workGroupSize);
-        mBounds[i].Dispatch(commandBuffer);
+        mBounds[i].Record(commandBuffer);
         mBufferBarriers[i](commandBuffer);
 
         workGroupSize = (workGroupSize + localSize - 1) / localSize;
