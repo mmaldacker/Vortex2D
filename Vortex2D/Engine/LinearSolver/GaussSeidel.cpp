@@ -72,24 +72,27 @@ void GaussSeidel::Bind(Renderer::GenericBuffer& d,
 
 void GaussSeidel::Solve(Parameters& params)
 {
-    mInitCmd.Submit();
-    mErrorCmd.Submit();
+  mInitCmd.Submit();
+  mErrorCmd.Submit();
+  mErrorCmd.Wait();
 
-    for (unsigned i  = 0;; ++i)
-    {
-        // exit condition
-        mErrorCmd.Wait();
+  Renderer::CopyTo(mLocalError, params.OutError);
+  if (params.OutError <= params.ErrorTolerance)
+  {
+      params.OutIterations = 0;
+      return;
+  }
 
-        params.OutIterations = i;
-        Renderer::CopyTo(mLocalError, params.OutError);
-        if (params.IsFinished(i, params.OutError))
-        {
-            return;
-        }
+  auto initialError = params.OutError;
+  for (unsigned i = 0; !params.IsFinished(initialError); ++i)
+  {
+      mErrorCmd.Submit();
+      mGaussSeidelCmd.Submit();
+      mErrorCmd.Wait();
 
-        mErrorCmd.Submit();
-        mGaussSeidelCmd.Submit();
-    }
+      params.OutIterations = i;
+      Renderer::CopyTo(mLocalError, params.OutError);
+  }
 }
 
 void GaussSeidel::Record(vk::CommandBuffer commandBuffer)
@@ -102,11 +105,10 @@ void GaussSeidel::Record(vk::CommandBuffer commandBuffer, int iterations)
 {
     for (int i  = 0; i < iterations; ++i)
     {
-        mGaussSeidelBound.PushConstant(commandBuffer, 8, mW);
-        mGaussSeidelBound.PushConstant(commandBuffer, 12, 1);
+        mGaussSeidelBound.PushConstant(commandBuffer, mW, 1);
         mGaussSeidelBound.Record(commandBuffer);
         mPressure->Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-        mGaussSeidelBound.PushConstant(commandBuffer, 12, 0);
+        mGaussSeidelBound.PushConstant(commandBuffer, mW, 0);
         mGaussSeidelBound.Record(commandBuffer);
         mPressure->Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
     }

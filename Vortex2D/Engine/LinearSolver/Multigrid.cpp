@@ -195,7 +195,7 @@ void Multigrid::Record(vk::CommandBuffer commandBuffer)
 {
     commandBuffer.debugMarkerBeginEXT({"Multigrid", {{ 0.48f, 0.25f, 0.19f, 1.0f}}});
 
-    const int numIterations = 2;
+    const int numIterations = 3;
 
     assert(mPressure != nullptr);
     mPressure->Clear(commandBuffer);
