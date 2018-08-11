@@ -13,13 +13,24 @@
 
 namespace Vortex2D { namespace Fluid {
 
+/**
+ * Calculates the CFL number of the velocity field. It's an indication on how to choose your time step size.
+ * Ideally, the time step should be smaller than the CFL number.
+ */
 class Cfl
 {
 public:
     VORTEX2D_API Cfl(const Renderer::Device& device, const glm::ivec2& size, Velocity& velocity);
 
+    /**
+     * Compute the CFL number. Non-blocking.
+     */
     VORTEX2D_API void Compute();
 
+    /**
+     * Returns the CFL number. Blocking.
+     * @return cfl number
+     */
     VORTEX2D_API float Get();
 
 private:
