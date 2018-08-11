@@ -52,10 +52,10 @@ void Jacobi::Record(vk::CommandBuffer commandBuffer, int iterations)
 
   for (int i = 0; i < iterations; i++)
   {
-    mJacobiFrontBound.PushConstant(commandBuffer, 8, mW);
+    mJacobiFrontBound.PushConstant(commandBuffer, mW);
     mJacobiFrontBound.Record(commandBuffer);
     mBackPressure.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-    mJacobiBackBound.PushConstant(commandBuffer, 8, mW);
+    mJacobiBackBound.PushConstant(commandBuffer, mW);
     mJacobiBackBound.Record(commandBuffer);
     mPressure->Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
   }

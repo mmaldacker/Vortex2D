@@ -126,16 +126,13 @@ public:
         /**
          * @brief Adds a constant value, i.e. a push constant.
          * @param commandBuffer the command buffer where the compute work will also be recorded.
-         * @param offset the offset in which the push constant is to be placed.
          * @param data the data to push. A total of 128 bytes can be used.
          */
-        template<typename T>
-        void PushConstant(vk::CommandBuffer commandBuffer, uint32_t offset, const T& data)
+        template<typename ... Ts>
+        void PushConstant(vk::CommandBuffer commandBuffer, const Ts& ... data)
         {
-            if (offset + sizeof(T) <= mPushConstantSize)
-            {
-                commandBuffer.pushConstants(mLayout, vk::ShaderStageFlagBits::eCompute, offset, sizeof(T), &data);
-            }
+          int offset = mComputeSize.DomainSize.y != 1 ? 8 : 4;
+          PushConstantOffset(commandBuffer, offset, data...);
         }
 
         /**
@@ -151,12 +148,6 @@ public:
          */
         VORTEX2D_API void RecordIndirect(vk::CommandBuffer commandBuffer, IndirectBuffer<DispatchParams>& dispatchParams);
 
-        /**
-         * @brief Record the compute work in this command buffer.
-         * @param commandBuffer the command buffer to record into.
-         */
-        VORTEX2D_API void Dispatch(vk::CommandBuffer commandBuffer);
-
         friend class Work;
 
     private:
@@ -165,6 +156,18 @@ public:
               vk::PipelineLayout layout,
               vk::Pipeline pipeline,
               vk::UniqueDescriptorSet descriptor);
+
+        void PushConstantOffset(vk::CommandBuffer , uint32_t );
+
+        template<typename T, typename ... Ts>
+        void PushConstantOffset(vk::CommandBuffer commandBuffer, uint32_t offset, const T& data, const Ts& ... tail)
+        {
+            if (offset + sizeof(T) <= mPushConstantSize)
+            {
+                commandBuffer.pushConstants(mLayout, vk::ShaderStageFlagBits::eCompute, offset, sizeof(T), &data);
+                PushConstantOffset(commandBuffer, offset + sizeof(T), tail...);
+            }
+        }
 
         ComputeSize mComputeSize;
         uint32_t mPushConstantSize;

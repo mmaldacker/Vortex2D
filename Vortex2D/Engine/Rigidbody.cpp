@@ -94,7 +94,7 @@ void RigidBody::BindDiv(Renderer::GenericBuffer& div,
     mDivCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
         commandBuffer.debugMarkerBeginEXT({"Rigidbody build equation", {{ 0.90f, 0.27f, 0.28f, 1.0f}}});
-        mDivBound.PushConstant(commandBuffer, 8, mCentre);
+        mDivBound.PushConstant(commandBuffer, mCentre);
         mDivBound.Record(commandBuffer);
         commandBuffer.debugMarkerEndEXT();
     });
@@ -106,7 +106,7 @@ void RigidBody::BindVelocityConstrain(Fluid::Velocity& velocity)
     mConstrainCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
         commandBuffer.debugMarkerBeginEXT({"Rigidbody constrain", {{ 0.29f, 0.36f, 0.21f, 1.0f}}});
-        mConstrainBound.PushConstant(commandBuffer, 8, mCentre);
+        mConstrainBound.PushConstant(commandBuffer, mCentre);
         mConstrainBound.Record(commandBuffer);
         velocity.CopyBack(commandBuffer);
         commandBuffer.debugMarkerEndEXT();
@@ -123,7 +123,7 @@ void RigidBody::BindPressure(Renderer::Texture& fluidLevelSet,
     {
         commandBuffer.debugMarkerBeginEXT({"Rigidbody pressure", {{ 0.70f, 0.59f, 0.63f, 1.0f}}});
         force.Clear(commandBuffer);
-        mPressureBound.PushConstant(commandBuffer, 8, mCentre);
+        mPressureBound.PushConstant(commandBuffer, mCentre);
         mPressureBound.Record(commandBuffer);
         force.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         mSumBound.Record(commandBuffer);

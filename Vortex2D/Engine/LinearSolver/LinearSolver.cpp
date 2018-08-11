@@ -24,15 +24,15 @@ LinearSolver::Data::Data(const Renderer::Device& device, const glm::ivec2& size,
 {
 }
 
-bool LinearSolver::Parameters::IsFinished(unsigned iterations, float error) const
+bool LinearSolver::Parameters::IsFinished(float initialError) const
 {
     if (Iterations > 0)
     {
-        return iterations > Iterations  || error < ErrorTolerance;
+        return OutIterations > Iterations  || OutError <= ErrorTolerance * initialError;
     }
     else
     {
-        return error < ErrorTolerance;
+        return OutError <= ErrorTolerance;
     }
 }
 

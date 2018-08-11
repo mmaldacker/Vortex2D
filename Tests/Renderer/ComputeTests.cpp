@@ -358,7 +358,7 @@ TEST(ComputeTests, Checkerboard)
 
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
-        boundWork.PushConstant(commandBuffer, 8, 1);
+        boundWork.PushConstant(commandBuffer, 1);
         boundWork.Record(commandBuffer);
     });
 

@@ -31,11 +31,10 @@ struct LinearSolver
 
         /**
          * @brief Checks if we've reacched the parameters.
-         * @param iterations the current number of iterations
-         * @param error the current error
+         * @param initialError the initial error
          * @return if we can stop the linear solver.
          */
-        bool IsFinished(unsigned iterations, float error) const;
+        bool IsFinished(float initialError) const;
 
         unsigned Iterations;
         float ErrorTolerance;

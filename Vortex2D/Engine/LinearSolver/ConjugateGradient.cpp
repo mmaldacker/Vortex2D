@@ -148,22 +148,24 @@ void ConjugateGradient::Solve(Parameters& params)
 {
     mSolveInit.Submit();
     mErrorRead.Submit();
+    mErrorRead.Wait();
 
-    for (unsigned i = 0;; ++i)
+    Renderer::CopyTo(localError, params.OutError);
+    if (params.OutError <= params.ErrorTolerance)
     {
-        // exit condition
+        params.OutIterations = 0;
+        return;
+    }
+
+    auto initialError = params.OutError;
+    for (unsigned i = 0; !params.IsFinished(initialError); ++i)
+    {
+        mErrorRead.Submit();
+        mSolve.Submit();
         mErrorRead.Wait();
 
         params.OutIterations = i;
         Renderer::CopyTo(localError, params.OutError);
-        // TODO should divide by the initial error
-        if (params.IsFinished(i, params.OutError))
-        {
-            return;
-        }
-
-        mErrorRead.Submit();
-        mSolve.Submit();
     }
 }
 

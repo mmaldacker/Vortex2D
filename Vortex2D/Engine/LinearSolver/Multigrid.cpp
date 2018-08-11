@@ -116,7 +116,7 @@ void Multigrid::BuildHierarchiesBind(Pressure& pressure,
                                   vk::ImageLayout::eGeneral,
                                   vk::AccessFlagBits::eShaderRead);
 
-            mMatrixBuildBound[i].PushConstant(commandBuffer, 8, mDelta);
+            mMatrixBuildBound[i].PushConstant(commandBuffer, mDelta);
             mMatrixBuildBound[i].Record(commandBuffer);
             mDatas[i].Diagonal.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
             mDatas[i].Lower.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
@@ -124,7 +124,7 @@ void Multigrid::BuildHierarchiesBind(Pressure& pressure,
         }
 
         int maxDepth = mDepth.GetMaxDepth();
-        mMatrixBuildBound[maxDepth - 1].PushConstant(commandBuffer, 8, mDelta);
+        mMatrixBuildBound[maxDepth - 1].PushConstant(commandBuffer, mDelta);
         mMatrixBuildBound[maxDepth - 1].Record(commandBuffer);
         mDatas[maxDepth - 1].Diagonal.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         mDatas[maxDepth - 1].Lower.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
@@ -195,7 +195,7 @@ void Multigrid::Record(vk::CommandBuffer commandBuffer)
 {
     commandBuffer.debugMarkerBeginEXT({"Multigrid", {{ 0.48f, 0.25f, 0.19f, 1.0f}}});
 
-    const int numIterations = 2;
+    const int numIterations = 3;
 
     assert(mPressure != nullptr);
     mPressure->Clear(commandBuffer);

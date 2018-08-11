@@ -145,29 +145,36 @@ Work::Bound::Bound(const ComputeSize& computeSize,
 
 }
 
+void Work::Bound::PushConstantOffset(vk::CommandBuffer , uint32_t )
+{
+
+}
+
 void Work::Bound::Record(vk::CommandBuffer commandBuffer)
 {
-    PushConstant(commandBuffer, 0, mComputeSize.DomainSize.x);
-    PushConstant(commandBuffer, 4, mComputeSize.DomainSize.y);
-    Dispatch(commandBuffer);
+    PushConstantOffset(commandBuffer, 0, mComputeSize.DomainSize.x);
+    if (mComputeSize.DomainSize.y != 1)
+    {
+        PushConstantOffset(commandBuffer, 4, mComputeSize.DomainSize.y);
+    }
+
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, mLayout, 0, {*mDescriptor}, {});
+    commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, mPipeline);
+
+    commandBuffer.dispatch(mComputeSize.WorkSize.x, mComputeSize.WorkSize.y, 1);
 }
 
 void Work::Bound::RecordIndirect(vk::CommandBuffer commandBuffer, IndirectBuffer<DispatchParams>& dispatchParams)
 {
-    PushConstant(commandBuffer, 0, mComputeSize.DomainSize.x);
-    PushConstant(commandBuffer, 4, mComputeSize.DomainSize.y);
+    PushConstantOffset(commandBuffer, 0, mComputeSize.DomainSize.x);
+    if (mComputeSize.DomainSize.y != 1)
+    {
+        PushConstantOffset(commandBuffer, 4, mComputeSize.DomainSize.y);
+    }
     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, mLayout, 0, {*mDescriptor}, {});
     commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, mPipeline);
 
     commandBuffer.dispatchIndirect(dispatchParams.Handle(), 0);
-}
-
-void Work::Bound::Dispatch(vk::CommandBuffer commandBuffer)
-{
-  commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, mLayout, 0, {*mDescriptor}, {});
-  commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, mPipeline);
-
-  commandBuffer.dispatch(mComputeSize.WorkSize.x, mComputeSize.WorkSize.y, 1);
 }
 
 }}

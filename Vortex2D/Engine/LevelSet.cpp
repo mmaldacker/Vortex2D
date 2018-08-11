@@ -34,14 +34,14 @@ LevelSet::LevelSet(const Renderer::Device& device, const glm::ivec2& size, int r
 
         for (int i = 0; i < reinitializeIterations / 2; i++)
         {
-            mRedistanceFront.PushConstant(commandBuffer, 8, 0.1f);
+            mRedistanceFront.PushConstant(commandBuffer, 0.1f);
             mRedistanceFront.Record(commandBuffer);
             mLevelSetBack.Barrier(commandBuffer,
                                   vk::ImageLayout::eGeneral,
                                   vk::AccessFlagBits::eShaderWrite,
                                   vk::ImageLayout::eGeneral,
                                   vk::AccessFlagBits::eShaderRead);
-            mRedistanceBack.PushConstant(commandBuffer, 8, 0.1f);
+            mRedistanceBack.PushConstant(commandBuffer, 0.1f);
             mRedistanceBack.Record(commandBuffer);
             Barrier(commandBuffer,
                     vk::ImageLayout::eGeneral,
