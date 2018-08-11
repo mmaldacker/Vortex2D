@@ -1,0 +1,10 @@
+pipeline:
+  build:
+    image: ubuntu:18.04
+    commands:
+		- mkdir build && cd build
+		- cmake -DVORTEX2D_ENABLE_TESTS=On -DCMAKE_BUILD_TYPE=Coverage -DCMAKE_CXX_FLAGS="-Wno-psabi"
+		- make -j3
+		- cd Tests && ./vortex2d_tests
+		# Uploading report to Coveralls
+		- bash <(curl -s https://codecov.io/bash)
