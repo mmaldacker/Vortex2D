@@ -145,11 +145,6 @@ Work::Bound::Bound(const ComputeSize& computeSize,
 
 }
 
-void Work::Bound::PushConstantOffset(vk::CommandBuffer , uint32_t )
-{
-
-}
-
 void Work::Bound::Record(vk::CommandBuffer commandBuffer)
 {
     PushConstantOffset(commandBuffer, 0, mComputeSize.DomainSize.x);

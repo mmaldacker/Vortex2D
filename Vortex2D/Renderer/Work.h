@@ -157,7 +157,14 @@ public:
               vk::Pipeline pipeline,
               vk::UniqueDescriptorSet descriptor);
 
-        void PushConstantOffset(vk::CommandBuffer , uint32_t );
+        template<typename T>
+        void PushConstantOffset(vk::CommandBuffer commandBuffer, uint32_t offset, const T& data)
+        {
+            if (offset + sizeof(T) <= mPushConstantSize)
+            {
+                commandBuffer.pushConstants(mLayout, vk::ShaderStageFlagBits::eCompute, offset, sizeof(T), &data);
+            }
+        }
 
         template<typename T, typename ... Ts>
         void PushConstantOffset(vk::CommandBuffer commandBuffer, uint32_t offset, const T& data, const Ts& ... tail)
