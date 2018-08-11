@@ -31,6 +31,8 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
     , mClearValid(device, false)
     , mCopySolidPhi(device, false)
     , mForce(device, dimensions.Size.x*dimensions.Size.y)
+    , mCfl(device, dimensions.Size, mVelocity)
+
 {
     mExtrapolation.ConstrainBind(mDynamicSolidPhi);
     mLiquidPhi.ExtrapolateBind(mDynamicSolidPhi);
@@ -113,6 +115,11 @@ RigidBody* World::CreateRigidbody(vk::Flags<RigidBody::Type> type, Renderer::Dra
     return mRigidbodies.back().get();
 }
 
+float World::GetCFL()
+{
+    return mCfl.Get();
+}
+
 SmokeWorld::SmokeWorld(const Renderer::Device& device, Dimensions dimensions, float dt)
     : World(device, dimensions, dt)
 {
@@ -170,6 +177,7 @@ void SmokeWorld::Solve()
     mAdvection.AdvectVelocity();
     mAdvection.Advect();
 
+    mCfl.Compute();
     mClearValid.Submit();
 }
 
@@ -275,6 +283,7 @@ void WaterWorld::Solve()
 
     // 7)
     mAdvection.AdvectParticles();
+    mCfl.Compute();
     mClearVelocity.Submit();
     mClearValid.Submit();
 }

@@ -11,6 +11,7 @@ set(LIB_SOURCES
     "Engine/Particles.cpp"
     "Engine/Rigidbody.cpp"
     "Engine/Velocity.cpp"
+    "Engine/Cfl.cpp"
     "Engine/LinearSolver/LinearSolver.cpp"
     "Engine/LinearSolver/Reduce.cpp"
     "Engine/LinearSolver/GaussSeidel.cpp"
@@ -52,6 +53,7 @@ set(LIB_HEADERS
     "Engine/Particles.h"
     "Engine/Rigidbody.h"
     "Engine/Velocity.h"
+    "Engine/Cfl.h"
     "Engine/LinearSolver/LinearSolver.h"
     "Engine/LinearSolver/Preconditioner.h"
     "Engine/LinearSolver/Reduce.h"
@@ -115,6 +117,7 @@ file(GLOB SHADER_SOURCES
     "Engine/Kernels/ParticleFromGrid.comp"
     "Engine/Kernels/AdvectParticles.comp"
     "Engine/Kernels/VelocityDifference.comp"
+    "Engine/Kernels/VelocityMax.comp"
     "Engine/LinearSolver/Kernels/*.comp")
 
 download_project(PROJ                glm

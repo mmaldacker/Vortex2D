@@ -10,9 +10,10 @@
 #include <Vortex2D/Engine/Rigidbody.h>
 #include <Vortex2D/Engine/Boundaries.h>
 #include <Vortex2D/Engine/Density.h>
+#include <Vortex2D/Engine/Cfl.h>
 
 #include <cmath>
-#include <iostream>
+#include <random>
 
 using namespace Vortex2D;
 
@@ -145,4 +146,40 @@ TEST(WorldTests, PressureRigidbody_Rotation)
     var /= 4.0f;
 
     std::cout << "Std deviation: " << std::sqrt(var) << std::endl;
+}
+
+TEST(CflTets, Max)
+{
+    glm::ivec2 size(50);
+
+    Fluid::Velocity velocity(*device, size);
+    Fluid::Cfl cfl(*device, size, velocity);
+
+    Renderer::Texture input(*device, size.x, size.y, vk::Format::eR32G32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<> dis(-1.0, -1.0);
+
+    std::vector<glm::vec2> velocityData(size.x * size.y, glm::vec2(0.0f));
+    for (int i = 0; i < size.x; i++)
+    {
+        for (int j = 0; j < size.y; j++)
+        {
+            std::size_t index = i + size.x * j;
+            velocityData[index].x = dis(gen);
+            velocityData[index].y = dis(gen);
+        }
+    }
+
+    velocityData[12].x = -1.0;
+
+    input.CopyFrom(velocityData);
+    Renderer::ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    {
+        velocity.CopyFrom(commandBuffer, input);
+    });
+
+    cfl.Compute();
+    EXPECT_EQ(1.0f / size.x, cfl.Get());
 }

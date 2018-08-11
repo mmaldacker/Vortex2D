@@ -262,7 +262,7 @@ void Bind(const Device& device, vk::DescriptorSet dstSet, const PipelineLayout& 
             },
             [&](DescriptorImage image)
             {
-                uint32_t bind = bindingInputs[i].Bind == BindingInput::DefaultBind ? i : bindingInputs[i].Bind;
+                uint32_t bind = bindingInputs[i].Bind == BindingInput::DefaultBind ? static_cast<uint32_t>(i) : bindingInputs[i].Bind;
 
                 auto descriptorType = GetDescriptorType(bind, layout);
                 if (descriptorType != vk::DescriptorType::eStorageImage &&

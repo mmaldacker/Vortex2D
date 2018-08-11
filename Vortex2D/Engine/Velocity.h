@@ -27,30 +27,30 @@ public:
      * @brief An output texture used for algorithms that used the velocity as input and need to create a new velocity field
      * @return
      */
-    Renderer::Texture& Output();
+    VORTEX2D_API Renderer::Texture& Output();
 
     /**
      * @brief A difference velocity field, calculated with the difference between this velocity field, and the output velocity field
      * @return
      */
-    Renderer::Texture& D();
+    VORTEX2D_API Renderer::Texture& D();
 
     /**
      * @brief Copy the output field to the main field
      * @param commandBuffer
      */
-    void CopyBack(vk::CommandBuffer commandBuffer);
+    VORTEX2D_API void CopyBack(vk::CommandBuffer commandBuffer);
 
     /**
      * @brief Clear the velocity field
      * @param commandBuffer
      */
-    void Clear(vk::CommandBuffer commandBuffer);
+    VORTEX2D_API void Clear(vk::CommandBuffer commandBuffer);
 
     /**
      * @brief Copy to the difference field.
      */
-    void SaveCopy();
+    VORTEX2D_API void SaveCopy();
 
     /**
      * @brief Calculate the difference between the difference field and this velocity field, store it in the diference field.

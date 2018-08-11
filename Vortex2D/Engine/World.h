@@ -23,6 +23,7 @@
 #include <Vortex2D/Engine/Rigidbody.h>
 #include <Vortex2D/Engine/Boundaries.h>
 #include <Vortex2D/Engine/Density.h>
+#include <Vortex2D/Engine/Cfl.h>
 
 #include <vector>
 #include <memory>
@@ -102,6 +103,12 @@ public:
      */
     VORTEX2D_API RigidBody* CreateRigidbody(vk::Flags<RigidBody::Type> type, Renderer::Drawable& drawable, const glm::vec2& centre);
 
+    /**
+     * @brief Calculate the CFL number, i.e. the width divided by the max velocity
+     * @return CFL number
+     */
+    VORTEX2D_API float GetCFL();
+
 protected:
     const Renderer::Device& mDevice;
     Dimensions mDimensions;
@@ -127,6 +134,8 @@ protected:
     std::vector<std::unique_ptr<RigidBody>> mRigidbodies;
 
     std::vector<std::reference_wrapper<Renderer::RenderCommand>> mVelocities;
+
+    Cfl mCfl;
 };
 
 /**
