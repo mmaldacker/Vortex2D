@@ -2,7 +2,7 @@ platform: linux/arm
 
 pipeline:
   build:
-    image: ubuntu:18.04
+    image: vulkan
     commands:
       - mkdir build && cd build
       - cmake -DVORTEX2D_ENABLE_TESTS=On -DCMAKE_BUILD_TYPE=Coverage -DCMAKE_CXX_FLAGS="-Wno-psabi"
