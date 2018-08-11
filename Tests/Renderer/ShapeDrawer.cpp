@@ -5,6 +5,9 @@
 
 #include "ShapeDrawer.h"
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/rotate_vector.hpp>
+
 void DrawEllipse(int width,
                  int height,
                  std::vector<float>& data,

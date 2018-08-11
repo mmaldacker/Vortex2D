@@ -3,10 +3,8 @@
 //  Vortex2D
 //
 
-#include <glm/glm.hpp>
 #include <vector>
-
-#include <glm/gtx/rotate_vector.hpp>
+#include <glm/vec2.hpp>
 
 void DrawEllipse(int width,
                  int height,

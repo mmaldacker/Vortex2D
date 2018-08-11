@@ -122,7 +122,7 @@ file(GLOB SHADER_SOURCES
 
 download_project(PROJ                glm
                  GIT_REPOSITORY      https://github.com/g-truc/glm.git
-                 GIT_TAG             0.9.8.4
+                 GIT_TAG             0.9.9.0
                  ${UPDATE_DISCONNECTED_IF_AVAILABLE})
 add_subdirectory(${glm_SOURCE_DIR} ${glm_BINARY_DIR})
 

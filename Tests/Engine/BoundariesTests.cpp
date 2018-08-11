@@ -7,7 +7,6 @@
 #include "Verify.h"
 
 #include <glm/gtx/io.hpp>
-#include <glm/glm.hpp>
 
 #include <Vortex2D/Renderer/Shapes.h>
 #include <Vortex2D/Engine/LevelSet.h>

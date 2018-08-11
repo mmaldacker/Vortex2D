@@ -8,7 +8,6 @@
 #include <random>
 
 #include <gmock/gmock.h>
-#include <glm/vec2.hpp>
 
 #include <Vortex2D/Renderer/Texture.h>
 #include <Vortex2D/Renderer/Buffer.h>

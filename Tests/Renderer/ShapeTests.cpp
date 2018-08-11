@@ -6,6 +6,9 @@
 #include "ShapeDrawer.h"
 #include "Verify.h"
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/transform.hpp>
+
 #include <gtest/gtest.h>
 #include <Vortex2D/Renderer/RenderTexture.h>
 #include <Vortex2D/Renderer/RenderState.h>

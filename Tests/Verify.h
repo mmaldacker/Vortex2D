@@ -4,6 +4,8 @@
 //
 
 #include <gtest/gtest.h>
+
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/io.hpp>
 
 #include <Vortex2D/Renderer/Texture.h>
