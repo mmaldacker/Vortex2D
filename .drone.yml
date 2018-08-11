@@ -1,3 +1,5 @@
+platform: linux/arm
+
 pipeline:
   build:
     image: ubuntu:18.04
