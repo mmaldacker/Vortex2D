@@ -44,6 +44,8 @@ void step(uint mask, uint red, float d, ivec2 pos)
         pos.y < consts.height - 1 &&
         d != 0.0)
     {
+        int index = pos.x + pos.y * consts.width;
+
         float x = sdata[index];
 
         float newx = (b.value[index] - sdata[index + 1] * lower.value[index + 1].x
