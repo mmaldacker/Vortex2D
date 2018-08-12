@@ -10,6 +10,7 @@ pipeline:
       - make -j4
       - cd Tests && ./vortex2d_tests
   coverage:
+    image: vulkan
     when:
       status: [ success ]
     commands:
