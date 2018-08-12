@@ -3,13 +3,13 @@ platform: linux/arm
 pipeline:
   build:
     image: vulkan
-    privileged: true
     commands:
       - mkdir build && cd build
       - cmake .. -DVORTEX2D_ENABLE_TESTS=On -DCMAKE_BUILD_TYPE=Coverage -DCMAKE_CXX_FLAGS="-Wno-psabi"
       - make -j4
   test:
     image: vulkan
+    privileged: true
     when:
       status: [ success ]
     commands:
