@@ -61,7 +61,6 @@ In no particular order:
 
 * Bicubic interpolation
 * Strong rigidbody coupling
-* CFL number
 * Dynamic timestep
 * Improved/faster solver
 * Fire 
