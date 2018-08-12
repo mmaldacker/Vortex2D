@@ -9,7 +9,6 @@
 #define VULKAN_HPP_TYPESAFE_CONVERSION 1
 #include <vulkan/vulkan.hpp>
 
-#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
 #include <glm/mat2x2.hpp>

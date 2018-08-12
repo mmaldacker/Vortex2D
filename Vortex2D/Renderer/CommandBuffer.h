@@ -104,7 +104,7 @@ public:
      * @param view a transform matrix
      * @return *this
      */
-    VORTEX2D_API RenderCommand& Submit(const glm::mat4& view = glm::mat4());
+    VORTEX2D_API RenderCommand& Submit(const glm::mat4& view = glm::mat4(1.0f));
     
     /**
      * @brief Wait for the render command to complete

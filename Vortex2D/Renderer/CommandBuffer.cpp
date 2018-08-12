@@ -160,6 +160,7 @@ RenderCommand::RenderCommand(RenderCommand&& other)
     , mCmds(std::move(other.mCmds))
     , mIndex(other.mIndex)
     , mDrawables(std::move(other.mDrawables))
+    , mView(other.mView)
 {
     other.mRenderTarget = nullptr;
     other.mIndex = nullptr;
@@ -201,6 +202,7 @@ RenderCommand::RenderCommand(const Device& device,
     : mRenderTarget(&renderTarget)
     , mIndex(&zero)
     , mDrawables(drawables)
+    , mView(1.0f)
 {
     for (auto& drawable: drawables)
     {
@@ -228,6 +230,7 @@ RenderCommand::RenderCommand(const Device& device,
     : mRenderTarget(&renderTarget)
     , mIndex(&index)
     , mDrawables(drawables)
+    , mView(1.0f)
 {
     for (auto& drawable: drawables)
     {

@@ -5,6 +5,7 @@
 
 #include "Shapes.h"
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/transform.hpp>
 
 #include <Vortex2D/Renderer/RenderTarget.h>
