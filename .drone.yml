@@ -18,5 +18,6 @@ pipeline:
     image: vulkan
     when:
       status: [ success ]
+    secrets: [ codecov_token ]
     commands:
       - ./Scripts/codecov.sh
