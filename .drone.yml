@@ -8,7 +8,12 @@ pipeline:
       - mkdir build && cd build
       - cmake .. -DVORTEX2D_ENABLE_TESTS=On -DCMAKE_BUILD_TYPE=Coverage -DCMAKE_CXX_FLAGS="-Wno-psabi"
       - make -j4
-      - cd Tests && ./vortex2d_tests
+  test:
+    image: vulkan
+    when:
+      status: [ success ]
+    commands:
+      - ./build/Tests/vortex2d_tests
   coverage:
     image: vulkan
     when:
