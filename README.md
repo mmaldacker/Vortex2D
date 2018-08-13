@@ -28,8 +28,7 @@ Documentation can be found at https://vortex2d.readthedocs.io.
 
 ### Linux
 
-Get the LunarG Vulkan SDK, and extract somewhere. Vortex2D requires the `glslc` compiler which can built/installed with the SDK. 
-The script `build_tools.sh` takes care of that. In addition, need to set some env vars so cmake can find the SDK: `source setup-env.sh`.
+Get the LunarG Vulkan SDK, and extract somewhere. Vortex2D requires the `glslangValidator` compiler which is installed with the SDK. Some env vars need to be set so cmake can find the SDK: `source setup-env.sh`.
 
 Vortex2D can then be built with cmake as so:
 
@@ -45,7 +44,7 @@ Get the lunarG Vulkan SDK and install. That's it, you can then build Vortex2D wi
 
 ### Mac
 
-Get the LunarG Vulkan SDK or build MoltenVK directly. Vortex2D requires the `glslc` compiler which can built/installed with the SDK. 
+Get the LunarG Vulkan SDK or build MoltenVK directly. Vortex2D requires the `glslangValidator` compiler which  is installed with the SDK. 
 
 Vortex2D can then be built with cmake as so:
 
