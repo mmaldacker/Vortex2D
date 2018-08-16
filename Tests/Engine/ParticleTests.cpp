@@ -412,6 +412,7 @@ TEST(ParticleTests, FromGrid_PIC)
    {
        Particle particle;
        particle.Position = glm::vec2(sim.particles[p][0] * size.x, sim.particles[p][1] * size.x);
+       particle.Velocity = glm::vec2(0.0f);
        particlesData.push_back(particle);
    }
    particlesData.resize(8*size.x*size.y);
@@ -487,6 +488,7 @@ TEST(ParticleTests, FromGrid_FLIP)
    {
        Particle particle;
        particle.Position = glm::vec2(sim.particles[p][0] * size.x, sim.particles[p][1] * size.x);
+       particle.Velocity = glm::vec2(0.0f);
        particlesData.push_back(particle);
    }
    particlesData.resize(8*size.x*size.y);
