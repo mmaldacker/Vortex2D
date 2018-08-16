@@ -1,3 +1,8 @@
+# Release 1.2.1
+
+* Fix broken particle unit-test from glm update
+* Fix documentation on glsl compiler
+
 # Release 1.2
 
 * Faster linear solver
