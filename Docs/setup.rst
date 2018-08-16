@@ -32,6 +32,13 @@ There a several variables that can be used to configure:
 
 The main library is built as a dll on windows, shared library on linux and (dynamic) framework on macOS/iOS.
 
+Prerequisite
+============
+
+Following are necessary:
+ * Python
+ * glslangValidator (comes with Vulkan SDK)
+
 Windows
 =======
 
