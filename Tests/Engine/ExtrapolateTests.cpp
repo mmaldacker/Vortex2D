@@ -68,7 +68,7 @@ TEST(ExtrapolateTest, Extrapolate)
     extrapolate(sim.u, sim.u_valid);
     extrapolate(sim.v, sim.v_valid);
 
-    Extrapolation extrapolation(*device, size, valid, velocity);
+    Extrapolation extrapolation(*device, size, valid, velocity, 10);
     extrapolation.Extrapolate();
 
     device->Queue().waitIdle();

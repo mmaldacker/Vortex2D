@@ -46,7 +46,7 @@ private:
     Velocity& mVelocity;
 
     Renderer::Work mExtrapolateVelocity;
-    Renderer::Work::Bound mExtrapolateVelocityBound;
+    Renderer::Work::Bound mExtrapolateVelocityBound, mExtrapolateVelocityBackBound;
     Renderer::Work mConstrainVelocity;
     Renderer::Work::Bound mConstrainVelocityBound;
 

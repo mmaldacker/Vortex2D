@@ -17,6 +17,7 @@ Extrapolation::Extrapolation(const Renderer::Device& device,
     , mVelocity(velocity)
     , mExtrapolateVelocity(device, size, SPIRV::ExtrapolateVelocity_comp)
     , mExtrapolateVelocityBound(mExtrapolateVelocity.Bind({valid, mValid, velocity, velocity.Output()}))
+    , mExtrapolateVelocityBackBound(mExtrapolateVelocity.Bind({mValid, valid, velocity.Output(), velocity}))
     , mConstrainVelocity(device, size, SPIRV::ConstrainVelocity_comp)
     , mExtrapolateCmd(device, false)
     , mConstrainCmd(device, false)
@@ -24,14 +25,22 @@ Extrapolation::Extrapolation(const Renderer::Device& device,
     mExtrapolateCmd.Record([&, iterations](vk::CommandBuffer commandBuffer)
     {
         commandBuffer.debugMarkerBeginEXT({"Extrapolate", {{ 0.60f, 0.87f, 0.12f, 1.0f}}});
-        for (int i = 0; i < iterations; i++)
+        for (int i = 0; i < iterations / 2; i++)
         {
             mExtrapolateVelocityBound.Record(commandBuffer);
-            velocity.CopyBack(commandBuffer);
+            velocity.Output().Barrier(commandBuffer,
+                                      vk::ImageLayout::eGeneral, vk::AccessFlagBits::eShaderWrite,
+                                      vk::ImageLayout::eGeneral, vk::AccessFlagBits::eShaderRead);
             mValid.Barrier(commandBuffer,
                            vk::AccessFlagBits::eShaderWrite,
                            vk::AccessFlagBits::eShaderRead);
-            valid.CopyFrom(commandBuffer, mValid);
+            mExtrapolateVelocityBackBound.Record(commandBuffer);
+            velocity.Barrier(commandBuffer,
+                             vk::ImageLayout::eGeneral, vk::AccessFlagBits::eShaderWrite,
+                             vk::ImageLayout::eGeneral, vk::AccessFlagBits::eShaderRead);
+            valid.Barrier(commandBuffer,
+                          vk::AccessFlagBits::eShaderWrite,
+                          vk::AccessFlagBits::eShaderRead);
         }
         commandBuffer.debugMarkerEndEXT();
     });
