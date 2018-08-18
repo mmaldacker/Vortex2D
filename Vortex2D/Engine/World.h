@@ -128,7 +128,7 @@ protected:
     Pressure mProjection;
     Extrapolation mExtrapolation;
 
-    Renderer::CommandBuffer mClearValid, mCopySolidPhi;
+    Renderer::CommandBuffer mCopySolidPhi;
     Renderer::Buffer<RigidBody::Velocity> mForce;
 
     std::vector<std::unique_ptr<RigidBody>> mRigidbodies;

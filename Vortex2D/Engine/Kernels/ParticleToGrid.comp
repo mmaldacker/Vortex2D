@@ -89,10 +89,19 @@ void main()
             value.x = accum.x / sum.x;
             valid.value[pos.x + pos.y * consts.width].x = 1;
         }
+        else
+        {
+            valid.value[pos.x + pos.y * consts.width].x = 0;
+        }
+
         if (sum.y != 0.0)
         {
             value.y = accum.y / sum.y;
             valid.value[pos.x + pos.y * consts.width].y = 1;
+        }
+        else
+        {
+            valid.value[pos.x + pos.y * consts.width].y = 0;
         }
 
         imageStore(Velocity, pos, vec4(value, 0.0, 0.0));

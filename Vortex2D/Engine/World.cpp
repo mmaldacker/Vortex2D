@@ -29,7 +29,6 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
                   mLiquidPhi,
                   mValid)
     , mExtrapolation(device, dimensions.Size, mValid, mVelocity)
-    , mClearValid(device, false)
     , mCopySolidPhi(device, false)
     , mForce(device, dimensions.Size.x*dimensions.Size.y)
     , mCfl(device, dimensions.Size, mVelocity)
@@ -37,11 +36,6 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
 {
     mExtrapolation.ConstrainBind(mDynamicSolidPhi);
     mLiquidPhi.ExtrapolateBind(mDynamicSolidPhi);
-
-    mClearValid.Record([&](vk::CommandBuffer commandBuffer)
-    {
-        mValid.Clear(commandBuffer);
-    });
 
     mCopySolidPhi.Record([&](vk::CommandBuffer commandBuffer)
     {
@@ -118,6 +112,7 @@ RigidBody* World::CreateRigidbody(vk::Flags<RigidBody::Type> type, Renderer::Dra
 
 float World::GetCFL()
 {
+    mCfl.Compute();
     return mCfl.Get();
 }
 
@@ -177,9 +172,6 @@ void SmokeWorld::Solve()
 
     mAdvection.AdvectVelocity();
     mAdvection.Advect();
-
-    mCfl.Compute();
-    mClearValid.Submit();
 }
 
 void SmokeWorld::FieldBind(Density& density)
@@ -284,9 +276,6 @@ void WaterWorld::Solve()
 
     // 7)
     mAdvection.AdvectParticles();
-    mCfl.Compute();
-    mClearVelocity.Submit();
-    mClearValid.Submit();
 }
 
 Renderer::RenderCommand WaterWorld::RecordParticleCount(Renderer::RenderTarget::DrawableList drawables)

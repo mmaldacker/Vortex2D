@@ -67,10 +67,19 @@ void main()
       mask.x = 1.0;
       valid.value[pos.x + pos.y * consts.width].x = 1;
     }
+    else
+    {
+      valid.value[pos.x + pos.y * consts.width].x = 0;
+    }
+
     if (wuv.y > 0.0 && (phi < 0.0 || phiyn < 0.0))
     {
       mask.y = 1.0;
       valid.value[pos.x + pos.y * consts.width].y = 1;
+    }
+    else
+    {
+      valid.value[pos.x + pos.y * consts.width].y = 0;
     }
 
     vec2 new_cell = cell - consts.delta * pGrad * consts.width;
