@@ -41,10 +41,13 @@ public:
 
     VORTEX2D_API RigidBody(const Renderer::Device& device,
                            const Dimensions& dimensions,
+                           float dt,
                            Renderer::Drawable& drawable,
                            const glm::vec2& centre,
                            Renderer::RenderTexture& phi,
-                           vk::Flags<Type> type);
+                           vk::Flags<Type> type,
+                           float mass,
+                           float inertia);
 
     /**
      * @brief sets the velocities and angular velocities of the body
@@ -84,11 +87,18 @@ public:
      * @brief Bind pressure, to have the pressure update the body's forces
      * @param fluidLevelSet fluid level set, to know if the pressure is applicable
      * @param pressure solved pressure buffer
-     * @param force a scratch buffer where the forces will be set
+     */
+    VORTEX2D_API void BindForce(Renderer::Texture& fluidLevelSet,
+                                Renderer::GenericBuffer& pressure);
+
+    /**
+     * @brief Bind pressure, to have the pressure update the body's forces
+     * @param fluidLevelSet fluid level set, to know if the pressure is applicable
+     * @param pressure solved pressure buffer
      */
     VORTEX2D_API void BindPressure(Renderer::Texture& fluidLevelSet,
-                                   Renderer::GenericBuffer& pressure,
-                                   Renderer::GenericBuffer& force);
+                                   Renderer::GenericBuffer& pressure);
+
 
     /**
      * @brief Apply the body's velocities to the linear equations matrix A and right hand side b.
@@ -97,6 +107,11 @@ public:
 
     /**
      * @brief Apply the pressure to body, updating its forces.
+     */
+    VORTEX2D_API void Force();
+
+    /**
+     * @brief Reduce the force for pressure update.
      */
     VORTEX2D_API void Pressure();
 
@@ -125,25 +140,29 @@ public:
 
 private:
     float mScale;
+    float mDelta;
+
     const Renderer::Device& mDevice;
     Renderer::RenderTexture mPhi;
     Renderer::Drawable& mDrawable;
     glm::vec2 mCentre;
     glm::mat4 mView;
     Renderer::UniformBuffer<Velocity> mVelocity;
-    Renderer::Buffer<Velocity> mForce;
+    Renderer::Buffer<Velocity> mForce, mReducedForce, mLocalForce;
     Renderer::UniformBuffer<glm::mat4> mMVBuffer;
 
     Renderer::Clear mClear;
     Renderer::RenderCommand mLocalPhiRender, mPhiRender;
 
-    Renderer::Work mDiv, mConstrain, mPressure;
-    Renderer::Work::Bound mDivBound, mConstrainBound, mPressureBound;
-    Renderer::CommandBuffer mDivCmd, mConstrainCmd, mPressureCmd;
+    Renderer::Work mDiv, mConstrain, mForceWork, mTansWork, mPressureWork;
+    Renderer::Work::Bound mDivBound, mConstrainBound, mForceBound, mTransBound, mPressureBound;
+    Renderer::CommandBuffer mDivCmd, mConstrainCmd, mForceCmd, mPressureCmd;
     ReduceJ mSum;
-    ReduceSum::Bound mSumBound;
+    ReduceSum::Bound mLocalSumBound, mSumBound;
 
     vk::Flags<Type> mType;
+    float mMass;
+    float mInertia;
 };
 
 }}

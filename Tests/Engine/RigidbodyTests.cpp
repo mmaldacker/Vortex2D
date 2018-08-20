@@ -13,6 +13,8 @@
 #include <Vortex2D/Engine/Rigidbody.h>
 #include <Vortex2D/Engine/Boundaries.h>
 #include <Vortex2D/Engine/Extrapolation.h>
+#include <Vortex2D/Engine/LinearSolver/Diagonal.h>
+#include <Vortex2D/Engine/LinearSolver/ConjugateGradient.h>
 
 using namespace Vortex2D::Renderer;
 using namespace Vortex2D::Fluid;
@@ -98,9 +100,12 @@ TEST(RigidbodyTests, Phi)
     Vortex2D::Fluid::Rectangle rectangle(*device, {6.0f, 4.0f});
     Vortex2D::Fluid::RigidBody rigidBody(*device,
                                          Dimensions(size, 1.0f),
+                                         1.0f,
                                          rectangle, {3.0f, 2.0f},
                                          solidPhi,
-                                         Vortex2D::Fluid::RigidBody::Type::eStatic);
+                                         Vortex2D::Fluid::RigidBody::Type::eStatic,
+                                         0.0f,
+                                         0.0f);
 
     rigidBody.Anchor = {3.0f, 2.0f};
     rigidBody.Position = {10.0f, 10.0f};
@@ -154,9 +159,12 @@ TEST(RigidbodyTests, Div)
     Vortex2D::Fluid::Rectangle rectangle(*device, {6.0f, 4.0f});
     Vortex2D::Fluid::RigidBody rigidBody(*device,
                                          Dimensions(size, 1.0f),
+                                         1.0f,
                                          rectangle, {3.0f, 2.0f},
                                          solidPhi,
-                                         Vortex2D::Fluid::RigidBody::Type::eStatic);
+                                         Vortex2D::Fluid::RigidBody::Type::eStatic,
+                                         0.0f,
+                                         0.0f);
 
     rigidBody.Anchor = {3.0f, 2.0f};
     rigidBody.Position = {10.0f, 10.0f};
@@ -212,9 +220,12 @@ TEST(RigidbodyTests, VelocityDiv)
     Vortex2D::Fluid::Rectangle rectangle(*device, {6.0f, 4.0f});
     Vortex2D::Fluid::RigidBody rigidBody(*device,
                                          Dimensions(size, 1.0f),
+                                         1.0f,
                                          rectangle, {0.0f, 0.0f},
                                          solidPhi,
-                                         Vortex2D::Fluid::RigidBody::Type::eStatic);
+                                         Vortex2D::Fluid::RigidBody::Type::eStatic,
+                                         0.0f,
+                                         0.0f);
 
     rigidBody.Anchor = {3.0f, 2.0f};
     rigidBody.Position = {10.0f, 10.0f};
@@ -271,9 +282,12 @@ TEST(RigidbodyTests, RotationDiv)
     Vortex2D::Fluid::Rectangle rectangle(*device, {6.0f, 4.0f});
     Vortex2D::Fluid::RigidBody rigidBody(*device,
                                          Dimensions(size, 1.0f),
+                                         1.0f,
                                          rectangle, {3.0f, 2.0f},
                                          solidPhi,
-                                         Vortex2D::Fluid::RigidBody::Type::eStatic);
+                                         Vortex2D::Fluid::RigidBody::Type::eStatic,
+                                         0.0f,
+                                         0.0f);
 
     rigidBody.Anchor = {3.0f, 2.0f};
     rigidBody.Position = {10.0f, 10.0f};
@@ -330,9 +344,12 @@ TEST(RigidbodyTests, VelocityRotationDiv)
     Vortex2D::Fluid::Rectangle rectangle(*device, {6.0f, 4.0f});
     Vortex2D::Fluid::RigidBody rigidBody(*device,
                                          Dimensions(size, 1.0f),
+                                         1.0f,
                                          rectangle, {3.0f, 2.0f},
                                          solidPhi,
-                                         Vortex2D::Fluid::RigidBody::Type::eStatic);
+                                         Vortex2D::Fluid::RigidBody::Type::eStatic,
+                                         0.0f,
+                                         0.0f);
 
     rigidBody.Anchor = {3.0f, 2.0f};
     rigidBody.Position = {10.0f, 10.0f};
@@ -382,7 +399,7 @@ TEST(RigidbodyTests, ReduceJSum)
     ASSERT_EQ(-2.0f * n, outputData[0].velocity.y);
 }
 
-TEST(RigidbodyTests, Pressure)
+TEST(RigidbodyTests, Force)
 {
     glm::ivec2 size(20);
 
@@ -428,9 +445,12 @@ TEST(RigidbodyTests, Pressure)
     Vortex2D::Fluid::Rectangle rectangle(*device, {6.0f, 4.0f});
     Vortex2D::Fluid::RigidBody rigidBody(*device,
                                          Dimensions(size, 1.0f),
+                                         1.0f,
                                          rectangle, {3.0, 2.0f},
                                          solidPhi,
-                                         Vortex2D::Fluid::RigidBody::Type::eStatic);
+                                         Vortex2D::Fluid::RigidBody::Type::eStatic,
+                                         0.0f,
+                                         0.0f);
 
     rigidBody.Position = {10.0f, 10.0f};
     rigidBody.Anchor = {3.0f, 2.0f};
@@ -438,10 +458,8 @@ TEST(RigidbodyTests, Pressure)
 
     rigidBody.RenderPhi();
 
-    Buffer<Vortex2D::Fluid::RigidBody::Velocity> force(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
-
-    rigidBody.BindPressure(liquidPhi, pressure, force);
-    rigidBody.Pressure();
+    rigidBody.BindForce(liquidPhi, pressure);
+    rigidBody.Force();
     device->Handle().waitIdle();
 
     float new_angular_momentum; Vec2f new_vel;
@@ -458,6 +476,83 @@ TEST(RigidbodyTests, Pressure)
     EXPECT_NEAR(new_angular_momentum, newForce.angular_velocity, 1e-5f);
     EXPECT_NEAR(new_vel[0], newForce.velocity.x, 1e-5f);
     EXPECT_NEAR(new_vel[1], newForce.velocity.y, 1e-5f);
+}
+
+TEST(RigidbodyTests, Pressure)
+{
+    glm::ivec2 size(20);
+
+    FluidSim sim;
+    sim.initialize(1.0f, size.x, size.y);
+    sim.set_boundary(boundary_phi);
+
+    AddParticles(size, sim, boundary_phi);
+
+    // setup rigid body
+    sim.rigidgeom = new Box2DGeometry(0.3f, 0.2f);
+    sim.rbd = new ::RigidBody(0.4f, *sim.rigidgeom);
+    sim.rbd->setCOM(Vec2f(0.5f, 0.5f));
+    sim.rbd->setAngle(0.0);
+    sim.rbd->setAngularMomentum(0.4f);
+    sim.rbd->setLinearVelocity(Vec2f(0.1f, 0.0f));
+
+    // get velocities
+    Vec2f v;
+    sim.rbd->getLinearVelocity(v);
+
+    sim.update_rigid_body_grids();
+    sim.add_force(0.01f);
+
+    Velocity velocity(*device, size);
+    RenderTexture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+    Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+
+    BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
+    SetSolidPhi(*device, size, solidPhi, sim, (float)size.x);
+
+    LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
+    Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+    Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
+
+    Diagonal preconditioner(*device, size);
+
+    LinearSolver::Parameters params(1000, 1e-5f);
+    ConjugateGradient solver(*device, size, preconditioner);
+
+    Vortex2D::Fluid::Rectangle rectangle(*device, {6.0f, 4.0f});
+    Vortex2D::Fluid::RigidBody rigidBody(*device,
+                                         Dimensions(size, 1.0f),
+                                         1.0f,
+                                         rectangle, {0.0f, 0.0f},
+                                         solidPhi,
+                                         Vortex2D::Fluid::RigidBody::Type::eStatic,
+                                         sim.rbd->getMass(),
+                                         sim.rbd->getInertiaModulus());
+
+    rigidBody.Anchor = {3.0f, 2.0f};
+    rigidBody.Position = {10.0f, 10.0f};
+    rigidBody.UpdatePosition();
+
+    rigidBody.RenderPhi();
+
+    // setup equations
+    rigidBody.SetVelocities(glm::vec2(v[0], v[1]) * glm::vec2((float)size.x), 0.0f);
+    rigidBody.BindDiv(data.B, data.Diagonal, liquidPhi);
+    rigidBody.BindPressure(liquidPhi, data.X);
+    pressure.BuildLinearEquation();
+    rigidBody.Div();
+
+    solver.Bind(data.Diagonal, data.Lower, data.B, data.X);
+
+    // solve
+    solver.Solve(params, {&rigidBody});
+
+    device->Handle().waitIdle();
+
+    std::cout << "Solved in " << params.OutIterations << " iterations." << std::endl;
+
+    PrintBuffer<float>(size, data.X);
+    //CheckPressure(size, sim.pressure, data.X, 1e-5f);
 }
 
 TEST(RigidbodyTests, VelocityConstrain)
@@ -503,9 +598,12 @@ TEST(RigidbodyTests, VelocityConstrain)
     Vortex2D::Fluid::Rectangle rectangle(*device, {6.0f, 4.0f});
     Vortex2D::Fluid::RigidBody rigidBody(*device,
                                          Dimensions(size, 1.0f),
+                                         1.0f,
                                          rectangle, {0.0f, 0.0f},
                                          solidPhi,
-                                         Vortex2D::Fluid::RigidBody::Type::eStatic);
+                                         Vortex2D::Fluid::RigidBody::Type::eStatic,
+                                         0.0f,
+                                         0.0f);
 
     rigidBody.Anchor = {3.0f, 2.0f};
     rigidBody.Position = {10.0f, 10.0f};
@@ -572,9 +670,12 @@ TEST(RigidbodyTests, RotationConstrain)
     Vortex2D::Fluid::Rectangle rectangle(*device, {6.0f, 4.0f});
     Vortex2D::Fluid::RigidBody rigidBody(*device,
                                          Dimensions(size, 1.0f),
+                                         1.0f,
                                          rectangle, {3.0f, 2.0f},
                                          solidPhi,
-                                         Vortex2D::Fluid::RigidBody::Type::eStatic);
+                                         Vortex2D::Fluid::RigidBody::Type::eStatic,
+                                         0.0f,
+                                         0.0f);
 
     rigidBody.Anchor = {3.0f, 2.0f};
     rigidBody.Position = {10.0f, 10.0f};

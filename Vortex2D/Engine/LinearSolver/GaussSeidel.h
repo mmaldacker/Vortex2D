@@ -31,7 +31,7 @@ public:
     /**
      * @brief Iterative solving of the linear equations in data
      */
-    VORTEX2D_API void Solve(Parameters& params) override;
+    VORTEX2D_API void Solve(Parameters& params, const std::vector<RigidBody*>& rigidbodies = {}) override;
 
     void Record(vk::CommandBuffer commandBuffer) override;
 

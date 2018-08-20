@@ -101,7 +101,7 @@ public:
      * @param centre the centre of the drawable. Use for rotations.
      * @return a pointer to the rigid body.
      */
-    VORTEX2D_API RigidBody* CreateRigidbody(vk::Flags<RigidBody::Type> type, Renderer::Drawable& drawable, const glm::vec2& centre);
+    VORTEX2D_API RigidBody* CreateRigidbody(vk::Flags<RigidBody::Type> type, float mass, float inertiaTensor, Renderer::Drawable& drawable, const glm::vec2& centre);
 
     /**
      * @brief Calculate the CFL number, i.e. the width divided by the max velocity
@@ -118,6 +118,7 @@ public:
 protected:
     const Renderer::Device& mDevice;
     Dimensions mDimensions;
+    float mDelta;
 
     Multigrid mPreconditioner;
     ConjugateGradient mLinearSolver;
@@ -135,7 +136,6 @@ protected:
     Extrapolation mExtrapolation;
 
     Renderer::CommandBuffer mCopySolidPhi;
-    Renderer::Buffer<RigidBody::Velocity> mForce;
 
     std::vector<std::unique_ptr<RigidBody>> mRigidbodies;
 

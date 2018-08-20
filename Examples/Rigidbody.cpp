@@ -64,7 +64,7 @@ void Rigidbody::CreateBody(Vortex2D::Fluid::World& world,
                            Vortex2D::Fluid::RigidBody::Type type,
                            Vortex2D::Renderer::Drawable& drawable)
 {
-    mRigidbody = world.CreateRigidbody(type, drawable, {});
+    mRigidbody = world.CreateRigidbody(type, mB2Body->GetMass(), mB2Body->GetInertia(), drawable, {});
 }
 
 b2Body& Rigidbody::Body()

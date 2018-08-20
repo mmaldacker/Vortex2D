@@ -70,7 +70,7 @@ void GaussSeidel::Bind(Renderer::GenericBuffer& d,
     });
 }
 
-void GaussSeidel::Solve(Parameters& params)
+void GaussSeidel::Solve(Parameters& params, const std::vector<RigidBody*>& /*rigidbodies*/)
 {
   mInitCmd.Submit();
   mErrorCmd.Submit();

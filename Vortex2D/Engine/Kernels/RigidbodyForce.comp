@@ -9,9 +9,6 @@ layout(push_constant) uniform Consts
   int width;
   int height;
   vec2 centre;
-  float delta;
-  float mass;
-  float inertia_tensor;
 }consts;
 
 layout(binding = 0, r32f) uniform image2D FluidLevelSet;
@@ -30,7 +27,7 @@ struct J
 
 layout(std430, binding = 3) buffer Force
 {
-  J value;
+  J value[];
 }force;
 
 layout(binding = 4) uniform MV
@@ -57,9 +54,9 @@ void main()
           vec2 rad = (pos + vec2(0.5) - centre.xy);
 
           int index = pos.x + pos.y * consts.width;
-          pressure.value[index] += consts.delta * ( u_term * force.value.force.x / consts.mass
-                                                  + v_term * force.value.force.y / consts.mass
-                                                  + (v_term * rad.x - u_term * rad.y) * force.value.torque / consts.inertia_tensor);
+          force.value[index].force.x = u_term * pressure.value[index] * consts.width;
+          force.value[index].force.y = v_term * pressure.value[index] * consts.width;
+          force.value[index].torque = (v_term * rad.x - u_term * rad.y) * pressure.value[index];
       }
   }
 }

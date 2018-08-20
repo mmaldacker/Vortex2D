@@ -10,9 +10,21 @@
 
 namespace Vortex2D { namespace Fluid {
 
+std::vector<RigidBody*> GetRigidbodyPointers(const std::vector<std::unique_ptr<RigidBody>>& rigidbodies)
+{
+    std::vector<RigidBody*> rigidBodiesPointers;
+    for (auto& rigibody: rigidbodies)
+    {
+        rigidBodiesPointers.push_back(rigibody.get());
+    }
+
+    return rigidBodiesPointers;
+}
+
 World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
     : mDevice(device)
     , mDimensions(dimensions)
+    , mDelta(dt)
     , mPreconditioner(device, dimensions.Size, dt)
     , mLinearSolver(device, dimensions.Size, mPreconditioner)
     , mData(device, dimensions.Size)
@@ -30,7 +42,6 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
                   mValid)
     , mExtrapolation(device, dimensions.Size, mValid, mVelocity)
     , mCopySolidPhi(device, false)
-    , mForce(device, dimensions.Size.x*dimensions.Size.y)
     , mCfl(device, dimensions.Size, mVelocity)
 {
     mExtrapolation.ConstrainBind(mDynamicSolidPhi);
@@ -96,19 +107,20 @@ DistanceField  World::SolidDistanceField()
     return {mDevice, mDynamicSolidPhi, mDimensions.Scale};
 }
 
-RigidBody* World::CreateRigidbody(vk::Flags<RigidBody::Type> type, Renderer::Drawable& drawable, const glm::vec2& centre)
+RigidBody* World::CreateRigidbody(vk::Flags<RigidBody::Type> type, float mass, float inertia, Renderer::Drawable& drawable, const glm::vec2& centre)
 {
-    mRigidbodies.push_back(std::make_unique<RigidBody>(mDevice, mDimensions, drawable, centre, mDynamicSolidPhi, type));
+    mRigidbodies.push_back(std::make_unique<RigidBody>(mDevice, mDimensions, mDelta, drawable, centre, mDynamicSolidPhi, type, mass, inertia));
 
     if (type & RigidBody::Type::eStatic)
     {
         mRigidbodies.back()->BindDiv(mData.B, mData.Diagonal, mLiquidPhi);
         mRigidbodies.back()->BindVelocityConstrain(mVelocity);
+        mRigidbodies.back()->BindPressure(mLiquidPhi, mData.X);
     }
 
     if (type & RigidBody::Type::eWeak)
     {
-        mRigidbodies.back()->BindPressure(mLiquidPhi, mData.X, mForce);
+        mRigidbodies.back()->BindForce(mLiquidPhi, mData.X);
     }
 
     return mRigidbodies.back().get();
@@ -150,21 +162,21 @@ void SmokeWorld::Solve()
 
     for (auto&& rigidbody: mRigidbodies)
     {
-        if (rigidbody.get()->GetType() & RigidBody::Type::eStatic)
+        if (rigidbody->GetType() & RigidBody::Type::eStatic)
         {
             rigidbody->Div();
         }
     }
 
     LinearSolver::Parameters params(300, 1e-3f);
-    mLinearSolver.Solve(params);
+    mLinearSolver.Solve(params, GetRigidbodyPointers(mRigidbodies));
     mProjection.ApplyPressure();
 
     for (auto&& rigidbody: mRigidbodies)
     {
-        if (rigidbody.get()->GetType() & RigidBody::Type::eWeak)
+        if (rigidbody->GetType() & RigidBody::Type::eWeak)
         {
-            rigidbody.get()->Pressure();
+            rigidbody->Force();
         }
     }
 
@@ -173,9 +185,9 @@ void SmokeWorld::Solve()
 
     for (auto&& rigidbody: mRigidbodies)
     {
-        if (rigidbody.get()->GetType() & RigidBody::Type::eStatic)
+        if (rigidbody->GetType() & RigidBody::Type::eStatic)
         {
-            rigidbody.get()->VelocityConstrain();
+            rigidbody->VelocityConstrain();
         }
     }
 
@@ -239,7 +251,7 @@ void WaterWorld::Solve()
 
     for (auto&& rigidbody: mRigidbodies)
     {
-        if (rigidbody.get()->GetType() & RigidBody::Type::eStatic)
+        if (rigidbody->GetType() & RigidBody::Type::eStatic)
         {
             rigidbody->Div();
         }
@@ -251,14 +263,14 @@ void WaterWorld::Solve()
     // 5)
     mProjection.BuildLinearEquation();
     LinearSolver::Parameters params(300, 1e-5f);
-    mLinearSolver.Solve(params);
+    mLinearSolver.Solve(params, GetRigidbodyPointers(mRigidbodies));
     mProjection.ApplyPressure();
 
     for (auto&& rigidbody: mRigidbodies)
     {
-        if (rigidbody.get()->GetType() & RigidBody::Type::eWeak)
+        if (rigidbody->GetType() & RigidBody::Type::eWeak)
         {
-            rigidbody.get()->Pressure();
+            rigidbody->Force();
         }
     }
 
@@ -267,9 +279,9 @@ void WaterWorld::Solve()
 
     for (auto&& rigidbody: mRigidbodies)
     {
-        if (rigidbody.get()->GetType() & RigidBody::Type::eStatic)
+        if (rigidbody->GetType() & RigidBody::Type::eStatic)
         {
-            rigidbody.get()->VelocityConstrain();
+            rigidbody->VelocityConstrain();
         }
     }
 

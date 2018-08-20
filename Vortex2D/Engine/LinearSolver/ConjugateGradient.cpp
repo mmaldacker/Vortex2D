@@ -5,6 +5,8 @@
 
 #include "ConjugateGradient.h"
 
+#include <Vortex2D/Engine/Rigidbody.h>
+
 #include "vortex2d_generated_spirv.h"
 
 namespace Vortex2D { namespace Fluid {
@@ -144,7 +146,7 @@ void ConjugateGradient::Bind(Renderer::GenericBuffer& d,
     });
 }
 
-void ConjugateGradient::Solve(Parameters& params)
+void ConjugateGradient::Solve(Parameters& params, const std::vector<RigidBody*>& rigidbodies)
 {
     mSolveInit.Submit();
     mErrorRead.Submit();
@@ -161,6 +163,12 @@ void ConjugateGradient::Solve(Parameters& params)
     for (unsigned i = 0; !params.IsFinished(initialError); ++i)
     {
         mErrorRead.Submit();
+
+        for (auto& rigidbody: rigidbodies)
+        {
+            rigidbody->Pressure();
+        }
+
         mSolve.Submit();
         mErrorRead.Wait();
 

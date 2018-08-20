@@ -189,22 +189,6 @@ TEST(LinearSolverTests, Transfer_Restrict)
     EXPECT_FLOAT_EQ((11.0f + 12.0f + 15.0f + 16.0f) / 4.0f, outputData[1 + coarseSize.x * 1]);
 }
 
-void CheckPressure(const glm::ivec2& size, const std::vector<double>& pressure, Buffer<float>& bufferPressure, float error)
-{
-    std::vector<float> bufferPressureData(size.x * size.y);
-    CopyTo(bufferPressure, bufferPressureData);
-
-    for (int i = 0; i < size.x; i++)
-    {
-        for (int j = 0; j < size.y; j++)
-        {
-            std::size_t index = i + j * size.x;
-            float value = (float)pressure[index];
-            EXPECT_NEAR(value, bufferPressureData[index], error) << "Mismatch at " << i << ", " << j << "\n";
-        }
-    }
-}
-
 TEST(LinearSolverTests, Simple_SOR)
 {
     glm::ivec2 size(50);

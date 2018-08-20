@@ -81,3 +81,5 @@ void CheckValid(const glm::ivec2& size, FluidSim& sim, Vortex2D::Renderer::Buffe
 
 void CheckDiv(const glm::ivec2& size, Vortex2D::Renderer::Buffer<float>& buffer, FluidSim& sim, float error = 1e-6f);
 void PrintDiv(const glm::ivec2& size, FluidSim& sim);
+
+void CheckPressure(const glm::ivec2& size, const std::vector<double>& pressure, Vortex2D::Renderer::Buffer<float>& bufferPressure, float error);

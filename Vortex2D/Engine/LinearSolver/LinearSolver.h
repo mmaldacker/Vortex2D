@@ -12,6 +12,8 @@
 
 namespace Vortex2D { namespace Fluid {
 
+class RigidBody;
+
 /**
  * @brief An interface to represent a linear solver.
  */
@@ -72,7 +74,7 @@ struct LinearSolver
     /**
      * @brief Solves the linear equations
      */
-    virtual void Solve(Parameters& params) = 0;
+    virtual void Solve(Parameters& params, const std::vector<RigidBody*>& rigidbodies = {}) = 0;
 };
 
 }}

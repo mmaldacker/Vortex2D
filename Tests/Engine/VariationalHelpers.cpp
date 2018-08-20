@@ -343,3 +343,19 @@ void PrintDiv(const glm::ivec2& size, FluidSim& sim)
 
     std::cout << std::endl;
 }
+
+void CheckPressure(const glm::ivec2& size, const std::vector<double>& pressure, Vortex2D::Renderer::Buffer<float>& bufferPressure, float error)
+{
+    std::vector<float> bufferPressureData(size.x * size.y);
+    Vortex2D::Renderer::CopyTo(bufferPressure, bufferPressureData);
+
+    for (int i = 0; i < size.x; i++)
+    {
+        for (int j = 0; j < size.y; j++)
+        {
+            std::size_t index = i + j * size.x;
+            float value = (float)pressure[index];
+            EXPECT_NEAR(value, bufferPressureData[index], error) << "Mismatch at " << i << ", " << j << "\n";
+        }
+    }
+}

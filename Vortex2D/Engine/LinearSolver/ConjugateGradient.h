@@ -29,7 +29,7 @@ public:
      */
     VORTEX2D_API ConjugateGradient(const Renderer::Device& device, const glm::ivec2& size, Preconditioner& preconditioner);
 
-    void VORTEX2D_API Bind(Renderer::GenericBuffer& d,
+    VORTEX2D_API void Bind(Renderer::GenericBuffer& d,
                            Renderer::GenericBuffer& l,
                            Renderer::GenericBuffer& b,
                            Renderer::GenericBuffer& pressure) override;
@@ -37,7 +37,7 @@ public:
     /**
      * @brief Solve iteratively solve the linear equations in data
      */
-    void VORTEX2D_API Solve(Parameters& params) override;
+    VORTEX2D_API void Solve(Parameters& params, const std::vector<RigidBody*>& rigidbodies = {}) override;
 
 private:
     Preconditioner& mPreconditioner;

@@ -25,7 +25,7 @@ public:
              Vortex2D::Fluid::World& world)
         : mWindmillTexture(device, 600, 600, vk::Format::eR32Sfloat)
         , mWindmill(device, mWindmillTexture)
-        , mRigidbody(world.CreateRigidbody(Vortex2D::Fluid::RigidBody::Type::eStrong, mWindmill, {300.0f, 300.0f}))
+        , mRigidbody(world.CreateRigidbody(Vortex2D::Fluid::RigidBody::Type::eStrong, 0.0f, 0.0f, mWindmill, {300.0f, 300.0f}))
     {
         glm::vec2 centre(300.0f, 300.0f);
         mRigidbody->Anchor = centre;
