@@ -113,14 +113,14 @@ RigidBody* World::CreateRigidbody(vk::Flags<RigidBody::Type> type, float mass, f
 
     if (type & RigidBody::Type::eStatic)
     {
-        mRigidbodies.back()->BindDiv(mData.B, mData.Diagonal, mLiquidPhi);
+        mRigidbodies.back()->BindDiv(mData.B, mData.Diagonal);
         mRigidbodies.back()->BindVelocityConstrain(mVelocity);
-        mRigidbodies.back()->BindPressure(mLiquidPhi, mData.X);
+        mLinearSolver.BindRigidbody(mData.Diagonal, *mRigidbodies.back());
     }
 
     if (type & RigidBody::Type::eWeak)
     {
-        mRigidbodies.back()->BindForce(mLiquidPhi, mData.X);
+        mRigidbodies.back()->BindForce(mData.Diagonal, mData.X);
     }
 
     return mRigidbodies.back().get();

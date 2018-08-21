@@ -28,6 +28,9 @@ public:
                            Renderer::GenericBuffer& b,
                            Renderer::GenericBuffer& pressure) override;
 
+    VORTEX2D_API void BindRigidbody(Renderer::GenericBuffer& d,
+                                    RigidBody& rigidBody) override;
+
     /**
      * @brief Iterative solving of the linear equations in data
      */

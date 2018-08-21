@@ -8,19 +8,10 @@ layout(push_constant) uniform Consts
 {
   int width;
   int height;
-  vec2 centre;
   float delta;
   float mass;
-  float inertia_tensor;
+  float inertia;
 }consts;
-
-layout(binding = 0, r32f) uniform image2D FluidLevelSet;
-layout(binding = 1, r32f) uniform image2D SolidLevelSet;
-
-layout(std430, binding = 2) buffer Pressure
-{
-  float value[];
-}pressure;
 
 struct J
 {
@@ -28,38 +19,31 @@ struct J
     float torque;
 };
 
-layout(std430, binding = 3) buffer Force
+layout(std430, binding = 0) buffer ReducedForce
 {
   J value;
+}reducedForce;
+
+layout(std430, binding = 1) buffer Force
+{
+  J value[];
 }force;
 
-layout(binding = 4) uniform MV
+layout(std430, binding = 2) buffer Output
 {
-    mat4 mv;
-};
-
-#include "CommonProject.comp"
+  float value[];
+}z;
 
 void main()
 {
   uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
 
   ivec2 pos = ivec2(gl_GlobalInvocationID);
-  if (pos.x > 0 && pos.y > 0 && pos.x < consts.width - 1 && pos.y < consts.height - 1)
+  if (pos.x < consts.width && pos.y < consts.height)
   {
-      float liquid_phi = imageLoad(FluidLevelSet, pos).x;
-      if (liquid_phi < 0.0)
-      {
-          float u_term = get_weight(pos).x - get_weightxp(pos);
-          float v_term = get_weight(pos).y - get_weightyp(pos);
-
-          vec4 centre = mv * vec4(consts.centre, 0.0, 1.0);
-          vec2 rad = (pos + vec2(0.5) - centre.xy);
-
-          int index = pos.x + pos.y * consts.width;
-          pressure.value[index] += consts.delta * ( u_term * force.value.force.x / consts.mass
-                                                  + v_term * force.value.force.y / consts.mass
-                                                  + (v_term * rad.x - u_term * rad.y) * force.value.torque / consts.inertia_tensor);
-      }
+    int index = pos.x + pos.y * consts.width;
+    z.value[index] += consts.delta * (force.value[index].force.x * reducedForce.value.force.x / consts.mass
+                                      + force.value[index].force.y * reducedForce.value.force.y / consts.mass
+                                      + force.value[index].torque * reducedForce.value.torque / consts.inertia);
   }
 }

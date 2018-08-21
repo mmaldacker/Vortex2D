@@ -74,8 +74,7 @@ public:
      * @param fluidLevelSet fluid level set
      */
     VORTEX2D_API void BindDiv(Renderer::GenericBuffer& div,
-                              Renderer::GenericBuffer& diagonal,
-                              Renderer::Texture& fluidLevelSet);
+                              Renderer::GenericBuffer& diagonal);
 
     /**
      * @brief Bind velocities to constrain based on the body's velocity.
@@ -88,7 +87,7 @@ public:
      * @param fluidLevelSet fluid level set, to know if the pressure is applicable
      * @param pressure solved pressure buffer
      */
-    VORTEX2D_API void BindForce(Renderer::Texture& fluidLevelSet,
+    VORTEX2D_API void BindForce(Renderer::GenericBuffer& d,
                                 Renderer::GenericBuffer& pressure);
 
     /**
@@ -96,8 +95,9 @@ public:
      * @param fluidLevelSet fluid level set, to know if the pressure is applicable
      * @param pressure solved pressure buffer
      */
-    VORTEX2D_API void BindPressure(Renderer::Texture& fluidLevelSet,
-                                   Renderer::GenericBuffer& pressure);
+    VORTEX2D_API void BindPressure(Renderer::GenericBuffer& d,
+                                   Renderer::GenericBuffer& s,
+                                   Renderer::GenericBuffer& z);
 
 
     /**
@@ -154,8 +154,8 @@ private:
     Renderer::Clear mClear;
     Renderer::RenderCommand mLocalPhiRender, mPhiRender;
 
-    Renderer::Work mDiv, mConstrain, mForceWork, mTansWork, mPressureWork;
-    Renderer::Work::Bound mDivBound, mConstrainBound, mForceBound, mTransBound, mPressureBound;
+    Renderer::Work mDiv, mConstrain, mForceWork, mPressureWork;
+    Renderer::Work::Bound mDivBound, mConstrainBound, mForceBound, mPressureForceBound, mPressureBound;
     Renderer::CommandBuffer mDivCmd, mConstrainCmd, mForceCmd, mPressureCmd;
     ReduceJ mSum;
     ReduceSum::Bound mLocalSumBound, mSumBound;

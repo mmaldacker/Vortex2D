@@ -36,7 +36,7 @@ float PressureRigidbody_VelocityTest(float scale)
     glm::vec2 rectangleSize(32.0f, 256.0f);
     Fluid::Rectangle rectangle(*device, rectangleSize);
 
-    auto* rigidbody = world.CreateRigidbody(Fluid::RigidBody::Type::eStrong, rectangle, rectangleSize / glm::vec2(2.0f));
+    auto* rigidbody = world.CreateRigidbody(Fluid::RigidBody::Type::eStrong, 1.0f, 1.0f, rectangle, rectangleSize / glm::vec2(2.0f));
     rigidbody->Anchor = rectangleSize / glm::vec2(2.0f);
     rigidbody->Position = size / glm::vec2(2.0f);
     rigidbody->UpdatePosition();
@@ -98,7 +98,7 @@ float PressureRigidbody_RotationTest(float scale)
     glm::vec2 rectangleSize(32.0f, 256.0f);
     Fluid::Rectangle rectangle(*device, rectangleSize);
 
-    auto* rigidbody = world.CreateRigidbody(Fluid::RigidBody::Type::eStrong, rectangle, rectangleSize / glm::vec2(2.0f));
+    auto* rigidbody = world.CreateRigidbody(Fluid::RigidBody::Type::eStrong, 1.0f, 1.0f, rectangle, rectangleSize / glm::vec2(2.0f));
     rigidbody->Anchor = rectangleSize / glm::vec2(2.0f);
     rigidbody->Position = size / glm::vec2(2.0f);
     rigidbody->UpdatePosition();

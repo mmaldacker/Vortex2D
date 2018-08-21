@@ -71,6 +71,9 @@ struct LinearSolver
                       Renderer::GenericBuffer& b,
                       Renderer::GenericBuffer& x) = 0;
 
+    virtual void BindRigidbody(Renderer::GenericBuffer& d,
+                               RigidBody& rigidBody) = 0;
+
     /**
      * @brief Solves the linear equations
      */

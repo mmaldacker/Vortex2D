@@ -173,7 +173,7 @@ TEST(RigidbodyTests, Div)
     rigidBody.RenderPhi();
 
     rigidBody.SetVelocities(glm::vec2(0.0f, 0.0f), 0.0f);
-    rigidBody.BindDiv(data.B, data.Diagonal, liquidPhi);
+    rigidBody.BindDiv(data.B, data.Diagonal);
     pressure.BuildLinearEquation();
     rigidBody.Div();
     device->Handle().waitIdle();
@@ -234,7 +234,7 @@ TEST(RigidbodyTests, VelocityDiv)
     rigidBody.RenderPhi();
 
     rigidBody.SetVelocities(glm::vec2(v[0], v[1]) * glm::vec2((float)size.x), 0.0f);
-    rigidBody.BindDiv(data.B, data.Diagonal, liquidPhi);
+    rigidBody.BindDiv(data.B, data.Diagonal);
     pressure.BuildLinearEquation();
     rigidBody.Div();
     device->Handle().waitIdle();
@@ -296,7 +296,7 @@ TEST(RigidbodyTests, RotationDiv)
     rigidBody.RenderPhi();
 
     rigidBody.SetVelocities(glm::vec2(0.0f, 0.0f), w);
-    rigidBody.BindDiv(data.B, data.Diagonal, liquidPhi);
+    rigidBody.BindDiv(data.B, data.Diagonal);
     pressure.BuildLinearEquation();
     rigidBody.Div();
     device->Handle().waitIdle();
@@ -358,7 +358,7 @@ TEST(RigidbodyTests, VelocityRotationDiv)
     rigidBody.RenderPhi();
 
     rigidBody.SetVelocities(glm::vec2(v[0], v[1]) * glm::vec2((float)size.x), w);
-    rigidBody.BindDiv(data.B, data.Diagonal, liquidPhi);
+    rigidBody.BindDiv(data.B, data.Diagonal);
     pressure.BuildLinearEquation();
     rigidBody.Div();
     device->Handle().waitIdle();
@@ -434,13 +434,19 @@ TEST(RigidbodyTests, Force)
     SetSolidPhi(*device, size, solidPhi, sim, (float)size.x);
 
     Buffer<float> pressure(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+    Buffer<float> diagonal(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
     std::vector<float> computedPressureData(size.x*size.y, 0.0f);
-    for (std::size_t i = 0; i < computedPressureData.size(); i++)
+    std::vector<float> computedDiagonalData(size.x*size.y, 0.0f);
+
+    for (std::size_t i = 0; i < size.x*size.y; i++)
     {
         computedPressureData[i] = (float)sim.pressure[i];
+        computedDiagonalData[i] = (float)sim.matrix(i, i);
     }
+
     CopyFrom(pressure, computedPressureData);
+    CopyFrom(diagonal, computedDiagonalData);
 
     Vortex2D::Fluid::Rectangle rectangle(*device, {6.0f, 4.0f});
     Vortex2D::Fluid::RigidBody rigidBody(*device,
@@ -458,7 +464,7 @@ TEST(RigidbodyTests, Force)
 
     rigidBody.RenderPhi();
 
-    rigidBody.BindForce(liquidPhi, pressure);
+    rigidBody.BindForce(diagonal, pressure);
     rigidBody.Force();
     device->Handle().waitIdle();
 
@@ -478,7 +484,7 @@ TEST(RigidbodyTests, Force)
     EXPECT_NEAR(new_vel[1], newForce.velocity.y, 1e-5f);
 }
 
-TEST(RigidbodyTests, Pressure)
+TEST(RigidbodyTests, PressureVelocity)
 {
     glm::ivec2 size(20);
 
@@ -493,7 +499,7 @@ TEST(RigidbodyTests, Pressure)
     sim.rbd = new ::RigidBody(0.4f, *sim.rigidgeom);
     sim.rbd->setCOM(Vec2f(0.5f, 0.5f));
     sim.rbd->setAngle(0.0);
-    sim.rbd->setAngularMomentum(0.4f);
+    sim.rbd->setAngularMomentum(0.0f);
     sim.rbd->setLinearVelocity(Vec2f(0.1f, 0.0f));
 
     // get velocities
@@ -537,8 +543,8 @@ TEST(RigidbodyTests, Pressure)
 
     // setup equations
     rigidBody.SetVelocities(glm::vec2(v[0], v[1]) * glm::vec2((float)size.x), 0.0f);
-    rigidBody.BindDiv(data.B, data.Diagonal, liquidPhi);
-    rigidBody.BindPressure(liquidPhi, data.X);
+    rigidBody.BindDiv(data.B, data.Diagonal);
+    solver.BindRigidbody(data.Diagonal, rigidBody);
     pressure.BuildLinearEquation();
     rigidBody.Div();
 
@@ -552,7 +558,9 @@ TEST(RigidbodyTests, Pressure)
     std::cout << "Solved in " << params.OutIterations << " iterations." << std::endl;
 
     PrintBuffer<float>(size, data.X);
-    //CheckPressure(size, sim.pressure, data.X, 1e-5f);
+    PrintData<double>(size.x, size.y, sim.pressure);
+
+    CheckPressure(size, sim.pressure, data.X, 1e-5f);
 }
 
 TEST(RigidbodyTests, VelocityConstrain)

@@ -21,8 +21,7 @@ layout(std430, binding = 1) buffer Diagonal
   float value[];
 }diagonal;
 
-layout(binding = 2, r32f) uniform image2D FluidLevelSet;
-layout(binding = 3, r32f) uniform image2D SolidLevelSet;
+layout(binding = 2, r32f) uniform image2D SolidLevelSet;
 
 struct Velocity
 {
@@ -30,12 +29,12 @@ struct Velocity
     float angular_velocity;
 };
 
-layout(binding = 4) uniform RigidbodyVelocity
+layout(binding = 3) uniform RigidbodyVelocity
 {
     Velocity value;
 }velocity;
 
-layout(binding = 5) uniform MV
+layout(binding = 4) uniform MV
 {
     mat4 mv;
 };
@@ -50,8 +49,7 @@ void main()
   if (pos.x > 0 && pos.y > 0 && pos.x < consts.width - 1 && pos.y < consts.height - 1)
   {
     int index = pos.x + pos.y * consts.width;
-    float liquid_phi = imageLoad(FluidLevelSet, pos).x;
-    if (liquid_phi < 0.0 && diagonal.value[index] != 0.0) // ensure linear system is well formed
+    if (diagonal.value[index] != 0.0) // ensure linear system is well formed
     {
         float u_term = get_weight(pos).x - get_weightxp(pos);
         float v_term = get_weight(pos).y - get_weightyp(pos);

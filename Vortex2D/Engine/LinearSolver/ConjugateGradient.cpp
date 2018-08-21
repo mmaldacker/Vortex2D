@@ -89,6 +89,7 @@ void ConjugateGradient::Bind(Renderer::GenericBuffer& d,
         multiplyZBound.Record(commandBuffer);
         inner.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         reduceSumRhoBound.Record(commandBuffer);
+        z.Clear(commandBuffer);
 
         commandBuffer.debugMarkerEndEXT();
     });
@@ -137,6 +138,7 @@ void ConjugateGradient::Bind(Renderer::GenericBuffer& d,
 
         // s = z + beta * s
         multiplyAddZBound.Record(commandBuffer);
+        z.Clear(commandBuffer);
         s.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
 
         // rho = rho_new
@@ -144,6 +146,12 @@ void ConjugateGradient::Bind(Renderer::GenericBuffer& d,
 
         commandBuffer.debugMarkerEndEXT();
     });
+}
+
+void ConjugateGradient::BindRigidbody(Renderer::GenericBuffer& d,
+                                      RigidBody& rigidBody)
+{
+  rigidBody.BindPressure(d, s, z);
 }
 
 void ConjugateGradient::Solve(Parameters& params, const std::vector<RigidBody*>& rigidbodies)

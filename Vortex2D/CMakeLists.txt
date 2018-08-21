@@ -100,7 +100,6 @@ file(GLOB SHADER_SOURCES
     "Engine/Kernels/Project.comp"
     "Engine/Kernels/RigidbodyPressure.comp"
     "Engine/Kernels/RigidbodyForce.comp"
-    "Engine/Kernels/RigidbodyTrans.comp"
     "Engine/Kernels/Redistance.comp"
     "Engine/Kernels/ConstrainVelocity.comp"
     "Engine/Kernels/ConstrainRigidbodyVelocity.comp"

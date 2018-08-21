@@ -70,6 +70,12 @@ void GaussSeidel::Bind(Renderer::GenericBuffer& d,
     });
 }
 
+void GaussSeidel::BindRigidbody(Renderer::GenericBuffer& /*d*/,
+                                RigidBody& /*rigidBody*/)
+{
+
+}
+
 void GaussSeidel::Solve(Parameters& params, const std::vector<RigidBody*>& /*rigidbodies*/)
 {
   mInitCmd.Submit();
