@@ -67,6 +67,7 @@ void RigidBody::SetVelocities(const glm::vec2& velocity, float angularVelocity)
     Renderer::UniformBuffer<Velocity> localVelocity(mDevice, VMA_MEMORY_USAGE_CPU_ONLY);
     Renderer::CopyFrom(localVelocity, v);
 
+    // TODO use command buffer and call wait at the appropriate moment
     Renderer::ExecuteCommand(mDevice, [&](vk::CommandBuffer commandBuffer)
     {
         mVelocity.CopyFrom(commandBuffer, localVelocity);
@@ -108,6 +109,7 @@ void RigidBody::BindDiv(Renderer::GenericBuffer& div,
         commandBuffer.debugMarkerBeginEXT({"Rigidbody build equation", {{0.90f, 0.27f, 0.28f, 1.0f}}});
         mDivBound.PushConstant(commandBuffer, mCentre);
         mDivBound.Record(commandBuffer);
+        div.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         commandBuffer.debugMarkerEndEXT();
     });
 }
