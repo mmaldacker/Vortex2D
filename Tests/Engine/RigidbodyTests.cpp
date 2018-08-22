@@ -21,7 +21,7 @@ using namespace Vortex2D::Fluid;
 
 std::ostream& operator<<(std::ostream& o, Vortex2D::Fluid::RigidBody::Velocity velocity)
 {
-  o << velocity.velocity.x << "," << velocity.velocity.y << "," << velocity.angular_velocity;
+  return o << velocity.velocity.x << "," << velocity.velocity.y << "," << velocity.angular_velocity;
 }
 
 extern Device* device;
