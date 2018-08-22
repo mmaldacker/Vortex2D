@@ -8,10 +8,18 @@ layout(push_constant) uniform Consts
 {
   int width;
   int height;
+  vec2 centre;
   float delta;
   float mass;
   float inertia;
 }consts;
+
+layout(std430, binding = 0) buffer Diagonal
+{
+  float value[];
+}diagonal;
+
+layout(binding = 1, r32f) uniform image2D SolidLevelSet;
 
 struct J
 {
@@ -19,20 +27,22 @@ struct J
     float torque;
 };
 
-layout(std430, binding = 0) buffer ReducedForce
+layout(std430, binding = 2) buffer ReducedForce
 {
   J value;
 }reducedForce;
 
-layout(std430, binding = 1) buffer Force
-{
-  J value[];
-}force;
-
-layout(std430, binding = 2) buffer Output
+layout(std430, binding = 3) buffer Output
 {
   float value[];
 }z;
+
+layout(binding = 4) uniform MV
+{
+    mat4 mv;
+};
+
+#include "CommonProject.comp"
 
 void main()
 {
@@ -42,8 +52,17 @@ void main()
   if (pos.x < consts.width && pos.y < consts.height)
   {
     int index = pos.x + pos.y * consts.width;
-    z.value[index] += consts.delta * (force.value[index].force.x * reducedForce.value.force.x / consts.mass
-                                      + force.value[index].force.y * reducedForce.value.force.y / consts.mass
-                                      + force.value[index].torque * reducedForce.value.torque / consts.inertia);
+    if (diagonal.value[index] != 0.0)
+    {
+      float u_term = get_weight(pos).x - get_weightxp(pos);
+      float v_term = get_weight(pos).y - get_weightyp(pos);
+
+      vec4 centre = mv * vec4(consts.centre, 0.0, 1.0);
+      vec2 rad = (pos + vec2(0.5) - centre.xy);
+
+      z.value[index] += consts.delta * (u_term * consts.width * reducedForce.value.force.x / consts.mass
+                                        + v_term * consts.width * reducedForce.value.force.y / consts.mass
+                                        + (v_term * rad.x - u_term * rad.y) * reducedForce.value.torque / consts.inertia);
+    }
   }
 }

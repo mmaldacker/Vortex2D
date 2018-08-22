@@ -10,6 +10,9 @@
 
 #include "vortex2d_generated_spirv.h"
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/transform.hpp>
+
 namespace Vortex2D { namespace Fluid {
 
 RigidBody::RigidBody(const Renderer::Device& device,
@@ -84,7 +87,7 @@ RigidBody::Velocity RigidBody::GetForces()
 
 void RigidBody::UpdatePosition()
 {
-    Renderer::CopyFrom(mMVBuffer, mView * GetTransform());
+    Renderer::CopyFrom(mMVBuffer, mView * glm::translate(glm::vec3{(glm::vec2)Position, 0.0f}));
 }
 
 void RigidBody::RenderPhi()
@@ -144,7 +147,7 @@ void RigidBody::BindPressure(Renderer::GenericBuffer& d,
                              Renderer::GenericBuffer& z)
 {
     mPressureForceBound = mForceWork.Bind({d, mPhi, s, mForce, mMVBuffer});
-    mPressureBound = mPressureWork.Bind({mReducedForce, mForce, z});
+    mPressureBound = mPressureWork.Bind({d, mPhi, mReducedForce, z, mMVBuffer});
     mSumBound = mSum.Bind(mForce, mReducedForce);
     mPressureCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
@@ -154,7 +157,7 @@ void RigidBody::BindPressure(Renderer::GenericBuffer& d,
         mPressureForceBound.Record(commandBuffer);
         mForce.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         mSumBound.Record(commandBuffer);
-        mPressureBound.PushConstant(commandBuffer, mDelta, mMass, mInertia);
+        mPressureBound.PushConstant(commandBuffer, mCentre, mDelta, mMass, mInertia);
         mPressureBound.Record(commandBuffer);
         z.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         commandBuffer.debugMarkerEndEXT();
