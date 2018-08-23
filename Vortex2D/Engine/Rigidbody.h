@@ -150,13 +150,14 @@ private:
     Renderer::UniformBuffer<Velocity> mVelocity;
     Renderer::Buffer<Velocity> mForce, mReducedForce, mLocalForce;
     Renderer::UniformBuffer<glm::mat4> mMVBuffer;
+    Renderer::UniformBuffer<Velocity> mLocalVelocity;
 
     Renderer::Clear mClear;
     Renderer::RenderCommand mLocalPhiRender, mPhiRender;
 
     Renderer::Work mDiv, mConstrain, mForceWork, mPressureWork;
     Renderer::Work::Bound mDivBound, mConstrainBound, mForceBound, mPressureForceBound, mPressureBound;
-    Renderer::CommandBuffer mDivCmd, mConstrainCmd, mForceCmd, mPressureCmd;
+    Renderer::CommandBuffer mDivCmd, mConstrainCmd, mForceCmd, mPressureCmd, mVelocityCmd;
     ReduceJ mSum;
     ReduceSum::Bound mLocalSumBound, mSumBound;
 

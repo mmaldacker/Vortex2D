@@ -36,6 +36,7 @@ RigidBody::RigidBody(const Renderer::Device& device,
     , mReducedForce(device, 1)
     , mLocalForce(device, 1, VMA_MEMORY_USAGE_GPU_TO_CPU)
     , mMVBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
+    , mLocalVelocity(device, VMA_MEMORY_USAGE_CPU_ONLY)
     , mClear({1000.0f, 0.0f, 0.0f, 0.0f})
     , mDiv(device, dimensions.Size, SPIRV::BuildRigidbodyDiv_comp)
     , mConstrain(device, dimensions.Size, SPIRV::ConstrainRigidbodyVelocity_comp)
@@ -43,8 +44,9 @@ RigidBody::RigidBody(const Renderer::Device& device,
     , mPressureWork(device, dimensions.Size, SPIRV::RigidbodyPressure_comp)
     , mDivCmd(device, false)
     , mConstrainCmd(device, false)
-    , mForceCmd(device, false)
+    , mForceCmd(device, true)
     , mPressureCmd(device, false)
+    , mVelocityCmd(device, false)
     , mSum(device, dimensions.Size)
     , mType(type)
     , mMass(mass)
@@ -52,6 +54,12 @@ RigidBody::RigidBody(const Renderer::Device& device,
 {
     mPhi.View = mView;
     mLocalPhiRender = mPhi.Record({mClear, mDrawable}, UnionBlend);
+
+    mVelocityCmd.Record([&](vk::CommandBuffer commandBuffer)
+    {
+        mVelocity.CopyFrom(commandBuffer, mLocalVelocity);
+    });
+
     SetVelocities(glm::vec2(0.0f), 0.0f);
 
     if (type & Type::eStatic)
@@ -64,19 +72,14 @@ void RigidBody::SetVelocities(const glm::vec2& velocity, float angularVelocity)
 {
     Velocity v{velocity / glm::vec2(mScale), angularVelocity};
 
-    Renderer::UniformBuffer<Velocity> localVelocity(mDevice, VMA_MEMORY_USAGE_CPU_ONLY);
-    Renderer::CopyFrom(localVelocity, v);
-
-    // TODO use command buffer and call wait at the appropriate moment
-    Renderer::ExecuteCommand(mDevice, [&](vk::CommandBuffer commandBuffer)
-    {
-        mVelocity.CopyFrom(commandBuffer, localVelocity);
-    });
+    Renderer::CopyFrom(mLocalVelocity, v);
+    mVelocityCmd.Submit();
 }
 
 RigidBody::Velocity RigidBody::GetForces()
 {
-    // TODO looks like we need to wait on the command buffer here
+    mForceCmd.Wait();
+
     Velocity force;
     Renderer::CopyTo(mLocalForce, force);
 
