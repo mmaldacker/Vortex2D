@@ -345,7 +345,7 @@ void CheckPhi(const glm::ivec2& size, FluidSim& sim, Texture& phi)
 
 TEST(ParticleTests, Phi)
 {
-    // FIXME Cannot use higher size because of weird float conversions in FluidSim
+    // NOTE Cannot use higher size because of weird float conversions in FluidSim
     glm::ivec2 size(20);
 
     FluidSim sim;

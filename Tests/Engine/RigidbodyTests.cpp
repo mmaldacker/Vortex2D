@@ -635,7 +635,7 @@ TEST(RigidbodyTests, PressureVelocity)
 
     std::cout << "Solved in " << params.OutIterations << " iterations. Error " << params.OutError << std::endl;
 
-    CheckPressure(size, sim.pressure, data.X, 1e-2f); // TODO error is way too high
+    CheckPressure(size, sim.pressure, data.X, 1e-2f); // FIXME error is way too high
 }
 
 TEST(RigidbodyTests, VelocityConstrain)
@@ -665,8 +665,7 @@ TEST(RigidbodyTests, VelocityConstrain)
     sim.rbd->setLinearVelocity(Vec2f(solid_velocity.x, solid_velocity.y));
 
     RenderTexture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-    // FIXME should set the scale to size.x
-    SetSolidPhi(*device, size, solidPhi, sim);
+    SetSolidPhi(*device, size, solidPhi, sim, (float)size.x);
 
     extrapolate(sim.u, sim.u_valid);
     extrapolate(sim.v, sim.v_valid);
@@ -737,8 +736,7 @@ TEST(RigidbodyTests, RotationConstrain)
     sim.rbd->getAngularVelocity(w);
 
     RenderTexture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-    // FIXME should set the scale to size.x
-    SetSolidPhi(*device, size, solidPhi, sim);
+    SetSolidPhi(*device, size, solidPhi, sim, (float)size.x);
 
     extrapolate(sim.u, sim.u_valid);
     extrapolate(sim.v, sim.v_valid);

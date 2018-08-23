@@ -53,7 +53,7 @@ float PressureRigidbody_VelocityTest(float scale)
     float force = forces.velocity.x;
     std::cout << "Scale " << scale << " Force (" << force << ")" << std::endl;
 
-    // TODO relatively big error
+    // FIXME relatively big error
     EXPECT_NEAR(forces.angular_velocity, 0.0f, 1.0f);
     EXPECT_NEAR(forces.velocity.y, 0.0f, 1.0f);
 
@@ -120,7 +120,7 @@ float PressureRigidbody_RotationTest(float scale)
     float force = forces.angular_velocity;
     std::cout << "Scale " << scale << " Force (" << force << ")" << std::endl;
 
-    // TODO relatively big error
+    // FIXME relatively big error
     EXPECT_NEAR(forces.velocity.x, 0.0f, 10.0f);
     EXPECT_NEAR(forces.velocity.y, 0.0f, 10.0f);
 

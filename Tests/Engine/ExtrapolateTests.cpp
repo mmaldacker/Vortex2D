@@ -79,7 +79,7 @@ TEST(ExtrapolateTest, Extrapolate)
 
 TEST(ExtrapolateTest, Constrain)
 {
-    // FIXME Cannot use higher size because of weird float conversions in FluidSim
+    // NOTE Cannot use higher size because of weird float conversions in FluidSim
     glm::ivec2 size(20);
 
     FluidSim sim;
@@ -94,8 +94,7 @@ TEST(ExtrapolateTest, Constrain)
     Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
 
     Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-    // FIXME should set the scale to size.x
-    SetSolidPhi(*device, size, solidPhi, sim);
+    SetSolidPhi(*device, size, solidPhi, sim, (float)size.x);
 
     extrapolate(sim.u, sim.u_valid);
     extrapolate(sim.v, sim.v_valid);
