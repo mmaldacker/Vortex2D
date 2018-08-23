@@ -150,6 +150,7 @@ add_library(vortex2d
     "Engine/Kernels/CommonProject.comp"
     "Engine/Kernels/CommonPreScan.comp"
     "Engine/Kernels/CommonParticles.comp"
+    "Engine/Kernels/CommonRigidbody.comp"
     vortex2d_generated_spirv.cpp
     vortex2d_generated_spirv.h)
 

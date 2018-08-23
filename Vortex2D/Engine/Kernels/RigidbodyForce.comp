@@ -39,7 +39,7 @@ layout(binding = 4) uniform MV
     mat4 mv;
 };
 
-#include "CommonProject.comp"
+#include "CommonRigidbody.comp"
 
 void main()
 {
@@ -51,16 +51,12 @@ void main()
     int index = pos.x + pos.y * consts.width;
     if (diagonal.value[index] != 0.0)
     {
-          float u_term = get_weight(pos).x - get_weightxp(pos);
-          float v_term = get_weight(pos).y - get_weightyp(pos);
-
-          vec4 centre = mv * vec4(consts.centre, 0.0, 1.0);
-          vec2 rad = (pos + vec2(0.5) - centre.xy);
+          vec3 base = get_base(pos);
 
           int index = pos.x + pos.y * consts.width;
-          force.value[index].force.x = u_term * pressure.value[index] * consts.width;
-          force.value[index].force.y = v_term * pressure.value[index] * consts.width;
-          force.value[index].torque = (v_term * rad.x - u_term * rad.y) * pressure.value[index];
+          force.value[index].force.x = base.x * pressure.value[index];
+          force.value[index].force.y = base.y * pressure.value[index];
+          force.value[index].torque = base.z * pressure.value[index];
       }
   }
 }

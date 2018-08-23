@@ -39,7 +39,7 @@ layout(binding = 4) uniform MV
     mat4 mv;
 };
 
-#include "CommonProject.comp"
+#include "CommonRigidbody.comp"
 
 void main()
 {
@@ -51,16 +51,10 @@ void main()
     int index = pos.x + pos.y * consts.width;
     if (diagonal.value[index] != 0.0) // ensure linear system is well formed
     {
-        // TODO below is duplicated in many places
-        float u_term = get_weight(pos).x - get_weightxp(pos);
-        float v_term = get_weight(pos).y - get_weightyp(pos);
-
-        vec4 centre = mv * vec4(consts.centre, 0.0, 1.0);
-        vec2 rad = pos + vec2(0.5) - centre.xy;
-
-        div.value[index] -= consts.width * u_term * velocity.value.velocity.x +
-                            consts.width * v_term * velocity.value.velocity.y +
-                            (rad.x * v_term - rad.y * u_term) * velocity.value.angular_velocity;
+        vec3 base = get_base(pos);
+        div.value[index] -= base.x * velocity.value.velocity.x +
+                            base.y * velocity.value.velocity.y +
+                            base.z * velocity.value.angular_velocity;
     }
   }
 }
