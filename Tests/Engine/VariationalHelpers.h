@@ -62,7 +62,7 @@ void BuildLinearEquation(const glm::ivec2& size,
 void PrintDiagonal(const glm::ivec2& size, Vortex2D::Renderer::Buffer<float>& buffer);
 void PrintWeights(const glm::ivec2& size, FluidSim& sim);
 
-void PrintVelocity(const Vortex2D::Renderer::Device& device, const glm::ivec2& size, Vortex2D::Fluid::Velocity& velocity);
+void PrintVelocity(const Vortex2D::Renderer::Device& device, const glm::ivec2& size, Vortex2D::Renderer::Texture& velocity);
 
 void PrintVelocity(const glm::ivec2& size, FluidSim& sim);
 

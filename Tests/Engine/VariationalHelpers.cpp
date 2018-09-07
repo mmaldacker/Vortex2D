@@ -204,7 +204,7 @@ void PrintWeights(const glm::ivec2& size, FluidSim& sim)
     std::cout << std::endl;
 }
 
-void PrintVelocity(const Vortex2D::Renderer::Device& device, const glm::ivec2& size, Vortex2D::Fluid::Velocity& velocity)
+void PrintVelocity(const Vortex2D::Renderer::Device& device, const glm::ivec2& size, Vortex2D::Renderer::Texture& velocity)
 {
     Vortex2D::Renderer::Texture output(device, size.x, size.y, vk::Format::eR32G32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
     ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
