@@ -26,7 +26,7 @@ public:
     VORTEX2D_API RenderTexture(const Device& device, uint32_t width, uint32_t height, vk::Format format);
 
     VORTEX2D_API RenderCommand Record(DrawableList drawables,
-                                      vk::PipelineColorBlendAttachmentState blendMode = {}) override;
+                                      BlendState blendState = {}) override;
     VORTEX2D_API void Submit(RenderCommand& renderCommand) override;
 
 private:

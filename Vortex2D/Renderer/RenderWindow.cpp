@@ -120,9 +120,9 @@ RenderWindow::RenderWindow(const Device& device, vk::SurfaceKHR surface, uint32_
 }
 
 RenderCommand RenderWindow::Record(DrawableList drawables,
-                                   vk::PipelineColorBlendAttachmentState blendMode)
+                                   BlendState blendState)
 {
-    RenderState state(*this, blendMode);
+    RenderState state(*this, blendState);
     return RenderCommand(mDevice,
                          *this,
                          state,

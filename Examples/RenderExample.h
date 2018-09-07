@@ -28,7 +28,8 @@ public:
     void Init(const Vortex2D::Renderer::Device& device,
               Vortex2D::Renderer::RenderTarget& renderTarget) override
     {
-        auto blendMode = vk::PipelineColorBlendAttachmentState()
+        Vortex2D::Renderer::BlendState blendState;
+        blendState.ColorBlend
                 .setBlendEnable(true)
                 .setAlphaBlendOp(vk::BlendOp::eAdd)
                 .setColorBlendOp(vk::BlendOp::eAdd)
@@ -37,7 +38,7 @@ public:
                 .setDstColorBlendFactor(vk::BlendFactor::eOneMinusSrcAlpha)
                 .setDstAlphaBlendFactor(vk::BlendFactor::eZero);
 
-        render = renderTarget.Record({rectangle, circle}, blendMode);
+        render = renderTarget.Record({rectangle, circle}, blendState);
     }
 
     void Step() override

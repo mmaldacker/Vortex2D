@@ -67,7 +67,8 @@ public:
         // Draw rigid body
         body.SetTransform({300.0f, 500.0f}, -45.0f);
 
-        auto blendMode = vk::PipelineColorBlendAttachmentState()
+        Vortex2D::Renderer::BlendState blendState;
+        blendState.ColorBlend
                 .setBlendEnable(true)
                 .setAlphaBlendOp(vk::BlendOp::eAdd)
                 .setColorBlendOp(vk::BlendOp::eAdd)
@@ -76,7 +77,7 @@ public:
                 .setDstColorBlendFactor(vk::BlendFactor::eOneMinusSrcAlpha)
                 .setDstAlphaBlendFactor(vk::BlendFactor::eZero);
 
-        windowRender = renderTarget.Record({density, solidPhi}, blendMode);
+        windowRender = renderTarget.Record({density, solidPhi}, blendState);
     }
 
     void Step() override

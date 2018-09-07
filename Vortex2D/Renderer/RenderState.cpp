@@ -9,29 +9,35 @@
 
 namespace Vortex2D { namespace Renderer {
 
-RenderState::RenderState(const RenderTarget& renderTarget)
+BlendState::BlendState()
+    : BlendConstants({0.0f})
+{
+    ColorBlend.setColorWriteMask(vk::ColorComponentFlagBits::eR |
+                                 vk::ColorComponentFlagBits::eG |
+                                 vk::ColorComponentFlagBits::eB |
+                                 vk::ColorComponentFlagBits::eA);
+}
+
+RenderState::RenderState(const RenderTarget& renderTarget,
+                         struct BlendState blendState)
     : Width(renderTarget.Width)
     , Height(renderTarget.Height)
     , RenderPass(*renderTarget.RenderPass)
+    , BlendState(blendState)
 {
 
 }
 
-RenderState::RenderState(const RenderTarget& renderTarget,
-                         vk::PipelineColorBlendAttachmentState colorBlend)
-    : RenderState(renderTarget)
+RenderState::RenderState(const RenderTarget& renderTarget)
+    : RenderState(renderTarget, {})
 {
-    ColorBlend = colorBlend
-        .setColorWriteMask(vk::ColorComponentFlagBits::eR |
-                           vk::ColorComponentFlagBits::eG |
-                           vk::ColorComponentFlagBits::eB |
-                           vk::ColorComponentFlagBits::eA);
 }
 
 bool operator==(const RenderState& left, const RenderState right)
 {
     return left.RenderPass == right.RenderPass &&
-           left.ColorBlend == right.ColorBlend;
+           left.BlendState.ColorBlend == right.BlendState.ColorBlend &&
+           left.BlendState.BlendConstants  == right.BlendState.BlendConstants;
 }
 
 }}

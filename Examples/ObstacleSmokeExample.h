@@ -76,7 +76,8 @@ public:
         bottom.SetTransform({512.0f, 1000.5f}, 0.0f);
         bottom.Update();
 
-        auto blendMode = vk::PipelineColorBlendAttachmentState()
+        Vortex2D::Renderer::BlendState blendState;
+        blendState.ColorBlend
                 .setBlendEnable(true)
                 .setAlphaBlendOp(vk::BlendOp::eAdd)
                 .setColorBlendOp(vk::BlendOp::eAdd)
@@ -86,7 +87,7 @@ public:
                 .setDstAlphaBlendFactor(vk::BlendFactor::eZero);
 
 
-        windowRender = renderTarget.Record({density, solidPhi}, blendMode);
+        windowRender = renderTarget.Record({density, solidPhi}, blendState);
     }
 
     void Step() override

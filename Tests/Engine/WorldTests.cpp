@@ -42,7 +42,7 @@ float PressureRigidbody_VelocityTest(float scale)
     rigidbody->UpdatePosition();
 
     Renderer::Rectangle velocity(*device, size);
-    velocity.Colour = {10.0f / (scale * size.x), 0.0f, 0.0f, 0.0f};
+    velocity.Colour = {10.0f, 0.0f, 0.0f, 0.0f};
 
     world.RecordVelocity({velocity}).Submit();
     world.Solve();
@@ -105,11 +105,11 @@ float PressureRigidbody_RotationTest(float scale)
 
     Renderer::Rectangle velocityUp(*device, glm::vec2(size.x, size.y / 2.0f));
     velocityUp.Position = {0.0f, 0.0f};
-    velocityUp.Colour = {10.0f / (scale * size.x), 0.0f, 0.0f, 0.0f};
+    velocityUp.Colour = {10.0f, 0.0f, 0.0f, 0.0f};
 
     Renderer::Rectangle velocityDown(*device, glm::vec2(size.x, size.y / 2.0f));
     velocityDown.Position = {0.0f, size.x / 2.0f};
-    velocityDown.Colour = {-10.0f / (scale * size.x), 0.0f, 0.0f, 0.0f};
+    velocityDown.Colour = {-10.0f, 0.0f, 0.0f, 0.0f};
 
     world.RecordVelocity({velocityUp, velocityDown}).Submit();
     world.Solve();
@@ -146,6 +146,32 @@ TEST(WorldTests, PressureRigidbody_Rotation)
     var /= 4.0f;
 
     std::cout << "Std deviation: " << std::sqrt(var) << std::endl;
+}
+
+TEST(WorldTests, VelocityScale)
+{
+    float dt = 0.01f;
+    float scale = 2.0f;
+    glm::vec2 size(512.0f, 512.0f);
+
+    Fluid::Dimensions dimensions(size, scale);
+    Fluid::SmokeWorld world(*device, dimensions, dt);
+
+    Renderer::Clear fluidClear({-1.0f, 0.0f, 0.0f, 0.0f});
+    world.RecordLiquidPhi({fluidClear}).Submit();
+
+    Renderer::Rectangle velocity(*device, size);
+    velocity.Colour = {10.0f, 0.0f, 0.0f, 0.0f};
+
+    world.RecordVelocity({velocity}).Submit();
+    world.Solve();
+
+    device->Handle().waitIdle();
+
+    float value = 10.0f / size.x;
+    std::vector<glm::vec2> velocityData(dimensions.Size.x * dimensions.Size.y, {value, 0.0f});
+
+    CheckVelocity(*device, dimensions.Size, world.GetVelocity(), velocityData);
 }
 
 TEST(CflTets, Max)

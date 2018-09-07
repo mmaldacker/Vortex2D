@@ -60,7 +60,8 @@ public:
         // Set gravity
         velocityRender = world.RecordVelocity({gravity});
 
-        auto blendMode = vk::PipelineColorBlendAttachmentState()
+        Vortex2D::Renderer::BlendState blendState;
+        blendState.ColorBlend
                 .setBlendEnable(true)
                 .setAlphaBlendOp(vk::BlendOp::eAdd)
                 .setColorBlendOp(vk::BlendOp::eAdd)
@@ -69,7 +70,7 @@ public:
                 .setDstColorBlendFactor(vk::BlendFactor::eOneMinusSrcAlpha)
                 .setDstAlphaBlendFactor(vk::BlendFactor::eZero);
 
-        windowRender = renderTarget.Record({liquidPhi, solidPhi}, blendMode);
+        windowRender = renderTarget.Record({liquidPhi, solidPhi}, blendState);
     }
 
     void Step() override

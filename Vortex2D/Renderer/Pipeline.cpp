@@ -87,7 +87,8 @@ vk::UniquePipeline GraphicsPipeline::Builder::Create(vk::Device device, const Re
 
     auto blendInfo = vk::PipelineColorBlendStateCreateInfo()
             .setAttachmentCount(1)
-            .setPAttachments(&renderState.ColorBlend);
+            .setPAttachments(&renderState.BlendState.ColorBlend)
+            .setBlendConstants(renderState.BlendState.BlendConstants);
 
     auto pipelineInfo = vk::GraphicsPipelineCreateInfo()
             .setStageCount((uint32_t)mShaderStages.size())

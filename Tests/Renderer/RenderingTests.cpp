@@ -139,14 +139,15 @@ TEST(RenderingTest, BlendAdd)
     Rectangle rectangle(*device, size);
     rectangle.Colour = glm::vec4(0.5f, 0.0f, 0.0f, 0.0f);
 
-    auto addBlend = vk::PipelineColorBlendAttachmentState()
+    Vortex2D::Renderer::BlendState blendState;
+    blendState.ColorBlend
             .setBlendEnable(true)
             .setColorBlendOp(vk::BlendOp::eAdd)
             .setSrcColorBlendFactor(vk::BlendFactor::eOne)
             .setDstColorBlendFactor(vk::BlendFactor::eOne);
 
-    texture.Record({rectangle}, addBlend).Submit();
-    texture.Record({rectangle}, addBlend).Submit();
+    texture.Record({rectangle}, blendState).Submit();
+    texture.Record({rectangle}, blendState).Submit();
 
     device->Handle().waitIdle();
 

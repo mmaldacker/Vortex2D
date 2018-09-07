@@ -29,7 +29,7 @@ public:
     VORTEX2D_API RenderWindow(const Device& device, vk::SurfaceKHR surface, uint32_t width, uint32_t height);
 
     RenderCommand Record(DrawableList drawables,
-                         vk::PipelineColorBlendAttachmentState blendMode = {}) override;
+                         BlendState blendState = {}) override;
     void Submit(RenderCommand& renderCommand) override;
 
     /**

@@ -148,7 +148,7 @@ public:
         , windmill(device, rWorld, world)
     {
         liquidPhi.Scale = solidPhi.Scale = glm::vec2(dimensions.Scale);
-        gravity.Colour = glm::vec4(0.0f, dt * gravityForce / (dimensions.Scale * dimensions.Size.x), 0.0f, 0.0f);
+        gravity.Colour = glm::vec4(0.0f, dt * gravityForce, 0.0f, 0.0f);
 
         solidPhi.Colour = red;
         liquidPhi.Colour = blue;
@@ -180,7 +180,8 @@ public:
         // Set gravity
         velocityRender = world.RecordVelocity({gravity, waterForce});
 
-        auto blendMode = vk::PipelineColorBlendAttachmentState()
+        Vortex2D::Renderer::BlendState blendState;
+        blendState.ColorBlend
                 .setBlendEnable(true)
                 .setAlphaBlendOp(vk::BlendOp::eAdd)
                 .setColorBlendOp(vk::BlendOp::eAdd)
@@ -189,7 +190,7 @@ public:
                 .setDstColorBlendFactor(vk::BlendFactor::eOneMinusSrcAlpha)
                 .setDstAlphaBlendFactor(vk::BlendFactor::eZero);
 
-        windowRender = renderTarget.Record({liquidPhi, solidPhi}, blendMode);
+        windowRender = renderTarget.Record({liquidPhi, solidPhi}, blendState);
     }
 
     void Step() override

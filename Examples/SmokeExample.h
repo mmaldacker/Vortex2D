@@ -69,7 +69,8 @@ public:
         velocityRender = world.RecordVelocity({force1, force2});
         densityRender = density.Record({source1, source2});
 
-        auto blendMode = vk::PipelineColorBlendAttachmentState()
+        Vortex2D::Renderer::BlendState blendState;
+        blendState.ColorBlend
                 .setBlendEnable(true)
                 .setAlphaBlendOp(vk::BlendOp::eAdd)
                 .setColorBlendOp(vk::BlendOp::eAdd)
@@ -78,7 +79,7 @@ public:
                 .setDstColorBlendFactor(vk::BlendFactor::eOneMinusSrcAlpha)
                 .setDstAlphaBlendFactor(vk::BlendFactor::eZero);
 
-        windowRender = renderTarget.Record({density, solidPhi}, blendMode);
+        windowRender = renderTarget.Record({density, solidPhi}, blendState);
     }
 
     void Step() override

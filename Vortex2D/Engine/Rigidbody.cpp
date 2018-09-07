@@ -66,8 +66,8 @@ RigidBody::Velocity RigidBody::GetForces()
     Velocity force;
     Renderer::CopyTo(mForce, force);
 
-    force.angular_velocity *= mScale * mScale * mScale;
-    force.velocity *= glm::vec2(mScale * mScale * mScale);
+    force.angular_velocity *= mScale * mScale;
+    force.velocity *= glm::vec2(mScale * mScale);
 
     return force;
 }

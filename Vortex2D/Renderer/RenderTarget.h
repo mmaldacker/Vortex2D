@@ -7,13 +7,13 @@
 #define RenderTarget_h
 
 #include <Vortex2D/Renderer/Common.h>
+#include <Vortex2D/Renderer/RenderState.h>
 
 #include <functional>
 #include <initializer_list>
 
 namespace Vortex2D { namespace Renderer {
 
-class RenderState;
 class RenderCommand;
 struct Drawable;
 
@@ -32,7 +32,7 @@ struct RenderTarget
     using DrawableList = std::initializer_list<std::reference_wrapper<Drawable>>;
 
     VORTEX2D_API virtual RenderCommand Record(DrawableList drawables,
-                                              vk::PipelineColorBlendAttachmentState blendMode = {}) = 0;
+                                              BlendState blendState = {}) = 0;
 
     // TODO should use shared_ptr?
     VORTEX2D_API virtual void Submit(RenderCommand& renderCommand) = 0;

@@ -109,6 +109,12 @@ public:
      */
     VORTEX2D_API float GetCFL();
 
+    /**
+     * @brief Get the velocity, can be used to display it.
+     * @return velocity field reference
+     */
+    VORTEX2D_API Renderer::RenderTexture& GetVelocity();
+
 protected:
     const Renderer::Device& mDevice;
     Dimensions mDimensions;
@@ -179,7 +185,6 @@ public:
 private:
     Renderer::GenericBuffer mParticles;
     ParticleCount mParticleCount;
-    Renderer::CommandBuffer mClearVelocity;
 };
 
 }}

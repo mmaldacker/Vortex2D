@@ -71,6 +71,12 @@ void CheckVelocity(const Vortex2D::Renderer::Device& device,
                           FluidSim& sim,
                           float error = 1e-6f);
 
+void CheckVelocity(const Vortex2D::Renderer::Device& device,
+                   const glm::ivec2& size,
+                   Vortex2D::Renderer::Texture& velocity,
+                   const std::vector<glm::vec2>& velocityData,
+                   float error = 1e-6f);
+
 void CheckValid(const glm::ivec2& size, FluidSim& sim, Vortex2D::Renderer::Buffer<glm::ivec2>& valid);
 
 void CheckDiv(const glm::ivec2& size, Vortex2D::Renderer::Buffer<float>& buffer, FluidSim& sim, float error = 1e-6f);

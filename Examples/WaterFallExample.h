@@ -38,7 +38,7 @@ public:
         , bottom(device, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {1000.0f, 20.0f})
     {
         liquidPhi.Scale = solidPhi.Scale = glm::vec2(dimensions.Scale);
-        gravity.Colour = glm::vec4(0.0f, dt * gravityForce / (dimensions.Scale * dimensions.Size.x), 0.0f, 0.0f);
+        gravity.Colour = glm::vec4(0.0f, dt * gravityForce, 0.0f, 0.0f);
 
         solidPhi.Colour = green;
         liquidPhi.Colour = blue;
@@ -75,7 +75,8 @@ public:
         // Set gravity
         velocityRender = world.RecordVelocity({gravity, waterForce});
 
-        auto blendMode = vk::PipelineColorBlendAttachmentState()
+        Vortex2D::Renderer::BlendState blendState;
+        blendState.ColorBlend
                 .setBlendEnable(true)
                 .setAlphaBlendOp(vk::BlendOp::eAdd)
                 .setColorBlendOp(vk::BlendOp::eAdd)
@@ -84,7 +85,7 @@ public:
                 .setDstColorBlendFactor(vk::BlendFactor::eOneMinusSrcAlpha)
                 .setDstAlphaBlendFactor(vk::BlendFactor::eZero);
 
-        windowRender = renderTarget.Record({liquidPhi, solidPhi}, blendMode);
+        windowRender = renderTarget.Record({liquidPhi, solidPhi}, blendState);
     }
 
     void Step() override

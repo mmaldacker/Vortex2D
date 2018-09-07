@@ -32,7 +32,6 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
     , mCopySolidPhi(device, false)
     , mForce(device, dimensions.Size.x*dimensions.Size.y)
     , mCfl(device, dimensions.Size, mVelocity)
-
 {
     mExtrapolation.ConstrainBind(mDynamicSolidPhi);
     mLiquidPhi.ExtrapolateBind(mDynamicSolidPhi);
@@ -58,13 +57,16 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
 
 Renderer::RenderCommand World::RecordVelocity(Renderer::RenderTarget::DrawableList drawables)
 {
-    auto addBlend = vk::PipelineColorBlendAttachmentState()
+
+    Renderer::BlendState blendState;
+    blendState.ColorBlend
             .setBlendEnable(true)
             .setColorBlendOp(vk::BlendOp::eAdd)
-            .setSrcColorBlendFactor(vk::BlendFactor::eOne)
+            .setSrcColorBlendFactor(vk::BlendFactor::eConstantColor)
             .setDstColorBlendFactor(vk::BlendFactor::eOne);
+    blendState.BlendConstants = {1.0f / (mDimensions.Scale * mDimensions.Size.x)};
 
-    return mVelocity.Record(drawables, addBlend);
+    return mVelocity.Record(drawables, blendState);
 }
 
 void World::SubmitVelocity(Renderer::RenderCommand& renderCommand)
@@ -114,6 +116,11 @@ float World::GetCFL()
 {
     mCfl.Compute();
     return mCfl.Get();
+}
+
+Renderer::RenderTexture& World::GetVelocity()
+{
+    return mVelocity;
 }
 
 SmokeWorld::SmokeWorld(const Renderer::Device& device, Dimensions dimensions, float dt)
@@ -184,16 +191,10 @@ WaterWorld::WaterWorld(const Renderer::Device& device, Dimensions dimensions, fl
     : World(device, dimensions, dt)
     , mParticles(device, vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eVertexBuffer, VMA_MEMORY_USAGE_GPU_ONLY, 8*dimensions.Size.x*dimensions.Size.y*sizeof(Particle))
     , mParticleCount(device, dimensions.Size, mParticles, {0}, 0.02f)
-    , mClearVelocity(device)
 {
     mParticleCount.LevelSetBind(mLiquidPhi);
     mParticleCount.VelocitiesBind(mVelocity, mValid);
     mAdvection.AdvectParticleBind(mParticles, mDynamicSolidPhi, mParticleCount.GetDispatchParams());
-
-    mClearVelocity.Record([&](vk::CommandBuffer commandBuffer)
-    {
-        mVelocity.Clear(commandBuffer);
-    });
 
     mParticleCount.View = dimensions.InvScale;
 }

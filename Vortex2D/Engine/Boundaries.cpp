@@ -180,19 +180,31 @@ void Circle::Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& 
     commandBuffer.draw(6, 1, 0, 0);
 }
 
-vk::PipelineColorBlendAttachmentState IntersectionBlend = vk::PipelineColorBlendAttachmentState()
+Renderer::BlendState IntersectionBlend = []
+{
+    Renderer::BlendState blendState;
+    blendState.ColorBlend
         .setBlendEnable(true)
         .setColorBlendOp(vk::BlendOp::eMax)
         .setSrcColorBlendFactor(vk::BlendFactor::eOne)
         .setDstColorBlendFactor(vk::BlendFactor::eOne)
         .setColorWriteMask(vk::ColorComponentFlagBits::eR);
 
-vk::PipelineColorBlendAttachmentState UnionBlend = vk::PipelineColorBlendAttachmentState()
+    return blendState;
+}();
+
+Renderer::BlendState UnionBlend = []
+{
+    Renderer::BlendState blendState;
+    blendState.ColorBlend
         .setBlendEnable(true)
         .setColorBlendOp(vk::BlendOp::eMin)
         .setSrcColorBlendFactor(vk::BlendFactor::eOne)
         .setDstColorBlendFactor(vk::BlendFactor::eOne)
         .setColorWriteMask(vk::ColorComponentFlagBits::eR);
+
+    return blendState;
+}();
 
 Vortex2D::Renderer::Clear BoundariesClear = Vortex2D::Renderer::Clear({10000.0f, 0.0f, 0.0f, 0.0f});
 

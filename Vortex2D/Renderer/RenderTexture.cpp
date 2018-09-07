@@ -47,9 +47,9 @@ RenderTexture::RenderTexture(const Device& device, uint32_t width, uint32_t heig
 }
 
 RenderCommand RenderTexture::Record(DrawableList drawables,
-                                    vk::PipelineColorBlendAttachmentState blendMode)
+                                    BlendState blendState)
 {
-    RenderState state(*this, blendMode);
+    RenderState state(*this, blendState);
     return RenderCommand(mDevice, *this, state, mFramebuffer, drawables);
 }
 

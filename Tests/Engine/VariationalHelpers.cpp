@@ -241,10 +241,10 @@ void PrintVelocity(const glm::ivec2& size, FluidSim& sim)
 }
 
 void CheckVelocity(const Vortex2D::Renderer::Device& device,
-                          const glm::ivec2& size,
-                          Vortex2D::Fluid::Velocity& velocity,
-                          FluidSim& sim,
-                          float error)
+                   const glm::ivec2& size,
+                   Vortex2D::Fluid::Velocity& velocity,
+                   FluidSim& sim,
+                   float error)
 {
     Vortex2D::Renderer::Texture output(device, size.x, size.y, vk::Format::eR32G32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
     ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
@@ -263,6 +263,37 @@ void CheckVelocity(const Vortex2D::Renderer::Device& device,
             auto uv = pixels[i + j * size.x];
             EXPECT_NEAR(sim.u(i, j), uv.x, error) << "Mismatch at " << i << "," << j;
             EXPECT_NEAR(sim.v(i, j), uv.y, error) << "Mismatch at " << i << "," << j;
+        }
+    }
+}
+
+void CheckVelocity(const Vortex2D::Renderer::Device& device,
+                   const glm::ivec2& size,
+                   Vortex2D::Renderer::Texture& velocity,
+                   const std::vector<glm::vec2>& velocityData,
+                   float error)
+{
+    assert(velocityData.size() == size.x * size.y);
+
+    Vortex2D::Renderer::Texture output(device, size.x, size.y, vk::Format::eR32G32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
+    ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
+    {
+        output.CopyFrom(commandBuffer, velocity);
+    });
+
+    std::vector<glm::vec2> pixels(size.x * size.y);
+    output.CopyTo(pixels);
+
+    // FIXME need to check the entire velocity buffer
+    for (int i = 2; i < size.x - 1; i++)
+    {
+        for (int j = 1; j < size.y - 1; j++)
+        {
+            auto index = i + j * size.x;
+            auto uv = pixels[index];
+            auto expectedUv = velocityData[index];
+            EXPECT_NEAR(expectedUv.x, uv.x, error) << "Mismatch at " << i << "," << j;
+            EXPECT_NEAR(expectedUv.y, uv.y, error) << "Mismatch at " << i << "," << j;
         }
     }
 }
