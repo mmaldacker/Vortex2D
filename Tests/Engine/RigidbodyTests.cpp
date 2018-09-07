@@ -521,6 +521,8 @@ TEST(RigidbodyTests, Pressure)
     sim.extrapolate_phi();
     sim.u_weights.set_zero();
     sim.v_weights.set_zero();
+    sim.rigid_u_mass = sim.rbd->getMass();
+    sim.rigid_v_mass = sim.rbd->getMass();
     sim.solve_pressure(0.01f);
 
     SetLiquidPhi(*device, size, liquidPhi, sim);
@@ -588,13 +590,15 @@ TEST(RigidbodyTests, PressureVelocity)
     // get velocities
     Vec2f v;
     sim.rbd->getLinearVelocity(v);
-
     sim.update_rigid_body_grids();
     sim.add_force(0.01f);
 
     Velocity velocity(*device, size);
     RenderTexture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
     Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+
+    sim.rigid_u_mass = sim.rbd->getMass();
+    sim.rigid_v_mass = sim.rbd->getMass();
 
     BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
     SetSolidPhi(*device, size, solidPhi, sim, (float)size.x);
