@@ -180,7 +180,7 @@ public:
         // Set gravity
         velocityRender = world.RecordVelocity({gravity, waterForce});
 
-        Vortex2D::Renderer::BlendState blendState;
+        Vortex2D::Renderer::ColorBlendState blendState;
         blendState.ColorBlend
                 .setBlendEnable(true)
                 .setAlphaBlendOp(vk::BlendOp::eAdd)

@@ -180,9 +180,9 @@ void Circle::Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& 
     commandBuffer.draw(6, 1, 0, 0);
 }
 
-Renderer::BlendState IntersectionBlend = []
+Renderer::ColorBlendState IntersectionBlend = []
 {
-    Renderer::BlendState blendState;
+    Renderer::ColorBlendState blendState;
     blendState.ColorBlend
         .setBlendEnable(true)
         .setColorBlendOp(vk::BlendOp::eMax)
@@ -193,9 +193,9 @@ Renderer::BlendState IntersectionBlend = []
     return blendState;
 }();
 
-Renderer::BlendState UnionBlend = []
+Renderer::ColorBlendState UnionBlend = []
 {
-    Renderer::BlendState blendState;
+    Renderer::ColorBlendState blendState;
     blendState.ColorBlend
         .setBlendEnable(true)
         .setColorBlendOp(vk::BlendOp::eMin)

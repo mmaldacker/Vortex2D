@@ -96,8 +96,8 @@ private:
     Renderer::GraphicsPipeline mPipeline;
 };
 
-extern VORTEX2D_API Renderer::BlendState IntersectionBlend;
-extern VORTEX2D_API Renderer::BlendState UnionBlend;
+extern VORTEX2D_API Renderer::ColorBlendState IntersectionBlend;
+extern VORTEX2D_API Renderer::ColorBlendState UnionBlend;
 extern VORTEX2D_API Renderer::Clear BoundariesClear;
 
 /**

@@ -67,7 +67,7 @@ public:
         // Draw rigid body
         body.SetTransform({300.0f, 500.0f}, -45.0f);
 
-        Vortex2D::Renderer::BlendState blendState;
+        Vortex2D::Renderer::ColorBlendState blendState;
         blendState.ColorBlend
                 .setBlendEnable(true)
                 .setAlphaBlendOp(vk::BlendOp::eAdd)

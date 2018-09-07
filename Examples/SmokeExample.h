@@ -69,7 +69,7 @@ public:
         velocityRender = world.RecordVelocity({force1, force2});
         densityRender = density.Record({source1, source2});
 
-        Vortex2D::Renderer::BlendState blendState;
+        Vortex2D::Renderer::ColorBlendState blendState;
         blendState.ColorBlend
                 .setBlendEnable(true)
                 .setAlphaBlendOp(vk::BlendOp::eAdd)

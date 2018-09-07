@@ -28,7 +28,7 @@ public:
     void Init(const Vortex2D::Renderer::Device& device,
               Vortex2D::Renderer::RenderTarget& renderTarget) override
     {
-        Vortex2D::Renderer::BlendState blendState;
+        Vortex2D::Renderer::ColorBlendState blendState;
         blendState.ColorBlend
                 .setBlendEnable(true)
                 .setAlphaBlendOp(vk::BlendOp::eAdd)

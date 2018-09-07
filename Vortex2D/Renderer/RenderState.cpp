@@ -9,7 +9,7 @@
 
 namespace Vortex2D { namespace Renderer {
 
-BlendState::BlendState()
+ColorBlendState::ColorBlendState()
     : BlendConstants({0.0f})
 {
     ColorBlend.setColorWriteMask(vk::ColorComponentFlagBits::eR |
@@ -19,7 +19,7 @@ BlendState::BlendState()
 }
 
 RenderState::RenderState(const RenderTarget& renderTarget,
-                         struct BlendState blendState)
+                         struct ColorBlendState blendState)
     : Width(renderTarget.Width)
     , Height(renderTarget.Height)
     , RenderPass(*renderTarget.RenderPass)

@@ -15,9 +15,9 @@ struct RenderTarget;
 /**
  * @brief The blend state and blend constant.
  */
-struct BlendState
+struct ColorBlendState
 {
-    VORTEX2D_API BlendState();
+    VORTEX2D_API ColorBlendState();
 
     vk::PipelineColorBlendAttachmentState ColorBlend;
     std::array<float, 4> BlendConstants;
@@ -40,12 +40,12 @@ struct RenderState
      * @param colorBlend
      */
     RenderState(const RenderTarget& renderTarget,
-                BlendState blendState);
+                ColorBlendState blendState);
 
     uint32_t Width;
     uint32_t Height;
     vk::RenderPass RenderPass;
-    BlendState BlendState;
+    ColorBlendState BlendState;
 };
 
 bool operator==(const RenderState& left, const RenderState right);

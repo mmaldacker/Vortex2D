@@ -32,7 +32,7 @@ struct RenderTarget
     using DrawableList = std::initializer_list<std::reference_wrapper<Drawable>>;
 
     VORTEX2D_API virtual RenderCommand Record(DrawableList drawables,
-                                              BlendState blendState = {}) = 0;
+                                              ColorBlendState blendState = {}) = 0;
 
     // TODO should use shared_ptr?
     VORTEX2D_API virtual void Submit(RenderCommand& renderCommand) = 0;

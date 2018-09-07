@@ -76,7 +76,7 @@ public:
         bottom.SetTransform({512.0f, 1000.5f}, 0.0f);
         bottom.Update();
 
-        Vortex2D::Renderer::BlendState blendState;
+        Vortex2D::Renderer::ColorBlendState blendState;
         blendState.ColorBlend
                 .setBlendEnable(true)
                 .setAlphaBlendOp(vk::BlendOp::eAdd)
