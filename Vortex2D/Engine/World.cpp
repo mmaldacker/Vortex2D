@@ -64,7 +64,9 @@ Renderer::RenderCommand World::RecordVelocity(Renderer::RenderTarget::DrawableLi
             .setColorBlendOp(vk::BlendOp::eAdd)
             .setSrcColorBlendFactor(vk::BlendFactor::eConstantColor)
             .setDstColorBlendFactor(vk::BlendFactor::eOne);
-    blendState.BlendConstants = {1.0f / (mDimensions.Scale * mDimensions.Size.x)};
+
+    float scale = 1.0f / (mDimensions.Scale * mDimensions.Size.x);
+    blendState.BlendConstants = {scale, scale, scale, scale};
 
     return mVelocity.Record(drawables, blendState);
 }

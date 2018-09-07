@@ -26,7 +26,7 @@ public:
         , liquidPhi(world.LiquidDistanceField())
     {
         liquidPhi.Scale = solidPhi.Scale = glm::vec2(dimensions.Scale);
-        gravity.Colour = {0.0f, 0.01f, 0.0f, 0.0f};
+        gravity.Colour = {0.0f, 10.0f, 0.0f, 0.0f};
 
         solidPhi.Colour = green;
         liquidPhi.Colour = blue;

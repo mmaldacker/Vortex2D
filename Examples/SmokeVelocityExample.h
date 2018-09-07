@@ -42,8 +42,8 @@ public:
 
         source1.Colour = source2.Colour = yellow;
 
-        force1.Colour = {0.1f, 0.0f, 0.0f, 0.0f};
-        force2.Colour = {-0.1f, -0.1f, 0.0f, 0.0f};
+        force1.Colour = {50.0f, 0.0f, 0.0f, 0.0f};
+        force2.Colour = {-50.0f, -50.0f, 0.0f, 0.0f};
 
         solidPhi.Colour = green;
     }

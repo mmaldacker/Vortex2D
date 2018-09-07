@@ -54,7 +54,7 @@ public:
 
         // Add force
         waterForce.Position = {20.0f, 100.0f};
-        waterForce.Colour = glm::vec4(0.01f, 0.0f, 0.0f, 0.0f);
+        waterForce.Colour = glm::vec4(10.0f, 0.0f, 0.0f, 0.0f);
 
         sourceRender = world.RecordParticleCount({waterSource});
 
