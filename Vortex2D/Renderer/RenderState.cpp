@@ -10,7 +10,7 @@
 namespace Vortex2D { namespace Renderer {
 
 ColorBlendState::ColorBlendState()
-    : BlendConstants({0.0f})
+    : BlendConstants({1.0f})
 {
     ColorBlend.setColorWriteMask(vk::ColorComponentFlagBits::eR |
                                  vk::ColorComponentFlagBits::eG |
