@@ -106,7 +106,7 @@ TEST(RigidbodyTests, Phi)
     Vortex2D::Fluid::RigidBody rigidBody(*device,
                                          Dimensions(size, 1.0f),
                                          1.0f,
-                                         rectangle, {3.0f, 2.0f},
+                                         rectangle, {0.0f, 0.0f},
                                          solidPhi,
                                          Vortex2D::Fluid::RigidBody::Type::eStatic,
                                          0.0f,
@@ -165,7 +165,7 @@ TEST(RigidbodyTests, Div)
     Vortex2D::Fluid::RigidBody rigidBody(*device,
                                          Dimensions(size, 1.0f),
                                          1.0f,
-                                         rectangle, {3.0f, 2.0f},
+                                         rectangle, {0.0f, 0.0f},
                                          solidPhi,
                                          Vortex2D::Fluid::RigidBody::Type::eStatic,
                                          0.0f,
@@ -239,7 +239,7 @@ TEST(RigidbodyTests, VelocityDiv)
     rigidBody.RenderPhi();
 
     // verify div
-    rigidBody.SetVelocities(glm::vec2(v[0], v[1]), 0.0f);
+    rigidBody.SetVelocities(glm::vec2(v[0], v[1]) * glm::vec2(size.x), 0.0f);
     rigidBody.BindDiv(data.B, data.Diagonal);
     pressure.BuildLinearEquation();
     rigidBody.Div();
@@ -364,7 +364,7 @@ TEST(RigidbodyTests, VelocityRotationDiv)
 
     rigidBody.RenderPhi();
 
-    rigidBody.SetVelocities(glm::vec2(v[0], v[1]), w);
+    rigidBody.SetVelocities(glm::vec2(v[0], v[1]) * glm::vec2(size.x), w);
     rigidBody.BindDiv(data.B, data.Diagonal);
     pressure.BuildLinearEquation();
     rigidBody.Div();
@@ -699,7 +699,7 @@ TEST(RigidbodyTests, VelocityConstrain)
     extrapolation.ConstrainBind(solidPhi);
     extrapolation.ConstrainVelocity();
 
-    rigidBody.SetVelocities(solid_velocity * glm::vec2((float)size.x), 0.0f);
+    rigidBody.SetVelocities(solid_velocity * glm::vec2(size.x), 0.0f);
     rigidBody.BindVelocityConstrain(velocity);
     rigidBody.VelocityConstrain();
 

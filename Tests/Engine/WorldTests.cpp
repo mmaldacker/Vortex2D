@@ -36,7 +36,7 @@ float PressureRigidbody_VelocityTest(float scale)
     glm::vec2 rectangleSize(32.0f, 256.0f);
     Fluid::Rectangle rectangle(*device, rectangleSize);
 
-    auto* rigidbody = world.CreateRigidbody(Fluid::RigidBody::Type::eStrong, 1.0f, 1.0f, rectangle, rectangleSize / glm::vec2(2.0f));
+    auto* rigidbody = world.CreateRigidbody(Fluid::RigidBody::Type::eWeak, 0.0f, 0.0f, rectangle, {0.0f, 0.0f});
     rigidbody->Anchor = rectangleSize / glm::vec2(2.0f);
     rigidbody->Position = size / glm::vec2(2.0f);
     rigidbody->UpdatePosition();
@@ -54,8 +54,8 @@ float PressureRigidbody_VelocityTest(float scale)
     std::cout << "Scale " << scale << " Force (" << force << ")" << std::endl;
 
     // FIXME relatively big error
-    EXPECT_NEAR(forces.angular_velocity, 0.0f, 1.0f);
-    EXPECT_NEAR(forces.velocity.y, 0.0f, 1.0f);
+    EXPECT_NEAR(forces.angular_velocity, 0.0f, 0.1f);
+    EXPECT_NEAR(forces.velocity.y, 0.0f, 0.1f);
 
     device->Handle().waitIdle();
 
@@ -98,7 +98,7 @@ float PressureRigidbody_RotationTest(float scale)
     glm::vec2 rectangleSize(32.0f, 256.0f);
     Fluid::Rectangle rectangle(*device, rectangleSize);
 
-    auto* rigidbody = world.CreateRigidbody(Fluid::RigidBody::Type::eStrong, 1.0f, 1.0f, rectangle, rectangleSize / glm::vec2(2.0f));
+    auto* rigidbody = world.CreateRigidbody(Fluid::RigidBody::Type::eWeak, 0.0f, 0.0f, rectangle, {0.0f, 0.0f});
     rigidbody->Anchor = rectangleSize / glm::vec2(2.0f);
     rigidbody->Position = size / glm::vec2(2.0f);
     rigidbody->UpdatePosition();
@@ -118,7 +118,7 @@ float PressureRigidbody_RotationTest(float scale)
 
     auto forces = rigidbody->GetForces();
     float force = forces.angular_velocity;
-    std::cout << "Scale " << scale << " Force (" << force << ")" << std::endl;
+    std::cout << "Scale " << scale << " Torque (" << force << ")" << std::endl;
 
     // FIXME relatively big error
     EXPECT_NEAR(forces.velocity.x, 0.0f, 10.0f);

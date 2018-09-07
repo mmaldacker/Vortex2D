@@ -140,6 +140,7 @@ public:
 
 private:
     float mScale;
+    float mSize;
     float mDelta;
 
     const Renderer::Device& mDevice;

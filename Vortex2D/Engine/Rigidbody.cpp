@@ -25,6 +25,7 @@ RigidBody::RigidBody(const Renderer::Device& device,
                      float mass,
                      float inertia)
     : mScale(dimensions.Scale)
+    , mSize(dimensions.Size.x)
     , mDelta(delta)
     , mDevice(device)
     , mPhi(device, dimensions.Size.x, dimensions.Size.y, vk::Format::eR32Sfloat)
@@ -62,15 +63,12 @@ RigidBody::RigidBody(const Renderer::Device& device,
 
     SetVelocities(glm::vec2(0.0f), 0.0f);
 
-    if (type & Type::eStatic)
-    {
-        mPhiRender = phi.Record({mDrawable}, UnionBlend);
-    }
+    mPhiRender = phi.Record({mDrawable}, UnionBlend);
 }
 
 void RigidBody::SetVelocities(const glm::vec2& velocity, float angularVelocity)
 {
-    Velocity v{velocity / glm::vec2(mScale), angularVelocity};
+    Velocity v{velocity / glm::vec2(mScale * mSize), angularVelocity};
 
     Renderer::CopyFrom(mLocalVelocity, v);
     mVelocityCmd.Submit();
@@ -97,10 +95,7 @@ void RigidBody::UpdatePosition()
 void RigidBody::RenderPhi()
 {
     mLocalPhiRender.Submit(GetTransform());
-    if (mType & Type::eStatic)
-    {
-        mPhiRender.Submit(GetTransform());
-    }
+    mPhiRender.Submit(GetTransform());
 }
 
 void RigidBody::BindDiv(Renderer::GenericBuffer& div,

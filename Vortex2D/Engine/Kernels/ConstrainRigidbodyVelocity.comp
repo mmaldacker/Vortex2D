@@ -35,8 +35,8 @@ layout(binding = 4) uniform MV
 
 vec2 get_velocity(vec2 pos)
 {
-    vec2 dir = vec2(-pos.y, pos.x);
-    return (velocity.value.velocity + dir * velocity.value.angular_velocity) / vec2(consts.width);
+    vec2 dir = vec2(-pos.y, pos.x) / vec2(consts.width);
+    return velocity.value.velocity + dir * velocity.value.angular_velocity;
 }
 
 void main()
