@@ -7,7 +7,7 @@ if (APPLE)
 endif()
 download_project(PROJ                glfw3
                  GIT_REPOSITORY      https://github.com/glfw/glfw.git
-                 GIT_TAG             master
+                 GIT_TAG             3.2.1
                  ${UPDATE_DISCONNECTED_IF_AVAILABLE})
 add_subdirectory(${glfw3_SOURCE_DIR} ${glfw3_BINARY_DIR})
 
