@@ -79,6 +79,17 @@ void CheckPhi(const glm::ivec2& size, FluidSim& sim, Texture& phi, float error =
     }
 }
 
+void ProjectParticles(FluidSim& sim)
+{
+    for (unsigned int p = 0; p < sim.particles.size(); ++p)
+    {
+        if (sim.rbd)
+        {
+            sim.rbd->testCollisionAndProject(sim.particles[p], sim.particles[p]);
+        }
+    }
+}
+
 // TODO increase sizes of all tests below to 50
 
 TEST(RigidbodyTests, Phi)
@@ -508,6 +519,7 @@ TEST(RigidbodyTests, Pressure)
     sim.rbd->setAngle(0.0);
     sim.rbd->setAngularMomentum(0.0f);
     sim.rbd->setLinearVelocity(Vec2f(0.0f, 0.0f));
+    ProjectParticles(sim);
 
     sim.update_rigid_body_grids();
 
@@ -586,6 +598,7 @@ TEST(RigidbodyTests, PressureVelocity)
     sim.rbd->setAngle(0.0);
     sim.rbd->setAngularMomentum(0.0f);
     sim.rbd->setLinearVelocity(Vec2f(0.1f, 0.0f));
+    ProjectParticles(sim);
 
     // get velocities
     Vec2f v;
