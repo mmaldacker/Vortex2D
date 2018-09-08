@@ -83,7 +83,9 @@ set(LIB_HEADERS
     "Renderer/Transformable.h"
     "Renderer/Work.h"
     "SPIRV/Reflection.h"
-    "Utils/variant.hpp"
+    "Utils/mapbox/variant.hpp"
+    "Utils/mapbox/variant_visitor.hpp"
+    "Utils/mapbox/recursive_wrapper.hpp"
     "Utils/vk_mem_alloc.h")
 
 file(GLOB SHADER_SOURCES

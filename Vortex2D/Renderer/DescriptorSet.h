@@ -10,7 +10,7 @@
 #include <Vortex2D/Renderer/Buffer.h>
 #include <Vortex2D/Renderer/Texture.h>
 
-#include <Vortex2D/Utils/variant.hpp>
+#include <Vortex2D/Utils/mapbox/variant.hpp>
 #include <map>
 
 namespace Vortex2D {
@@ -123,7 +123,7 @@ struct BindingInput
     VORTEX2D_API BindingInput(vk::Sampler sampler, Renderer::Texture& texture,  uint32_t bind = DefaultBind);
 
     uint32_t Bind;
-    mpark::variant<Renderer::GenericBuffer*, DescriptorImage> Input;
+    mapbox::util::variant<Renderer::GenericBuffer*, DescriptorImage> Input;
 };
 
 /**

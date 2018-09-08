@@ -12,37 +12,6 @@
 
 namespace Vortex2D { namespace Renderer {
 
-namespace
-{
-
-template <class... Fs>
-struct overload;
-
-template <class F0, class... Frest>
-struct overload<F0, Frest...> : F0, overload<Frest...>
-{
-    overload(F0 f0, Frest... rest) : F0(f0), overload<Frest...>(rest...) {}
-
-    using F0::operator();
-    using overload<Frest...>::operator();
-};
-
-template <class F0>
-struct overload<F0> : F0
-{
-    overload(F0 f0) : F0(f0) {}
-
-    using F0::operator();
-};
-
-template <class... Fs>
-auto make_visitor(Fs... fs)
-{
-    return overload<Fs...>(fs...);
-}
-
-}
-
 bool operator==(const ShaderLayout& left, const ShaderLayout& right)
 {
     return left.bindings == right.bindings &&
@@ -233,61 +202,59 @@ void Bind(const Device& device, vk::DescriptorSet dstSet, const PipelineLayout& 
 
     for (std::size_t i = 0; i < bindingInputs.size(); i++)
     {
-        auto visitor = make_visitor(
-            [&](Renderer::GenericBuffer* buffer)
+        bindingInputs[i].Input.match(
+        [&](Renderer::GenericBuffer* buffer)
+        {
+            uint32_t bind = bindingInputs[i].Bind == BindingInput::DefaultBind ? static_cast<uint32_t>(i) : bindingInputs[i].Bind;
+
+            auto descriptorType = GetDescriptorType(bind, layout);
+            if (descriptorType != vk::DescriptorType::eStorageBuffer &&
+            descriptorType != vk::DescriptorType::eUniformBuffer) throw std::runtime_error("Binding not a storage buffer");
+
+            auto writeDescription = vk::WriteDescriptorSet()
+                .setDstSet(dstSet)
+                .setDstBinding(bind)
+                .setDstArrayElement(0)
+                .setDescriptorType(descriptorType)
+                .setPBufferInfo(bufferInfo.data() + numBuffers);
+            descriptorWrites.push_back(writeDescription);
+
+            if (!descriptorWrites.empty() && numBuffers != bufferInfo.size() && descriptorWrites.back().pBufferInfo)
             {
-                uint32_t bind = bindingInputs[i].Bind == BindingInput::DefaultBind ? static_cast<uint32_t>(i) : bindingInputs[i].Bind;
-
-                auto descriptorType = GetDescriptorType(bind, layout);
-                if (descriptorType != vk::DescriptorType::eStorageBuffer &&
-                descriptorType != vk::DescriptorType::eUniformBuffer) throw std::runtime_error("Binding not a storage buffer");
-
-                auto writeDescription = vk::WriteDescriptorSet()
-                    .setDstSet(dstSet)
-                    .setDstBinding(bind)
-                    .setDstArrayElement(0)
-                    .setDescriptorType(descriptorType)
-                    .setPBufferInfo(bufferInfo.data() + numBuffers);
-                descriptorWrites.push_back(writeDescription);
-
-                if (!descriptorWrites.empty() && numBuffers != bufferInfo.size() && descriptorWrites.back().pBufferInfo)
-                {
-                    descriptorWrites.back().descriptorCount++;
-                    bufferInfo[numBuffers++] = vk::DescriptorBufferInfo(buffer->Handle(), 0, buffer->Size());
-                }
-                else
-                {
-                    assert(false);
-                }
-            },
-            [&](DescriptorImage image)
+                descriptorWrites.back().descriptorCount++;
+                bufferInfo[numBuffers++] = vk::DescriptorBufferInfo(buffer->Handle(), 0, buffer->Size());
+            }
+            else
             {
-                uint32_t bind = bindingInputs[i].Bind == BindingInput::DefaultBind ? static_cast<uint32_t>(i) : bindingInputs[i].Bind;
+                assert(false);
+            }
+        },
+        [&](DescriptorImage image)
+        {
+            uint32_t bind = bindingInputs[i].Bind == BindingInput::DefaultBind ? static_cast<uint32_t>(i) : bindingInputs[i].Bind;
 
-                auto descriptorType = GetDescriptorType(bind, layout);
-                if (descriptorType != vk::DescriptorType::eStorageImage &&
-                descriptorType != vk::DescriptorType::eCombinedImageSampler) throw std::runtime_error("Binding not an image");
+            auto descriptorType = GetDescriptorType(bind, layout);
+            if (descriptorType != vk::DescriptorType::eStorageImage &&
+            descriptorType != vk::DescriptorType::eCombinedImageSampler) throw std::runtime_error("Binding not an image");
 
-                auto writeDescription = vk::WriteDescriptorSet()
-                    .setDstSet(dstSet)
-                    .setDstBinding(bind)
-                    .setDstArrayElement(0)
-                    .setDescriptorType(descriptorType)
-                    .setPImageInfo(imageInfo.data() + numImages);
-                descriptorWrites.push_back(writeDescription);
+            auto writeDescription = vk::WriteDescriptorSet()
+                .setDstSet(dstSet)
+                .setDstBinding(bind)
+                .setDstArrayElement(0)
+                .setDescriptorType(descriptorType)
+                .setPImageInfo(imageInfo.data() + numImages);
+            descriptorWrites.push_back(writeDescription);
 
-                if (!descriptorWrites.empty() && numImages != imageInfo.size() && descriptorWrites.back().pImageInfo)
-                {
-                    descriptorWrites.back().descriptorCount++;
-                    imageInfo[numImages++] = vk::DescriptorImageInfo(image.Sampler, image.Texture->GetView(), vk::ImageLayout::eGeneral);
-                }
-                else
-                {
-                    assert(false);
-                }
-            });
-
-        mpark::visit(visitor, bindingInputs[i].Input);
+            if (!descriptorWrites.empty() && numImages != imageInfo.size() && descriptorWrites.back().pImageInfo)
+            {
+                descriptorWrites.back().descriptorCount++;
+                imageInfo[numImages++] = vk::DescriptorImageInfo(image.Sampler, image.Texture->GetView(), vk::ImageLayout::eGeneral);
+            }
+            else
+            {
+                assert(false);
+            }
+        });
     }
 
     device.Handle().updateDescriptorSets(descriptorWrites, {});
