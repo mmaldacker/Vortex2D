@@ -2,8 +2,9 @@
 
 vec3 get_base(ivec2 pos)
 {
-  float u_term = get_weight(pos).x - get_weightxp(pos);
-  float v_term = get_weight(pos).y - get_weightyp(pos);
+  vec2 weight = get_weight(pos);
+  float u_term = weight.x - get_weightxp(pos);
+  float v_term = weight.y - get_weightyp(pos);
 
   vec4 centre = mv * vec4(consts.centre, 0.0, 1.0);
   vec2 rad = (pos + vec2(0.5) - centre.xy);
