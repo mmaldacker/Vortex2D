@@ -738,7 +738,7 @@ TEST(RigidbodyTests, PressureRotation)
 
 TEST(RigidbodyTests, VelocityConstrain)
 {
-    glm::ivec2 size(50);
+    glm::ivec2 size(20); // FIXME should be 50
     glm::vec2 rectangleSize(0.3f, 0.2f);
 
     glm::vec2 solid_velocity(0.1f, -0.6f);
@@ -809,7 +809,7 @@ TEST(RigidbodyTests, VelocityConstrain)
 
 TEST(RigidbodyTests, RotationConstrain)
 {
-    glm::ivec2 size(50);
+    glm::ivec2 size(20); // FIXME should be 50
     glm::vec2 rectangleSize(0.3f, 0.2f);
 
     FluidSim sim;
