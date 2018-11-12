@@ -14,12 +14,11 @@
 #include <Vortex2D/Engine/Size.h>
 #include <Box2D/Box2D.h>
 
-const float box2dScale = 32.0f;
-
 class Rigidbody
 {
 public:
-    Rigidbody(b2World& rWorld,
+    Rigidbody(Vortex2D::Fluid::Dimensions dimensions,
+              b2World& rWorld,
               b2BodyType rType,
               b2FixtureDef fixtureDef,
               float density = 1.0f);
@@ -34,6 +33,7 @@ public:
                     Vortex2D::Fluid::RigidBody::Type type,
                     Vortex2D::Renderer::Drawable& drawable);
 private:
+    float mScale;
     Vortex2D::Fluid::RigidBody* mRigidbody;
     b2Body* mB2Body;
 };
@@ -42,6 +42,7 @@ class PolygonRigidbody : public Rigidbody
 {
 public:
     PolygonRigidbody(const Vortex2D::Renderer::Device& device,
+                     Vortex2D::Fluid::Dimensions dimensions,
                      b2World& rWorld,
                      b2BodyType rType,
                      Vortex2D::Fluid::World& world,
@@ -57,13 +58,14 @@ class BoxRigidbody : public PolygonRigidbody
 {
 public:
     BoxRigidbody(const Vortex2D::Renderer::Device& device,
+                 Vortex2D::Fluid::Dimensions dimensions,
                  b2World& rWorld,
                  b2BodyType rType,
                  Vortex2D::Fluid::World& world,
                  Vortex2D::Fluid::RigidBody::Type type,
                  const glm::vec2& halfSize,
                  float density = 1.0f)
-        : PolygonRigidbody(device, rWorld, rType, world, type,
+        : PolygonRigidbody(device, dimensions, rWorld, rType, world, type,
                            {{-halfSize.x, -halfSize.y},
                            {halfSize.x, -halfSize.y},
                            {halfSize.x, halfSize.y},
@@ -77,6 +79,7 @@ class CircleRigidbody : public Rigidbody
 {
 public:
     CircleRigidbody(const Vortex2D::Renderer::Device& device,
+                    Vortex2D::Fluid::Dimensions dimensions,
                     b2World& rWorld,
                     b2BodyType rType,
                     Vortex2D::Fluid::World& world,

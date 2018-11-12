@@ -68,7 +68,6 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
 
 Renderer::RenderCommand World::RecordVelocity(Renderer::RenderTarget::DrawableList drawables)
 {
-
     Renderer::ColorBlendState blendState;
     blendState.ColorBlend
             .setBlendEnable(true)

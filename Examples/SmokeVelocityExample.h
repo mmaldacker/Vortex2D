@@ -32,7 +32,7 @@ public:
         , world(device, dimensions, dt)
         , clearObstacles({1000.0f, 0.0f, 0.0f, 0.0f})
         , rWorld({0.0f, 0.0f})
-        , body(device, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eWeak, {200.0f, 50.0f})
+        , body(device, dimensions, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eWeak, {350.0f, 50.0f})
         , solidPhi(device, body.Phi(), dimensions.Scale)
     {
         solidPhi.Scale = density.Scale = (glm::vec2)dimensions.Scale;
@@ -65,7 +65,7 @@ public:
         densityRender = density.Record({source1, source2});
 
         // Draw rigid body
-        body.SetTransform({300.0f, 500.0f}, -45.0f);
+        body.SetTransform({400.0f, 400.0f}, -45.0f);
 
         Vortex2D::Renderer::ColorBlendState blendState;
         blendState.ColorBlend

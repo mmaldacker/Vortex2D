@@ -31,10 +31,10 @@ public:
         , world(device, dimensions, dt)
         , solidPhi(world.SolidDistanceField())
         , velocityClear({0.0f, 0.0f, 0.0f, 0.0f})
-        , rWorld({0.0f, 10.0f})
-        , body1(device, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {100.0f, 50.0f})
-        , body2(device, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {50.0f, 50.0f})
-        , bottom(device, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {500.0f, 20.0f})
+        , rWorld({0.0f, 100.0f})
+        , body1(device, dimensions, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {100.0f, 50.0f})
+        , body2(device, dimensions, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {50.0f, 50.0f})
+        , bottom(device, dimensions, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {500.0f, 20.0f})
     {
         solidPhi.Scale = density.Scale = glm::vec2(dimensions.Scale);
         world.FieldBind(density);
@@ -64,13 +64,13 @@ public:
 
         // First body
         body1.SetTransform({200.0f, 200.0f}, 45.0f);
-        body1.Body().ApplyAngularImpulse(50.0f, true);
-        body1.Body().ApplyForceToCenter({1000.0f, 0.0f}, true);
+        body1.Body().ApplyAngularImpulse(5e5f, true);
+        body1.Body().ApplyForceToCenter({1e5f, 0.0f}, true);
 
         // Second body
         body2.SetTransform({800.0f, 300.0f}, 0.0f);
-        body2.Body().ApplyAngularImpulse(-10.0f, true);
-        body2.Body().ApplyForceToCenter({-1000.0f, 0.0f}, true);
+        body2.Body().ApplyAngularImpulse(-1e5f, true);
+        body2.Body().ApplyForceToCenter({-1e5f, 0.0f}, true);
 
         // Bottom
         bottom.SetTransform({512.0f, 1000.5f}, 0.0f);
