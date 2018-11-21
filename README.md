@@ -59,7 +59,6 @@ make -j 4
 In no particular order:
 
 * Bicubic interpolation
-* Strong rigidbody coupling
 * Dynamic timestep
 * Improved/faster solver
 * Fire 
