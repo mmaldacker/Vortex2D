@@ -30,7 +30,7 @@ function(compile_shader)
     endif()
     message("Using compiler: ${GLSL_VALIDATOR}")
 
-    set(COMPILE_SCRIPT ${CMAKE_SOURCE_DIR}/Scripts/GenerateSPIRV.py)
+    set(COMPILE_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/../Scripts/GenerateSPIRV.py)
     add_custom_command(
        OUTPUT "${SHADER_OUTPUT}.h" "${SHADER_OUTPUT}.cpp"
        COMMAND ${PYTHON_EXECUTABLE} ${COMPILE_SCRIPT} --compiler ${GLSL_VALIDATOR} --output ${SHADER_OUTPUT} ${SHADER_SOURCES}

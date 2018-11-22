@@ -198,7 +198,7 @@ target_link_libraries(vortex2d PUBLIC glm ${VULKAN_LIBRARIES} PRIVATE spirv-cros
 
 target_include_directories(vortex2d
     PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/..
         $<BUILD_INTERFACE:${VULKAN_INCLUDES}>
         $<INSTALL_INTERFACE:include/Vortex2D>
     PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
@@ -206,6 +206,18 @@ target_include_directories(vortex2d
 # windows definition to correctly generate the dll
 if(WIN32)
     target_compile_definitions(vortex2d PRIVATE VORTEX2D_API_EXPORTS)
+
+    # Copy dlls
+    function(vortex2d_copy_dll)
+        list(GET ARGN 0 target)
+        list(REMOVE_AT ARGN 0)
+
+        add_custom_command(
+        TARGET ${target} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+            $<TARGET_FILE:vortex2d>
+            $<TARGET_FILE_DIR:${target}>)
+    endfunction()
 endif()
 
 install(TARGETS vortex2d
