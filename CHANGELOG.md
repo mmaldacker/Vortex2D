@@ -1,3 +1,12 @@
+# Release 1.3
+
+* Added strong rigidbody coupling
+* Added support for blend constants
+* Scaling of velocities when setting them in rigidbodies
+* Using mapbox variant class
+* Fix rigidbody div calculation
+* Fix rigidbody centre calculation
+
 # Release 1.2.1
 
 * Fix broken particle unit-test from glm update
