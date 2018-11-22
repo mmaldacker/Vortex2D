@@ -496,9 +496,9 @@ TEST(RigidbodyTests, Force)
     auto rigidbodyForce = rigidBody.GetForces();
 
     Vortex2D::Fluid::RigidBody::Velocity newForce;
-    newForce.velocity.x = v[0] + 0.01f * rigidbodyForce.velocity.x / sim.rigid_u_mass;
-    newForce.velocity.y = v[1] + 0.01f * rigidbodyForce.velocity.y / sim.rigid_v_mass;
-    newForce.angular_velocity = angular_momentum + 0.01f * rigidbodyForce.angular_velocity;
+    newForce.velocity.x = v[0] + 0.01f * rigidbodyForce.velocity.x / (sim.rigid_u_mass * size.x);
+    newForce.velocity.y = v[1] + 0.01f * rigidbodyForce.velocity.y / (sim.rigid_v_mass * size.x);
+    newForce.angular_velocity = angular_momentum + 0.01f * rigidbodyForce.angular_velocity / (size.x * size.x);
 
     EXPECT_NEAR(new_angular_momentum, newForce.angular_velocity, 1e-5f);
     EXPECT_NEAR(new_vel[0], newForce.velocity.x, 1e-5f);
