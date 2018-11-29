@@ -89,7 +89,7 @@ Instance::Instance(const std::string& name, std::vector<const char*> extraExtens
     // configure instance
     auto appInfo = vk::ApplicationInfo()
             .setPApplicationName(name.c_str())
-            .setApiVersion(VK_MAKE_VERSION(1, 0, 65));
+            .setApiVersion(VK_MAKE_VERSION(1, 1, 0));
 
     vk::InstanceCreateInfo instanceInfo;
     instanceInfo
@@ -99,7 +99,16 @@ Instance::Instance(const std::string& name, std::vector<const char*> extraExtens
             .setEnabledLayerCount((uint32_t)layers.size())
             .setPpEnabledLayerNames(layers.data());
 
-    mInstance = vk::createInstanceUnique(instanceInfo);
+    try
+    {
+        mInstance = vk::createInstanceUnique(instanceInfo);
+    }
+    catch (const vk::IncompatibleDriverError&)
+    {
+        // vulkan 1.1 not available, try 1.0
+        appInfo.setApiVersion(VK_MAKE_VERSION(1, 0, 0));
+        mInstance = vk::createInstanceUnique(instanceInfo);
+    }
 
     // load debug ext
     if (HasExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME, availableExtensions))
