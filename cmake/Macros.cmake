@@ -23,7 +23,7 @@ set(vortex2d_macro__internal_dir ${CMAKE_CURRENT_LIST_DIR} CACHE INTERNAL "")
 
 # Function to compile the shaders and generate a C++ source file to include
 function(compile_shader)
-    cmake_parse_arguments(SHADER "" "OUTPUT VERSION" "SOURCES" ${ARGN})
+    cmake_parse_arguments(SHADER "" "OUTPUT;VERSION" "SOURCES" ${ARGN})
 
     if (NOT DEFINED GLSL_VALIDATOR)
       vortex2d_find_program(GLSL_VALIDATOR glslangValidator hints "$ENV{VULKAN_SDK}/Bin")
