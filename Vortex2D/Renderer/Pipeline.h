@@ -123,7 +123,7 @@ inline SpecConstInfo SpecConst(Args&&... args)
 {
     SpecConstInfo specConstInfo;
 
-    Detail::InsertSpecConst(specConstInfo, 0, 0, std::forward<Args>(args)...);
+    Detail::InsertSpecConst(specConstInfo, 1, 0, std::forward<Args>(args)...);
 
     specConstInfo.info
             .setMapEntryCount(static_cast<uint32_t>(specConstInfo.mapEntries.size()))
