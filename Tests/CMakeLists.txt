@@ -49,7 +49,7 @@ add_subdirectory(${FluidRigidCoupling2D_SOURCE_DIR} ${FluidRigidCoupling2D_BINAR
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
-compile_shader(SOURCES ${SHADER_TEST_SOURCES} OUTPUT "vortex2d_tests_generated_spirv")
+compile_shader(SOURCES ${SHADER_TEST_SOURCES} OUTPUT "vortex2d_tests_generated_spirv" VERSION 1.0)
 
 set(SOURCE_FILES
   ${ENGINE_TEST_SOURCES}

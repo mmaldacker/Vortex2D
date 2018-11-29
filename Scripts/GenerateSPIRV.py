@@ -8,6 +8,7 @@ parser = argparse.ArgumentParser(description='Compile to SPIRV and generate head
 parser.add_argument('files', metavar='files', nargs='+', help='list of glsl files')
 parser.add_argument('--output', action='store', dest='output', help='output file')
 parser.add_argument('--compiler', action='store', dest='compiler', help='location of spirv compiler')
+parser.add_argument('--vulkan_version', action='store', dest='version', help='vulkan version')
 
 args = parser.parse_args()
 
@@ -18,7 +19,7 @@ def genCArray(file):
   basename = ntpath.basename(file).replace('.', '_')
   temp_file = dirpath + '/' + basename + '.txt'
   try:
-    subprocess.check_output([args.compiler,'-V',file,'-x','-o',temp_file]).decode('utf-8')
+    subprocess.check_output([args.compiler,'--target-env', 'vulkan' + args.version, '-V',file,'-x','-o',temp_file]).decode('utf-8')
   except subprocess.CalledProcessError as e:
     print(e.output)
   content = None

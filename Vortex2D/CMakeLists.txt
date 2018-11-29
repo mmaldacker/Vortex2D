@@ -139,7 +139,7 @@ set_property(TARGET spirv-cross-core PROPERTY POSITION_INDEPENDENT_CODE ON)
 vortex2d_find_package(PythonInterp REQUIRED)
 vortex2d_find_vulkan()
 
-compile_shader(SOURCES ${SHADER_SOURCES} OUTPUT "vortex2d_generated_spirv")
+compile_shader(SOURCES ${SHADER_SOURCES} OUTPUT "vortex2d_generated_spirv" VERSION 1.0)
 
 add_library(vortex2d
   SHARED
