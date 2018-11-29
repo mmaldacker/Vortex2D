@@ -21,36 +21,34 @@ int ComputeSize::GetLocalSize1D()
     return 256;
 }
 
-glm::ivec2 ComputeSize::GetWorkSize(const glm::ivec2& size)
+glm::ivec2 ComputeSize::GetWorkSize(const glm::ivec2& size, const glm::ivec2& localSize)
 {
-    glm::vec2 localSize = GetLocalSize2D();
-    return glm::ceil(glm::vec2(size) / localSize);
+    return glm::ceil(glm::vec2(size) / glm::vec2(localSize));
 }
 
-glm::ivec2 ComputeSize::GetWorkSize(int size)
+glm::ivec2 ComputeSize::GetWorkSize(int size, int localSize)
 {
-    glm::vec2 localSize(GetLocalSize1D(), 1);
-    return glm::ceil(glm::vec2(size, 1) / localSize);
+    return glm::ceil(glm::vec2(size, 1) / glm::vec2(localSize, 1));
 }
 
-ComputeSize::ComputeSize(const glm::ivec2& size)
+ComputeSize::ComputeSize(const glm::ivec2& size, const glm::ivec2& localSize)
     : DomainSize(size)
-    , WorkSize(GetWorkSize(size))
-    , LocalSize(GetLocalSize2D())
+    , WorkSize(GetWorkSize(size, localSize))
+    , LocalSize(localSize)
 {
 }
 
-ComputeSize::ComputeSize(int size)
+ComputeSize::ComputeSize(int size, int localSize)
     : DomainSize({size, 1})
-    , WorkSize(GetWorkSize(size))
-    , LocalSize({GetLocalSize1D(), 1})
+    , WorkSize(GetWorkSize(size, localSize))
+    , LocalSize({localSize, 1})
 {
 
 }
 
 ComputeSize ComputeSize::Default2D()
 {
-    return ComputeSize({1, 1});
+    return ComputeSize(glm::ivec2{1});
 }
 
 ComputeSize ComputeSize::Default1D()

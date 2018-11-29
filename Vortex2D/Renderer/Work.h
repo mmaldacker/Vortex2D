@@ -34,16 +34,18 @@ struct ComputeSize
     /**
      * @brief Computes the 2D group size given a domain size
      * @param size the domain size of the shader
+     * @param localSize the local size of the shader
      * @return the group size
      */
-    static glm::ivec2 GetWorkSize(const glm::ivec2& size);
+    static glm::ivec2 GetWorkSize(const glm::ivec2& size, const glm::ivec2& localSize = GetLocalSize2D());
 
     /**
      * @brief Computes the 1D group size given a domain size
      * @param size the domain size of the shader
+     * @param localSize the local size of the shader
      * @return the group size
      */
-    static glm::ivec2 GetWorkSize(int size);
+    static glm::ivec2 GetWorkSize(int size, int localSize = GetLocalSize1D());
 
     /**
      * @brief A default ComputeSize using the default 2D local size. The domain size is (1,1)
@@ -60,14 +62,16 @@ struct ComputeSize
     /**
      * @brief Creates a ComputeSize using a 2D domain size and the default 2D local size.
      * @param size the domain size
+     * @param localSize the local size of the shader
      */
-    VORTEX2D_API ComputeSize(const glm::ivec2& size);
+    VORTEX2D_API ComputeSize(const glm::ivec2& size, const glm::ivec2& localSize = GetLocalSize2D());
 
     /**
      * @brief Creates a ComputeSize using a 1D domain size and the default 1D local size.
      * @param size the domain size
+     * @param localSize the local size of the shader
      */
-    VORTEX2D_API ComputeSize(int size);
+    VORTEX2D_API ComputeSize(int size, int localSize = GetLocalSize1D());
 
     glm::ivec2 DomainSize;
     glm::ivec2 WorkSize;
