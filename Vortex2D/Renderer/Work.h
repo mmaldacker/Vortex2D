@@ -23,13 +23,13 @@ struct ComputeSize
      * @brief The default local size for 2D compute shaders
      * @return a 2d vector
      */
-    static glm::ivec2 GetLocalSize2D();
+    VORTEX2D_API static glm::ivec2 GetLocalSize2D();
 
     /**
      * @brief The default local size for 1D compute shaders
      * @return a integer value
      */
-    static int GetLocalSize1D();
+    VORTEX2D_API static int GetLocalSize1D();
 
     /**
      * @brief Computes the 2D group size given a domain size
