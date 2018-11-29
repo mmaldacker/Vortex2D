@@ -100,7 +100,17 @@ Work::Work(const Device& device,
     auto layout = device.GetLayoutManager().GetPipelineLayout(mPipelineLayout);
 
     assert(mComputeSize.LocalSize.x > 0 && mComputeSize.LocalSize.y > 0);
-    mPipeline = MakeComputePipeline(device.Handle(), shaderModule, layout, mComputeSize.LocalSize.x, mComputeSize.LocalSize.y);
+
+    if (mComputeSize.LocalSize.y != 1)
+    {
+        auto specConst = SpecConst(mComputeSize.LocalSize.x, mComputeSize.LocalSize.y);
+        mPipeline = MakeComputePipeline(device.Handle(), shaderModule, layout, specConst);
+    }
+    else
+    {
+        auto specConst = SpecConst(mComputeSize.LocalSize.x);
+        mPipeline = MakeComputePipeline(device.Handle(), shaderModule, layout, specConst);
+    }
 }
 
 Work::Bound Work::Bind(ComputeSize computeSize, const std::vector<Renderer::BindingInput>& inputs)

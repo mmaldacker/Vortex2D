@@ -147,24 +147,13 @@ void GraphicsPipeline::Bind(vk::CommandBuffer commandBuffer, const RenderState& 
 vk::UniquePipeline MakeComputePipeline(vk::Device device,
                                        vk::ShaderModule shader,
                                        vk::PipelineLayout layout,
-                                       uint32_t localX,
-                                       uint32_t localY)
+                                       SpecConstInfo specConstInfo)
 {
-    glm::uvec2 localSize(localX, localY);
-    std::vector<vk::SpecializationMapEntry> mapEntries = {{1, offsetof(glm::uvec2, x), sizeof(glm::uvec2::x)},
-                                                          {2, offsetof(glm::uvec2, y), sizeof(glm::uvec2::y)}};
-
-    auto specialisationConst = vk::SpecializationInfo()
-            .setMapEntryCount(static_cast<uint32_t>(mapEntries.size()))
-            .setPMapEntries(mapEntries.data())
-            .setDataSize(sizeof(glm::uvec2))
-            .setPData(&localSize);
-
     auto stageInfo = vk::PipelineShaderStageCreateInfo()
             .setModule(shader)
             .setPName("main")
             .setStage(vk::ShaderStageFlagBits::eCompute)
-            .setPSpecializationInfo(&specialisationConst);
+            .setPSpecializationInfo(&specConstInfo.info);
 
     auto pipelineInfo = vk::ComputePipelineCreateInfo()
             .setStage(stageInfo)

@@ -83,11 +83,69 @@ private:
     PipelineList mPipelines;
 };
 
+/**
+ * @brief Defines and holds value of the specification constants for shaders
+ */
+struct SpecConstInfo
+{
+    vk::SpecializationInfo info;
+    std::vector<vk::SpecializationMapEntry> mapEntries;
+    std::vector<char> data;
+};
+
+namespace Detail
+{
+inline void InsertSpecConst(SpecConstInfo& , uint32_t , uint32_t )
+{
+
+}
+
+template<typename Arg, typename... Args>
+inline void InsertSpecConst(SpecConstInfo& specConstInfo,
+                     uint32_t id,
+                     uint32_t offset,
+                     Arg&& arg,
+                     Args&&... args)
+{
+    specConstInfo.data.resize(offset + sizeof(Arg));
+    std::memcpy(&specConstInfo.data[offset], &arg, sizeof(Arg));
+    specConstInfo.mapEntries.emplace_back(id, offset, sizeof(Arg));
+
+    InsertSpecConst(specConstInfo, id + 1, offset + sizeof(Arg), std::forward<Args>(args)...);
+}
+}
+
+/**
+ * @brief Constructs a @ref SpecConstInfo with given values of specialisation constants.
+ */
+template<typename...Args>
+inline SpecConstInfo SpecConst(Args&&... args)
+{
+    SpecConstInfo specConstInfo;
+
+    Detail::InsertSpecConst(specConstInfo, 0, 0, std::forward<Args>(args)...);
+
+    specConstInfo.info
+            .setMapEntryCount(static_cast<uint32_t>(specConstInfo.mapEntries.size()))
+            .setPMapEntries(specConstInfo.mapEntries.data())
+            .setDataSize(specConstInfo.data.size())
+            .setPData(specConstInfo.data.data());
+
+    return specConstInfo;
+}
+
+/**
+ * @brief Create a compute pipeline
+ * @param device vulkan device
+ * @param shader shader module
+ * @param layout layout of shader
+ * @param specConstInfo any specialisation constants
+ * @return compute pipeline
+ */
 VORTEX2D_API vk::UniquePipeline MakeComputePipeline(vk::Device device,
                                                     vk::ShaderModule shader,
                                                     vk::PipelineLayout layout,
-                                                    uint32_t localX = 16,
-                                                    uint32_t localY = 16);
+                                                    SpecConstInfo specConstInfo = {});
 
 }}
 
