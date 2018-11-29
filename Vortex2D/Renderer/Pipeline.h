@@ -88,6 +88,13 @@ private:
  */
 struct SpecConstInfo
 {
+    template<typename Type>
+    struct Value
+    {
+        uint32_t id;
+        Type value;
+    };
+
     vk::SpecializationInfo info;
     std::vector<vk::SpecializationMapEntry> mapEntries;
     std::vector<char> data;
@@ -95,24 +102,36 @@ struct SpecConstInfo
 
 namespace Detail
 {
-inline void InsertSpecConst(SpecConstInfo& , uint32_t , uint32_t )
+inline void InsertSpecConst(SpecConstInfo& specConstInfo)
 {
-
+    specConstInfo.info
+            .setMapEntryCount(static_cast<uint32_t>(specConstInfo.mapEntries.size()))
+            .setPMapEntries(specConstInfo.mapEntries.data())
+            .setDataSize(specConstInfo.data.size())
+            .setPData(specConstInfo.data.data());
 }
 
 template<typename Arg, typename... Args>
 inline void InsertSpecConst(SpecConstInfo& specConstInfo,
-                     uint32_t id,
-                     uint32_t offset,
-                     Arg&& arg,
-                     Args&&... args)
+                            Arg&& arg,
+                            Args&&... args)
 {
+    auto offset = specConstInfo.data.size();
     specConstInfo.data.resize(offset + sizeof(Arg));
-    std::memcpy(&specConstInfo.data[offset], &arg, sizeof(Arg));
-    specConstInfo.mapEntries.emplace_back(id, offset, sizeof(Arg));
+    std::memcpy(&specConstInfo.data[offset], &arg.value, sizeof(Arg));
+    specConstInfo.mapEntries.emplace_back(arg.id, offset, sizeof(Arg));
 
-    InsertSpecConst(specConstInfo, id + 1, offset + sizeof(Arg), std::forward<Args>(args)...);
+    InsertSpecConst(specConstInfo, std::forward<Args>(args)...);
 }
+}
+
+/**
+ * @brief Constructs a specialization constant value
+ */
+template<typename Type>
+inline SpecConstInfo::Value<Type> SpecConstValue(uint32_t id, Type&& value)
+{
+    return SpecConstInfo::Value<Type>{id, value};
 }
 
 /**
@@ -122,15 +141,7 @@ template<typename...Args>
 inline SpecConstInfo SpecConst(Args&&... args)
 {
     SpecConstInfo specConstInfo;
-
-    Detail::InsertSpecConst(specConstInfo, 1, 0, std::forward<Args>(args)...);
-
-    specConstInfo.info
-            .setMapEntryCount(static_cast<uint32_t>(specConstInfo.mapEntries.size()))
-            .setPMapEntries(specConstInfo.mapEntries.data())
-            .setDataSize(specConstInfo.data.size())
-            .setPData(specConstInfo.data.data());
-
+    Detail::InsertSpecConst(specConstInfo, std::forward<Args>(args)...);
     return specConstInfo;
 }
 

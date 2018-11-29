@@ -11,6 +11,7 @@
 #include <Vortex2D/Renderer/Buffer.h>
 #include <Vortex2D/Renderer/Texture.h>
 #include <Vortex2D/Renderer/DescriptorSet.h>
+#include <Vortex2D/Renderer/Pipeline.h>
 
 namespace Vortex2D { namespace Renderer {
 
@@ -114,10 +115,12 @@ public:
      * @param device vulkan device
      * @param computeSize the compute size. Can be a default one with size (1,1) or one with an actual size.
      * @param spirv binary spirv
+     * @param additionalSpecConstInfo additional specialization constants
      */
     VORTEX2D_API Work(const Device& device,
                       const ComputeSize& computeSize,
-                      const SpirvBinary& spirv);
+                      const SpirvBinary& spirv,
+                      const SpecConstInfo& additionalSpecConstInfo = {});
 
     /**
      * @brief Is a bound version of @ref Work. This means a buffer or texture was bound and this can be recorded in a command buffer.
@@ -132,11 +135,11 @@ public:
          * @param commandBuffer the command buffer where the compute work will also be recorded.
          * @param data the data to push. A total of 128 bytes can be used.
          */
-        template<typename ... Ts>
-        void PushConstant(vk::CommandBuffer commandBuffer, const Ts& ... data)
+        template<typename ... Args>
+        void PushConstant(vk::CommandBuffer commandBuffer, Args&&... args)
         {
           int offset = mComputeSize.DomainSize.y != 1 ? 8 : 4;
-          PushConstantOffset(commandBuffer, offset, data...);
+          PushConstantOffset(commandBuffer, offset, std::forward<Args>(args)...);
         }
 
         /**
@@ -161,22 +164,22 @@ public:
               vk::Pipeline pipeline,
               vk::UniqueDescriptorSet descriptor);
 
-        template<typename T>
-        void PushConstantOffset(vk::CommandBuffer commandBuffer, uint32_t offset, const T& data)
+        template<typename Arg>
+        void PushConstantOffset(vk::CommandBuffer commandBuffer, uint32_t offset, Arg&& arg)
         {
-            if (offset + sizeof(T) <= mPushConstantSize)
+            if (offset + sizeof(Arg) <= mPushConstantSize)
             {
-                commandBuffer.pushConstants(mLayout, vk::ShaderStageFlagBits::eCompute, offset, sizeof(T), &data);
+                commandBuffer.pushConstants(mLayout, vk::ShaderStageFlagBits::eCompute, offset, sizeof(Arg), &arg);
             }
         }
 
-        template<typename T, typename ... Ts>
-        void PushConstantOffset(vk::CommandBuffer commandBuffer, uint32_t offset, const T& data, const Ts& ... tail)
+        template<typename Arg, typename ... Args>
+        void PushConstantOffset(vk::CommandBuffer commandBuffer, uint32_t offset, Arg&& arg, Args&&... args)
         {
-            if (offset + sizeof(T) <= mPushConstantSize)
+            if (offset + sizeof(Arg) <= mPushConstantSize)
             {
-                commandBuffer.pushConstants(mLayout, vk::ShaderStageFlagBits::eCompute, offset, sizeof(T), &data);
-                PushConstantOffset(commandBuffer, offset + sizeof(T), tail...);
+                commandBuffer.pushConstants(mLayout, vk::ShaderStageFlagBits::eCompute, offset, sizeof(Arg), &arg);
+                PushConstantOffset(commandBuffer, offset + sizeof(Arg), std::forward<Args>(args)...);
             }
         }
 

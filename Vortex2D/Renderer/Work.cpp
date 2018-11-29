@@ -6,7 +6,6 @@
 #include "Work.h"
 
 #include <Vortex2D/Renderer/DescriptorSet.h>
-#include <Vortex2D/Renderer/Pipeline.h>
 #include <Vortex2D/SPIRV/Reflection.h>
 
 namespace Vortex2D { namespace Renderer {
@@ -88,7 +87,8 @@ DispatchParams::DispatchParams(int count)
 
 Work::Work(const Device& device,
            const ComputeSize& computeSize,
-           const SpirvBinary& spirv)
+           const SpirvBinary& spirv,
+           const SpecConstInfo& additionalSpecConstInfo)
     : mComputeSize(computeSize)
     , mDevice(device)
 {
@@ -99,17 +99,23 @@ Work::Work(const Device& device,
     mPipelineLayout = {{reflection}};
     auto layout = device.GetLayoutManager().GetPipelineLayout(mPipelineLayout);
 
-    assert(mComputeSize.LocalSize.x > 0 && mComputeSize.LocalSize.y > 0);
+    SpecConstInfo specConstInfo = additionalSpecConstInfo;
 
+    assert(mComputeSize.LocalSize.x > 0 && mComputeSize.LocalSize.y > 0);    
     if (mComputeSize.LocalSize.y != 1)
     {
-        auto specConst = SpecConst(mComputeSize.LocalSize.x, mComputeSize.LocalSize.y);
-        mPipeline = MakeComputePipeline(device.Handle(), shaderModule, layout, specConst);
+        Detail::InsertSpecConst(specConstInfo,
+                                SpecConstValue(1, mComputeSize.LocalSize.x),
+                                SpecConstValue(2, mComputeSize.LocalSize.y));
+
+        mPipeline = MakeComputePipeline(device.Handle(), shaderModule, layout, specConstInfo);
     }
     else
     {
-        auto specConst = SpecConst(mComputeSize.LocalSize.x);
-        mPipeline = MakeComputePipeline(device.Handle(), shaderModule, layout, specConst);
+        Detail::InsertSpecConst(specConstInfo,
+                                SpecConstValue(1, mComputeSize.LocalSize.x));
+
+        mPipeline = MakeComputePipeline(device.Handle(), shaderModule, layout, specConstInfo);
     }
 }
 
