@@ -188,7 +188,7 @@ void CopyFrom(BufferType<T>& buffer, const std::vector<T>& t)
  * @param oldAccess old access
  * @param newAccess new access
  */
-void BufferBarrier(vk::Buffer buffer, vk::CommandBuffer commandBuffer, vk::AccessFlags oldAccess, vk::AccessFlags newAccess);
+VORTEX2D_API void BufferBarrier(vk::Buffer buffer, vk::CommandBuffer commandBuffer, vk::AccessFlags oldAccess, vk::AccessFlags newAccess);
 
 }}
 
