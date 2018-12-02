@@ -95,7 +95,7 @@ struct SpecConstInfo
         Type value;
     };
 
-    VORTEX2D_API SpecConstInfo() = default;
+    VORTEX2D_API SpecConstInfo();
 
     vk::SpecializationInfo info;
     std::vector<vk::SpecializationMapEntry> mapEntries;

@@ -144,6 +144,11 @@ void GraphicsPipeline::Bind(vk::CommandBuffer commandBuffer, const RenderState& 
     }
 }
 
+SpecConstInfo::SpecConstInfo()
+{
+
+}
+
 vk::UniquePipeline MakeComputePipeline(vk::Device device,
                                        vk::ShaderModule shader,
                                        vk::PipelineLayout layout,
