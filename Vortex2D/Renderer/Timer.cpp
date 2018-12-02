@@ -11,8 +11,6 @@ namespace Vortex2D { namespace Renderer {
 
 namespace
 {
-    const int queryCount = 128;
-
     uint64_t GetMask(uint32_t validBits)
     {
         if (validBits == 64)
@@ -21,7 +19,7 @@ namespace
         }
         else
         {
-            return (1 << (validBits + 1)) - 1;
+            return (1 << validBits) - 1;
         }
     }
 }
@@ -39,6 +37,7 @@ Timer::Timer(const Device& device)
 
     mStart.Record([&](vk::CommandBuffer commandBuffer)
     {
+        commandBuffer.resetQueryPool(*mPool, 0, 2);
         commandBuffer.writeTimestamp(vk::PipelineStageFlagBits::eAllCommands, *mPool, 0);
     });
 
@@ -64,13 +63,9 @@ uint64_t Timer::GetElapsedNs()
     mStop.Wait();
 
     uint64_t timestamps[2] = {0};
-    auto result = mDevice.Handle().getQueryPoolResults(*mPool, 0, 2, sizeof(timestamps), timestamps, 0,
+    auto result = mDevice.Handle().getQueryPoolResults(*mPool, 0, 2, sizeof(timestamps), timestamps, sizeof(uint64_t),
                                                        vk::QueryResultFlagBits::eWait | vk::QueryResultFlagBits::e64);
 
-    ExecuteCommand(mDevice, [&](vk::CommandBuffer commandBuffer)
-    {
-        commandBuffer.resetQueryPool(*mPool, 0, 2);
-    });
 
     if (result == vk::Result::eSuccess)
     {
