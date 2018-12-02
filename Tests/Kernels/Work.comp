@@ -8,6 +8,7 @@ layout(std430, binding = 0) buffer Pos
 }pos;
 
 layout (local_size_x_id = 1, local_size_y_id = 2) in;
+layout (constant_id = 3) const int value = 0;
 
 layout(push_constant) uniform PushConsts
 {
@@ -24,7 +25,7 @@ void main()
   {
     if ((index.x + index.y) % 2 == 0)
     {
-      pos.numbers[index.x + index.y * consts.width] = 1;
+      pos.numbers[index.x + index.y * consts.width] = value;
     }
     else
     {

@@ -160,7 +160,7 @@ TEST(ComputeTests, ImageCompute)
 TEST(ComputeTests, Work)
 {
     Buffer<float> buffer(*device, 16*16, VMA_MEMORY_USAGE_CPU_ONLY);
-    Work work(*device, glm::ivec2(16), Work_comp);
+    Work work(*device, glm::ivec2(16), Work_comp, SpecConst(SpecConstValue(3, 1)));
 
     auto boundWork = work.Bind({buffer});
 
