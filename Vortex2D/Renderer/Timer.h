@@ -21,15 +21,20 @@ public:
 
     /**
      * @brief Start the timer after the current last command buffer
+     * @param commandBuffer command buffer to write timestamp
      */
-    VORTEX2D_API void Start();
+    VORTEX2D_API void Start(vk::CommandBuffer commandBuffer);
 
     /**
      * @brief Start the timer after the current last command buffer
      * @param commandBuffer command buffer to write timestamp
      */
-    VORTEX2D_API void Start(vk::CommandBuffer commandBuffer);
+    VORTEX2D_API void Stop(vk::CommandBuffer commandBuffer);
 
+    /**
+     * @brief Start the timer after the current last command buffer
+     */
+    VORTEX2D_API void Start();
 
     /**
      * @brief Stop the timer after the current last command buffer
@@ -37,10 +42,9 @@ public:
     VORTEX2D_API void Stop();
 
     /**
-     * @brief Start the timer after the current last command buffer
-     * @param commandBuffer command buffer to write timestamp
+     * @brief Wait for @ref Start and @ref Stop to finish before retrieving the results
      */
-    VORTEX2D_API void Stop(vk::CommandBuffer commandBuffer);
+    VORTEX2D_API void Wait();
 
     /**
      * @brief Get the elapsed time between the Start and Stop calls.

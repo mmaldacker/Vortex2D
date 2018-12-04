@@ -47,20 +47,10 @@ Timer::Timer(const Device& device)
     });
 }
 
-void Timer::Start()
-{
-    mStart.Submit();
-}
-
 void Timer::Start(vk::CommandBuffer commandBuffer)
 {
   commandBuffer.resetQueryPool(*mPool, 0, 2);
   commandBuffer.writeTimestamp(vk::PipelineStageFlagBits::eAllCommands, *mPool, 0);
-}
-
-void Timer::Stop()
-{
-    mStop.Submit();
 }
 
 void Timer::Stop(vk::CommandBuffer commandBuffer)
@@ -68,11 +58,24 @@ void Timer::Stop(vk::CommandBuffer commandBuffer)
     commandBuffer.writeTimestamp(vk::PipelineStageFlagBits::eAllCommands, *mPool, 1);
 }
 
+void Timer::Start()
+{
+    mStart.Submit();
+}
+
+void Timer::Stop()
+{
+    mStop.Submit();
+}
+
+void Timer::Wait()
+{
+  mStart.Wait();
+  mStop.Wait();
+}
+
 uint64_t Timer::GetElapsedNs()
 {
-    mStart.Wait();
-    mStop.Wait();
-
     uint64_t timestamps[2] = {0};
     auto result = mDevice.Handle().getQueryPoolResults(*mPool, 0, 2, sizeof(timestamps), timestamps, sizeof(uint64_t),
                                                        vk::QueryResultFlagBits::eWait | vk::QueryResultFlagBits::e64);
