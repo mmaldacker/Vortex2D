@@ -24,11 +24,23 @@ public:
      */
     VORTEX2D_API void Start();
 
+    /**
+     * @brief Start the timer after the current last command buffer
+     * @param commandBuffer command buffer to write timestamp
+     */
+    VORTEX2D_API void Start(vk::CommandBuffer commandBuffer);
+
 
     /**
      * @brief Stop the timer after the current last command buffer
      */
     VORTEX2D_API void Stop();
+
+    /**
+     * @brief Start the timer after the current last command buffer
+     * @param commandBuffer command buffer to write timestamp
+     */
+    VORTEX2D_API void Stop(vk::CommandBuffer commandBuffer);
 
     /**
      * @brief Get the elapsed time between the Start and Stop calls.

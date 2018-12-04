@@ -52,9 +52,20 @@ void Timer::Start()
     mStart.Submit();
 }
 
+void Timer::Start(vk::CommandBuffer commandBuffer)
+{
+  commandBuffer.resetQueryPool(*mPool, 0, 2);
+  commandBuffer.writeTimestamp(vk::PipelineStageFlagBits::eAllCommands, *mPool, 0);
+}
+
 void Timer::Stop()
 {
     mStop.Submit();
+}
+
+void Timer::Stop(vk::CommandBuffer commandBuffer)
+{
+    commandBuffer.writeTimestamp(vk::PipelineStageFlagBits::eAllCommands, *mPool, 1);
 }
 
 uint64_t Timer::GetElapsedNs()
