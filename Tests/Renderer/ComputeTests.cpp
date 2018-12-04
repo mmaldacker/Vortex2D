@@ -406,6 +406,7 @@ TEST(ComputeTests, Timer)
 
     cmd.Wait();
 
+    timer.Wait();
     auto time = timer.GetElapsedNs();
     ASSERT_NE(uint64_t(-1), time);
     ASSERT_NE(0, time);
