@@ -23,9 +23,9 @@ float PressureRigidbody_VelocityTest(float scale)
 {
     float dt = 0.01f;
     glm::vec2 size(1024.0f, 1024.0f);
+    size /= scale;
 
-    Fluid::Dimensions dimensions(size, scale);
-    Fluid::SmokeWorld world(*device, dimensions, dt);
+    Fluid::SmokeWorld world(*device, size, dt);
 
     Fluid::Density density(*device, size, vk::Format::eR8G8B8A8Unorm);
     world.FieldBind(density);
@@ -34,6 +34,8 @@ float PressureRigidbody_VelocityTest(float scale)
     world.RecordLiquidPhi({fluidClear}).Submit();
 
     glm::vec2 rectangleSize(32.0f, 256.0f);
+    rectangleSize /= scale;
+
     Fluid::Rectangle rectangle(*device, rectangleSize);
 
     float mass = rectangleSize.x * rectangleSize.y / (scale * scale);
@@ -47,7 +49,7 @@ float PressureRigidbody_VelocityTest(float scale)
     rigidbody->UpdatePosition();
 
     Renderer::Rectangle velocity(*device, size);
-    velocity.Colour = {10.0f, 0.0f, 0.0f, 0.0f};
+    velocity.Colour = {10.0f / scale, 0.0f, 0.0f, 0.0f};
 
     world.RecordVelocity({velocity}).Submit();
     world.Solve();
@@ -55,11 +57,11 @@ float PressureRigidbody_VelocityTest(float scale)
     device->Handle().waitIdle();
 
     auto forces = rigidbody->GetForces();
-    float force = scale * forces.velocity.x / mass;
-    std::cout << "Scale " << scale << " Mass " << mass << " Force (" << force  << ")" << std::endl;
+    float force = forces.velocity.x / (mass * scale);
+    std::cout << "Scale " << scale << " Mass " << mass << " Scaled Force (" << force << ")" << std::endl;
 
-    EXPECT_NEAR(forces.angular_velocity / inertia, 0.0f, 1e-2f);
-    EXPECT_NEAR(forces.velocity.y / mass, 0.0f, 1e-2f);
+    EXPECT_NEAR(forces.angular_velocity / (inertia * std::pow(scale, 4.0f)), 0.0f, 1e-2f);
+    EXPECT_NEAR(forces.velocity.y / (mass * scale), 0.0f, 1e-2f);
 
     device->Handle().waitIdle();
 
@@ -89,9 +91,9 @@ float PressureRigidbody_RotationTest(float scale)
 {
     float dt = 0.01f;
     glm::vec2 size(1024.0f, 1024.0f);
+    size /= scale;
 
-    Fluid::Dimensions dimensions(size, scale);
-    Fluid::SmokeWorld world(*device, dimensions, dt);
+    Fluid::SmokeWorld world(*device, size, dt);
 
     Fluid::Density density(*device, size, vk::Format::eR8G8B8A8Unorm);
     world.FieldBind(density);
@@ -100,6 +102,8 @@ float PressureRigidbody_RotationTest(float scale)
     world.RecordLiquidPhi({fluidClear}).Submit();
 
     glm::vec2 rectangleSize(32.0f, 256.0f);
+    rectangleSize /= scale;
+
     Fluid::Rectangle rectangle(*device, rectangleSize);
 
     float mass = rectangleSize.x * rectangleSize.y / (scale * scale);
@@ -114,11 +118,11 @@ float PressureRigidbody_RotationTest(float scale)
 
     Renderer::Rectangle velocityUp(*device, glm::vec2(size.x, size.y / 2.0f));
     velocityUp.Position = {0.0f, 0.0f};
-    velocityUp.Colour = {10.0f, 0.0f, 0.0f, 0.0f};
+    velocityUp.Colour = {10.0f / scale, 0.0f, 0.0f, 0.0f};
 
     Renderer::Rectangle velocityDown(*device, glm::vec2(size.x, size.y / 2.0f));
     velocityDown.Position = {0.0f, size.x / 2.0f};
-    velocityDown.Colour = {-10.0f, 0.0f, 0.0f, 0.0f};
+    velocityDown.Colour = {-10.0f / scale, 0.0f, 0.0f, 0.0f};
 
     world.RecordVelocity({velocityUp, velocityDown}).Submit();
     world.Solve();
@@ -126,11 +130,11 @@ float PressureRigidbody_RotationTest(float scale)
     device->Handle().waitIdle();
 
     auto forces = rigidbody->GetForces();
-    float force = forces.angular_velocity / inertia;
-    std::cout << "Scale " << scale << " Inertia " << inertia << " Torque (" << force << ")" << std::endl;
+    float force = forces.angular_velocity / (inertia * std::pow(scale, 4.0f));
+    std::cout << "Scale " << scale << " Inertia " << inertia << " Scaled Torque (" << force << ")" << std::endl;
 
-    EXPECT_NEAR(forces.velocity.x / mass, 0.0f, 1.0f);
-    EXPECT_NEAR(forces.velocity.y / mass, 0.0f, 1.0f);
+    EXPECT_NEAR(forces.velocity.x / (mass * scale), 0.0f, 2.0f);
+    EXPECT_NEAR(forces.velocity.y / (mass * scale), 0.0f, 2.0f);
 
     device->Handle().waitIdle();
 
@@ -161,9 +165,9 @@ TEST(WorldTests, VelocityScale)
     float dt = 0.01f;
     float scale = 2.0f;
     glm::vec2 size(512.0f, 512.0f);
+    size /= scale;
 
-    Fluid::Dimensions dimensions(size, scale);
-    Fluid::SmokeWorld world(*device, dimensions, dt);
+    Fluid::SmokeWorld world(*device, size, dt);
 
     Renderer::Clear fluidClear({-1.0f, 0.0f, 0.0f, 0.0f});
     world.RecordLiquidPhi({fluidClear}).Submit();
@@ -177,9 +181,9 @@ TEST(WorldTests, VelocityScale)
     device->Handle().waitIdle();
 
     float value = 10.0f / size.x;
-    std::vector<glm::vec2> velocityData(dimensions.Size.x * dimensions.Size.y, {value, 0.0f});
+    std::vector<glm::vec2> velocityData(size.x * size.y, {value, 0.0f});
 
-    CheckVelocity(*device, dimensions.Size, world.GetVelocity(), velocityData);
+    CheckVelocity(*device, size, world.GetVelocity(), velocityData);
 }
 
 TEST(CflTets, Max)
