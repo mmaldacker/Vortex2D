@@ -126,7 +126,7 @@ float World::GetCFL()
     return mCfl.Get();
 }
 
-Renderer::RenderTexture& World::GetVelocity()
+Renderer::Texture& World::GetVelocity()
 {
     return mVelocity;
 }

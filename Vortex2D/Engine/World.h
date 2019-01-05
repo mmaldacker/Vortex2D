@@ -112,7 +112,7 @@ public:
      * @brief Get the velocity, can be used to display it.
      * @return velocity field reference
      */
-    VORTEX2D_API Renderer::RenderTexture& GetVelocity();
+    VORTEX2D_API Renderer::Texture& GetVelocity();
 
 protected:
     const Renderer::Device& mDevice;
@@ -137,7 +137,6 @@ protected:
     Renderer::CommandBuffer mCopySolidPhi;
 
     std::vector<std::unique_ptr<RigidBody>> mRigidbodies;
-
     std::vector<std::reference_wrapper<Renderer::RenderCommand>> mVelocities;
 
     Cfl mCfl;
