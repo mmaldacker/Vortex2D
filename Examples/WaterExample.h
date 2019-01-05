@@ -25,7 +25,7 @@ public:
         , solidPhi(world.SolidDistanceField())
         , liquidPhi(world.LiquidDistanceField())
     {
-        gravity.Colour = {0.0f, 10.0f, 0.0f, 0.0f};
+        gravity.Colour = {0.0f, 3.0f, 0.0f, 0.0f};
 
         solidPhi.Colour = green;
         liquidPhi.Colour = blue;
@@ -75,7 +75,7 @@ public:
     void Step() override
     {
         world.SubmitVelocity(velocityRender);
-        world.Solve();
+        world.Step();
 
         windowRender.Submit();
     }

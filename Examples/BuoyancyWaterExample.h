@@ -17,7 +17,7 @@ extern glm::vec4 blue;
 
 class HydrostaticWaterExample : public Runner
 {
-    const float gravityForce = 300.0f;
+    const float gravityForce = 100.0f;
 
 public:
     HydrostaticWaterExample(const Vortex2D::Renderer::Device& device,
@@ -29,9 +29,9 @@ public:
         , solidPhi(world.SolidDistanceField())
         , liquidPhi(world.LiquidDistanceField())
         , rWorld(b2Vec2(0.0f, gravityForce))
-        , circle1(device, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 10.0f, 0.5f)
+        , circle1(device, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 10.0f, 0.8f)
         , circle2(device, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 10.0f, 0.9f)
-        , circle3(device, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 10.0f, 2.0f)
+        , circle3(device, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 10.0f, 1.1f)
         , left(device, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {5.0f, 125.0f})
         , right(device, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {5.0f, 125.0f})
         , bottom(device, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {250.0f, 5.0f})
@@ -63,9 +63,9 @@ public:
         bottom.Update();
 
         // Add circles
-        circle1.SetTransform({50.0f, 50.0f}, 0.0f);
-        circle2.SetTransform({125.0f, 50.0f}, 0.0f);
-        circle3.SetTransform({200.0f, 50.0f}, 0.0f);
+        circle1.SetTransform({50.0f, 100.0f}, 0.0f);
+        circle2.SetTransform({125.0f, 100.0f}, 0.0f);
+        circle3.SetTransform({200.0f, 100.0f}, 0.0f);
 
         // Set gravity
         velocityRender = world.RecordVelocity({gravity});
@@ -90,7 +90,7 @@ public:
         circle3.Update();
 
         world.SubmitVelocity(velocityRender);
-        world.Solve();
+        world.Step();
 
         const int velocityStep = 8;
         const int positionStep = 3;

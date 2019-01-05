@@ -85,7 +85,7 @@ public:
         velocityRender.Submit();
         densityRender.Submit();
 
-        world.Solve();
+        world.Step();
 
         windowRender.Submit();
     }

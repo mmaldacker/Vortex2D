@@ -43,14 +43,15 @@ public:
      * @param device vulkan device
      * @param size dimensions of the simulation
      * @param dt timestamp of the simulation, e.g. 0.016 for 60FPS simulations.
+     * @param numSubSteps the number of sub-steps to perform per step call. Reduces loss of fluid.
      */
-    World(const Renderer::Device& device, const glm::ivec2& size, float dt);
+    World(const Renderer::Device& device, const glm::ivec2& size, float dt, int numSubSteps = 1);
     virtual ~World() = default;
 
     /**
      * @brief Perform one step of the simulation.
      */
-    virtual void Solve() = 0;
+    VORTEX2D_API void Step();
 
     /**
      * @brief Record drawables to the velocity field. The colour (r,g) will be used as the velocity (x, y)
@@ -115,9 +116,12 @@ public:
     VORTEX2D_API Renderer::Texture& GetVelocity();
 
 protected:
+    virtual void Substep() = 0;
+
     const Renderer::Device& mDevice;
     glm::ivec2 mSize;
     float mDelta;
+    int mNumSubSteps;
 
     Multigrid mPreconditioner;
     ConjugateGradient mLinearSolver;
@@ -151,13 +155,14 @@ class SmokeWorld : public World
 public:
     VORTEX2D_API SmokeWorld(const Renderer::Device& device, const glm::ivec2& size, float dt);
 
-    VORTEX2D_API void Solve() override;
-
     /**
      * @brief Bind a density field to be moved around with the fluid
      * @param density the density field
      */
     VORTEX2D_API void FieldBind(Density& density);
+
+private:
+    void Substep() override;
 };
 
 /**
@@ -167,8 +172,6 @@ class WaterWorld : public World
 {
 public:
     VORTEX2D_API WaterWorld(const Renderer::Device& device, const glm::ivec2& size, float dt);
-
-    VORTEX2D_API void Solve() override;
 
     /**
      * @brief The water simulation uses particles to define the water area.
@@ -181,6 +184,8 @@ public:
     VORTEX2D_API Renderer::RenderCommand RecordParticleCount(Renderer::RenderTarget::DrawableList drawables);
 
 private:
+    void Substep() override;
+
     Renderer::GenericBuffer mParticles;
     ParticleCount mParticleCount;
 };

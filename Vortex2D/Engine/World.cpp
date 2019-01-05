@@ -21,11 +21,12 @@ std::vector<RigidBody*> GetRigidbodyPointers(const std::vector<std::unique_ptr<R
     return rigidBodiesPointers;
 }
 
-World::World(const Renderer::Device& device, const glm::ivec2& size, float dt)
+World::World(const Renderer::Device& device, const glm::ivec2& size, float dt, int numSubSteps)
     : mDevice(device)
     , mSize(size)
-    , mDelta(dt)
-    , mPreconditioner(device, size, dt)
+    , mDelta(dt / numSubSteps)
+    , mNumSubSteps(numSubSteps)
+    , mPreconditioner(device, size, mDelta)
     , mLinearSolver(device, size, mPreconditioner)
     , mData(device, size)
     , mVelocity(device, size)
@@ -33,8 +34,8 @@ World::World(const Renderer::Device& device, const glm::ivec2& size, float dt)
     , mStaticSolidPhi(device, size)
     , mDynamicSolidPhi(device, size)
     , mValid(device, size.x*size.y)
-    , mAdvection(device, size, dt, mVelocity)
-    , mProjection(device, dt, size,
+    , mAdvection(device, size, mDelta, mVelocity)
+    , mProjection(device, mDelta, size,
                   mData,
                   mVelocity,
                   mDynamicSolidPhi,
@@ -59,6 +60,14 @@ World::World(const Renderer::Device& device, const glm::ivec2& size, float dt)
     {
         mStaticSolidPhi.Clear(commandBuffer, std::array<float, 4>{{10000.0f, 0.0f, 0.0f, 0.0f}});
     });
+}
+
+void World::Step()
+{
+  for (int i = 0; i < mNumSubSteps; i++)
+  {
+      Substep();
+  }
 }
 
 Renderer::RenderCommand World::RecordVelocity(Renderer::RenderTarget::DrawableList drawables)
@@ -136,7 +145,7 @@ SmokeWorld::SmokeWorld(const Renderer::Device& device, const glm::ivec2& size, f
 {
 }
 
-void SmokeWorld::Solve()
+void SmokeWorld::Substep()
 {
     for (auto& velocity: mVelocities)
     {
@@ -162,7 +171,7 @@ void SmokeWorld::Solve()
         }
     }
 
-    LinearSolver::Parameters params(LinearSolver::Parameters::SolverType::Iterative, 300, 1e-3f);
+    LinearSolver::Parameters params(LinearSolver::Parameters::SolverType::Fixed, 18);
     mLinearSolver.Solve(params, GetRigidbodyPointers(mRigidbodies));
     mProjection.ApplyPressure();
 
@@ -195,7 +204,7 @@ void SmokeWorld::FieldBind(Density& density)
 }
 
 WaterWorld::WaterWorld(const Renderer::Device& device, const glm::ivec2& size, float dt)
-    : World(device, size, dt)
+    : World(device, size, dt, 2)
     , mParticles(device, vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eVertexBuffer, VMA_MEMORY_USAGE_GPU_ONLY, 8*size.x*size.y*sizeof(Particle))
     , mParticleCount(device, size, mParticles, {0}, 0.02f)
 {
@@ -204,7 +213,7 @@ WaterWorld::WaterWorld(const Renderer::Device& device, const glm::ivec2& size, f
     mAdvection.AdvectParticleBind(mParticles, mDynamicSolidPhi, mParticleCount.GetDispatchParams());
 }
 
-void WaterWorld::Solve()
+void WaterWorld::Substep()
 {
     /*
      1) From particles, construct fluid level set
@@ -253,7 +262,7 @@ void WaterWorld::Solve()
 
     // 5)
     mProjection.BuildLinearEquation();
-    LinearSolver::Parameters params(LinearSolver::Parameters::SolverType::Iterative, 300, 1e-5f);
+    LinearSolver::Parameters params(LinearSolver::Parameters::SolverType::Fixed, 12);
     mLinearSolver.Solve(params, GetRigidbodyPointers(mRigidbodies));
     mProjection.ApplyPressure();
 

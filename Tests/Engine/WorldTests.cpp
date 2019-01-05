@@ -52,7 +52,7 @@ float PressureRigidbody_VelocityTest(float scale)
     velocity.Colour = {10.0f / scale, 0.0f, 0.0f, 0.0f};
 
     world.RecordVelocity({velocity}).Submit();
-    world.Solve();
+    world.Step();
 
     device->Handle().waitIdle();
 
@@ -125,7 +125,7 @@ float PressureRigidbody_RotationTest(float scale)
     velocityDown.Colour = {-10.0f / scale, 0.0f, 0.0f, 0.0f};
 
     world.RecordVelocity({velocityUp, velocityDown}).Submit();
-    world.Solve();
+    world.Step();
 
     device->Handle().waitIdle();
 
@@ -176,7 +176,7 @@ TEST(WorldTests, VelocityScale)
     velocity.Colour = {10.0f, 0.0f, 0.0f, 0.0f};
 
     world.RecordVelocity({velocity}).Submit();
-    world.Solve();
+    world.Step();
 
     device->Handle().waitIdle();
 

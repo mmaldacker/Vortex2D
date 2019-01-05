@@ -94,7 +94,7 @@ public:
         body1.Update();
         body2.Update();
 
-        world.Solve();
+        world.Step();
 
         const int velocityStep = 8;
         const int positionStep = 3;

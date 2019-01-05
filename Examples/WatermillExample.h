@@ -127,7 +127,7 @@ private:
 
 class WatermillExample : public Runner
 {
-    const float gravityForce = 300.0f;
+    const float gravityForce = 100.0f;
 
 public:
     WatermillExample(const Vortex2D::Renderer::Device& device,
@@ -196,7 +196,7 @@ public:
 
         sourceRender.Submit();
         world.SubmitVelocity(velocityRender);
-        world.Solve();
+        world.Step();
 
         const int velocityStep = 8;
         const int positionStep = 3;

@@ -86,7 +86,7 @@ public:
         velocityRender.Submit();
         densityRender.Submit();
 
-        world.Solve();
+        world.Step();
 
         const int velocityStep = 8;
         const int positionStep = 3;
