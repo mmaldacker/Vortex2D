@@ -627,7 +627,7 @@ TEST(RigidbodyTests, PressureVelocity)
 
     Diagonal preconditioner(*device, size);
 
-    LinearSolver::Parameters params(1000, 1e-5f);
+    LinearSolver::Parameters params(LinearSolver::Parameters::SolverType::Iterative, 1000, 1e-5f);
     ConjugateGradient solver(*device, size, preconditioner);
 
     Vortex2D::Fluid::Rectangle rectangle(*device, rectangleSize * glm::vec2(size), false, size.x);
@@ -703,7 +703,7 @@ TEST(RigidbodyTests, PressureRotation)
 
     Diagonal preconditioner(*device, size);
 
-    LinearSolver::Parameters params(1000, 1e-5f);
+    LinearSolver::Parameters params(LinearSolver::Parameters::SolverType::Iterative, 1000, 1e-5f);
     ConjugateGradient solver(*device, size, preconditioner);
 
     Vortex2D::Fluid::Rectangle rectangle(*device, rectangleSize * glm::vec2(size), false, size.x);

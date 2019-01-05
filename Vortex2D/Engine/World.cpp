@@ -162,7 +162,7 @@ void SmokeWorld::Solve()
         }
     }
 
-    LinearSolver::Parameters params(300, 1e-3f);
+    LinearSolver::Parameters params(LinearSolver::Parameters::SolverType::Iterative, 300, 1e-3f);
     mLinearSolver.Solve(params, GetRigidbodyPointers(mRigidbodies));
     mProjection.ApplyPressure();
 
@@ -253,7 +253,7 @@ void WaterWorld::Solve()
 
     // 5)
     mProjection.BuildLinearEquation();
-    LinearSolver::Parameters params(300, 1e-5f);
+    LinearSolver::Parameters params(LinearSolver::Parameters::SolverType::Iterative, 300, 1e-5f);
     mLinearSolver.Solve(params, GetRigidbodyPointers(mRigidbodies));
     mProjection.ApplyPressure();
 

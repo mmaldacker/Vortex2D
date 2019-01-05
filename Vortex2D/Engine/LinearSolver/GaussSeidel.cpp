@@ -78,27 +78,34 @@ void GaussSeidel::BindRigidbody(Renderer::GenericBuffer& /*d*/,
 
 void GaussSeidel::Solve(Parameters& params, const std::vector<RigidBody*>& /*rigidbodies*/)
 {
-  mInitCmd.Submit();
-  mErrorCmd.Submit();
-  mErrorCmd.Wait();
+    mInitCmd.Submit();
 
-  Renderer::CopyTo(mLocalError, params.OutError);
-  if (params.OutError <= params.ErrorTolerance)
-  {
-      params.OutIterations = 0;
-      return;
-  }
+    if (params.Type == Parameters::SolverType::Iterative)
+    {
+        mErrorCmd.Submit();
+        mErrorCmd.Wait();
 
-  auto initialError = params.OutError;
-  for (unsigned i = 0; !params.IsFinished(initialError); ++i)
-  {
-      mErrorCmd.Submit();
-      mGaussSeidelCmd.Submit();
-      mErrorCmd.Wait();
+        Renderer::CopyTo(mLocalError, params.OutError);
+        if (params.OutError <= params.ErrorTolerance)
+        {
+            return;
+        }
 
-      params.OutIterations = i;
-      Renderer::CopyTo(mLocalError, params.OutError);
-  }
+        mErrorCmd.Submit();
+    }
+
+    auto initialError = params.OutError;
+    for (unsigned i = 0; !params.IsFinished(initialError); params.OutIterations = ++i)
+    {
+        mGaussSeidelCmd.Submit();
+
+        if (params.Type == Parameters::SolverType::Iterative)
+        {
+            mErrorCmd.Wait();
+            Renderer::CopyTo(mLocalError, params.OutError);
+            mErrorCmd.Submit();
+        }
+    }
 }
 
 void GaussSeidel::Record(vk::CommandBuffer commandBuffer)

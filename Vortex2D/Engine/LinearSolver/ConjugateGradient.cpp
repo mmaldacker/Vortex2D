@@ -157,21 +157,24 @@ void ConjugateGradient::BindRigidbody(Renderer::GenericBuffer& d,
 void ConjugateGradient::Solve(Parameters& params, const std::vector<RigidBody*>& rigidbodies)
 {
     mSolveInit.Submit();
-    mErrorRead.Submit();
-    mErrorRead.Wait();
 
-    Renderer::CopyTo(localError, params.OutError);
-    if (params.OutError <= params.ErrorTolerance)
+    if (params.Type == Parameters::SolverType::Iterative)
     {
-        params.OutIterations = 0;
-        return;
+        mErrorRead.Submit();
+        mErrorRead.Wait();
+
+        Renderer::CopyTo(localError, params.OutError);
+        if (params.OutError <= params.ErrorTolerance)
+        {
+            return;
+        }
+
+        mErrorRead.Submit();
     }
 
     auto initialError = params.OutError;
-    for (unsigned i = 0; !params.IsFinished(initialError); ++i)
+    for (unsigned i = 0; !params.IsFinished(initialError); params.OutIterations = ++i)
     {
-        mErrorRead.Submit();
-
         for (auto& rigidbody: rigidbodies)
         {
           if (rigidbody->GetType() == RigidBody::Type::eStrong)
@@ -181,10 +184,13 @@ void ConjugateGradient::Solve(Parameters& params, const std::vector<RigidBody*>&
         }
 
         mSolve.Submit();
-        mErrorRead.Wait();
 
-        params.OutIterations = i;
-        Renderer::CopyTo(localError, params.OutError);
+        if (params.Type == Parameters::SolverType::Iterative)
+        {
+            mErrorRead.Wait();
+            Renderer::CopyTo(localError, params.OutError);
+            mErrorRead.Submit();
+        }
     }
 }
 

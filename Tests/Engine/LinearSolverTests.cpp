@@ -208,7 +208,7 @@ TEST(LinearSolverTests, Simple_SOR)
 
     BuildLinearEquation(size, data.Diagonal, data.Lower, data.B, sim);
 
-    LinearSolver::Parameters params(1000, 1e-4f);
+    LinearSolver::Parameters params(LinearSolver::Parameters::SolverType::Iterative, 1000, 1e-4f);
     GaussSeidel solver(*device, size);
 
     solver.Bind(data.Diagonal, data.Lower, data.B, data.X);
@@ -240,7 +240,7 @@ TEST(LinearSolverTests, Complex_SOR)
 
     BuildLinearEquation(size, data.Diagonal, data.Lower, data.B, sim);
 
-    LinearSolver::Parameters params(1000, 1e-4f);
+    LinearSolver::Parameters params(LinearSolver::Parameters::SolverType::Iterative, 1000, 1e-4f);
     GaussSeidel solver(*device, size);
 
     solver.Bind(data.Diagonal, data.Lower, data.B, data.X);
@@ -306,7 +306,7 @@ TEST(LinearSolverTests, Diagonal_Simple_PCG)
 
     Diagonal preconditioner(*device, size);
 
-    LinearSolver::Parameters params(1000, 1e-5f);
+    LinearSolver::Parameters params(LinearSolver::Parameters::SolverType::Iterative, 1000, 1e-5f);
     ConjugateGradient solver(*device, size, preconditioner);
 
     solver.Bind(data.Diagonal, data.Lower, data.B, data.X);
@@ -342,7 +342,7 @@ TEST(LinearSolverTests, GaussSeidel_Simple_PCG)
     preconditioner.SetW(1.0f);
     preconditioner.SetPreconditionerIterations(8);
 
-    LinearSolver::Parameters params(1000, 1e-5f);
+    LinearSolver::Parameters params(LinearSolver::Parameters::SolverType::Iterative, 1000, 1e-5f);
     ConjugateGradient solver(*device, size, preconditioner);
 
     solver.Bind(data.Diagonal, data.Lower, data.B, data.X);
@@ -376,7 +376,7 @@ TEST(LinearSolverTests, IncompletePoisson_Simple_PCG)
 
     IncompletePoisson preconditioner(*device, size);
 
-    LinearSolver::Parameters params(1000, 1e-5f);
+    LinearSolver::Parameters params(LinearSolver::Parameters::SolverType::Iterative, 1000, 1e-5f);
     ConjugateGradient solver(*device, size, preconditioner);
 
     solver.Bind(data.Diagonal, data.Lower, data.B, data.X);
@@ -397,7 +397,7 @@ TEST(LinearSolverTests, Zero_PCG)
 
     Diagonal preconditioner(*device, size);
 
-    LinearSolver::Parameters params(1000, 1e-5f);
+    LinearSolver::Parameters params(LinearSolver::Parameters::SolverType::Iterative, 1000, 1e-5f);
     ConjugateGradient solver(*device, size, preconditioner);
 
     solver.Bind(data.Diagonal, data.Lower, data.B, data.X);
@@ -451,7 +451,7 @@ TEST(LinearSolverTests, Multigrid_Simple_PCG)
     Multigrid preconditioner(*device, size, 0.01f);
     preconditioner.BuildHierarchiesBind(pressure, solidPhi, liquidPhi);
 
-    LinearSolver::Parameters params(1000, 1e-5f);
+    LinearSolver::Parameters params(LinearSolver::Parameters::SolverType::Iterative, 1000, 1e-5f);
     ConjugateGradient solver(*device, size, preconditioner);
 
     solver.Bind(data.Diagonal, data.Lower, data.B, data.X);

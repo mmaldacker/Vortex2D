@@ -25,11 +25,21 @@ struct LinearSolver
     struct Parameters
     {
         /**
+         * @brief Run the solver a fixed number of step or until we reached a minimum error
+         */
+        enum class SolverType
+        {
+          Fixed,
+          Iterative,
+        };
+
+        /**
          * @brief Construct parameters with max iterations and max error
+         * @param type fixed or iterative type of solver
          * @param iterations max number of iterations to perform
          * @param errorTolerance solver stops when the error is smaller than this.
          */
-        VORTEX2D_API Parameters(unsigned iterations, float errorTolerance = 0.0f);
+        VORTEX2D_API Parameters(SolverType type, unsigned iterations, float errorTolerance = 0.0f);
 
         /**
          * @brief Checks if we've reacched the parameters.
@@ -38,6 +48,7 @@ struct LinearSolver
          */
         bool IsFinished(float initialError) const;
 
+        SolverType Type;
         unsigned Iterations;
         float ErrorTolerance;
         unsigned OutIterations;

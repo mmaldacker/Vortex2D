@@ -7,8 +7,9 @@
 
 namespace Vortex2D { namespace Fluid {
 
-LinearSolver::Parameters::Parameters(unsigned iterations, float errorTolerance)
-    : Iterations(iterations)
+LinearSolver::Parameters::Parameters(SolverType type, unsigned iterations, float errorTolerance)
+    : Type(type)
+    , Iterations(iterations)
     , ErrorTolerance(errorTolerance)
     , OutIterations(0)
     , OutError(0.0f)
@@ -26,6 +27,11 @@ LinearSolver::Data::Data(const Renderer::Device& device, const glm::ivec2& size,
 
 bool LinearSolver::Parameters::IsFinished(float initialError) const
 {
+    if (Type == SolverType::Fixed)
+    {
+      return OutIterations > Iterations;
+    }
+
     if (Iterations > 0)
     {
         return OutIterations > Iterations  || OutError <= ErrorTolerance * initialError;
