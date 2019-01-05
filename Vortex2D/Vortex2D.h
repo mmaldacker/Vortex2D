@@ -11,7 +11,6 @@
 #include <Vortex2D/Renderer/RenderTexture.h>
 #include <Vortex2D/Renderer/RenderWindow.h>
 
-#include <Vortex2D/Engine/Size.h>
 #include <Vortex2D/Engine/World.h>
 #include <Vortex2D/Engine/Density.h>
 

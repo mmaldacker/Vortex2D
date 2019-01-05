@@ -114,7 +114,7 @@ TEST(RigidbodyTests, Phi)
 
     Vortex2D::Fluid::Rectangle rectangle(*device, rectangleSize * glm::vec2(size), false, size.x);
     Vortex2D::Fluid::RigidBody rigidBody(*device,
-                                         Dimensions(size, 1.0f),
+                                         size,
                                          1.0f,
                                          rectangle, {0.0f, 0.0f},
                                          solidPhi,
@@ -174,7 +174,7 @@ TEST(RigidbodyTests, Div)
 
     Vortex2D::Fluid::Rectangle rectangle(*device, rectangleSize * glm::vec2(size), false, size.x);
     Vortex2D::Fluid::RigidBody rigidBody(*device,
-                                         Dimensions(size, 1.0f),
+                                         size,
                                          1.0f,
                                          rectangle, {0.0f, 0.0f},
                                          solidPhi,
@@ -236,7 +236,7 @@ TEST(RigidbodyTests, VelocityDiv)
 
     Vortex2D::Fluid::Rectangle rectangle(*device, rectangleSize * glm::vec2(size), false, size.x);
     Vortex2D::Fluid::RigidBody rigidBody(*device,
-                                         Dimensions(size, 1.0f),
+                                         size,
                                          1.0f,
                                          rectangle, {0.0f, 0.0f},
                                          solidPhi,
@@ -300,7 +300,7 @@ TEST(RigidbodyTests, RotationDiv)
 
     Vortex2D::Fluid::Rectangle rectangle(*device, rectangleSize * glm::vec2(size), false, size.x);
     Vortex2D::Fluid::RigidBody rigidBody(*device,
-                                         Dimensions(size, 1.0f),
+                                         size,
                                          1.0f,
                                          rectangle, {0.0f, 0.0f},
                                          solidPhi,
@@ -363,7 +363,7 @@ TEST(RigidbodyTests, VelocityRotationDiv)
 
     Vortex2D::Fluid::Rectangle rectangle(*device, rectangleSize * glm::vec2(size), false, size.x);
     Vortex2D::Fluid::RigidBody rigidBody(*device,
-                                         Dimensions(size, 1.0f),
+                                         size,
                                          1.0f,
                                          rectangle, {0.0f, 0.0f},
                                          solidPhi,
@@ -471,7 +471,7 @@ TEST(RigidbodyTests, Force)
 
     Vortex2D::Fluid::Rectangle rectangle(*device, rectangleSize * glm::vec2(size), false, size.x);
     Vortex2D::Fluid::RigidBody rigidBody(*device,
-                                         Dimensions(size, 1.0f),
+                                         size,
                                          0.01f,
                                          rectangle, {0.0, 0.0f},
                                          solidPhi,
@@ -550,7 +550,7 @@ TEST(RigidbodyTests, Pressure)
 
     Vortex2D::Fluid::Rectangle rectangle(*device, rectangleSize * glm::vec2(size));
     Vortex2D::Fluid::RigidBody rigidBody(*device,
-                                         Dimensions(size, 1.0f),
+                                         size,
                                          0.01f,
                                          rectangle, {0.0f, 0.0f},
                                          solidPhi,
@@ -632,7 +632,7 @@ TEST(RigidbodyTests, PressureVelocity)
 
     Vortex2D::Fluid::Rectangle rectangle(*device, rectangleSize * glm::vec2(size), false, size.x);
     Vortex2D::Fluid::RigidBody rigidBody(*device,
-                                         Dimensions(size, 1.0f),
+                                         size,
                                          0.01f,
                                          rectangle, {0.0f, 0.0f},
                                          solidPhi,
@@ -708,7 +708,7 @@ TEST(RigidbodyTests, PressureRotation)
 
     Vortex2D::Fluid::Rectangle rectangle(*device, rectangleSize * glm::vec2(size), false, size.x);
     Vortex2D::Fluid::RigidBody rigidBody(*device,
-                                         Dimensions(size, 1.0f),
+                                         size,
                                          0.01f,
                                          rectangle, {0.0f, 0.0f},
                                          solidPhi,
@@ -778,7 +778,7 @@ TEST(RigidbodyTests, VelocityConstrain)
 
     Vortex2D::Fluid::Rectangle rectangle(*device, rectangleSize * glm::vec2(size), false, size.x);
     Vortex2D::Fluid::RigidBody rigidBody(*device,
-                                         Dimensions(size, 1.0f),
+                                         size,
                                          1.0f,
                                          rectangle, {0.0f, 0.0f},
                                          solidPhi,
@@ -850,7 +850,7 @@ TEST(RigidbodyTests, RotationConstrain)
 
     Vortex2D::Fluid::Rectangle rectangle(*device, rectangleSize * glm::vec2(size), false, size.x);
     Vortex2D::Fluid::RigidBody rigidBody(*device,
-                                         Dimensions(size, 1.0f),
+                                         size,
                                          1.0f,
                                          rectangle, {0.0f, 0.0f},
                                          solidPhi,

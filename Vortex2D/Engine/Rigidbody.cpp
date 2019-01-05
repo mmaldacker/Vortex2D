@@ -16,7 +16,7 @@
 namespace Vortex2D { namespace Fluid {
 
 RigidBody::RigidBody(const Renderer::Device& device,
-                     const Dimensions& dimensions,
+                     const glm::ivec2& size,
                      float delta,
                      Renderer::Drawable& drawable,
                      const glm::vec2& centre,
@@ -24,36 +24,33 @@ RigidBody::RigidBody(const Renderer::Device& device,
                      vk::Flags<Type> type,
                      float mass,
                      float inertia)
-    : mScale(dimensions.Scale)
-    , mSize(dimensions.Size.x)
+    : mSize(size.x)
     , mDelta(delta)
     , mDevice(device)
-    , mPhi(device, dimensions.Size.x, dimensions.Size.y, vk::Format::eR32Sfloat)
+    , mPhi(device, size.x, size.y, vk::Format::eR32Sfloat)
     , mDrawable(drawable)
     , mCentre(centre)
-    , mView(dimensions.InvScale)
     , mVelocity(device)
-    , mForce(device, dimensions.Size.x * dimensions.Size.y)
+    , mForce(device, size.x * size.y)
     , mReducedForce(device, 1)
     , mLocalForce(device, 1, VMA_MEMORY_USAGE_GPU_TO_CPU)
     , mMVBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
     , mLocalVelocity(device, VMA_MEMORY_USAGE_CPU_ONLY)
     , mClear({1000.0f, 0.0f, 0.0f, 0.0f})
-    , mDiv(device, dimensions.Size, SPIRV::BuildRigidbodyDiv_comp)
-    , mConstrain(device, dimensions.Size, SPIRV::ConstrainRigidbodyVelocity_comp)
-    , mForceWork(device, dimensions.Size, SPIRV::RigidbodyForce_comp)
-    , mPressureWork(device, dimensions.Size, SPIRV::RigidbodyPressure_comp)
+    , mDiv(device, size, SPIRV::BuildRigidbodyDiv_comp)
+    , mConstrain(device, size, SPIRV::ConstrainRigidbodyVelocity_comp)
+    , mForceWork(device, size, SPIRV::RigidbodyForce_comp)
+    , mPressureWork(device, size, SPIRV::RigidbodyPressure_comp)
     , mDivCmd(device, false)
     , mConstrainCmd(device, false)
     , mForceCmd(device, true)
     , mPressureCmd(device, false)
     , mVelocityCmd(device, false)
-    , mSum(device, dimensions.Size)
+    , mSum(device, size)
     , mType(type)
     , mMass(mass)
     , mInertia(inertia)
 {
-    mPhi.View = mView;
     mLocalPhiRender = mPhi.Record({mClear, mDrawable}, UnionBlend);
 
     mVelocityCmd.Record([&](vk::CommandBuffer commandBuffer)
@@ -68,7 +65,7 @@ RigidBody::RigidBody(const Renderer::Device& device,
 
 void RigidBody::SetVelocities(const glm::vec2& velocity, float angularVelocity)
 {
-    Velocity v{velocity / glm::vec2(mScale * mSize), angularVelocity};
+    Velocity v{velocity / glm::vec2(mSize), angularVelocity};
 
     Renderer::CopyFrom(mLocalVelocity, v);
     mVelocityCmd.Submit();
@@ -81,15 +78,15 @@ RigidBody::Velocity RigidBody::GetForces()
     Velocity force;
     Renderer::CopyTo(mLocalForce, force);
 
-    force.velocity *= glm::vec2(mSize);
-    force.angular_velocity *= mSize * mSize;
+    //force.velocity *= glm::vec2(mSize);
+    //force.angular_velocity *= mSize * mSize;
 
     return force;
 }
 
 void RigidBody::UpdatePosition()
 {
-    Renderer::CopyFrom(mMVBuffer, mView * glm::translate(glm::vec3{(glm::vec2)Position, 0.0f}));
+    Renderer::CopyFrom(mMVBuffer, glm::translate(glm::vec3{(glm::vec2)Position, 0.0f}));
 }
 
 void RigidBody::RenderPhi()

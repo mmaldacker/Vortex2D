@@ -21,23 +21,22 @@ class WaterFallExample : public Runner
 
 public:
     WaterFallExample(const Vortex2D::Renderer::Device& device,
-                     const Vortex2D::Fluid::Dimensions& dimensions,
+                     const glm::ivec2& size,
                      float dt)
         : delta(dt)
-        , waterSource(device, {50.0f, 50.0f})
-        , waterForce(device, {50.0f, 50.0f})
-        , gravity(device, glm::vec2(1024.0f, 1024.0f))
-        , world(device, dimensions, dt)
+        , waterSource(device, {10.0f, 10.0f})
+        , waterForce(device, {10.0f, 10.0f})
+        , gravity(device, glm::vec2(256.0f, 256.0f))
+        , world(device, size, dt)
         , solidPhi(world.SolidDistanceField())
         , liquidPhi(world.LiquidDistanceField())
-        , rWorld(b2Vec2(0.0f, gravityForce / dimensions.Scale))
-        , circle(device, dimensions, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 40.0f)
-        , box(device, dimensions, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, {50.0f, 50.0f})
-        , left(device, dimensions, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {200.0f, 20.0f})
-        , right(device, dimensions, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {200.0f, 20.0f})
-        , bottom(device, dimensions, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {1000.0f, 20.0f})
+        , rWorld(b2Vec2(0.0f, gravityForce))
+        , circle(device, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 10.0f)
+        , box(device, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, {15.0f, 15.0f})
+        , left(device, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {50.0f, 5.0f})
+        , right(device, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {50.0f, 5.0f})
+        , bottom(device, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {250.0f, 5.0f})
     {
-        liquidPhi.Scale = solidPhi.Scale = glm::vec2(dimensions.Scale);
         gravity.Colour = glm::vec4(0.0f, dt * gravityForce, 0.0f, 0.0f);
 
         solidPhi.Colour = green;
@@ -49,28 +48,28 @@ public:
     {
 
         // Add particles
-        waterSource.Position = {20.0f, 100.0f};
+        waterSource.Position = {5.0f, 25.0f};
         waterSource.Colour = glm::vec4(4);
 
         // Add force
-        waterForce.Position = {20.0f, 100.0f};
+        waterForce.Position = {5.0f, 25.0f};
         waterForce.Colour = glm::vec4(10.0f, 0.0f, 0.0f, 0.0f);
 
         sourceRender = world.RecordParticleCount({waterSource});
 
         // Draw boundaries
-        left.SetTransform({200.0f, 350.0f}, 60.0f);
+        left.SetTransform({50.0f, 80.0f}, 60.0f);
         left.Update();
 
-        right.SetTransform({700.0f, 500.0f}, -60.0f);
+        right.SetTransform({175.0f, 125.0f}, -60.0f);
         right.Update();
 
-        bottom.SetTransform({10.0f, 1000.0f}, 0.0f);
+        bottom.SetTransform({5.0f, 250.0f}, 0.0f);
         bottom.Update();
 
         // Add circles
-        circle.SetTransform({200.0f, 200.0f}, 0.0f);
-        box.SetTransform({300.0f, 200.0f}, 0.0f);
+        circle.SetTransform({50.0f, 50.0f}, 0.0f);
+        box.SetTransform({75.0f, 50.0f}, 0.0f);
 
         // Set gravity
         velocityRender = world.RecordVelocity({gravity, waterForce});

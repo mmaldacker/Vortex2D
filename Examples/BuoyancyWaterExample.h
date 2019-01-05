@@ -21,22 +21,21 @@ class HydrostaticWaterExample : public Runner
 
 public:
     HydrostaticWaterExample(const Vortex2D::Renderer::Device& device,
-                            const Vortex2D::Fluid::Dimensions& dimensions,
+                            const glm::ivec2& size,
                             float dt)
         : delta(dt)
-        , gravity(device, glm::vec2(1024.0f, 1024.0f))
-        , world(device, dimensions, dt)
+        , gravity(device, glm::vec2(256.0f, 256.0f))
+        , world(device, size, dt)
         , solidPhi(world.SolidDistanceField())
         , liquidPhi(world.LiquidDistanceField())
-        , rWorld(b2Vec2(0.0f, gravityForce / dimensions.Scale))
-        , circle1(device, dimensions, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 40.0f, 0.5f)
-        , circle2(device, dimensions, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 40.0f, 0.9f)
-        , circle3(device, dimensions, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 40.0f, 2.0f)
-        , left(device, dimensions, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {20.0f, 500.0f})
-        , right(device, dimensions, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {20.0f, 500.0f})
-        , bottom(device, dimensions, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {1000.0f, 20.0f})
+        , rWorld(b2Vec2(0.0f, gravityForce))
+        , circle1(device, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 10.0f, 0.5f)
+        , circle2(device, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 10.0f, 0.9f)
+        , circle3(device, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 10.0f, 2.0f)
+        , left(device, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {5.0f, 125.0f})
+        , right(device, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {5.0f, 125.0f})
+        , bottom(device, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {250.0f, 5.0f})
     {
-        liquidPhi.Scale = solidPhi.Scale = glm::vec2(dimensions.Scale);
         gravity.Colour = glm::vec4(0.0f, dt * gravityForce, 0.0f, 0.0f);
 
         solidPhi.Colour = red;
@@ -47,26 +46,26 @@ public:
               Vortex2D::Renderer::RenderTarget& renderTarget) override
     {
         // Add particles
-        Vortex2D::Renderer::IntRectangle fluid(device, {900.0f, 300.0f});
-        fluid.Position = {40.0f, 600.0f};
+        Vortex2D::Renderer::IntRectangle fluid(device, {225.0f, 75.0f});
+        fluid.Position = {10.0f, 150.0f};
         fluid.Colour = glm::vec4(4);
 
         world.RecordParticleCount({fluid}).Submit().Wait();
 
         // Draw boundaries
-        left.SetTransform({12.0f, 1000.0f}, 0.0f);
+        left.SetTransform({3.0f, 250.0f}, 0.0f);
         left.Update();
 
-        right.SetTransform({1000.0f, 1000.0f}, 0.0f);
+        right.SetTransform({250.0f, 250.0f}, 0.0f);
         right.Update();
 
-        bottom.SetTransform({12.0f, 1000.0f}, 0.0f);
+        bottom.SetTransform({3.0f, 250.0f}, 0.0f);
         bottom.Update();
 
         // Add circles
-        circle1.SetTransform({200.0f, 200.0f}, 0.0f);
-        circle2.SetTransform({500.0f, 200.0f}, 0.0f);
-        circle3.SetTransform({800.0f, 200.0f}, 0.0f);
+        circle1.SetTransform({50.0f, 50.0f}, 0.0f);
+        circle2.SetTransform({125.0f, 50.0f}, 0.0f);
+        circle3.SetTransform({200.0f, 50.0f}, 0.0f);
 
         // Set gravity
         velocityRender = world.RecordVelocity({gravity});

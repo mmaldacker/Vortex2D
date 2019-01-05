@@ -14,14 +14,14 @@ class RenderExample : public Runner
 {
 public:
     RenderExample(const Vortex2D::Renderer::Device& device, const glm::vec2& /*size*/)
-        : rectangle(device, {100,100})
-        , circle(device, glm::vec2(50))
+        : rectangle(device, {25,25})
+        , circle(device, glm::vec2(10))
     {
-        rectangle.Position = {200, 200};
+        rectangle.Position = {50, 50};
         rectangle.Rotation = 45.0f;
         rectangle.Colour = red;
 
-        circle.Position = {500, 500};
+        circle.Position = {100, 100};
         circle.Colour = yellow;
     }
 

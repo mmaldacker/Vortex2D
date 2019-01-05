@@ -13,7 +13,6 @@
 #include <Vortex2D/Engine/LinearSolver/LinearSolver.h>
 #include <Vortex2D/Engine/LinearSolver/ConjugateGradient.h>
 #include <Vortex2D/Engine/LinearSolver/Multigrid.h>
-#include <Vortex2D/Engine/Size.h>
 #include <Vortex2D/Engine/Extrapolation.h>
 #include <Vortex2D/Engine/LevelSet.h>
 #include <Vortex2D/Engine/Pressure.h>
@@ -42,10 +41,10 @@ public:
     /**
      * @brief Construct an Engine with a size and time step.
      * @param device vulkan device
-     * @param dimensions dimensions of the simulation
+     * @param size dimensions of the simulation
      * @param dt timestamp of the simulation, e.g. 0.016 for 60FPS simulations.
      */
-    World(const Renderer::Device& device, Dimensions dimensions, float dt);
+    World(const Renderer::Device& device, const glm::ivec2& size, float dt);
     virtual ~World() = default;
 
     /**
@@ -117,7 +116,7 @@ public:
 
 protected:
     const Renderer::Device& mDevice;
-    Dimensions mDimensions;
+    glm::ivec2 mSize;
     float mDelta;
 
     Multigrid mPreconditioner;
@@ -151,7 +150,7 @@ protected:
 class SmokeWorld : public World
 {
 public:
-    VORTEX2D_API SmokeWorld(const Renderer::Device& device, Dimensions dimensions, float dt);
+    VORTEX2D_API SmokeWorld(const Renderer::Device& device, const glm::ivec2& size, float dt);
 
     VORTEX2D_API void Solve() override;
 
@@ -168,7 +167,7 @@ public:
 class WaterWorld : public World
 {
 public:
-    VORTEX2D_API WaterWorld(const Renderer::Device& device, Dimensions dimensions, float dt);
+    VORTEX2D_API WaterWorld(const Renderer::Device& device, const glm::ivec2& size, float dt);
 
     VORTEX2D_API void Solve() override;
 

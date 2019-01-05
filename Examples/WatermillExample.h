@@ -21,15 +21,13 @@ class Watermill
 {
 public:
     Watermill(const Vortex2D::Renderer::Device& device,
-              Vortex2D::Fluid::Dimensions dimensions,
               b2World& rWorld,
               Vortex2D::Fluid::World& world)
-        : mScale(dimensions.Scale)
-        , mWindmillTexture(device, 600, 600, vk::Format::eR32Sfloat)
+        : mWindmillTexture(device, 150.0f, 150.0f, vk::Format::eR32Sfloat)
         , mWindmill(device, mWindmillTexture)
-        , mRigidbody(world.CreateRigidbody(Vortex2D::Fluid::RigidBody::Type::eStrong, 0.0f, 0.0f, mWindmill, {300.0f, 300.0f}))
+        , mRigidbody(world.CreateRigidbody(Vortex2D::Fluid::RigidBody::Type::eStrong, 0.0f, 0.0f, mWindmill, {75.0f, 75.0f}))
     {
-        glm::vec2 centre(300.0f, 300.0f);
+        glm::vec2 centre(75.0f, 75.0f);
         mRigidbody->Anchor = centre;
 
         { // create centre body
@@ -39,7 +37,7 @@ public:
             mCentre = rWorld.CreateBody(&def);
 
             b2CircleShape circleShape;
-            circleShape.m_radius = 1.0f / mScale;
+            circleShape.m_radius = 1.0f;
 
             b2FixtureDef fixture;
             fixture.density = 1.0f;
@@ -66,8 +64,8 @@ public:
         mWindmillTexture.Record({Vortex2D::Fluid::BoundariesClear}).Submit().Wait();
 
         int n = 6;
-        float dist = 120.0f;
-        glm::vec2 size(250.0f, 30.0f);
+        float dist = 30.0f;
+        glm::vec2 wingSize(75.0f, 8.0f);
 
         for (int i = 0; i < n; i++)
         {
@@ -76,8 +74,8 @@ public:
             float y = dist * std::sin(angle);
 
             b2PolygonShape wing;
-            wing.SetAsBox(size.x / (2.0f * mScale), size.y / (2.0f * mScale),
-                          b2Vec2(x / mScale, y / mScale),
+            wing.SetAsBox(wingSize.x / 2.0f, wingSize.y / 2.0f,
+                          b2Vec2(x, y),
                           angle);
 
             b2FixtureDef fixtureDef;
@@ -86,8 +84,8 @@ public:
 
             mWings->CreateFixture(&fixtureDef);
 
-            Vortex2D::Fluid::Rectangle fluidWing(device, size);
-            fluidWing.Anchor = size / glm::vec2(2.0f);
+            Vortex2D::Fluid::Rectangle fluidWing(device, wingSize);
+            fluidWing.Anchor = wingSize / glm::vec2(2.0f);
             fluidWing.Position = glm::vec2(x, y) + centre;
             fluidWing.Rotation = glm::degrees(angle);
             mWindmillTexture.Record({fluidWing}, Vortex2D::Fluid::UnionBlend).Submit().Wait();
@@ -98,19 +96,19 @@ public:
     {
         mRigidbody->Position = pos;
         mRigidbody->Rotation = angle;
-        mCentre->SetTransform({pos.x / mScale, pos.y / mScale}, angle);
-        mWings->SetTransform({pos.x / mScale, pos.y / mScale}, angle);
+        mCentre->SetTransform({pos.x, pos.y}, angle);
+        mWings->SetTransform({pos.x, pos.y}, angle);
     }
 
     void Update()
     {
         auto pos = mWings->GetPosition();
-        mRigidbody->Position = {pos.x * mScale, pos.y * mScale};
+        mRigidbody->Position = {pos.x, pos.y};
         mRigidbody->Rotation = glm::degrees(mWings->GetAngle());
         mRigidbody->UpdatePosition();
 
-        glm::vec2 vel = {mWings->GetLinearVelocity().x * mScale, mWings->GetLinearVelocity().y * mScale};
-        float angularVelocity = mWings->GetAngularVelocity() * mScale * mScale;
+        glm::vec2 vel = {mWings->GetLinearVelocity().x, mWings->GetLinearVelocity().y};
+        float angularVelocity = mWings->GetAngularVelocity();
         mRigidbody->SetVelocities(vel, angularVelocity);
 
         auto force = mRigidbody->GetForces();
@@ -120,7 +118,6 @@ public:
     }
 
 private:
-    float mScale;
     Vortex2D::Renderer::RenderTexture mWindmillTexture;
     Vortex2D::Renderer::Sprite mWindmill;
     Vortex2D::Fluid::RigidBody* mRigidbody;
@@ -134,21 +131,20 @@ class WatermillExample : public Runner
 
 public:
     WatermillExample(const Vortex2D::Renderer::Device& device,
-                         const Vortex2D::Fluid::Dimensions& dimensions,
+                         const glm::ivec2& size,
                          float dt)
         : delta(dt)
-        , waterSource(device, {100.0f, 100.0f})
-        , waterForce(device, {100.0f, 100.0f})
-        , gravity(device, glm::vec2(1024.0f, 1024.0f))
-        , world(device, dimensions, dt)
+        , waterSource(device, {25.0, 25.0f})
+        , waterForce(device, {25.0f, 25.0f})
+        , gravity(device, glm::vec2(256.0f, 256.0f))
+        , world(device, size, dt)
         , solidPhi(world.SolidDistanceField())
         , liquidPhi(world.LiquidDistanceField())
-        , rWorld(b2Vec2(0.0f, gravityForce / dimensions.Scale))
-        , left(device, dimensions, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {200.0f, 20.0f})
-        , bottom(device, dimensions, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {1000.0f, 20.0f})
-        , watermill(device, dimensions, rWorld, world)
+        , rWorld(b2Vec2(0.0f, gravityForce))
+        , left(device, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {50.0f, 5.0f})
+        , bottom(device, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {250.0f, 5.0f})
+        , watermill(device, rWorld, world)
     {
-        liquidPhi.Scale = solidPhi.Scale = glm::vec2(dimensions.Scale);
         gravity.Colour = glm::vec4(0.0f, dt * gravityForce, 0.0f, 0.0f);
 
         solidPhi.Colour = red;
@@ -160,23 +156,23 @@ public:
     {
 
         // Add particles
-        waterSource.Position = {50.0f, 100.0f};
+        waterSource.Position = {15.0f, 25.0f};
         waterSource.Colour = glm::vec4(4);
 
         // Add force
-        waterForce.Position = {20.0f, 100.0f};
+        waterForce.Position = {5.0f, 25.0f};
         waterForce.Colour = glm::vec4(20.0f, 0.0f, 0.0f, 0.0f);
 
         sourceRender = world.RecordParticleCount({waterSource});
 
         // Draw boundaries
-        left.SetTransform({200.0f, 350.0f}, 60.0f);
+        left.SetTransform({50.0f, 100.0f}, 60.0f);
         left.Update();
 
-        bottom.SetTransform({10.0f, 1000.0f}, 0.0f);
+        bottom.SetTransform({5.0f, 250.0f}, 0.0f);
         bottom.Update();
 
-        watermill.SetTransform({600.0f, 700.0f}, 25.0f);
+        watermill.SetTransform({150.0f, 180.0f}, 25.0f);
 
         // Set gravity
         velocityRender = world.RecordVelocity({gravity, waterForce});

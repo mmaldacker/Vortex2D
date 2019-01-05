@@ -21,28 +21,28 @@ std::vector<RigidBody*> GetRigidbodyPointers(const std::vector<std::unique_ptr<R
     return rigidBodiesPointers;
 }
 
-World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
+World::World(const Renderer::Device& device, const glm::ivec2& size, float dt)
     : mDevice(device)
-    , mDimensions(dimensions)
+    , mSize(size)
     , mDelta(dt)
-    , mPreconditioner(device, dimensions.Size, dt)
-    , mLinearSolver(device, dimensions.Size, mPreconditioner)
-    , mData(device, dimensions.Size)
-    , mVelocity(device, dimensions.Size)
-    , mLiquidPhi(device, dimensions.Size)
-    , mStaticSolidPhi(device, dimensions.Size)
-    , mDynamicSolidPhi(device, dimensions.Size)
-    , mValid(device, dimensions.Size.x*dimensions.Size.y)
-    , mAdvection(device, dimensions.Size, dt, mVelocity)
-    , mProjection(device, dt, dimensions.Size,
+    , mPreconditioner(device, size, dt)
+    , mLinearSolver(device, size, mPreconditioner)
+    , mData(device, size)
+    , mVelocity(device, size)
+    , mLiquidPhi(device, size)
+    , mStaticSolidPhi(device, size)
+    , mDynamicSolidPhi(device, size)
+    , mValid(device, size.x*size.y)
+    , mAdvection(device, size, dt, mVelocity)
+    , mProjection(device, dt, size,
                   mData,
                   mVelocity,
                   mDynamicSolidPhi,
                   mLiquidPhi,
                   mValid)
-    , mExtrapolation(device, dimensions.Size, mValid, mVelocity)
+    , mExtrapolation(device, size, mValid, mVelocity)
     , mCopySolidPhi(device, false)
-    , mCfl(device, dimensions.Size, mVelocity)
+    , mCfl(device, size, mVelocity)
 {
     mExtrapolation.ConstrainBind(mDynamicSolidPhi);
     mLiquidPhi.ExtrapolateBind(mDynamicSolidPhi);
@@ -54,11 +54,6 @@ World::World(const Renderer::Device& device, Dimensions dimensions, float dt)
 
     mPreconditioner.BuildHierarchiesBind(mProjection, mDynamicSolidPhi, mLiquidPhi);
     mLinearSolver.Bind(mData.Diagonal, mData.Lower, mData.B, mData.X);
-
-    mLiquidPhi.View = dimensions.InvScale;
-    mDynamicSolidPhi.View = dimensions.InvScale;
-    mStaticSolidPhi.View = dimensions.InvScale;
-    mVelocity.View = dimensions.InvScale;
 
     Renderer::ExecuteCommand(mDevice, [&](vk::CommandBuffer commandBuffer)
     {
@@ -75,7 +70,7 @@ Renderer::RenderCommand World::RecordVelocity(Renderer::RenderTarget::DrawableLi
             .setSrcColorBlendFactor(vk::BlendFactor::eConstantColor)
             .setDstColorBlendFactor(vk::BlendFactor::eOne);
 
-    float scale = 1.0f / (mDimensions.Scale * mDimensions.Size.x);
+    float scale = 1.0f / mSize.x;
     blendState.BlendConstants = {scale, scale, scale, scale};
 
     return mVelocity.Record(drawables, blendState);
@@ -98,17 +93,17 @@ Renderer::RenderCommand World::RecordStaticSolidPhi(Renderer::RenderTarget::Draw
 
 DistanceField  World::LiquidDistanceField()
 {
-    return  {mDevice, mLiquidPhi, mDimensions.Scale};
+    return  {mDevice, mLiquidPhi};
 }
 
 DistanceField  World::SolidDistanceField()
 {
-    return {mDevice, mDynamicSolidPhi, mDimensions.Scale};
+    return {mDevice, mDynamicSolidPhi};
 }
 
 RigidBody* World::CreateRigidbody(vk::Flags<RigidBody::Type> type, float mass, float inertia, Renderer::Drawable& drawable, const glm::vec2& centre)
 {
-    mRigidbodies.push_back(std::make_unique<RigidBody>(mDevice, mDimensions, mDelta, drawable, centre, mDynamicSolidPhi, type, mass, inertia));
+    mRigidbodies.push_back(std::make_unique<RigidBody>(mDevice, mSize, mDelta, drawable, centre, mDynamicSolidPhi, type, mass, inertia));
 
     if (type & RigidBody::Type::eStatic)
     {
@@ -136,8 +131,8 @@ Renderer::RenderTexture& World::GetVelocity()
     return mVelocity;
 }
 
-SmokeWorld::SmokeWorld(const Renderer::Device& device, Dimensions dimensions, float dt)
-    : World(device, dimensions, dt)
+SmokeWorld::SmokeWorld(const Renderer::Device& device, const glm::ivec2& size, float dt)
+    : World(device, size, dt)
 {
 }
 
@@ -196,20 +191,17 @@ void SmokeWorld::Solve()
 
 void SmokeWorld::FieldBind(Density& density)
 {
-    density.View = mDimensions.InvScale;
     mAdvection.AdvectBind(density);
 }
 
-WaterWorld::WaterWorld(const Renderer::Device& device, Dimensions dimensions, float dt)
-    : World(device, dimensions, dt)
-    , mParticles(device, vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eVertexBuffer, VMA_MEMORY_USAGE_GPU_ONLY, 8*dimensions.Size.x*dimensions.Size.y*sizeof(Particle))
-    , mParticleCount(device, dimensions.Size, mParticles, {0}, 0.02f)
+WaterWorld::WaterWorld(const Renderer::Device& device, const glm::ivec2& size, float dt)
+    : World(device, size, dt)
+    , mParticles(device, vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eVertexBuffer, VMA_MEMORY_USAGE_GPU_ONLY, 8*size.x*size.y*sizeof(Particle))
+    , mParticleCount(device, size, mParticles, {0}, 0.02f)
 {
     mParticleCount.LevelSetBind(mLiquidPhi);
     mParticleCount.VelocitiesBind(mVelocity, mValid);
     mAdvection.AdvectParticleBind(mParticles, mDynamicSolidPhi, mParticleCount.GetDispatchParams());
-
-    mParticleCount.View = dimensions.InvScale;
 }
 
 void WaterWorld::Solve()

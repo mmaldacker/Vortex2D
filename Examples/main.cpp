@@ -16,6 +16,9 @@
 #include <chrono>
 #include <numeric>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/transform.hpp>
+
 using namespace Vortex2D;
 
 glm::vec4 red = glm::vec4(242.0f, 95.0f, 92.0f, 255.0f) / glm::vec4(255.0f);
@@ -74,16 +77,16 @@ GLFWwindow* GetGLFWWindow(const glm::ivec2& size)
 class App
 {
 public:
-    glm::ivec2 size = {1024,1024};
-    float scale = 4;
+    glm::ivec2 size = {256, 256};
+    glm::ivec2 windowSize = {1024, 1024};
     float delta = 0.016f;
 
     App(bool validation = true)
-        : glfwWindow(GetGLFWWindow(size))
+        : glfwWindow(GetGLFWWindow(windowSize))
         , instance("Vortex2D", GetGLFWExtensions(), validation)
         , surface(GetGLFWSurface(glfwWindow, static_cast<VkInstance>(instance.GetInstance())))
         , device(instance.GetPhysicalDevice(), *surface, validation)
-        , window(device, *surface, size.x, size.y)
+        , window(device, *surface, windowSize.x, windowSize.y)
         , clearRender(window.Record({clear}))
     {
         // setup callback
@@ -93,6 +96,8 @@ public:
             static_cast<App*>(glfwGetWindowUserPointer(window))->KeyCallback(key, action);
         };
         glfwSetKeyCallback(glfwWindow, func);
+
+        window.View = glm::scale(glm::vec3{4.0f, 4.0f, 1.0f});
     }
 
     ~App()
@@ -113,25 +118,25 @@ public:
             example.reset(new RenderExample(device, size));
             break;
         case GLFW_KEY_2:
-            example.reset(new SmokeExample(device, {size, scale}, delta));
+            example.reset(new SmokeExample(device, size, delta));
             break;
         case GLFW_KEY_3:
-            example.reset(new ObstacleSmokeExample(device, {size, scale}, delta));
+            example.reset(new ObstacleSmokeExample(device, size, delta));
             break;
         case GLFW_KEY_4:
-            example.reset(new SmokeVelocityExample(device, {size, scale}, delta));
+            example.reset(new SmokeVelocityExample(device, size, delta));
             break;
         case GLFW_KEY_5:
-            example.reset(new WaterExample(device, {size, scale}, delta));
+            example.reset(new WaterExample(device, size, delta));
             break;
         case GLFW_KEY_6:
-            example.reset(new WaterFallExample(device, {size, scale}, delta));
+            example.reset(new WaterFallExample(device, size, delta));
             break;
         case GLFW_KEY_7:
-            example.reset(new WatermillExample(device, {size, scale}, delta));
+            example.reset(new WatermillExample(device, size, delta));
             break;
         case GLFW_KEY_8:
-            example.reset(new HydrostaticWaterExample(device, {size, scale}, delta));
+            example.reset(new HydrostaticWaterExample(device, size, delta));
             break;
         default:
             return;

@@ -18,14 +18,13 @@ class WaterExample : public Runner
 {
 public:
     WaterExample(const Vortex2D::Renderer::Device& device,
-                 const Vortex2D::Fluid::Dimensions& dimensions,
+                 const glm::ivec2& size,
                  float dt)
-        : gravity(device, {1024.0f, 1024.0f})
-        , world(device, dimensions, dt)
+        : gravity(device, {256.0f, 256.0f})
+        , world(device, size, dt)
         , solidPhi(world.SolidDistanceField())
         , liquidPhi(world.LiquidDistanceField())
     {
-        liquidPhi.Scale = solidPhi.Scale = glm::vec2(dimensions.Scale);
         gravity.Colour = {0.0f, 10.0f, 0.0f, 0.0f};
 
         solidPhi.Colour = green;
@@ -36,23 +35,23 @@ public:
               Vortex2D::Renderer::RenderTarget& renderTarget) override
     {
         // Add particles
-        Vortex2D::Renderer::IntRectangle fluid(device, {600.0f, 200.0f});
-        fluid.Position = {200.0f, 100.0f};
+        Vortex2D::Renderer::IntRectangle fluid(device, {150.0f, 50.0f});
+        fluid.Position = {50.0f, 25.0f};
         fluid.Colour = glm::vec4(4);
 
         world.RecordParticleCount({fluid}).Submit().Wait();
 
         // Draw solid boundaries
-        Vortex2D::Fluid::Rectangle obstacle1(device, {200.0f, 100.0f});
-        Vortex2D::Fluid::Rectangle obstacle2(device, {200.0f, 100.0f});
-        Vortex2D::Fluid::Rectangle area(device, {1000.0f, 1000.0f}, true, 20.0f);
+        Vortex2D::Fluid::Rectangle obstacle1(device, {50.0f, 25.0f});
+        Vortex2D::Fluid::Rectangle obstacle2(device, {50.0f, 25.0f});
+        Vortex2D::Fluid::Rectangle area(device, {250.0f, 250.0f}, true, 5.0f);
 
-        area.Position = glm::vec2(12.0f);
+        area.Position = glm::vec2(3.0f);
 
-        obstacle1.Position = {300.0f, 600.0f};
+        obstacle1.Position = {75.0f, 150.0f};
         obstacle1.Rotation = 45.0f;
 
-        obstacle2.Position = {700.0f, 600.0f};
+        obstacle2.Position = {150.0f, 150.0f};
         obstacle2.Rotation = 30.0f;
 
         world.RecordStaticSolidPhi({area, obstacle1, obstacle2}).Submit().Wait();

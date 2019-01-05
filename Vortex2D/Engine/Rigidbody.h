@@ -15,7 +15,6 @@
 #include <Vortex2D/Renderer/Shapes.h>
 #include <Vortex2D/Engine/LinearSolver/Reduce.h>
 #include <Vortex2D/Engine/Boundaries.h>
-#include <Vortex2D/Engine/Size.h>
 #include <Vortex2D/Engine/Velocity.h>
 
 namespace Vortex2D { namespace Fluid {
@@ -40,7 +39,7 @@ public:
     };
 
     VORTEX2D_API RigidBody(const Renderer::Device& device,
-                           const Dimensions& dimensions,
+                           const glm::ivec2& size,
                            float dt,
                            Renderer::Drawable& drawable,
                            const glm::vec2& centre,
@@ -139,7 +138,6 @@ public:
     VORTEX2D_API Renderer::RenderTexture& Phi();
 
 private:
-    float mScale;
     float mSize;
     float mDelta;
 
@@ -147,7 +145,6 @@ private:
     Renderer::RenderTexture mPhi;
     Renderer::Drawable& mDrawable;
     glm::vec2 mCentre;
-    glm::mat4 mView;
     Renderer::UniformBuffer<Velocity> mVelocity;
     Renderer::Buffer<Velocity> mForce, mReducedForce, mLocalForce;
     Renderer::UniformBuffer<glm::mat4> mMVBuffer;

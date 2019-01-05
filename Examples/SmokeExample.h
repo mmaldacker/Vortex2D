@@ -18,21 +18,20 @@ class SmokeExample : public Runner
 {
 public:
     SmokeExample(const Vortex2D::Renderer::Device& device,
-                 const Vortex2D::Fluid::Dimensions& dimensions,
+                 const glm::ivec2& size,
                  float dt)
-        : source1(device, glm::vec2(30.0f))
-        , source2(device, glm::vec2(30.0f))
-        , force1(device, glm::vec2(30.0f))
-        , force2(device, glm::vec2(30.0f))
-        , density(device, dimensions.Size, vk::Format::eR8G8B8A8Unorm)
-        , world(device, dimensions, dt)
+        : source1(device, glm::vec2(10.0f))
+        , source2(device, glm::vec2(10.0f))
+        , force1(device, glm::vec2(10.0f))
+        , force2(device, glm::vec2(10.0f))
+        , density(device, size, vk::Format::eR8G8B8A8Unorm)
+        , world(device, size, dt)
         , solidPhi(world.SolidDistanceField())
     {
-        solidPhi.Scale = density.Scale = (glm::vec2)dimensions.Scale;
         world.FieldBind(density);
 
-        source1.Position = force1.Position = {250.0f, 100.0f};
-        source2.Position = force2.Position = {750.0f, 900.0f};
+        source1.Position = force1.Position = {75.0f, 25.0f};
+        source2.Position = force2.Position = {175.0f, 225.0f};
 
         source1.Colour = source2.Colour = red;
 
@@ -46,26 +45,25 @@ public:
               Vortex2D::Renderer::RenderTarget& renderTarget) override
     {
         // Draw liquid boundaries
-        Vortex2D::Renderer::Rectangle area(device, glm::ivec2(1024) - glm::ivec2(24));
+        Vortex2D::Renderer::Rectangle area(device, glm::ivec2(256) - glm::ivec2(4));
         area.Colour = glm::vec4(-1);
-        area.Position = glm::vec2(12.0f);
+        area.Position = glm::vec2(4.0f);
 
         Vortex2D::Renderer::Clear clearLiquid({1.0f, 0.0f, 0.0f, 0.0f});
 
         world.RecordLiquidPhi({clearLiquid, area}).Submit().Wait();
 
         // Draw solid boundaries
-        Vortex2D::Fluid::Circle obstacle1(device, 50.0f);
-        Vortex2D::Fluid::Circle obstacle2(device, 50.0f);
+        Vortex2D::Fluid::Circle obstacle1(device, 15.0f);
+        Vortex2D::Fluid::Circle obstacle2(device, 15.0f);
 
-        obstacle1.Position = {250.0f, 400.0f};
-        obstacle2.Position = {750.0f, 600.0f};
+        obstacle1.Position = {75.0f, 100.0f};
+        obstacle2.Position = {175.0f, 125.0f};
 
         world.RecordStaticSolidPhi({Vortex2D::Fluid::BoundariesClear, obstacle1, obstacle2})
              .Submit().Wait();
 
         // Draw sources and forces
-
         velocityRender = world.RecordVelocity({force1, force2});
         densityRender = density.Record({source1, source2});
 

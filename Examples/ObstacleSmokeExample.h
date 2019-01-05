@@ -24,19 +24,18 @@ class ObstacleSmokeExample : public Runner
 {
 public:
     ObstacleSmokeExample(const Vortex2D::Renderer::Device& device,
-                         const Vortex2D::Fluid::Dimensions& dimensions,
+                         const glm::ivec2& size,
                          float dt)
         : delta(dt)
-        , density(device, dimensions.Size, vk::Format::eR8G8B8A8Unorm)
-        , world(device, dimensions, dt)
+        , density(device, size, vk::Format::eR8G8B8A8Unorm)
+        , world(device, size, dt)
         , solidPhi(world.SolidDistanceField())
         , velocityClear({0.0f, 0.0f, 0.0f, 0.0f})
         , rWorld({0.0f, 100.0f})
-        , body1(device, dimensions, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {100.0f, 50.0f})
-        , body2(device, dimensions, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {50.0f, 50.0f})
-        , bottom(device, dimensions, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {500.0f, 20.0f})
+        , body1(device, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {25.0f, 12.0f})
+        , body2(device, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {12.0f, 12.0f})
+        , bottom(device, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {125.0f, 5.0f})
     {
-        solidPhi.Scale = density.Scale = glm::vec2(dimensions.Scale);
         world.FieldBind(density);
         solidPhi.Colour = green;
     }
@@ -45,8 +44,8 @@ public:
               Vortex2D::Renderer::RenderTarget& renderTarget) override
     {
         // Draw density
-        Vortex2D::Renderer::Rectangle source(device, {800.0f, 400.0f});
-        source.Position = {100.0f, 500.0f};
+        Vortex2D::Renderer::Rectangle source(device, {200, 100.0f});
+        source.Position = {25.0f, 125.0f};
         source.Colour = yellow;
 
         density.Record({source}).Submit().Wait();
@@ -54,26 +53,26 @@ public:
         // Draw liquid boundaries
         Vortex2D::Renderer::Clear clear({1.0f, 0.0f, 0.0f, 0.0f});
 
-        Vortex2D::Renderer::Rectangle liquidArea(device, {1000.0f, 1000.0f});
+        Vortex2D::Renderer::Rectangle liquidArea(device, {250.0f, 250.0f});
         liquidArea.Colour = {-1.0f, 0.0f, 0.0f, 0.0f};
-        liquidArea.Position = {12.0f, 12.0};
+        liquidArea.Position = {3.0f, 3.0};
 
         world.RecordLiquidPhi({clear, liquidArea}).Submit().Wait();
 
         // Draw solid boundaries
 
         // First body
-        body1.SetTransform({200.0f, 200.0f}, 45.0f);
+        body1.SetTransform({50.0f, 50.0f}, 45.0f);
         body1.Body().ApplyAngularImpulse(5e5f, true);
         body1.Body().ApplyForceToCenter({1e5f, 0.0f}, true);
 
         // Second body
-        body2.SetTransform({800.0f, 300.0f}, 0.0f);
+        body2.SetTransform({200.0f, 80.0f}, 0.0f);
         body2.Body().ApplyAngularImpulse(-1e5f, true);
         body2.Body().ApplyForceToCenter({-1e5f, 0.0f}, true);
 
         // Bottom
-        bottom.SetTransform({512.0f, 1000.5f}, 0.0f);
+        bottom.SetTransform({128.0f, 256.5f}, 0.0f);
         bottom.Update();
 
         Vortex2D::Renderer::ColorBlendState blendState;

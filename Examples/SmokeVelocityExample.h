@@ -21,24 +21,23 @@ class SmokeVelocityExample : public Runner
 {
 public:
     SmokeVelocityExample(const Vortex2D::Renderer::Device& device,
-                 const Vortex2D::Fluid::Dimensions& dimensions,
+                 const glm::ivec2& size,
                  float dt)
         : delta(dt)
-        , source1(device, glm::vec2(20.0f))
-        , source2(device, glm::vec2(20.0f))
-        , force1(device, glm::vec2(20.0f))
-        , force2(device, glm::vec2(20.0f))
-        , density(device, dimensions.Size, vk::Format::eR8G8B8A8Unorm)
-        , world(device, dimensions, dt)
-        , clearObstacles({1000.0f, 0.0f, 0.0f, 0.0f})
+        , source1(device, glm::vec2(5.0f))
+        , source2(device, glm::vec2(5.0f))
+        , force1(device, glm::vec2(5.0f))
+        , force2(device, glm::vec2(5.0f))
+        , density(device, size, vk::Format::eR8G8B8A8Unorm)
+        , world(device, size, dt)
+        , clearObstacles({250.0f, 0.0f, 0.0f, 0.0f})
         , rWorld({0.0f, 0.0f})
-        , body(device, dimensions, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eWeak, {350.0f, 50.0f})
-        , solidPhi(device, body.Phi(), dimensions.Scale)
+        , body(device, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eWeak, {80.0f, 10.0f})
+        , solidPhi(device, body.Phi())
     {
-        solidPhi.Scale = density.Scale = (glm::vec2)dimensions.Scale;
         world.FieldBind(density);
-        source1.Position = force1.Position = {100.0f, 100.0f};
-        source2.Position = force2.Position = {500.0f, 900.0f};
+        source1.Position = force1.Position = {25.0f, 25.0f};
+        source2.Position = force2.Position = {125.0f, 225.0f};
 
         source1.Colour = source2.Colour = yellow;
 
@@ -52,9 +51,9 @@ public:
               Vortex2D::Renderer::RenderTarget& renderTarget) override
     {
         // Draw liquid boundaries
-        Vortex2D::Renderer::Rectangle area(device, glm::ivec2(1024) - glm::ivec2(24));
+        Vortex2D::Renderer::Rectangle area(device, glm::ivec2(250));
         area.Colour = glm::vec4(-1.0f);
-        area.Position = glm::vec2(1.0f);
+        area.Position = glm::vec2(3.0f);
 
         Vortex2D::Renderer::Clear clearLiquid({1.0f, 0.0f, 0.0f, 0.0f});
 
@@ -65,7 +64,7 @@ public:
         densityRender = density.Record({source1, source2});
 
         // Draw rigid body
-        body.SetTransform({400.0f, 400.0f}, -45.0f);
+        body.SetTransform({100.0f, 100.0f}, -45.0f);
 
         Vortex2D::Renderer::ColorBlendState blendState;
         blendState.ColorBlend
