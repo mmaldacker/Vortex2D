@@ -1,3 +1,14 @@
+# Release 1.4
+
+* Support for running simulation with multiple sub-steps per steps
+* Rename world function "Solve" to "Step"
+* Removed scaling functionality
+* Fixed Timer class
+* Added option to specify specialization constants in shaders
+* CMake improvements when including in other projects
+* Initialize to Vulkan 1.1 by default (with fallback to 1.0)
+* Improve ComputeSize class
+
 # Release 1.3
 
 * Added strong rigidbody coupling
