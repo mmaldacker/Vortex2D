@@ -60,8 +60,8 @@ float PressureRigidbody_VelocityTest(float scale)
     float force = forces.velocity.x / (mass * scale);
     std::cout << "Scale " << scale << " Mass " << mass << " Scaled Force (" << force << ")" << std::endl;
 
-    EXPECT_NEAR(forces.angular_velocity / (inertia * std::pow(scale, 4.0f)), 0.0f, 1e-2f);
-    EXPECT_NEAR(forces.velocity.y / (mass * scale), 0.0f, 1e-2f);
+    EXPECT_NEAR(forces.angular_velocity / (inertia * std::pow(scale, 4.0f)), 0.0f, 0.1f);
+    EXPECT_NEAR(forces.velocity.y / (mass * scale), 0.0f, 0.1f);
 
     device->Handle().waitIdle();
 
