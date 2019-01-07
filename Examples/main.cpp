@@ -51,7 +51,7 @@ std::vector<const char*> GetGLFWExtensions()
     return extensions;
 }
 
-vk::UniqueSurfaceKHR GetGLFWSurface(GLFWwindow* window, vk::Instance instance)
+vk::SurfaceKHR GetGLFWSurface(GLFWwindow* window, vk::Instance instance)
 {
     // create surface
     VkSurfaceKHR surface;
@@ -60,7 +60,7 @@ vk::UniqueSurfaceKHR GetGLFWSurface(GLFWwindow* window, vk::Instance instance)
         throw std::runtime_error("failed to create window surface!");
     }
 
-    return vk::UniqueSurfaceKHR(surface);
+    return surface;
 }
 
 GLFWwindow* GetGLFWWindow(const glm::ivec2& size)
@@ -85,8 +85,8 @@ public:
         : glfwWindow(GetGLFWWindow(windowSize))
         , instance("Vortex2D", GetGLFWExtensions(), validation)
         , surface(GetGLFWSurface(glfwWindow, static_cast<VkInstance>(instance.GetInstance())))
-        , device(instance.GetPhysicalDevice(), *surface, validation)
-        , window(device, *surface, windowSize.x, windowSize.y)
+        , device(instance.GetPhysicalDevice(), surface, validation)
+        , window(device, surface, windowSize.x, windowSize.y)
         , clearRender(window.Record({clear}))
     {
         // setup callback
@@ -103,6 +103,7 @@ public:
     ~App()
     {
         device.Handle().waitIdle();
+        instance.GetInstance().destroySurfaceKHR(surface);
         glfwDestroyWindow(glfwWindow);
     }
 
@@ -173,7 +174,7 @@ public:
 
     GLFWwindow* glfwWindow;
     Vortex2D::Renderer::Instance instance;
-    vk::UniqueSurfaceKHR surface;
+    vk::SurfaceKHR surface;
     Vortex2D::Renderer::Device device;
     Renderer::RenderWindow window;
     Renderer::Clear clear = {{0.5f, 0.5f, 0.5f, 1.0f}};

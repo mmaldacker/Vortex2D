@@ -12,7 +12,7 @@ layout(set = 0, binding = 1) uniform UBO
     mat4 mv;
 }u;
 
-layout(std430, binding = 2) buffer Polygon
+layout(std430, binding = 2) readonly buffer Polygon
 {
   vec2 points[];
 }polygon;
