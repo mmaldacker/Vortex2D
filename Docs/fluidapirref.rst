@@ -11,7 +11,6 @@ Classes
  - :cpp:class:`Vortex2D::Fluid::Density`
  - :cpp:class:`Vortex2D::Fluid::Depth`
  - :cpp:class:`Vortex2D::Fluid::Diagonal`
- - :cpp:class:`Vortex2D::Fluid::Dimensions`
  - :cpp:class:`Vortex2D::Fluid::DistanceField`
  - :cpp:class:`Vortex2D::Fluid::Extrapolation`
  - :cpp:class:`Vortex2D::Fluid::GaussSeidel`

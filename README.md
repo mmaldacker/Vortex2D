@@ -60,5 +60,4 @@ In no particular order:
 
 * Bicubic interpolation
 * Dynamic timestep
-* Improved/faster solver
-* Fire 
+* Fire
