@@ -157,6 +157,28 @@ TEST(ParticleTests, ParticleCounting)
     ASSERT_EQ(numParticles, particleCount.GetTotalCount());
 }
 
+TEST(ParticleTests, ParticleCounting_OffBounds)
+{
+    glm::ivec2 size(20);
+
+    std::vector<Particle> particlesData(size.x*size.y*8);
+    particlesData[0].Position = glm::vec2(-3.4f, 2.3f);
+    particlesData[1].Position = glm::vec2(3.5f, -2.4f);
+    particlesData[2].Position = glm::vec2(55.4f, 6.7f);
+    particlesData[3].Position = glm::vec2(5.4f, 46.7f);
+    int numParticles = 4;
+
+    Buffer<Particle> particles(*device, 8*size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+    CopyFrom(particles, particlesData);
+
+    ParticleCount particleCount(*device, size, particles, {numParticles});
+
+    particleCount.Scan();
+    device->Handle().waitIdle();
+
+    ASSERT_EQ(0, particleCount.GetTotalCount());
+}
+
 TEST(ParticleTests, ParticleDelete)
 {
     glm::ivec2 size(20);
