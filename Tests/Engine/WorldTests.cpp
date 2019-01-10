@@ -52,7 +52,9 @@ float PressureRigidbody_VelocityTest(float scale)
     velocity.Colour = {10.0f / scale, 0.0f, 0.0f, 0.0f};
 
     world.RecordVelocity({velocity}).Submit();
-    world.Step();
+
+    auto params = Fluid::IterativeParams(1e-5f);
+    world.Step(params);
 
     device->Handle().waitIdle();
 
@@ -60,8 +62,8 @@ float PressureRigidbody_VelocityTest(float scale)
     float force = forces.velocity.x / (mass * scale);
     std::cout << "Scale " << scale << " Mass " << mass << " Scaled Force (" << force << ")" << std::endl;
 
-    EXPECT_NEAR(forces.angular_velocity / (inertia * std::pow(scale, 4.0f)), 0.0f, 0.1f);
-    EXPECT_NEAR(forces.velocity.y / (mass * scale), 0.0f, 0.1f);
+    EXPECT_NEAR(forces.angular_velocity / (inertia * std::pow(scale, 4.0f)), 0.0f, 1e-3f);
+    EXPECT_NEAR(forces.velocity.y / (mass * scale), 0.0f, 1e-3f);
 
     device->Handle().waitIdle();
 
@@ -125,7 +127,9 @@ float PressureRigidbody_RotationTest(float scale)
     velocityDown.Colour = {-10.0f / scale, 0.0f, 0.0f, 0.0f};
 
     world.RecordVelocity({velocityUp, velocityDown}).Submit();
-    world.Step();
+
+    auto params = Fluid::IterativeParams(1e-5f);
+    world.Step(params);
 
     device->Handle().waitIdle();
 
@@ -133,8 +137,8 @@ float PressureRigidbody_RotationTest(float scale)
     float force = forces.angular_velocity / (inertia * std::pow(scale, 4.0f));
     std::cout << "Scale " << scale << " Inertia " << inertia << " Scaled Torque (" << force << ")" << std::endl;
 
-    EXPECT_NEAR(forces.velocity.x / (mass * scale), 0.0f, 2.0f);
-    EXPECT_NEAR(forces.velocity.y / (mass * scale), 0.0f, 2.0f);
+    EXPECT_NEAR(forces.velocity.x / (mass * scale), 0.0f, 1e-2f);
+    EXPECT_NEAR(forces.velocity.y / (mass * scale), 0.0f, 1e-2f);
 
     device->Handle().waitIdle();
 
@@ -176,7 +180,9 @@ TEST(WorldTests, VelocityScale)
     velocity.Colour = {10.0f, 0.0f, 0.0f, 0.0f};
 
     world.RecordVelocity({velocity}).Submit();
-    world.Step();
+
+    auto params = Fluid::IterativeParams(1e-5f);
+    world.Step(params);
 
     device->Handle().waitIdle();
 

@@ -75,7 +75,8 @@ public:
     void Step() override
     {
         world.SubmitVelocity(velocityRender);
-        world.Step();
+        auto params = Vortex2D::Fluid::FixedParams(12);
+        world.Step(params);
 
         windowRender.Submit();
     }

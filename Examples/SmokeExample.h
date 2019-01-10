@@ -85,7 +85,8 @@ public:
         velocityRender.Submit();
         densityRender.Submit();
 
-        world.Step();
+        auto params = Vortex2D::Fluid::FixedParams(12);
+        world.Step(params);
 
         windowRender.Submit();
     }

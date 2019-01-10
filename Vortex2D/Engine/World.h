@@ -51,7 +51,7 @@ public:
     /**
      * @brief Perform one step of the simulation.
      */
-    VORTEX2D_API void Step();
+    VORTEX2D_API void Step(LinearSolver::Parameters& params);
 
     /**
      * @brief Record drawables to the velocity field. The colour (r,g) will be used as the velocity (x, y)
@@ -116,7 +116,7 @@ public:
     VORTEX2D_API Renderer::Texture& GetVelocity();
 
 protected:
-    virtual void Substep() = 0;
+    virtual void Substep(LinearSolver::Parameters& params) = 0;
 
     const Renderer::Device& mDevice;
     glm::ivec2 mSize;
@@ -162,7 +162,7 @@ public:
     VORTEX2D_API void FieldBind(Density& density);
 
 private:
-    void Substep() override;
+    void Substep(LinearSolver::Parameters& params) override;
 };
 
 /**
@@ -184,7 +184,7 @@ public:
     VORTEX2D_API Renderer::RenderCommand RecordParticleCount(Renderer::RenderTarget::DrawableList drawables);
 
 private:
-    void Substep() override;
+    void Substep(LinearSolver::Parameters& params) override;
 
     Renderer::GenericBuffer mParticles;
     ParticleCount mParticleCount;

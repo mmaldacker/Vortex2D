@@ -42,4 +42,20 @@ bool LinearSolver::Parameters::IsFinished(float initialError) const
     }
 }
 
+void LinearSolver::Parameters::Reset()
+{
+    OutError = 0.0f;
+    OutIterations = 0;
+}
+
+LinearSolver::Parameters FixedParams(unsigned iterations)
+{
+    return LinearSolver::Parameters(LinearSolver::Parameters::SolverType::Fixed, iterations);
+}
+
+LinearSolver::Parameters IterativeParams(float errorTolerance)
+{
+    return LinearSolver::Parameters(LinearSolver::Parameters::SolverType::Iterative, 1000, errorTolerance);
+}
+
 }}

@@ -94,7 +94,8 @@ public:
         body1.Update();
         body2.Update();
 
-        world.Step();
+        auto params = Vortex2D::Fluid::FixedParams(12);
+        world.Step(params);
 
         const int velocityStep = 8;
         const int positionStep = 3;

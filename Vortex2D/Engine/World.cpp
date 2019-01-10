@@ -62,11 +62,11 @@ World::World(const Renderer::Device& device, const glm::ivec2& size, float dt, i
     });
 }
 
-void World::Step()
+void World::Step(LinearSolver::Parameters& params)
 {
   for (int i = 0; i < mNumSubSteps; i++)
   {
-      Substep();
+      Substep(params);
   }
 }
 
@@ -145,7 +145,7 @@ SmokeWorld::SmokeWorld(const Renderer::Device& device, const glm::ivec2& size, f
 {
 }
 
-void SmokeWorld::Substep()
+void SmokeWorld::Substep(LinearSolver::Parameters& params)
 {
     for (auto& velocity: mVelocities)
     {
@@ -171,7 +171,6 @@ void SmokeWorld::Substep()
         }
     }
 
-    LinearSolver::Parameters params(LinearSolver::Parameters::SolverType::Fixed, 18);
     mLinearSolver.Solve(params, GetRigidbodyPointers(mRigidbodies));
     mProjection.ApplyPressure();
 
@@ -213,7 +212,7 @@ WaterWorld::WaterWorld(const Renderer::Device& device, const glm::ivec2& size, f
     mAdvection.AdvectParticleBind(mParticles, mDynamicSolidPhi, mParticleCount.GetDispatchParams());
 }
 
-void WaterWorld::Substep()
+void WaterWorld::Substep(LinearSolver::Parameters& params)
 {
     /*
      1) From particles, construct fluid level set
@@ -262,7 +261,6 @@ void WaterWorld::Substep()
 
     // 5)
     mProjection.BuildLinearEquation();
-    LinearSolver::Parameters params(LinearSolver::Parameters::SolverType::Fixed, 12);
     mLinearSolver.Solve(params, GetRigidbodyPointers(mRigidbodies));
     mProjection.ApplyPressure();
 

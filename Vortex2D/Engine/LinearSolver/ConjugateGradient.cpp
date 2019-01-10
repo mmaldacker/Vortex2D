@@ -156,6 +156,8 @@ void ConjugateGradient::BindRigidbody(Renderer::GenericBuffer& d,
 
 void ConjugateGradient::Solve(Parameters& params, const std::vector<RigidBody*>& rigidbodies)
 {
+    params.Reset();
+
     mSolveInit.Submit();
 
     if (params.Type == Parameters::SolverType::Iterative)

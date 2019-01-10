@@ -48,6 +48,11 @@ struct LinearSolver
          */
         bool IsFinished(float initialError) const;
 
+        /**
+         * @brief Sets the out error and out iterations to 0.
+         */
+        void Reset();
+
         SolverType Type;
         unsigned Iterations;
         float ErrorTolerance;
@@ -90,6 +95,21 @@ struct LinearSolver
      */
     virtual void Solve(Parameters& params, const std::vector<RigidBody*>& rigidbodies = {}) = 0;
 };
+
+/**
+ * @brief Create a linear solver parameters object with fixed solver type
+ * @param iterations number of iterations to do
+ * @return parameters
+ */
+VORTEX2D_API LinearSolver::Parameters FixedParams(unsigned iterations);
+
+/**
+ * @brief Create a linear solver parameters object,
+ * solver will continue until error tolerance is reached.
+ * @param errorTolerance tolerance to reach before exiting
+ * @return parameters
+ */
+VORTEX2D_API LinearSolver::Parameters IterativeParams(float errorTolerance);
 
 }}
 

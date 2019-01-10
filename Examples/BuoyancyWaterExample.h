@@ -90,7 +90,8 @@ public:
         circle3.Update();
 
         world.SubmitVelocity(velocityRender);
-        world.Step();
+        auto params = Vortex2D::Fluid::FixedParams(12);
+        world.Step(params);
 
         const int velocityStep = 8;
         const int positionStep = 3;

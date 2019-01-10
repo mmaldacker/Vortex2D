@@ -78,6 +78,8 @@ void GaussSeidel::BindRigidbody(Renderer::GenericBuffer& /*d*/,
 
 void GaussSeidel::Solve(Parameters& params, const std::vector<RigidBody*>& /*rigidbodies*/)
 {
+    params.Reset();
+
     mInitCmd.Submit();
 
     if (params.Type == Parameters::SolverType::Iterative)
