@@ -59,9 +59,27 @@ ParticleCount::ParticleCount(const Renderer::Device& device,
     });
 
     // TODO clamp should be configurable
+
+    // Algorithm
+    // 1) copy this to mDelta
+    //    -> this sets the number of particles we want to add or remove in each grid cell
+    // 2) for each particle, increase count in grid cell mDelta
+    // 3) clamp grid cell of mDelta count between [0, 8]
+    //    -> now mDelta contains the number of particles we want in each cell.
+    //       which means deleting some or add some
+    // 4) copy mDelta to mCount
+    //    -> we save the count of particles in mCount as we'll modify mDelta
+    // 5) prefix scan from mDelta to mIndex
+    //    -> mIndex now maps from grid cell to particle index
+    // 6) for each particle, if count in grid cell mDelta > 0, copy to new particles and decrease count
+    //    -> using the mIndex mapping to get the index in the new particles buffer
+    // 7) for each grid cell mDelta > 0, add new particle in new particles
+    //    -> set the new particles with random position
+    // 8) copy new particles to particles
+
     mScanWork.Record([&](vk::CommandBuffer commandBuffer)
     {
-		commandBuffer.debugMarkerBeginEXT({ "Particle count",{ { 0.14f, 0.39f, 0.12f, 1.0f } } });
+        commandBuffer.debugMarkerBeginEXT({"Particle count", {{ 0.14f, 0.39f, 0.12f, 1.0f }}});
         mDelta.CopyFrom(commandBuffer, *this);
         Clear(commandBuffer, std::array<int, 4>{0, 0, 0, 0});
         mParticleCountBound.RecordIndirect(commandBuffer, mDispatchParams);
@@ -69,9 +87,9 @@ ParticleCount::ParticleCount(const Renderer::Device& device,
         mParticleClampBound.Record(commandBuffer);
         mDelta.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         mCount.CopyFrom(commandBuffer, mDelta);
-		commandBuffer.debugMarkerEndEXT();
+        commandBuffer.debugMarkerEndEXT();
 
-        commandBuffer.debugMarkerBeginEXT({"Particle scan", {{ 0.59f, 0.20f, 0.35f, 1.0f}}});
+        commandBuffer.debugMarkerBeginEXT({"Particle scan", {{0.59f, 0.20f, 0.35f, 1.0f}}});
         mPrefixScanBound.Record(commandBuffer);
         mParticleBucketBound.RecordIndirect(commandBuffer, mDispatchParams);
         mNewParticles.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
@@ -80,7 +98,6 @@ ParticleCount::ParticleCount(const Renderer::Device& device,
         particles.CopyFrom(commandBuffer, mNewParticles);
         mDispatchParams.CopyFrom(commandBuffer, mNewDispatchParams);
         commandBuffer.debugMarkerEndEXT();
-
     });
 
     mDispatchCountWork.Record([&](vk::CommandBuffer commandBuffer)

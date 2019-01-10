@@ -50,16 +50,17 @@ void main()
     uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
 
     uint index = gl_GlobalInvocationID.x;
-    // TODO also check is within bounds with width/height?
     if (index < params.count)
     {
         ivec2 pos = ivec2(particles.value[index].Position);
-        int particleIndex = pos.x + pos.y * consts.width;
-
-        int particleCount = atomicAdd(count.value[particleIndex], -1) - 1;
-        if (particleCount >= 0)
+        if (pos.x >= 0 && pos.x < consts.width && pos.y >= 0 && pos.y < consts.height)
         {
-            newParticles.value[scanIndex.value[particleIndex] + particleCount] = particles.value[index];
+            int particleIndex = pos.x + pos.y * consts.width;
+            int particleCount = atomicAdd(count.value[particleIndex], -1) - 1;
+            if (particleCount >= 0)
+            {
+                newParticles.value[scanIndex.value[particleIndex] + particleCount] = particles.value[index];
+            }
         }
     }
 }
