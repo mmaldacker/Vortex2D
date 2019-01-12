@@ -475,7 +475,7 @@ TEST(RigidbodyTests, Force)
                                          0.01f,
                                          rectangle, {0.0, 0.0f},
                                          solidPhi,
-                                         Vortex2D::Fluid::RigidBody::Type::eStatic,
+                                         Vortex2D::Fluid::RigidBody::Type::eWeak,
                                          0.0f,
                                          0.0f);
 
@@ -554,7 +554,7 @@ TEST(RigidbodyTests, Pressure)
                                          0.01f,
                                          rectangle, {0.0f, 0.0f},
                                          solidPhi,
-                                         Vortex2D::Fluid::RigidBody::Type::eStatic,
+                                         Vortex2D::Fluid::RigidBody::Type::eStrong,
                                          sim.rbd->getMass(),
                                          sim.rbd->getInertiaModulus());
 
