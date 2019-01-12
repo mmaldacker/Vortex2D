@@ -21,7 +21,7 @@ public:
                  const glm::ivec2& size,
                  float dt)
         : gravity(device, {256.0f, 256.0f})
-        , world(device, size, dt)
+        , world(device, size, dt, 2)
         , solidPhi(world.SolidDistanceField())
         , liquidPhi(world.LiquidDistanceField())
     {

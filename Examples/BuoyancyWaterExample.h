@@ -23,20 +23,20 @@ public:
     HydrostaticWaterExample(const Vortex2D::Renderer::Device& device,
                             const glm::ivec2& size,
                             float dt)
-        : delta(dt)
+        : delta(dt / 2.0)
         , gravity(device, glm::vec2(256.0f, 256.0f))
-        , world(device, size, dt)
+        , world(device, size, delta, 1)
         , solidPhi(world.SolidDistanceField())
         , liquidPhi(world.LiquidDistanceField())
         , rWorld(b2Vec2(0.0f, gravityForce))
-        , circle1(device, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 10.0f, 0.8f)
-        , circle2(device, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 10.0f, 0.9f)
+        , circle1(device, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 10.0f, 0.4f)
+        , circle2(device, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 10.0f, 0.7f)
         , circle3(device, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 10.0f, 1.1f)
         , left(device, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {5.0f, 125.0f})
         , right(device, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {5.0f, 125.0f})
         , bottom(device, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {250.0f, 5.0f})
     {
-        gravity.Colour = glm::vec4(0.0f, dt * gravityForce, 0.0f, 0.0f);
+        gravity.Colour = glm::vec4(0.0f, delta * gravityForce, 0.0f, 0.0f);
 
         solidPhi.Colour = red;
         liquidPhi.Colour = blue;
@@ -83,22 +83,28 @@ public:
         windowRender = renderTarget.Record({liquidPhi, solidPhi}, blendState);
     }
 
-    void Step() override
+    void Substep()
     {
-        circle1.Update();
-        circle2.Update();
-        circle3.Update();
-
         world.SubmitVelocity(velocityRender);
         auto params = Vortex2D::Fluid::FixedParams(12);
         world.Step(params);
 
+        circle1.Update();
+        circle2.Update();
+        circle3.Update();
+
         const int velocityStep = 8;
         const int positionStep = 3;
         rWorld.Step(delta, velocityStep, positionStep);
+    }
 
+    void Step() override
+    {
+        Substep();
+        Substep();
         windowRender.Submit();
     }
+
 private:
     float delta;
     Vortex2D::Renderer::Rectangle gravity;

@@ -133,11 +133,11 @@ public:
     WatermillExample(const Vortex2D::Renderer::Device& device,
                          const glm::ivec2& size,
                          float dt)
-        : delta(dt)
+        : delta(dt / 2.0f)
         , waterSource(device, {25.0, 25.0f})
         , waterForce(device, {25.0f, 25.0f})
         , gravity(device, glm::vec2(256.0f, 256.0f))
-        , world(device, size, dt)
+        , world(device, size, dt, 1)
         , solidPhi(world.SolidDistanceField())
         , liquidPhi(world.LiquidDistanceField())
         , rWorld(b2Vec2(0.0f, gravityForce))
@@ -145,7 +145,7 @@ public:
         , bottom(device, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {250.0f, 5.0f})
         , watermill(device, rWorld, world)
     {
-        gravity.Colour = glm::vec4(0.0f, dt * gravityForce, 0.0f, 0.0f);
+        gravity.Colour = glm::vec4(0.0f, delta * gravityForce, 0.0f, 0.0f);
 
         solidPhi.Colour = red;
         liquidPhi.Colour = blue;
@@ -190,7 +190,7 @@ public:
         windowRender = renderTarget.Record({liquidPhi, solidPhi}, blendState);
     }
 
-    void Step() override
+    void Substep()
     {
         watermill.Update();
 
@@ -202,7 +202,12 @@ public:
         const int velocityStep = 8;
         const int positionStep = 3;
         rWorld.Step(delta, velocityStep, positionStep);
+    }
 
+    void Step() override
+    {
+        Substep();
+        Substep();
         windowRender.Submit();
     }
 

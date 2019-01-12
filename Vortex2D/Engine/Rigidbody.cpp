@@ -163,22 +163,34 @@ void RigidBody::BindPressure(Renderer::GenericBuffer& d,
 
 void RigidBody::Div()
 {
-    mDivCmd.Submit();
+    if (mType & RigidBody::Type::eStatic)
+    {
+        mDivCmd.Submit();
+    }
 }
 
 void RigidBody::Force()
 {
-    mForceCmd.Submit();
+    if (mType & RigidBody::Type::eWeak)
+    {
+        mForceCmd.Submit();
+    }
 }
 
 void RigidBody::Pressure()
 {
-    mPressureCmd.Submit();
+    if (mType == RigidBody::Type::eStrong)
+    {
+        mPressureCmd.Submit();
+    }
 }
 
 void RigidBody::VelocityConstrain()
 {
-    mConstrainCmd.Submit();
+    if (mType & RigidBody::Type::eStatic)
+    {
+        mConstrainCmd.Submit();
+    }
 }
 
 vk::Flags<RigidBody::Type> RigidBody::GetType()

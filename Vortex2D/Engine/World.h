@@ -171,7 +171,7 @@ private:
 class WaterWorld : public World
 {
 public:
-    VORTEX2D_API WaterWorld(const Renderer::Device& device, const glm::ivec2& size, float dt);
+    VORTEX2D_API WaterWorld(const Renderer::Device& device, const glm::ivec2& size, float dt, int numSubSteps);
 
     /**
      * @brief The water simulation uses particles to define the water area.

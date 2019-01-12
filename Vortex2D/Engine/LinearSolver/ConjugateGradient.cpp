@@ -179,10 +179,7 @@ void ConjugateGradient::Solve(Parameters& params, const std::vector<RigidBody*>&
     {
         for (auto& rigidbody: rigidbodies)
         {
-          if (rigidbody->GetType() == RigidBody::Type::eStrong)
-          {
             rigidbody->Pressure();
-          }
         }
 
         mSolve.Submit();

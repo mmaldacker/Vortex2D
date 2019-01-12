@@ -23,11 +23,11 @@ public:
     WaterFallExample(const Vortex2D::Renderer::Device& device,
                      const glm::ivec2& size,
                      float dt)
-        : delta(dt)
+        : delta(dt / 2.0f)
         , waterSource(device, {10.0f, 10.0f})
         , waterForce(device, {10.0f, 10.0f})
         , gravity(device, glm::vec2(256.0f, 256.0f))
-        , world(device, size, dt)
+        , world(device, size, dt, 1)
         , solidPhi(world.SolidDistanceField())
         , liquidPhi(world.LiquidDistanceField())
         , rWorld(b2Vec2(0.0f, gravityForce))
@@ -37,7 +37,7 @@ public:
         , right(device, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {50.0f, 5.0f})
         , bottom(device, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {250.0f, 5.0f})
     {
-        gravity.Colour = glm::vec4(0.0f, dt * gravityForce, 0.0f, 0.0f);
+        gravity.Colour = glm::vec4(0.0f, delta * gravityForce, 0.0f, 0.0f);
 
         solidPhi.Colour = green;
         liquidPhi.Colour = blue;
@@ -87,22 +87,28 @@ public:
         windowRender = renderTarget.Record({liquidPhi, solidPhi}, blendState);
     }
 
-    void Step() override
+    void Substep()
     {
-        circle.Update();
-        box.Update();
-
         sourceRender.Submit();
         world.SubmitVelocity(velocityRender);
         auto params = Vortex2D::Fluid::FixedParams(12);
         world.Step(params);
 
+        circle.Update();
+        box.Update();
+
         const int velocityStep = 8;
         const int positionStep = 3;
         rWorld.Step(delta, velocityStep, positionStep);
+    }
 
+    void Step() override
+    {
+        Substep();
+        Substep();
         windowRender.Submit();
     }
+
 private:
     float delta;
     Vortex2D::Renderer::IntRectangle waterSource;

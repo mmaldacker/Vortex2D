@@ -21,6 +21,14 @@ std::vector<RigidBody*> GetRigidbodyPointers(const std::vector<std::unique_ptr<R
     return rigidBodiesPointers;
 }
 
+void ForAll(std::vector<std::unique_ptr<RigidBody>>& rigidbodies, void(RigidBody::*f)())
+{
+    for (auto& rigidbody: rigidbodies)
+    {
+        (*(rigidbody).*f)();
+    }
+}
+
 World::World(const Renderer::Device& device, const glm::ivec2& size, float dt, int numSubSteps)
     : mDevice(device)
     , mSize(size)
@@ -64,10 +72,10 @@ World::World(const Renderer::Device& device, const glm::ivec2& size, float dt, i
 
 void World::Step(LinearSolver::Parameters& params)
 {
-  for (int i = 0; i < mNumSubSteps; i++)
-  {
-      Substep(params);
-  }
+    for (int i = 0; i < mNumSubSteps; i++)
+    {
+        Substep(params);
+    }
 }
 
 Renderer::RenderCommand World::RecordVelocity(Renderer::RenderTarget::DrawableList drawables)
@@ -154,44 +162,24 @@ void SmokeWorld::Substep(LinearSolver::Parameters& params)
     mVelocities.clear();
     
     mCopySolidPhi.Submit();
-    for (auto&& rigidbody: mRigidbodies)
-    {
-        rigidbody->RenderPhi();
-    }
+
+    ForAll(mRigidbodies, &RigidBody::RenderPhi);
 
     mDynamicSolidPhi.Reinitialise();
     mPreconditioner.BuildHierarchies();
     mProjection.BuildLinearEquation();
 
-    for (auto&& rigidbody: mRigidbodies)
-    {
-        if (rigidbody->GetType() & RigidBody::Type::eStatic)
-        {
-            rigidbody->Div();
-        }
-    }
+    ForAll(mRigidbodies, &RigidBody::Div);
 
     mLinearSolver.Solve(params, GetRigidbodyPointers(mRigidbodies));
     mProjection.ApplyPressure();
 
-    for (auto&& rigidbody: mRigidbodies)
-    {
-        if (rigidbody->GetType() & RigidBody::Type::eWeak)
-        {
-            rigidbody->Force();
-        }
-    }
+    ForAll(mRigidbodies, &RigidBody::Force);
 
     mExtrapolation.Extrapolate();
     mExtrapolation.ConstrainVelocity();
 
-    for (auto&& rigidbody: mRigidbodies)
-    {
-        if (rigidbody->GetType() & RigidBody::Type::eStatic)
-        {
-            rigidbody->VelocityConstrain();
-        }
-    }
+    ForAll(mRigidbodies, &RigidBody::VelocityConstrain);
 
     mAdvection.AdvectVelocity();
     mAdvection.Advect();
@@ -202,8 +190,8 @@ void SmokeWorld::FieldBind(Density& density)
     mAdvection.AdvectBind(density);
 }
 
-WaterWorld::WaterWorld(const Renderer::Device& device, const glm::ivec2& size, float dt)
-    : World(device, size, dt, 2)
+WaterWorld::WaterWorld(const Renderer::Device& device, const glm::ivec2& size, float dt, int numSubSteps)
+    : World(device, size, dt, numSubSteps)
     , mParticles(device, vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eVertexBuffer, VMA_MEMORY_USAGE_GPU_ONLY, 8*size.x*size.y*sizeof(Particle))
     , mParticleCount(device, size, mParticles, {0}, 0.02f)
 {
@@ -242,19 +230,10 @@ void WaterWorld::Substep(LinearSolver::Parameters& params)
 
     // 4)
     mCopySolidPhi.Submit();
-    for (auto&& rigidbody: mRigidbodies)
-    {
-        rigidbody->RenderPhi();
-    }
+    ForAll(mRigidbodies, &RigidBody::RenderPhi);
     mDynamicSolidPhi.Reinitialise();
 
-    for (auto&& rigidbody: mRigidbodies)
-    {
-        if (rigidbody->GetType() & RigidBody::Type::eStatic)
-        {
-            rigidbody->Div();
-        }
-    }
+    ForAll(mRigidbodies, &RigidBody::Div);
 
     mPreconditioner.BuildHierarchies();
     mLiquidPhi.Extrapolate();
@@ -264,24 +243,12 @@ void WaterWorld::Substep(LinearSolver::Parameters& params)
     mLinearSolver.Solve(params, GetRigidbodyPointers(mRigidbodies));
     mProjection.ApplyPressure();
 
-    for (auto&& rigidbody: mRigidbodies)
-    {
-        if (rigidbody->GetType() & RigidBody::Type::eWeak)
-        {
-            rigidbody->Force();
-        }
-    }
+    ForAll(mRigidbodies, &RigidBody::Force);
 
     mExtrapolation.Extrapolate();
     mExtrapolation.ConstrainVelocity();
 
-    for (auto&& rigidbody: mRigidbodies)
-    {
-        if (rigidbody->GetType() & RigidBody::Type::eStatic)
-        {
-            rigidbody->VelocityConstrain();
-        }
-    }
+    ForAll(mRigidbodies, &RigidBody::VelocityConstrain);
 
     // 6)
     mVelocity.VelocityDiff();
