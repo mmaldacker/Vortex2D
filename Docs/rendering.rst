@@ -55,8 +55,20 @@ In addition, you also need to create a surface which can be also done with the h
 	    return vk::UniqueSurfaceKHR(surface, vk::SurfaceKHRDeleter{instance});
 	}
 
-Rendering shapes
-================
+Render Targets
+==============
+
+To be able to render, we need to record :cpp:class:`Vortex2D::Renderer::RenderCommand` on a :cpp:class:`Vortex2D::Renderer::RenderTarget`. There are two implementations of it:
+
+ * :cpp:class:`Vortex2D::Renderer::RenderWindow`
+ * :cpp:class:`Vortex2D::Renderer::RenderTexture`
+
+You can render implementations of the abstract class :cpp:class:`Vortex2D::Renderer::Drawable`, which get recorder in the render command. To actually render it on the render target, the submit function needs to be called. Note, it can be called repeatedly (e.g. over several frames).
+
+In addition, the blend state needs to be passed in, see :cpp:class:`Vortex2D::Renderer::ColorBlendState`.
+
+Shapes
+======
 
 We are now ready to draw things on the screen. Let's start with some shapes like rectangles and circles:
 
@@ -64,12 +76,6 @@ We are now ready to draw things on the screen. Let's start with some shapes like
 
     Vortex2D::Renderer::Rectangle rectangle(device, {100.0f, 100.0f});
     Vortex2D::Renderer::Ellipse circle(device, {50.0f, 50.0f});
-
-    rectangle.Colour = {1.0f, 0.0f, 0.0f, 1.0f}; 
-    rectangle.Position = {200.0f, 100.0f};
-
-    circle.Colour = {0.0f, 0.0f, 1.0f, 1.0f};
-    circle.Position = {500.0f, 400.0f};
 
     auto blendMode = vk::PipelineColorBlendAttachmentState()
         .setBlendEnable(true)
@@ -84,8 +90,8 @@ We are now ready to draw things on the screen. Let's start with some shapes like
     auto render = renderTarget.Record({rectangle, circle}, blendMode);
     render.Submit();
 
-Rendering textures
-==================
+Textures
+========
 
 Of course we can also render textures, using sprites. 
 
@@ -93,3 +99,21 @@ Of course we can also render textures, using sprites.
 
 	Vortex2D::Renderer::Texture texture(device, 100, 100, vk::Format::eR8G8B8A8Unorm);
 	Vortex2D::Renderer::Sprite sprite(device, texture);
+
+Transformations
+===============
+
+The shapes and textures can be positioned, i.e. are transformable. You can set the following properties on them:
+
+* Position
+* Scale
+* Rotation
+* Anchor
+
+As an example:
+
+.. code-block:: cpp
+
+    Vortex2D::Renderer::Ellipse circle(device, {50.0f, 50.0f});
+    circle.Colour = {0.0f, 0.0f, 1.0f, 1.0f};
+    circle.Position = {500.0f, 400.0f};

@@ -10,25 +10,20 @@ Vortex2D is multi-platform and currently supports the following:
  * iOS
 
 CMake is used to generate the appropriate build scripts for each platform.
-The dependencies, which are fetched when calling cmake are:
-
- * glm
- * SPIRV-cross
-
-for the tests:
-
- * gtest
-
-for the examples:
-
- * glfw
+The dependencies, which are fetched when calling cmake, are **glm** and **SPIRV-cross**. The tests use **gtest** and the examples use **glfw**.
 
 The only dependency required is python.
 There a several variables that can be used to configure:
 
- *  `VORTEX2D_ENABLE_TESTS` builds the tests
- *  `VORTEX2D_ENABLE_EXAMPLES` builds the examples
- *  `VORTEX2D_ENABLE_DOCS` builds the documentation
++-------------------------+-------------------------+
+| CMake                   | Builds                  |
++=========================+=========================+
+|VORTEX2D_ENABLE_TESTS    |builds the tests         |
++-------------------------+-------------------------+
+|VORTEX2D_ENABLE_EXAMPLES |builds the examples      |
++-------------------------+-------------------------+
+|VORTEX2D_ENABLE_DOCS     |builds the documentation |
++-------------------------+-------------------------+
 
 The main library is built as a dll on windows, shared library on linux and (dynamic) framework on macOS/iOS.
 
@@ -36,6 +31,7 @@ Prerequisite
 ============
 
 Following are necessary:
+
  * Python
  * glslangValidator (comes with Vulkan SDK)
 
@@ -67,8 +63,16 @@ iOS
 
 The framework needs to signed on iOS, so the following variables need to be defined:
 
- * `CODE_SIGN_IDENTITY` should be set to `"iPhone Developer"`
- * `DDEVELOPMENT_TEAM_ID` should be set to the team id, can be found on the apple developer portal
++---------------------+--------------------------------------------+
+| Variable            | Value                                      |
++---------------------+--------------------------------------------+
+| CODE_SIGN_IDENTITY  | "iPhone Developer"                         |
++---------------------+--------------------------------------------+
+| DEVELOPMENT_TEAM_ID | set to the team id,                        |
+|                     | can be found on the apple developer portal |
++---------------------+--------------------------------------------+
+
+In addition, the MoltenVK location has to be specified, and the toolchain:
 
 .. code-block:: bash
 
@@ -81,4 +85,5 @@ To build the documentation the following is required:
 
 * doxygen
 * sphinx
-* breath sphinx theme
+* sphinx_rtd_theme
+* sphinx breathe

@@ -60,19 +60,14 @@ void LevelSet::ExtrapolateBind(Renderer::Texture& solidPhi)
     mExtrapolateCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
         commandBuffer.debugMarkerBeginEXT({"Extrapolate phi", {{ 0.53f, 0.09f, 0.16f, 1.0f}}});
-        ExtrapolateRecord(commandBuffer);
+        mExtrapolateBound.Record(commandBuffer);
+        Barrier(commandBuffer,
+                vk::ImageLayout::eGeneral,
+                vk::AccessFlagBits::eShaderWrite,
+                vk::ImageLayout::eGeneral,
+                vk::AccessFlagBits::eShaderRead);
         commandBuffer.debugMarkerEndEXT();
     });
-}
-
-void LevelSet::ExtrapolateRecord(vk::CommandBuffer commandBuffer)
-{
-    mExtrapolateBound.Record(commandBuffer);
-    Barrier(commandBuffer,
-            vk::ImageLayout::eGeneral,
-            vk::AccessFlagBits::eShaderWrite,
-            vk::ImageLayout::eGeneral,
-            vk::AccessFlagBits::eShaderRead);
 }
 
 void LevelSet::Reinitialise()

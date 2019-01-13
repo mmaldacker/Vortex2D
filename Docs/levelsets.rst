@@ -8,15 +8,18 @@ A level set is a signed distance field. It's a field containing positive or nega
 This is used to represent shapes, the numbers give you the distance to the shape border. 
 It's the fundamental way that we represent the area of a fluid and the area of the obstacles, i.e. the boundaries.
 
-Signed distance field
-=====================
-
+The level set is represented simply as a float texture. To set the level set, we simply render on that texture. This means that the class :cpp:class:`Vortex2D::Fluid::LevelSet` inherits :cpp:class:`Vortex2D::Renderer::RenderTexture`.
 
 Basic shapes
 ============
 
-There are several shapes that will set a level set, we draw them like we draw any shape. The format of the :cpp:func:`Vortex2D::Renderer::RenderTarget` must be ``vk::Format::eR32Sfloat``.
-The class :cpp:func:`Vortex2D::Fluid::LevelSet` fullfills this. 
+There is a list of basic shapes that can be used to render on a level set:
+
+ * :cpp:class:`Vortex2D::Fluid::Rectangle`
+ * :cpp:class:`Vortex2D::Fluid::Polygon`
+ * :cpp:class:`Vortex2D::Fluid::Circle`
+
+They are used the same way as regular drawable shapes, i.e. 
 
 .. code-block:: cpp
 
@@ -27,7 +30,12 @@ The class :cpp:func:`Vortex2D::Fluid::LevelSet` fullfills this.
 	auto renderCmd = levelSet.Record({rectangle});
 	renderCmd.Submit(); // note that renderCmd and rectangle have to be alive untill the rendering is done
 
-Re-initialization
-=================
+Combining shapes
+================
 
-We can also draw any other shape, and then transform the data into a correct level set. This operation is call re-initialization.
+Multiple shapes can be combined together to build the level set. You can either take the union or the intersection when rendering. This happens by using certain blend states which are:
+
+ * :cpp:enumerator:`Vortex2D::Renderer::IntersectionBlend`
+ * :cpp:enumerator:`Vortex2D::Renderer::UnionBlend`
+
+ After combining several shapes, the resulting float texture is not a signed distance field. It needs to be reinitialised which is simply done by calling :cpp:func:`Vortex2D::Fluid::LevelSet::Reinitialise`.
