@@ -34,7 +34,7 @@ bool LinearSolver::Parameters::IsFinished(float initialError) const
 
     if (Iterations > 0)
     {
-        return OutIterations > Iterations  || OutError <= ErrorTolerance * initialError;
+        return OutIterations >= Iterations  || OutError <= ErrorTolerance * initialError;
     }
     else
     {
