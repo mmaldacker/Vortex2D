@@ -164,12 +164,10 @@ TEST(WorldTests, PressureRigidbody_Rotation)
     std::cout << "Std deviation: " << std::sqrt(var) << std::endl;
 }
 
-TEST(WorldTests, VelocityScale)
+TEST(WorldTests, Velocity)
 {
     float dt = 0.01f;
-    float scale = 2.0f;
-    glm::vec2 size(512.0f, 512.0f);
-    size /= scale;
+    glm::vec2 size(256.0f, 256.0f);
 
     Fluid::SmokeWorld world(*device, size, dt);
 
@@ -177,7 +175,7 @@ TEST(WorldTests, VelocityScale)
     world.RecordLiquidPhi({fluidClear}).Submit();
 
     Renderer::Rectangle velocity(*device, size);
-    velocity.Colour = {10.0f, 0.0f, 0.0f, 0.0f};
+    velocity.Colour = {-10.0f, -10.0f, 0.0f, 0.0f};
 
     world.RecordVelocity({velocity}).Submit();
 
@@ -187,7 +185,7 @@ TEST(WorldTests, VelocityScale)
     device->Handle().waitIdle();
 
     float value = 10.0f / size.x;
-    std::vector<glm::vec2> velocityData(size.x * size.y, {value, 0.0f});
+    std::vector<glm::vec2> velocityData(size.x * size.y, {-value, -value});
 
     CheckVelocity(*device, size, world.GetVelocity(), velocityData);
 }

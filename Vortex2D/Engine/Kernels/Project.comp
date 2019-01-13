@@ -85,4 +85,8 @@ void main()
     vec2 new_cell = cell - consts.delta * pGrad * consts.width;
     imageStore(OutVelocity, pos, vec4(mask * new_cell, 0.0, 0.0));
   }
+  else
+  {
+    imageStore(OutVelocity, pos, vec4(0.0));
+  }
 }

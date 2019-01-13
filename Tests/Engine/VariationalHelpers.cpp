@@ -285,7 +285,7 @@ void CheckVelocity(const Vortex2D::Renderer::Device& device,
     output.CopyTo(pixels);
 
     // FIXME need to check the entire velocity buffer
-    for (int i = 2; i < size.x - 1; i++)
+    for (int i = 1; i < size.x - 1; i++)
     {
         for (int j = 1; j < size.y - 1; j++)
         {
