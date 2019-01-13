@@ -178,7 +178,7 @@ public:
      * In fact, the level set is built from the particles. This means to be able to set an area,
      * we can't use @ref RecordLiquidPhi. To define the particle area, simply draw a regular shape.
      * The colour r is used to determine if we add or remove particles, use r = 4 to add and r = -4 to remove.
-     * @param drawables list of drawables object with colour 4 or -4
+     * @param drawables list of drawables object with colour 8 or -8
      * @return render command
      */
     VORTEX2D_API Renderer::RenderCommand RecordParticleCount(Renderer::RenderTarget::DrawableList drawables);

@@ -160,7 +160,7 @@ void SmokeWorld::Substep(LinearSolver::Parameters& params)
         velocity.get().Submit();
     }
     mVelocities.clear();
-    
+
     mCopySolidPhi.Submit();
 
     ForAll(mRigidbodies, &RigidBody::RenderPhi);
