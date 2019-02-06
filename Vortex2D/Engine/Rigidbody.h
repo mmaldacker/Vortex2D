@@ -93,8 +93,8 @@ public:
     VORTEX2D_API void RenderPhi();
 
     /**
-     * @brief
-     * @param phi
+     * @brief Bind the rendertexture where this rigidbodies shape will be rendered
+     * @param phi render texture of the world
      */
     VORTEX2D_API void BindPhi(Renderer::RenderTexture& phi);
 
