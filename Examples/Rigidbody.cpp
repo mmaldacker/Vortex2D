@@ -112,7 +112,7 @@ void Box2DRigidbody::SetTransform(const glm::vec2& pos, float angle)
 {
     Position = pos;
     Rotation = angle;
-    mBody->SetTransform({pos.x, pos.y}, angle);
+    mBody->SetTransform({pos.x, pos.y}, glm::radians(angle));
 }
 
 PolygonRigidbody::PolygonRigidbody(const Vortex2D::Renderer::Device& device,

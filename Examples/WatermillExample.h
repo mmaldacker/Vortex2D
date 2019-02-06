@@ -124,7 +124,7 @@ public:
         , liquidPhi(world.LiquidDistanceField())
         , rWorld(b2Vec2(0.0f, gravityForce))
         , solver(rWorld)
-        , left(device, size, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {50.0f, 5.0f})
+        , left(device, size, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {70.0f, 5.0f})
         , bottom(device, size, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {250.0f, 5.0f})
         , watermill(device, size, rWorld, world)
     {
@@ -146,15 +146,15 @@ public:
 
         // Add force
         waterForce.Position = {5.0f, 25.0f};
-        waterForce.Colour = glm::vec4(20.0f, 0.0f, 0.0f, 0.0f);
+        waterForce.Colour = glm::vec4(5.0f, 0.0f, 0.0f, 0.0f);
 
         sourceRender = world.RecordParticleCount({waterSource});
 
         // Draw boundaries
-        left.mRigidbody.SetTransform({50.0f, 100.0f}, 60.0f);
+        left.mRigidbody.SetTransform({40.0f, 90.0f}, 40.0f);
         bottom.mRigidbody.SetTransform({5.0f, 250.0f}, 0.0f);
 
-        watermill.SetTransform({150.0f, 180.0f}, 25.0f);
+        watermill.SetTransform({160.0f, 170.0f}, 25.0f);
 
         // Set gravity
         velocityRender = world.RecordVelocity({gravity, waterForce});
