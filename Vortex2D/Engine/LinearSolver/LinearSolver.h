@@ -87,12 +87,20 @@ struct LinearSolver
                       Renderer::GenericBuffer& b,
                       Renderer::GenericBuffer& x) = 0;
 
+    /**
+     * @brief Bind rigidbody with the linear solver's matrix
+     * @param delta solver delta
+     * @param d diagonal matrix
+     * @param rigidBody rigidbody to bind to
+     */
     virtual void BindRigidbody(float delta,
                                Renderer::GenericBuffer& d,
                                RigidBody& rigidBody) = 0;
 
     /**
      * @brief Solves the linear equations
+     * @param params solver iteration/error parameters
+     * @param rigidBodies rigidbody to include in solver's matrix
      */
     virtual void Solve(Parameters& params, const std::vector<RigidBody*>& rigidbodies = {}) = 0;
 };

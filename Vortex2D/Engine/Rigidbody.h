@@ -20,14 +20,14 @@
 namespace Vortex2D { namespace Fluid {
 
 /**
- * @brief
+ * @brief Interface to call the external rigidbody solver
  */
 class RigidBodySolver
 {
 public:
     /**
-     * @brief
-     * @param delta
+     * @brief perfoms a single step of the solver.
+     * @param delta of simulation
      */
     virtual void Step(float delta) = 0;
 };
@@ -59,19 +59,19 @@ public:
     VORTEX2D_API ~RigidBody();
 
     /**
-     * @brief
+     * @brief function to override and apply forces from this rigidbody to the external rigidbody
      */
     VORTEX2D_API virtual void ApplyForces();
 
     /**
-     * @brief
+     * @brieffunction to override and apply velocities from the external rigidbody to the this rigidbody
      */
     VORTEX2D_API virtual void ApplyVelocities();
 
     /**
-     * @brief SetMassData
-     * @param mass
-     * @param inertia
+     * @brief Sets the mass and inertia of the rigidbody
+     * @param mass of the body
+     * @param inertia of the body
      */
     VORTEX2D_API void SetMassData(float mass, float inertia);
 
