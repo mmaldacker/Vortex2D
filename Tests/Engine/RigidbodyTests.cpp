@@ -115,12 +115,9 @@ TEST(RigidbodyTests, Phi)
     Vortex2D::Fluid::Rectangle rectangle(*device, rectangleSize * glm::vec2(size), false, size.x);
     Vortex2D::Fluid::RigidBody rigidBody(*device,
                                          size,
-                                         1.0f,
-                                         rectangle, {0.0f, 0.0f},
-                                         solidPhi,
-                                         Vortex2D::Fluid::RigidBody::Type::eStatic,
-                                         0.0f,
-                                         0.0f);
+                                         rectangle,
+                                         Vortex2D::Fluid::RigidBody::Type::eStatic);
+    rigidBody.BindPhi(solidPhi);
 
     rigidBody.Anchor =  glm::vec2(0.5) * rectangleSize * glm::vec2(size);
     rigidBody.Position = glm::vec2(0.5) * glm::vec2(size);
@@ -175,12 +172,9 @@ TEST(RigidbodyTests, Div)
     Vortex2D::Fluid::Rectangle rectangle(*device, rectangleSize * glm::vec2(size), false, size.x);
     Vortex2D::Fluid::RigidBody rigidBody(*device,
                                          size,
-                                         1.0f,
-                                         rectangle, {0.0f, 0.0f},
-                                         solidPhi,
-                                         Vortex2D::Fluid::RigidBody::Type::eStatic,
-                                         0.0f,
-                                         0.0f);
+                                         rectangle,
+                                         Vortex2D::Fluid::RigidBody::Type::eStatic);
+    rigidBody.BindPhi(solidPhi);
 
     rigidBody.Anchor =  glm::vec2(0.5) * rectangleSize * glm::vec2(size);
     rigidBody.Position = glm::vec2(0.5) * glm::vec2(size);
@@ -237,12 +231,9 @@ TEST(RigidbodyTests, VelocityDiv)
     Vortex2D::Fluid::Rectangle rectangle(*device, rectangleSize * glm::vec2(size), false, size.x);
     Vortex2D::Fluid::RigidBody rigidBody(*device,
                                          size,
-                                         1.0f,
-                                         rectangle, {0.0f, 0.0f},
-                                         solidPhi,
-                                         Vortex2D::Fluid::RigidBody::Type::eStatic,
-                                         0.0f,
-                                         0.0f);
+                                         rectangle,
+                                         Vortex2D::Fluid::RigidBody::Type::eStatic);
+    rigidBody.BindPhi(solidPhi);
 
     rigidBody.Anchor =  glm::vec2(0.5) * rectangleSize * glm::vec2(size);
     rigidBody.Position = glm::vec2(0.5) * glm::vec2(size);
@@ -301,14 +292,11 @@ TEST(RigidbodyTests, RotationDiv)
     Vortex2D::Fluid::Rectangle rectangle(*device, rectangleSize * glm::vec2(size), false, size.x);
     Vortex2D::Fluid::RigidBody rigidBody(*device,
                                          size,
-                                         1.0f,
-                                         rectangle, {0.0f, 0.0f},
-                                         solidPhi,
-                                         Vortex2D::Fluid::RigidBody::Type::eStatic,
-                                         0.0f,
-                                         0.0f);
+                                         rectangle,
+                                         Vortex2D::Fluid::RigidBody::Type::eStatic);
+    rigidBody.BindPhi(solidPhi);
 
-    rigidBody.Anchor =  glm::vec2(0.5) * rectangleSize * glm::vec2(size);
+    rigidBody.Anchor = glm::vec2(0.5) * rectangleSize * glm::vec2(size);
     rigidBody.Position = glm::vec2(0.5) * glm::vec2(size);
     rigidBody.UpdatePosition();
 
@@ -364,12 +352,9 @@ TEST(RigidbodyTests, VelocityRotationDiv)
     Vortex2D::Fluid::Rectangle rectangle(*device, rectangleSize * glm::vec2(size), false, size.x);
     Vortex2D::Fluid::RigidBody rigidBody(*device,
                                          size,
-                                         1.0f,
-                                         rectangle, {0.0f, 0.0f},
-                                         solidPhi,
-                                         Vortex2D::Fluid::RigidBody::Type::eStatic,
-                                         0.0f,
-                                         0.0f);
+                                         rectangle,
+                                         Vortex2D::Fluid::RigidBody::Type::eStatic);
+    rigidBody.BindPhi(solidPhi);
 
     rigidBody.Anchor =  glm::vec2(0.5) * rectangleSize * glm::vec2(size);
     rigidBody.Position = glm::vec2(0.5) * glm::vec2(size);
@@ -472,12 +457,9 @@ TEST(RigidbodyTests, Force)
     Vortex2D::Fluid::Rectangle rectangle(*device, rectangleSize * glm::vec2(size), false, size.x);
     Vortex2D::Fluid::RigidBody rigidBody(*device,
                                          size,
-                                         0.01f,
-                                         rectangle, {0.0, 0.0f},
-                                         solidPhi,
-                                         Vortex2D::Fluid::RigidBody::Type::eWeak,
-                                         0.0f,
-                                         0.0f);
+                                         rectangle,
+                                         Vortex2D::Fluid::RigidBody::Type::eWeak);
+    rigidBody.BindPhi(solidPhi);
 
     rigidBody.Anchor =  glm::vec2(0.5) * rectangleSize * glm::vec2(size);
     rigidBody.Position = glm::vec2(0.5) * glm::vec2(size);
@@ -551,12 +533,10 @@ TEST(RigidbodyTests, Pressure)
     Vortex2D::Fluid::Rectangle rectangle(*device, rectangleSize * glm::vec2(size));
     Vortex2D::Fluid::RigidBody rigidBody(*device,
                                          size,
-                                         0.01f,
-                                         rectangle, {0.0f, 0.0f},
-                                         solidPhi,
-                                         Vortex2D::Fluid::RigidBody::Type::eStrong,
-                                         sim.rbd->getMass(),
-                                         sim.rbd->getInertiaModulus());
+                                         rectangle,
+                                         Vortex2D::Fluid::RigidBody::Type::eStrong);
+    rigidBody.BindPhi(solidPhi);
+    rigidBody.SetMassData(sim.rbd->getMass(), sim.rbd->getInertiaModulus());
 
     rigidBody.Anchor =  glm::vec2(0.5) * rectangleSize * glm::vec2(size);
     rigidBody.Position = glm::vec2(0.5) * glm::vec2(size);
@@ -572,7 +552,7 @@ TEST(RigidbodyTests, Pressure)
     CopyFrom(input, inputData);
 
     pressure.BuildLinearEquation();
-    rigidBody.BindPressure(data.Diagonal, input, output);
+    rigidBody.BindPressure(0.01f, data.Diagonal, input, output);
 
     // multiply matrix
     rigidBody.Pressure();
@@ -633,12 +613,10 @@ TEST(RigidbodyTests, PressureVelocity)
     Vortex2D::Fluid::Rectangle rectangle(*device, rectangleSize * glm::vec2(size), false, size.x);
     Vortex2D::Fluid::RigidBody rigidBody(*device,
                                          size,
-                                         0.01f,
-                                         rectangle, {0.0f, 0.0f},
-                                         solidPhi,
-                                         Vortex2D::Fluid::RigidBody::Type::eStrong,
-                                         sim.rbd->getMass(),
-                                         sim.rbd->getInertiaModulus());
+                                         rectangle,
+                                         Vortex2D::Fluid::RigidBody::Type::eStrong);
+    rigidBody.BindPhi(solidPhi);
+    rigidBody.SetMassData(sim.rbd->getMass(), sim.rbd->getInertiaModulus());
 
     rigidBody.Anchor =  glm::vec2(0.5) * rectangleSize * glm::vec2(size);
     rigidBody.Position = glm::vec2(0.5) * glm::vec2(size);
@@ -647,7 +625,7 @@ TEST(RigidbodyTests, PressureVelocity)
     rigidBody.RenderPhi();
 
     // setup equations
-    solver.BindRigidbody(data.Diagonal, rigidBody);
+    solver.BindRigidbody(0.01f, data.Diagonal, rigidBody);
     solver.Bind(data.Diagonal, data.Lower, data.B, data.X);
 
     // solve
@@ -709,12 +687,10 @@ TEST(RigidbodyTests, PressureRotation)
     Vortex2D::Fluid::Rectangle rectangle(*device, rectangleSize * glm::vec2(size), false, size.x);
     Vortex2D::Fluid::RigidBody rigidBody(*device,
                                          size,
-                                         0.01f,
-                                         rectangle, {0.0f, 0.0f},
-                                         solidPhi,
-                                         Vortex2D::Fluid::RigidBody::Type::eStrong,
-                                         sim.rbd->getMass(),
-                                         sim.rbd->getInertiaModulus());
+                                         rectangle,
+                                         Vortex2D::Fluid::RigidBody::Type::eStrong);
+    rigidBody.BindPhi(solidPhi);
+    rigidBody.SetMassData(sim.rbd->getMass(), sim.rbd->getInertiaModulus());
 
     rigidBody.Anchor =  glm::vec2(0.5) * rectangleSize * glm::vec2(size);
     rigidBody.Position = glm::vec2(0.5) * glm::vec2(size);
@@ -723,7 +699,7 @@ TEST(RigidbodyTests, PressureRotation)
     rigidBody.RenderPhi();
 
     // setup equations
-    solver.BindRigidbody(data.Diagonal, rigidBody);
+    solver.BindRigidbody(0.01f, data.Diagonal, rigidBody);
     solver.Bind(data.Diagonal, data.Lower, data.B, data.X);
 
     // solve
@@ -779,12 +755,9 @@ TEST(RigidbodyTests, VelocityConstrain)
     Vortex2D::Fluid::Rectangle rectangle(*device, rectangleSize * glm::vec2(size), false, size.x);
     Vortex2D::Fluid::RigidBody rigidBody(*device,
                                          size,
-                                         1.0f,
-                                         rectangle, {0.0f, 0.0f},
-                                         solidPhi,
-                                         Vortex2D::Fluid::RigidBody::Type::eStatic,
-                                         0.0f,
-                                         0.0f);
+                                         rectangle,
+                                         Vortex2D::Fluid::RigidBody::Type::eStatic);
+    rigidBody.BindPhi(solidPhi);
 
     rigidBody.Anchor =  glm::vec2(0.5) * rectangleSize * glm::vec2(size);
     rigidBody.Position = glm::vec2(0.5) * glm::vec2(size);
@@ -851,12 +824,9 @@ TEST(RigidbodyTests, RotationConstrain)
     Vortex2D::Fluid::Rectangle rectangle(*device, rectangleSize * glm::vec2(size), false, size.x);
     Vortex2D::Fluid::RigidBody rigidBody(*device,
                                          size,
-                                         1.0f,
-                                         rectangle, {0.0f, 0.0f},
-                                         solidPhi,
-                                         Vortex2D::Fluid::RigidBody::Type::eStatic,
-                                         0.0f,
-                                         0.0f);
+                                         rectangle,
+                                         Vortex2D::Fluid::RigidBody::Type::eStatic);
+    rigidBody.BindPhi(solidPhi);
 
     rigidBody.Anchor =  glm::vec2(0.5) * rectangleSize * glm::vec2(size);
     rigidBody.Position = glm::vec2(0.5) * glm::vec2(size);

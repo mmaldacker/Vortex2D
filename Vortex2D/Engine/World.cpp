@@ -10,22 +10,12 @@
 
 namespace Vortex2D { namespace Fluid {
 
-std::vector<RigidBody*> GetRigidbodyPointers(const std::vector<std::unique_ptr<RigidBody>>& rigidbodies)
+template<typename Class>
+void ForAll(std::vector<Class*>& elements, void(Class::*f)())
 {
-    std::vector<RigidBody*> rigidBodiesPointers;
-    for (auto& rigibody: rigidbodies)
+    for (auto& element: elements)
     {
-        rigidBodiesPointers.push_back(rigibody.get());
-    }
-
-    return rigidBodiesPointers;
-}
-
-void ForAll(std::vector<std::unique_ptr<RigidBody>>& rigidbodies, void(RigidBody::*f)())
-{
-    for (auto& rigidbody: rigidbodies)
-    {
-        (*(rigidbody).*f)();
+        (*(element).*f)();
     }
 }
 
@@ -51,6 +41,7 @@ World::World(const Renderer::Device& device, const glm::ivec2& size, float dt, i
                   mValid)
     , mExtrapolation(device, size, mValid, mVelocity)
     , mCopySolidPhi(device, false)
+    , mRigidBodySolver(nullptr)
     , mCfl(device, size, mVelocity)
 {
     mExtrapolation.ConstrainBind(mDynamicSolidPhi);
@@ -95,7 +86,7 @@ Renderer::RenderCommand World::RecordVelocity(Renderer::RenderTarget::DrawableLi
 
 void World::SubmitVelocity(Renderer::RenderCommand& renderCommand)
 {
-    mVelocities.push_back({renderCommand});
+    mVelocities.push_back(&renderCommand);
 }
 
 Renderer::RenderCommand World::RecordLiquidPhi(Renderer::RenderTarget::DrawableList drawables)
@@ -118,23 +109,47 @@ DistanceField  World::SolidDistanceField()
     return {mDevice, mDynamicSolidPhi};
 }
 
-RigidBody* World::CreateRigidbody(vk::Flags<RigidBody::Type> type, float mass, float inertia, Renderer::Drawable& drawable, const glm::vec2& centre)
+void World::AddRigidbody(RigidBody& rigidbody)
 {
-    mRigidbodies.push_back(std::make_unique<RigidBody>(mDevice, mSize, mDelta, drawable, centre, mDynamicSolidPhi, type, mass, inertia));
+    rigidbody.BindPhi(mDynamicSolidPhi);
 
-    if (type & RigidBody::Type::eStatic)
+    if (rigidbody.GetType() & RigidBody::Type::eStatic)
     {
-        mRigidbodies.back()->BindDiv(mData.B, mData.Diagonal);
-        mRigidbodies.back()->BindVelocityConstrain(mVelocity);
-        mLinearSolver.BindRigidbody(mData.Diagonal, *mRigidbodies.back());
+        rigidbody.BindDiv(mData.B, mData.Diagonal);
+        rigidbody.BindVelocityConstrain(mVelocity);
+        mLinearSolver.BindRigidbody(mDelta, mData.Diagonal, rigidbody);
     }
 
-    if (type & RigidBody::Type::eWeak)
+    if (rigidbody.GetType() & RigidBody::Type::eWeak)
     {
-        mRigidbodies.back()->BindForce(mData.Diagonal, mData.X);
+        rigidbody.BindForce(mData.Diagonal, mData.X);
     }
 
-    return mRigidbodies.back().get();
+    mRigidbodies.push_back(&rigidbody);
+}
+
+void World::RemoveRigidBody(RigidBody& rigidbody)
+{
+  mRigidbodies.erase(std::remove(mRigidbodies.begin(), mRigidbodies.end(), &rigidbody), mRigidbodies.end());
+}
+
+void World::AttachRigidBodySolver(RigidBodySolver& rigidbodySolver)
+{
+    mRigidBodySolver = &rigidbodySolver;
+}
+
+void World::StepRigidBodies()
+{
+    // Set Forces to rigid bodies
+    ForAll(mRigidbodies, &RigidBody::ApplyForces);
+
+    if (mRigidBodySolver)
+    {
+        mRigidBodySolver->Step(mDelta);
+    }
+
+    // Set Velocities to fluid rigid bodies
+    ForAll(mRigidbodies, &RigidBody::ApplyVelocities);
 }
 
 float World::GetCFL()
@@ -157,13 +172,14 @@ void SmokeWorld::Substep(LinearSolver::Parameters& params)
 {
     for (auto& velocity: mVelocities)
     {
-        velocity.get().Submit();
+        velocity->Submit();
     }
     mVelocities.clear();
 
     mCopySolidPhi.Submit();
 
     ForAll(mRigidbodies, &RigidBody::RenderPhi);
+    ForAll(mRigidbodies, &RigidBody::UpdatePosition);
 
     mDynamicSolidPhi.Reinitialise();
     mPreconditioner.BuildHierarchies();
@@ -171,7 +187,7 @@ void SmokeWorld::Substep(LinearSolver::Parameters& params)
 
     ForAll(mRigidbodies, &RigidBody::Div);
 
-    mLinearSolver.Solve(params, GetRigidbodyPointers(mRigidbodies));
+    mLinearSolver.Solve(params, mRigidbodies);
     mProjection.ApplyPressure();
 
     ForAll(mRigidbodies, &RigidBody::Force);
@@ -183,6 +199,8 @@ void SmokeWorld::Substep(LinearSolver::Parameters& params)
 
     mAdvection.AdvectVelocity();
     mAdvection.Advect();
+
+    StepRigidBodies();
 }
 
 void SmokeWorld::FieldBind(Density& density)
@@ -224,13 +242,14 @@ void WaterWorld::Substep(LinearSolver::Parameters& params)
     // 3)
     for (auto& velocity: mVelocities)
     {
-        velocity.get().Submit();
+        velocity->Submit();
     }
     mVelocities.clear();
 
     // 4)
     mCopySolidPhi.Submit();
     ForAll(mRigidbodies, &RigidBody::RenderPhi);
+    ForAll(mRigidbodies, &RigidBody::UpdatePosition);
     mDynamicSolidPhi.Reinitialise();
 
     ForAll(mRigidbodies, &RigidBody::Div);
@@ -240,7 +259,7 @@ void WaterWorld::Substep(LinearSolver::Parameters& params)
 
     // 5)
     mProjection.BuildLinearEquation();
-    mLinearSolver.Solve(params, GetRigidbodyPointers(mRigidbodies));
+    mLinearSolver.Solve(params, mRigidbodies);
     mProjection.ApplyPressure();
 
     ForAll(mRigidbodies, &RigidBody::Force);
@@ -256,6 +275,9 @@ void WaterWorld::Substep(LinearSolver::Parameters& params)
 
     // 7)
     mAdvection.AdvectParticles();
+
+    // 8)
+    StepRigidBodies();
 }
 
 Renderer::RenderCommand WaterWorld::RecordParticleCount(Renderer::RenderTarget::DrawableList drawables)

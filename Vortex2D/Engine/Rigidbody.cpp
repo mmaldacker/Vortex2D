@@ -17,24 +17,17 @@ namespace Vortex2D { namespace Fluid {
 
 RigidBody::RigidBody(const Renderer::Device& device,
                      const glm::ivec2& size,
-                     float delta,
                      Renderer::Drawable& drawable,
-                     const glm::vec2& centre,
-                     Renderer::RenderTexture& phi,
-                     vk::Flags<Type> type,
-                     float mass,
-                     float inertia)
+                     vk::Flags<Type> type)
     : mSize(size.x)
-    , mDelta(delta)
     , mDevice(device)
-    , mPhi(device, size.x, size.y, vk::Format::eR32Sfloat)
     , mDrawable(drawable)
-    , mCentre(centre)
+    , mPhi(device, size.x, size.y, vk::Format::eR32Sfloat)
     , mVelocity(device)
     , mForce(device, size.x * size.y)
     , mReducedForce(device, 1)
     , mLocalForce(device, 1, VMA_MEMORY_USAGE_GPU_TO_CPU)
-    , mMVBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
+    , mCenter(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
     , mLocalVelocity(device, VMA_MEMORY_USAGE_CPU_ONLY)
     , mClear({1000.0f, 0.0f, 0.0f, 0.0f})
     , mDiv(device, size, SPIRV::BuildRigidbodyDiv_comp)
@@ -48,10 +41,10 @@ RigidBody::RigidBody(const Renderer::Device& device,
     , mVelocityCmd(device, false)
     , mSum(device, size)
     , mType(type)
-    , mMass(mass)
-    , mInertia(inertia)
+    , mMass(0.0f)
+    , mInertia(0.0f)
 {
-    mLocalPhiRender = mPhi.Record({mClear, mDrawable}, UnionBlend);
+    mLocalPhiRender = mPhi.Record({mClear, drawable}, UnionBlend);
 
     mVelocityCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
@@ -59,8 +52,27 @@ RigidBody::RigidBody(const Renderer::Device& device,
     });
 
     SetVelocities(glm::vec2(0.0f), 0.0f);
+}
 
-    mPhiRender = phi.Record({mDrawable}, UnionBlend);
+RigidBody::~RigidBody()
+{
+
+}
+
+void RigidBody::ApplyForces()
+{
+
+}
+
+void RigidBody::ApplyVelocities()
+{
+
+}
+
+void RigidBody::SetMassData(float mass, float inertia)
+{
+    mMass = mass;
+    mInertia = inertia;
 }
 
 void RigidBody::SetVelocities(const glm::vec2& velocity, float angularVelocity)
@@ -86,7 +98,8 @@ RigidBody::Velocity RigidBody::GetForces()
 
 void RigidBody::UpdatePosition()
 {
-    Renderer::CopyFrom(mMVBuffer, glm::translate(glm::vec3{(glm::vec2)Position, 0.0f}));
+    glm::vec2 p = (glm::vec2)Position;
+    Renderer::CopyFrom(mCenter, p);
 }
 
 void RigidBody::RenderPhi()
@@ -95,14 +108,18 @@ void RigidBody::RenderPhi()
     mPhiRender.Submit(GetTransform());
 }
 
+void RigidBody::BindPhi(Renderer::RenderTexture& phi)
+{
+    mPhiRender = phi.Record({mDrawable}, UnionBlend);
+}
+
 void RigidBody::BindDiv(Renderer::GenericBuffer& div,
                         Renderer::GenericBuffer& diagonal)
 {
-    mDivBound = mDiv.Bind({div, diagonal , mPhi, mVelocity, mMVBuffer});
+    mDivBound = mDiv.Bind({div, diagonal , mPhi, mVelocity, mCenter});
     mDivCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
         commandBuffer.debugMarkerBeginEXT({"Rigidbody build equation", {{0.90f, 0.27f, 0.28f, 1.0f}}});
-        mDivBound.PushConstant(commandBuffer, mCentre);
         mDivBound.Record(commandBuffer);
         div.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         commandBuffer.debugMarkerEndEXT();
@@ -111,11 +128,10 @@ void RigidBody::BindDiv(Renderer::GenericBuffer& div,
 
 void RigidBody::BindVelocityConstrain(Fluid::Velocity& velocity)
 {
-    mConstrainBound = mConstrain.Bind({velocity, velocity.Output(), mPhi, mVelocity, mMVBuffer});
+    mConstrainBound = mConstrain.Bind({velocity, velocity.Output(), mPhi, mVelocity, mCenter});
     mConstrainCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
         commandBuffer.debugMarkerBeginEXT({"Rigidbody constrain", {{0.29f, 0.36f, 0.21f, 1.0f}}});
-        mConstrainBound.PushConstant(commandBuffer, mCentre);
         mConstrainBound.Record(commandBuffer);
         velocity.CopyBack(commandBuffer);
         commandBuffer.debugMarkerEndEXT();
@@ -125,13 +141,12 @@ void RigidBody::BindVelocityConstrain(Fluid::Velocity& velocity)
 void RigidBody::BindForce(Renderer::GenericBuffer& diagonal,
                           Renderer::GenericBuffer& pressure)
 {
-    mForceBound = mForceWork.Bind({diagonal, mPhi, pressure, mForce, mMVBuffer});
+    mForceBound = mForceWork.Bind({diagonal, mPhi, pressure, mForce, mCenter});
     mLocalSumBound = mSum.Bind(mForce, mLocalForce);
     mForceCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
         commandBuffer.debugMarkerBeginEXT({"Rigidbody force", {{0.70f, 0.59f, 0.63f, 1.0f}}});
         mForce.Clear(commandBuffer);
-        mForceBound.PushConstant(commandBuffer, mCentre);
         mForceBound.Record(commandBuffer);
         mForce.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         mLocalSumBound.Record(commandBuffer);
@@ -139,22 +154,22 @@ void RigidBody::BindForce(Renderer::GenericBuffer& diagonal,
     });
 }
 
-void RigidBody::BindPressure(Renderer::GenericBuffer& d,
+void RigidBody::BindPressure(float delta,
+                             Renderer::GenericBuffer& d,
                              Renderer::GenericBuffer& s,
                              Renderer::GenericBuffer& z)
 {
-    mPressureForceBound = mForceWork.Bind({d, mPhi, s, mForce, mMVBuffer});
-    mPressureBound = mPressureWork.Bind({d, mPhi, mReducedForce, z, mMVBuffer});
+    mPressureForceBound = mForceWork.Bind({d, mPhi, s, mForce, mCenter});
+    mPressureBound = mPressureWork.Bind({d, mPhi, mReducedForce, z, mCenter});
     mSumBound = mSum.Bind(mForce, mReducedForce);
     mPressureCmd.Record([&](vk::CommandBuffer commandBuffer)
     {
         commandBuffer.debugMarkerBeginEXT({"Rigidbody pressure", {{0.70f, 0.59f, 0.63f, 1.0f}}});
         mForce.Clear(commandBuffer);
-        mPressureForceBound.PushConstant(commandBuffer, mCentre);
         mPressureForceBound.Record(commandBuffer);
         mForce.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         mSumBound.Record(commandBuffer);
-        mPressureBound.PushConstant(commandBuffer, mCentre, mDelta, mMass, mInertia);
+        mPressureBound.PushConstant(commandBuffer, delta, mMass, mInertia);
         mPressureBound.Record(commandBuffer);
         z.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         commandBuffer.debugMarkerEndEXT();

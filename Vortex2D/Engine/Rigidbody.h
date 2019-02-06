@@ -20,6 +20,19 @@
 namespace Vortex2D { namespace Fluid {
 
 /**
+ * @brief
+ */
+class RigidBodySolver
+{
+public:
+    /**
+     * @brief
+     * @param delta
+     */
+    virtual void Step(float delta) = 0;
+};
+
+/**
  * @brief Rigidbody that can interact with the fluid: either be push by it, or influence it, or both.
  */
 class RigidBody : public Renderer::Transformable
@@ -40,13 +53,27 @@ public:
 
     VORTEX2D_API RigidBody(const Renderer::Device& device,
                            const glm::ivec2& size,
-                           float dt,
                            Renderer::Drawable& drawable,
-                           const glm::vec2& centre,
-                           Renderer::RenderTexture& phi,
-                           vk::Flags<Type> type,
-                           float mass,
-                           float inertia);
+                           vk::Flags<Type> type);
+
+    VORTEX2D_API ~RigidBody();
+
+    /**
+     * @brief
+     */
+    VORTEX2D_API virtual void ApplyForces();
+
+    /**
+     * @brief
+     */
+    VORTEX2D_API virtual void ApplyVelocities();
+
+    /**
+     * @brief SetMassData
+     * @param mass
+     * @param inertia
+     */
+    VORTEX2D_API void SetMassData(float mass, float inertia);
 
     /**
      * @brief sets the velocities and angular velocities of the body
@@ -64,6 +91,12 @@ public:
      * @brief Render the current object orientation in an internal texture and the external one.
      */
     VORTEX2D_API void RenderPhi();
+
+    /**
+     * @brief
+     * @param phi
+     */
+    VORTEX2D_API void BindPhi(Renderer::RenderTexture& phi);
 
     /**
      * @brief Bind a the right hand side and diagonal of the linear system Ax = b.
@@ -91,13 +124,15 @@ public:
 
     /**
      * @brief Bind pressure, to have the pressure update the body's forces
-     * @param fluidLevelSet fluid level set, to know if the pressure is applicable
-     * @param pressure solved pressure buffer
+     * @param delta
+     * @param d
+     * @param s
+     * @param z
      */
-    VORTEX2D_API void BindPressure(Renderer::GenericBuffer& d,
+    VORTEX2D_API void BindPressure(float delta,
+                                   Renderer::GenericBuffer& d,
                                    Renderer::GenericBuffer& s,
                                    Renderer::GenericBuffer& z);
-
 
     /**
      * @brief Apply the body's velocities to the linear equations matrix A and right hand side b.
@@ -139,15 +174,13 @@ public:
 
 private:
     float mSize;
-    float mDelta;
 
     const Renderer::Device& mDevice;
-    Renderer::RenderTexture mPhi;
     Renderer::Drawable& mDrawable;
-    glm::vec2 mCentre;
+    Renderer::RenderTexture mPhi;
     Renderer::UniformBuffer<Velocity> mVelocity;
     Renderer::Buffer<Velocity> mForce, mReducedForce, mLocalForce;
-    Renderer::UniformBuffer<glm::mat4> mMVBuffer;
+    Renderer::UniformBuffer<glm::vec2> mCenter;
     Renderer::UniformBuffer<Velocity> mLocalVelocity;
 
     Renderer::Clear mClear;

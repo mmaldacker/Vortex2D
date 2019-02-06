@@ -23,8 +23,7 @@ public:
     SmokeVelocityExample(const Vortex2D::Renderer::Device& device,
                  const glm::ivec2& size,
                  float dt)
-        : delta(dt)
-        , source1(device, glm::vec2(5.0f))
+        : source1(device, glm::vec2(5.0f))
         , source2(device, glm::vec2(5.0f))
         , force1(device, glm::vec2(5.0f))
         , force2(device, glm::vec2(5.0f))
@@ -32,10 +31,13 @@ public:
         , world(device, size, dt)
         , clearObstacles({250.0f, 0.0f, 0.0f, 0.0f})
         , rWorld({0.0f, 0.0f})
-        , body(device, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eWeak, {80.0f, 10.0f})
-        , solidPhi(device, body.Phi())
+        , solver(rWorld)
+        , body(device, size, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eWeak, {80.0f, 10.0f})
+        , solidPhi(device, body.mRigidbody.Phi())
     {
         world.FieldBind(density);
+        world.AttachRigidBodySolver(solver);
+
         source1.Position = force1.Position = {25.0f, 25.0f};
         source2.Position = force2.Position = {125.0f, 225.0f};
 
@@ -64,7 +66,7 @@ public:
         densityRender = density.Record({source1, source2});
 
         // Draw rigid body
-        body.SetTransform({100.0f, 100.0f}, -45.0f);
+        body.mRigidbody.SetTransform({100.0f, 100.0f}, -45.0f);
 
         Vortex2D::Renderer::ColorBlendState blendState;
         blendState.ColorBlend
@@ -81,23 +83,16 @@ public:
 
     void Step() override
     {
-        body.Update();
-
         velocityRender.Submit();
         densityRender.Submit();
 
         auto params = Vortex2D::Fluid::FixedParams(12);
         world.Step(params);
 
-        const int velocityStep = 8;
-        const int positionStep = 3;
-        rWorld.Step(delta, velocityStep, positionStep);
-
         windowRender.Submit();
     }
 
 private:
-    float delta;
     Vortex2D::Renderer::Ellipse source1, source2;
     Vortex2D::Renderer::Ellipse force1, force2;
     Vortex2D::Fluid::Density density;
@@ -107,6 +102,7 @@ private:
 
     b2World rWorld;
 
-    BoxRigidbody body;
+    Box2DSolver solver;
+    RectangleRigidbody body;
     Vortex2D::Fluid::DistanceField solidPhi;
 };

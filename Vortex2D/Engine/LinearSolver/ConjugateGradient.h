@@ -34,7 +34,8 @@ public:
                            Renderer::GenericBuffer& b,
                            Renderer::GenericBuffer& pressure) override;
 
-    VORTEX2D_API void BindRigidbody(Renderer::GenericBuffer& d,
+    VORTEX2D_API void BindRigidbody(float delta,
+                                    Renderer::GenericBuffer& d,
                                     RigidBody& rigidBody) override;
     /**
      * @brief Solve iteratively solve the linear equations in data

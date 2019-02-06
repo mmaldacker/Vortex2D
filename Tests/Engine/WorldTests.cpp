@@ -43,10 +43,12 @@ float PressureRigidbody_VelocityTest(float scale)
             (rectangleSize.x * rectangleSize.x + rectangleSize.y * rectangleSize.y)
             / (12.0f * std::pow(scale, 4.0f));
 
-    auto* rigidbody = world.CreateRigidbody(Fluid::RigidBody::Type::eWeak, mass, inertia, rectangle, {0.0f, 0.0f});
-    rigidbody->Anchor = rectangleSize / glm::vec2(2.0f);
-    rigidbody->Position = size / glm::vec2(2.0f);
-    rigidbody->UpdatePosition();
+    Fluid::RigidBody rigidbody(*device, size, rectangle, Fluid::RigidBody::Type::eWeak);
+    rigidbody.SetMassData(mass, inertia);
+
+    world.AddRigidbody(rigidbody);
+    rigidbody.Anchor = rectangleSize / glm::vec2(2.0f);
+    rigidbody.Position = size / glm::vec2(2.0f);
 
     Renderer::Rectangle velocity(*device, size);
     velocity.Colour = {10.0f / scale, 0.0f, 0.0f, 0.0f};
@@ -58,7 +60,7 @@ float PressureRigidbody_VelocityTest(float scale)
 
     device->Handle().waitIdle();
 
-    auto forces = rigidbody->GetForces();
+    auto forces = rigidbody.GetForces();
     float force = forces.velocity.x / (mass * scale);
     std::cout << "Scale " << scale << " Mass " << mass << " Scaled Force (" << force << ")" << std::endl;
 
@@ -113,10 +115,11 @@ float PressureRigidbody_RotationTest(float scale)
             (rectangleSize.x * rectangleSize.x + rectangleSize.y * rectangleSize.y)
             / (12.0f * std::pow(scale, 4.0f));
 
-    auto* rigidbody = world.CreateRigidbody(Fluid::RigidBody::Type::eWeak, mass, inertia, rectangle, {0.0f, 0.0f});
-    rigidbody->Anchor = rectangleSize / glm::vec2(2.0f);
-    rigidbody->Position = size / glm::vec2(2.0f);
-    rigidbody->UpdatePosition();
+    Fluid::RigidBody rigidbody(*device, size, rectangle, Fluid::RigidBody::Type::eWeak);
+    rigidbody.SetMassData(mass, inertia);
+    world.AddRigidbody(rigidbody);
+    rigidbody.Anchor = rectangleSize / glm::vec2(2.0f);
+    rigidbody.Position = size / glm::vec2(2.0f);
 
     Renderer::Rectangle velocityUp(*device, glm::vec2(size.x, size.y / 2.0f));
     velocityUp.Position = {0.0f, 0.0f};
@@ -133,7 +136,7 @@ float PressureRigidbody_RotationTest(float scale)
 
     device->Handle().waitIdle();
 
-    auto forces = rigidbody->GetForces();
+    auto forces = rigidbody.GetForces();
     float force = forces.angular_velocity / (inertia * std::pow(scale, 4.0f));
     std::cout << "Scale " << scale << " Inertia " << inertia << " Scaled Torque (" << force << ")" << std::endl;
 

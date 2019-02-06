@@ -8,7 +8,6 @@ layout(push_constant) uniform Consts
 {
   int width;
   int height;
-  vec2 centre;
 }consts;
 
 layout(std430, binding = 0) buffer Div
@@ -34,9 +33,9 @@ layout(binding = 3) uniform RigidbodyVelocity
     Velocity value;
 }velocity;
 
-layout(binding = 4) uniform MV
+layout(binding = 4) uniform Centre
 {
-    mat4 mv;
+    vec2 centre;
 };
 
 #include "CommonRigidbody.comp"

@@ -148,10 +148,11 @@ void ConjugateGradient::Bind(Renderer::GenericBuffer& d,
     });
 }
 
-void ConjugateGradient::BindRigidbody(Renderer::GenericBuffer& d,
+void ConjugateGradient::BindRigidbody(float delta,
+                                      Renderer::GenericBuffer& d,
                                       RigidBody& rigidBody)
 {
-  rigidBody.BindPressure(d, s, z);
+  rigidBody.BindPressure(delta, d, s, z);
 }
 
 void ConjugateGradient::Solve(Parameters& params, const std::vector<RigidBody*>& rigidbodies)

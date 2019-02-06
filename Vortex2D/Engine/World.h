@@ -95,13 +95,22 @@ public:
     VORTEX2D_API DistanceField SolidDistanceField();
 
     /**
-     * @brief Create a rigid body and add it to the World. The lifetime of the rigidbody is tied to the lifetime of the World.
-     * @param type type of the rigidbody: static, weak or strong
-     * @param drawable a drawable that renders a signed distance field. This can be the sprite of a level set.
-     * @param centre the centre of the drawable. Use for rotations.
-     * @return a pointer to the rigid body.
+     * @brief Add a rigibody to the solver
+     * @param rigidbody
      */
-    VORTEX2D_API RigidBody* CreateRigidbody(vk::Flags<RigidBody::Type> type, float mass, float inertiaTensor, Renderer::Drawable& drawable, const glm::vec2& centre);
+    VORTEX2D_API void AddRigidbody(RigidBody& rigidbody);
+
+    /**
+     * @brief Remove a rigidbody from the solver
+     * @param rigidbody
+     */
+    VORTEX2D_API void RemoveRigidBody(RigidBody& rigidbody);
+
+    /**
+     * @brief Attach a rigidbody solver, e.g. box2d
+     * @param rigidbodySolver
+     */
+    VORTEX2D_API void AttachRigidBodySolver(RigidBodySolver& rigidbodySolver);
 
     /**
      * @brief Calculate the CFL number, i.e. the width divided by the max velocity
@@ -116,6 +125,7 @@ public:
     VORTEX2D_API Renderer::Texture& GetVelocity();
 
 protected:
+    void StepRigidBodies();
     virtual void Substep(LinearSolver::Parameters& params) = 0;
 
     const Renderer::Device& mDevice;
@@ -140,8 +150,9 @@ protected:
 
     Renderer::CommandBuffer mCopySolidPhi;
 
-    std::vector<std::unique_ptr<RigidBody>> mRigidbodies;
-    std::vector<std::reference_wrapper<Renderer::RenderCommand>> mVelocities;
+    std::vector<RigidBody*> mRigidbodies;
+    RigidBodySolver* mRigidBodySolver;
+    std::vector<Renderer::RenderCommand*> mVelocities;
 
     Cfl mCfl;
 };

@@ -46,97 +46,104 @@ b2FixtureDef GetCircleFixtureDef(float radius)
     return fixtureDef;
 }
 
-}
-
-Rigidbody::Rigidbody(b2World& rWorld,
-                     b2BodyType rType,
-                     b2FixtureDef fixtureDef,
-                     float density)
+b2Body* CreateBody(b2World& world, b2FixtureDef fixtureDef, b2BodyType type, float density)
 {
     b2BodyDef def;
-    def.type = rType;
+    def.type = type;
 
-    mB2Body = rWorld.CreateBody(&def);
+    auto* body = world.CreateBody(&def);
 
     fixtureDef.density = density;
-    mB2Body->CreateFixture(&fixtureDef);
+    body->CreateFixture(&fixtureDef);
+
+    return body;
 }
 
-void Rigidbody::CreateBody(Vortex2D::Fluid::World& world,
-                           Vortex2D::Fluid::RigidBody::Type type,
-                           Vortex2D::Renderer::Drawable& drawable)
-{
-    mRigidbody = world.CreateRigidbody(type,
-                                       mB2Body->GetMass(),
-                                       mB2Body->GetInertia(),
-                                       drawable,
-                                       {});
 }
 
-b2Body& Rigidbody::Body()
+Box2DSolver::Box2DSolver(b2World& world)
+    : mWorld(world)
 {
-    return *mB2Body;
+
 }
 
-Vortex2D::Renderer::RenderTexture& Rigidbody::Phi()
+void Box2DSolver::Step(float delta)
 {
-    return mRigidbody->Phi();
+    const int velocityStep = 8;
+    const int positionStep = 3;
+    mWorld.Step(delta, velocityStep, positionStep);
 }
 
-void Rigidbody::Update()
+Box2DRigidbody::Box2DRigidbody(const Vortex2D::Renderer::Device& device,
+                               const glm::ivec2& size,
+                               Vortex2D::Renderer::Drawable& drawable,
+                               Vortex2D::Fluid::RigidBody::Type type)
+    : Vortex2D::Fluid::RigidBody(device, size, drawable, type)
 {
-    auto pos = mB2Body->GetPosition();
-    mRigidbody->Position = {pos.x, pos.y};
-    mRigidbody->Rotation = glm::degrees(mB2Body->GetAngle());
-    mRigidbody->UpdatePosition();
+}
 
-    if (mRigidbody->GetType() & Vortex2D::Fluid::RigidBody::Type::eStatic)
+void Box2DRigidbody::ApplyForces()
+{
+    if (GetType() & Vortex2D::Fluid::RigidBody::Type::eWeak)
     {
-        glm::vec2 vel = {mB2Body->GetLinearVelocity().x, mB2Body->GetLinearVelocity().y};
-        float angularVelocity = mB2Body->GetAngularVelocity();
-        mRigidbody->SetVelocities(vel, angularVelocity);
-    }
-
-    if (mRigidbody->GetType() & Vortex2D::Fluid::RigidBody::Type::eWeak)
-    {
-        auto force = mRigidbody->GetForces();
+        auto force = GetForces();
         b2Vec2 b2Force = {force.velocity.x, force.velocity.y};
 
-        mB2Body->ApplyForceToCenter(b2Force, true);
-        mB2Body->ApplyTorque(force.angular_velocity, true);
+        mBody->ApplyForceToCenter(b2Force, true);
+        mBody->ApplyTorque(force.angular_velocity, true);
     }
 }
 
-void Rigidbody::SetTransform(const glm::vec2& pos, float angle)
+void Box2DRigidbody::ApplyVelocities()
 {
-    mRigidbody->Position = pos;
-    mRigidbody->Rotation = angle;
-    mB2Body->SetTransform({pos.x, pos.y}, angle);
+    auto pos = mBody->GetPosition();
+    Position = {pos.x, pos.y};
+    Rotation = glm::degrees(mBody->GetAngle());
+
+    if (GetType() & Vortex2D::Fluid::RigidBody::Type::eStatic)
+    {
+        glm::vec2 vel = {mBody->GetLinearVelocity().x, mBody->GetLinearVelocity().y};
+        float angularVelocity = mBody->GetAngularVelocity();
+        SetVelocities(vel, angularVelocity);
+    }
+}
+
+void Box2DRigidbody::SetTransform(const glm::vec2& pos, float angle)
+{
+    Position = pos;
+    Rotation = angle;
+    mBody->SetTransform({pos.x, pos.y}, angle);
 }
 
 PolygonRigidbody::PolygonRigidbody(const Vortex2D::Renderer::Device& device,
+                                   const glm::ivec2& size,
                                    b2World& rWorld,
                                    b2BodyType rType,
                                    Vortex2D::Fluid::World& world,
                                    Vortex2D::Fluid::RigidBody::Type type,
                                    const std::vector<glm::vec2>& points,
                                    float density)
-    : Rigidbody(rWorld, rType, GetPolygonFixtureDef(points), density)
-    , mPolygon(device, points)
+    : mPolygon(device, points)
+    , mRigidbody(device, size, mPolygon, type)
 {
-    CreateBody(world, type, mPolygon);
+    mRigidbody.mBody = CreateBody(rWorld, GetPolygonFixtureDef(points), rType, density);
+    mRigidbody.SetMassData(mRigidbody.mBody->GetMass(), mRigidbody.mBody->GetInertia());
+    world.AddRigidbody(mRigidbody);
 }
 
 CircleRigidbody::CircleRigidbody(const Vortex2D::Renderer::Device& device,
+                                 const glm::ivec2& size,
                                  b2World& rWorld,
                                  b2BodyType rType,
                                  Vortex2D::Fluid::World& world,
                                  Vortex2D::Fluid::RigidBody::Type type,
                                  const float radius,
                                  float density)
-    : Rigidbody(rWorld, rType, GetCircleFixtureDef(radius), density)
-    , mCircle(device, radius)
+    : mCircle(device, radius)
+    , mRigidbody(device, size, mCircle, type)
 {
-    CreateBody(world, type, mCircle);
+    mRigidbody.mBody = CreateBody(rWorld, GetCircleFixtureDef(radius), rType, density);
+    mRigidbody.SetMassData(mRigidbody.mBody->GetMass(), mRigidbody.mBody->GetInertia());
+    world.AddRigidbody(mRigidbody);
 }
 

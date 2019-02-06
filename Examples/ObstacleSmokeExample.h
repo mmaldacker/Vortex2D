@@ -26,17 +26,18 @@ public:
     ObstacleSmokeExample(const Vortex2D::Renderer::Device& device,
                          const glm::ivec2& size,
                          float dt)
-        : delta(dt)
-        , density(device, size, vk::Format::eR8G8B8A8Unorm)
+        : density(device, size, vk::Format::eR8G8B8A8Unorm)
         , world(device, size, dt)
         , solidPhi(world.SolidDistanceField())
         , velocityClear({0.0f, 0.0f, 0.0f, 0.0f})
         , rWorld({0.0f, 100.0f})
-        , body1(device, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {25.0f, 12.0f})
-        , body2(device, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {12.0f, 12.0f})
-        , bottom(device, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {125.0f, 5.0f})
+        , solver(rWorld)
+        , body1(device, size, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {25.0f, 12.0f})
+        , body2(device, size, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {12.0f, 12.0f})
+        , bottom(device, size, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {125.0f, 5.0f})
     {
         world.FieldBind(density);
+        world.AttachRigidBodySolver(solver);
         solidPhi.Colour = green;
     }
 
@@ -62,18 +63,17 @@ public:
         // Draw solid boundaries
 
         // First body
-        body1.SetTransform({50.0f, 50.0f}, 45.0f);
-        body1.Body().ApplyAngularImpulse(5e5f, true);
-        body1.Body().ApplyForceToCenter({1e5f, 0.0f}, true);
+        body1.mRigidbody.SetTransform({50.0f, 50.0f}, 45.0f);
+        body1.mRigidbody.mBody->ApplyAngularImpulse(5e5f, true);
+        body1.mRigidbody.mBody->ApplyForceToCenter({1e5f, 0.0f}, true);
 
         // Second body
-        body2.SetTransform({200.0f, 80.0f}, 0.0f);
-        body2.Body().ApplyAngularImpulse(-1e5f, true);
-        body2.Body().ApplyForceToCenter({-1e5f, 0.0f}, true);
+        body2.mRigidbody.SetTransform({200.0f, 80.0f}, 0.0f);
+        body2.mRigidbody.mBody->ApplyAngularImpulse(-1e5f, true);
+        body2.mRigidbody.mBody->ApplyForceToCenter({-1e5f, 0.0f}, true);
 
         // Bottom
-        bottom.SetTransform({128.0f, 256.5f}, 0.0f);
-        bottom.Update();
+        bottom.mRigidbody.SetTransform({128.0f, 256.5f}, 0.0f);
 
         Vortex2D::Renderer::ColorBlendState blendState;
         blendState.ColorBlend
@@ -91,21 +91,12 @@ public:
 
     void Step() override
     {
-        body1.Update();
-        body2.Update();
-
         auto params = Vortex2D::Fluid::FixedParams(12);
         world.Step(params);
-
-        const int velocityStep = 8;
-        const int positionStep = 3;
-        rWorld.Step(delta, velocityStep, positionStep);
-
         windowRender.Submit();
     }
 
 private:
-    float delta;
     Vortex2D::Fluid::Density density;
     Vortex2D::Fluid::SmokeWorld world;
     Vortex2D::Fluid::DistanceField solidPhi;
@@ -115,7 +106,8 @@ private:
 
     b2World rWorld;
 
-    BoxRigidbody body1;
-    BoxRigidbody body2;
-    BoxRigidbody bottom;
+    Box2DSolver solver;
+    RectangleRigidbody body1;
+    RectangleRigidbody body2;
+    RectangleRigidbody bottom;
 };

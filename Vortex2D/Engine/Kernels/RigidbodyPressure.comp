@@ -8,7 +8,6 @@ layout(push_constant) uniform Consts
 {
   int width;
   int height;
-  vec2 centre;
   float delta;
   float mass;
   float inertia;
@@ -37,9 +36,9 @@ layout(std430, binding = 3) buffer Output
   float value[];
 }z;
 
-layout(binding = 4) uniform MV
+layout(binding = 4) uniform Centre
 {
-    mat4 mv;
+    vec2 centre;
 };
 
 #include "CommonRigidbody.comp"

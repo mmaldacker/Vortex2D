@@ -23,21 +23,23 @@ public:
     WaterFallExample(const Vortex2D::Renderer::Device& device,
                      const glm::ivec2& size,
                      float dt)
-        : delta(dt / 2.0f)
-        , waterSource(device, {10.0f, 10.0f})
+        : waterSource(device, {10.0f, 10.0f})
         , waterForce(device, {10.0f, 10.0f})
         , gravity(device, glm::vec2(256.0f, 256.0f))
-        , world(device, size, dt, 1)
+        , world(device, size, dt, 2)
         , solidPhi(world.SolidDistanceField())
         , liquidPhi(world.LiquidDistanceField())
         , rWorld(b2Vec2(0.0f, gravityForce))
-        , circle(device, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 10.0f)
-        , box(device, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, {15.0f, 15.0f})
-        , left(device, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {50.0f, 5.0f})
-        , right(device, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {50.0f, 5.0f})
-        , bottom(device, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {250.0f, 5.0f})
+        , solver(rWorld)
+        , circle(device, size, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 10.0f)
+        , box(device, size, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, {15.0f, 15.0f})
+        , left(device, size, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {50.0f, 5.0f})
+        , right(device, size, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {50.0f, 5.0f})
+        , bottom(device, size, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {250.0f, 5.0f})
     {
-        gravity.Colour = glm::vec4(0.0f, delta * gravityForce, 0.0f, 0.0f);
+        world.AttachRigidBodySolver(solver);
+
+        gravity.Colour = glm::vec4(0.0f, dt * gravityForce, 0.0f, 0.0f);
 
         solidPhi.Colour = green;
         liquidPhi.Colour = blue;
@@ -58,18 +60,13 @@ public:
         sourceRender = world.RecordParticleCount({waterSource});
 
         // Draw boundaries
-        left.SetTransform({50.0f, 80.0f}, 60.0f);
-        left.Update();
-
-        right.SetTransform({175.0f, 125.0f}, -60.0f);
-        right.Update();
-
-        bottom.SetTransform({5.0f, 250.0f}, 0.0f);
-        bottom.Update();
+        left.mRigidbody.SetTransform({50.0f, 80.0f}, 60.0f);
+        right.mRigidbody.SetTransform({175.0f, 125.0f}, -60.0f);
+        bottom.mRigidbody.SetTransform({5.0f, 250.0f}, 0.0f);
 
         // Add circles
-        circle.SetTransform({50.0f, 50.0f}, 0.0f);
-        box.SetTransform({75.0f, 50.0f}, 0.0f);
+        circle.mRigidbody.SetTransform({50.0f, 50.0f}, 0.0f);
+        box.mRigidbody.SetTransform({75.0f, 50.0f}, 0.0f);
 
         // Set gravity
         velocityRender = world.RecordVelocity({gravity, waterForce});
@@ -87,30 +84,16 @@ public:
         windowRender = renderTarget.Record({liquidPhi, solidPhi}, blendState);
     }
 
-    void Substep()
+    void Step() override
     {
         sourceRender.Submit();
         world.SubmitVelocity(velocityRender);
         auto params = Vortex2D::Fluid::FixedParams(12);
         world.Step(params);
-
-        circle.Update();
-        box.Update();
-
-        const int velocityStep = 8;
-        const int positionStep = 3;
-        rWorld.Step(delta, velocityStep, positionStep);
-    }
-
-    void Step() override
-    {
-        Substep();
-        Substep();
         windowRender.Submit();
     }
 
 private:
-    float delta;
     Vortex2D::Renderer::IntRectangle waterSource;
     Vortex2D::Renderer::Rectangle waterForce;
     Vortex2D::Renderer::Rectangle gravity;
@@ -120,7 +103,8 @@ private:
 
     b2World rWorld;
 
+    Box2DSolver solver;
     CircleRigidbody circle;
-    BoxRigidbody box;
-    BoxRigidbody left, right, bottom;
+    RectangleRigidbody box;
+    RectangleRigidbody left, right, bottom;
 };

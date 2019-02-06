@@ -70,7 +70,8 @@ void GaussSeidel::Bind(Renderer::GenericBuffer& d,
     });
 }
 
-void GaussSeidel::BindRigidbody(Renderer::GenericBuffer& /*d*/,
+void GaussSeidel::BindRigidbody(float /*delta*/,
+                                Renderer::GenericBuffer& /*d*/,
                                 RigidBody& /*rigidBody*/)
 {
 

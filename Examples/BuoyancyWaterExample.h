@@ -23,20 +23,22 @@ public:
     HydrostaticWaterExample(const Vortex2D::Renderer::Device& device,
                             const glm::ivec2& size,
                             float dt)
-        : delta(dt / 2.0)
-        , gravity(device, glm::vec2(256.0f, 256.0f))
-        , world(device, size, delta, 1)
+        : gravity(device, glm::vec2(256.0f, 256.0f))
+        , world(device, size, dt, 2)
         , solidPhi(world.SolidDistanceField())
         , liquidPhi(world.LiquidDistanceField())
         , rWorld(b2Vec2(0.0f, gravityForce))
-        , circle1(device, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 10.0f, 0.4f)
-        , circle2(device, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 10.0f, 0.7f)
-        , circle3(device, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 10.0f, 1.1f)
-        , left(device, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {5.0f, 125.0f})
-        , right(device, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {5.0f, 125.0f})
-        , bottom(device, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {250.0f, 5.0f})
+        , solver(rWorld)
+        , circle1(device, size, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 10.0f, 0.4f)
+        , circle2(device, size, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 10.0f, 0.7f)
+        , circle3(device, size, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 10.0f, 1.1f)
+        , left(device, size, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {5.0f, 125.0f})
+        , right(device, size, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {5.0f, 125.0f})
+        , bottom(device, size, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {250.0f, 5.0f})
     {
-        gravity.Colour = glm::vec4(0.0f, delta * gravityForce, 0.0f, 0.0f);
+        world.AttachRigidBodySolver(solver);
+
+        gravity.Colour = glm::vec4(0.0f, dt * gravityForce, 0.0f, 0.0f);
 
         solidPhi.Colour = red;
         liquidPhi.Colour = blue;
@@ -53,19 +55,14 @@ public:
         world.RecordParticleCount({fluid}).Submit().Wait();
 
         // Draw boundaries
-        left.SetTransform({3.0f, 250.0f}, 0.0f);
-        left.Update();
-
-        right.SetTransform({250.0f, 250.0f}, 0.0f);
-        right.Update();
-
-        bottom.SetTransform({3.0f, 250.0f}, 0.0f);
-        bottom.Update();
+        left.mRigidbody.SetTransform({3.0f, 250.0f}, 0.0f);
+        right.mRigidbody.SetTransform({250.0f, 250.0f}, 0.0f);
+        bottom.mRigidbody.SetTransform({3.0f, 250.0f}, 0.0f);
 
         // Add circles
-        circle1.SetTransform({50.0f, 100.0f}, 0.0f);
-        circle2.SetTransform({125.0f, 100.0f}, 0.0f);
-        circle3.SetTransform({200.0f, 100.0f}, 0.0f);
+        circle1.mRigidbody.SetTransform({50.0f, 100.0f}, 0.0f);
+        circle2.mRigidbody.SetTransform({125.0f, 100.0f}, 0.0f);
+        circle3.mRigidbody.SetTransform({200.0f, 100.0f}, 0.0f);
 
         // Set gravity
         velocityRender = world.RecordVelocity({gravity});
@@ -83,30 +80,15 @@ public:
         windowRender = renderTarget.Record({liquidPhi, solidPhi}, blendState);
     }
 
-    void Substep()
+    void Step() override
     {
         world.SubmitVelocity(velocityRender);
         auto params = Vortex2D::Fluid::FixedParams(12);
         world.Step(params);
-
-        circle1.Update();
-        circle2.Update();
-        circle3.Update();
-
-        const int velocityStep = 8;
-        const int positionStep = 3;
-        rWorld.Step(delta, velocityStep, positionStep);
-    }
-
-    void Step() override
-    {
-        Substep();
-        Substep();
         windowRender.Submit();
     }
 
 private:
-    float delta;
     Vortex2D::Renderer::Rectangle gravity;
     Vortex2D::Fluid::WaterWorld world;
     Vortex2D::Fluid::DistanceField solidPhi, liquidPhi;
@@ -114,6 +96,7 @@ private:
 
     b2World rWorld;
 
+    Box2DSolver solver;
     CircleRigidbody circle1, circle2, circle3;
-    BoxRigidbody left, right, bottom;
+    RectangleRigidbody left, right, bottom;
 };
