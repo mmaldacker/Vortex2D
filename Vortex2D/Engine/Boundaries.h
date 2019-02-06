@@ -25,7 +25,6 @@ namespace Vortex2D { namespace Fluid {
 class Polygon : public Renderer::Transformable, public Renderer::Drawable
 {
 public:
-    // TODO number should be calculated
     /**
      * @brief Initialize polygon with set of points and extent of signed distance
      * @param device vulkan device
@@ -73,7 +72,6 @@ public:
 class Circle : public Renderer::Transformable, public Renderer::Drawable
 {
 public:
-    // TODO number should be calculated
     /**
      * @brief Initialize the circle with radius and extend of signed distance.
      * @param device vulkan device.

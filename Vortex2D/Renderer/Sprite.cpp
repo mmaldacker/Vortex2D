@@ -41,7 +41,7 @@ AbstractSprite::AbstractSprite(const Device& device, const SpirvBinary& fragShad
     PipelineLayout layout = {{reflectionVert, reflectionFrag}};
     mDescriptorSet = device.GetLayoutManager().MakeDescriptorSet(layout);
 
-    // TODO add as parameter
+    // TODO add sampler as parameter
     mSampler = SamplerBuilder().Filter(vk::Filter::eLinear).Create(device.Handle());
 
     Bind(device, *mDescriptorSet.descriptorSet, layout, {{mMVPBuffer, 0}, {*mSampler, texture, 1}, {mColourBuffer, 2}});

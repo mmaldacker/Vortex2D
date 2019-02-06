@@ -284,7 +284,7 @@ void CheckVelocity(const Vortex2D::Renderer::Device& device,
     std::vector<glm::vec2> pixels(size.x * size.y);
     output.CopyTo(pixels);
 
-    // FIXME need to check the entire velocity buffer
+    // TODO need to check the entire velocity buffer
     for (int i = 1; i < size.x - 1; i++)
     {
         for (int j = 1; j < size.y - 1; j++)

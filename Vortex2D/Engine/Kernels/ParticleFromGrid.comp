@@ -35,34 +35,21 @@ layout(binding = 3, rgba32f) uniform image2D DVelocity;
 
 #include "CommonAdvect.comp"
 
-// FIXME below is duplicated
-
 // TODO use cubic interpolation instead
-float interpolate_value_du(vec2 xy)
+float interpolate_value_d(vec2 xy, int i)
 {
     ivec2 ij = ivec2(floor(xy));
     vec2 f = xy - vec2(ij);
 
-    return mix(mix(imageLoad(DVelocity, ij + ivec2(0, 0)).x, imageLoad(DVelocity, ij + ivec2(1, 0)).x, f.x),
-               mix(imageLoad(DVelocity, ij + ivec2(0, 1)).x, imageLoad(DVelocity, ij + ivec2(1, 1)).x, f.x),
-               f.y);
-}
-
-// TODO use cubic interpolation instead
-float interpolate_value_dv(vec2 xy)
-{
-    ivec2 ij = ivec2(floor(xy));
-    vec2 f = xy - vec2(ij);
-
-    return mix(mix(imageLoad(DVelocity, ij + ivec2(0, 0)).y, imageLoad(DVelocity, ij + ivec2(1, 0)).y, f.x),
-               mix(imageLoad(DVelocity, ij + ivec2(0, 1)).y, imageLoad(DVelocity, ij + ivec2(1, 1)).y, f.x),
+    return mix(mix(imageLoad(DVelocity, ij + ivec2(0, 0))[i], imageLoad(DVelocity, ij + ivec2(1, 0))[i], f.x),
+               mix(imageLoad(DVelocity, ij + ivec2(0, 1))[i], imageLoad(DVelocity, ij + ivec2(1, 1))[i], f.x),
                f.y);
 }
 
 vec2 get_dvelocity(vec2 xy)
 {
-    float u = interpolate_value_du(xy - vec2(0.0, 0.5));
-    float v = interpolate_value_dv(xy - vec2(0.5, 0.0));
+    float u = interpolate_value_d(xy - vec2(0.0, 0.5), 0);
+    float v = interpolate_value_d(xy - vec2(0.5, 0.0), 1);
 
     return vec2(u, v);
 }
