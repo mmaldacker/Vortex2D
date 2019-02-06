@@ -26,9 +26,6 @@ on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 sys.path.append('.')
 
 if on_rtd:
-    pip.main(['install', 'sphinx_rtd_theme'])
-    pip.main(['install', 'breathe'])
-
     subprocess.call('doxygen', shell=True)
 
 # -- General configuration ------------------------------------------------
