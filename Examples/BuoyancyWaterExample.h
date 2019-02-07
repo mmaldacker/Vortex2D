@@ -71,7 +71,7 @@ public:
         circle3.mRigidbody.SetTransform({200.0f, 100.0f}, 0.0f);
 
         // Set gravity
-        velocityRender = world.RecordVelocity({gravity});
+        velocityRender = world.RecordVelocity({gravity}, Vortex2D::Fluid::VelocityOp::Add);
 
         Vortex2D::Renderer::ColorBlendState blendState;
         blendState.ColorBlend

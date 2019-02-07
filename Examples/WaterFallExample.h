@@ -74,7 +74,7 @@ public:
         box.mRigidbody.SetTransform({75.0f, 50.0f}, 0.0f);
 
         // Set gravity
-        velocityRender = world.RecordVelocity({gravity, waterForce});
+        velocityRender = world.RecordVelocity({gravity, waterForce}, Vortex2D::Fluid::VelocityOp::Add);
 
         Vortex2D::Renderer::ColorBlendState blendState;
         blendState.ColorBlend

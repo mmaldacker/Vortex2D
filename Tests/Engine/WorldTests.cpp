@@ -53,7 +53,7 @@ float PressureRigidbody_VelocityTest(float scale)
     Renderer::Rectangle velocity(*device, size);
     velocity.Colour = {10.0f / scale, 0.0f, 0.0f, 0.0f};
 
-    world.RecordVelocity({velocity}).Submit();
+    world.RecordVelocity({velocity}, Fluid::VelocityOp::Set).Submit();
 
     auto params = Fluid::IterativeParams(1e-5f);
     world.Step(params);
@@ -129,7 +129,7 @@ float PressureRigidbody_RotationTest(float scale)
     velocityDown.Position = {0.0f, size.x / 2.0f};
     velocityDown.Colour = {-10.0f / scale, 0.0f, 0.0f, 0.0f};
 
-    world.RecordVelocity({velocityUp, velocityDown}).Submit();
+    world.RecordVelocity({velocityUp, velocityDown}, Fluid::VelocityOp::Set).Submit();
 
     auto params = Fluid::IterativeParams(1e-5f);
     world.Step(params);
@@ -180,7 +180,7 @@ TEST(WorldTests, Velocity)
     Renderer::Rectangle velocity(*device, size);
     velocity.Colour = {-10.0f, -10.0f, 0.0f, 0.0f};
 
-    world.RecordVelocity({velocity}).Submit();
+    world.RecordVelocity({velocity}, Fluid::VelocityOp::Set).Submit();
 
     auto params = Fluid::IterativeParams(1e-5f);
     world.Step(params);

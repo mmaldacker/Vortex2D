@@ -157,7 +157,7 @@ public:
         watermill.SetTransform({160.0f, 170.0f}, 25.0f);
 
         // Set gravity
-        velocityRender = world.RecordVelocity({gravity, waterForce});
+        velocityRender = world.RecordVelocity({gravity, waterForce}, Vortex2D::Fluid::VelocityOp::Add);
 
         Vortex2D::Renderer::ColorBlendState blendState;
         blendState.ColorBlend

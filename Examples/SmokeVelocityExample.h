@@ -63,7 +63,7 @@ public:
         world.RecordLiquidPhi({clearLiquid, area}).Submit().Wait();
 
         // Draw sources and forces
-        velocityRender = world.RecordVelocity({force1, force2});
+        velocityRender = world.RecordVelocity({force1, force2}, Vortex2D::Fluid::VelocityOp::Set);
         densityRender = density.Record({source1, source2});
 
         // Draw rigid body

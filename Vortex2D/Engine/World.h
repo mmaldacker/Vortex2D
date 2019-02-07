@@ -31,6 +31,15 @@
 namespace Vortex2D { namespace Fluid {
 
 /**
+ * @brief Operator when applying velocity to velocity field: add or set.
+ */
+enum class VelocityOp
+{
+    Add,
+    Set
+};
+
+/**
  * @brief The main class of the framework. Each instance manages a grid and this class
  * is used to set forces, define boundaries, solve the incompressbility equations and do the
  * advection.
@@ -56,9 +65,10 @@ public:
     /**
      * @brief Record drawables to the velocity field. The colour (r,g) will be used as the velocity (x, y)
      * @param drawables a list of drawable field
+     * @param op operation of the render: add velocity or set velocity
      * @return render command
      */
-    VORTEX2D_API Renderer::RenderCommand RecordVelocity(Renderer::RenderTarget::DrawableList drawables);
+    VORTEX2D_API Renderer::RenderCommand RecordVelocity(Renderer::RenderTarget::DrawableList drawables, VelocityOp op);
 
     /**
      * @brief submit the render command created with @ref RecordVelocity

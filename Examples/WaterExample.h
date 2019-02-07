@@ -57,7 +57,7 @@ public:
         world.RecordStaticSolidPhi({area, obstacle1, obstacle2}).Submit().Wait();
 
         // Set gravity
-        velocityRender = world.RecordVelocity({gravity});
+        velocityRender = world.RecordVelocity({gravity}, Vortex2D::Fluid::VelocityOp::Add);
 
         Vortex2D::Renderer::ColorBlendState blendState;
         blendState.ColorBlend
