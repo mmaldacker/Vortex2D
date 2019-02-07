@@ -32,11 +32,12 @@ public:
         , clearObstacles({250.0f, 0.0f, 0.0f, 0.0f})
         , rWorld({0.0f, 0.0f})
         , solver(rWorld)
-        , body(device, size, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eWeak, {80.0f, 10.0f})
+        , body(device, size, rWorld, b2_dynamicBody, Vortex2D::Fluid::RigidBody::Type::eWeak, {80.0f, 10.0f})
         , solidPhi(device, body.mRigidbody.Phi())
     {
         world.FieldBind(density);
         world.AttachRigidBodySolver(solver);
+        world.AddRigidbody(body.mRigidbody);
 
         source1.Position = force1.Position = {25.0f, 25.0f};
         source2.Position = force2.Position = {125.0f, 225.0f};

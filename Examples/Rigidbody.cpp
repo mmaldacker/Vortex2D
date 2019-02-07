@@ -119,7 +119,6 @@ PolygonRigidbody::PolygonRigidbody(const Vortex2D::Renderer::Device& device,
                                    const glm::ivec2& size,
                                    b2World& rWorld,
                                    b2BodyType rType,
-                                   Vortex2D::Fluid::World& world,
                                    Vortex2D::Fluid::RigidBody::Type type,
                                    const std::vector<glm::vec2>& points,
                                    float density)
@@ -128,14 +127,12 @@ PolygonRigidbody::PolygonRigidbody(const Vortex2D::Renderer::Device& device,
 {
     mRigidbody.mBody = CreateBody(rWorld, GetPolygonFixtureDef(points), rType, density);
     mRigidbody.SetMassData(mRigidbody.mBody->GetMass(), mRigidbody.mBody->GetInertia());
-    world.AddRigidbody(mRigidbody);
 }
 
 CircleRigidbody::CircleRigidbody(const Vortex2D::Renderer::Device& device,
                                  const glm::ivec2& size,
                                  b2World& rWorld,
                                  b2BodyType rType,
-                                 Vortex2D::Fluid::World& world,
                                  Vortex2D::Fluid::RigidBody::Type type,
                                  const float radius,
                                  float density)
@@ -144,6 +141,5 @@ CircleRigidbody::CircleRigidbody(const Vortex2D::Renderer::Device& device,
 {
     mRigidbody.mBody = CreateBody(rWorld, GetCircleFixtureDef(radius), rType, density);
     mRigidbody.SetMassData(mRigidbody.mBody->GetMass(), mRigidbody.mBody->GetInertia());
-    world.AddRigidbody(mRigidbody);
 }
 

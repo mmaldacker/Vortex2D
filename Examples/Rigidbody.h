@@ -46,7 +46,6 @@ public:
                      const glm::ivec2& size,
                      b2World& rWorld,
                      b2BodyType rType,
-                     Vortex2D::Fluid::World& world,
                      Vortex2D::Fluid::RigidBody::Type type,
                      const std::vector<glm::vec2>& points,
                      float density = 1.0f);
@@ -62,11 +61,10 @@ public:
                        const glm::ivec2& size,
                        b2World& rWorld,
                        b2BodyType rType,
-                       Vortex2D::Fluid::World& world,
                        Vortex2D::Fluid::RigidBody::Type type,
                        const glm::vec2& halfSize,
                        float density = 1.0f)
-        : PolygonRigidbody(device, size, rWorld, rType, world, type,
+        : PolygonRigidbody(device, size, rWorld, rType, type,
                            {{-halfSize.x, -halfSize.y},
                            {halfSize.x, -halfSize.y},
                            {halfSize.x, halfSize.y},
@@ -83,7 +81,6 @@ public:
                     const glm::ivec2& size,
                     b2World& rWorld,
                     b2BodyType rType,
-                    Vortex2D::Fluid::World& world,
                     Vortex2D::Fluid::RigidBody::Type type,
                     const float radius,
                     float density = 1.0f);

@@ -31,13 +31,18 @@ public:
         , liquidPhi(world.LiquidDistanceField())
         , rWorld(b2Vec2(0.0f, gravityForce))
         , solver(rWorld)
-        , circle(device, size, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 10.0f)
-        , box(device, size, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, {15.0f, 15.0f})
-        , left(device, size, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {50.0f, 5.0f})
-        , right(device, size, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {50.0f, 5.0f})
-        , bottom(device, size, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {250.0f, 5.0f})
+        , circle(device, size, rWorld, b2_dynamicBody, Vortex2D::Fluid::RigidBody::Type::eStrong, 10.0f)
+        , box(device, size, rWorld, b2_dynamicBody, Vortex2D::Fluid::RigidBody::Type::eStrong, {15.0f, 15.0f})
+        , left(device, size, rWorld, b2_staticBody, Vortex2D::Fluid::RigidBody::Type::eStatic, {50.0f, 5.0f})
+        , right(device, size, rWorld, b2_staticBody, Vortex2D::Fluid::RigidBody::Type::eStatic, {50.0f, 5.0f})
+        , bottom(device, size, rWorld, b2_staticBody, Vortex2D::Fluid::RigidBody::Type::eStatic, {250.0f, 5.0f})
     {
         world.AttachRigidBodySolver(solver);
+        world.AddRigidbody(circle.mRigidbody);
+        world.AddRigidbody(box.mRigidbody);
+        world.AddRigidbody(left.mRigidbody);
+        world.AddRigidbody(right.mRigidbody);
+        world.AddRigidbody(bottom.mRigidbody);
 
         gravity.Colour = glm::vec4(0.0f, dt * gravityForce, 0.0f, 0.0f);
 
@@ -60,8 +65,8 @@ public:
         sourceRender = world.RecordParticleCount({waterSource});
 
         // Draw boundaries
-        left.mRigidbody.SetTransform({50.0f, 80.0f}, 60.0f);
-        right.mRigidbody.SetTransform({175.0f, 125.0f}, -60.0f);
+        left.mRigidbody.SetTransform({50.0f, 80.0f}, 20.0f);
+        right.mRigidbody.SetTransform({175.0f, 125.0f}, -20.0f);
         bottom.mRigidbody.SetTransform({5.0f, 250.0f}, 0.0f);
 
         // Add circles

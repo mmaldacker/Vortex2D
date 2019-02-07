@@ -32,12 +32,16 @@ public:
         , velocityClear({0.0f, 0.0f, 0.0f, 0.0f})
         , rWorld({0.0f, 100.0f})
         , solver(rWorld)
-        , body1(device, size, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {25.0f, 12.0f})
-        , body2(device, size, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {12.0f, 12.0f})
-        , bottom(device, size, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {125.0f, 5.0f})
+        , body1(device, size, rWorld, b2_dynamicBody, Vortex2D::Fluid::RigidBody::Type::eStatic, {25.0f, 12.0f})
+        , body2(device, size, rWorld, b2_dynamicBody, Vortex2D::Fluid::RigidBody::Type::eStatic, {12.0f, 12.0f})
+        , bottom(device, size, rWorld, b2_staticBody, Vortex2D::Fluid::RigidBody::Type::eStatic, {125.0f, 5.0f})
     {
         world.FieldBind(density);
         world.AttachRigidBodySolver(solver);
+        world.AddRigidbody(body1.mRigidbody);
+        world.AddRigidbody(body2.mRigidbody);
+        world.AddRigidbody(bottom.mRigidbody);
+
         solidPhi.Colour = green;
     }
 

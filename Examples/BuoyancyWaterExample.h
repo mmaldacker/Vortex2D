@@ -29,14 +29,20 @@ public:
         , liquidPhi(world.LiquidDistanceField())
         , rWorld(b2Vec2(0.0f, gravityForce))
         , solver(rWorld)
-        , circle1(device, size, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 10.0f, 0.4f)
-        , circle2(device, size, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 10.0f, 0.7f)
-        , circle3(device, size, rWorld, b2_dynamicBody, world, Vortex2D::Fluid::RigidBody::Type::eStrong, 10.0f, 1.1f)
-        , left(device, size, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {5.0f, 125.0f})
-        , right(device, size, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {5.0f, 125.0f})
-        , bottom(device, size, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {250.0f, 5.0f})
+        , circle1(device, size, rWorld, b2_dynamicBody, Vortex2D::Fluid::RigidBody::Type::eStrong, 10.0f, 0.4f)
+        , circle2(device, size, rWorld, b2_dynamicBody, Vortex2D::Fluid::RigidBody::Type::eStrong, 10.0f, 0.7f)
+        , circle3(device, size, rWorld, b2_dynamicBody, Vortex2D::Fluid::RigidBody::Type::eStrong, 10.0f, 1.1f)
+        , left(device, size, rWorld, b2_staticBody, Vortex2D::Fluid::RigidBody::Type::eStatic, {5.0f, 125.0f})
+        , right(device, size, rWorld, b2_staticBody, Vortex2D::Fluid::RigidBody::Type::eStatic, {5.0f, 125.0f})
+        , bottom(device, size, rWorld, b2_staticBody, Vortex2D::Fluid::RigidBody::Type::eStatic, {250.0f, 5.0f})
     {
         world.AttachRigidBodySolver(solver);
+        world.AddRigidbody(circle1.mRigidbody);
+        world.AddRigidbody(circle2.mRigidbody);
+        world.AddRigidbody(circle3.mRigidbody);
+        world.AddRigidbody(left.mRigidbody);
+        world.AddRigidbody(right.mRigidbody);
+        world.AddRigidbody(bottom.mRigidbody);
 
         gravity.Colour = glm::vec4(0.0f, dt * gravityForce, 0.0f, 0.0f);
 

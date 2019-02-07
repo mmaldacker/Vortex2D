@@ -22,8 +22,7 @@ class Watermill
 public:
     Watermill(const Vortex2D::Renderer::Device& device,
               const glm::ivec2& size,
-              b2World& rWorld,
-              Vortex2D::Fluid::World& world)
+              b2World& rWorld)
         : mWatermillTexture(device, 150.0f, 150.0f, vk::Format::eR32Sfloat)
         , mWatermill(device, mWatermillTexture)
         , mRigidbody(device, size, mWatermill, Vortex2D::Fluid::RigidBody::Type::eStrong)
@@ -92,7 +91,6 @@ public:
 
         mRigidbody.Anchor = centre;
         mRigidbody.SetMassData(mRigidbody.mBody->GetMass(), mRigidbody.mBody->GetInertia());
-        world.AddRigidbody(mRigidbody);
     }
 
     void SetTransform(const glm::vec2& pos, float angle)
@@ -101,7 +99,6 @@ public:
         mRigidbody.SetTransform(pos, angle);
     }
 
-private:
     Vortex2D::Renderer::RenderTexture mWatermillTexture;
     Vortex2D::Renderer::Sprite mWatermill;
     Box2DRigidbody mRigidbody;
@@ -124,11 +121,14 @@ public:
         , liquidPhi(world.LiquidDistanceField())
         , rWorld(b2Vec2(0.0f, gravityForce))
         , solver(rWorld)
-        , left(device, size, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {70.0f, 5.0f})
-        , bottom(device, size, rWorld, b2_staticBody, world, Vortex2D::Fluid::RigidBody::Type::eStatic, {250.0f, 5.0f})
-        , watermill(device, size, rWorld, world)
+        , left(device, size, rWorld, b2_staticBody, Vortex2D::Fluid::RigidBody::Type::eStatic, {70.0f, 5.0f})
+        , bottom(device, size, rWorld, b2_staticBody, Vortex2D::Fluid::RigidBody::Type::eStatic, {250.0f, 5.0f})
+        , watermill(device, size, rWorld)
     {
         world.AttachRigidBodySolver(solver);
+        world.AddRigidbody(left.mRigidbody);
+        world.AddRigidbody(bottom.mRigidbody);
+        world.AddRigidbody(watermill.mRigidbody);
 
         gravity.Colour = glm::vec4(0.0f, dt * gravityForce, 0.0f, 0.0f);
 
