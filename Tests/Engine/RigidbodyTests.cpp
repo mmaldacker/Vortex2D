@@ -714,10 +714,10 @@ TEST(RigidbodyTests, PressureRotation)
 
 TEST(RigidbodyTests, VelocityConstrain)
 {
-    glm::ivec2 size(20); // FIXME should be 50
+    glm::ivec2 size(50);
     glm::vec2 rectangleSize(0.3f, 0.2f);
 
-    glm::vec2 solid_velocity(0.1f, -0.6f);
+    glm::vec2 solid_velocity(0.005f, -0.005f);
 
     FluidSim sim;
     sim.initialize(1.0f, size.x, size.y);
@@ -732,8 +732,6 @@ TEST(RigidbodyTests, VelocityConstrain)
     sim.rbd->setAngle(0.0);
 
     sim.update_rigid_body_grids();
-    sim.add_force(0.01f);
-    sim.apply_projection(0.01f);
 
     // ensure velocities
     sim.rbd->setAngularMomentum(0.0f);
@@ -746,6 +744,7 @@ TEST(RigidbodyTests, VelocityConstrain)
     extrapolate(sim.v, sim.v_valid);
 
     sim.recompute_solid_velocity();
+    sim.compute_pressure_weights();
 
     Velocity velocity(*device, size);
     SetVelocity(*device, size, velocity, sim);
@@ -765,24 +764,18 @@ TEST(RigidbodyTests, VelocityConstrain)
 
     rigidBody.RenderPhi();
 
-    Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
-
-    Extrapolation extrapolation(*device, size, valid, velocity);
-    extrapolation.ConstrainBind(solidPhi);
-    extrapolation.ConstrainVelocity();
-
     rigidBody.SetVelocities(solid_velocity * glm::vec2(size.x), 0.0f);
     rigidBody.BindVelocityConstrain(velocity);
     rigidBody.VelocityConstrain();
 
     device->Handle().waitIdle();
 
-    CheckVelocity(*device, size, velocity, sim, 1e-5f);
+    CheckVelocity(*device, size, velocity, sim, 1e-3f);
 }
 
 TEST(RigidbodyTests, RotationConstrain)
 {
-    glm::ivec2 size(20); // FIXME should be 50
+    glm::ivec2 size(50);
     glm::vec2 rectangleSize(0.3f, 0.2f);
 
     FluidSim sim;
@@ -798,11 +791,9 @@ TEST(RigidbodyTests, RotationConstrain)
     sim.rbd->setAngle(0.0);
 
     sim.update_rigid_body_grids();
-    sim.add_force(0.01f);
-    sim.apply_projection(0.01f);
 
     // set velocities
-    sim.rbd->setAngularMomentum(0.1f * sim.rbd->getInertiaModulus());
+    sim.rbd->setAngularMomentum(0.01f * sim.rbd->getInertiaModulus());
     sim.rbd->setLinearVelocity(Vec2f(0.0f, 0.0f));
 
     float w;
@@ -815,6 +806,7 @@ TEST(RigidbodyTests, RotationConstrain)
     extrapolate(sim.v, sim.v_valid);
 
     sim.recompute_solid_velocity();
+    sim.compute_pressure_weights();
 
     Velocity velocity(*device, size);
     SetVelocity(*device, size, velocity, sim);
@@ -833,12 +825,6 @@ TEST(RigidbodyTests, RotationConstrain)
     rigidBody.UpdatePosition();
 
     rigidBody.RenderPhi();
-
-    Buffer<glm::ivec2> valid(*device, size.x*size.y, VMA_MEMORY_USAGE_CPU_ONLY);
-
-    Extrapolation extrapolation(*device, size, valid, velocity);
-    extrapolation.ConstrainBind(solidPhi);
-    extrapolation.ConstrainVelocity();
 
     rigidBody.SetVelocities(glm::vec2(0.0f, 0.0f), w);
     rigidBody.BindVelocityConstrain(velocity);

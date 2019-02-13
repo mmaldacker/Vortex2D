@@ -79,8 +79,7 @@ TEST(ExtrapolateTest, Extrapolate)
 
 TEST(ExtrapolateTest, Constrain)
 {
-    // NOTE Cannot use higher size because of weird float conversions in FluidSim
-    glm::ivec2 size(20);
+    glm::ivec2 size(50);
 
     FluidSim sim;
     sim.initialize(1.0f, size.x, size.y);

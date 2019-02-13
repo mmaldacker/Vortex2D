@@ -32,8 +32,9 @@ layout(binding = 4) uniform Centre
 
 #include "CommonProject.comp"
 
-vec2 get_velocity(vec2 pos)
+vec2 get_solid_velocity(vec2 pos)
 {
+    pos -= centre.xy;
     vec2 dir = vec2(-pos.y, pos.x) / vec2(consts.width);
     return velocity.value.velocity + dir * velocity.value.angular_velocity;
 }
@@ -66,8 +67,7 @@ void main()
             normal = vec2(0.0, 1.0);
         }
 
-        vec2 rad = pos + vec2(0.0, 0.5) - centre.xy;
-        vec2 solid_vel = get_velocity(rad);
+        vec2 solid_vel = get_solid_velocity(pos + vec2(0.0, 0.5));
         float perp_component = dot(normal, solid_vel);
 
         constrained.x = -normal.x * perp_component;
@@ -86,8 +86,7 @@ void main()
             normal = vec2(0.0, 1.0);
         }
 
-        vec2 rad = pos + vec2(0.5, 0.0) - centre.xy;
-        vec2 solid_vel = get_velocity(rad);
+        vec2 solid_vel = get_solid_velocity(pos + vec2(0.5, 0.0));
         float perp_component = dot(normal, solid_vel);
 
         constrained.y = -normal.y * perp_component;
