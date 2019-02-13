@@ -6,7 +6,9 @@ layout (local_size_x_id = 1, local_size_y_id = 2) in;
 
 layout(push_constant) uniform Consts
 {
+  int n;
   int width;
+  int height;
   float alpha;
 }consts;
 
@@ -35,21 +37,34 @@ layout(binding = 3, rgba32f) uniform image2D DVelocity;
 
 #include "CommonAdvect.comp"
 
-// TODO use cubic interpolation instead
-float interpolate_value_d(vec2 xy, int i)
+vec4[16] get_dsamples(ivec2 ij)
+{
+    vec4 t[16];
+    for(int j = 0; j < 4; ++j)
+    {
+        for(int i = 0; i < 4; ++i)
+        {
+            ivec2 pos = ij + ivec2(i,j) - ivec2(1);
+            pos = clamp(pos, ivec2(0, 0), ivec2(consts.width - 1, consts.height - 1));
+            t[i + 4*j] = imageLoad(DVelocity, pos);
+        }
+    }
+    return t;
+}
+
+float bicubic_interpolate_value_d(vec2 xy, int i)
 {
     ivec2 ij = ivec2(floor(xy));
     vec2 f = xy - vec2(ij);
 
-    return mix(mix(imageLoad(DVelocity, ij + ivec2(0, 0))[i], imageLoad(DVelocity, ij + ivec2(1, 0))[i], f.x),
-               mix(imageLoad(DVelocity, ij + ivec2(0, 1))[i], imageLoad(DVelocity, ij + ivec2(1, 1))[i], f.x),
-               f.y);
+    vec4 t[16] = get_dsamples(ij);
+    return bicubic(t, f)[i];
 }
 
 vec2 get_dvelocity(vec2 xy)
 {
-    float u = interpolate_value_d(xy - vec2(0.0, 0.5), 0);
-    float v = interpolate_value_d(xy - vec2(0.5, 0.0), 1);
+    float u = bicubic_interpolate_value_d(xy - vec2(0.0, 0.5), 0);
+    float v = bicubic_interpolate_value_d(xy - vec2(0.5, 0.0), 1);
 
     return vec2(u, v);
 }

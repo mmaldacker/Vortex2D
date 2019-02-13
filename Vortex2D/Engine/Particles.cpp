@@ -19,6 +19,7 @@ ParticleCount::ParticleCount(const Renderer::Device& device,
                              float alpha)
     : Renderer::RenderTexture(device, size.x, size.y, vk::Format::eR32Sint)
     , mDevice(device)
+    , mSize(size)
     , mParticles(particles)
     , mNewParticles(device, 8*size.x*size.y)
     , mDelta(device, size.x*size.y)
@@ -173,7 +174,7 @@ void ParticleCount::VelocitiesBind(Velocity& velocity, Renderer::GenericBuffer& 
     mParticleFromGrid.Record([&](vk::CommandBuffer commandBuffer)
     {
         commandBuffer.debugMarkerBeginEXT({"Particle from grid", {{ 0.35f, 0.11f, 0.87f, 1.0f}}});
-        mParticleFromGridBound.PushConstant(commandBuffer, mAlpha);
+        mParticleFromGridBound.PushConstant(commandBuffer, mSize.x, mSize.y, mAlpha);
         mParticleFromGridBound.RecordIndirect(commandBuffer, mDispatchParams);
         mParticles.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         commandBuffer.debugMarkerEndEXT();

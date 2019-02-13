@@ -53,11 +53,3 @@ mkdir build && cd build
 cmake .. -DVORTEX2D_ENABLE_EXAMPLES=On -DVORTEX2D_ENABLE_TESTS=On -DMOLTENVK_DIR=/path_to_sdk_or_moltenvk/
 make -j 4
 ```
-
-## Roadmap
-
-In no particular order:
-
-* Bicubic interpolation
-* Dynamic timestep
-* Fire

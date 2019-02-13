@@ -81,6 +81,7 @@ public:
 
 private:
     const Renderer::Device& mDevice;
+    glm::ivec2 mSize;
     Renderer::GenericBuffer& mParticles;
     Renderer::Buffer<Particle> mNewParticles;
     Renderer::Buffer<int> mDelta, mCount;
@@ -92,8 +93,8 @@ private:
 
     Renderer::Work mParticleCountWork;
     Renderer::Work::Bound mParticleCountBound;
-	Renderer::Work mParticleClampWork;
-	Renderer::Work::Bound mParticleClampBound;
+    Renderer::Work mParticleClampWork;
+    Renderer::Work::Bound mParticleClampBound;
     PrefixScan mPrefixScan;
     PrefixScan::Bound mPrefixScanBound;
     Renderer::Work mParticleBucketWork;

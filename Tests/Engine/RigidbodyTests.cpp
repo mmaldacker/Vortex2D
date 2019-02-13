@@ -717,7 +717,7 @@ TEST(RigidbodyTests, VelocityConstrain)
     glm::ivec2 size(50);
     glm::vec2 rectangleSize(0.3f, 0.2f);
 
-    glm::vec2 solid_velocity(0.005f, -0.005f);
+    glm::vec2 solid_velocity(0.001f, -0.001f);
 
     FluidSim sim;
     sim.initialize(1.0f, size.x, size.y);

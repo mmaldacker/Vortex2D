@@ -17,14 +17,26 @@ layout(binding = 2, rgba8) uniform image2D OutField;
 
 #include "CommonAdvect.comp"
 
+vec4[16] get_field_samples(ivec2 ij)
+{
+    vec4 t[16];
+    for(int j = 0; j < 4; ++j)
+    {
+        for(int i = 0; i < 4; ++i)
+        {
+            t[i + 4*j] = imageLoad(Field, ij + ivec2(i,j) - ivec2(1));
+        }
+    }
+    return t;
+}
+
 vec4 interpolate(vec2 xy)
 {
-   ivec2 ij = ivec2(floor(xy));
-   vec2 f = xy - ij;
+    ivec2 ij = ivec2(floor(xy));
+    vec2 f = xy - ij;
 
-   return mix(mix(imageLoad(Field, ij + ivec2(0, 0)), imageLoad(Field, ij + ivec2(1, 0)), f.x),
-              mix(imageLoad(Field, ij + ivec2(0, 1)), imageLoad(Field, ij + ivec2(1, 1)), f.x),
-              f.y);
+    vec4 t[16] = get_field_samples(ij);
+    return bicubic(t, f);
 }
 
 void main(void)
