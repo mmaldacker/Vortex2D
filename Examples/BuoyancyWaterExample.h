@@ -54,8 +54,8 @@ public:
               Vortex2D::Renderer::RenderTarget& renderTarget) override
     {
         // Add particles
-        Vortex2D::Renderer::IntRectangle fluid(device, {225.0f, 75.0f});
-        fluid.Position = {10.0f, 150.0f};
+        Vortex2D::Renderer::IntRectangle fluid(device, {245.0f, 100.0f});
+        fluid.Position = {8.0f, 150.0f};
         fluid.Colour = glm::vec4(4);
 
         world.RecordParticleCount({fluid}).Submit().Wait();
