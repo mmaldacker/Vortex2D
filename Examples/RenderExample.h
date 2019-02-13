@@ -7,8 +7,7 @@
 
 #include "Runner.h"
 
-extern glm::vec4 red;
-extern glm::vec4 yellow;
+extern glm::vec4 green;
 
 class RenderExample : public Runner
 {
@@ -19,10 +18,10 @@ public:
     {
         rectangle.Position = {50, 50};
         rectangle.Rotation = 45.0f;
-        rectangle.Colour = red;
+        rectangle.Colour = green;
 
         circle.Position = {100, 100};
-        circle.Colour = yellow;
+        circle.Colour = green;
     }
 
     void Init(const Vortex2D::Renderer::Device& device,

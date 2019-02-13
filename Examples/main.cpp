@@ -21,11 +21,9 @@
 
 using namespace Vortex2D;
 
-glm::vec4 red = glm::vec4(242.0f, 95.0f, 92.0f, 255.0f) / glm::vec4(255.0f);
-glm::vec4 green = glm::vec4(112.0f, 193.0f, 179.0f, 255.0f) / glm::vec4(255.0f);
+glm::vec4 green = glm::vec4(92.0f, 173.0f, 159.0f, 255.0f) / glm::vec4(255.0f);
 glm::vec4 gray = glm::vec4(80.0f, 81.0f, 79.0f, 255.0f) / glm::vec4(255.0f);
 glm::vec4 blue = glm::vec4(36.0f, 123.0f, 160.0f, 255.0f) / glm::vec4(255.0f);
-glm::vec4 yellow = glm::vec4(255.0f, 224.0f, 102.0f, 255.0f) / glm::vec4(255.0f);
 
 static void ErrorCallback(int error, const char* description)
 {
@@ -191,7 +189,7 @@ public:
     vk::SurfaceKHR surface;
     Vortex2D::Renderer::Device device;
     Renderer::RenderWindow window;
-    Renderer::Clear clear = {{0.5f, 0.5f, 0.5f, 1.0f}};
+    Renderer::Clear clear = {{0.1f, 0.1f, 0.1f, 1.0f}};
     std::unique_ptr<Runner> example;
     Vortex2D::Renderer::RenderCommand clearRender;
 };

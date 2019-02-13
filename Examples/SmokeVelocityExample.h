@@ -15,7 +15,7 @@
 #include <memory>
 
 extern glm::vec4 green;
-extern glm::vec4 yellow;
+extern glm::vec4 gray;
 
 class SmokeVelocityExample : public Runner
 {
@@ -42,7 +42,7 @@ public:
         source1.Position = force1.Position = {25.0f, 25.0f};
         source2.Position = force2.Position = {125.0f, 225.0f};
 
-        source1.Colour = source2.Colour = yellow;
+        source1.Colour = source2.Colour = gray;
 
         force1.Colour = {50.0f, 0.0f, 0.0f, 0.0f};
         force2.Colour = {-50.0f, -50.0f, 0.0f, 0.0f};

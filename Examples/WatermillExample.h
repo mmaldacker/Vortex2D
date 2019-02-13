@@ -14,7 +14,7 @@
 #include <cmath>
 #include <glm/gtc/constants.hpp>
 
-extern glm::vec4 red;
+extern glm::vec4 green;
 extern glm::vec4 blue;
 
 class Watermill
@@ -132,7 +132,7 @@ public:
 
         gravity.Colour = glm::vec4(0.0f, dt * gravityForce, 0.0f, 0.0f);
 
-        solidPhi.Colour = red;
+        solidPhi.Colour = green;
         liquidPhi.Colour = blue;
     }
 

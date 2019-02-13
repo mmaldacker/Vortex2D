@@ -12,7 +12,7 @@
 #include <memory>
 
 extern glm::vec4 green;
-extern glm::vec4 red;
+extern glm::vec4 gray;
 
 class SmokeExample : public Runner
 {
@@ -36,7 +36,7 @@ public:
         source1.Anchor = source2.Anchor = glm::vec2(10.0);
         force1.Anchor = force2.Anchor = glm::vec2(10.0);
 
-        source1.Colour = source2.Colour = red;
+        source1.Colour = source2.Colour = gray;
 
         force1.Colour = {0.0f, 30.0f, 0.0f, 0.0f};
         force2.Colour = {0.0f, -30.0f, 0.0f, 0.0f};
