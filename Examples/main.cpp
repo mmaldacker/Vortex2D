@@ -89,7 +89,8 @@ class App
 {
 public:
     glm::ivec2 size = {256, 256};
-    glm::ivec2 windowSize = {1024, 1024};
+    glm::ivec2 windowSize = {512, 512};
+    float windowScale = 2.0f;
     float delta = 0.016f;
 
     App(bool validation = true)
@@ -109,7 +110,7 @@ public:
         };
         glfwSetKeyCallback(glfwWindow, func);
 
-        window.View = glm::scale(glm::vec3{4.0f * scale.x, 4.0f * scale.y, 1.0f});
+        window.View = glm::scale(glm::vec3{windowScale * scale.x, windowScale * scale.y, 1.0f});
     }
 
     ~App()
