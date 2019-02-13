@@ -32,7 +32,7 @@ public:
         , clearObstacles({250.0f, 0.0f, 0.0f, 0.0f})
         , rWorld({0.0f, 0.0f})
         , solver(rWorld)
-        , body(device, size, rWorld, b2_dynamicBody, Vortex2D::Fluid::RigidBody::Type::eWeak, {80.0f, 10.0f})
+        , body(device, size, rWorld, b2_dynamicBody, Vortex2D::Fluid::RigidBody::Type::eWeak, {80.0f, 10.0f}, 2.0f)
         , solidPhi(device, body.mRigidbody.Phi())
     {
         world.FieldBind(density);

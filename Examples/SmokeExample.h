@@ -20,10 +20,10 @@ public:
     SmokeExample(const Vortex2D::Renderer::Device& device,
                  const glm::ivec2& size,
                  float dt)
-        : source1(device, glm::vec2(10.0f))
-        , source2(device, glm::vec2(10.0f))
-        , force1(device, glm::vec2(10.0f))
-        , force2(device, glm::vec2(10.0f))
+        : source1(device, glm::vec2(20.0f))
+        , source2(device, glm::vec2(20.0f))
+        , force1(device, glm::vec2(20.0f))
+        , force2(device, glm::vec2(20.0f))
         , density(device, size, vk::Format::eR8G8B8A8Unorm)
         , world(device, size, dt)
         , solidPhi(world.SolidDistanceField())
@@ -33,10 +33,13 @@ public:
         source1.Position = force1.Position = {75.0f, 25.0f};
         source2.Position = force2.Position = {175.0f, 225.0f};
 
+        source1.Anchor = source2.Anchor = glm::vec2(10.0);
+        force1.Anchor = force2.Anchor = glm::vec2(10.0);
+
         source1.Colour = source2.Colour = red;
 
-        force1.Colour = {0.0f, 50.0f, 0.0f, 0.0f};
-        force2.Colour = {0.0f, -50.0f, 0.0f, 0.0f};
+        force1.Colour = {0.0f, 30.0f, 0.0f, 0.0f};
+        force2.Colour = {0.0f, -30.0f, 0.0f, 0.0f};
 
         solidPhi.Colour = green;
     }
@@ -92,8 +95,8 @@ public:
     }
 
 private:
-    Vortex2D::Renderer::Ellipse source1, source2;
-    Vortex2D::Renderer::Ellipse force1, force2;
+    Vortex2D::Renderer::Rectangle source1, source2;
+    Vortex2D::Renderer::Rectangle force1, force2;
     Vortex2D::Fluid::Density density;
     Vortex2D::Fluid::SmokeWorld world;
     Vortex2D::Fluid::DistanceField solidPhi;
