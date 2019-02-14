@@ -85,8 +85,7 @@ void GaussSeidel::Solve(Parameters& params, const std::vector<RigidBody*>& /*rig
 
     if (params.Type == Parameters::SolverType::Iterative)
     {
-        mErrorCmd.Submit();
-        mErrorCmd.Wait();
+        mErrorCmd.Submit().Wait();
 
         Renderer::CopyTo(mLocalError, params.OutError);
         if (params.OutError <= params.ErrorTolerance)

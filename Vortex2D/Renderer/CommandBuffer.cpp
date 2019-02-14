@@ -114,8 +114,8 @@ void CommandBuffer::Reset()
     }
 }
 
-void CommandBuffer::Submit(const std::initializer_list<vk::Semaphore>& waitSemaphores,
-                           const std::initializer_list<vk::Semaphore>& signalSemaphores)
+CommandBuffer& CommandBuffer::Submit(const std::initializer_list<vk::Semaphore>& waitSemaphores,
+                                     const std::initializer_list<vk::Semaphore>& signalSemaphores)
 {
     if (!mRecorded) throw std::runtime_error("Submitting a command that wasn't recorded");
 
@@ -140,6 +140,8 @@ void CommandBuffer::Submit(const std::initializer_list<vk::Semaphore>& waitSemap
     {
         mDevice.Queue().submit({submitInfo}, nullptr);
     }
+
+    return *this;
 }
 
 CommandBuffer::operator bool() const

@@ -124,8 +124,7 @@ void ParticleCount::Scan()
 
 int ParticleCount::GetTotalCount()
 {
-    mDispatchCountWork.Submit();
-    mDispatchCountWork.Wait();
+    mDispatchCountWork.Submit().Wait();
 
     Renderer::DispatchParams params(0);
     Renderer::CopyTo(mLocalDispatchParams, params);

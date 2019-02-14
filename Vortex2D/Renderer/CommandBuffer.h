@@ -63,8 +63,8 @@ public:
     /**
       * @brief submit the command buffer
       */
-    VORTEX2D_API void Submit(const std::initializer_list<vk::Semaphore>& waitSemaphores = {},
-                             const std::initializer_list<vk::Semaphore>& signalSemaphores = {});
+    VORTEX2D_API CommandBuffer& Submit(const std::initializer_list<vk::Semaphore>& waitSemaphores = {},
+                                       const std::initializer_list<vk::Semaphore>& signalSemaphores = {});
 
     /**
      * @brief explicit conversion operator to bool, indicates if the command was properly recorded and can be sumitted.
@@ -105,7 +105,7 @@ public:
      * @return *this
      */
     VORTEX2D_API RenderCommand& Submit(const glm::mat4& view = glm::mat4(1.0f));
-    
+
     /**
      * @brief Wait for the render command to complete
      */

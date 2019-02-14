@@ -163,8 +163,7 @@ void ConjugateGradient::Solve(Parameters& params, const std::vector<RigidBody*>&
 
     if (params.Type == Parameters::SolverType::Iterative)
     {
-        mErrorRead.Submit();
-        mErrorRead.Wait();
+        mErrorRead.Submit().Wait();
 
         Renderer::CopyTo(localError, params.OutError);
         if (params.OutError <= params.ErrorTolerance)

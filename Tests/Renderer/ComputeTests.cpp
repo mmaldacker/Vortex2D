@@ -218,8 +218,7 @@ TEST(ComputeTests, WorkIndirect)
 
     CopyFrom(dispatchParams, params);
 
-    cmd.Submit();
-    cmd.Wait();
+    cmd.Submit().Wait();
 
     // Verify
     std::vector<float> bufferData(100*size.x*size.y);
@@ -239,8 +238,7 @@ TEST(ComputeTests, WorkIndirect)
 
     CopyFrom(dispatchParams, params);
 
-    cmd.Submit();
-    cmd.Wait();
+    cmd.Submit().Wait();
 
     // Verify
     std::vector<float> bufferData2(100*size.x*size.y, 0.0f);
@@ -258,22 +256,22 @@ TEST(ComputeTests, WorkIndirect)
 TEST(ComputeTests, FloatImage)
 {
     glm::ivec2 size(20);
-    
+
     Texture localTexture(*device, size.x, size.y, vk::Format::eR32G32B32A32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
     Texture texture(*device, size.x, size.y, vk::Format::eR32G32B32A32Sfloat);
 
     Work work(*device, size, ImageFloat_comp);
-    
+
     std::vector<glm::vec4> data(size.x*size.y, glm::vec4(2.0f, 3.0f, 0.0f, 0.0f));
     localTexture.CopyFrom(data);
-    
+
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
        texture.CopyFrom(commandBuffer, localTexture);
     });
-        
+
     auto boundWork = work.Bind({texture});
-    
+
     ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
     {
        boundWork.Record(commandBuffer);
@@ -282,7 +280,7 @@ TEST(ComputeTests, FloatImage)
                        vk::ImageLayout::eGeneral, vk::AccessFlagBits::eShaderRead);
        localTexture.CopyFrom(commandBuffer, texture);
     });
-    
+
     CheckTexture<glm::vec4>(data, localTexture);
 }
 
@@ -326,7 +324,7 @@ TEST(ComputeTests, Stencil)
             inputData[index - size.x];
       }
     }
-    
+
     std::vector<float> bufferOutput(size.x * size.y);
     CopyTo(output, bufferOutput);
 
