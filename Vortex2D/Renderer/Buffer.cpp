@@ -5,6 +5,7 @@
 
 #include "Buffer.h"
 
+#include <Vortex2D/Renderer/Device.h>
 #include <Vortex2D/Renderer/CommandBuffer.h>
 #include <Vortex2D/Renderer/Texture.h>
 
@@ -57,7 +58,7 @@ GenericBuffer::GenericBuffer(const Device& device,
     }
 
     // TODO we shouldn't have to clear always in the constructor
-    ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
+    device.Execute([&](vk::CommandBuffer commandBuffer)
     {
         Clear(commandBuffer);
     });

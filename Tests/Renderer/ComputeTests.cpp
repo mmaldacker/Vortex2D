@@ -42,7 +42,7 @@ TEST(ComputeTests, BufferCopy)
 
     CopyFrom(inBuffer, data);
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
        buffer.CopyFrom(commandBuffer, inBuffer);
        outBuffer.CopyFrom(commandBuffer, buffer);
@@ -60,7 +60,7 @@ TEST(ComputeTests, UpdateVectorBuffer)
     std::vector<float> data(size, 1.1f);
     CopyFrom(inBuffer, data);
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
         outBuffer.CopyFrom(commandBuffer, inBuffer);
     });
@@ -104,7 +104,7 @@ TEST(ComputeTests, BufferCompute)
 
     auto pipeline = MakeComputePipeline(device->Handle(), shader, descriptorSet.pipelineLayout);
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
         commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, *pipeline);
         commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, descriptorSet.pipelineLayout, 0, {*descriptorSet.descriptorSet}, {});
@@ -144,7 +144,7 @@ TEST(ComputeTests, ImageCompute)
 
     auto pipeline = MakeComputePipeline(device->Handle(), shader, descriptorSet.pipelineLayout);
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
         inTexture.CopyFrom(commandBuffer, stagingTexture);
         commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, descriptorSet.pipelineLayout, 0, {*descriptorSet.descriptorSet}, {});
@@ -164,7 +164,7 @@ TEST(ComputeTests, Work)
 
     auto boundWork = work.Bind({buffer});
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
         boundWork.Record(commandBuffer);
     });
@@ -265,14 +265,14 @@ TEST(ComputeTests, FloatImage)
     std::vector<glm::vec4> data(size.x*size.y, glm::vec4(2.0f, 3.0f, 0.0f, 0.0f));
     localTexture.CopyFrom(data);
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
        texture.CopyFrom(commandBuffer, localTexture);
     });
 
     auto boundWork = work.Bind({texture});
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
        boundWork.Record(commandBuffer);
        texture.Barrier(commandBuffer,
@@ -305,7 +305,7 @@ TEST(ComputeTests, Stencil)
 
     CopyFrom(input, inputData);
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
         boundWork.Record(commandBuffer);
     });
@@ -354,7 +354,7 @@ TEST(ComputeTests, Checkerboard)
 
     auto boundWork = work.Bind({buffer});
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
         boundWork.PushConstant(commandBuffer, 1);
         boundWork.Record(commandBuffer);

@@ -107,7 +107,7 @@ TEST(RigidbodyTests, Phi)
     sim.update_rigid_body_grids();
 
     RenderTexture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
         solidPhi.Clear(commandBuffer, std::array<float, 4>{{1000.0f, 0.0f, 0.0f, 0.0f}});
     });
@@ -128,7 +128,7 @@ TEST(RigidbodyTests, Phi)
     device->Handle().waitIdle();
 
     Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
        outTexture.CopyFrom(commandBuffer, solidPhi);
     });
@@ -391,7 +391,7 @@ TEST(RigidbodyTests, ReduceJSum)
 
     CopyFrom(input, inputData);
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
        reduceBound.Record(commandBuffer);
     });

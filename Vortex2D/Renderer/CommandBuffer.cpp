@@ -5,6 +5,7 @@
 
 #include "CommandBuffer.h"
 
+#include <Vortex2D/Renderer/Device.h>
 #include <Vortex2D/Renderer/Drawable.h>
 #include <Vortex2D/Renderer/RenderTarget.h>
 
@@ -21,7 +22,7 @@ CommandBuffer::CommandBuffer(const Device& device, bool synchronise)
     : mDevice(device)
     , mSynchronise(synchronise)
     , mRecorded(false)
-    , mCommandBuffer(device.CreateCommandBuffers(1).at(0))
+    , mCommandBuffer(device.CreateCommandBuffer())
     , mFence(device.Handle().createFenceUnique({vk::FenceCreateFlagBits::eSignaled}))
 {
 
@@ -33,7 +34,7 @@ CommandBuffer::~CommandBuffer()
     {
         Wait();
         Reset();
-        mDevice.FreeCommandBuffers({mCommandBuffer});
+        mDevice.FreeCommandBuffer(mCommandBuffer);
     }
 }
 
@@ -62,7 +63,7 @@ CommandBuffer& CommandBuffer::operator=(CommandBuffer&& other)
     return *this;
 }
 
-void CommandBuffer::Record(CommandBuffer::CommandFn commandFn)
+CommandBuffer& CommandBuffer::Record(CommandBuffer::CommandFn commandFn)
 {
     Wait();
 
@@ -73,9 +74,11 @@ void CommandBuffer::Record(CommandBuffer::CommandFn commandFn)
     commandFn(mCommandBuffer);
     mCommandBuffer.end();
     mRecorded = true;
+
+    return *this;
 }
 
-void CommandBuffer::Record(const RenderTarget& renderTarget, vk::Framebuffer framebuffer, CommandFn commandFn)
+CommandBuffer& CommandBuffer::Record(const RenderTarget& renderTarget, vk::Framebuffer framebuffer, CommandFn commandFn)
 {
     Wait();
 
@@ -96,22 +99,28 @@ void CommandBuffer::Record(const RenderTarget& renderTarget, vk::Framebuffer fra
     mCommandBuffer.endRenderPass();
     mCommandBuffer.end();
     mRecorded = true;
+
+    return *this;
 }
 
-void CommandBuffer::Wait()
+CommandBuffer& CommandBuffer::Wait()
 {
     if (mSynchronise)
     {
         mDevice.Handle().waitForFences({*mFence}, true, UINT64_MAX);
     }
+
+    return *this;
 }
 
-void CommandBuffer::Reset()
+CommandBuffer& CommandBuffer::Reset()
 {
     if (mSynchronise)
     {
         mDevice.Handle().resetFences({*mFence});
     }
+
+    return *this;
 }
 
 CommandBuffer& CommandBuffer::Submit(const std::initializer_list<vk::Semaphore>& waitSemaphores,
@@ -149,12 +158,21 @@ CommandBuffer::operator bool() const
     return mRecorded;
 }
 
-void ExecuteCommand(const Device& device, CommandBuffer::CommandFn commandFn)
+CommandBufferPool::CommandBufferPool(const Device& device, std::size_t numCommands)
+    : mCurrentIndex(0)
 {
-    CommandBuffer cmd(device);
-    cmd.Record(commandFn);
-    cmd.Submit();
-    cmd.Wait();
+    for (std::size_t i = 0; i < numCommands; i++)
+    {
+        mCommandBuffers.emplace_back(device, true);
+    }
+}
+
+void CommandBufferPool::Execute(CommandBuffer::CommandFn commandFn)
+{
+    mCurrentIndex = (mCurrentIndex + 1) % mCommandBuffers.size();
+    auto& commandBuffer = mCommandBuffers[mCurrentIndex];
+
+    commandBuffer.Reset().Record(commandFn).Submit().Wait();
 }
 
 RenderCommand::RenderCommand(RenderCommand&& other)

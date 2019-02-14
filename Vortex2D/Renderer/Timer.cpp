@@ -5,6 +5,7 @@
 
 #include "Timer.h"
 
+#include <Vortex2D/Renderer/Device.h>
 #include <Vortex2D/Renderer/CommandBuffer.h>
 
 namespace Vortex2D { namespace Renderer {

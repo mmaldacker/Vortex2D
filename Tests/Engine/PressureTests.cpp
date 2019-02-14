@@ -137,7 +137,7 @@ TEST(PressureTest, ZeroDivs)
     std::vector<float> inputData(size.x * size.y);
     DrawSquare(size.x, size.y, inputData, {10.0f, 10.0f}, {30.0f, 30.0f}, -1.0f);
     input.CopyFrom(inputData);
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
         liquidPhi.CopyFrom(commandBuffer, input);
     });

@@ -99,6 +99,7 @@ Device::Device(vk::PhysicalDevice physicalDevice, int familyIndex, bool validati
     : mPhysicalDevice(physicalDevice)
     , mFamilyIndex(familyIndex)
     , mLayoutManager(*this)
+    , mCommandBufferPool(*this, 128) // TODO should be configurable
 {
     float queuePriority = 1.0f;
     auto deviceQueueInfo = vk::DeviceQueueCreateInfo()
@@ -199,19 +200,24 @@ int Device::GetFamilyIndex() const
     return mFamilyIndex;
 }
 
-std::vector<vk::CommandBuffer> Device::CreateCommandBuffers(uint32_t size) const
+vk::CommandBuffer Device::CreateCommandBuffer() const
 {
     auto commandBufferInfo = vk::CommandBufferAllocateInfo()
-            .setCommandBufferCount(size)
+            .setCommandBufferCount(1)
             .setCommandPool(*mCommandPool)
             .setLevel(vk::CommandBufferLevel::ePrimary);
 
-    return mDevice->allocateCommandBuffers(commandBufferInfo);
+    return mDevice->allocateCommandBuffers(commandBufferInfo).at(0);
 }
 
-void Device::FreeCommandBuffers(vk::ArrayProxy<const vk::CommandBuffer> commandBuffers) const
+void Device::FreeCommandBuffer(vk::CommandBuffer commandBuffer) const
 {
-    mDevice->freeCommandBuffers(*mCommandPool, commandBuffers);
+    mDevice->freeCommandBuffers(*mCommandPool, {commandBuffer});
+}
+
+void Device::Execute(CommandBuffer::CommandFn commandFn) const
+{
+    mCommandBufferPool.Execute(commandFn);
 }
 
 VmaAllocator Device::Allocator() const

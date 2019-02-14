@@ -76,7 +76,7 @@ Polygon::Polygon(const Renderer::Device& device, std::vector<glm::vec2> points, 
     Renderer::Buffer<glm::vec2> localVertexBuffer(device, boundingBox.size(), VMA_MEMORY_USAGE_CPU_ONLY);
     Renderer::CopyFrom(localVertexBuffer, boundingBox);
 
-    Renderer::ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
+    device.Execute([&](vk::CommandBuffer commandBuffer)
     {
         mPolygonVertexBuffer.CopyFrom(commandBuffer, localPolygonVertexBuffer);
         mVertexBuffer.CopyFrom(commandBuffer, localVertexBuffer);
@@ -138,7 +138,7 @@ Circle::Circle(const Renderer::Device& device, float radius, float extent)
     Renderer::Buffer<glm::vec2> localVertexBuffer(device, boundingBox.size(), VMA_MEMORY_USAGE_CPU_ONLY);
     Renderer::CopyFrom(localVertexBuffer, boundingBox);
 
-    Renderer::ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
+    device.Execute([&](vk::CommandBuffer commandBuffer)
     {
         mVertexBuffer.CopyFrom(commandBuffer, localVertexBuffer);
     });

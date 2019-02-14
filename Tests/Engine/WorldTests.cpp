@@ -220,7 +220,7 @@ TEST(CflTets, Max)
     velocityData[12].x = -1.0;
 
     input.CopyFrom(velocityData);
-    Renderer::ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
         velocity.CopyFrom(commandBuffer, input);
     });

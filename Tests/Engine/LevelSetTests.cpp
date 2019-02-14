@@ -68,7 +68,7 @@ TEST(LevelSetTests, SimpleCircle)
 
     device->Handle().waitIdle();
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
        outTexture.CopyFrom(commandBuffer, levelSet);
     });
@@ -106,7 +106,7 @@ TEST(LevelSetTests, ComplexCircles)
 
     device->Handle().waitIdle();
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
         outTexture.CopyFrom(commandBuffer, levelSet);
     });
@@ -127,7 +127,7 @@ TEST(LevelSetTests, Extrapolate)
     DrawSquare(size.x, size.y, solidData, glm::vec2(10.0f), glm::vec2(20.0f), -1.0f);
     localSolidPhi.CopyFrom(solidData);
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
         solidPhi.CopyFrom(commandBuffer, localSolidPhi);
     });
@@ -140,7 +140,7 @@ TEST(LevelSetTests, Extrapolate)
 
     device->Handle().waitIdle();
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
         localLiquidPhi.CopyFrom(commandBuffer, liquidPhi);
     });

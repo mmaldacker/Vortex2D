@@ -5,6 +5,7 @@
 
 #include "Texture.h"
 
+#include <Vortex2D/Renderer/Device.h>
 #include <Vortex2D/Renderer/CommandBuffer.h>
 
 namespace Vortex2D { namespace Renderer {
@@ -97,7 +98,7 @@ Texture::Texture(const Device& device, uint32_t width, uint32_t height, vk::Form
 
     // Transition to eGeneral and clear texture
     // TODO perhaps have initial color or data in the constructor?
-    ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
+    device.Execute([&](vk::CommandBuffer commandBuffer)
     {
         Barrier(commandBuffer,
                 imageLayout,
@@ -294,7 +295,7 @@ void Texture::CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcImage)
                      vk::ImageLayout::eGeneral,
                      vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eHostRead);
 
-    
+
     Barrier(commandBuffer,
             vk::ImageLayout::eTransferDstOptimal,
             vk::AccessFlagBits::eTransferWrite,

@@ -78,7 +78,7 @@ TEST(AdvectionTests, Advect)
     std::vector<glm::vec2> velocityData(size.x * size.y, vel / glm::vec2(size));
     velocityInput.CopyFrom(velocityData);
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
         velocity.CopyFrom(commandBuffer, velocityInput);
     });
@@ -90,7 +90,7 @@ TEST(AdvectionTests, Advect)
     fieldData[pos.x + size.x * pos.y].x = 128;
     fieldInput.CopyFrom(fieldData);
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
         field.CopyFrom(commandBuffer, fieldInput);
     });
@@ -101,7 +101,7 @@ TEST(AdvectionTests, Advect)
 
     device->Handle().waitIdle();
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
         fieldInput.CopyFrom(commandBuffer, field);
     });

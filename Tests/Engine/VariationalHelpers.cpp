@@ -68,7 +68,7 @@ void SetVelocity(const Vortex2D::Renderer::Device& device,
     }
 
     input.CopyFrom(velocityData);
-    ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
+    device.Execute([&](vk::CommandBuffer commandBuffer)
     {
         velocity.CopyFrom(commandBuffer, input);
     });
@@ -93,7 +93,7 @@ void SetSolidPhi(const Vortex2D::Renderer::Device& device,
     }
 
     input.CopyFrom(phi);
-    ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
+    device.Execute([&](vk::CommandBuffer commandBuffer)
     {
         solidPhi.CopyFrom(commandBuffer, input);
     });
@@ -118,7 +118,7 @@ void SetLiquidPhi(const Vortex2D::Renderer::Device& device,
     }
 
     input.CopyFrom(phi);
-    ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
+    device.Execute([&](vk::CommandBuffer commandBuffer)
     {
         liquidPhi.CopyFrom(commandBuffer, input);
     });
@@ -207,7 +207,7 @@ void PrintWeights(const glm::ivec2& size, FluidSim& sim)
 void PrintVelocity(const Vortex2D::Renderer::Device& device, const glm::ivec2& size, Vortex2D::Renderer::Texture& velocity)
 {
     Vortex2D::Renderer::Texture output(device, size.x, size.y, vk::Format::eR32G32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
-    ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
+    device.Execute([&](vk::CommandBuffer commandBuffer)
     {
         output.CopyFrom(commandBuffer, velocity);
     });
@@ -247,7 +247,7 @@ void CheckVelocity(const Vortex2D::Renderer::Device& device,
                    float error)
 {
     Vortex2D::Renderer::Texture output(device, size.x, size.y, vk::Format::eR32G32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
-    ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
+    device.Execute([&](vk::CommandBuffer commandBuffer)
     {
         output.CopyFrom(commandBuffer, velocity);
     });
@@ -276,7 +276,7 @@ void CheckVelocity(const Vortex2D::Renderer::Device& device,
     assert(velocityData.size() == size.x * size.y);
 
     Vortex2D::Renderer::Texture output(device, size.x, size.y, vk::Format::eR32G32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
-    ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
+    device.Execute([&](vk::CommandBuffer commandBuffer)
     {
         output.CopyFrom(commandBuffer, velocity);
     });

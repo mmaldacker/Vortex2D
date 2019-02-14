@@ -106,7 +106,7 @@ TEST(BoundariesTests, Square)
     device->Handle().waitIdle();
 
     Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
        outTexture.CopyFrom(commandBuffer, levelSet);
     });
@@ -136,7 +136,7 @@ TEST(BoundariesTests, InverseSquare)
     device->Handle().waitIdle();
 
     Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
        outTexture.CopyFrom(commandBuffer, levelSet);
     });
@@ -163,7 +163,7 @@ TEST(BoundariesTests, Circle)
     device->Handle().waitIdle();
 
     Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
        outTexture.CopyFrom(commandBuffer, levelSet);
     });
@@ -202,7 +202,7 @@ TEST(BoundariesTests, Intersection)
     device->Handle().waitIdle();
 
     Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
        outTexture.CopyFrom(commandBuffer, levelSet);
     });
@@ -213,27 +213,27 @@ TEST(BoundariesTests, Intersection)
 TEST(BoundariesTest, DistanceField)
 {
     glm::ivec2 size(50);
-    
+
     LevelSet levelSet(*device, size);
-    
+
     std::vector<float> data(size.x*size.y, 0.1f);
     Texture localLevelSet(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
         localLevelSet.CopyFrom(data);
         levelSet.CopyFrom(commandBuffer, localLevelSet);
     });
-    
+
     DistanceField distance(*device, levelSet);
     distance.Colour = glm::vec4(0.2f, 1.0f, 0.8f, 1.0f);
-    
+
     RenderTexture output(*device, size.x, size.y, vk::Format::eR8G8B8A8Unorm);
     Texture localOutput(*device, size.x, size.y, vk::Format::eR8G8B8A8Unorm, VMA_MEMORY_USAGE_CPU_ONLY);
-    
+
     output.Record({distance}).Submit();
     device->Handle().waitIdle();
-    
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
         localOutput.CopyFrom(commandBuffer, output);
     });
@@ -243,6 +243,6 @@ TEST(BoundariesTest, DistanceField)
     uint8_t g = 255 * distance.Colour.g;
     uint8_t b = 255 * distance.Colour.b;
     std::vector<glm::u8vec4> outData(size.x*size.y, {r, g, b, 255 - alpha});
-    
+
     CheckTexture<glm::u8vec4>(outData, localOutput);
 }

@@ -54,7 +54,7 @@ ParticleCount::ParticleCount(const Renderer::Device& device,
     , mAlpha(alpha)
 {
     Renderer::CopyFrom(mLocalDispatchParams, params);
-    Renderer::ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
+    device.Execute([&](vk::CommandBuffer commandBuffer)
     {
         mDispatchParams.CopyFrom(commandBuffer, mLocalDispatchParams);
     });

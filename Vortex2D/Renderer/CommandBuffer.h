@@ -7,7 +7,6 @@
 #define Vortex2d_CommandBuffer_h
 
 #include <Vortex2D/Renderer/Common.h>
-#include <Vortex2D/Renderer/Device.h>
 #include <Vortex2D/Renderer/RenderTarget.h>
 
 #include <vector>
@@ -15,6 +14,8 @@
 #include <initializer_list>
 
 namespace Vortex2D { namespace Renderer {
+
+class Device;
 
 /**
  * @brief Can record commands, then submit them (multiple times).
@@ -40,7 +41,7 @@ public:
      * @brief Record some commands. The commads are recorded in the lambda which is immediately executed.
      * @param commandFn a functor, or simply a lambda, where commands are recorded.
      */
-    VORTEX2D_API void Record(CommandFn commandFn);
+    VORTEX2D_API CommandBuffer& Record(CommandFn commandFn);
 
     /**
      * @brief Record some commands inside a render pass. The commads are recorded in the lambda which is immediately executed.
@@ -48,17 +49,17 @@ public:
      * @param framebuffer the frame buffer where the render pass will render.
      * @param commandFn a functor, or simply a lambda, where commands are recorded.
      */
-    VORTEX2D_API void Record(const RenderTarget& renderTarget, vk::Framebuffer framebuffer, CommandFn commandFn);
+    VORTEX2D_API CommandBuffer& Record(const RenderTarget& renderTarget, vk::Framebuffer framebuffer, CommandFn commandFn);
 
     /**
      * @brief Wait for the command submit to finish. Does nothing if the synchronise flag was false.
      */
-    VORTEX2D_API void Wait();
+    VORTEX2D_API CommandBuffer& Wait();
 
     /**
      * @brief Reset the command buffer so it can be recorded again.
      */
-    VORTEX2D_API void Reset();
+    VORTEX2D_API CommandBuffer& Reset();
 
     /**
       * @brief submit the command buffer
@@ -80,11 +81,23 @@ private:
 };
 
 /**
- * @brief Runs immediately a set of commands and waits for them to finish.
- * @param device vulkan device
- * @param commandFn lambda that runs the commands.
+ * @brief A command buffer pool to execute immediately commands.
  */
-void VORTEX2D_API ExecuteCommand(const Device& device, CommandBuffer::CommandFn commandFn);
+class CommandBufferPool
+{
+public:
+    CommandBufferPool(const Device& device, std::size_t numCommands);
+
+    /**
+     * @brief Execute a commands and waits for it to complete
+     * @param commandFn handler with the command buffer as parameter.
+     */
+    VORTEX2D_API void Execute(CommandBuffer::CommandFn commandFn);
+
+private:
+    std::size_t mCurrentIndex;
+    std::vector<CommandBuffer> mCommandBuffers;
+};
 
 /**
  * @brief A special command buffer that has been recorded by a @ref RenderTarget.
@@ -137,8 +150,6 @@ private:
     std::vector<std::reference_wrapper<Drawable>> mDrawables;
     glm::mat4 mView;
 };
-
-
 
 }}
 

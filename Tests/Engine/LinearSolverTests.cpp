@@ -42,7 +42,7 @@ TEST(LinearSolverTests, ReduceSum)
 
     CopyFrom(input, inputData);
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
        reduceBound.Record(commandBuffer);
     });
@@ -73,7 +73,7 @@ TEST(LinearSolverTests, ReduceBigSum)
 
     CopyFrom(input, inputData);
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
        reduceBound.Record(commandBuffer);
     });
@@ -104,7 +104,7 @@ TEST(LinearSolverTests, ReduceMax)
 
     CopyFrom(input, inputData);
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
        reduceBound.Record(commandBuffer);
     });
@@ -138,7 +138,7 @@ TEST(LinearSolverTests, Transfer_Prolongate)
     CopyFrom(input, data);
 
     t.ProlongateBind(0, fineSize, output, fineDiagonal, input, coarseDiagonal);
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
         t.Prolongate(commandBuffer, 0);
     });
@@ -175,7 +175,7 @@ TEST(LinearSolverTests, Transfer_Restrict)
     CopyFrom(input, data);
 
     t.RestrictBind(0, fineSize, input, fineDiagonal, output, coarseDiagonal);
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
         t.Restrict(commandBuffer, 0);
     });
@@ -275,7 +275,7 @@ TEST(LinearSolverTests, LocalGaussSeidel)
     LocalGaussSeidel solver(*device, size);
 
     solver.Bind(data.Diagonal, data.Lower, data.B, data.X);
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
         solver.Record(commandBuffer);
     });

@@ -40,7 +40,7 @@ TEST(ShapeTests, Square)
     std::vector<float> data(50*50, 0.0f);
     DrawSquare(50, 50, data, rect.Position, size, 1.0f);
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
         outTexture.CopyFrom(commandBuffer, texture);
     });
@@ -64,7 +64,7 @@ TEST(ShapeTests, IntSquare)
     std::vector<int> data(50*50, 0);
     DrawSquare(50, 50, data, rect.Position, size, 1);
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
         outTexture.CopyFrom(commandBuffer, texture);
 
@@ -100,7 +100,7 @@ TEST(ShapeTests, MultipleSquares)
     size *= (glm::vec2)rect1.Scale;
     DrawSquare(50, 50, data, rect1.Position, size, 1.0f);
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
        outTexture.CopyFrom(commandBuffer, texture);
     });
@@ -124,7 +124,7 @@ TEST(ShapeTests, Circle)
     std::vector<float> data(50*50, 0.0f);
     DrawCircle(50, 50, data, ellipse.Position, 5.0f);
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
        outTexture.CopyFrom(commandBuffer, texture);
     });
@@ -150,7 +150,7 @@ TEST(ShapeTests, Ellipse)
     std::vector<float> data(50*50, 0.0f);
     DrawEllipse(50, 50, data, ellipse.Position, radius);
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
        outTexture.CopyFrom(commandBuffer, texture);
     });
@@ -179,7 +179,7 @@ TEST(ShapeTests, ScaledEllipse)
     std::vector<float> data(50*50, 0.0f);
     DrawEllipse(50, 50, data, ellipse.Position, radius);
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
        outTexture.CopyFrom(commandBuffer, texture);
     });
@@ -206,7 +206,7 @@ TEST(ShapeTests, RotatedEllipse)
     std::vector<float> data(50*50, 0.0f);
     DrawEllipse(50, 50, data, ellipse.Position, radius, ellipse.Rotation);
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
        outTexture.CopyFrom(commandBuffer, texture);
     });
@@ -236,7 +236,7 @@ TEST(ShapeTests, RenderScaledEllipse)
     std::vector<float> data(50*50, 0.0f);
     DrawEllipse(50, 50, data, pos, radius);
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
        outTexture.CopyFrom(commandBuffer, texture);
     });

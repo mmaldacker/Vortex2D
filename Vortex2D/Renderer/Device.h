@@ -8,6 +8,7 @@
 
 #include <Vortex2D/Renderer/Common.h>
 #include <Vortex2D/Renderer/DescriptorSet.h>
+#include <Vortex2D/Renderer/CommandBuffer.h>
 #include <Vortex2D/Utils/vk_mem_alloc.h>
 #include <map>
 
@@ -68,8 +69,9 @@ public:
     VORTEX2D_API int GetFamilyIndex() const;
 
     // Command buffer functions
-    VORTEX2D_API std::vector<vk::CommandBuffer> CreateCommandBuffers(uint32_t size) const;
-    VORTEX2D_API void FreeCommandBuffers(vk::ArrayProxy<const vk::CommandBuffer> commandBuffers) const;
+    VORTEX2D_API vk::CommandBuffer CreateCommandBuffer() const;
+    VORTEX2D_API void FreeCommandBuffer(vk::CommandBuffer commandBuffer) const;
+    VORTEX2D_API void Execute(CommandBuffer::CommandFn commandFn) const;
 
     // Memory allocator
     VORTEX2D_API VmaAllocator Allocator() const;
@@ -88,6 +90,7 @@ private:
 
     mutable std::map<const uint32_t*, vk::UniqueShaderModule> mShaders;
     mutable LayoutManager mLayoutManager;
+    mutable CommandBufferPool mCommandBufferPool;
 };
 
 }}

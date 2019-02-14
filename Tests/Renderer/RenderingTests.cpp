@@ -53,7 +53,7 @@ TEST(RenderingTest, TextureCopy)
 
     inTexture.CopyFrom(data);
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
        texture.CopyFrom(commandBuffer, inTexture);
        outTexture.CopyFrom(commandBuffer, texture);
@@ -72,7 +72,7 @@ TEST(RenderingTest, TextureBufferCopy)
 
     texture.CopyFrom(data);
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
       buffer.CopyFrom(commandBuffer, texture);
     });
@@ -92,7 +92,7 @@ TEST(RenderingTest, ClearTexture)
 
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
         outTexture.CopyFrom(commandBuffer, texture);
     });
@@ -106,14 +106,14 @@ TEST(RenderingTest, IntClearTexture)
 
     std::vector<int> data(50*50, 3);
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
         texture.Clear(commandBuffer, std::array<int, 4>{3, 0, 0, 0});
     });
 
     Texture outTexture(*device, 50, 50, vk::Format::eR32Sint, VMA_MEMORY_USAGE_CPU_ONLY);
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
         outTexture.CopyFrom(commandBuffer, texture);
     });
@@ -131,7 +131,7 @@ TEST(RenderingTest, BlendAdd)
     Texture localTexture(*device, size.x, size.y, vk::Format::eR32G32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
     localTexture.CopyFrom(data);
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
         texture.CopyFrom(commandBuffer, localTexture);
     });
@@ -151,7 +151,7 @@ TEST(RenderingTest, BlendAdd)
 
     device->Handle().waitIdle();
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
         localTexture.CopyFrom(commandBuffer, texture);
     });
@@ -176,7 +176,7 @@ TEST(RenderingTest, MoveCommandBuffer)
 
         std::vector<float> data1(50*50, 1.0f);
 
-        ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+        device->Execute([&](vk::CommandBuffer commandBuffer)
         {
             outTexture.CopyFrom(commandBuffer, texture);
         });
@@ -192,7 +192,7 @@ TEST(RenderingTest, MoveCommandBuffer)
         renderCommand.Submit();
 
         std::vector<float> data2(50*50, 2.0f);
-        ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+        device->Execute([&](vk::CommandBuffer commandBuffer)
         {
             outTexture.CopyFrom(commandBuffer, texture);
         });
@@ -242,7 +242,7 @@ TEST(RenderingTest, Sprite)
     std::vector<glm::u8vec4> data(size.x*size.y, glm::u8vec4(1, 2, 3, 4));
     localTexture.CopyFrom(data);
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
         texture.CopyFrom(commandBuffer, localTexture);
     });
@@ -253,7 +253,7 @@ TEST(RenderingTest, Sprite)
     output.Record({sprite}).Submit();
     device->Handle().waitIdle();
 
-    ExecuteCommand(*device, [&](vk::CommandBuffer commandBuffer)
+    device->Execute([&](vk::CommandBuffer commandBuffer)
     {
         localTexture.CopyFrom(commandBuffer, output);
     });

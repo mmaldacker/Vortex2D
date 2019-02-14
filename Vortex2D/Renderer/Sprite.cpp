@@ -30,7 +30,7 @@ AbstractSprite::AbstractSprite(const Device& device, const SpirvBinary& fragShad
     };
 
     Renderer::CopyFrom(localBuffer, vertices);
-    ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
+    device.Execute([&](vk::CommandBuffer commandBuffer)
     {
         mVertexBuffer.CopyFrom(commandBuffer, localBuffer);
     });

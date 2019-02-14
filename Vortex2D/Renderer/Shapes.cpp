@@ -27,7 +27,7 @@ AbstractShape::AbstractShape(const Device& device,
 {
     VertexBuffer<glm::vec2> localVertices(device, vertices.size(), VMA_MEMORY_USAGE_CPU_ONLY);
     Renderer::CopyFrom(localVertices, vertices);
-    ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
+    device.Execute([&](vk::CommandBuffer commandBuffer)
     {
         mVertexBuffer.CopyFrom(commandBuffer, localVertices);
     });
@@ -120,7 +120,7 @@ Ellipse::Ellipse(const Device& device, const glm::vec2& radius)
                                 {radius.x + 1.0f, radius.y + 1.0f},
                                 {-radius.x, radius.y + 1.0f}};
     Renderer::CopyFrom(localVertices, vertices);
-    ExecuteCommand(device, [&](vk::CommandBuffer commandBuffer)
+    device.Execute([&](vk::CommandBuffer commandBuffer)
     {
         mVertexBuffer.CopyFrom(commandBuffer, localVertices);
     });

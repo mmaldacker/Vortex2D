@@ -55,7 +55,7 @@ World::World(const Renderer::Device& device, const glm::ivec2& size, float dt, i
     mPreconditioner.BuildHierarchiesBind(mProjection, mDynamicSolidPhi, mLiquidPhi);
     mLinearSolver.Bind(mData.Diagonal, mData.Lower, mData.B, mData.X);
 
-    Renderer::ExecuteCommand(mDevice, [&](vk::CommandBuffer commandBuffer)
+    mDevice.Execute([&](vk::CommandBuffer commandBuffer)
     {
         mStaticSolidPhi.Clear(commandBuffer, std::array<float, 4>{{10000.0f, 0.0f, 0.0f, 0.0f}});
     });
