@@ -1,3 +1,13 @@
+# Release 1.5
+
+* Bicubic interpolation
+* Add velocity operator: add/set
+* Overhauled rigidbody interface
+* Correctly enforce sub-steps
+* User setting of solver parameters
+* Particle bounds fix
+* Minor vulkan fixes
+
 # Release 1.4
 
 * Support for running simulation with multiple sub-steps per steps

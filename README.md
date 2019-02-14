@@ -53,3 +53,12 @@ mkdir build && cd build
 cmake .. -DVORTEX2D_ENABLE_EXAMPLES=On -DVORTEX2D_ENABLE_TESTS=On -DMOLTENVK_DIR=/path_to_sdk_or_moltenvk/
 make -j 4
 ```
+
+## Features
+
+ * 3rd order runge kutta interpolation
+ * Bicubic interpolation
+ * Multi grid preconditioned conjugate gradient linear solver
+ * FLIP & PIC hybrid method
+ * Strong rigid body coupling
+ * Level set re-initialisation
