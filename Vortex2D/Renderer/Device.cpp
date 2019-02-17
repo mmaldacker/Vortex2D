@@ -98,7 +98,6 @@ Device::Device(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface, bool v
 Device::Device(vk::PhysicalDevice physicalDevice, int familyIndex, bool validation)
     : mPhysicalDevice(physicalDevice)
     , mFamilyIndex(familyIndex)
-    , mCommandBuffer(*this)
     , mLayoutManager(*this)
 {
     float queuePriority = 1.0f;
@@ -168,6 +167,9 @@ Device::Device(vk::PhysicalDevice physicalDevice, int familyIndex, bool validati
 
     // create descriptor pool
     mLayoutManager.CreateDescriptorPool();
+
+    // create command buffer
+    mCommandBuffer = std::make_unique<CommandBuffer>(*this, true);
 }
 
 Device::~Device()
@@ -217,7 +219,7 @@ void Device::FreeCommandBuffer(vk::CommandBuffer commandBuffer) const
 
 void Device::Execute(CommandBuffer::CommandFn commandFn) const
 {
-    mCommandBuffer.Reset().Record(commandFn).Submit().Wait();
+    mCommandBuffer->Reset().Record(commandFn).Submit().Wait();
 }
 
 VmaAllocator Device::Allocator() const
