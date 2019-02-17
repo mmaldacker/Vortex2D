@@ -98,8 +98,8 @@ Device::Device(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface, bool v
 Device::Device(vk::PhysicalDevice physicalDevice, int familyIndex, bool validation)
     : mPhysicalDevice(physicalDevice)
     , mFamilyIndex(familyIndex)
+    , mCommandBuffer(*this)
     , mLayoutManager(*this)
-    , mCommandBufferPool(*this, 128) // TODO should be configurable
 {
     float queuePriority = 1.0f;
     auto deviceQueueInfo = vk::DeviceQueueCreateInfo()
@@ -217,7 +217,7 @@ void Device::FreeCommandBuffer(vk::CommandBuffer commandBuffer) const
 
 void Device::Execute(CommandBuffer::CommandFn commandFn) const
 {
-    mCommandBufferPool.Execute(commandFn);
+    mCommandBuffer.Reset().Record(commandFn).Submit().Wait();
 }
 
 VmaAllocator Device::Allocator() const

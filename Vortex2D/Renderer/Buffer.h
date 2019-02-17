@@ -54,6 +54,12 @@ public:
     VORTEX2D_API vk::DeviceSize Size() const;
 
     /**
+     * @brief Resize the buffer. Invalidates the buffer handle
+     * @param size buffer size
+     */
+    VORTEX2D_API void Resize(vk::DeviceSize size);
+
+    /**
      * @brief Inserts a barrier for this buffer
      * @param commandBuffer the command buffer to run the barrier
      * @param oldAccess old access
@@ -79,11 +85,14 @@ public:
     friend void CopyFrom(BufferType<T>&, const std::vector<T>&);
 
 protected:
+    void Create();
     VORTEX2D_API void CopyFrom(const void* data);
     VORTEX2D_API void CopyTo(void* data);
 
     const Device& mDevice;
     vk::DeviceSize mSize;
+    vk::BufferUsageFlags mUsageFlags;
+    VmaMemoryUsage mMemoryUsage;
     VkBuffer mBuffer;
     VmaAllocation mAllocation;
     VmaAllocationInfo mAllocationInfo;

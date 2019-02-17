@@ -35,33 +35,10 @@ GenericBuffer::GenericBuffer(const Device& device,
                              vk::DeviceSize deviceSize)
     : mDevice(device)
     , mSize(deviceSize)
+    , mUsageFlags(usageFlags | vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eTransferSrc)
+    , mMemoryUsage(memoryUsage)
 {
-    usageFlags |= vk::BufferUsageFlagBits::eTransferDst |
-                  vk::BufferUsageFlagBits::eTransferSrc;
-
-    auto bufferInfo = vk::BufferCreateInfo()
-            .setSize(deviceSize)
-            .setUsage(usageFlags)
-            .setSharingMode(vk::SharingMode::eExclusive);
-
-    VkBufferCreateInfo vkBufferInfo = bufferInfo;
-    VmaAllocationCreateInfo allocInfo = {};
-    allocInfo.usage = memoryUsage;
-    if (vmaCreateBuffer(device.Allocator(),
-                        &vkBufferInfo,
-                        &allocInfo,
-                        &mBuffer,
-                        &mAllocation,
-                        &mAllocationInfo) != VK_SUCCESS)
-    {
-      throw std::runtime_error("Error creating buffer");
-    }
-
-    // TODO we shouldn't have to clear always in the constructor
-    device.Execute([&](vk::CommandBuffer commandBuffer)
-    {
-        Clear(commandBuffer);
-    });
+    Create();
 }
 
 GenericBuffer::~GenericBuffer()
@@ -84,6 +61,33 @@ GenericBuffer::GenericBuffer(GenericBuffer&& other)
   other.mSize = 0;
 }
 
+void GenericBuffer::Create()
+{
+    auto bufferInfo = vk::BufferCreateInfo()
+                          .setSize(mSize)
+                          .setUsage(mUsageFlags)
+                          .setSharingMode(vk::SharingMode::eExclusive);
+
+    VkBufferCreateInfo vkBufferInfo = bufferInfo;
+    VmaAllocationCreateInfo allocInfo = {};
+    allocInfo.usage = mMemoryUsage;
+    if (vmaCreateBuffer(mDevice.Allocator(),
+                        &vkBufferInfo,
+                        &allocInfo,
+                        &mBuffer,
+                        &mAllocation,
+                        &mAllocationInfo) != VK_SUCCESS)
+    {
+        throw std::runtime_error("Error creating buffer");
+    }
+
+    // TODO we shouldn't have to clear always in the constructor
+    mDevice.Execute([&](vk::CommandBuffer commandBuffer)
+    {
+       Clear(commandBuffer);
+    });
+}
+
 vk::Buffer GenericBuffer::Handle() const
 {
     return mBuffer;
@@ -92,6 +96,17 @@ vk::Buffer GenericBuffer::Handle() const
 vk::DeviceSize GenericBuffer::Size() const
 {
     return mSize;
+}
+
+void GenericBuffer::Resize(vk::DeviceSize size)
+{
+    if (mBuffer != VK_NULL_HANDLE)
+    {
+        vmaDestroyBuffer(mDevice.Allocator(), mBuffer, mAllocation);
+    }
+
+    mSize = size;
+    Create();
 }
 
 void GenericBuffer::CopyFrom(vk::CommandBuffer commandBuffer, GenericBuffer& srcBuffer)

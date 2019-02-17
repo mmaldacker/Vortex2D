@@ -88,9 +88,9 @@ private:
     vk::UniqueDescriptorPool mDescriptorPool;
     VmaAllocator mAllocator;
 
+    mutable CommandBuffer mCommandBuffer;
     mutable std::map<const uint32_t*, vk::UniqueShaderModule> mShaders;
     mutable LayoutManager mLayoutManager;
-    mutable CommandBufferPool mCommandBufferPool;
 };
 
 }}
