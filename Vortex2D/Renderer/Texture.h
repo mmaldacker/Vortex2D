@@ -19,28 +19,28 @@ class Device;
 class SamplerBuilder
 {
 public:
-    SamplerBuilder();
+    VORTEX2D_API SamplerBuilder();
 
     /**
      * @brief Mode of the sampler: repeat, clamp, etc
      * @param mode vulkan mode
      * @return *this
      */
-    SamplerBuilder& AddressMode(vk::SamplerAddressMode mode);
+    VORTEX2D_API SamplerBuilder& AddressMode(vk::SamplerAddressMode mode);
 
     /**
      * @brief Filter of the sampler: linear, nearest, etc
      * @param filter vulkan filter
      * @return *this
      */
-    SamplerBuilder& Filter(vk::Filter filter);
+    VORTEX2D_API SamplerBuilder& Filter(vk::Filter filter);
 
     /**
      * @brief Create the vulkan sampler
      * @param device vulkan device
      * @return unique sampler
      */
-    vk::UniqueSampler Create(vk::Device device);
+    VORTEX2D_API vk::UniqueSampler Create(vk::Device device);
 
 private:
     vk::SamplerCreateInfo mSamplerInfo;
