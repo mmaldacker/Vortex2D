@@ -27,7 +27,7 @@ public:
     class Builder
     {
     public:
-        Builder();
+        VORTEX2D_API Builder();
 
         /**
          * @brief Set the shader
@@ -35,7 +35,7 @@ public:
          * @param shaderStage shader state (vertex, fragment or compute)
          * @return *this
          */
-        Builder& Shader(vk::ShaderModule shader, vk::ShaderStageFlagBits shaderStage);
+        VORTEX2D_API Builder& Shader(vk::ShaderModule shader, vk::ShaderStageFlagBits shaderStage);
 
         /**
          * @brief Sets the vertex attributes
@@ -45,7 +45,7 @@ public:
          * @param offset offset in the vertex
          * @return *this
          */
-        Builder& VertexAttribute(uint32_t location, uint32_t binding, vk::Format format, uint32_t offset);
+        VORTEX2D_API Builder& VertexAttribute(uint32_t location, uint32_t binding, vk::Format format, uint32_t offset);
 
         /**
          * @brief Sets the vertex binding
@@ -54,11 +54,11 @@ public:
          * @param inputRate inpute rate
          * @return *this
          */
-        Builder& VertexBinding(uint32_t binding, uint32_t stride, vk::VertexInputRate inputRate = vk::VertexInputRate::eVertex);
+        VORTEX2D_API Builder& VertexBinding(uint32_t binding, uint32_t stride, vk::VertexInputRate inputRate = vk::VertexInputRate::eVertex);
 
-        Builder& Topology(vk::PrimitiveTopology topology);
-        Builder& Layout(vk::PipelineLayout pipelineLayout);
-        vk::UniquePipeline Create(vk::Device device, const RenderState& renderState);
+        VORTEX2D_API Builder& Topology(vk::PrimitiveTopology topology);
+        VORTEX2D_API Builder& Layout(vk::PipelineLayout pipelineLayout);
+        VORTEX2D_API vk::UniquePipeline Create(vk::Device device, const RenderState& renderState);
 
     private:
         vk::PipelineMultisampleStateCreateInfo mMultisampleInfo;
