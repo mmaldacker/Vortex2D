@@ -14,3 +14,4 @@
 #include <Vortex2D/Engine/World.h>
 #include <Vortex2D/Engine/Density.h>
 
+#include <Vortex2D/SPIRV/Reflection.h>

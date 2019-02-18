@@ -71,11 +71,11 @@ public:
         vk::GraphicsPipelineCreateInfo mPipelineInfo;
     };
 
-    GraphicsPipeline();
-    GraphicsPipeline(Builder builder);
+    VORTEX2D_API GraphicsPipeline();
+    VORTEX2D_API GraphicsPipeline(Builder builder);
 
-    void Create(vk::Device device, const RenderState& renderState);
-    void Bind(vk::CommandBuffer commandBuffer, const RenderState& renderState);
+    VORTEX2D_API void Create(vk::Device device, const RenderState& renderState);
+    VORTEX2D_API void Bind(vk::CommandBuffer commandBuffer, const RenderState& renderState);
 
 private:
     Builder mBuilder;

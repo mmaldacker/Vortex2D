@@ -28,9 +28,9 @@ public:
      */
     VORTEX2D_API RenderWindow(const Device& device, vk::SurfaceKHR surface, uint32_t width, uint32_t height);
 
-    RenderCommand Record(DrawableList drawables,
-                         ColorBlendState blendState = {}) override;
-    void Submit(RenderCommand& renderCommand) override;
+    VORTEX2D_API RenderCommand Record(DrawableList drawables,
+                                      ColorBlendState blendState = {}) override;
+    VORTEX2D_API void Submit(RenderCommand& renderCommand) override;
 
     /**
      * @brief Submits all the render command and present the surface for display.
