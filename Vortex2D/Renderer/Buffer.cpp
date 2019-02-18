@@ -169,7 +169,7 @@ void GenericBuffer::Clear(vk::CommandBuffer commandBuffer)
     Barrier(commandBuffer, vk::AccessFlagBits::eTransferWrite, vk::AccessFlagBits::eShaderRead);
 }
 
-void GenericBuffer::CopyFrom(const void* data)
+void GenericBuffer::CopyFrom(uint32_t offset, const void* data, uint32_t size)
 {
     // TODO use always mapped functionality of VMA
 
@@ -180,7 +180,7 @@ void GenericBuffer::CopyFrom(const void* data)
     void* pData;
     if (vmaMapMemory(mDevice.Allocator(), mAllocation, &pData) != VK_SUCCESS) throw std::runtime_error("Cannot map buffer");
 
-    std::memcpy(pData, data, mSize);
+    std::memcpy((uint8_t*)pData + offset, data, size);
 
     if((memFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) == 0)
     {
@@ -195,7 +195,7 @@ void GenericBuffer::CopyFrom(const void* data)
     vmaUnmapMemory(mDevice.Allocator(), mAllocation);
 }
 
-void GenericBuffer::CopyTo(void* data)
+void GenericBuffer::CopyTo(uint32_t offset, void* data, uint32_t size)
 {
   // TODO use always mapped functionality of VMA
 
@@ -216,7 +216,7 @@ void GenericBuffer::CopyTo(void* data)
       mDevice.Handle().invalidateMappedMemoryRanges(memRange);
   }
 
-  std::memcpy(data, pData, mSize);
+  std::memcpy(data, (uint8_t*)pData + offset, size);
 
   vmaUnmapMemory(mDevice.Allocator(), mAllocation);
 }

@@ -73,21 +73,24 @@ public:
      */
     VORTEX2D_API void Clear(vk::CommandBuffer commandBuffer);
 
-    // Template friend functions for copying to and from buffers
-    template<template<typename> class BufferType, typename T>
-    friend void CopyFrom(BufferType<T>&, const T&);
-    template<template<typename> class BufferType, typename T>
-    friend void CopyTo(BufferType<T>&, T&);
+    /**
+     * @brief copy from data to buffer
+     * @param offset in the buffer
+     * @param data pointer
+     * @param size of data
+     */
+    VORTEX2D_API void CopyFrom(uint32_t offset, const void* data, uint32_t size);
 
-    template<template<typename> class BufferType, typename T>
-    friend void CopyTo(BufferType<T>&, std::vector<T>&);
-    template<template<typename> class BufferType, typename T>
-    friend void CopyFrom(BufferType<T>&, const std::vector<T>&);
+    /**
+     * @brief copy buffer to data
+     * @param offset in the buffer
+     * @param data pointer
+     * @param size of data
+     */
+    VORTEX2D_API void CopyTo(uint32_t offset, void* data, uint32_t size);
 
 protected:
     void Create();
-    VORTEX2D_API void CopyFrom(const void* data);
-    VORTEX2D_API void CopyTo(void* data);
 
     const Device& mDevice;
     vk::DeviceSize mSize;
@@ -151,13 +154,25 @@ public:
 };
 
 /**
+ * @brief a index buffer type of buffer
+ */
+class IndexBuffer : public GenericBuffer
+{
+public:
+    IndexBuffer(const Device& device, std::size_t size, VmaMemoryUsage memoryUsage = VMA_MEMORY_USAGE_GPU_ONLY)
+        : GenericBuffer(device, vk::BufferUsageFlagBits::eIndexBuffer, memoryUsage, sizeof(uint32_t) * size)
+    {
+    }
+};
+
+/**
  * @brief Copy the content of a buffer in an object
  */
 template<template<typename> class BufferType, typename T>
 void CopyTo(BufferType<T>& buffer, T& t)
 {
     if (sizeof(T) != buffer.Size()) throw std::runtime_error("Mismatch data size");
-    buffer.CopyTo(&t);
+    buffer.CopyTo(0, &t, sizeof(T));
 }
 
 /**
@@ -167,7 +182,7 @@ template<template<typename> class BufferType, typename T>
 void CopyTo(BufferType<T>& buffer, std::vector<T>& t)
 {
     if (sizeof(T) * t.size() != buffer.Size()) throw std::runtime_error("Mismatch data size");
-    buffer.CopyTo(t.data());
+    buffer.CopyTo(0, t.data(), sizeof(T) * t.size());
 }
 
 /**
@@ -177,7 +192,7 @@ template<template<typename> class BufferType, typename T>
 void CopyFrom(BufferType<T>& buffer, const T& t)
 {
     if (sizeof(T) != buffer.Size()) throw std::runtime_error("Mismatch data size");
-    buffer.CopyFrom(&t);
+    buffer.CopyFrom(0, &t, sizeof(T));
 }
 
 /**
@@ -187,7 +202,7 @@ template<template<typename> class BufferType, typename T>
 void CopyFrom(BufferType<T>& buffer, const std::vector<T>& t)
 {
     if (sizeof(T) * t.size() != buffer.Size()) throw std::runtime_error("Mismatch data size");
-    buffer.CopyFrom(t.data());
+    buffer.CopyFrom(0, t.data(), sizeof(T) * t.size());
 }
 
 /**
