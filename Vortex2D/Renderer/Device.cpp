@@ -219,7 +219,7 @@ void Device::FreeCommandBuffer(vk::CommandBuffer commandBuffer) const
 
 void Device::Execute(CommandBuffer::CommandFn commandFn) const
 {
-    mCommandBuffer->Reset().Record(commandFn).Submit().Wait();
+    (*mCommandBuffer).Record(commandFn).Submit().Wait();
 }
 
 VmaAllocator Device::Allocator() const
