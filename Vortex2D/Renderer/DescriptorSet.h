@@ -133,7 +133,7 @@ struct BindingInput
  * @param layout pipeline layout
  * @param bindingInputs list of resources (buffer or texture/sampler)
  */
-VORTEX2D_API void Bind(const Device& device, vk::DescriptorSet dstSet, const PipelineLayout& layout, const std::vector<BindingInput>& bindingInputs);
+VORTEX2D_API void Bind(const Device& device, DescriptorSet& dstSet, const PipelineLayout& layout, const std::vector<BindingInput>& bindingInputs);
 
 }}
 

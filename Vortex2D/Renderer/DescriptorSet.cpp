@@ -192,7 +192,7 @@ vk::DescriptorType GetDescriptorType(uint32_t bind, const PipelineLayout& layout
     throw std::runtime_error("no bindings defined");
 }
 
-void Bind(const Device& device, vk::DescriptorSet dstSet, const PipelineLayout& layout, const std::vector<BindingInput>& bindingInputs)
+void Bind(const Device& device, DescriptorSet& dstSet, const PipelineLayout& layout, const std::vector<BindingInput>& bindingInputs)
 {
     std::vector<vk::DescriptorBufferInfo> bufferInfo(20);
     std::vector<vk::DescriptorImageInfo> imageInfo(20);
@@ -212,7 +212,7 @@ void Bind(const Device& device, vk::DescriptorSet dstSet, const PipelineLayout& 
             descriptorType != vk::DescriptorType::eUniformBuffer) throw std::runtime_error("Binding not a storage buffer");
 
             auto writeDescription = vk::WriteDescriptorSet()
-                .setDstSet(dstSet)
+                .setDstSet(*dstSet.descriptorSet)
                 .setDstBinding(bind)
                 .setDstArrayElement(0)
                 .setDescriptorType(descriptorType)
@@ -238,7 +238,7 @@ void Bind(const Device& device, vk::DescriptorSet dstSet, const PipelineLayout& 
             descriptorType != vk::DescriptorType::eCombinedImageSampler) throw std::runtime_error("Binding not an image");
 
             auto writeDescription = vk::WriteDescriptorSet()
-                .setDstSet(dstSet)
+                .setDstSet(*dstSet.descriptorSet)
                 .setDstBinding(bind)
                 .setDstArrayElement(0)
                 .setDescriptorType(descriptorType)

@@ -37,7 +37,7 @@ AbstractShape::AbstractShape(const Device& device,
 
     PipelineLayout layout = {{reflectionVert, reflectionFrag}};
     mDescriptorSet = device.GetLayoutManager().MakeDescriptorSet(layout);
-    Bind(device, *mDescriptorSet.descriptorSet, layout, {{mMVPBuffer, 0}, {mColourBuffer, 1}});
+    Bind(device, mDescriptorSet, layout, {{mMVPBuffer, 0}, {mColourBuffer, 1}});
 
     vk::ShaderModule vertexShader = device.GetShaderModule(SPIRV::Position_vert);
     vk::ShaderModule fragShader = device.GetShaderModule(fragName);
@@ -130,7 +130,7 @@ Ellipse::Ellipse(const Device& device, const glm::vec2& radius)
 
     Renderer::PipelineLayout layout = {{reflectionVert, reflectionFrag}};
     mDescriptorSet = device.GetLayoutManager().MakeDescriptorSet(layout);
-    Bind(device, *mDescriptorSet.descriptorSet, layout, {{mMVPBuffer}, {mSizeBuffer}, {mColourBuffer}});
+    Bind(device, mDescriptorSet, layout, {{mMVPBuffer}, {mSizeBuffer}, {mColourBuffer}});
 
     vk::ShaderModule vertexShader = device.GetShaderModule(SPIRV::Ellipse_vert);
     vk::ShaderModule fragShader = device.GetShaderModule(SPIRV::Ellipse_frag);

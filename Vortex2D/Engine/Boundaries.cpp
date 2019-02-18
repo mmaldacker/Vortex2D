@@ -87,7 +87,7 @@ Polygon::Polygon(const Renderer::Device& device, std::vector<glm::vec2> points, 
 
     Renderer::PipelineLayout layout = {{reflectionVert, reflectionFrag}};
     mDescriptorSet = device.GetLayoutManager().MakeDescriptorSet(layout);
-    Bind(device, *mDescriptorSet.descriptorSet, layout, {{mMVPBuffer}, {mMVBuffer}, {mPolygonVertexBuffer}});
+    Bind(device, mDescriptorSet, layout, {{mMVPBuffer}, {mMVBuffer}, {mPolygonVertexBuffer}});
 
     mPipeline = Renderer::GraphicsPipeline::Builder()
             .Topology(vk::PrimitiveTopology::eTriangleList)
@@ -148,7 +148,7 @@ Circle::Circle(const Renderer::Device& device, float radius, float extent)
 
     Renderer::PipelineLayout layout = {{reflectionVert, reflectionFrag}};
     mDescriptorSet = device.GetLayoutManager().MakeDescriptorSet(layout);
-    Bind(device, *mDescriptorSet.descriptorSet, layout, {{mMVPBuffer}, {mMVBuffer}});
+    Bind(device, mDescriptorSet, layout, {{mMVPBuffer}, {mMVBuffer}});
 
     mPipeline = Renderer::GraphicsPipeline::Builder()
             .Topology(vk::PrimitiveTopology::eTriangleList)

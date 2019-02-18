@@ -100,7 +100,7 @@ TEST(ComputeTests, BufferCompute)
 
     PipelineLayout layout = {{reflection}};
     DescriptorSet descriptorSet = device->GetLayoutManager().MakeDescriptorSet(layout);
-    Bind(*device, *descriptorSet.descriptorSet, layout, {{buffer}, {uboBuffer}});
+    Bind(*device, descriptorSet, layout, {{buffer}, {uboBuffer}});
 
     auto pipeline = MakeComputePipeline(device->Handle(), shader, descriptorSet.pipelineLayout);
 
@@ -140,7 +140,7 @@ TEST(ComputeTests, ImageCompute)
 
     PipelineLayout layout = {{reflection}};
     DescriptorSet descriptorSet = device->GetLayoutManager().MakeDescriptorSet(layout);
-    Bind(*device, *descriptorSet.descriptorSet, layout, {{inTexture}, {outTexture}});
+    Bind(*device, descriptorSet, layout, {{inTexture}, {outTexture}});
 
     auto pipeline = MakeComputePipeline(device->Handle(), shader, descriptorSet.pipelineLayout);
 

@@ -127,7 +127,7 @@ Work::Bound Work::Bind(ComputeSize computeSize, const std::vector<Renderer::Bind
     }
 
     auto descriptorSet = mDevice.GetLayoutManager().MakeDescriptorSet(mPipelineLayout);
-    Renderer::Bind(mDevice, *descriptorSet.descriptorSet, mPipelineLayout, inputs);
+    Renderer::Bind(mDevice, descriptorSet, mPipelineLayout, inputs);
 
     return Bound(computeSize, mPipelineLayout.layouts.front().pushConstantSize, descriptorSet.pipelineLayout, *mPipeline, std::move(descriptorSet.descriptorSet));
 }

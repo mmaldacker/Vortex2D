@@ -44,7 +44,7 @@ AbstractSprite::AbstractSprite(const Device& device, const SpirvBinary& fragShad
     // TODO add sampler as parameter
     mSampler = SamplerBuilder().Filter(vk::Filter::eLinear).Create(device.Handle());
 
-    Bind(device, *mDescriptorSet.descriptorSet, layout, {{mMVPBuffer, 0}, {*mSampler, texture, 1}, {mColourBuffer, 2}});
+    Bind(device, mDescriptorSet, layout, {{mMVPBuffer, 0}, {*mSampler, texture, 1}, {mColourBuffer, 2}});
 
     vk::ShaderModule vertexShader = device.GetShaderModule(SPIRV::TexturePosition_vert);
     vk::ShaderModule fragShader = device.GetShaderModule(fragShaderName);
