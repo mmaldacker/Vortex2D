@@ -156,12 +156,14 @@ public:
 /**
  * @brief a index buffer type of buffer
  */
+template<typename T>
 class IndexBuffer : public GenericBuffer
 {
 public:
     IndexBuffer(const Device& device, std::size_t size, VmaMemoryUsage memoryUsage = VMA_MEMORY_USAGE_GPU_ONLY)
-        : GenericBuffer(device, vk::BufferUsageFlagBits::eIndexBuffer, memoryUsage, sizeof(uint32_t) * size)
+        : GenericBuffer(device, vk::BufferUsageFlagBits::eIndexBuffer, memoryUsage, sizeof(T) * size)
     {
+        static_assert(std::is_same_v<uint16_t, T> || std::is_same_v<uint32_t, T>, "IndexBuffer needs to be uint16_t or uint32_t");
     }
 };
 
