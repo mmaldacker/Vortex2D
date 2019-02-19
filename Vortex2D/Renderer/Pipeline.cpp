@@ -16,8 +16,8 @@ GraphicsPipeline::Builder::Builder()
 
     mRasterizationInfo = vk::PipelineRasterizationStateCreateInfo()
             .setLineWidth(1.0f)
-            .setCullMode(vk::CullModeFlagBits::eBack)
-            .setFrontFace(vk::FrontFace::eClockwise)
+            .setCullMode(vk::CullModeFlagBits::eNone)
+            .setFrontFace(vk::FrontFace::eCounterClockwise)
             .setPolygonMode(vk::PolygonMode::eFill);
 
     // TODO multisample as parameter
@@ -90,6 +90,11 @@ vk::UniquePipeline GraphicsPipeline::Builder::Create(vk::Device device, const Re
             .setPAttachments(&renderState.BlendState.ColorBlend)
             .setBlendConstants(renderState.BlendState.BlendConstants);
 
+    vk::DynamicState dynamicStates[] = {vk::DynamicState::eScissor, vk::DynamicState::eViewport};
+    auto dynamicState = vk::PipelineDynamicStateCreateInfo()
+                            .setPDynamicStates(dynamicStates)
+                            .setDynamicStateCount(2);
+
     auto pipelineInfo = vk::GraphicsPipelineCreateInfo()
             .setStageCount((uint32_t)mShaderStages.size())
             .setPStages(mShaderStages.data())
@@ -100,7 +105,8 @@ vk::UniquePipeline GraphicsPipeline::Builder::Create(vk::Device device, const Re
             .setPColorBlendState(&blendInfo)
             .setLayout(mPipelineLayout)
             .setRenderPass(renderState.RenderPass)
-            .setPViewportState(&viewPortState);
+            .setPViewportState(&viewPortState)
+            .setPDynamicState(&dynamicState);
 
     return device.createGraphicsPipelineUnique(nullptr, pipelineInfo);
 }
