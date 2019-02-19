@@ -44,9 +44,9 @@ TEST(RenderingTest, WriteHostTextureFloat)
 
 TEST(RenderingTest, TextureCopy)
 {
-    Texture texture(*device, 50, 50, vk::Format::eR32Sint);
-    Texture inTexture(*device, 50, 50, vk::Format::eR32Sint, VMA_MEMORY_USAGE_CPU_ONLY);
-    Texture outTexture(*device, 50, 50, vk::Format::eR32Sint, VMA_MEMORY_USAGE_CPU_ONLY);
+    Texture texture(*device, 50, 50, vk::Format::eR8Sint);
+    Texture inTexture(*device, 50, 50, vk::Format::eR8Sint, VMA_MEMORY_USAGE_CPU_ONLY);
+    Texture outTexture(*device, 50, 50, vk::Format::eR8Sint, VMA_MEMORY_USAGE_CPU_ONLY);
 
     std::vector<int8_t> data(50*50, 0);
     DrawSquare<int8_t>(50, 50, data, glm::vec2(10.0f, 15.0f), glm::vec2(5.0f, 8.0f), -5);

@@ -14,6 +14,13 @@ namespace Vortex2D { namespace Renderer {
 class Device;
 
 /**
+ * @brief Gets the number of bytes per pixel given the format
+ * @param format of texture
+ * @return bytes per pixel
+ */
+VORTEX2D_API vk::DeviceSize GetBytesPerPixel(vk::Format format);
+
+/**
  * @brief Factory for a vullkan sampler
  */
 class SamplerBuilder
@@ -64,20 +71,34 @@ public:
     template<typename T>
     void CopyFrom(const std::vector<T>& data)
     {
-        assert(data.size() == mWidth * mHeight);
-        CopyFrom(data.data(), sizeof(T));
+        if (data.size() != mWidth * mHeight) throw std::runtime_error("Invalid input data size");
+        if (sizeof(T) != GetBytesPerPixel(mFormat)) throw std::runtime_error("Invalid input data format");
+        CopyFrom(data.data());
     }
 
     template<typename T>
     void CopyTo(std::vector<T>& data)
     {
-        assert(data.size() == mWidth * mHeight);
-        CopyTo(data.data(), sizeof(T));
+        if (data.size() != mWidth * mHeight) throw std::runtime_error("Invalid input data size");
+        if (sizeof(T) != GetBytesPerPixel(mFormat)) throw std::runtime_error("Invalid input data format");
+        CopyTo(data.data());
     }
 
-    void VORTEX2D_API CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcImage);
+    /**
+     * @brief Copies width*heigh*bytesPerPixel amount of data
+     * @param data source data
+     */
+    VORTEX2D_API void CopyFrom(const void* data);
 
-    void VORTEX2D_API Barrier(vk::CommandBuffer commandBuffer,
+    /**
+     * @brief Copies width*heigh*bytesPerPixel amount of data
+     * @param data destination data
+     */
+    VORTEX2D_API void CopyTo(void* data);
+
+    VORTEX2D_API void CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcImage);
+
+    VORTEX2D_API void Barrier(vk::CommandBuffer commandBuffer,
                  vk::ImageLayout oldLayout,
                  vk::AccessFlags oldAccess,
                  vk::ImageLayout newLayout,
@@ -91,14 +112,12 @@ public:
     VORTEX2D_API void Clear(vk::CommandBuffer commandBuffer, const std::array<int, 4>& colour);
     VORTEX2D_API void Clear(vk::CommandBuffer commandBuffer, const std::array<float, 4>& colour);
 
+    VORTEX2D_API vk::Image Handle() const;
+
     friend class GenericBuffer;
 
 private:
     void Clear(vk::CommandBuffer commandBuffer, vk::ClearColorValue colourValue);
-
-    VORTEX2D_API void CopyFrom(const void* data, vk::DeviceSize bytesPerPixel);
-    VORTEX2D_API void CopyTo(void* data, vk::DeviceSize bytesPerPixel);
-
     const Device& mDevice;
     uint32_t mWidth;
     uint32_t mHeight;

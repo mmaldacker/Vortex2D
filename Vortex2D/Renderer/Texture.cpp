@@ -10,6 +10,27 @@
 
 namespace Vortex2D { namespace Renderer {
 
+vk::DeviceSize GetBytesPerPixel(vk::Format format)
+{
+    switch (format)
+    {
+    case vk::Format::eR8Uint:
+    case vk::Format::eR8Sint:
+        return 1;
+    case vk::Format::eR32Sfloat:
+    case vk::Format::eR32Sint:
+    case vk::Format::eR8G8B8A8Unorm:
+    case vk::Format::eB8G8R8A8Unorm:
+        return 4;
+    case vk::Format::eR32G32Sfloat:
+        return 8;
+    case vk::Format::eR32G32B32A32Sfloat:
+        return 16;
+    default:
+        throw std::runtime_error("unsupported format");
+    }
+}
+
 SamplerBuilder::SamplerBuilder()
 {
     // TODO add sampler configuration
@@ -173,9 +194,10 @@ void Texture::Clear(vk::CommandBuffer commandBuffer, vk::ClearColorValue colour)
             vk::ImageLayout::eGeneral, vk::AccessFlagBits{});
 }
 
-void Texture::CopyFrom(const void* data, vk::DeviceSize bytesPerPixel)
+void Texture::CopyFrom(const void* data)
 {
-    // TODO verify bytesPerPixel is correct
+    vk::DeviceSize bytesPerPixel = GetBytesPerPixel(mFormat);
+
     // TODO use always mapped functionality of VMA
 
     VkMemoryPropertyFlags memFlags;
@@ -217,8 +239,10 @@ void Texture::CopyFrom(const void* data, vk::DeviceSize bytesPerPixel)
     vmaUnmapMemory(mDevice.Allocator(), mAllocation);
 }
 
-void Texture::CopyTo(void* data, vk::DeviceSize bytesPerPixel)
+void Texture::CopyTo(void* data)
 {
+    vk::DeviceSize bytesPerPixel = GetBytesPerPixel(mFormat);
+
     // TODO use always mapped functionality of VMA
 
     VkMemoryPropertyFlags memFlags;
@@ -347,6 +371,11 @@ uint32_t Texture::GetHeight() const
 vk::Format Texture::GetFormat() const
 {
     return mFormat;
+}
+
+vk::Image Texture::Handle() const
+{
+    return mImage;
 }
 
 }}
