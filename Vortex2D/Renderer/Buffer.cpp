@@ -165,7 +165,7 @@ void GenericBuffer::Barrier(vk::CommandBuffer commandBuffer, vk::AccessFlags old
 void GenericBuffer::Clear(vk::CommandBuffer commandBuffer)
 {
     Barrier(commandBuffer, vk::AccessFlagBits::eShaderRead, vk::AccessFlagBits::eTransferWrite);
-    commandBuffer.fillBuffer(mBuffer, 0, mSize, 0);
+    commandBuffer.fillBuffer(mBuffer, 0, VK_WHOLE_SIZE, 0);
     Barrier(commandBuffer, vk::AccessFlagBits::eTransferWrite, vk::AccessFlagBits::eShaderRead);
 }
 
