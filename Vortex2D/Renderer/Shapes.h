@@ -23,9 +23,18 @@ typedef std::vector<glm::vec2> Path;
 struct RenderTarget;
 
 /**
+ * @brief Shape interface which is drawable, transformable and has a color.
+ */
+class Shape : public Drawable, public Transformable
+{
+public:
+    glm::vec4 Colour;
+};
+
+/**
  * @brief An polygonal shape where the fragment shader can be specified for customisation.
  */
-class AbstractShape : public Drawable, public Transformable
+class AbstractShape : public Shape
 {
 public:
     VORTEX2D_API AbstractShape(const Device& device,
@@ -37,8 +46,6 @@ public:
     VORTEX2D_API void Initialize(const RenderState& renderState) override;
     VORTEX2D_API void Update(const glm::mat4& projection, const glm::mat4& view) override;
     VORTEX2D_API void Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState) override;
-
-    glm::vec4 Colour;
 
 protected:
     const Device& mDevice;
@@ -72,7 +79,7 @@ public:
 /**
  * @brief A solid colour ellipse. Implements the Drawable interface and Transformable interface.
  */
-class Ellipse : public Drawable, public Transformable
+class Ellipse : public Shape
 {
 public:
     VORTEX2D_API Ellipse(const Device& device, const glm::vec2& radius);
@@ -80,8 +87,6 @@ public:
     void Initialize(const RenderState& renderState) override;
     void Update(const glm::mat4& projection, const glm::mat4& view) override;
     void Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState) override;
-
-    glm::vec4 Colour;
 
 private:
     // std140 aligned structure
