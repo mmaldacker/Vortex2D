@@ -68,6 +68,12 @@ GraphicsPipeline::Builder& GraphicsPipeline::Builder::Layout(vk::PipelineLayout 
     return *this;
 }
 
+GraphicsPipeline::Builder& GraphicsPipeline::Builder::DynamicState(vk::DynamicState dynamicState)
+{
+    mDynamicStates.push_back(dynamicState);
+    return *this;
+}
+
 vk::UniquePipeline GraphicsPipeline::Builder::Create(vk::Device device, const RenderState& renderState)
 {
     auto vertexInputInfo = vk::PipelineVertexInputStateCreateInfo()
@@ -90,10 +96,9 @@ vk::UniquePipeline GraphicsPipeline::Builder::Create(vk::Device device, const Re
             .setPAttachments(&renderState.BlendState.ColorBlend)
             .setBlendConstants(renderState.BlendState.BlendConstants);
 
-    vk::DynamicState dynamicStates[] = {vk::DynamicState::eScissor, vk::DynamicState::eViewport};
     auto dynamicState = vk::PipelineDynamicStateCreateInfo()
-                            .setPDynamicStates(dynamicStates)
-                            .setDynamicStateCount(2);
+                            .setPDynamicStates(mDynamicStates.data())
+                            .setDynamicStateCount(mDynamicStates.size());
 
     auto pipelineInfo = vk::GraphicsPipelineCreateInfo()
             .setStageCount((uint32_t)mShaderStages.size())

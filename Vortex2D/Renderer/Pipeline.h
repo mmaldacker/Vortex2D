@@ -58,12 +58,14 @@ public:
 
         VORTEX2D_API Builder& Topology(vk::PrimitiveTopology topology);
         VORTEX2D_API Builder& Layout(vk::PipelineLayout pipelineLayout);
+        VORTEX2D_API Builder& DynamicState(vk::DynamicState dynamicState);
         VORTEX2D_API vk::UniquePipeline Create(vk::Device device, const RenderState& renderState);
 
     private:
         vk::PipelineMultisampleStateCreateInfo mMultisampleInfo;
         vk::PipelineRasterizationStateCreateInfo mRasterizationInfo;
         vk::PipelineInputAssemblyStateCreateInfo mInputAssembly;
+        std::vector<vk::DynamicState> mDynamicStates;
         std::vector<vk::PipelineShaderStageCreateInfo> mShaderStages;
         std::vector<vk::VertexInputBindingDescription> mVertexBindingDescriptions;
         std::vector<vk::VertexInputAttributeDescription> mVertexAttributeDescriptions;
