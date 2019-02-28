@@ -307,4 +307,9 @@ void RenderCommand::Render(const std::initializer_list<vk::Semaphore>& waitSemap
     mCmds[*mIndex].Submit(waitSemaphores, signalSemaphores);
 }
 
+RenderCommand::operator bool() const
+{
+    return !mCmds.empty();
+}
+
 }}

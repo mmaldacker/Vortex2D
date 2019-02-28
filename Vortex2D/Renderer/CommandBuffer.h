@@ -124,6 +124,11 @@ public:
      */
     VORTEX2D_API void Wait();
 
+    /**
+     * @brief explicit conversion operator to bool, indicates if the command was properly recorded and can be sumitted.
+     */
+    VORTEX2D_API explicit operator bool() const;
+
     friend class RenderTexture;
     friend class RenderWindow;
 
