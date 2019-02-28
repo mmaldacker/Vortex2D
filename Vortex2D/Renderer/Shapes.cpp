@@ -69,6 +69,7 @@ void AbstractShape::Initialize(const RenderState& renderState)
 
 void AbstractShape::Update(const glm::mat4& projection, const glm::mat4& view)
 {
+    Transformable::Update();
     Renderer::CopyFrom(mMVPBuffer, projection * view * GetTransform());
     Renderer::CopyFrom(mColourBuffer, Colour);
 }
@@ -150,14 +151,15 @@ void Ellipse::Initialize(const RenderState& renderState)
 
 void Ellipse::Update(const glm::mat4& projection, const glm::mat4& view)
 {
+    Transformable::Update();
     Renderer::CopyFrom(mColourBuffer, Colour);
     Renderer::CopyFrom(mMVPBuffer, projection * view * GetTransform());
 
     Size size;
     glm::vec2 transformScale(glm::length(view[0]), glm::length(view[1]));
-    size.radius = mRadius * (glm::vec2)Scale * transformScale;
+    size.radius = mRadius * Scale * transformScale;
 
-    glm::mat4 rotation4 = glm::rotate(-glm::radians((float)Rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+    glm::mat4 rotation4 = glm::rotate(-glm::radians(Rotation), glm::vec3(0.0f, 0.0f, 1.0f));
     size.rotation[0] = rotation4[0];
     size.rotation[1] = rotation4[1];
 

@@ -10,25 +10,6 @@
 
 namespace Vortex2D { namespace Renderer {
 
-struct Transformable;
-
-/**
- * @brief Simple class to simulate properties like in C#
- */
-template<typename T>
-class property
-{
-public:
-    VORTEX2D_API property(Transformable& t);
-
-    VORTEX2D_API T& operator= (const T& i);
-    VORTEX2D_API operator T const & () const;
-
-private:
-    T value;
-    Transformable& t;
-};
-
 /**
  * @brief Class to represent the transformation of an object: position, scale, rotation and anchor.
  */
@@ -46,25 +27,25 @@ struct Transformable
     /**
      * @brief absolute position
      */
-    property<glm::vec2> Position;
+    glm::vec2 Position;
 
     /**
      * @brief scale for the x and y components
      */
-    property<glm::vec2> Scale;
+    glm::vec2 Scale;
 
     /**
      * @brief Rotation in radians
      */
-    property<float> Rotation;
+    float Rotation;
 
     /**
      * @brief An offset to the position (used for centering a shape)
      */
-    property<glm::vec2> Anchor;
+    glm::vec2 Anchor;
 
     /**
-     * @brief Update the transform matrix with the position, scale, rotation and anchor.
+     * @brief Update the transormation matrix
      */
     void Update();
 

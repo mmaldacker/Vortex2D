@@ -10,40 +10,14 @@
 
 namespace Vortex2D { namespace Renderer {
 
-template<typename T>
-property<T>::property(Transformable& t) : value(), t(t)
-{
-
-}
-
-template<typename T>
-T& property<T>::operator = (const T& i)
-{
-    value = i;
-    t.Update();
-    return value;
-}
-
-template<typename T>
-property<T>::operator T const & () const
-{
-    return value;
-}
-
-template class property<float>;
-template class property<glm::vec2>;
-template class property<glm::vec4>;
 
 Transformable::Transformable()
-    : Position(*this)
-    , Scale(*this)
-    , Rotation(*this)
-    , Anchor(*this)
+    : Position(0.0f, 0.0f)
+    , Scale(1.0f, 1.0f)
+    , Rotation(0.0f)
+    , Anchor(0.0f, 0.0f)
 {
-    Position = {0.0f, 0.0f};
-    Scale = {1.0f, 1.0f};
-    Rotation = 0.0f;
-    Anchor = {0.0f, 0.0f};
+
 }
 
 void Transformable::Update()

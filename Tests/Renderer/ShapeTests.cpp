@@ -35,7 +35,7 @@ TEST(ShapeTests, Square)
 
     texture.Record({clear, rect}).Submit();
 
-    size *= (glm::vec2)rect.Scale;
+    size *= rect.Scale;
 
     std::vector<float> data(50*50, 0.0f);
     DrawSquare(50, 50, data, rect.Position, size, 1.0f);
@@ -97,7 +97,7 @@ TEST(ShapeTests, MultipleSquares)
     std::vector<float> data(50*50, 0.0f);
     DrawSquare(50, 50, data, rect2.Position, size, 1.0f);
 
-    size *= (glm::vec2)rect1.Scale;
+    size *= rect1.Scale;
     DrawSquare(50, 50, data, rect1.Position, size, 1.0f);
 
     device->Execute([&](vk::CommandBuffer commandBuffer)
@@ -175,7 +175,7 @@ TEST(ShapeTests, ScaledEllipse)
 
     texture.Record({clear, ellipse}).Submit();
 
-    radius *= (glm::vec2)ellipse.Scale;
+    radius *= ellipse.Scale;
     std::vector<float> data(50*50, 0.0f);
     DrawEllipse(50, 50, data, ellipse.Position, radius);
 

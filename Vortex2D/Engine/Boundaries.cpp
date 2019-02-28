@@ -105,6 +105,7 @@ void Polygon::Initialize(const Renderer::RenderState& renderState)
 
 void Polygon::Update(const glm::mat4& projection, const glm::mat4& view)
 {
+    Transformable::Update();
     Renderer::CopyFrom(mMVPBuffer, projection * view * GetTransform());
     Renderer::CopyFrom(mMVBuffer, view * GetTransform());
 }
@@ -166,6 +167,7 @@ void Circle::Initialize(const Renderer::RenderState& renderState)
 
 void Circle::Update(const glm::mat4& projection, const glm::mat4& view)
 {
+    Transformable::Update();
     Renderer::CopyFrom(mMVPBuffer, projection * view * GetTransform());
     Renderer::CopyFrom(mMVBuffer, view * GetTransform());
 }

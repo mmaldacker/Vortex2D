@@ -98,12 +98,12 @@ RigidBody::Velocity RigidBody::GetForces()
 
 void RigidBody::UpdatePosition()
 {
-    glm::vec2 p = (glm::vec2)Position;
-    Renderer::CopyFrom(mCenter, p);
+    Renderer::CopyFrom(mCenter, Position);
 }
 
 void RigidBody::RenderPhi()
 {
+    Transformable::Update();
     mLocalPhiRender.Submit(GetTransform());
     mPhiRender.Submit(GetTransform());
 }

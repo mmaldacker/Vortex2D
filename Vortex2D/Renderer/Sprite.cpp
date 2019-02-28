@@ -72,6 +72,7 @@ AbstractSprite::AbstractSprite(AbstractSprite&& other)
 
 void AbstractSprite::Update(const glm::mat4& projection, const glm::mat4& view)
 {
+    Transformable::Update();
     Renderer::CopyFrom(mColourBuffer, Colour);
     Renderer::CopyFrom(mMVPBuffer, projection * view * GetTransform());
 }
