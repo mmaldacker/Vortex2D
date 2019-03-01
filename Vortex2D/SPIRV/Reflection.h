@@ -12,8 +12,10 @@
 
 #include <map>
 
-namespace Vortex2D { namespace SPIRV {
-
+namespace Vortex2D
+{
+namespace SPIRV
+{
 class Reflection
 {
 public:
@@ -32,7 +34,7 @@ private:
   vk::ShaderStageFlags mStageFlag;
 };
 
-}}
+}  // namespace SPIRV
+}  // namespace Vortex2D
 
 #endif
-

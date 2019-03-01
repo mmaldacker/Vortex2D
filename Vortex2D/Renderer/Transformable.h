@@ -8,51 +8,55 @@
 
 #include <Vortex2D/Renderer/Common.h>
 
-namespace Vortex2D { namespace Renderer {
-
+namespace Vortex2D
+{
+namespace Renderer
+{
 /**
- * @brief Class to represent the transformation of an object: position, scale, rotation and anchor.
+ * @brief Class to represent the transformation of an object: position, scale,
+ * rotation and anchor.
  */
 struct Transformable
 {
-    Transformable();
+  Transformable();
 
-    virtual ~Transformable(){}
+  virtual ~Transformable() {}
 
-    /**
-     * @brief Returns the transform matrix
-     */
-    const glm::mat4& GetTransform() const;
+  /**
+   * @brief Returns the transform matrix
+   */
+  const glm::mat4& GetTransform() const;
 
-    /**
-     * @brief absolute position
-     */
-    glm::vec2 Position;
+  /**
+   * @brief absolute position
+   */
+  glm::vec2 Position;
 
-    /**
-     * @brief scale for the x and y components
-     */
-    glm::vec2 Scale;
+  /**
+   * @brief scale for the x and y components
+   */
+  glm::vec2 Scale;
 
-    /**
-     * @brief Rotation in radians
-     */
-    float Rotation;
+  /**
+   * @brief Rotation in radians
+   */
+  float Rotation;
 
-    /**
-     * @brief An offset to the position (used for centering a shape)
-     */
-    glm::vec2 Anchor;
+  /**
+   * @brief An offset to the position (used for centering a shape)
+   */
+  glm::vec2 Anchor;
 
-    /**
-     * @brief Update the transormation matrix
-     */
-    void Update();
+  /**
+   * @brief Update the transormation matrix
+   */
+  void Update();
 
 private:
-    glm::mat4 mTransform;
+  glm::mat4 mTransform;
 };
 
-}}
+}  // namespace Renderer
+}  // namespace Vortex2D
 
 #endif

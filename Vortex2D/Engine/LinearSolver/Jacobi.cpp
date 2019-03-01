@@ -9,14 +9,15 @@
 
 #include "vortex2d_generated_spirv.h"
 
-namespace Vortex2D { namespace Fluid {
-
-
+namespace Vortex2D
+{
+namespace Fluid
+{
 Jacobi::Jacobi(const Renderer::Device& device, const glm::ivec2& size)
-  : mW(1.0f)
-  , mPreconditionerIterations(1)
-  , mBackPressure(device, size.x * size.y)
-  , mJacobi(device, size, SPIRV::DampedJacobi_comp)
+    : mW(1.0f)
+    , mPreconditionerIterations(1)
+    , mBackPressure(device, size.x * size.y)
+    , mJacobi(device, size, SPIRV::DampedJacobi_comp)
 {
 }
 
@@ -54,11 +55,14 @@ void Jacobi::Record(vk::CommandBuffer commandBuffer, int iterations)
   {
     mJacobiFrontBound.PushConstant(commandBuffer, mW);
     mJacobiFrontBound.Record(commandBuffer);
-    mBackPressure.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+    mBackPressure.Barrier(
+        commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
     mJacobiBackBound.PushConstant(commandBuffer, mW);
     mJacobiBackBound.Record(commandBuffer);
-    mPressure->Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+    mPressure->Barrier(
+        commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
   }
 }
 
-}}
+}  // namespace Fluid
+}  // namespace Vortex2D

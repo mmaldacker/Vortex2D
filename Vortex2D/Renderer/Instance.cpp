@@ -11,34 +11,30 @@ static PFN_vkCreateDebugReportCallbackEXT vortex2d_vkCreateDebugReportCallbackEX
 static PFN_vkDestroyDebugReportCallbackEXT vortex2d_vkDestroyDebugReportCallbackEXT = nullptr;
 static PFN_vkDebugReportMessageEXT vortex2d_vkDebugReportMessageEXT = nullptr;
 
-VKAPI_ATTR VkResult VKAPI_CALL vkCreateDebugReportCallbackEXT(VkInstance instance,
-                                                              const VkDebugReportCallbackCreateInfoEXT* pCreateInfo,
-                                                              const VkAllocationCallbacks*  pAllocator,
-                                                              VkDebugReportCallbackEXT*  pCallback)
+VKAPI_ATTR VkResult VKAPI_CALL
+vkCreateDebugReportCallbackEXT(VkInstance instance,
+                               const VkDebugReportCallbackCreateInfoEXT* pCreateInfo,
+                               const VkAllocationCallbacks* pAllocator,
+                               VkDebugReportCallbackEXT* pCallback)
 {
-    if (vortex2d_vkCreateDebugReportCallbackEXT)
-    {
-        return vortex2d_vkCreateDebugReportCallbackEXT(instance,
-                                                       pCreateInfo,
-                                                       pAllocator,
-                                                       pCallback);
-    }
-    else
-    {
-        return VK_INCOMPLETE;
-    }
+  if (vortex2d_vkCreateDebugReportCallbackEXT)
+  {
+    return vortex2d_vkCreateDebugReportCallbackEXT(instance, pCreateInfo, pAllocator, pCallback);
+  }
+  else
+  {
+    return VK_INCOMPLETE;
+  }
 }
 
 VKAPI_ATTR void VKAPI_CALL vkDestroyDebugReportCallbackEXT(VkInstance instance,
                                                            VkDebugReportCallbackEXT callback,
-                                                           const VkAllocationCallbacks*  pAllocator)
+                                                           const VkAllocationCallbacks* pAllocator)
 {
-    if (vortex2d_vkDestroyDebugReportCallbackEXT)
-    {
-        vortex2d_vkDestroyDebugReportCallbackEXT(instance,
-                                                 callback,
-                                                 pAllocator);
-    }
+  if (vortex2d_vkDestroyDebugReportCallbackEXT)
+  {
+    vortex2d_vkDestroyDebugReportCallbackEXT(instance, callback, pAllocator);
+  }
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugReportFlagsEXT /*flags*/,
@@ -50,130 +46,140 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugReportFlagsEXT /*flags*/,
                                              const char* msg,
                                              void* /*userData*/)
 {
-    std::cout << "validation layer: " << msg << std::endl;
-    return VK_FALSE;
+  std::cout << "validation layer: " << msg << std::endl;
+  return VK_FALSE;
 }
 
-namespace Vortex2D { namespace Renderer {
-
-Instance::Instance(const std::string& name, std::vector<const char*> extraExtensions, bool validation)
+namespace Vortex2D
 {
-    auto availableLayers = vk::enumerateInstanceLayerProperties();
-    auto availableExtensions = vk::enumerateInstanceExtensionProperties();
+namespace Renderer
+{
+Instance::Instance(const std::string& name,
+                   std::vector<const char*> extraExtensions,
+                   bool validation)
+{
+  auto availableLayers = vk::enumerateInstanceLayerProperties();
+  auto availableExtensions = vk::enumerateInstanceExtensionProperties();
 
-    std::vector<const char*> layers;
-    std::vector<const char*> extensions;
+  std::vector<const char*> layers;
+  std::vector<const char*> extensions;
 
-    // add the validation extension if necessary
-    if (validation)
-    {
-        if (HasExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME, availableExtensions))
-        {
-            extensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-        }
-        if (HasLayer(VK_LAYER_LUNARG_STANDARD_VALIDATION_NAME, availableLayers))
-        {
-            layers.push_back(VK_LAYER_LUNARG_STANDARD_VALIDATION_NAME);
-        }
-    }
-
-    // add extra extensions
-    for (auto& extension: extraExtensions)
-    {
-        if (HasExtension(extension, availableExtensions))
-        {
-            extensions.push_back(extension);
-        }
-    }
-
-    // configure instance
-    auto appInfo = vk::ApplicationInfo()
-            .setPApplicationName(name.c_str())
-            .setApiVersion(VK_MAKE_VERSION(1, 1, 0));
-
-    vk::InstanceCreateInfo instanceInfo;
-    instanceInfo
-            .setPApplicationInfo(&appInfo)
-            .setEnabledExtensionCount((uint32_t)extensions.size())
-            .setPpEnabledExtensionNames(extensions.data())
-            .setEnabledLayerCount((uint32_t)layers.size())
-            .setPpEnabledLayerNames(layers.data());
-
-    try
-    {
-        mInstance = vk::createInstanceUnique(instanceInfo);
-    }
-    catch (const vk::IncompatibleDriverError&)
-    {
-        // vulkan 1.1 not available, try 1.0
-        appInfo.setApiVersion(VK_MAKE_VERSION(1, 0, 0));
-        mInstance = vk::createInstanceUnique(instanceInfo);
-    }
-
-    // load debug ext
+  // add the validation extension if necessary
+  if (validation)
+  {
     if (HasExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME, availableExtensions))
     {
-        vortex2d_vkCreateDebugReportCallbackEXT = (PFN_vkCreateDebugReportCallbackEXT) vkGetInstanceProcAddr(*mInstance, "vkCreateDebugReportCallbackEXT");
-        vortex2d_vkDestroyDebugReportCallbackEXT = (PFN_vkDestroyDebugReportCallbackEXT) vkGetInstanceProcAddr(*mInstance, "vkDestroyDebugReportCallbackEXT");
-        vortex2d_vkDebugReportMessageEXT = (PFN_vkDebugReportMessageEXT) vkGetInstanceProcAddr(*mInstance, "vkDebugReportMessageEXT");
+      extensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
     }
-
-    // add the validation calback if necessary
-    if (validation && HasExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME, availableExtensions))
+    if (HasLayer(VK_LAYER_LUNARG_STANDARD_VALIDATION_NAME, availableLayers))
     {
-        auto debugCallbackInfo = vk::DebugReportCallbackCreateInfoEXT()
-                .setPfnCallback(debugCallback)
-                .setFlags(vk::DebugReportFlagBitsEXT::eWarning | vk::DebugReportFlagBitsEXT::eError);
-
-        mDebugCallback = mInstance->createDebugReportCallbackEXT(debugCallbackInfo);
+      layers.push_back(VK_LAYER_LUNARG_STANDARD_VALIDATION_NAME);
     }
+  }
 
-    // get physical device
-    // TODO better search than first available device
-    // - using swap chain info
-    // - using queue info
-    // - discrete GPU
-    mPhysicalDevice = mInstance->enumeratePhysicalDevices().at(0);
-    auto properties = mPhysicalDevice.getProperties();
-    std::cout << "Device name: " << properties.deviceName << std::endl;
+  // add extra extensions
+  for (auto& extension : extraExtensions)
+  {
+    if (HasExtension(extension, availableExtensions))
+    {
+      extensions.push_back(extension);
+    }
+  }
 
+  // configure instance
+  auto appInfo = vk::ApplicationInfo()
+                     .setPApplicationName(name.c_str())
+                     .setApiVersion(VK_MAKE_VERSION(1, 1, 0));
+
+  vk::InstanceCreateInfo instanceInfo;
+  instanceInfo.setPApplicationInfo(&appInfo)
+      .setEnabledExtensionCount((uint32_t)extensions.size())
+      .setPpEnabledExtensionNames(extensions.data())
+      .setEnabledLayerCount((uint32_t)layers.size())
+      .setPpEnabledLayerNames(layers.data());
+
+  try
+  {
+    mInstance = vk::createInstanceUnique(instanceInfo);
+  }
+  catch (const vk::IncompatibleDriverError&)
+  {
+    // vulkan 1.1 not available, try 1.0
+    appInfo.setApiVersion(VK_MAKE_VERSION(1, 0, 0));
+    mInstance = vk::createInstanceUnique(instanceInfo);
+  }
+
+  // load debug ext
+  if (HasExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME, availableExtensions))
+  {
+    vortex2d_vkCreateDebugReportCallbackEXT =
+        (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(*mInstance,
+                                                                  "vkCreateDebugReportCallbackEXT");
+    vortex2d_vkDestroyDebugReportCallbackEXT =
+        (PFN_vkDestroyDebugReportCallbackEXT)vkGetInstanceProcAddr(
+            *mInstance, "vkDestroyDebugReportCallbackEXT");
+    vortex2d_vkDebugReportMessageEXT =
+        (PFN_vkDebugReportMessageEXT)vkGetInstanceProcAddr(*mInstance, "vkDebugReportMessageEXT");
+  }
+
+  // add the validation calback if necessary
+  if (validation && HasExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME, availableExtensions))
+  {
+    auto debugCallbackInfo =
+        vk::DebugReportCallbackCreateInfoEXT()
+            .setPfnCallback(debugCallback)
+            .setFlags(vk::DebugReportFlagBitsEXT::eWarning | vk::DebugReportFlagBitsEXT::eError);
+
+    mDebugCallback = mInstance->createDebugReportCallbackEXT(debugCallbackInfo);
+  }
+
+  // get physical device
+  // TODO better search than first available device
+  // - using swap chain info
+  // - using queue info
+  // - discrete GPU
+  mPhysicalDevice = mInstance->enumeratePhysicalDevices().at(0);
+  auto properties = mPhysicalDevice.getProperties();
+  std::cout << "Device name: " << properties.deviceName << std::endl;
 }
 
 Instance::~Instance()
 {
-    mInstance->destroyDebugReportCallbackEXT(mDebugCallback);
+  mInstance->destroyDebugReportCallbackEXT(mDebugCallback);
 }
 
 vk::PhysicalDevice Instance::GetPhysicalDevice() const
 {
-    return mPhysicalDevice;
+  return mPhysicalDevice;
 }
 
 vk::Instance Instance::GetInstance() const
 {
-    return *mInstance;
+  return *mInstance;
 }
 
 bool HasLayer(const char* extension, const std::vector<vk::LayerProperties>& availableExtensions)
 {
-  auto find_it = std::find_if(availableExtensions.begin(), availableExtensions.end(),
-      [&](const vk::LayerProperties& layer)
-      {
-          return std::strcmp(extension, layer.layerName) == 0;
-      });
+  auto find_it = std::find_if(availableExtensions.begin(),
+                              availableExtensions.end(),
+                              [&](const vk::LayerProperties& layer) {
+                                return std::strcmp(extension, layer.layerName) == 0;
+                              });
 
   return find_it != availableExtensions.end();
 }
 
-bool HasExtension(const char* extension, const std::vector<vk::ExtensionProperties>& availableExtensions)
+bool HasExtension(const char* extension,
+                  const std::vector<vk::ExtensionProperties>& availableExtensions)
 {
-  auto find_it = std::find_if(availableExtensions.begin(), availableExtensions.end(),
-      [&](const vk::ExtensionProperties& layer)
-      {
-          return std::strcmp(extension, layer.extensionName) == 0;
-      });
+  auto find_it = std::find_if(availableExtensions.begin(),
+                              availableExtensions.end(),
+                              [&](const vk::ExtensionProperties& layer) {
+                                return std::strcmp(extension, layer.extensionName) == 0;
+                              });
 
   return find_it != availableExtensions.end();
 }
 
-}}
+}  // namespace Renderer
+}  // namespace Vortex2D

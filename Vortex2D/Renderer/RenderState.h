@@ -8,8 +8,10 @@
 
 #include <Vortex2D/Renderer/Common.h>
 
-namespace Vortex2D { namespace Renderer {
-
+namespace Vortex2D
+{
+namespace Renderer
+{
 struct RenderTarget;
 
 /**
@@ -17,10 +19,10 @@ struct RenderTarget;
  */
 struct ColorBlendState
 {
-    VORTEX2D_API ColorBlendState();
+  VORTEX2D_API ColorBlendState();
 
-    vk::PipelineColorBlendAttachmentState ColorBlend;
-    std::array<float, 4> BlendConstants;
+  vk::PipelineColorBlendAttachmentState ColorBlend;
+  std::array<float, 4> BlendConstants;
 };
 
 /**
@@ -28,28 +30,28 @@ struct ColorBlendState
  */
 struct RenderState
 {
-    /**
-     * @brief Initialize for a render target with default blend
-     * @param renderTarget
-     */
-    RenderState(const RenderTarget& renderTarget);
+  /**
+   * @brief Initialize for a render target with default blend
+   * @param renderTarget
+   */
+  RenderState(const RenderTarget& renderTarget);
 
-    /**
-     * @brief Initialize for a render target with a given blend
-     * @param renderTarget
-     * @param colorBlend
-     */
-    RenderState(const RenderTarget& renderTarget,
-                ColorBlendState blendState);
+  /**
+   * @brief Initialize for a render target with a given blend
+   * @param renderTarget
+   * @param colorBlend
+   */
+  RenderState(const RenderTarget& renderTarget, ColorBlendState blendState);
 
-    uint32_t Width;
-    uint32_t Height;
-    vk::RenderPass RenderPass;
-    ColorBlendState BlendState;
+  uint32_t Width;
+  uint32_t Height;
+  vk::RenderPass RenderPass;
+  ColorBlendState BlendState;
 };
 
 bool operator==(const RenderState& left, const RenderState right);
 
-}}
+}  // namespace Renderer
+}  // namespace Vortex2D
 
 #endif

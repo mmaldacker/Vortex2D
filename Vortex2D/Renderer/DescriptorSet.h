@@ -6,21 +6,22 @@
 #ifndef Vortex2d_DescriptorSet_h
 #define Vortex2d_DescriptorSet_h
 
-#include <Vortex2D/Renderer/Common.h>
 #include <Vortex2D/Renderer/Buffer.h>
+#include <Vortex2D/Renderer/Common.h>
 #include <Vortex2D/Renderer/Texture.h>
 
 #include <Vortex2D/Utils/mapbox/variant.hpp>
 #include <map>
 
-namespace Vortex2D {
-
-namespace SPIRV {
+namespace Vortex2D
+{
+namespace SPIRV
+{
 class Reflection;
 }
 
-namespace Renderer {
-
+namespace Renderer
+{
 class Device;
 using DescriptorTypeBindings = std::map<uint32_t, vk::DescriptorType>;
 
@@ -29,11 +30,11 @@ using DescriptorTypeBindings = std::map<uint32_t, vk::DescriptorType>;
  */
 struct ShaderLayout
 {
-    VORTEX2D_API ShaderLayout(const SPIRV::Reflection& reflection);
+  VORTEX2D_API ShaderLayout(const SPIRV::Reflection& reflection);
 
-    vk::ShaderStageFlags shaderStage;
-    DescriptorTypeBindings bindings;
-    unsigned pushConstantSize;
+  vk::ShaderStageFlags shaderStage;
+  DescriptorTypeBindings bindings;
+  unsigned pushConstantSize;
 };
 
 bool operator==(const ShaderLayout& left, const ShaderLayout& right);
@@ -43,7 +44,7 @@ bool operator==(const ShaderLayout& left, const ShaderLayout& right);
  */
 struct PipelineLayout
 {
-    std::vector<ShaderLayout> layouts;
+  std::vector<ShaderLayout> layouts;
 };
 
 bool operator==(const PipelineLayout& left, const PipelineLayout& right);
@@ -53,9 +54,9 @@ bool operator==(const PipelineLayout& left, const PipelineLayout& right);
  */
 struct DescriptorSet
 {
-    vk::UniqueDescriptorSet descriptorSet;
-    vk::PipelineLayout pipelineLayout;
-    vk::DescriptorSetLayout descriptorSetLayout;
+  vk::UniqueDescriptorSet descriptorSet;
+  vk::PipelineLayout pipelineLayout;
+  vk::DescriptorSetLayout descriptorSetLayout;
 };
 
 /**
@@ -64,39 +65,41 @@ struct DescriptorSet
 class LayoutManager
 {
 public:
-    VORTEX2D_API LayoutManager(const Device& device);
+  VORTEX2D_API LayoutManager(const Device& device);
 
-    /**
-     * @brief Create or re-create the descriptor pool, will render invalid existing descriptor sets
-     */
-    void CreateDescriptorPool();
+  /**
+   * @brief Create or re-create the descriptor pool, will render invalid
+   * existing descriptor sets
+   */
+  void CreateDescriptorPool();
 
-    /**
-     * @brief Create the descriptor set given the layout
-     * @param layout pipeline/shader layout
-     * @return built descriptor set
-     */
-    VORTEX2D_API DescriptorSet MakeDescriptorSet(const PipelineLayout& layout);
+  /**
+   * @brief Create the descriptor set given the layout
+   * @param layout pipeline/shader layout
+   * @return built descriptor set
+   */
+  VORTEX2D_API DescriptorSet MakeDescriptorSet(const PipelineLayout& layout);
 
-    /**
-     * @brief Create, cache and return a descriptor layout given the pipeline layout
-     * @param layout pipeline layout
-     * @return cached descriptor set layout
-     */
-    vk::DescriptorSetLayout GetDescriptorSetLayout(const PipelineLayout& layout);
+  /**
+   * @brief Create, cache and return a descriptor layout given the pipeline
+   * layout
+   * @param layout pipeline layout
+   * @return cached descriptor set layout
+   */
+  vk::DescriptorSetLayout GetDescriptorSetLayout(const PipelineLayout& layout);
 
-    /**
-     * @brief create, cache and return a vulkan pipeline layout given the layout
-     * @param layout pipeline layout
-     * @return vulkan pipeline layout
-     */
-    vk::PipelineLayout GetPipelineLayout(const PipelineLayout& layout);
+  /**
+   * @brief create, cache and return a vulkan pipeline layout given the layout
+   * @param layout pipeline layout
+   * @return vulkan pipeline layout
+   */
+  vk::PipelineLayout GetPipelineLayout(const PipelineLayout& layout);
 
 private:
-    const Device& mDevice;
-    vk::UniqueDescriptorPool mDescriptorPool;
-    std::vector<std::tuple<PipelineLayout, vk::UniqueDescriptorSetLayout>> mDescriptorSetLayouts;
-    std::vector<std::tuple<PipelineLayout, vk::UniquePipelineLayout>> mPipelineLayouts;
+  const Device& mDevice;
+  vk::UniqueDescriptorPool mDescriptorPool;
+  std::vector<std::tuple<PipelineLayout, vk::UniqueDescriptorSetLayout>> mDescriptorSetLayouts;
+  std::vector<std::tuple<PipelineLayout, vk::UniquePipelineLayout>> mPipelineLayouts;
 };
 
 /**
@@ -104,11 +107,11 @@ private:
  */
 struct DescriptorImage
 {
-    DescriptorImage(vk::Sampler sampler, Renderer::Texture& texture);
-    DescriptorImage(Renderer::Texture& texture);
+  DescriptorImage(vk::Sampler sampler, Renderer::Texture& texture);
+  DescriptorImage(Renderer::Texture& texture);
 
-    vk::Sampler Sampler;
-    Renderer::Texture* Texture;
+  vk::Sampler Sampler;
+  Renderer::Texture* Texture;
 };
 
 /**
@@ -116,14 +119,16 @@ struct DescriptorImage
  */
 struct BindingInput
 {
-    static constexpr uint32_t DefaultBind = static_cast<uint32_t>(-1);
+  static constexpr uint32_t DefaultBind = static_cast<uint32_t>(-1);
 
-    VORTEX2D_API BindingInput(Renderer::GenericBuffer& buffer, uint32_t bind = DefaultBind);
-    VORTEX2D_API BindingInput(Renderer::Texture& texture,  uint32_t bind = DefaultBind);
-    VORTEX2D_API BindingInput(vk::Sampler sampler, Renderer::Texture& texture,  uint32_t bind = DefaultBind);
+  VORTEX2D_API BindingInput(Renderer::GenericBuffer& buffer, uint32_t bind = DefaultBind);
+  VORTEX2D_API BindingInput(Renderer::Texture& texture, uint32_t bind = DefaultBind);
+  VORTEX2D_API BindingInput(vk::Sampler sampler,
+                            Renderer::Texture& texture,
+                            uint32_t bind = DefaultBind);
 
-    uint32_t Bind;
-    mapbox::util::variant<Renderer::GenericBuffer*, DescriptorImage> Input;
+  uint32_t Bind;
+  mapbox::util::variant<Renderer::GenericBuffer*, DescriptorImage> Input;
 };
 
 /**
@@ -133,8 +138,12 @@ struct BindingInput
  * @param layout pipeline layout
  * @param bindingInputs list of resources (buffer or texture/sampler)
  */
-VORTEX2D_API void Bind(const Device& device, DescriptorSet& dstSet, const PipelineLayout& layout, const std::vector<BindingInput>& bindingInputs);
+VORTEX2D_API void Bind(const Device& device,
+                       DescriptorSet& dstSet,
+                       const PipelineLayout& layout,
+                       const std::vector<BindingInput>& bindingInputs);
 
-}}
+}  // namespace Renderer
+}  // namespace Vortex2D
 
 #endif
