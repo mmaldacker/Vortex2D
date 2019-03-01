@@ -109,5 +109,5 @@ TEST(ExtrapolateTest, Constrain)
 
     device->Queue().waitIdle();
 
-    CheckVelocity(*device, size, velocity, sim, 1e-5f);
+    CheckVelocity(*device, size, velocity, sim, 1e-4f);
 }
