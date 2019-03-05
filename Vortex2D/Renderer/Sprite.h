@@ -30,7 +30,7 @@ public:
                               const SpirvBinary& fragShaderName,
                               Texture& texture);
   VORTEX2D_API AbstractSprite(AbstractSprite&& other);
-  VORTEX2D_API virtual ~AbstractSprite() {}
+  VORTEX2D_API virtual ~AbstractSprite() override;
 
   VORTEX2D_API void Initialize(const RenderState& renderState) override;
   VORTEX2D_API void Update(const glm::mat4& projection, const glm::mat4& view) override;

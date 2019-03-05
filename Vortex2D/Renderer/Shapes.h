@@ -44,7 +44,7 @@ public:
                              const SpirvBinary& fragShader,
                              const std::vector<glm::vec2>& vertices);
   VORTEX2D_API AbstractShape(AbstractShape&& other);
-  VORTEX2D_API virtual ~AbstractShape() = default;
+  VORTEX2D_API ~AbstractShape() override;
 
   VORTEX2D_API void Initialize(const RenderState& renderState) override;
   VORTEX2D_API void Update(const glm::mat4& projection, const glm::mat4& view) override;

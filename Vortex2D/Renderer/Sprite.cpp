@@ -72,6 +72,11 @@ AbstractSprite::AbstractSprite(AbstractSprite&& other)
 {
 }
 
+AbstractSprite::~AbstractSprite()
+{
+
+}
+
 void AbstractSprite::Update(const glm::mat4& projection, const glm::mat4& view)
 {
   Transformable::Update();

@@ -63,6 +63,11 @@ AbstractShape::AbstractShape(AbstractShape&& other)
   other.mNumVertices = 0;
 }
 
+AbstractShape::~AbstractShape()
+{
+
+}
+
 void AbstractShape::Initialize(const RenderState& renderState)
 {
   mPipeline.Create(mDevice.Handle(), renderState);
