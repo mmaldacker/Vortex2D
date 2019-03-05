@@ -21,7 +21,7 @@ RigidBody::RigidBody(const Renderer::Device& device,
                      const glm::ivec2& size,
                      Renderer::Drawable& drawable,
                      vk::Flags<Type> type)
-    : mSize(size.x)
+    : mSize(static_cast<float>(size.x))
     , mDevice(device)
     , mDrawable(drawable)
     , mPhi(device, size.x, size.y, vk::Format::eR32Sfloat)

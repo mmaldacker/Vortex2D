@@ -23,7 +23,7 @@ public:
     Watermill(const Vortex2D::Renderer::Device& device,
               const glm::ivec2& size,
               b2World& rWorld)
-        : mWatermillTexture(device, 150.0f, 150.0f, vk::Format::eR32Sfloat)
+        : mWatermillTexture(device, 150, 150, vk::Format::eR32Sfloat)
         , mWatermill(device, mWatermillTexture)
         , mRigidbody(device, size, mWatermill, Vortex2D::Fluid::RigidBody::Type::eStrong)
     {

@@ -63,7 +63,7 @@ Reflection::Reflection(const Renderer::SpirvBinary& spirv) : mPushConstantSize(0
 
     unsigned id = resources.push_constant_buffers[0].id;
     auto type = compiler.get_type_from_variable(id);
-    mPushConstantSize = compiler.get_declared_struct_size(type);
+    mPushConstantSize = static_cast<unsigned>(compiler.get_declared_struct_size(type));
   }
 
   // get shader type

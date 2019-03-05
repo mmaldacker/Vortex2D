@@ -78,7 +78,7 @@ GLFWwindow* GetGLFWWindow(const glm::ivec2& size)
     }
 
     glm::vec2 scale = GetGLFWindowScale(window);
-    glfwSetWindowSize(window, size.x * scale.x, size.y * scale.y);
+    glfwSetWindowSize(window, (int)(size.x * scale.x), (int)(size.y * scale.y));
 
     return window;
 }
@@ -97,7 +97,7 @@ public:
         , instance("Vortex2D", GetGLFWExtensions(), validation)
         , surface(GetGLFWSurface(glfwWindow, static_cast<VkInstance>(instance.GetInstance())))
         , device(instance.GetPhysicalDevice(), surface, validation)
-        , window(device, surface, windowSize.x * scale.x, windowSize.y * scale.y)
+        , window(device, surface, (uint32_t)(windowSize.x * scale.x), (uint32_t)(windowSize.y * scale.y))
         , clearRender(window.Record({clear}))
     {
         // setup callback

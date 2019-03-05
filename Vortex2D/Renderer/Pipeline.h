@@ -125,7 +125,7 @@ inline void InsertSpecConst(SpecConstInfo& specConstInfo)
 template <typename Arg, typename... Args>
 inline void InsertSpecConst(SpecConstInfo& specConstInfo, Arg&& arg, Args&&... args)
 {
-  auto offset = specConstInfo.data.size();
+  auto offset = static_cast<uint32_t>(specConstInfo.data.size());
   specConstInfo.data.resize(offset + sizeof(Arg));
   std::memcpy(&specConstInfo.data[offset], &arg.value, sizeof(Arg));
   specConstInfo.mapEntries.emplace_back(arg.id, offset, sizeof(Arg));

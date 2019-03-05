@@ -105,7 +105,7 @@ vk::UniquePipeline GraphicsPipeline::Builder::Create(vk::Device device,
 
   auto dynamicState = vk::PipelineDynamicStateCreateInfo()
                           .setPDynamicStates(mDynamicStates.data())
-                          .setDynamicStateCount(mDynamicStates.size());
+                          .setDynamicStateCount((uint32_t)mDynamicStates.size());
 
   auto pipelineInfo = vk::GraphicsPipelineCreateInfo()
                           .setStageCount((uint32_t)mShaderStages.size())

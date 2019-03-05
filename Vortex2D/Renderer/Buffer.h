@@ -227,7 +227,7 @@ void CopyFrom(BufferType<T>& buffer, const std::vector<T>& t)
 {
   if (sizeof(T) * t.size() != buffer.Size())
     throw std::runtime_error("Mismatch data size");
-  buffer.CopyFrom(0, t.data(), sizeof(T) * t.size());
+  buffer.CopyFrom(0u, t.data(), static_cast<uint32_t>(sizeof(T) * t.size()));
 }
 
 /**
