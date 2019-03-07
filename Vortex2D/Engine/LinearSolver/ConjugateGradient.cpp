@@ -53,10 +53,7 @@ ConjugateGradient::ConjugateGradient(const Renderer::Device& device,
       [&](vk::CommandBuffer commandBuffer) { localError.CopyFrom(commandBuffer, error); });
 }
 
-ConjugateGradient::~ConjugateGradient()
-{
-
-}
+ConjugateGradient::~ConjugateGradient() {}
 
 void ConjugateGradient::Bind(Renderer::GenericBuffer& d,
                              Renderer::GenericBuffer& l,

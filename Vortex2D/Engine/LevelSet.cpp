@@ -72,7 +72,6 @@ LevelSet::LevelSet(LevelSet&& other)
     , mExtrapolateCmd(std::move(other.mExtrapolateCmd))
     , mReinitialiseCmd(std::move(other.mReinitialiseCmd))
 {
-
 }
 
 void LevelSet::ExtrapolateBind(Renderer::Texture& solidPhi)

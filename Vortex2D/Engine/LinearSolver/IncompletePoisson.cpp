@@ -16,10 +16,7 @@ IncompletePoisson::IncompletePoisson(const Renderer::Device& device, const glm::
 {
 }
 
-IncompletePoisson::~IncompletePoisson()
-{
-
-}
+IncompletePoisson::~IncompletePoisson() {}
 
 void IncompletePoisson::Bind(Renderer::GenericBuffer& d,
                              Renderer::GenericBuffer& l,

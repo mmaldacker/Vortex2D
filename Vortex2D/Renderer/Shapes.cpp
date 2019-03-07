@@ -63,10 +63,7 @@ AbstractShape::AbstractShape(AbstractShape&& other)
   other.mNumVertices = 0;
 }
 
-AbstractShape::~AbstractShape()
-{
-
-}
+AbstractShape::~AbstractShape() {}
 
 void AbstractShape::Initialize(const RenderState& renderState)
 {
@@ -160,10 +157,7 @@ Ellipse::Ellipse(const Device& device, const glm::vec2& radius)
                   .Layout(mDescriptorSet.pipelineLayout);
 }
 
-Ellipse::~Ellipse()
-{
-
-}
+Ellipse::~Ellipse() {}
 
 void Ellipse::Initialize(const RenderState& renderState)
 {
@@ -204,10 +198,7 @@ void Ellipse::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderSta
 
 Clear::Clear(const glm::vec4& colour) : mColour(colour) {}
 
-Clear::~Clear()
-{
-
-}
+Clear::~Clear() {}
 
 void Clear::Initialize(const RenderState& /*renderState*/) {}
 

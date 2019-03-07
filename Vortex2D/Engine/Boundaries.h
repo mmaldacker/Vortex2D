@@ -44,7 +44,8 @@ public:
 
   VORTEX2D_API void Initialize(const Renderer::RenderState& renderState) override;
   VORTEX2D_API void Update(const glm::mat4& projection, const glm::mat4& view) override;
-  VORTEX2D_API void Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState) override;
+  VORTEX2D_API void Draw(vk::CommandBuffer commandBuffer,
+                         const Renderer::RenderState& renderState) override;
 
 private:
   const Renderer::Device& mDevice;
@@ -81,7 +82,8 @@ public:
 
   VORTEX2D_API void Initialize(const Renderer::RenderState& renderState) override;
   VORTEX2D_API void Update(const glm::mat4& projection, const glm::mat4& view) override;
-  VORTEX2D_API void Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState) override;
+  VORTEX2D_API void Draw(vk::CommandBuffer commandBuffer,
+                         const Renderer::RenderState& renderState) override;
 };
 
 /**
@@ -103,7 +105,8 @@ public:
 
   VORTEX2D_API void Initialize(const Renderer::RenderState& renderState) override;
   VORTEX2D_API void Update(const glm::mat4& projection, const glm::mat4& view) override;
-  VORTEX2D_API void Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState) override;
+  VORTEX2D_API void Draw(vk::CommandBuffer commandBuffer,
+                         const Renderer::RenderState& renderState) override;
 
 private:
   const Renderer::Device& mDevice;
@@ -139,7 +142,8 @@ public:
 
   VORTEX2D_API ~DistanceField() override;
 
-  VORTEX2D_API void Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState) override;
+  VORTEX2D_API void Draw(vk::CommandBuffer commandBuffer,
+                         const Renderer::RenderState& renderState) override;
 
 private:
   float mScale;

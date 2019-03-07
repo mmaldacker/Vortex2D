@@ -55,12 +55,9 @@ RenderTexture::RenderTexture(RenderTexture&& other)
     , mDevice(other.mDevice)
     , mFramebuffer(std::move(other.mFramebuffer))
 {
-
 }
 
-RenderTexture::~RenderTexture()
-{
-}
+RenderTexture::~RenderTexture() {}
 
 RenderCommand RenderTexture::Record(DrawableList drawables, ColorBlendState blendState)
 {

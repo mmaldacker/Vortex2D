@@ -108,10 +108,7 @@ Polygon::Polygon(const Renderer::Device& device,
           .Layout(mDescriptorSet.pipelineLayout);
 }
 
-Polygon::~Polygon()
-{
-
-}
+Polygon::~Polygon() {}
 
 void Polygon::Initialize(const Renderer::RenderState& renderState)
 {
@@ -152,10 +149,7 @@ Rectangle::Rectangle(const Renderer::Device& device,
 {
 }
 
-Rectangle::~Rectangle()
-{
-
-}
+Rectangle::~Rectangle() {}
 
 void Rectangle::Initialize(const Renderer::RenderState& renderState)
 {
@@ -209,10 +203,7 @@ Circle::Circle(const Renderer::Device& device, float radius, float extent)
           .Layout(mDescriptorSet.pipelineLayout);
 }
 
-Circle::~Circle()
-{
-
-}
+Circle::~Circle() {}
 
 void Circle::Initialize(const Renderer::RenderState& renderState)
 {
@@ -272,16 +263,11 @@ DistanceField::DistanceField(const Renderer::Device& device,
 }
 
 DistanceField::DistanceField(DistanceField&& other)
-    : Renderer::AbstractSprite(std::move(other))
-    , mScale(other.mScale)
+    : Renderer::AbstractSprite(std::move(other)), mScale(other.mScale)
 {
-
 }
 
-DistanceField::~DistanceField()
-{
-
-}
+DistanceField::~DistanceField() {}
 
 void DistanceField::Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState)
 {

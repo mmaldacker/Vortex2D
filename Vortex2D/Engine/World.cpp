@@ -165,10 +165,7 @@ SmokeWorld::SmokeWorld(const Renderer::Device& device, const glm::ivec2& size, f
 {
 }
 
-SmokeWorld::~SmokeWorld()
-{
-
-}
+SmokeWorld::~SmokeWorld() {}
 
 void SmokeWorld::Substep(LinearSolver::Parameters& params)
 {
@@ -226,9 +223,7 @@ WaterWorld::WaterWorld(const Renderer::Device& device,
   mAdvection.AdvectParticleBind(mParticles, mDynamicSolidPhi, mParticleCount.GetDispatchParams());
 }
 
-WaterWorld::~WaterWorld()
-{
-}
+WaterWorld::~WaterWorld() {}
 
 void WaterWorld::Substep(LinearSolver::Parameters& params)
 {
