@@ -207,7 +207,13 @@ int main()
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-        App app;
+#ifdef NDEBUG
+        bool debug = false;
+#else
+        bool debug = true;
+#endif
+
+        App app(debug);
         app.Run();
     }
     catch (const std::exception& error)

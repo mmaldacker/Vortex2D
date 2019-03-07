@@ -19,12 +19,10 @@ TEST(Vulkan, Init)
 
 int main(int argc, char **argv)
 {
-    bool debug;
-
 #ifdef NDEBUG
-    debug = false;
+    bool debug = false;
 #else
-    debug = true;
+    bool debug = true;
 #endif
 
     std::vector<const char*> extensions;
