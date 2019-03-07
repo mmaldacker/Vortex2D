@@ -30,10 +30,16 @@ The main library is built as a dll on windows, shared library on linux and (dyna
 Prerequisite
 ============
 
-Following are necessary:
+Following dependencies are necessary:
 
  * Python
  * glslangValidator (comes with Vulkan SDK)
+
+Following minimum compilers are necessary:
+
+  * GCC 5.4 or later
+  * MSVC 2015 or later
+  * Clang 3.4 or later
 
 Windows
 =======
