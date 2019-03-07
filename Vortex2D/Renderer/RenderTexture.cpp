@@ -49,6 +49,19 @@ RenderTexture::RenderTexture(const Device& device,
   mFramebuffer = device.Handle().createFramebufferUnique(framebufferInfo);
 }
 
+RenderTexture::RenderTexture(RenderTexture&& other)
+    : RenderTarget(std::move(other))
+    , Texture(std::move(other))
+    , mDevice(other.mDevice)
+    , mFramebuffer(std::move(other.mFramebuffer))
+{
+
+}
+
+RenderTexture::~RenderTexture()
+{
+}
+
 RenderCommand RenderTexture::Record(DrawableList drawables, ColorBlendState blendState)
 {
   RenderState state(*this, blendState);

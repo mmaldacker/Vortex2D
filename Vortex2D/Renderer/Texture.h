@@ -66,9 +66,9 @@ public:
                        uint32_t height,
                        vk::Format format,
                        VmaMemoryUsage memoryUsage = VMA_MEMORY_USAGE_GPU_ONLY);
+  VORTEX2D_API Texture(Texture&& other);
 
   VORTEX2D_API virtual ~Texture();
-  VORTEX2D_API Texture(Texture&& other);
 
   template <typename T>
   void CopyFrom(const std::vector<T>& data)

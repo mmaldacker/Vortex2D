@@ -59,6 +59,22 @@ LevelSet::LevelSet(const Renderer::Device& device,
   });
 }
 
+LevelSet::LevelSet(LevelSet&& other)
+    : Renderer::RenderTexture(std::move(other))
+    , mLevelSet0(std::move(other.mLevelSet0))
+    , mLevelSetBack(std::move(other.mLevelSetBack))
+    , mSampler(std::move(other.mSampler))
+    , mExtrapolate(std::move(other.mExtrapolate))
+    , mExtrapolateBound(std::move(other.mExtrapolateBound))
+    , mRedistance(std::move(other.mRedistance))
+    , mRedistanceFront(std::move(other.mRedistanceFront))
+    , mRedistanceBack(std::move(other.mRedistanceBack))
+    , mExtrapolateCmd(std::move(other.mExtrapolateCmd))
+    , mReinitialiseCmd(std::move(other.mReinitialiseCmd))
+{
+
+}
+
 void LevelSet::ExtrapolateBind(Renderer::Texture& solidPhi)
 {
   mExtrapolateBound = mExtrapolate.Bind({solidPhi, *this});

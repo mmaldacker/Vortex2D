@@ -25,6 +25,8 @@ public:
                         const glm::ivec2& size,
                         int reinitializeIterations = 100);
 
+  VORTEX2D_API LevelSet(LevelSet&& other);
+
   /**
    * @brief Reinitialise the level set, i.e. ensure it is a correct signed
    * distance field.

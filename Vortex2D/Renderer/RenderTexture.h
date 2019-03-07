@@ -30,6 +30,10 @@ public:
                              uint32_t height,
                              vk::Format format);
 
+  VORTEX2D_API RenderTexture(RenderTexture&& other);
+
+  VORTEX2D_API ~RenderTexture() override;
+
   VORTEX2D_API RenderCommand Record(DrawableList drawables,
                                     ColorBlendState blendState = {}) override;
   VORTEX2D_API void Submit(RenderCommand& renderCommand) override;
