@@ -34,6 +34,8 @@ public:
                                  const glm::ivec2& size,
                                  Preconditioner& preconditioner);
 
+  VORTEX2D_API ~ConjugateGradient() override;
+
   VORTEX2D_API void Bind(Renderer::GenericBuffer& d,
                          Renderer::GenericBuffer& l,
                          Renderer::GenericBuffer& b,

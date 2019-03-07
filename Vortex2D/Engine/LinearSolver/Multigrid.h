@@ -68,6 +68,7 @@ public:
    * @param delta timestep delta
    */
   VORTEX2D_API Multigrid(const Renderer::Device& device, const glm::ivec2& size, float delta);
+  VORTEX2D_API ~Multigrid() override;
 
   void Bind(Renderer::GenericBuffer& d,
             Renderer::GenericBuffer& l,

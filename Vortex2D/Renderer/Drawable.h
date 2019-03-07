@@ -19,7 +19,7 @@ struct RenderState;
  */
 struct Drawable
 {
-  virtual ~Drawable() {}
+  virtual ~Drawable() = default;
 
   /**
    * @brief Initialize the drawable for a particular state. This might include

@@ -20,7 +20,7 @@ struct Transformable
 {
   Transformable();
 
-  virtual ~Transformable() {}
+  virtual ~Transformable() = default;
 
   /**
    * @brief Returns the transform matrix

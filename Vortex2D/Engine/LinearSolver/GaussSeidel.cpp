@@ -29,6 +29,11 @@ GaussSeidel::GaussSeidel(const Renderer::Device& device, const glm::ivec2& size)
 {
 }
 
+GaussSeidel::~GaussSeidel()
+{
+
+}
+
 void GaussSeidel::SetW(float w)
 {
   mW = w;
@@ -139,6 +144,11 @@ LocalGaussSeidel::LocalGaussSeidel(const Renderer::Device& device, const glm::iv
     : mLocalGaussSeidel(device, MakeLocalSize(size), SPIRV::LocalGaussSeidel_comp)
 {
   // TODO check size is within local size
+}
+
+LocalGaussSeidel::~LocalGaussSeidel()
+{
+
 }
 
 void LocalGaussSeidel::Bind(Renderer::GenericBuffer& d,

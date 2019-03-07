@@ -118,6 +118,11 @@ RenderWindow::RenderWindow(const Device& device,
   }
 }
 
+RenderWindow::~RenderWindow()
+{
+
+}
+
 RenderCommand RenderWindow::Record(DrawableList drawables, ColorBlendState blendState)
 {
   RenderState state(*this, blendState);

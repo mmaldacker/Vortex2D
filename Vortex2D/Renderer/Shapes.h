@@ -88,6 +88,7 @@ class Ellipse : public Shape
 {
 public:
   VORTEX2D_API Ellipse(const Device& device, const glm::vec2& radius);
+  VORTEX2D_API ~Ellipse() override;
 
   void Initialize(const RenderState& renderState) override;
   void Update(const glm::mat4& projection, const glm::mat4& view) override;
@@ -120,6 +121,7 @@ class Clear : public Drawable
 {
 public:
   VORTEX2D_API Clear(const glm::vec4& colour);
+  VORTEX2D_API ~Clear();
 
   void Initialize(const RenderState& renderState) override;
   void Update(const glm::mat4& projection, const glm::mat4& view) override;

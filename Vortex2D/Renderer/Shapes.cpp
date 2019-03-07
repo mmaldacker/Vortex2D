@@ -160,6 +160,11 @@ Ellipse::Ellipse(const Device& device, const glm::vec2& radius)
                   .Layout(mDescriptorSet.pipelineLayout);
 }
 
+Ellipse::~Ellipse()
+{
+
+}
+
 void Ellipse::Initialize(const RenderState& renderState)
 {
   mPipeline.Create(mDevice.Handle(), renderState);
@@ -198,6 +203,11 @@ void Ellipse::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderSta
 }
 
 Clear::Clear(const glm::vec4& colour) : mColour(colour) {}
+
+Clear::~Clear()
+{
+
+}
 
 void Clear::Initialize(const RenderState& /*renderState*/) {}
 

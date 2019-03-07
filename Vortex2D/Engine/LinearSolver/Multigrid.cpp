@@ -70,6 +70,11 @@ Multigrid::Multigrid(const Renderer::Device& device, const glm::ivec2& size, flo
   mResidualWorkBound.resize(mDepth.GetMaxDepth() + 1);
 }
 
+Multigrid::~Multigrid()
+{
+
+}
+
 void Multigrid::Bind(Renderer::GenericBuffer& d,
                      Renderer::GenericBuffer& l,
                      Renderer::GenericBuffer& b,

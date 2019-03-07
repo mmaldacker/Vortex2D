@@ -24,6 +24,7 @@ class GaussSeidel : public LinearSolver, public Preconditioner
 {
 public:
   VORTEX2D_API GaussSeidel(const Renderer::Device& device, const glm::ivec2& size);
+  VORTEX2D_API ~GaussSeidel() override;
 
   VORTEX2D_API void Bind(Renderer::GenericBuffer& d,
                          Renderer::GenericBuffer& l,
@@ -91,6 +92,7 @@ class LocalGaussSeidel : public Preconditioner
 {
 public:
   VORTEX2D_API LocalGaussSeidel(const Renderer::Device& device, const glm::ivec2& size);
+  VORTEX2D_API ~LocalGaussSeidel() override;
 
   void VORTEX2D_API Bind(Renderer::GenericBuffer& d,
                          Renderer::GenericBuffer& l,

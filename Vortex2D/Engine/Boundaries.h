@@ -40,9 +40,11 @@ public:
                        bool inverse = false,
                        float extent = 10.0f);
 
-  void Initialize(const Renderer::RenderState& renderState) override;
-  void Update(const glm::mat4& projection, const glm::mat4& view) override;
-  void Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState) override;
+  VORTEX2D_API ~Polygon() override;
+
+  VORTEX2D_API void Initialize(const Renderer::RenderState& renderState) override;
+  VORTEX2D_API void Update(const glm::mat4& projection, const glm::mat4& view) override;
+  VORTEX2D_API void Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState) override;
 
 private:
   const Renderer::Device& mDevice;
@@ -74,6 +76,12 @@ public:
                          const glm::vec2& size,
                          bool inverse = false,
                          float extent = 10.0f);
+
+  VORTEX2D_API ~Rectangle();
+
+  VORTEX2D_API void Initialize(const Renderer::RenderState& renderState) override;
+  VORTEX2D_API void Update(const glm::mat4& projection, const glm::mat4& view) override;
+  VORTEX2D_API void Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState) override;
 };
 
 /**
@@ -91,9 +99,11 @@ public:
    */
   VORTEX2D_API Circle(const Renderer::Device& device, float radius, float extent = 10.0f);
 
-  void Initialize(const Renderer::RenderState& renderState) override;
-  void Update(const glm::mat4& projection, const glm::mat4& view) override;
-  void Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState) override;
+  VORTEX2D_API ~Circle() override;
+
+  VORTEX2D_API void Initialize(const Renderer::RenderState& renderState) override;
+  VORTEX2D_API void Update(const glm::mat4& projection, const glm::mat4& view) override;
+  VORTEX2D_API void Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState) override;
 
 private:
   const Renderer::Device& mDevice;
@@ -125,7 +135,11 @@ public:
                              Renderer::RenderTexture& levelSet,
                              float scale = 1.0f);
 
-  void Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState) override;
+  VORTEX2D_API DistanceField(DistanceField&& other);
+
+  VORTEX2D_API ~DistanceField() override;
+
+  VORTEX2D_API void Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState) override;
 
 private:
   float mScale;

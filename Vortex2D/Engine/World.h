@@ -186,6 +186,7 @@ class SmokeWorld : public World
 {
 public:
   VORTEX2D_API SmokeWorld(const Renderer::Device& device, const glm::ivec2& size, float dt);
+  VORTEX2D_API ~SmokeWorld() override;
 
   /**
    * @brief Bind a density field to be moved around with the fluid
@@ -207,6 +208,7 @@ public:
                           const glm::ivec2& size,
                           float dt,
                           int numSubSteps);
+  VORTEX2D_API ~WaterWorld() override;
 
   /**
    * @brief The water simulation uses particles to define the water area.

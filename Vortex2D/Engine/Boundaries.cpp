@@ -108,6 +108,11 @@ Polygon::Polygon(const Renderer::Device& device,
           .Layout(mDescriptorSet.pipelineLayout);
 }
 
+Polygon::~Polygon()
+{
+
+}
+
 void Polygon::Initialize(const Renderer::RenderState& renderState)
 {
   mPipeline.Create(mDevice.Handle(), renderState);
@@ -147,6 +152,26 @@ Rectangle::Rectangle(const Renderer::Device& device,
 {
 }
 
+Rectangle::~Rectangle()
+{
+
+}
+
+void Rectangle::Initialize(const Renderer::RenderState& renderState)
+{
+  Polygon::Initialize(renderState);
+}
+
+void Rectangle::Update(const glm::mat4& projection, const glm::mat4& view)
+{
+  Polygon::Update(projection, view);
+}
+
+void Rectangle::Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState)
+{
+  Polygon::Draw(commandBuffer, renderState);
+}
+
 Circle::Circle(const Renderer::Device& device, float radius, float extent)
     : mDevice(device)
     , mSize(radius)
@@ -182,6 +207,11 @@ Circle::Circle(const Renderer::Device& device, float radius, float extent)
           .VertexAttribute(0, 0, vk::Format::eR32G32Sfloat, 0)
           .VertexBinding(0, sizeof(glm::vec2))
           .Layout(mDescriptorSet.pipelineLayout);
+}
+
+Circle::~Circle()
+{
+
 }
 
 void Circle::Initialize(const Renderer::RenderState& renderState)
@@ -239,6 +269,18 @@ DistanceField::DistanceField(const Renderer::Device& device,
                              float scale)
     : Renderer::AbstractSprite(device, SPIRV::DistanceField_frag, levelSet), mScale(scale)
 {
+}
+
+DistanceField::DistanceField(DistanceField&& other)
+    : Renderer::AbstractSprite(std::move(other))
+    , mScale(other.mScale)
+{
+
+}
+
+DistanceField::~DistanceField()
+{
+
 }
 
 void DistanceField::Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState)

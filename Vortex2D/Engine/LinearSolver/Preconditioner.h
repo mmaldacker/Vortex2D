@@ -19,7 +19,7 @@ namespace Fluid
  */
 struct Preconditioner
 {
-  virtual ~Preconditioner() {}
+  virtual ~Preconditioner() = default;
 
   /**
    * @brief Bind the linear equation buffers
