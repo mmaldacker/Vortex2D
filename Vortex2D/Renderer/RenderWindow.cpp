@@ -82,6 +82,23 @@ RenderWindow::RenderWindow(const Device& device,
                              .setSubresourceRange({vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1});
 
     mSwapChainImageViews.push_back(device.Handle().createImageViewUnique(imageViewInfo));
+
+    device.Execute([&](vk::CommandBuffer commandBuffer) {
+      auto imageMemoryBarriers = vk::ImageMemoryBarrier()
+                                     .setOldLayout(vk::ImageLayout::eUndefined)
+                                     .setNewLayout(vk::ImageLayout::ePresentSrcKHR)
+                                     .setImage(image)
+                                     .setSubresourceRange({vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1});
+
+      commandBuffer.pipelineBarrier(
+          vk::PipelineStageFlagBits::eAllCommands,
+          vk::PipelineStageFlagBits::eAllCommands,
+          {},
+          nullptr,
+          nullptr,
+          imageMemoryBarriers);
+    });
+
   }
 
   // Create render pass
@@ -89,6 +106,7 @@ RenderWindow::RenderWindow(const Device& device,
                    .Attachement(format)
                    .AttachementLoadOp(vk::AttachmentLoadOp::eLoad)
                    .AttachementStoreOp(vk::AttachmentStoreOp::eStore)
+                   .AttachementInitialLayout(vk::ImageLayout::ePresentSrcKHR)
                    .AttachementFinalLayout(vk::ImageLayout::ePresentSrcKHR)
                    .Subpass(vk::PipelineBindPoint::eGraphics)
                    .SubpassColorAttachment(vk::ImageLayout::eColorAttachmentOptimal, 0)
