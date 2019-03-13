@@ -239,9 +239,9 @@ TEST(BoundariesTest, DistanceField)
     });
 
     uint8_t alpha = static_cast<uint8_t>(255 * (0.1f + 0.5f));
-    uint8_t r = 255 * distance.Colour.r;
-    uint8_t g = 255 * distance.Colour.g;
-    uint8_t b = 255 * distance.Colour.b;
+    uint8_t r = static_cast<uint8_t>(255 * distance.Colour.r);
+    uint8_t g = static_cast<uint8_t>(255 * distance.Colour.g);
+    uint8_t b = static_cast<uint8_t>(255 * distance.Colour.b);
     std::vector<glm::u8vec4> outData(size.x*size.y, {r, g, b, 255 - alpha});
 
     CheckTexture<glm::u8vec4>(outData, localOutput);
