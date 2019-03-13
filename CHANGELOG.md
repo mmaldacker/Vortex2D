@@ -1,3 +1,19 @@
+# Release 1.6
+
+* Improved API of command buffer and render command. All functions return `*this`.
+* Moved `ExecuteCommand` as `Execute` in `Device`.
+* Added buffer resize function.
+* Added IndexBuffer.
+* Better buffer copy methods.
+* Fix buffer fill.
+* Better texture copy methods.
+* Added dynamic viewport and scissor to pipelines.
+* Added shape interface
+* Removed (emulated) properties of Transformable.
+* Added clang-format.
+* Fixes around dllexport/dllimport on windows.
+* Fix layout for swapchain
+
 # Release 1.5
 
 * Bicubic interpolation
