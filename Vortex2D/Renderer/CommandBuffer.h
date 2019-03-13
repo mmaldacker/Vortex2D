@@ -94,25 +94,6 @@ private:
 };
 
 /**
- * @brief A command buffer pool to execute immediately commands.
- */
-class CommandBufferPool
-{
-public:
-  CommandBufferPool(const Device& device, std::size_t numCommands);
-
-  /**
-   * @brief Execute a commands and waits for it to complete
-   * @param commandFn handler with the command buffer as parameter.
-   */
-  VORTEX2D_API void Execute(CommandBuffer::CommandFn commandFn);
-
-private:
-  std::size_t mCurrentIndex;
-  std::vector<CommandBuffer> mCommandBuffers;
-};
-
-/**
  * @brief A special command buffer that has been recorded by a @ref
  * RenderTarget. It can be used to submit the rendering. The object has to stay
  * alive untill rendering is complete.

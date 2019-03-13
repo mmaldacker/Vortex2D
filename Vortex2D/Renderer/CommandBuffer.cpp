@@ -161,23 +161,6 @@ CommandBuffer::operator bool() const
   return mRecorded;
 }
 
-CommandBufferPool::CommandBufferPool(const Device& device, std::size_t numCommands)
-    : mCurrentIndex(0)
-{
-  for (std::size_t i = 0; i < numCommands; i++)
-  {
-    mCommandBuffers.emplace_back(device, true);
-  }
-}
-
-void CommandBufferPool::Execute(CommandBuffer::CommandFn commandFn)
-{
-  mCurrentIndex = (mCurrentIndex + 1) % mCommandBuffers.size();
-  auto& commandBuffer = mCommandBuffers[mCurrentIndex];
-
-  commandBuffer.Reset().Record(commandFn).Submit().Wait();
-}
-
 RenderCommand::RenderCommand(RenderCommand&& other)
     : mRenderTarget(other.mRenderTarget)
     , mCmds(std::move(other.mCmds))
