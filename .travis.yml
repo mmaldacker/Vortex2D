@@ -33,8 +33,8 @@ install:
 # Doxyrest
  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then pip install --user sphinx sphinx_rtd_theme breathe; fi
 # LunarG SDK install
- - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then wget https://vulkan.lunarg.com/sdk/download/1.1.101.0/linux/vulkansdk-linux-x86_64-1.1.101.0.tar.gz; tar xf vulkansdk-linux-x86_64-1.1.101.0.tar.gz; . 1.1.101.0/setup-env.sh; fi
- - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then wget https://vulkan.lunarg.com/sdk/download/1.1.101.0/mac/vulkansdk-macos-1.1.101.0.tar.gz; tar xf vulkansdk-macos-1.1.101.0.tar.gz; fi
+ - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then wget https://sdk.lunarg.com/sdk/download/1.1.101.0/linux/vulkansdk-linux-1.1.101.0.tar.gz; tar xf vulkansdk-linux-1.1.101.0.tar.gz; . 1.1.101.0/setup-env.sh; fi
+ - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then wget https://sdk.lunarg.com/sdk/download/1.1.101.0/mac/vulkansdk-macos-1.1.101.0.tar.gz; tar xf vulkansdk-macos-1.1.101.0.tar.gz; fi
 
 script:
   - cd ${TRAVIS_BUILD_DIR}
