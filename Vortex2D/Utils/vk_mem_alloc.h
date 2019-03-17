@@ -366,7 +366,7 @@ extern "C"
   tools.
 
   \section memory_mapping_cache_control Cache control
-    
+    
   Memory in Vulkan doesn't need to be unmapped before using it on GPU,
   but unless a memory types has `VK_MEMORY_PROPERTY_HOST_COHERENT_BIT` flag set,
   you need to manually invalidate cache before reading of mapped pointer
@@ -1365,7 +1365,7 @@ been called on that buffer.
     It is roughly equivalent of `D3D12_HEAP_TYPE_DEFAULT`.
 
     Usage:
-    
+    
     - Resources written and read by device, e.g. images used as attachments.
     - Resources transferred from host once (immutable) or infrequently and read by
       device multiple times, e.g. textures to be sampled, vertex buffers, uniform
@@ -1411,9 +1411,9 @@ been called on that buffer.
   typedef enum VmaAllocationCreateFlagBits
   {
     /** \brief Set this flag if the allocation should have its own memory block.
-    
+    
     Use it for special, big resources, like fullscreen images used as attachments.
-   
+   
     This flag must also be used for host visible resources that you want to map
     simultaneously because otherwise they might end up as regions of the same
     `VkDeviceMemory`, while mapping same `VkDeviceMemory` multiple times
@@ -1425,18 +1425,18 @@ been called on that buffer.
 
     /** \brief Set this flag to only try to allocate from existing `VkDeviceMemory` blocks and never
     create new such block.
-    
+    
     If new allocation cannot be placed in any of the existing blocks, allocation
     fails with `VK_ERROR_OUT_OF_DEVICE_MEMORY` error.
-    
+    
     You should not use #VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT and
     #VMA_ALLOCATION_CREATE_NEVER_ALLOCATE_BIT at the same time. It makes no sense.
-    
+    
     If VmaAllocationCreateInfo::pool is not null, this flag is implied and ignored. */
     VMA_ALLOCATION_CREATE_NEVER_ALLOCATE_BIT = 0x00000002,
     /** \brief Set this flag to use a memory that will be persistently mapped and retrieve pointer
     to it.
-    
+    
     Pointer to mapped memory will be returned through VmaAllocationInfo::pMappedData.
 
     Is it valid to use this flag for allocation made from memory type that is not
@@ -1484,18 +1484,18 @@ been called on that buffer.
     /// Use #VmaAllocationCreateFlagBits enum.
     VmaAllocationCreateFlags flags;
     /** \brief Intended usage of memory.
-    
+    
     You can leave #VMA_MEMORY_USAGE_UNKNOWN if you specify memory requirements in other way. \n
     If `pool` is not null, this member is ignored.
     */
     VmaMemoryUsage usage;
     /** \brief Flags that must be set in a Memory Type chosen for an allocation.
-    
+    
     Leave 0 if you specify memory requirements in other way. \n
     If `pool` is not null, this member is ignored.*/
     VkMemoryPropertyFlags requiredFlags;
     /** \brief Flags that preferably should be set in a memory type chosen for an allocation.
-    
+    
     Set to 0 if no additional flags are prefered. \n
     If `pool` is not null, this member is ignored. */
     VkMemoryPropertyFlags preferredFlags;
@@ -1515,7 +1515,7 @@ been called on that buffer.
     VmaPool pool;
     /** \brief Custom general-purpose pointer that will be stored in #VmaAllocation, can be read as
     VmaAllocationInfo::pUserData and changed using vmaSetAllocationUserData().
-    
+    
     If #VMA_ALLOCATION_CREATE_USER_DATA_COPY_STRING_BIT is used, it must be either
     null or pointer to a null-terminated string. The string will be then copied to
     internal buffer, so it doesn't need to be valid after allocation call.
@@ -1630,7 +1630,7 @@ been called on that buffer.
     /** \brief Maximum number of blocks that can be allocated in this pool. Optional.
 
     Optional. Set to 0 to use `SIZE_MAX`, which means no limit.
-    
+    
     Set to same value as minBlockCount to have fixed amount of memory allocated
     throuout whole lifetime of this pool.
     */
@@ -1744,14 +1744,14 @@ been called on that buffer.
   typedef struct VmaAllocationInfo
   {
     /** \brief Memory type index that this allocation was allocated from.
-    
+    
     It never changes.
     */
     uint32_t memoryType;
     /** \brief Handle to Vulkan memory object.
 
     Same memory object can be shared by multiple allocations.
-    
+    
     It can change after call to vmaDefragment() if this allocation is passed to the function, or if
     allocation is lost.
 
@@ -1940,7 +1940,7 @@ been called on that buffer.
   {
     /** \brief Maximum total numbers of bytes that can be copied while moving allocations to
     different places.
-    
+    
     Default is `VK_WHOLE_SIZE`, which means no limit.
     */
     VkDeviceSize maxBytesToMove;
@@ -2028,10 +2028,10 @@ been called on that buffer.
 
           VkBufferCreateInfo bufferInfo = ...;
           vkCreateBuffer(device, &bufferInfo, nullptr, &buffers[i]);
-              
+              
           // You can make dummy call to vkGetBufferMemoryRequirements here to silence validation
   layer warning.
-              
+              
           vkBindBufferMemory(device, buffers[i], allocInfo.deviceMemory, allocInfo.offset);
       }
   }
@@ -3827,7 +3827,7 @@ public:
   - If hAllocation.LastUseFrameIndex + frameInUseCount < allocator.CurrentFrameIndex,
     makes it lost by setting LastUseFrameIndex = VMA_FRAME_INDEX_LOST and returns true.
   - Else, returns false.
-  
+  
   If hAllocation is already lost, assert - you should not call it then.
   If hAllocation was not created with CAN_BECOME_LOST_BIT, assert.
   */

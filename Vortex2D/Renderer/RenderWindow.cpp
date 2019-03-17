@@ -84,21 +84,20 @@ RenderWindow::RenderWindow(const Device& device,
     mSwapChainImageViews.push_back(device.Handle().createImageViewUnique(imageViewInfo));
 
     device.Execute([&](vk::CommandBuffer commandBuffer) {
-      auto imageMemoryBarriers = vk::ImageMemoryBarrier()
-                                     .setOldLayout(vk::ImageLayout::eUndefined)
-                                     .setNewLayout(vk::ImageLayout::ePresentSrcKHR)
-                                     .setImage(image)
-                                     .setSubresourceRange({vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1});
+      auto imageMemoryBarriers =
+          vk::ImageMemoryBarrier()
+              .setOldLayout(vk::ImageLayout::eUndefined)
+              .setNewLayout(vk::ImageLayout::ePresentSrcKHR)
+              .setImage(image)
+              .setSubresourceRange({vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1});
 
-      commandBuffer.pipelineBarrier(
-          vk::PipelineStageFlagBits::eAllCommands,
-          vk::PipelineStageFlagBits::eAllCommands,
-          {},
-          nullptr,
-          nullptr,
-          imageMemoryBarriers);
+      commandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eAllCommands,
+                                    vk::PipelineStageFlagBits::eAllCommands,
+                                    {},
+                                    nullptr,
+                                    nullptr,
+                                    imageMemoryBarriers);
     });
-
   }
 
   // Create render pass
