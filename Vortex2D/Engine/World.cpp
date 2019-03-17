@@ -108,18 +108,10 @@ DistanceField World::SolidDistanceField()
 void World::AddRigidbody(RigidBody& rigidbody)
 {
   rigidbody.BindPhi(mDynamicSolidPhi);
-
-  if (rigidbody.GetType() & RigidBody::Type::eStatic)
-  {
-    rigidbody.BindDiv(mData.B, mData.Diagonal);
-    rigidbody.BindVelocityConstrain(mVelocity);
-    mLinearSolver.BindRigidbody(mDelta, mData.Diagonal, rigidbody);
-  }
-
-  if (rigidbody.GetType() & RigidBody::Type::eWeak)
-  {
-    rigidbody.BindForce(mData.Diagonal, mData.X);
-  }
+  rigidbody.BindDiv(mData.B, mData.Diagonal);
+  rigidbody.BindVelocityConstrain(mVelocity);
+  mLinearSolver.BindRigidbody(mDelta, mData.Diagonal, rigidbody);
+  rigidbody.BindForce(mData.Diagonal, mData.X);
 
   mRigidbodies.push_back(&rigidbody);
 }

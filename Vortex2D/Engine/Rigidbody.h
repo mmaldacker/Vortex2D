@@ -172,6 +172,12 @@ public:
   VORTEX2D_API vk::Flags<Type> GetType();
 
   /**
+   * @brief Set the type of the body.
+   * @param type
+   */
+  VORTEX2D_API void SetType(Type type);
+
+  /**
    * @brief the local level set of the body
    * @return
    */

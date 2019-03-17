@@ -200,6 +200,11 @@ vk::Flags<RigidBody::Type> RigidBody::GetType()
   return mType;
 }
 
+void RigidBody::SetType(RigidBody::Type type)
+{
+  mType = type;
+}
+
 Renderer::RenderTexture& RigidBody::Phi()
 {
   return mPhi;
