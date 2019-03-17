@@ -34,17 +34,14 @@ ShaderLayout::ShaderLayout(const SPIRV::Reflection& reflection)
 
 LayoutManager::LayoutManager(const Device& device) : mDevice(device) {}
 
-void LayoutManager::CreateDescriptorPool()
+void LayoutManager::CreateDescriptorPool(int size)
 {
   // create descriptor pool
-  // TODO size should be configurable
-  // TODO check when we allocate more than what is allowed (might get it for
-  // free already)
   std::vector<vk::DescriptorPoolSize> poolSizes;
-  poolSizes.emplace_back(vk::DescriptorType::eUniformBuffer, 512);
-  poolSizes.emplace_back(vk::DescriptorType::eCombinedImageSampler, 512);
-  poolSizes.emplace_back(vk::DescriptorType::eStorageImage, 512);
-  poolSizes.emplace_back(vk::DescriptorType::eStorageBuffer, 512);
+  poolSizes.emplace_back(vk::DescriptorType::eUniformBuffer, size);
+  poolSizes.emplace_back(vk::DescriptorType::eCombinedImageSampler, size);
+  poolSizes.emplace_back(vk::DescriptorType::eStorageImage, size);
+  poolSizes.emplace_back(vk::DescriptorType::eStorageBuffer, size);
 
   vk::DescriptorPoolCreateInfo descriptorPoolInfo{};
   descriptorPoolInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;

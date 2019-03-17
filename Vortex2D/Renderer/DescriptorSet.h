@@ -70,8 +70,9 @@ public:
   /**
    * @brief Create or re-create the descriptor pool, will render invalid
    * existing descriptor sets
+   * @param size size of the pool
    */
-  void CreateDescriptorPool();
+  void CreateDescriptorPool(int size = 512);
 
   /**
    * @brief Create the descriptor set given the layout

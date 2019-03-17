@@ -135,7 +135,8 @@ void GenericBuffer::CopyFrom(vk::CommandBuffer commandBuffer, GenericBuffer& src
 
 void GenericBuffer::CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcTexture)
 {
-  // TODO check if it can be copied
+  auto textureSize = srcTexture.GetWidth() * srcTexture.GetHeight() * GetBytesPerPixel(srcTexture.GetFormat());
+  if (textureSize != mSize) throw std::runtime_error("Cannot copy texture of different sizes");
 
   srcTexture.Barrier(commandBuffer,
                      vk::ImageLayout::eGeneral,
