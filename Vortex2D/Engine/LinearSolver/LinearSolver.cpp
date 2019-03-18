@@ -26,6 +26,12 @@ LinearSolver::Data::Data(const Renderer::Device& device,
     , B(device, size.x * size.y, memoryUsage)
     , X(device, size.x * size.y, memoryUsage)
 {
+  device.Execute([&](vk::CommandBuffer commandBuffer) {
+    Diagonal.Clear(commandBuffer);
+    Lower.Clear(commandBuffer);
+    B.Clear(commandBuffer);
+    X.Clear(commandBuffer);
+  });
 }
 
 bool LinearSolver::Parameters::IsFinished(float initialError) const

@@ -102,9 +102,12 @@ void PipelineCache::CreateCache()
 vk::Pipeline PipelineCache::CreateGraphicsPipeline(const GraphicsPipeline& builder,
                                                    const RenderState& renderState)
 {
-  auto it = std::find_if(mGraphicsPipelines.begin(), mGraphicsPipelines.end(), [&](const GraphicsPipelineCache& pipeline) {
-    return pipeline.GraphicsPipeline == builder && pipeline.RenderState == renderState;
-  });
+  auto it = std::find_if(mGraphicsPipelines.begin(),
+                         mGraphicsPipelines.end(),
+                         [&](const GraphicsPipelineCache& pipeline) {
+                           return pipeline.GraphicsPipeline == builder &&
+                                  pipeline.RenderState == renderState;
+                         });
 
   if (it != mGraphicsPipelines.end())
   {
@@ -161,12 +164,15 @@ vk::Pipeline PipelineCache::CreateGraphicsPipeline(const GraphicsPipeline& build
 }
 
 vk::Pipeline PipelineCache::CreateComputePipeline(vk::ShaderModule shader,
-                                                        vk::PipelineLayout layout,
-                                                        SpecConstInfo specConstInfo)
+                                                  vk::PipelineLayout layout,
+                                                  SpecConstInfo specConstInfo)
 {
-  auto it = std::find_if(mComputePipelines.begin(), mComputePipelines.end(), [&](const ComputePipelineCache& pipeline) {
-    return pipeline.Shader == shader && pipeline.Layout == layout && pipeline.SpecConstInfo == specConstInfo;
-  });
+  auto it = std::find_if(mComputePipelines.begin(),
+                         mComputePipelines.end(),
+                         [&](const ComputePipelineCache& pipeline) {
+                           return pipeline.Shader == shader && pipeline.Layout == layout &&
+                                  pipeline.SpecConstInfo == specConstInfo;
+                         });
 
   if (it != mComputePipelines.end())
   {
@@ -181,7 +187,11 @@ vk::Pipeline PipelineCache::CreateComputePipeline(vk::ShaderModule shader,
 
   auto pipelineInfo = vk::ComputePipelineCreateInfo().setStage(stageInfo).setLayout(layout);
 
-  mComputePipelines.push_back({shader, layout, specConstInfo, mDevice.Handle().createComputePipelineUnique(*mCache, pipelineInfo)});
+  mComputePipelines.push_back(
+      {shader,
+       layout,
+       specConstInfo,
+       mDevice.Handle().createComputePipelineUnique(*mCache, pipelineInfo)});
   return *mComputePipelines.back().Pipeline;
 }
 

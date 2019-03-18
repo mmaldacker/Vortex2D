@@ -208,6 +208,7 @@ TEST(ComputeTests, WorkIndirect)
 
   CommandBuffer cmd(*device, true);
   cmd.Record([&](vk::CommandBuffer commandBuffer) {
+    buffer.Clear(commandBuffer);
     bound.RecordIndirect(commandBuffer, dispatchParams);
   });
 
@@ -347,6 +348,7 @@ TEST(ComputeTests, Checkerboard)
   auto boundWork = work.Bind({buffer});
 
   device->Execute([&](vk::CommandBuffer commandBuffer) {
+    buffer.Clear(commandBuffer);
     boundWork.PushConstant(commandBuffer, 1);
     boundWork.Record(commandBuffer);
   });
@@ -430,7 +432,8 @@ TEST(ComputeTests, Cache)
 
   PipelineLayout layout1 = {{reflection1}};
   vk::PipelineLayout pipelineLayout1 = device->GetLayoutManager().GetPipelineLayout(layout1);
-  vk::Pipeline pipeline1 = device->GetPipelineCache().CreateComputePipeline(shader1, pipelineLayout1);
+  vk::Pipeline pipeline1 =
+      device->GetPipelineCache().CreateComputePipeline(shader1, pipelineLayout1);
 
   auto shader2 = device->GetShaderModule(Image_comp);
   Reflection reflection2(Image_comp);
@@ -438,7 +441,8 @@ TEST(ComputeTests, Cache)
   PipelineLayout layout2 = {{reflection2}};
   vk::PipelineLayout pipelineLayout2 = device->GetLayoutManager().GetPipelineLayout(layout2);
 
-  vk::Pipeline pipeline2 = device->GetPipelineCache().CreateComputePipeline(shader2, pipelineLayout2);
+  vk::Pipeline pipeline2 =
+      device->GetPipelineCache().CreateComputePipeline(shader2, pipelineLayout2);
 
   EXPECT_NE(shader1, shader2);
   EXPECT_NE(pipelineLayout1, pipelineLayout2);

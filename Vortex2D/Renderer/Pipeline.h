@@ -66,6 +66,7 @@ public:
 
   friend class PipelineCache;
   friend bool operator==(const GraphicsPipeline&, const GraphicsPipeline&);
+
 private:
   vk::PipelineMultisampleStateCreateInfo mMultisampleInfo;
   vk::PipelineRasterizationStateCreateInfo mRasterizationInfo;
@@ -170,8 +171,8 @@ public:
    * @param specConstInfo
    */
   VORTEX2D_API vk::Pipeline CreateComputePipeline(vk::ShaderModule shader,
-                                                        vk::PipelineLayout layout,
-                                                        SpecConstInfo specConstInfo = {});
+                                                  vk::PipelineLayout layout,
+                                                  SpecConstInfo specConstInfo = {});
 
 private:
   struct GraphicsPipelineCache

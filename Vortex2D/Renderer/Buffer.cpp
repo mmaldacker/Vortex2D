@@ -86,9 +86,6 @@ void GenericBuffer::Create()
   {
     throw std::runtime_error("Error creating buffer");
   }
-
-  // TODO we shouldn't have to clear always in the constructor
-  mDevice.Execute([&](vk::CommandBuffer commandBuffer) { Clear(commandBuffer); });
 }
 
 vk::Buffer GenericBuffer::Handle() const
