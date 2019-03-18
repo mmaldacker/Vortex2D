@@ -106,7 +106,7 @@ vk::Pipeline PipelineCache::CreateGraphicsPipeline(const GraphicsPipeline& build
                          mGraphicsPipelines.end(),
                          [&](const GraphicsPipelineCache& pipeline) {
                            return pipeline.GraphicsPipeline == builder &&
-                                  pipeline.RenderState == renderState;
+                                  pipeline.State == renderState;
                          });
 
   if (it != mGraphicsPipelines.end())
