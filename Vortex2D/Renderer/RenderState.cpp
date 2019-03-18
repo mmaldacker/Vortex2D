@@ -29,7 +29,8 @@ RenderState::RenderState(const RenderTarget& renderTarget) : RenderState(renderT
 
 bool operator==(const RenderState& left, const RenderState right)
 {
-  return left.RenderPass == right.RenderPass &&
+  return left.Width == right.Width && left.Height == right.Height &&
+         left.RenderPass == right.RenderPass &&
          left.BlendState.ColorBlend == right.BlendState.ColorBlend &&
          left.BlendState.BlendConstants == right.BlendState.BlendConstants;
 }

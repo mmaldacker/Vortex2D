@@ -109,13 +109,13 @@ Work::Work(const Device& device,
                             SpecConstValue(1, mComputeSize.LocalSize.x),
                             SpecConstValue(2, mComputeSize.LocalSize.y));
 
-    mPipeline = MakeComputePipeline(device.Handle(), shaderModule, layout, specConstInfo);
+    mPipeline = device.GetPipelineCache().CreateComputePipeline(shaderModule, layout, specConstInfo);
   }
   else
   {
     Detail::InsertSpecConst(specConstInfo, SpecConstValue(1, mComputeSize.LocalSize.x));
 
-    mPipeline = MakeComputePipeline(device.Handle(), shaderModule, layout, specConstInfo);
+    mPipeline = device.GetPipelineCache().CreateComputePipeline(shaderModule, layout, specConstInfo);
   }
 }
 
@@ -132,7 +132,7 @@ Work::Bound Work::Bind(ComputeSize computeSize, const std::vector<Renderer::Bind
   return Bound(computeSize,
                mPipelineLayout.layouts.front().pushConstantSize,
                descriptorSet.pipelineLayout,
-               *mPipeline,
+               mPipeline,
                std::move(descriptorSet.descriptorSet));
 }
 

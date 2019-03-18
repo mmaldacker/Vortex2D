@@ -231,7 +231,7 @@ private:
   ComputeSize mComputeSize;
   const Device& mDevice;
   Renderer::PipelineLayout mPipelineLayout;
-  vk::UniquePipeline mPipeline;
+  vk::Pipeline mPipeline;
 };
 
 }  // namespace Renderer

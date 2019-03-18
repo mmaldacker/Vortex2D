@@ -9,6 +9,7 @@
 #include <Vortex2D/Renderer/CommandBuffer.h>
 #include <Vortex2D/Renderer/Common.h>
 #include <Vortex2D/Renderer/DescriptorSet.h>
+#include <Vortex2D/Renderer/Pipeline.h>
 #include <Vortex2D/Utils/vk_mem_alloc.h>
 #include <map>
 
@@ -69,7 +70,7 @@ public:
   // Memory allocator
   VORTEX2D_API VmaAllocator Allocator() const;
   VORTEX2D_API LayoutManager& GetLayoutManager() const;
-
+  VORTEX2D_API PipelineCache& GetPipelineCache() const;
   VORTEX2D_API vk::ShaderModule GetShaderModule(const SpirvBinary& spirv) const;
 
 private:
@@ -84,6 +85,7 @@ private:
   mutable std::unique_ptr<CommandBuffer> mCommandBuffer;
   mutable std::map<const uint32_t*, vk::UniqueShaderModule> mShaders;
   mutable LayoutManager mLayoutManager;
+  mutable PipelineCache mPipelineCache;
 };
 
 }  // namespace Renderer

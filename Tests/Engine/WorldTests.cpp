@@ -13,6 +13,7 @@
 #include "Verify.h"
 
 #include <cmath>
+#include <iostream>
 #include <random>
 
 using namespace Vortex2D;
@@ -65,6 +66,7 @@ float PressureRigidbody_VelocityTest(float scale)
   std::cout << "Scale " << scale << " Mass " << mass << " Scaled Force (" << force << ")"
             << std::endl;
 
+  EXPECT_NE(force, 0.0f);
   EXPECT_NEAR(forces.angular_velocity / (inertia * std::pow(scale, 4.0f)), 0.0f, 1e-3f);
   EXPECT_NEAR(forces.velocity.y / (mass * scale), 0.0f, 1e-3f);
 
@@ -144,6 +146,7 @@ float PressureRigidbody_RotationTest(float scale)
   std::cout << "Scale " << scale << " Inertia " << inertia << " Scaled Torque (" << force << ")"
             << std::endl;
 
+  EXPECT_NE(force, 0.0f);
   EXPECT_NEAR(forces.velocity.x / (mass * scale), 0.0f, 1e-2f);
   EXPECT_NEAR(forces.velocity.y / (mass * scale), 0.0f, 1e-2f);
 

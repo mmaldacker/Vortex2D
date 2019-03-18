@@ -4,14 +4,14 @@
 //
 
 #include "Pipeline.h"
-
+#include <Vortex2D/Renderer/Device.h>
 #include <algorithm>
 
 namespace Vortex2D
 {
 namespace Renderer
 {
-GraphicsPipeline::Builder::Builder()
+GraphicsPipeline::GraphicsPipeline()
 {
   mInputAssembly =
       vk::PipelineInputAssemblyStateCreateInfo().setTopology(vk::PrimitiveTopology::eTriangleList);
@@ -28,8 +28,8 @@ GraphicsPipeline::Builder::Builder()
                          .setMinSampleShading(1.0f);
 }
 
-GraphicsPipeline::Builder& GraphicsPipeline::Builder::Shader(vk::ShaderModule shader,
-                                                             vk::ShaderStageFlagBits shaderStage)
+GraphicsPipeline& GraphicsPipeline::Shader(vk::ShaderModule shader,
+                                           vk::ShaderStageFlagBits shaderStage)
 {
   auto shaderStageInfo =
       vk::PipelineShaderStageCreateInfo().setModule(shader).setPName("main").setStage(shaderStage);
@@ -39,50 +39,84 @@ GraphicsPipeline::Builder& GraphicsPipeline::Builder::Shader(vk::ShaderModule sh
   return *this;
 }
 
-GraphicsPipeline::Builder& GraphicsPipeline::Builder::VertexAttribute(uint32_t location,
-                                                                      uint32_t binding,
-                                                                      vk::Format format,
-                                                                      uint32_t offset)
+GraphicsPipeline& GraphicsPipeline::VertexAttribute(uint32_t location,
+                                                    uint32_t binding,
+                                                    vk::Format format,
+                                                    uint32_t offset)
 {
   mVertexAttributeDescriptions.push_back({location, binding, format, offset});
   return *this;
 }
 
-GraphicsPipeline::Builder& GraphicsPipeline::Builder::VertexBinding(uint32_t binding,
-                                                                    uint32_t stride,
-                                                                    vk::VertexInputRate inputRate)
+GraphicsPipeline& GraphicsPipeline::VertexBinding(uint32_t binding,
+                                                  uint32_t stride,
+                                                  vk::VertexInputRate inputRate)
 {
   mVertexBindingDescriptions.push_back({binding, stride, inputRate});
   return *this;
 }
 
-GraphicsPipeline::Builder& GraphicsPipeline::Builder::Topology(vk::PrimitiveTopology topology)
+GraphicsPipeline& GraphicsPipeline::Topology(vk::PrimitiveTopology topology)
 {
   mInputAssembly.setTopology(topology);
   return *this;
 }
 
-GraphicsPipeline::Builder& GraphicsPipeline::Builder::Layout(vk::PipelineLayout pipelineLayout)
+GraphicsPipeline& GraphicsPipeline::Layout(vk::PipelineLayout pipelineLayout)
 {
   mPipelineLayout = pipelineLayout;
   return *this;
 }
 
-GraphicsPipeline::Builder& GraphicsPipeline::Builder::DynamicState(vk::DynamicState dynamicState)
+GraphicsPipeline& GraphicsPipeline::DynamicState(vk::DynamicState dynamicState)
 {
   mDynamicStates.push_back(dynamicState);
   return *this;
 }
 
-vk::UniquePipeline GraphicsPipeline::Builder::Create(vk::Device device,
-                                                     const RenderState& renderState)
+bool operator==(const GraphicsPipeline& left, const GraphicsPipeline& right)
 {
+  return left.mDynamicStates == right.mDynamicStates &&
+         left.mInputAssembly == right.mInputAssembly &&
+         left.mPipelineLayout == right.mPipelineLayout &&
+         left.mMultisampleInfo == right.mMultisampleInfo &&
+         left.mRasterizationInfo == right.mRasterizationInfo &&
+         left.mVertexBindingDescriptions == right.mVertexBindingDescriptions &&
+         left.mVertexAttributeDescriptions == right.mVertexAttributeDescriptions &&
+         left.mShaderStages == right.mShaderStages;
+}
+
+bool operator==(const SpecConstInfo& left, const SpecConstInfo& right)
+{
+  return left.data == right.data && left.mapEntries == right.mapEntries;
+}
+
+PipelineCache::PipelineCache(const Device& device) : mDevice(device) {}
+
+void PipelineCache::CreateCache()
+{
+  auto info = vk::PipelineCacheCreateInfo();
+  mCache = mDevice.Handle().createPipelineCacheUnique(info);
+}
+
+vk::Pipeline PipelineCache::CreateGraphicsPipeline(const GraphicsPipeline& builder,
+                                                   const RenderState& renderState)
+{
+  auto it = std::find_if(mGraphicsPipelines.begin(), mGraphicsPipelines.end(), [&](const GraphicsPipelineCache& pipeline) {
+    return pipeline.GraphicsPipeline == builder && pipeline.RenderState == renderState;
+  });
+
+  if (it != mGraphicsPipelines.end())
+  {
+    return *it->Pipeline;
+  }
+
   auto vertexInputInfo =
       vk::PipelineVertexInputStateCreateInfo()
-          .setVertexBindingDescriptionCount((uint32_t)mVertexBindingDescriptions.size())
-          .setPVertexBindingDescriptions(mVertexBindingDescriptions.data())
-          .setVertexAttributeDescriptionCount((uint32_t)mVertexAttributeDescriptions.size())
-          .setPVertexAttributeDescriptions(mVertexAttributeDescriptions.data());
+          .setVertexBindingDescriptionCount((uint32_t)builder.mVertexBindingDescriptions.size())
+          .setPVertexBindingDescriptions(builder.mVertexBindingDescriptions.data())
+          .setVertexAttributeDescriptionCount((uint32_t)builder.mVertexAttributeDescriptions.size())
+          .setPVertexAttributeDescriptions(builder.mVertexAttributeDescriptions.data());
 
   auto viewPort = vk::Viewport(0,
                                0,
@@ -104,66 +138,41 @@ vk::UniquePipeline GraphicsPipeline::Builder::Create(vk::Device device,
                        .setBlendConstants(renderState.BlendState.BlendConstants);
 
   auto dynamicState = vk::PipelineDynamicStateCreateInfo()
-                          .setPDynamicStates(mDynamicStates.data())
-                          .setDynamicStateCount((uint32_t)mDynamicStates.size());
+                          .setPDynamicStates(builder.mDynamicStates.data())
+                          .setDynamicStateCount((uint32_t)builder.mDynamicStates.size());
 
   auto pipelineInfo = vk::GraphicsPipelineCreateInfo()
-                          .setStageCount((uint32_t)mShaderStages.size())
-                          .setPStages(mShaderStages.data())
+                          .setStageCount((uint32_t)builder.mShaderStages.size())
+                          .setPStages(builder.mShaderStages.data())
                           .setPVertexInputState(&vertexInputInfo)
-                          .setPInputAssemblyState(&mInputAssembly)
-                          .setPRasterizationState(&mRasterizationInfo)
-                          .setPMultisampleState(&mMultisampleInfo)
+                          .setPInputAssemblyState(&builder.mInputAssembly)
+                          .setPRasterizationState(&builder.mRasterizationInfo)
+                          .setPMultisampleState(&builder.mMultisampleInfo)
                           .setPColorBlendState(&blendInfo)
-                          .setLayout(mPipelineLayout)
+                          .setLayout(builder.mPipelineLayout)
                           .setRenderPass(renderState.RenderPass)
                           .setPViewportState(&viewPortState)
                           .setPDynamicState(&dynamicState);
 
-  return device.createGraphicsPipelineUnique(nullptr, pipelineInfo);
+  GraphicsPipelineCache pipeline = {
+      renderState, builder, mDevice.Handle().createGraphicsPipelineUnique(*mCache, pipelineInfo)};
+  mGraphicsPipelines.push_back(std::move(pipeline));
+  return *mGraphicsPipelines.back().Pipeline;
 }
 
-GraphicsPipeline::GraphicsPipeline() {}
-
-GraphicsPipeline::GraphicsPipeline(GraphicsPipeline::Builder builder) : mBuilder(builder) {}
-
-void GraphicsPipeline::Create(vk::Device device, const RenderState& renderState)
+vk::Pipeline PipelineCache::CreateComputePipeline(vk::ShaderModule shader,
+                                                        vk::PipelineLayout layout,
+                                                        SpecConstInfo specConstInfo)
 {
-  auto it = std::find_if(
-      mPipelines.begin(), mPipelines.end(), [&](const PipelineList::value_type& value) {
-        return value.first == renderState;
-      });
+  auto it = std::find_if(mComputePipelines.begin(), mComputePipelines.end(), [&](const ComputePipelineCache& pipeline) {
+    return pipeline.Shader == shader && pipeline.Layout == layout && pipeline.SpecConstInfo == specConstInfo;
+  });
 
-  if (it == mPipelines.end())
+  if (it != mComputePipelines.end())
   {
-    mPipelines.emplace_back(renderState, mBuilder.Create(device, renderState));
+    return *it->Pipeline;
   }
-}
 
-void GraphicsPipeline::Bind(vk::CommandBuffer commandBuffer, const RenderState& renderState)
-{
-  auto it = std::find_if(
-      mPipelines.begin(), mPipelines.end(), [&](const PipelineList::value_type& value) {
-        return value.first == renderState;
-      });
-
-  if (it != mPipelines.end())
-  {
-    commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *it->second);
-  }
-  else
-  {
-    throw std::runtime_error("No pipeline for this renderpass!");
-  }
-}
-
-SpecConstInfo::SpecConstInfo() {}
-
-vk::UniquePipeline MakeComputePipeline(vk::Device device,
-                                       vk::ShaderModule shader,
-                                       vk::PipelineLayout layout,
-                                       SpecConstInfo specConstInfo)
-{
   auto stageInfo = vk::PipelineShaderStageCreateInfo()
                        .setModule(shader)
                        .setPName("main")
@@ -172,7 +181,8 @@ vk::UniquePipeline MakeComputePipeline(vk::Device device,
 
   auto pipelineInfo = vk::ComputePipelineCreateInfo().setStage(stageInfo).setLayout(layout);
 
-  return device.createComputePipelineUnique(nullptr, pipelineInfo);
+  mComputePipelines.push_back({shader, layout, specConstInfo, mDevice.Handle().createComputePipelineUnique(*mCache, pipelineInfo)});
+  return *mComputePipelines.back().Pipeline;
 }
 
 }  // namespace Renderer

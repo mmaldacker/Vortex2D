@@ -7,7 +7,6 @@
 #define Vortex2d_Shader_h
 
 #include <Vortex2D/Renderer/Common.h>
-#include <Vortex2D/Renderer/Device.h>
 #include <Vortex2D/Renderer/RenderState.h>
 
 #include <string>
@@ -17,81 +16,68 @@ namespace Vortex2D
 {
 namespace Renderer
 {
+class Device;
+
 /**
  * @brief graphics pipeline which caches the pipeline per render states.
  */
 class GraphicsPipeline
 {
 public:
-  /**
-   * @brief Builder for graphics pipeline
-   */
-  class Builder
-  {
-  public:
-    VORTEX2D_API Builder();
-
-    /**
-     * @brief Set the shader
-     * @param shader the loaded shader
-     * @param shaderStage shader state (vertex, fragment or compute)
-     * @return *this
-     */
-    VORTEX2D_API Builder& Shader(vk::ShaderModule shader, vk::ShaderStageFlagBits shaderStage);
-
-    /**
-     * @brief Sets the vertex attributes
-     * @param location location in the shader
-     * @param binding binding in the shader
-     * @param format vertex format
-     * @param offset offset in the vertex
-     * @return *this
-     */
-    VORTEX2D_API Builder& VertexAttribute(uint32_t location,
-                                          uint32_t binding,
-                                          vk::Format format,
-                                          uint32_t offset);
-
-    /**
-     * @brief Sets the vertex binding
-     * @param binding binding in the shader
-     * @param stride stride in bytes
-     * @param inputRate inpute rate
-     * @return *this
-     */
-    VORTEX2D_API Builder& VertexBinding(
-        uint32_t binding,
-        uint32_t stride,
-        vk::VertexInputRate inputRate = vk::VertexInputRate::eVertex);
-
-    VORTEX2D_API Builder& Topology(vk::PrimitiveTopology topology);
-    VORTEX2D_API Builder& Layout(vk::PipelineLayout pipelineLayout);
-    VORTEX2D_API Builder& DynamicState(vk::DynamicState dynamicState);
-    VORTEX2D_API vk::UniquePipeline Create(vk::Device device, const RenderState& renderState);
-
-  private:
-    vk::PipelineMultisampleStateCreateInfo mMultisampleInfo;
-    vk::PipelineRasterizationStateCreateInfo mRasterizationInfo;
-    vk::PipelineInputAssemblyStateCreateInfo mInputAssembly;
-    std::vector<vk::DynamicState> mDynamicStates;
-    std::vector<vk::PipelineShaderStageCreateInfo> mShaderStages;
-    std::vector<vk::VertexInputBindingDescription> mVertexBindingDescriptions;
-    std::vector<vk::VertexInputAttributeDescription> mVertexAttributeDescriptions;
-    vk::PipelineLayout mPipelineLayout;
-    vk::GraphicsPipelineCreateInfo mPipelineInfo;
-  };
-
   VORTEX2D_API GraphicsPipeline();
-  VORTEX2D_API GraphicsPipeline(Builder builder);
 
-  VORTEX2D_API void Create(vk::Device device, const RenderState& renderState);
-  VORTEX2D_API void Bind(vk::CommandBuffer commandBuffer, const RenderState& renderState);
+  /**
+   * @brief Set the shader
+   * @param shader the loaded shader
+   * @param shaderStage shader state (vertex, fragment or compute)
+   * @return *this
+   */
+  VORTEX2D_API GraphicsPipeline& Shader(vk::ShaderModule shader,
+                                        vk::ShaderStageFlagBits shaderStage);
 
+  /**
+   * @brief Sets the vertex attributes
+   * @param location location in the shader
+   * @param binding binding in the shader
+   * @param format vertex format
+   * @param offset offset in the vertex
+   * @return *this
+   */
+  VORTEX2D_API GraphicsPipeline& VertexAttribute(uint32_t location,
+                                                 uint32_t binding,
+                                                 vk::Format format,
+                                                 uint32_t offset);
+
+  /**
+   * @brief Sets the vertex binding
+   * @param binding binding in the shader
+   * @param stride stride in bytes
+   * @param inputRate inpute rate
+   * @return *this
+   */
+  VORTEX2D_API GraphicsPipeline& VertexBinding(
+      uint32_t binding,
+      uint32_t stride,
+      vk::VertexInputRate inputRate = vk::VertexInputRate::eVertex);
+
+  VORTEX2D_API GraphicsPipeline& Topology(vk::PrimitiveTopology topology);
+  VORTEX2D_API GraphicsPipeline& Layout(vk::PipelineLayout pipelineLayout);
+  VORTEX2D_API GraphicsPipeline& DynamicState(vk::DynamicState dynamicState);
+
+  friend class PipelineCache;
+  friend bool operator==(const GraphicsPipeline&, const GraphicsPipeline&);
 private:
-  Builder mBuilder;
-  using PipelineList = std::vector<std::pair<RenderState, vk::UniquePipeline>>;
-  PipelineList mPipelines;
+  vk::PipelineMultisampleStateCreateInfo mMultisampleInfo;
+  vk::PipelineRasterizationStateCreateInfo mRasterizationInfo;
+  vk::PipelineInputAssemblyStateCreateInfo mInputAssembly;
+  std::vector<vk::DynamicState> mDynamicStates;
+  std::vector<vk::PipelineShaderStageCreateInfo> mShaderStages;
+  std::vector<vk::VertexInputBindingDescription> mVertexBindingDescriptions;
+  std::vector<vk::VertexInputAttributeDescription> mVertexAttributeDescriptions;
+  vk::PipelineLayout mPipelineLayout;
 };
+
+bool operator==(const GraphicsPipeline& left, const GraphicsPipeline& right);
 
 /**
  * @brief Defines and holds value of the specification constants for shaders
@@ -105,12 +91,12 @@ struct SpecConstInfo
     Type value;
   };
 
-  VORTEX2D_API SpecConstInfo();
-
   vk::SpecializationInfo info;
   std::vector<vk::SpecializationMapEntry> mapEntries;
   std::vector<char> data;
 };
+
+bool operator==(const SpecConstInfo& left, const SpecConstInfo& right);
 
 namespace Detail
 {
@@ -156,17 +142,58 @@ inline SpecConstInfo SpecConst(Args&&... args)
 }
 
 /**
- * @brief Create a compute pipeline
- * @param device vulkan device
- * @param shader shader module
- * @param layout layout of shader
- * @param specConstInfo any specialisation constants
- * @return compute pipeline
+ * Create pipelines using vulkan's pipeline cache.
  */
-VORTEX2D_API vk::UniquePipeline MakeComputePipeline(vk::Device device,
-                                                    vk::ShaderModule shader,
-                                                    vk::PipelineLayout layout,
-                                                    SpecConstInfo specConstInfo = {});
+class PipelineCache
+{
+public:
+  PipelineCache(const Device& device);
+
+  /**
+   * @brief Create the pipeline cache.
+   */
+  void CreateCache();
+
+  /**
+   * @brief Create a graphics pipeline
+   * @param builder
+   * @param renderState
+   * @return
+   */
+  VORTEX2D_API vk::Pipeline CreateGraphicsPipeline(const GraphicsPipeline& builder,
+                                                   const RenderState& renderState);
+
+  /**
+   * @brief Create a compute pipeline
+   * @param shader
+   * @param layout
+   * @param specConstInfo
+   */
+  VORTEX2D_API vk::Pipeline CreateComputePipeline(vk::ShaderModule shader,
+                                                        vk::PipelineLayout layout,
+                                                        SpecConstInfo specConstInfo = {});
+
+private:
+  struct GraphicsPipelineCache
+  {
+    RenderState RenderState;
+    GraphicsPipeline GraphicsPipeline;
+    vk::UniquePipeline Pipeline;
+  };
+
+  struct ComputePipelineCache
+  {
+    vk::ShaderModule Shader;
+    vk::PipelineLayout Layout;
+    SpecConstInfo SpecConstInfo;
+    vk::UniquePipeline Pipeline;
+  };
+
+  const Device& mDevice;
+  std::vector<GraphicsPipelineCache> mGraphicsPipelines;
+  std::vector<ComputePipelineCache> mComputePipelines;
+  vk::UniquePipelineCache mCache;
+};
 
 }  // namespace Renderer
 }  // namespace Vortex2D

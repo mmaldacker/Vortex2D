@@ -8,6 +8,7 @@
 
 #include <Vortex2D/Renderer/Buffer.h>
 #include <Vortex2D/Renderer/DescriptorSet.h>
+#include <Vortex2D/Renderer/Device.h>
 #include <Vortex2D/Renderer/Drawable.h>
 #include <Vortex2D/Renderer/Pipeline.h>
 #include <Vortex2D/Renderer/Texture.h>

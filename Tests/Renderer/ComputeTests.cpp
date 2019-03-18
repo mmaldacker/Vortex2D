@@ -98,10 +98,11 @@ TEST(ComputeTests, BufferCompute)
   DescriptorSet descriptorSet = device->GetLayoutManager().MakeDescriptorSet(layout);
   Bind(*device, descriptorSet, layout, {{buffer}, {uboBuffer}});
 
-  auto pipeline = MakeComputePipeline(device->Handle(), shader, descriptorSet.pipelineLayout);
+  auto pipeline =
+      device->GetPipelineCache().CreateComputePipeline(shader, descriptorSet.pipelineLayout);
 
   device->Execute([&](vk::CommandBuffer commandBuffer) {
-    commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, *pipeline);
+    commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, pipeline);
     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute,
                                      descriptorSet.pipelineLayout,
                                      0,
@@ -141,7 +142,8 @@ TEST(ComputeTests, ImageCompute)
   DescriptorSet descriptorSet = device->GetLayoutManager().MakeDescriptorSet(layout);
   Bind(*device, descriptorSet, layout, {{inTexture}, {outTexture}});
 
-  auto pipeline = MakeComputePipeline(device->Handle(), shader, descriptorSet.pipelineLayout);
+  auto pipeline =
+      device->GetPipelineCache().CreateComputePipeline(shader, descriptorSet.pipelineLayout);
 
   device->Execute([&](vk::CommandBuffer commandBuffer) {
     inTexture.CopyFrom(commandBuffer, stagingTexture);
@@ -150,7 +152,7 @@ TEST(ComputeTests, ImageCompute)
                                      0,
                                      {*descriptorSet.descriptorSet},
                                      {});
-    commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, *pipeline);
+    commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, pipeline);
     commandBuffer.dispatch(16, 16, 1);
     stagingTexture.CopyFrom(commandBuffer, outTexture);
   });
@@ -419,4 +421,34 @@ TEST(ComputeTests, Reflection)
 
   Reflection spirv3(Checkerboard_comp);
   EXPECT_EQ(12, spirv3.GetPushConstantsSize());
+}
+
+TEST(ComputeTests, Cache)
+{
+  auto shader1 = device->GetShaderModule(Buffer_comp);
+  Reflection reflection1(Buffer_comp);
+
+  PipelineLayout layout1 = {{reflection1}};
+  vk::PipelineLayout pipelineLayout1 = device->GetLayoutManager().GetPipelineLayout(layout1);
+  vk::Pipeline pipeline1 = device->GetPipelineCache().CreateComputePipeline(shader1, pipelineLayout1);
+
+  auto shader2 = device->GetShaderModule(Image_comp);
+  Reflection reflection2(Image_comp);
+
+  PipelineLayout layout2 = {{reflection2}};
+  vk::PipelineLayout pipelineLayout2 = device->GetLayoutManager().GetPipelineLayout(layout2);
+
+  vk::Pipeline pipeline2 = device->GetPipelineCache().CreateComputePipeline(shader2, pipelineLayout2);
+
+  EXPECT_NE(shader1, shader2);
+  EXPECT_NE(pipelineLayout1, pipelineLayout2);
+  EXPECT_NE(pipeline1, pipeline2);
+
+  EXPECT_EQ(shader1, device->GetShaderModule(Buffer_comp));
+  EXPECT_EQ(pipelineLayout1, device->GetLayoutManager().GetPipelineLayout(layout1));
+  EXPECT_EQ(pipeline1, device->GetPipelineCache().CreateComputePipeline(shader1, pipelineLayout1));
+
+  EXPECT_EQ(shader2, device->GetShaderModule(Image_comp));
+  EXPECT_EQ(pipelineLayout2, device->GetLayoutManager().GetPipelineLayout(layout2));
+  EXPECT_EQ(pipeline2, device->GetPipelineCache().CreateComputePipeline(shader2, pipelineLayout2));
 }

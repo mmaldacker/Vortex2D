@@ -62,9 +62,8 @@ TEST(ShapeTests, IntSquare)
   std::vector<int> data(50 * 50, 0);
   DrawSquare(50, 50, data, rect.Position, size, 1);
 
-  device->Execute([&](vk::CommandBuffer commandBuffer) {
-    outTexture.CopyFrom(commandBuffer, texture);
-  });
+  device->Execute(
+      [&](vk::CommandBuffer commandBuffer) { outTexture.CopyFrom(commandBuffer, texture); });
 
   CheckTexture(data, outTexture);
 }

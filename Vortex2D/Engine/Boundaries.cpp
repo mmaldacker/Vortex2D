@@ -98,7 +98,7 @@ Polygon::Polygon(const Renderer::Device& device,
   Bind(device, mDescriptorSet, layout, {{mMVPBuffer}, {mMVBuffer}, {mPolygonVertexBuffer}});
 
   mPipeline =
-      Renderer::GraphicsPipeline::Builder()
+      Renderer::GraphicsPipeline()
           .Topology(vk::PrimitiveTopology::eTriangleList)
           .Shader(device.GetShaderModule(SPIRV::Position_vert), vk::ShaderStageFlagBits::eVertex)
           .Shader(device.GetShaderModule(SPIRV::PolygonDist_frag),
@@ -112,7 +112,7 @@ Polygon::~Polygon() {}
 
 void Polygon::Initialize(const Renderer::RenderState& renderState)
 {
-  mPipeline.Create(mDevice.Handle(), renderState);
+  auto pipeline = mDevice.GetPipelineCache().CreateGraphicsPipeline(mPipeline, renderState);
 }
 
 void Polygon::Update(const glm::mat4& projection, const glm::mat4& view)
@@ -124,7 +124,8 @@ void Polygon::Update(const glm::mat4& projection, const glm::mat4& view)
 
 void Polygon::Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState)
 {
-  mPipeline.Bind(commandBuffer, renderState);
+  auto pipeline = mDevice.GetPipelineCache().CreateGraphicsPipeline(mPipeline, renderState);
+  commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline);
   commandBuffer.pushConstants(
       mDescriptorSet.pipelineLayout, vk::ShaderStageFlagBits::eFragment, 0, 4, &mSize);
   commandBuffer.pushConstants(
@@ -193,7 +194,7 @@ Circle::Circle(const Renderer::Device& device, float radius, float extent)
   Bind(device, mDescriptorSet, layout, {{mMVPBuffer}, {mMVBuffer}});
 
   mPipeline =
-      Renderer::GraphicsPipeline::Builder()
+      Renderer::GraphicsPipeline()
           .Topology(vk::PrimitiveTopology::eTriangleList)
           .Shader(device.GetShaderModule(SPIRV::Position_vert), vk::ShaderStageFlagBits::eVertex)
           .Shader(device.GetShaderModule(SPIRV::CircleDist_frag),
@@ -207,7 +208,7 @@ Circle::~Circle() {}
 
 void Circle::Initialize(const Renderer::RenderState& renderState)
 {
-  mPipeline.Create(mDevice.Handle(), renderState);
+  mDevice.GetPipelineCache().CreateGraphicsPipeline(mPipeline, renderState);
 }
 
 void Circle::Update(const glm::mat4& projection, const glm::mat4& view)
@@ -219,7 +220,8 @@ void Circle::Update(const glm::mat4& projection, const glm::mat4& view)
 
 void Circle::Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState)
 {
-  mPipeline.Bind(commandBuffer, renderState);
+  auto pipeline = mDevice.GetPipelineCache().CreateGraphicsPipeline(mPipeline, renderState);
+  commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline);
   commandBuffer.pushConstants(
       mDescriptorSet.pipelineLayout, vk::ShaderStageFlagBits::eFragment, 0, 4, &mSize);
   commandBuffer.bindVertexBuffers(0, {mVertexBuffer.Handle()}, {0ul});

@@ -98,7 +98,10 @@ Device::Device(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface, bool v
 }
 
 Device::Device(vk::PhysicalDevice physicalDevice, int familyIndex, bool validation)
-    : mPhysicalDevice(physicalDevice), mFamilyIndex(familyIndex), mLayoutManager(*this)
+    : mPhysicalDevice(physicalDevice)
+    , mFamilyIndex(familyIndex)
+    , mLayoutManager(*this)
+    , mPipelineCache(*this)
 {
   float queuePriority = 1.0f;
   auto deviceQueueInfo = vk::DeviceQueueCreateInfo()
@@ -166,10 +169,9 @@ Device::Device(vk::PhysicalDevice physicalDevice, int familyIndex, bool validati
     throw std::runtime_error("Error creating allocator");
   }
 
-  // create descriptor pool
+  // create objects depending on device
   mLayoutManager.CreateDescriptorPool();
-
-  // create command buffer
+  mPipelineCache.CreateCache();
   mCommandBuffer = std::make_unique<CommandBuffer>(*this, true);
 }
 
@@ -191,6 +193,11 @@ vk::Queue Device::Queue() const
 LayoutManager& Device::GetLayoutManager() const
 {
   return mLayoutManager;
+}
+
+PipelineCache& Device::GetPipelineCache() const
+{
+  return mPipelineCache;
 }
 
 vk::PhysicalDevice Device::GetPhysicalDevice() const

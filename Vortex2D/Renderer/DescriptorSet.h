@@ -65,7 +65,7 @@ struct DescriptorSet
 class LayoutManager
 {
 public:
-  VORTEX2D_API LayoutManager(const Device& device);
+  LayoutManager(const Device& device);
 
   /**
    * @brief Create or re-create the descriptor pool, will render invalid
@@ -87,14 +87,14 @@ public:
    * @param layout pipeline layout
    * @return cached descriptor set layout
    */
-  vk::DescriptorSetLayout GetDescriptorSetLayout(const PipelineLayout& layout);
+  VORTEX2D_API vk::DescriptorSetLayout GetDescriptorSetLayout(const PipelineLayout& layout);
 
   /**
    * @brief create, cache and return a vulkan pipeline layout given the layout
    * @param layout pipeline layout
    * @return vulkan pipeline layout
    */
-  vk::PipelineLayout GetPipelineLayout(const PipelineLayout& layout);
+  VORTEX2D_API vk::PipelineLayout GetPipelineLayout(const PipelineLayout& layout);
 
 private:
   const Device& mDevice;
