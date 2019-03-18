@@ -119,6 +119,7 @@ file(GLOB SHADER_SOURCES
     "Engine/Kernels/AdvectParticles.comp"
     "Engine/Kernels/VelocityDifference.comp"
     "Engine/Kernels/VelocityMax.comp"
+    "Engine/Kernels/ShrinkWrap.comp"
     "Engine/LinearSolver/Kernels/*.comp")
 
 download_project(PROJ                glm

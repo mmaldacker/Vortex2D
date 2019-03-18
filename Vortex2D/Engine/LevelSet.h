@@ -23,7 +23,7 @@ class LevelSet : public Renderer::RenderTexture
 public:
   VORTEX2D_API LevelSet(const Renderer::Device& device,
                         const glm::ivec2& size,
-                        int reinitializeIterations = 100);
+                        int reinitializeIterations = 50);
 
   VORTEX2D_API LevelSet(LevelSet&& other);
 
@@ -32,6 +32,11 @@ public:
    * distance field.
    */
   VORTEX2D_API void Reinitialise();
+
+  /**
+   * @brief Shrink wrap wholes.
+   */
+  VORTEX2D_API void ShrinkWrap();
 
   /**
    * @brief Bind a solid level set, which will be used to extrapolate into this
@@ -57,9 +62,12 @@ private:
   Renderer::Work mRedistance;
   Renderer::Work::Bound mRedistanceFront;
   Renderer::Work::Bound mRedistanceBack;
+  Renderer::Work mShrinkWrap;
+  Renderer::Work::Bound mShrinkWrapBound;
 
   Renderer::CommandBuffer mExtrapolateCmd;
   Renderer::CommandBuffer mReinitialiseCmd;
+  Renderer::CommandBuffer mShrinkWrapCmd;
 };
 
 }  // namespace Fluid

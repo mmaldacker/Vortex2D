@@ -29,8 +29,11 @@ LevelSet::LevelSet(const Renderer::Device& device,
           mRedistance.Bind({{*mSampler, mLevelSet0}, {*mSampler, *this}, mLevelSetBack}))
     , mRedistanceBack(
           mRedistance.Bind({{*mSampler, mLevelSet0}, {*mSampler, mLevelSetBack}, *this}))
+    , mShrinkWrap(device, size, SPIRV::ShrinkWrap_comp)
+    , mShrinkWrapBound(mShrinkWrap.Bind({{*mSampler, *this}, mLevelSetBack}))
     , mExtrapolateCmd(device, false)
     , mReinitialiseCmd(device, false)
+    , mShrinkWrapCmd(device, false)
 {
   mReinitialiseCmd.Record([&, reinitializeIterations](vk::CommandBuffer commandBuffer) {
     commandBuffer.debugMarkerBeginEXT({"Reinitialise", {{0.98f, 0.49f, 0.26f, 1.0f}}});
@@ -57,6 +60,16 @@ LevelSet::LevelSet(const Renderer::Device& device,
 
     commandBuffer.debugMarkerEndEXT();
   });
+
+  mShrinkWrapCmd.Record([&](vk::CommandBuffer commandBuffer) {
+    mShrinkWrapBound.Record(commandBuffer);
+    mLevelSetBack.Barrier(commandBuffer,
+                          vk::ImageLayout::eGeneral,
+                          vk::AccessFlagBits::eShaderWrite,
+                          vk::ImageLayout::eGeneral,
+                          vk::AccessFlagBits::eShaderRead);
+    CopyFrom(commandBuffer, mLevelSetBack);
+  });
 }
 
 LevelSet::LevelSet(LevelSet&& other)
@@ -69,8 +82,11 @@ LevelSet::LevelSet(LevelSet&& other)
     , mRedistance(std::move(other.mRedistance))
     , mRedistanceFront(std::move(other.mRedistanceFront))
     , mRedistanceBack(std::move(other.mRedistanceBack))
+    , mShrinkWrap(std::move(other.mShrinkWrap))
+    , mShrinkWrapBound(std::move(other.mShrinkWrapBound))
     , mExtrapolateCmd(std::move(other.mExtrapolateCmd))
     , mReinitialiseCmd(std::move(other.mReinitialiseCmd))
+    , mShrinkWrapCmd(std::move(other.mShrinkWrapCmd))
 {
 }
 
@@ -92,6 +108,11 @@ void LevelSet::ExtrapolateBind(Renderer::Texture& solidPhi)
 void LevelSet::Reinitialise()
 {
   mReinitialiseCmd.Submit();
+}
+
+void LevelSet::ShrinkWrap()
+{
+  mShrinkWrapCmd.Submit();
 }
 
 void LevelSet::Extrapolate()
