@@ -86,6 +86,11 @@ bool operator==(const GraphicsPipeline& left, const GraphicsPipeline& right)
          left.mShaderStages == right.mShaderStages;
 }
 
+SpecConstInfo::SpecConstInfo()
+{
+
+}
+
 bool operator==(const SpecConstInfo& left, const SpecConstInfo& right)
 {
   return left.data == right.data && left.mapEntries == right.mapEntries;

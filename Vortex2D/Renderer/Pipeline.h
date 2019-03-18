@@ -85,6 +85,8 @@ bool operator==(const GraphicsPipeline& left, const GraphicsPipeline& right);
  */
 struct SpecConstInfo
 {
+  VORTEX2D_API SpecConstInfo();
+
   template <typename Type>
   struct Value
   {
