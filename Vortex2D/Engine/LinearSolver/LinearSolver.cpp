@@ -38,7 +38,7 @@ bool LinearSolver::Parameters::IsFinished(float initialError) const
 {
   if (Type == SolverType::Fixed)
   {
-    return OutIterations > Iterations;
+    return OutIterations >= Iterations;
   }
 
   if (Iterations > 0)
