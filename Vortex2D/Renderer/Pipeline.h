@@ -186,7 +186,7 @@ private:
   {
     vk::ShaderModule Shader;
     vk::PipelineLayout Layout;
-    SpecConstInfo SpecConstInfo;
+    SpecConstInfo SpecConst;
     vk::UniquePipeline Pipeline;
   };
 

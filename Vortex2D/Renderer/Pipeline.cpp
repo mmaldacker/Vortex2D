@@ -171,7 +171,7 @@ vk::Pipeline PipelineCache::CreateComputePipeline(vk::ShaderModule shader,
                          mComputePipelines.end(),
                          [&](const ComputePipelineCache& pipeline) {
                            return pipeline.Shader == shader && pipeline.Layout == layout &&
-                                  pipeline.SpecConstInfo == specConstInfo;
+                                  pipeline.SpecConst == specConstInfo;
                          });
 
   if (it != mComputePipelines.end())
