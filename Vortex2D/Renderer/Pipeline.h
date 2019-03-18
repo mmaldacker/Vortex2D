@@ -178,7 +178,7 @@ private:
   struct GraphicsPipelineCache
   {
     RenderState State;
-    GraphicsPipeline GraphicsPipeline;
+    GraphicsPipeline Graphics;
     vk::UniquePipeline Pipeline;
   };
 
