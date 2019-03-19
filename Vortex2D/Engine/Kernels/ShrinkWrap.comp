@@ -25,10 +25,10 @@ void main()
     float wyp = textureOffset(levelSet, texPos, ivec2(0,1)).x;
     float wyn = textureOffset(levelSet, texPos, ivec2(0,-1)).x;
 
-    float average = (wxp + wxn + wyp + wyn) * 0.25;
-    if (average < w)
+    float wnew = (wxp + wxn + wyp + wyn) * 0.25;
+    if (wnew < w)
     {
-        imageStore(levelSetBack, pos, vec4(average, 0.0, 0.0, 0.0));
+        imageStore(levelSetBack, pos, vec4(wnew, 0.0, 0.0, 0.0));
     }
     else
     {

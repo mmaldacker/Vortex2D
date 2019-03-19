@@ -62,6 +62,7 @@ LevelSet::LevelSet(const Renderer::Device& device,
   });
 
   mShrinkWrapCmd.Record([&](vk::CommandBuffer commandBuffer) {
+    commandBuffer.debugMarkerBeginEXT({"Shrink Wrap", {{0.36f, 0.71f, 0.38f, 1.0f}}});
     mShrinkWrapBound.Record(commandBuffer);
     mLevelSetBack.Barrier(commandBuffer,
                           vk::ImageLayout::eGeneral,
@@ -69,6 +70,7 @@ LevelSet::LevelSet(const Renderer::Device& device,
                           vk::ImageLayout::eGeneral,
                           vk::AccessFlagBits::eShaderRead);
     CopyFrom(commandBuffer, mLevelSetBack);
+    commandBuffer.debugMarkerEndEXT();
   });
 }
 

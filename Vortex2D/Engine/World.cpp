@@ -232,6 +232,7 @@ void WaterWorld::Substep(LinearSolver::Parameters& params)
   // 1)
   mParticleCount.Scan();
   mParticleCount.Phi();
+  mLiquidPhi.Reinitialise();
 
   // 2)
   mParticleCount.TransferToGrid();
@@ -255,7 +256,6 @@ void WaterWorld::Substep(LinearSolver::Parameters& params)
 
   mPreconditioner.BuildHierarchies();
   mLiquidPhi.Extrapolate();
-  mLiquidPhi.Reinitialise();
 
   // 5)
   mProjection.BuildLinearEquation();
