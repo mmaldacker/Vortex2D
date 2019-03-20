@@ -58,11 +58,11 @@ Again, regular cmake commands should be use to configure cmake:
 macOS
 =====
 
-In addition to the normal variables, we need to specify the location of MoltenVK:
+In addition to the normal variables, we need to specify the location of MoltenVK and the glslang compiler:
 
 .. code-block:: bash
 
-  cmake .. -DMOLTENVK_DIR=../../MoltenVK/Package/Latest/MoltenVK/ -DVORTEX2D_ENABLE_EXAMPLES=On
+  cmake .. -DMOLTENVK_DIR=path_to/MoltenVK/Package/Latest/MoltenVK/ -DGLSL_VALIDATOR=path_to/bin/glslangValidator
 
 iOS
 ===
@@ -82,7 +82,7 @@ In addition, the MoltenVK location has to be specified, and the toolchain:
 
 .. code-block:: bash
 
-  cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake/ios.toolchain.cmake -DIOS_PLATFORM=OS -DIOS_ARCH=arm64 -DENABLE_VISIBILITY=true -DMOLTENVK_DIR=../../MoltenVK/Package/Latest/MoltenVK/ -DCODE_SIGN_IDENTITY="iPhone Developer" -DDEVELOPMENT_TEAM_ID=XXXXXX
+  cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake/ios.toolchain.cmake -DIOS_PLATFORM=OS -DIOS_ARCH=arm64 -DENABLE_VISIBILITY=true -DGLSL_VALIDATOR=path_to/bin/glslangValidator -DMOLTENVK_DIR=path_to/MoltenVK/Package/Latest/MoltenVK/ -DCODE_SIGN_IDENTITY="iPhone Developer" -DDEVELOPMENT_TEAM_ID=XXXXXX
 
 Documentation
 =============
