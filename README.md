@@ -24,6 +24,8 @@ Documentation can be found at https://vortex2d.readthedocs.io.
   <img src="https://github.com/mmaldacker/Vortex2D/raw/master/Docs/vortex2d_example4.gif " width="350"/> 
 </p>
 
+Various scenes can be selected in the example application with the number keys 1 till 8.
+
 ## Quick start
 
 ### Linux
