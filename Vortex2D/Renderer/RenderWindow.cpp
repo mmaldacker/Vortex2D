@@ -58,7 +58,8 @@ RenderWindow::RenderWindow(const Device& device,
                            .setMinImageCount(numFramebuffers)
                            .setImageExtent({Width, Height})
                            .setImageArrayLayers(1)
-                           .setImageUsage(vk::ImageUsageFlagBits::eColorAttachment)
+                           .setImageUsage(vk::ImageUsageFlagBits::eColorAttachment |
+                                          vk::ImageUsageFlagBits::eTransferDst)
                            .setImageSharingMode(vk::SharingMode::eExclusive)
                            .setPreTransform(details.capabilities.currentTransform)
                            .setCompositeAlpha(vk::CompositeAlphaFlagBitsKHR::eOpaque)
