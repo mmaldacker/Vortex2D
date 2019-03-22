@@ -39,8 +39,7 @@ namespace Renderer
 {
 namespace
 {
-// TODO two functions below are duplicated
-int ComputeFamilyIndex(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface)
+int ComputeFamilyIndex(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface = nullptr)
 {
   int index = -1;
   const auto& familyProperties = physicalDevice.getQueueFamilyProperties();
@@ -49,7 +48,7 @@ int ComputeFamilyIndex(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface
     const auto& property = familyProperties[i];
     if ((property.queueFlags & vk::QueueFlagBits::eCompute) &&
         (property.queueFlags & vk::QueueFlagBits::eGraphics) &&
-        physicalDevice.getSurfaceSupportKHR(static_cast<uint32_t>(i), surface))
+        (!surface || physicalDevice.getSurfaceSupportKHR(static_cast<uint32_t>(i), surface)))
     {
       index = static_cast<int32_t>(i);
     }
@@ -62,42 +61,19 @@ int ComputeFamilyIndex(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface
 
   return index;
 }
-
-int ComputeFamilyIndex(vk::PhysicalDevice physicalDevice)
-{
-  int32_t index = -1;
-  const auto& familyProperties = physicalDevice.getQueueFamilyProperties();
-  for (std::size_t i = 0; i < familyProperties.size(); i++)
-  {
-    const auto& property = familyProperties[i];
-    if ((property.queueFlags & vk::QueueFlagBits::eCompute) &&
-        (property.queueFlags & vk::QueueFlagBits::eGraphics))
-    {
-      index = static_cast<int32_t>(i);
-    }
-  }
-
-  if (index == -1)
-  {
-    throw std::runtime_error("Suitable physical device not found");
-  }
-
-  return index;
-}
-
 }  // namespace
 
 Device::Device(vk::PhysicalDevice physicalDevice, bool validation)
-    : Device(physicalDevice, ComputeFamilyIndex(physicalDevice), validation)
+    : Device(physicalDevice, ComputeFamilyIndex(physicalDevice), false, validation)
 {
 }
 
 Device::Device(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface, bool validation)
-    : Device(physicalDevice, ComputeFamilyIndex(physicalDevice, surface), validation)
+    : Device(physicalDevice, ComputeFamilyIndex(physicalDevice, surface), true, validation)
 {
 }
 
-Device::Device(vk::PhysicalDevice physicalDevice, int familyIndex, bool validation)
+Device::Device(vk::PhysicalDevice physicalDevice, int familyIndex, bool surface, bool validation)
     : mPhysicalDevice(physicalDevice)
     , mFamilyIndex(familyIndex)
     , mLayoutManager(*this)
@@ -109,9 +85,13 @@ Device::Device(vk::PhysicalDevice physicalDevice, int familyIndex, bool validati
                              .setQueueCount(1)
                              .setPQueuePriorities(&queuePriority);
 
-  // this should always be available
-  std::vector<const char*> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+  std::vector<const char*> deviceExtensions;
   std::vector<const char*> validationLayers;
+
+  if (surface)
+  {
+    deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+  }
 
   // make sure we request valid layers only
   auto availableLayers = physicalDevice.enumerateDeviceLayerProperties();
