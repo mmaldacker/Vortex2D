@@ -102,6 +102,11 @@ public:
    */
   VORTEX2D_API void CopyTo(void* data);
 
+  /**
+   * @brief Copies source texture in this texture
+   * @param commandBuffer vulkan command buffer
+   * @param srcImage source image
+   */
   VORTEX2D_API void CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcImage);
 
   VORTEX2D_API void Barrier(vk::CommandBuffer commandBuffer,
@@ -133,6 +138,22 @@ private:
   VmaAllocationInfo mAllocationInfo;
   vk::UniqueImageView mImageView;
 };
+
+/**
+ * @brief Inserts a barrier for the given texture, command buffer and access.
+ * @param image the vulkan image handle
+ * @param commandBuffer the vulkan command buffer
+ * @param oldLayout old layout
+ * @param srcMask old access
+ * @param newLayout new layout
+ * @param dstMask new access
+ */
+VORTEX2D_API void TextureBarrier(vk::Image image,
+                                 vk::CommandBuffer commandBuffer,
+                                 vk::ImageLayout oldLayout,
+                                 vk::AccessFlags srcMask,
+                                 vk::ImageLayout newLayout,
+                                 vk::AccessFlags dstMask);
 
 }  // namespace Renderer
 }  // namespace Vortex2D

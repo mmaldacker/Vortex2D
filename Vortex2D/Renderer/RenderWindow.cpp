@@ -84,19 +84,27 @@ RenderWindow::RenderWindow(const Device& device,
     mSwapChainImageViews.push_back(device.Handle().createImageViewUnique(imageViewInfo));
 
     device.Execute([&](vk::CommandBuffer commandBuffer) {
-      auto imageMemoryBarriers =
-          vk::ImageMemoryBarrier()
-              .setOldLayout(vk::ImageLayout::eUndefined)
-              .setNewLayout(vk::ImageLayout::ePresentSrcKHR)
-              .setImage(image)
-              .setSubresourceRange({vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1});
+      TextureBarrier(image,
+                     commandBuffer,
+                     vk::ImageLayout::eUndefined,
+                     vk::AccessFlagBits{},
+                     vk::ImageLayout::eGeneral,
+                     vk::AccessFlagBits::eTransferWrite);
 
-      commandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eAllCommands,
-                                    vk::PipelineStageFlagBits::eAllCommands,
-                                    {},
-                                    nullptr,
-                                    nullptr,
-                                    imageMemoryBarriers);
+      auto clearValue = vk::ClearColorValue().setFloat32({{0.0f, 0.0f, 0.0f, 0.0f}});
+
+      commandBuffer.clearColorImage(
+          image,
+          vk::ImageLayout::eGeneral,
+          clearValue,
+          vk::ImageSubresourceRange{vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1});
+
+      TextureBarrier(image,
+                     commandBuffer,
+                     vk::ImageLayout::eGeneral,
+                     vk::AccessFlagBits::eTransferWrite,
+                     vk::ImageLayout::ePresentSrcKHR,
+                     vk::AccessFlagBits{});
     });
   }
 

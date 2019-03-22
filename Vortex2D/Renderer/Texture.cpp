@@ -340,23 +340,7 @@ void Texture::Barrier(vk::CommandBuffer commandBuffer,
                       vk::ImageLayout newLayout,
                       vk::AccessFlags dstMask)
 {
-  auto imageMemoryBarriers = vk::ImageMemoryBarrier()
-                                 .setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-                                 .setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-                                 .setOldLayout(oldLayout)
-                                 .setNewLayout(newLayout)
-                                 .setImage(mImage)
-                                 .setSubresourceRange({vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1})
-                                 .setSrcAccessMask(srcMask)
-                                 .setDstAccessMask(dstMask);
-
-  commandBuffer.pipelineBarrier(
-      vk::PipelineStageFlagBits::eAllCommands | vk::PipelineStageFlagBits::eHost,
-      vk::PipelineStageFlagBits::eAllCommands | vk::PipelineStageFlagBits::eHost,
-      {},
-      nullptr,
-      nullptr,
-      imageMemoryBarriers);
+  TextureBarrier(mImage, commandBuffer, oldLayout, srcMask, newLayout, dstMask);
 }
 
 vk::ImageView Texture::GetView() const
@@ -382,6 +366,32 @@ vk::Format Texture::GetFormat() const
 vk::Image Texture::Handle() const
 {
   return mImage;
+}
+
+void TextureBarrier(vk::Image image,
+                    vk::CommandBuffer commandBuffer,
+                    vk::ImageLayout oldLayout,
+                    vk::AccessFlags srcMask,
+                    vk::ImageLayout newLayout,
+                    vk::AccessFlags dstMask)
+{
+  auto imageMemoryBarriers = vk::ImageMemoryBarrier()
+                                 .setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+                                 .setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+                                 .setOldLayout(oldLayout)
+                                 .setNewLayout(newLayout)
+                                 .setImage(image)
+                                 .setSubresourceRange({vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1})
+                                 .setSrcAccessMask(srcMask)
+                                 .setDstAccessMask(dstMask);
+
+  commandBuffer.pipelineBarrier(
+      vk::PipelineStageFlagBits::eAllCommands | vk::PipelineStageFlagBits::eHost,
+      vk::PipelineStageFlagBits::eAllCommands | vk::PipelineStageFlagBits::eHost,
+      {},
+      nullptr,
+      nullptr,
+      imageMemoryBarriers);
 }
 
 }  // namespace Renderer
