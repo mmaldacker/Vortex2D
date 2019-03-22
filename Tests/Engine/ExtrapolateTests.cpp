@@ -79,7 +79,8 @@ TEST(ExtrapolateTest, Extrapolate)
 
 TEST(ExtrapolateTest, Constrain)
 {
-  glm::ivec2 size(50);
+  // FIXME increase size
+  glm::ivec2 size(20);
 
   FluidSim sim;
   sim.initialize(1.0f, size.x, size.y);
@@ -109,5 +110,5 @@ TEST(ExtrapolateTest, Constrain)
 
   device->Queue().waitIdle();
 
-  CheckVelocity(*device, size, velocity, sim, 1e-3f);
+  CheckVelocity(*device, size, velocity, sim, 1e-5f);
 }
