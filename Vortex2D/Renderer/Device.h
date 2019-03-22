@@ -50,7 +50,10 @@ public:
   VORTEX2D_API Device(vk::PhysicalDevice physicalDevice,
                       vk::SurfaceKHR surface,
                       bool validation = true);
-  VORTEX2D_API Device(vk::PhysicalDevice physicalDevice, int familyIndex, bool surface, bool validation);
+  VORTEX2D_API Device(vk::PhysicalDevice physicalDevice,
+                      int familyIndex,
+                      bool surface,
+                      bool validation);
   VORTEX2D_API ~Device();
 
   Device(Device&&) = delete;

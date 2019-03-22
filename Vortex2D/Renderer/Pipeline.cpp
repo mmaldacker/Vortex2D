@@ -86,10 +86,7 @@ bool operator==(const GraphicsPipeline& left, const GraphicsPipeline& right)
          left.mShaderStages == right.mShaderStages;
 }
 
-SpecConstInfo::SpecConstInfo()
-{
-
-}
+SpecConstInfo::SpecConstInfo() {}
 
 bool operator==(const SpecConstInfo& left, const SpecConstInfo& right)
 {
@@ -110,8 +107,7 @@ vk::Pipeline PipelineCache::CreateGraphicsPipeline(const GraphicsPipeline& graph
   auto it = std::find_if(mGraphicsPipelines.begin(),
                          mGraphicsPipelines.end(),
                          [&](const GraphicsPipelineCache& pipeline) {
-                           return pipeline.Graphics == graphics &&
-                                  pipeline.State == renderState;
+                           return pipeline.Graphics == graphics && pipeline.State == renderState;
                          });
 
   if (it != mGraphicsPipelines.end())
@@ -123,7 +119,8 @@ vk::Pipeline PipelineCache::CreateGraphicsPipeline(const GraphicsPipeline& graph
       vk::PipelineVertexInputStateCreateInfo()
           .setVertexBindingDescriptionCount((uint32_t)graphics.mVertexBindingDescriptions.size())
           .setPVertexBindingDescriptions(graphics.mVertexBindingDescriptions.data())
-          .setVertexAttributeDescriptionCount((uint32_t)graphics.mVertexAttributeDescriptions.size())
+          .setVertexAttributeDescriptionCount(
+              (uint32_t)graphics.mVertexAttributeDescriptions.size())
           .setPVertexAttributeDescriptions(graphics.mVertexAttributeDescriptions.data());
 
   auto viewPort = vk::Viewport(0,

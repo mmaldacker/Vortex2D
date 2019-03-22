@@ -165,17 +165,14 @@ TEST(LevelSetTests, ShrinkWrap)
 
   inTexture.CopyFrom(inData);
 
-  device->Execute([&](vk::CommandBuffer commandBuffer) {
-    levelSet.CopyFrom(commandBuffer, inTexture);
-  });
+  device->Execute(
+      [&](vk::CommandBuffer commandBuffer) { levelSet.CopyFrom(commandBuffer, inTexture); });
 
   levelSet.ShrinkWrap();
 
-  device->Execute([&](vk::CommandBuffer commandBuffer) {
-    outTexture.CopyFrom(commandBuffer, levelSet);
-  });
+  device->Execute(
+      [&](vk::CommandBuffer commandBuffer) { outTexture.CopyFrom(commandBuffer, levelSet); });
 
   std::vector<float> outData(size.x * size.y, -0.5f);
-  PrintTexture<float>(outTexture);
   CheckTexture(outData, outTexture);
 }

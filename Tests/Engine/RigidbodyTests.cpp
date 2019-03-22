@@ -527,9 +527,7 @@ TEST(RigidbodyTests, Pressure)
   // setup equations
   Buffer<float> input(*device, size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
   Buffer<float> output(*device, size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
-  device->Execute([&](vk::CommandBuffer commandBuffer) {
-    output.Clear(commandBuffer);
-  });
+  device->Execute([&](vk::CommandBuffer commandBuffer) { output.Clear(commandBuffer); });
 
   std::vector<float> inputData(size.x * size.y, 0.1f);
   CopyFrom(input, inputData);
