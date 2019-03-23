@@ -102,3 +102,5 @@ An example implementation with Box2D:
       const int positionStep = 3;
       mWorld.Step(delta, velocityStep, positionStep);
     }
+
+ The delta is the same used to create the world object.
