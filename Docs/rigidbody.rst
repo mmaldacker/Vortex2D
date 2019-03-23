@@ -83,6 +83,8 @@ An example implementation with Box2D is as follow:
       }
     }
 
+Note that any rigidbody physics can be used: chipmonk, bullet, etc.
+
 Engine updates
 ==============
 
