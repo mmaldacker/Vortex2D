@@ -52,7 +52,7 @@ Vortex2D can then be built with cmake as so:
 
 ```
 mkdir build && cd build
-cmake .. -DVORTEX2D_ENABLE_EXAMPLES=On -DVORTEX2D_ENABLE_TESTS=On -DMOLTENVK_DIR=/path_to_sdk_or_moltenvk/ -DGLSL_VALIDATOR=path_to/bin/glslangValidator
+cmake .. -DVORTEX2D_ENABLE_EXAMPLES=On -DVORTEX2D_ENABLE_TESTS=On -DMOLTENVK_DIR=path_to_sdk/MoltenVK -DGLSL_VALIDATOR=path_to_bin/glslangValidator
 make -j 4
 ```
 
