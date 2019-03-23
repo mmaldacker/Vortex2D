@@ -83,7 +83,7 @@ In addition, the MoltenVK location has to be specified, and the toolchain:
 
 .. code-block:: bash
 
-  cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake/ios.toolchain.cmake -DIOS_PLATFORM=OS -DIOS_ARCH=arm64 -DENABLE_VISIBILITY=true -DGLSL_VALIDATOR=path_to/bin/glslangValidator -DMOLTENVK_DIR=path_to/MoltenVK/Package/Latest/MoltenVK/ -DCODE_SIGN_IDENTITY="iPhone Developer" -DDEVELOPMENT_TEAM_ID=XXXXXX
+  cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake/ios.toolchain.cmake -DIOS_PLATFORM=OS -DIOS_ARCH=arm64 -DENABLE_VISIBILITY=true -DGLSL_VALIDATOR=path_to/bin/glslangValidator -DMOLTENVK_DIR=path_to_sdk/MoltenVK/ -DCODE_SIGN_IDENTITY="iPhone Developer" -DDEVELOPMENT_TEAM_ID=XXXXXX
 
 Documentation
 =============
