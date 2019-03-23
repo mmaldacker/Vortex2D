@@ -49,6 +49,7 @@ To build on windows, `cmake-gui` is the easiest to use. Only the variables speci
 Linux
 =====
 
+The package `xorg-dev` might need to first be installed.
 Again, regular cmake commands should be use to configure cmake:
 
 .. code-block:: bash
