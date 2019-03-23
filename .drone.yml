@@ -1,20 +1,25 @@
-platform: linux/arm
+kind: pipeline
+name: default
 
-pipeline:
-  build:
+platform:
+  os: linux
+  arch: arm
+
+steps:
+  - name: build
     image: vulkan
     commands:
       - mkdir build && cd build
       - cmake .. -DVORTEX2D_ENABLE_TESTS=On -DCMAKE_BUILD_TYPE=Coverage -DCMAKE_CXX_FLAGS="-Wno-psabi"
       - make -j4
-  test:
+  - name: test
     image: vulkan
     privileged: true
     when:
       status: [ success ]
     commands:
       - ./build/Tests/vortex2d_tests
-  coverage:
+  - name: coverage
     image: vulkan
     when:
       status: [ success ]
