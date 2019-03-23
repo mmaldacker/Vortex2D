@@ -8,12 +8,14 @@ platform:
 steps:
   - name: build
     image: vulkan
+    pull: never
     commands:
       - mkdir build && cd build
       - cmake .. -DVORTEX2D_ENABLE_TESTS=On -DCMAKE_BUILD_TYPE=Coverage -DCMAKE_CXX_FLAGS="-Wno-psabi"
       - make -j4
   - name: test
     image: vulkan
+    pull: never
     privileged: true
     when:
       status: [ success ]
@@ -21,8 +23,12 @@ steps:
       - ./build/Tests/vortex2d_tests
   - name: coverage
     image: vulkan
+    pull: never
     when:
       status: [ success ]
+    environment:
+      CODECOV_TOKEN:
+        from_secret: codecov_token
     secrets: [ codecov_token ]
     commands:
       - ./Scripts/codecov.sh
