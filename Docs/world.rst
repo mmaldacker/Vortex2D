@@ -8,11 +8,11 @@ The world classes are the centre of the engine, where the fluid gets animated. T
  * The liquid phi field
  * The solid phi field
 
- The first one contain the velocity of the fluid at every point, the second one defines where the fluid is. This is a signed distance field where a negative value indicates this is a fluid location. Finally the last one contains the location of solid obstacles, again as a signed distance field where the negative values indicate the solid's location. 
+The first one contain the velocity of the fluid at every point, the second one defines where the fluid is. This is a signed distance field where a negative value indicates this is a fluid location. Finally the last one contains the location of solid obstacles, again as a signed distance field where the negative values indicate the solid's location. 
 
- Each can be visualised as a texture with the getters:
+Each can be visualised as a texture with the getters:
 
- .. code-block:: cpp
+.. code-block:: cpp
 
     Renderer::RenderTexture& GetVelocity();
     DistanceField LiquidDistanceField();
@@ -20,7 +20,7 @@ The world classes are the centre of the engine, where the fluid gets animated. T
 
 Of course, to get interesting fluid simulations, we need to set values on them. Setting the signed distance fields is straightword (see :ref:`levelsets`):
 
- .. code-block:: cpp
+.. code-block:: cpp
 
     Renderer::RenderCommand RecordLiquidPhi(Renderer::RenderTarget::DrawableList drawables);
     Renderer::RenderCommand RecordStaticSolidPhi(Renderer::RenderTarget::DrawableList drawables);
@@ -29,20 +29,18 @@ Note that this only has to be done once.
 
 For velocities however, the simulation needs to set the velocities at a specific time during the simulation, so instead of ourselves calling :cpp:func:`Vortex2D::Renderer::RenderCommand::Submit` we pass the :cpp:func:`Vortex2D::Renderer::RenderCommand` to the :cpp:func:`World::Fluid::World` class:
 
- .. code-block:: cpp
+.. code-block:: cpp
 
     Renderer::RenderCommand RecordVelocity(Renderer::RenderTarget::DrawableList drawables);
     void SubmitVelocity(Renderer::RenderCommand& renderCommand);
 
-
 Stepping through the simulation is done with the :cpp:func:`Vortex2D::Fluid::World::Step` function, which takes as parameter the number of iterations used in the linear solver.
 This can either be a fixed number of steps, or until the error reaches a certain threshhold.
 
- .. code-block:: cpp
+.. code-block:: cpp
 
    auto iterations = Fluid::FixedParams(12);
    world.Step(iterations);
-
 
 Smoke World
 ===========
@@ -53,12 +51,11 @@ The class :cpp:class:`Vortex2D::Fluid::Density` is used for this, it is simply a
 
 The simulation is setup as so:
 
-  .. code-block:: cpp
+.. code-block:: cpp
 
     Fluid::Density density(device, size, vk::Format::eR8G8B8A8);
     Fluid::SmokeWorld world(device, size, 0.033);
     world.FieldBind(density);
-
 
 Water World
 ===========
@@ -66,13 +63,13 @@ Water World
 This is a classical water type of fluid simulation. This has a fluid area which evoles over time, i.e. a area of water moving. 
 The area of water and non-water can be specified by rendering onto the word, where each pixel indicates the number of particles to add/substract.
 
- .. code-block:: cpp
+.. code-block:: cpp
 
-     Renderer::RenderCommand RecordParticleCount(Renderer::RenderTarget::DrawableList drawables);
+    Renderer::RenderCommand RecordParticleCount(Renderer::RenderTarget::DrawableList drawables);
 
 The constraint is that the drawable needs to render integer values, which is provided for example by :cpp:class:`Vortec2D::Renderer::IntRectangle` and used:
 
- .. code-block:: cpp
+.. code-block:: cpp
 
     Renderer::IntRectangle fluid(device, {150.0f, 50.0f});
     fluid.Position = {50.0f, 25.0f};
