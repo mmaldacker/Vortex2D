@@ -23,7 +23,7 @@ TEST(ShapeTests, Square)
 {
   glm::vec2 size = {10.0f, 20.0f};
 
-  Rectangle rect(*device, size);
+  Vortex2D::Renderer::Rectangle rect(*device, size);
   rect.Position = glm::vec2(5.0f, 7.0f);
   rect.Scale = glm::vec2(1.5f, 1.0f);
   rect.Colour = glm::vec4(1.0f);
@@ -72,12 +72,12 @@ TEST(ShapeTests, MultipleSquares)
 {
   glm::vec2 size = {10.0f, 20.0f};
 
-  Rectangle rect1(*device, size);
+  Vortex2D::Renderer::Rectangle rect1(*device, size);
   rect1.Position = glm::vec2(5.0f, 7.0f);
   rect1.Scale = glm::vec2(1.5f, 1.0f);
   rect1.Colour = glm::vec4(1.0f);
 
-  Rectangle rect2(*device, size);
+  Vortex2D::Renderer::Rectangle rect2(*device, size);
   rect2.Position = glm::vec2(20.0f, 27.0f);
   rect2.Colour = glm::vec4(1.0f);
 
@@ -103,7 +103,7 @@ TEST(ShapeTests, MultipleSquares)
 
 TEST(ShapeTests, Circle)
 {
-  Ellipse ellipse(*device, glm::vec2(5.0f));
+  Vortex2D::Renderer::Ellipse ellipse(*device, glm::vec2(5.0f));
   ellipse.Position = glm::vec2(10.0f, 15.0f);
   ellipse.Colour = glm::vec4(1.0f);
 
@@ -127,7 +127,7 @@ TEST(ShapeTests, Ellipse)
 {
   glm::vec2 radius(4.0f, 7.0f);
 
-  Ellipse ellipse(*device, radius);
+  Vortex2D::Renderer::Ellipse ellipse(*device, radius);
   ellipse.Position = glm::vec2(20.0f, 15.0f);
   ellipse.Colour = glm::vec4(1.0f);
 
@@ -152,7 +152,7 @@ TEST(ShapeTests, ScaledEllipse)
   glm::vec2 pos(20.0f, 15.0f);
   glm::vec2 radius(4.0f, 7.0f);
 
-  Ellipse ellipse(*device, radius);
+  Vortex2D::Renderer::Ellipse ellipse(*device, radius);
   ellipse.Position = pos;
   ellipse.Scale = glm::vec2(1.0f, 2.0f);
   ellipse.Colour = glm::vec4(1.0f);
@@ -178,7 +178,7 @@ TEST(ShapeTests, RotatedEllipse)
 {
   glm::vec2 radius(4.0f, 7.0f);
 
-  Ellipse ellipse(*device, radius);
+  Vortex2D::Renderer::Ellipse ellipse(*device, radius);
   ellipse.Position = glm::vec2(20.0f, 15.0f);
   ellipse.Rotation = 33.0f;
   ellipse.Colour = glm::vec4(1.0f);
@@ -204,7 +204,7 @@ TEST(ShapeTests, RenderScaledEllipse)
   glm::vec2 pos(10.0f, 10.0f);
   glm::vec2 radius(5.0f, 8.0f);
 
-  Ellipse ellipse(*device, radius);
+  Vortex2D::Renderer::Ellipse ellipse(*device, radius);
   ellipse.Position = pos;
   ellipse.Colour = glm::vec4(1.0f);
 
