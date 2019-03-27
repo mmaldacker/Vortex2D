@@ -127,7 +127,7 @@ TEST(RenderingTest, BlendAdd)
   device->Execute(
       [&](vk::CommandBuffer commandBuffer) { texture.CopyFrom(commandBuffer, localTexture); });
 
-  Vortex2D::Renderer::Rectangle rectangle(*device, size);
+  Rectangle rectangle(*device, size);
   rectangle.Colour = glm::vec4(0.5f, 0.0f, 0.0f, 0.0f);
 
   Vortex2D::Renderer::ColorBlendState blendState;

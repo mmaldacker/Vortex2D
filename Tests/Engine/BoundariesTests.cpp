@@ -101,7 +101,7 @@ TEST(BoundariesTests, Square)
 
   std::vector<glm::vec2> points = {{0.0f, 0.0f}, {4.0f, 0.0f}, {4.0f, 4.0f}, {0.0f, 4.0f}};
 
-  Vortex2D::Fluid::Polygon square(*device, points, false, 20);
+  Polygon square(*device, points, false, 20);
   square.Position = glm::vec2(5.0f, 10.0f);
 
   std::vector<float> data(size.x * size.y, 100.0f);
@@ -127,7 +127,7 @@ TEST(BoundariesTests, InverseSquare)
 
   std::vector<glm::vec2> points = {{0.0f, 0.0f}, {4.0f, 0.0f}, {4.0f, 4.0f}, {0.0f, 4.0f}};
 
-  Vortex2D::Fluid::Polygon square(*device, points, true, 20);
+  Polygon square(*device, points, true, 20);
   square.Position = glm::vec2(5.0f, 10.0f);
 
   std::vector<float> data(size.x * size.y, 100.0f);
@@ -181,10 +181,10 @@ TEST(BoundariesTests, Intersection)
 
   std::vector<glm::vec2> points = {{0.0f, 0.0f}, {4.0f, 0.0f}, {4.0f, 4.0f}, {0.0f, 4.0f}};
 
-  Vortex2D::Fluid::Polygon square1(*device, points, false, 20);
+  Polygon square1(*device, points, false, 20);
   square1.Position = glm::vec2(5.0f, 10.0f);
 
-  Vortex2D::Fluid::Polygon square2(*device, points, false, 20);
+  Polygon square2(*device, points, false, 20);
   square2.Position = glm::vec2(12.0f, 10.0f);
 
   std::vector<float> data1(size.x * size.y, 100.0f);

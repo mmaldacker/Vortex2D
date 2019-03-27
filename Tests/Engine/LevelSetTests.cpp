@@ -59,7 +59,7 @@ TEST(LevelSetTests, SimpleCircle)
   LevelSet levelSet(*device, size, 2000);
   Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
 
-  Vortex2D::Renderer::Ellipse circle(*device, glm::vec2{radius0} * glm::vec2(size));
+  Ellipse circle(*device, glm::vec2{rad0} * glm::vec2(size));
   circle.Position = glm::vec2(c0[0], c0[1]) * glm::vec2(size) - glm::vec2(0.5f);
   circle.Colour = glm::vec4(0.5f);
 
@@ -84,10 +84,10 @@ TEST(LevelSetTests, ComplexCircles)
   LevelSet levelSet(*device, size, 2000);
   Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
 
-  Vortex2D::Renderer::Ellipse circle0(*device, glm::vec2{radius0} * glm::vec2(size));
-  Vortex2D::Renderer::Ellipse circle1(*device, glm::vec2{radius1} * glm::vec2(size));
-  Vortex2D::Renderer::Ellipse circle2(*device, glm::vec2{radius2} * glm::vec2(size));
-  Vortex2D::Renderer::Ellipse circle3(*device, glm::vec2{radius3} * glm::vec2(size));
+  Ellipse circle0(*device, glm::vec2{rad0} * glm::vec2(size));
+  Ellipse circle1(*device, glm::vec2{rad1} * glm::vec2(size));
+  Ellipse circle2(*device, glm::vec2{rad2} * glm::vec2(size));
+  Ellipse circle3(*device, glm::vec2{rad3} * glm::vec2(size));
 
   Clear clear(glm::vec4(-1.0f));
 

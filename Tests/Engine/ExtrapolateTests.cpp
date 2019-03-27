@@ -110,5 +110,5 @@ TEST(ExtrapolateTest, Constrain)
 
   device->Queue().waitIdle();
 
-  CheckVelocity(*device, size, velocity, sim, 1e-3f);  // FIXME reduce error tolerance
+  CheckVelocity(*device, size, velocity, sim, 1e-3f); // FIXME reduce error tolerance
 }
