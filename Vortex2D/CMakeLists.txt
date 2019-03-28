@@ -130,7 +130,7 @@ add_subdirectory(${glm_SOURCE_DIR} ${glm_BINARY_DIR})
 
 download_project(PROJ                SPIRV_Cross
                  GIT_REPOSITORY      https://github.com/KhronosGroup/SPIRV-Cross.git
-                 GIT_TAG             master
+                 GIT_TAG             2019-02-20
                  ${UPDATE_DISCONNECTED_IF_AVAILABLE})
 add_subdirectory(${SPIRV_Cross_SOURCE_DIR} ${SPIRV_Cross_BINARY_DIR})
 set_property(TARGET spirv-cross-core PROPERTY POSITION_INDEPENDENT_CODE ON)
