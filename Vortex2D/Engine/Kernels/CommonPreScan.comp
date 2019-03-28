@@ -34,8 +34,8 @@ void LoadLocalFromGlobal(const uvec4 address_pair)
     local_index_a += MEMORY_BANK_OFFSET(local_index_a);
     local_index_b += MEMORY_BANK_OFFSET(local_index_b);
 
-    sdata[local_index_a] = (global_index_a < consts.width) ? i.value[global_index_a] : 0;
-    sdata[local_index_b] = (global_index_b < consts.width) ? i.value[global_index_b] : 0;
+    sdata[local_index_a] = (global_index_a < consts.n) ? i.value[global_index_a] : 0;
+    sdata[local_index_b] = (global_index_b < consts.n) ? i.value[global_index_b] : 0;
 
     memoryBarrierShared();
     barrier();
@@ -55,12 +55,12 @@ void StoreLocalToGlobal(const uvec4 address_pair)
     local_index_a += MEMORY_BANK_OFFSET(local_index_a);
     local_index_b += MEMORY_BANK_OFFSET(local_index_b);
 
-    if (global_index_a < consts.width)
+    if (global_index_a < consts.n)
     {
         o.value[global_index_a] = sdata[local_index_a];
     }
 
-    if (global_index_b < consts.width)
+    if (global_index_b < consts.n)
     {
         o.value[global_index_b] = sdata[local_index_b];
     }
