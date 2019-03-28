@@ -66,7 +66,9 @@ ComputeSize MakeStencilComputeSize(const glm::ivec2& size, int radius)
 
 ComputeSize MakeCheckerboardComputeSize(const glm::ivec2& size)
 {
-  auto localSize = ComputeSize::GetLocalSize2D() * glm::ivec2(1, 2);
+  auto localSize = ComputeSize::GetLocalSize2D();
+  localSize.x /= 2;
+  localSize.y *= 2;
 
   ComputeSize computeSize(ComputeSize::Default2D());
   computeSize.DomainSize = size;
