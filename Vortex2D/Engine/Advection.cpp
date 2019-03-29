@@ -30,9 +30,11 @@ Advection::Advection(const Renderer::Device& device,
     , mAdvectParticlesCmd(device, false)
 {
   mAdvectVelocityCmd.Record([&](vk::CommandBuffer commandBuffer) {
+    commandBuffer.debugMarkerBeginEXT({"Velocity advect", {{0.15f, 0.46f, 0.19f, 1.0f}}});
     mVelocityAdvectBound.PushConstant(commandBuffer, dt);
     mVelocityAdvectBound.Record(commandBuffer);
     velocity.CopyBack(commandBuffer);
+    commandBuffer.debugMarkerEndEXT();
   });
 }
 
@@ -45,6 +47,7 @@ void Advection::AdvectBind(Density& density)
 {
   mAdvectBound = mAdvect.Bind({mVelocity, density, density.mFieldBack});
   mAdvectCmd.Record([&](vk::CommandBuffer commandBuffer) {
+    commandBuffer.debugMarkerBeginEXT({"Density advect", {{0.86f, 0.14f, 0.52f, 1.0f}}});
     mAdvectBound.PushConstant(commandBuffer, mDt);
     mAdvectBound.Record(commandBuffer);
     density.mFieldBack.Barrier(commandBuffer,
@@ -53,6 +56,7 @@ void Advection::AdvectBind(Density& density)
                                vk::ImageLayout::eGeneral,
                                vk::AccessFlagBits::eShaderRead);
     density.CopyFrom(commandBuffer, density.mFieldBack);
+    commandBuffer.debugMarkerEndEXT();
   });
 }
 

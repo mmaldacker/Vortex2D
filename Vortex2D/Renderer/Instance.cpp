@@ -91,12 +91,12 @@ Instance::Instance(const std::string& name,
                      .setPApplicationName(name.c_str())
                      .setApiVersion(VK_MAKE_VERSION(1, 1, 0));
 
-  vk::InstanceCreateInfo instanceInfo;
-  instanceInfo.setPApplicationInfo(&appInfo)
-      .setEnabledExtensionCount((uint32_t)extensions.size())
-      .setPpEnabledExtensionNames(extensions.data())
-      .setEnabledLayerCount((uint32_t)layers.size())
-      .setPpEnabledLayerNames(layers.data());
+  auto instanceInfo = vk::InstanceCreateInfo()
+                          .setPApplicationInfo(&appInfo)
+                          .setEnabledExtensionCount((uint32_t)extensions.size())
+                          .setPpEnabledExtensionNames(extensions.data())
+                          .setEnabledLayerCount((uint32_t)layers.size())
+                          .setPpEnabledLayerNames(layers.data());
 
   try
   {
@@ -133,12 +133,18 @@ Instance::Instance(const std::string& name,
     mDebugCallback = mInstance->createDebugReportCallbackEXT(debugCallbackInfo);
   }
 
-  // get physical device
-  // TODO better search than first available device
-  // - using swap chain info
-  // - using queue info
-  // - discrete GPU
-  mPhysicalDevice = mInstance->enumeratePhysicalDevices().at(0);
+  // find first discrete GPU
+  std::size_t bestDeviceIndex = 0;
+  auto devices = mInstance->enumeratePhysicalDevices();
+  for (std::size_t i = 0; i < devices.size(); i++)
+  {
+    if (devices[i].getProperties().deviceType == vk::PhysicalDeviceType::eDiscreteGpu)
+    {
+      bestDeviceIndex = i;
+    }
+  }
+
+  mPhysicalDevice = devices.at(bestDeviceIndex);
   auto properties = mPhysicalDevice.getProperties();
   std::cout << "Device name: " << properties.deviceName << std::endl;
 }
@@ -160,25 +166,21 @@ vk::Instance Instance::GetInstance() const
 
 bool HasLayer(const char* extension, const std::vector<vk::LayerProperties>& availableExtensions)
 {
-  auto find_it = std::find_if(availableExtensions.begin(),
-                              availableExtensions.end(),
-                              [&](const vk::LayerProperties& layer) {
-                                return std::strcmp(extension, layer.layerName) == 0;
-                              });
-
-  return find_it != availableExtensions.end();
+  return std::any_of(availableExtensions.begin(),
+                     availableExtensions.end(),
+                     [&](const vk::LayerProperties& layer) {
+                       return std::strcmp(extension, layer.layerName) == 0;
+                     });
 }
 
 bool HasExtension(const char* extension,
                   const std::vector<vk::ExtensionProperties>& availableExtensions)
 {
-  auto find_it = std::find_if(availableExtensions.begin(),
-                              availableExtensions.end(),
-                              [&](const vk::ExtensionProperties& layer) {
-                                return std::strcmp(extension, layer.extensionName) == 0;
-                              });
-
-  return find_it != availableExtensions.end();
+  return std::any_of(availableExtensions.begin(),
+                     availableExtensions.end(),
+                     [&](const vk::ExtensionProperties& layer) {
+                       return std::strcmp(extension, layer.extensionName) == 0;
+                     });
 }
 
 }  // namespace Renderer
