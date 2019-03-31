@@ -59,7 +59,8 @@ Again, regular cmake commands should be use to configure cmake:
 macOS
 =====
 
-In addition to the normal variables, we need to specify the location of MoltenVK and the glslang compiler:
+In addition to the normal variables, we need to specify the location of MoltenVK and the glslang compiler.
+The glslang compiler can be downloaded from its project on github: https://github.com/KhronosGroup/glslang/releases
 
 .. code-block:: bash
 

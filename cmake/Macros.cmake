@@ -32,6 +32,8 @@ function(compile_shader)
     endif()
     message("Using compiler: ${GLSL_VALIDATOR}")
 
+    file(REMOVE "${SHADER_OUTPUT}.h" "${SHADER_OUTPUT}.cpp")
+
     set(COMPILE_SCRIPT ${vortex2d_macro__internal_dir}/../Scripts/GenerateSPIRV.py)
     add_custom_command(
        OUTPUT "${SHADER_OUTPUT}.h" "${SHADER_OUTPUT}.cpp"
@@ -55,8 +57,7 @@ function(vortex2d_find_vulkan)
       set(VORTEX2D_OS "macOS")
     endif()
 
-  	set(VULKAN_LIBRARIES "-F ${MOLTENVK_DIR}/${VORTEX2D_OS}/ -framework MoltenVK -framework Metal -framework IOSurface -framework QuartzCore -framework IOKit -framework Foundation" PARENT_SCOPE)
-  	set(VULKAN_OPTIONS "-F ${MOLTENVK_DIR}/${VORTEX2D_OS}/" PARENT_SCOPE)
+  	set(VULKAN_LIBRARIES "-L${MOLTENVK_DIR}/${VORTEX2D_OS}/static -lMoltenVK -framework Metal -framework IOSurface -framework QuartzCore -framework IOKit -framework Foundation -framework Cocoa" PARENT_SCOPE)
   	set(VULKAN_INCLUDES "${MOLTENVK_DIR}/include" PARENT_SCOPE)
   else()
   	find_package(Vulkan REQUIRED)
