@@ -222,6 +222,12 @@ public:
   VORTEX2D_API Renderer::RenderCommand RecordParticleCount(
       Renderer::RenderTarget::DrawableList drawables);
 
+  /**
+   * @brief Using the particles, create a level set (phi) encompassing all the particles.
+   * This can be viewed with @ref LiquidDistanceField
+   */
+  VORTEX2D_API void ParticlePhi();
+
 private:
   void Substep(LinearSolver::Parameters& params) override;
 

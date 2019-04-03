@@ -230,9 +230,7 @@ void WaterWorld::Substep(LinearSolver::Parameters& params)
    */
 
   // 1)
-  mParticleCount.Scan();
-  mParticleCount.Phi();
-  mLiquidPhi.Reinitialise();
+  ParticlePhi();
 
   // 2)
   mParticleCount.TransferToGrid();
@@ -284,6 +282,13 @@ Renderer::RenderCommand WaterWorld::RecordParticleCount(
     Renderer::RenderTarget::DrawableList drawables)
 {
   return mParticleCount.Record(drawables);
+}
+
+void WaterWorld::ParticlePhi()
+{
+  mParticleCount.Scan();
+  mParticleCount.Phi();
+  mLiquidPhi.Reinitialise();
 }
 
 }  // namespace Fluid
