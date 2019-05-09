@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.11)
 
 project(Vortex2D)
 
@@ -25,10 +25,8 @@ if (CMAKE_COMPILER_IS_GNUCXX)
         FORCE )
 endif ()
 
-# cmake file to download and include dependencies
 include(cmake/Macros.cmake)
-include(cmake/DownloadProject.cmake)
-set(UPDATE_DISCONNECTED_IF_AVAILABLE "UPDATE_DISCONNECTED 1")
+include(FetchContent)
 
 add_subdirectory(Vortex2D)
 

@@ -122,17 +122,15 @@ file(GLOB SHADER_SOURCES
     "Engine/Kernels/ShrinkWrap.comp"
     "Engine/LinearSolver/Kernels/*.comp")
 
-download_project(PROJ                glm
-                 GIT_REPOSITORY      https://github.com/g-truc/glm.git
-                 GIT_TAG             0.9.9.0
-                 ${UPDATE_DISCONNECTED_IF_AVAILABLE})
-add_subdirectory(${glm_SOURCE_DIR} ${glm_BINARY_DIR})
+FetchContent_Declare(glm
+                     GIT_REPOSITORY      https://github.com/g-truc/glm.git
+                     GIT_TAG             0.9.9.0)
+FetchContent_MakeAvailable(glm)
 
-download_project(PROJ                SPIRV_Cross
-                 GIT_REPOSITORY      https://github.com/KhronosGroup/SPIRV-Cross.git
-                 GIT_TAG             2019-02-20
-                 ${UPDATE_DISCONNECTED_IF_AVAILABLE})
-add_subdirectory(${SPIRV_Cross_SOURCE_DIR} ${SPIRV_Cross_BINARY_DIR})
+FetchContent_Declare(SPIRV_Cross
+                     GIT_REPOSITORY      https://github.com/KhronosGroup/SPIRV-Cross.git
+                     GIT_TAG             2019-02-20)
+FetchContent_MakeAvailable(SPIRV_Cross)
 set_property(TARGET spirv-cross-core PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 vortex2d_find_package(PythonInterp REQUIRED)
