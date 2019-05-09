@@ -398,7 +398,7 @@ TEST(ComputeTests, Timer)
   auto time = timer.GetElapsedNs();
   ASSERT_NE(uint64_t(-1), time);
   ASSERT_NE(0, time);
-  ASSERT_GT(1000 * 1000, time);  // less than 1ms
+  ASSERT_GT(10 * 1000 * 1000, time);  // less than 10ms
 
   std::cout << "Elapsed time: " << time << std::endl;
 }
