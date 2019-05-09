@@ -51,6 +51,7 @@ int ComputeFamilyIndex(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface
         (!surface || physicalDevice.getSurfaceSupportKHR(static_cast<uint32_t>(i), surface)))
     {
       index = static_cast<int32_t>(i);
+      break;
     }
   }
 
