@@ -84,7 +84,6 @@ public:
   VORTEX2D_API void TransferFromGrid();
 
 private:
-  const Renderer::Device& mDevice;
   glm::ivec2 mSize;
   Renderer::GenericBuffer& mParticles;
   Renderer::Buffer<Particle> mNewParticles;

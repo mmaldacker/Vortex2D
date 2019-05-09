@@ -20,7 +20,6 @@ ParticleCount::ParticleCount(const Renderer::Device& device,
                              const Renderer::DispatchParams& params,
                              float alpha)
     : Renderer::RenderTexture(device, size.x, size.y, vk::Format::eR32Sint)
-    , mDevice(device)
     , mSize(size)
     , mParticles(particles)
     , mNewParticles(device, 8 * size.x * size.y)
