@@ -125,12 +125,21 @@ file(GLOB SHADER_SOURCES
 FetchContent_Declare(glm
                      GIT_REPOSITORY      https://github.com/g-truc/glm.git
                      GIT_TAG             0.9.9.0)
-FetchContent_MakeAvailable(glm)
 
-FetchContent_Declare(SPIRV_Cross
+FetchContent_GetProperties(glm)
+if(NOT glm_POPULATED)
+    FetchContent_Populate(glm)
+    add_subdirectory(${glm_SOURCE_DIR} ${glm_BINARY_DIR})
+endif()
+
+FetchContent_Declare(spirv_cross
                      GIT_REPOSITORY      https://github.com/KhronosGroup/SPIRV-Cross.git
                      GIT_TAG             2019-02-20)
-FetchContent_MakeAvailable(SPIRV_Cross)
+FetchContent_GetProperties(spirv_cross)
+if(NOT spirv_cross_POPULATED)
+    FetchContent_Populate(spirv_cross)
+    add_subdirectory(${spirv_cross_SOURCE_DIR} ${spirv_cross_BINARY_DIR})
+endif()
 set_property(TARGET spirv-cross-core PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 vortex2d_find_package(PythonInterp REQUIRED)

@@ -8,17 +8,21 @@ endif()
 FetchContent_Declare(glfw3
                      GIT_REPOSITORY      https://github.com/glfw/glfw.git
                      GIT_TAG             3.3)
-FetchContent_MakeAvailable(glfw3)
+FetchContent_GetProperties(glfw3)
+if(NOT glfw3_POPULATED)
+  FetchContent_Populate(glfw3)
+  add_subdirectory(${glfw3_SOURCE_DIR} ${glfw3_BINARY_DIR})
+endif()
 
-FetchContent_Declare(Box2D
+FetchContent_Declare(box2d
                      GIT_REPOSITORY      https://github.com/erincatto/Box2D.git
                      GIT_TAG             v2.3.1)
 
-FetchContent_GetProperties(Box2d)
-if(NOT Box2D_POPULATED)
-  FetchContent_Populate(Box2D)
+FetchContent_GetProperties(box2d)
+if(NOT box2d_POPULATED)
+  FetchContent_Populate(box2d)
   set(BOX2D_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-  add_subdirectory(${Box2D_SOURCE_DIR} ${Box2D_BINARY_DIR})
+  add_subdirectory(${box2d_SOURCE_DIR}/Box2D ${box2d_BINARY_DIR})
 endif()
 
 file(GLOB EXAMPLES_SOURCES
@@ -39,7 +43,7 @@ add_executable(vortex2d_examples ${EXAMPLES_SOURCES})
 target_link_libraries(vortex2d_examples vortex2d glfw Box2D)
 target_include_directories(vortex2d_examples PRIVATE
     $<TARGET_PROPERTY:glfw,INTERFACE_INCLUDE_DIRECTORIES>
-    ${Box2D_SOURCE_DIR})
+    ${box2d_SOURCE_DIR}/Box2D)
 
 if (WIN32)
     vortex2d_copy_dll(vortex2d_examples)

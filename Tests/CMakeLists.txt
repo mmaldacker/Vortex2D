@@ -26,8 +26,8 @@ file(GLOB SHADER_TEST_SOURCES "Kernels/Image.comp"
 
 enable_testing()
 FetchContent_Declare(googletest
-                           GIT_REPOSITORY      https://github.com/google/googletest.git
-                           GIT_TAG             master)
+                     GIT_REPOSITORY      https://github.com/google/googletest.git
+                     GIT_TAG             master)
 
 # Prevent GoogleTest from overriding our compiler/linker options
 # when building with Visual Studio
@@ -37,12 +37,21 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 set(INSTALL_GMOCK OFF CACHE BOOL "" FORCE)
 set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
 
-FetchContent_MakeAvailable(googletest)
+FetchContent_GetProperties(googletest)
+if(NOT googletest_POPULATED)
+  FetchContent_Populate(googletest)
+  add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
+endif()
 
-FetchContent_Declare(FluidRigidCoupling2D
-                           GIT_REPOSITORY      https://github.com/mmaldacker/FluidRigidCoupling2D.git
-                           GIT_TAG             master)
-FetchContent_MakeAvailable(FluidRigidCoupling2D)
+FetchContent_Declare(fluidrigidcoupling2d
+                     GIT_REPOSITORY      https://github.com/mmaldacker/FluidRigidCoupling2D.git
+                     GIT_TAG             master)
+
+FetchContent_GetProperties(fluidrigidcoupling2d)
+if(NOT fluidrigidcoupling2d_POPULATED)
+    FetchContent_Populate(fluidrigidcoupling2d)
+    add_subdirectory(${fluidrigidcoupling2d_SOURCE_DIR} ${fluidrigidcoupling2d_BINARY_DIR})
+endif()
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
