@@ -28,7 +28,8 @@ cache: ccache
 
 install:
 # Cmake
- - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then wget https://github.com/Kitware/CMake/releases/download/v3.14.3/cmake-3.14.3-Linux-x86_64.sh && chmod +x cmake-3.14.3-Linux-x86_64.sh && sudo ./cmake-3.14.3-Linux-x86_64.sh --skip-license --prefix=/usr; fi
+ - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then wget https://github.com/Kitware/CMake/releases/download/v3.14.3/cmake-3.14.3-Linux-x86_64.sh && chmod +x cmake-3.14.3-Linux-x86_64.sh && sudo ./cmake-3.14.3-Linux-x86_64.sh --skip-license --prefix=/usr/local; fi
+ - export PATH=/usr/local/bin:${PATH}
 # LunarG SDK install
  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then wget https://sdk.lunarg.com/sdk/download/1.1.101.0/linux/vulkansdk-linux-1.1.101.0.tar.gz; tar xf vulkansdk-linux-1.1.101.0.tar.gz; . 1.1.101.0/setup-env.sh; fi
  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then wget https://sdk.lunarg.com/sdk/download/1.1.101.0/mac/vulkansdk-macos-1.1.101.0.tar.gz; tar xf vulkansdk-macos-1.1.101.0.tar.gz; fi
@@ -36,6 +37,6 @@ install:
 script:
   - cd ${TRAVIS_BUILD_DIR}
   - mkdir build && cd build
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cmake .. -DVORTEX2D_ENABLE_TESTS=On -DVORTEX2D_ENABLE_EXAMPLES=On -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=gcc-5 -DCMAKE_CXX_COMPILER=g++-5; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then /usr/bin/cmake .. -DVORTEX2D_ENABLE_TESTS=On -DVORTEX2D_ENABLE_EXAMPLES=On -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=gcc-5 -DCMAKE_CXX_COMPILER=g++-5; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then cmake .. -DMOLTENVK_DIR=../vulkansdk-macos-1.1.101.0/MoltenVK -DGLSL_VALIDATOR=../vulkansdk-macos-1.1.101.0/macOS/bin/glslangValidator -DVORTEX2D_ENABLE_TESTS=On -DVORTEX2D_ENABLE_EXAMPLES=On -DCMAKE_BUILD_TYPE=Debug; fi
   - make -j 4
