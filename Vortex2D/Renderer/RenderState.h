@@ -39,7 +39,7 @@ struct RenderState
   /**
    * @brief Initialize for a render target with a given blend
    * @param renderTarget
-   * @param colorBlend
+   * @param blendState
    */
   RenderState(const RenderTarget& renderTarget, ColorBlendState blendState);
 

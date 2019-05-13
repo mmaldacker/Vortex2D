@@ -146,7 +146,7 @@ public:
      * @brief Adds a constant value, i.e. a push constant.
      * @param commandBuffer the command buffer where the compute work will also
      * be recorded.
-     * @param data the data to push. A total of 128 bytes can be used.
+     * @param args the data to push. A total of 128 bytes can be used.
      */
     template <typename... Args>
     void PushConstant(vk::CommandBuffer commandBuffer, Args&&... args)

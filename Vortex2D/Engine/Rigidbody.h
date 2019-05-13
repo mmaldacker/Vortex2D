@@ -68,7 +68,7 @@ public:
   VORTEX2D_API virtual void ApplyForces();
 
   /**
-   * @brieffunction to override and apply velocities from the external rigidbody
+   * @brief Override and apply velocities from the external rigidbody
    * to the this rigidbody
    */
   VORTEX2D_API virtual void ApplyVelocities();
@@ -109,7 +109,6 @@ public:
    * This is to apply the rigid body influence to the system.
    * @param div right hand side of the linear system Ax=b
    * @param diagonal diagonal of matrix A
-   * @param fluidLevelSet fluid level set
    */
   VORTEX2D_API void BindDiv(Renderer::GenericBuffer& div, Renderer::GenericBuffer& diagonal);
 
@@ -121,7 +120,7 @@ public:
 
   /**
    * @brief Bind pressure, to have the pressure update the body's forces
-   * @param fluidLevelSet fluid level set, to know if the pressure is applicable
+   * @param d diagonal of matrix A
    * @param pressure solved pressure buffer
    */
   VORTEX2D_API void BindForce(Renderer::GenericBuffer& d, Renderer::GenericBuffer& pressure);
