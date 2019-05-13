@@ -61,14 +61,6 @@ vk::UniqueSurfaceKHR GetGLFWSurface(GLFWwindow* window, vk::Instance instance)
   return uniqueSurface;
 }
 
-glm::vec2 GetGLFWindowScale(GLFWwindow* window)
-{
-  glm::vec2 scale;
-  glfwGetWindowContentScale(window, &scale.x, &scale.y);
-
-  return scale;
-}
-
 GLFWwindow* GetGLFWWindow(const glm::ivec2& size)
 {
   GLFWwindow* window = glfwCreateWindow(size.x, size.y, "Vortex2D App", nullptr, nullptr);
@@ -76,9 +68,6 @@ GLFWwindow* GetGLFWWindow(const glm::ivec2& size)
   {
     throw std::runtime_error("Could not create glfw window");
   }
-
-  glm::vec2 scale = GetGLFWindowScale(window);
-  glfwSetWindowSize(window, (int)(size.x * scale.x), (int)(size.y * scale.y));
 
   return window;
 }
@@ -93,14 +82,13 @@ public:
 
   App(bool validation = true)
       : glfwWindow(GetGLFWWindow(windowSize))
-      , scale(GetGLFWindowScale(glfwWindow))
       , instance("Vortex2D", GetGLFWExtensions(), validation)
       , surface(GetGLFWSurface(glfwWindow, static_cast<VkInstance>(instance.GetInstance())))
       , device(instance.GetPhysicalDevice(), *surface, validation)
       , window(device,
                *surface,
-               (uint32_t)(windowSize.x * scale.x),
-               (uint32_t)(windowSize.y * scale.y))
+               (uint32_t)(windowSize.x),
+               (uint32_t)(windowSize.y))
       , clearRender(window.Record({clear}))
   {
     // setup callback
@@ -110,7 +98,7 @@ public:
     };
     glfwSetKeyCallback(glfwWindow, func);
 
-    window.View = glm::scale(glm::vec3{windowScale * scale.x, windowScale * scale.y, 1.0f});
+    window.View = glm::scale(glm::vec3{windowScale, windowScale, 1.0f});
 
     // Set default scene
     example.reset(new WaterExample(device, size, delta));
@@ -192,7 +180,6 @@ public:
   }
 
   GLFWwindow* glfwWindow;
-  glm::vec2 scale;
   Vortex2D::Renderer::Instance instance;
   vk::UniqueSurfaceKHR surface;
   Vortex2D::Renderer::Device device;
