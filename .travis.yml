@@ -18,9 +18,6 @@ addons:
       # Modern GCC
       - gcc-5
       - g++-5
-      # Vortex2D dependencies
-      - cmake
-      - doxygen
       # GLFW3 dependencies
       - libxrandr-dev
       - libxinerama-dev
@@ -30,8 +27,6 @@ addons:
 cache: ccache
 
 install:
-# Doxyrest
- - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then pip install --user sphinx sphinx_rtd_theme breathe; fi
 # Cmake
  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then wget https://github.com/Kitware/CMake/releases/download/v3.14.3/cmake-3.14.3-Linux-x86_64.sh && cmake-3.14.3-Linux-x86_64.sh --skip-license --prefix=/usr/local; fi
 # LunarG SDK install
