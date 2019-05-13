@@ -28,7 +28,7 @@ cache: ccache
 
 install:
 # Cmake
- - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then wget https://github.com/Kitware/CMake/releases/download/v3.14.3/cmake-3.14.3-Linux-x86_64.sh && ./cmake-3.14.3-Linux-x86_64.sh --skip-license --prefix=/usr/local; fi
+ - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then wget https://github.com/Kitware/CMake/releases/download/v3.14.3/cmake-3.14.3-Linux-x86_64.sh && chmod +x cmake-3.14.3-Linux-x86_64.sh && ./cmake-3.14.3-Linux-x86_64.sh --skip-license --prefix=/usr/local; fi
 # LunarG SDK install
  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then wget https://sdk.lunarg.com/sdk/download/1.1.101.0/linux/vulkansdk-linux-1.1.101.0.tar.gz; tar xf vulkansdk-linux-1.1.101.0.tar.gz; . 1.1.101.0/setup-env.sh; fi
  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then wget https://sdk.lunarg.com/sdk/download/1.1.101.0/mac/vulkansdk-macos-1.1.101.0.tar.gz; tar xf vulkansdk-macos-1.1.101.0.tar.gz; fi
