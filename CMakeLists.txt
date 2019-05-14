@@ -28,6 +28,17 @@ endif ()
 include(cmake/Macros.cmake)
 include(FetchContent)
 
+set(GLM_INSTALL_ENABLE OFF CACHE BOOL "" FORCE)
+FetchContent_Declare(glm
+                     GIT_REPOSITORY      https://github.com/g-truc/glm.git
+                     GIT_TAG             0.9.9.0)
+
+FetchContent_GetProperties(glm)
+if(NOT glm_POPULATED)
+    FetchContent_Populate(glm)
+    add_subdirectory(${glm_SOURCE_DIR} ${glm_BINARY_DIR})
+endif()
+
 add_subdirectory(Vortex2D)
 
 if (VORTEX2D_ENABLE_EXAMPLES)

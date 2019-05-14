@@ -41,6 +41,18 @@ function(compile_shader)
        DEPENDS ${SHADER_SOURCES} ${COMPILE_SCRIPT})
 endfunction()
 
+# Copy dlls
+function(vortex2d_copy_dll)
+    list(GET ARGN 0 target)
+    list(REMOVE_AT ARGN 0)
+
+    add_custom_command(
+    TARGET ${target} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+        $<TARGET_FILE:vortex2d>
+        $<TARGET_FILE_DIR:${target}>)
+endfunction()
+
 # Find vulkan or MoltenVK on macOS/iOS
 function(vortex2d_find_vulkan)
   if(APPLE)

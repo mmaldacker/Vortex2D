@@ -83,7 +83,7 @@ else()
   add_executable(vortex2d_tests ${SOURCE_FILES})
 endif()
 
-target_link_libraries(vortex2d_tests vortex2d gtest gmock gmock_main Threads::Threads fluidrigidcoupling2d_lib)
+target_link_libraries(vortex2d_tests vortex2d gtest gmock gmock_main Threads::Threads fluidrigidcoupling2d_lib glm)
 target_include_directories(vortex2d_tests PRIVATE ./ ${CMAKE_CURRENT_BINARY_DIR})
 
 if (WIN32)

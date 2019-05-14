@@ -122,19 +122,18 @@ file(GLOB SHADER_SOURCES
     "Engine/Kernels/ShrinkWrap.comp"
     "Engine/LinearSolver/Kernels/*.comp")
 
-FetchContent_Declare(glm
-                     GIT_REPOSITORY      https://github.com/g-truc/glm.git
-                     GIT_TAG             0.9.9.0)
-
-FetchContent_GetProperties(glm)
-if(NOT glm_POPULATED)
-    FetchContent_Populate(glm)
-    add_subdirectory(${glm_SOURCE_DIR} ${glm_BINARY_DIR})
-endif()
-
+set(SPIRV_CROSS_CLI OFF CACHE BOOL "" FORCE)
+set(SPIRV_CROSS_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
+set(SPIRV_CROSS_ENABLE_GLSL OFF CACHE BOOL "" FORCE)
+set(SPIRV_CROSS_ENABLE_HLSL OFF CACHE BOOL "" FORCE)
+set(SPIRV_CROSS_ENABLE_MSL OFF CACHE BOOL "" FORCE)
+set(SPIRV_CROSS_ENABLE_CPP OFF CACHE BOOL "" FORCE)
+set(SPIRV_CROSS_ENABLE_REFLECT OFF CACHE BOOL "" FORCE)
+set(SPIRV_CROSS_ENABLE_C_API OFF CACHE BOOL "" FORCE)
+set(SPIRV_CROSS_ENABLE_UTIL OFF CACHE BOOL "" FORCE)
 FetchContent_Declare(spirv_cross
                      GIT_REPOSITORY      https://github.com/KhronosGroup/SPIRV-Cross.git
-                     GIT_TAG             2019-02-20)
+                     GIT_TAG             2019-03-29)
 FetchContent_GetProperties(spirv_cross)
 if(NOT spirv_cross_POPULATED)
     FetchContent_Populate(spirv_cross)
@@ -200,7 +199,7 @@ if (APPLE)
 
 endif()
 
-target_link_libraries(vortex2d PUBLIC glm ${VULKAN_LIBRARIES} PRIVATE spirv-cross-core)
+target_link_libraries(vortex2d PUBLIC ${VULKAN_LIBRARIES} PRIVATE spirv-cross-core glm)
 
 target_include_directories(vortex2d
     PUBLIC
@@ -212,18 +211,6 @@ target_include_directories(vortex2d
 # windows definition to correctly generate the dll
 if(WIN32)
     target_compile_definitions(vortex2d PRIVATE VORTEX2D_API_EXPORTS)
-
-    # Copy dlls
-    function(vortex2d_copy_dll)
-        list(GET ARGN 0 target)
-        list(REMOVE_AT ARGN 0)
-
-        add_custom_command(
-        TARGET ${target} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy
-            $<TARGET_FILE:vortex2d>
-            $<TARGET_FILE_DIR:${target}>)
-    endfunction()
 endif()
 
 install(TARGETS vortex2d

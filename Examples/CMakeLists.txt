@@ -14,6 +14,8 @@ if(NOT glfw3_POPULATED)
   add_subdirectory(${glfw3_SOURCE_DIR} ${glfw3_BINARY_DIR})
 endif()
 
+set(BOX2D_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(BOX2D_INSTALL OFF CACHE BOOL "" FORCE)
 FetchContent_Declare(box2d
                      GIT_REPOSITORY      https://github.com/erincatto/Box2D.git
                      GIT_TAG             v2.3.1)
@@ -21,7 +23,6 @@ FetchContent_Declare(box2d
 FetchContent_GetProperties(box2d)
 if(NOT box2d_POPULATED)
   FetchContent_Populate(box2d)
-  set(BOX2D_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
   add_subdirectory(${box2d_SOURCE_DIR}/Box2D ${box2d_BINARY_DIR})
 endif()
 
@@ -40,7 +41,7 @@ file(GLOB EXAMPLES_SOURCES
         "Rigidbody.cpp")
 
 add_executable(vortex2d_examples ${EXAMPLES_SOURCES})
-target_link_libraries(vortex2d_examples vortex2d glfw Box2D)
+target_link_libraries(vortex2d_examples vortex2d glfw Box2D glm)
 target_include_directories(vortex2d_examples PRIVATE
     $<TARGET_PROPERTY:glfw,INTERFACE_INCLUDE_DIRECTORIES>
     ${box2d_SOURCE_DIR}/Box2D)
