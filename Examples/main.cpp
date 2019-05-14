@@ -201,6 +201,7 @@ int main()
     glfwSetErrorCallback(ErrorCallback);
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+    glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GL_FALSE);
 
 #ifdef NDEBUG
     bool debug = false;
