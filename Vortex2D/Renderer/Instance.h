@@ -33,6 +33,7 @@ public:
 
 private:
   vk::UniqueInstance mInstance;
+  vk::DispatchLoaderDynamic mLoader;
   vk::PhysicalDevice mPhysicalDevice;
   vk::DebugReportCallbackEXT mDebugCallback;
 };

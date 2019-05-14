@@ -16,7 +16,8 @@ namespace Fluid
 ConjugateGradient::ConjugateGradient(const Renderer::Device& device,
                                      const glm::ivec2& size,
                                      Preconditioner& preconditioner)
-    : mPreconditioner(preconditioner)
+    : mDevice(device)
+    , mPreconditioner(preconditioner)
     , r(device, size.x * size.y)
     , s(device, size.x * size.y)
     , z(device, size.x * size.y)
@@ -66,7 +67,7 @@ void ConjugateGradient::Bind(Renderer::GenericBuffer& d,
   multiplyAddPBound = multiplyAdd.Bind({pressure, s, alpha, pressure});
 
   mSolveInit.Record([&](vk::CommandBuffer commandBuffer) {
-    commandBuffer.debugMarkerBeginEXT({"PCG Init", {{0.63f, 0.04f, 0.66f, 1.0f}}});
+    commandBuffer.debugMarkerBeginEXT({"PCG Init", {{0.63f, 0.04f, 0.66f, 1.0f}}}, mDevice.Loader());
 
     // r = b
     r.CopyFrom(commandBuffer, b);
@@ -91,11 +92,11 @@ void ConjugateGradient::Bind(Renderer::GenericBuffer& d,
     reduceSumRhoBound.Record(commandBuffer);
     z.Clear(commandBuffer);
 
-    commandBuffer.debugMarkerEndEXT();
+    commandBuffer.debugMarkerEndEXT(mDevice.Loader());
   });
 
   mSolve.Record([&](vk::CommandBuffer commandBuffer) {
-    commandBuffer.debugMarkerBeginEXT({"PCG Step", {{0.51f, 0.90f, 0.72f, 1.0f}}});
+    commandBuffer.debugMarkerBeginEXT({"PCG Step", {{0.51f, 0.90f, 0.72f, 1.0f}}}, mDevice.Loader());
 
     // z = As
     matrixMultiplyBound.Record(commandBuffer);
@@ -144,7 +145,7 @@ void ConjugateGradient::Bind(Renderer::GenericBuffer& d,
     // rho = rho_new
     rho.CopyFrom(commandBuffer, rho_new);
 
-    commandBuffer.debugMarkerEndEXT();
+    commandBuffer.debugMarkerEndEXT(mDevice.Loader());
   });
 }
 

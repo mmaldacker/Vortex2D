@@ -64,6 +64,7 @@ public:
   VORTEX2D_API void VelocityDiff();
 
 private:
+  const Renderer::Device& mDevice;
   Renderer::Texture mOutputVelocity;
   Renderer::Texture mDVelocity;
 

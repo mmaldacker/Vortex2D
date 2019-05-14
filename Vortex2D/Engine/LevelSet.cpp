@@ -18,6 +18,7 @@ LevelSet::LevelSet(const Renderer::Device& device,
                    const glm::ivec2& size,
                    int reinitializeIterations)
     : Renderer::RenderTexture(device, size.x, size.y, vk::Format::eR32Sfloat)
+    , mDevice(device)
     , mLevelSet0(device, size.x, size.y, vk::Format::eR32Sfloat)
     , mLevelSetBack(device, size.x, size.y, vk::Format::eR32Sfloat)
     , mSampler(Renderer::SamplerBuilder()
@@ -36,7 +37,7 @@ LevelSet::LevelSet(const Renderer::Device& device,
     , mShrinkWrapCmd(device, false)
 {
   mReinitialiseCmd.Record([&, reinitializeIterations](vk::CommandBuffer commandBuffer) {
-    commandBuffer.debugMarkerBeginEXT({"Reinitialise", {{0.98f, 0.49f, 0.26f, 1.0f}}});
+    commandBuffer.debugMarkerBeginEXT({"Reinitialise", {{0.98f, 0.49f, 0.26f, 1.0f}}}, mDevice.Loader());
 
     mLevelSet0.CopyFrom(commandBuffer, *this);
 
@@ -58,11 +59,11 @@ LevelSet::LevelSet(const Renderer::Device& device,
               vk::AccessFlagBits::eShaderRead);
     }
 
-    commandBuffer.debugMarkerEndEXT();
+    commandBuffer.debugMarkerEndEXT(mDevice.Loader());
   });
 
   mShrinkWrapCmd.Record([&](vk::CommandBuffer commandBuffer) {
-    commandBuffer.debugMarkerBeginEXT({"Shrink Wrap", {{0.36f, 0.71f, 0.38f, 1.0f}}});
+    commandBuffer.debugMarkerBeginEXT({"Shrink Wrap", {{0.36f, 0.71f, 0.38f, 1.0f}}}, mDevice.Loader());
     mShrinkWrapBound.Record(commandBuffer);
     mLevelSetBack.Barrier(commandBuffer,
                           vk::ImageLayout::eGeneral,
@@ -70,12 +71,13 @@ LevelSet::LevelSet(const Renderer::Device& device,
                           vk::ImageLayout::eGeneral,
                           vk::AccessFlagBits::eShaderRead);
     CopyFrom(commandBuffer, mLevelSetBack);
-    commandBuffer.debugMarkerEndEXT();
+    commandBuffer.debugMarkerEndEXT(mDevice.Loader());
   });
 }
 
 LevelSet::LevelSet(LevelSet&& other)
     : Renderer::RenderTexture(std::move(other))
+    , mDevice(other.mDevice)
     , mLevelSet0(std::move(other.mLevelSet0))
     , mLevelSetBack(std::move(other.mLevelSetBack))
     , mSampler(std::move(other.mSampler))
@@ -96,14 +98,14 @@ void LevelSet::ExtrapolateBind(Renderer::Texture& solidPhi)
 {
   mExtrapolateBound = mExtrapolate.Bind({solidPhi, *this});
   mExtrapolateCmd.Record([&](vk::CommandBuffer commandBuffer) {
-    commandBuffer.debugMarkerBeginEXT({"Extrapolate phi", {{0.53f, 0.09f, 0.16f, 1.0f}}});
+    commandBuffer.debugMarkerBeginEXT({"Extrapolate phi", {{0.53f, 0.09f, 0.16f, 1.0f}}}, mDevice.Loader());
     mExtrapolateBound.Record(commandBuffer);
     Barrier(commandBuffer,
             vk::ImageLayout::eGeneral,
             vk::AccessFlagBits::eShaderWrite,
             vk::ImageLayout::eGeneral,
             vk::AccessFlagBits::eShaderRead);
-    commandBuffer.debugMarkerEndEXT();
+    commandBuffer.debugMarkerEndEXT(mDevice.Loader());
   });
 }
 

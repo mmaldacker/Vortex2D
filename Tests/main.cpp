@@ -27,9 +27,8 @@ int main(int argc, char** argv)
   bool debug = true;
 #endif
 
-  std::vector<const char*> extensions;
-  Vortex2D::Renderer::Instance instance("Tests", extensions, debug);
-  Vortex2D::Renderer::Device device_(instance.GetPhysicalDevice());
+  Vortex2D::Renderer::Instance instance("Tests", {}, debug);
+  Vortex2D::Renderer::Device device_(instance);
 
   device = &device_;
 

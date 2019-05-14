@@ -70,6 +70,7 @@ public:
   VORTEX2D_API void AdvectParticles();
 
 private:
+  const Renderer::Device& mDevice;
   float mDt;
   glm::ivec2 mSize;
   Velocity& mVelocity;

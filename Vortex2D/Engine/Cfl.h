@@ -37,6 +37,7 @@ public:
   VORTEX2D_API float Get();
 
 private:
+  const Renderer::Device& mDevice;
   glm::ivec2 mSize;
   Velocity& mVelocity;
   Renderer::Work mVelocityMaxWork;

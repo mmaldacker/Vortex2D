@@ -13,26 +13,6 @@
 #define VMA_IMPLEMENTATION
 #include <Vortex2D/Utils/vk_mem_alloc.h>
 
-static PFN_vkCmdDebugMarkerBeginEXT vortex2d_vkCmdDebugMarkerBeginEXT = nullptr;
-static PFN_vkCmdDebugMarkerEndEXT vortex2d_vkCmdDebugMarkerEndEXT = nullptr;
-
-VKAPI_ATTR void VKAPI_CALL vkCmdDebugMarkerBeginEXT(VkCommandBuffer commandBuffer,
-                                                    const VkDebugMarkerMarkerInfoEXT* pMarkerInfo)
-{
-  if (vortex2d_vkCmdDebugMarkerBeginEXT)
-  {
-    vortex2d_vkCmdDebugMarkerBeginEXT(commandBuffer, pMarkerInfo);
-  }
-}
-
-VKAPI_ATTR void VKAPI_CALL vkCmdDebugMarkerEndEXT(VkCommandBuffer commandBuffer)
-{
-  if (vortex2d_vkCmdDebugMarkerEndEXT)
-  {
-    vortex2d_vkCmdDebugMarkerEndEXT(commandBuffer);
-  }
-}
-
 namespace Vortex2D
 {
 namespace Renderer
@@ -64,18 +44,39 @@ int ComputeFamilyIndex(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface
 }
 }  // namespace
 
-Device::Device(vk::PhysicalDevice physicalDevice, bool validation)
-    : Device(physicalDevice, ComputeFamilyIndex(physicalDevice), false, validation)
+void DynamicDispatcher::vkCmdDebugMarkerBeginEXT(VkCommandBuffer commandBuffer, const VkDebugMarkerMarkerInfoEXT* pMarkerInfo) const
+{
+  if (mVkCmdDebugMarkerBeginEXT != nullptr)
+  {
+    mVkCmdDebugMarkerBeginEXT(commandBuffer, pMarkerInfo);
+  }
+}
+
+void DynamicDispatcher::vkCmdDebugMarkerEndEXT(VkCommandBuffer commandBuffer) const
+{
+  if (mVkCmdDebugMarkerEndEXT != nullptr)
+  {
+    mVkCmdDebugMarkerEndEXT(commandBuffer);
+  }
+}
+
+Device::Device(const Instance& instance, bool validation)
+    : Device(instance, ComputeFamilyIndex(instance.GetPhysicalDevice()), false, validation)
 {
 }
 
-Device::Device(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface, bool validation)
-    : Device(physicalDevice, ComputeFamilyIndex(physicalDevice, surface), true, validation)
+Device::Device(const Instance& instance,
+               vk::SurfaceKHR surface,
+               bool validation)
+    : Device(instance, ComputeFamilyIndex(instance.GetPhysicalDevice(), surface), true, validation)
 {
 }
 
-Device::Device(vk::PhysicalDevice physicalDevice, int familyIndex, bool surface, bool validation)
-    : mPhysicalDevice(physicalDevice)
+Device::Device(const Instance& instance,
+               int familyIndex,
+               bool surface,
+               bool validation)
+    : mPhysicalDevice(instance.GetPhysicalDevice())
     , mFamilyIndex(familyIndex)
     , mLayoutManager(*this)
     , mPipelineCache(*this)
@@ -95,8 +96,8 @@ Device::Device(vk::PhysicalDevice physicalDevice, int familyIndex, bool surface,
   }
 
   // make sure we request valid layers only
-  auto availableLayers = physicalDevice.enumerateDeviceLayerProperties();
-  auto availableExtensions = physicalDevice.enumerateDeviceExtensionProperties();
+  auto availableLayers = mPhysicalDevice.enumerateDeviceLayerProperties();
+  auto availableExtensions = mPhysicalDevice.enumerateDeviceExtensionProperties();
 
   // add validation extensions and layers
   if (validation)
@@ -122,15 +123,15 @@ Device::Device(vk::PhysicalDevice physicalDevice, int familyIndex, bool surface,
                         .setEnabledLayerCount((uint32_t)validationLayers.size())
                         .setPpEnabledLayerNames(validationLayers.data());
 
-  mDevice = physicalDevice.createDeviceUnique(deviceInfo);
+  mDevice = mPhysicalDevice.createDeviceUnique(deviceInfo);
   mQueue = mDevice->getQueue(familyIndex, 0);
 
   // load marker ext
   if (HasExtension(VK_EXT_DEBUG_MARKER_EXTENSION_NAME, availableExtensions))
   {
-    vortex2d_vkCmdDebugMarkerBeginEXT =
+    mLoader.mVkCmdDebugMarkerBeginEXT =
         (PFN_vkCmdDebugMarkerBeginEXT)vkGetDeviceProcAddr(*mDevice, "vkCmdDebugMarkerBeginEXT");
-    vortex2d_vkCmdDebugMarkerEndEXT =
+    mLoader.mVkCmdDebugMarkerEndEXT =
         (PFN_vkCmdDebugMarkerEndEXT)vkGetDeviceProcAddr(*mDevice, "vkCmdDebugMarkerEndEXT");
   }
 
@@ -169,6 +170,11 @@ vk::Device Device::Handle() const
 vk::Queue Device::Queue() const
 {
   return mQueue;
+}
+
+const DynamicDispatcher& Device::Loader() const
+{
+  return mLoader;
 }
 
 LayoutManager& Device::GetLayoutManager() const

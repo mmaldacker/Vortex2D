@@ -7,36 +7,6 @@
 
 #include <iostream>
 
-static PFN_vkCreateDebugReportCallbackEXT vortex2d_vkCreateDebugReportCallbackEXT = nullptr;
-static PFN_vkDestroyDebugReportCallbackEXT vortex2d_vkDestroyDebugReportCallbackEXT = nullptr;
-static PFN_vkDebugReportMessageEXT vortex2d_vkDebugReportMessageEXT = nullptr;
-
-VKAPI_ATTR VkResult VKAPI_CALL
-vkCreateDebugReportCallbackEXT(VkInstance instance,
-                               const VkDebugReportCallbackCreateInfoEXT* pCreateInfo,
-                               const VkAllocationCallbacks* pAllocator,
-                               VkDebugReportCallbackEXT* pCallback)
-{
-  if (vortex2d_vkCreateDebugReportCallbackEXT)
-  {
-    return vortex2d_vkCreateDebugReportCallbackEXT(instance, pCreateInfo, pAllocator, pCallback);
-  }
-  else
-  {
-    return VK_INCOMPLETE;
-  }
-}
-
-VKAPI_ATTR void VKAPI_CALL vkDestroyDebugReportCallbackEXT(VkInstance instance,
-                                                           VkDebugReportCallbackEXT callback,
-                                                           const VkAllocationCallbacks* pAllocator)
-{
-  if (vortex2d_vkDestroyDebugReportCallbackEXT)
-  {
-    vortex2d_vkDestroyDebugReportCallbackEXT(instance, callback, pAllocator);
-  }
-}
-
 VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugReportFlagsEXT /*flags*/,
                                              VkDebugReportObjectTypeEXT /*objType*/,
                                              uint64_t /*obj*/,
@@ -109,18 +79,8 @@ Instance::Instance(const std::string& name,
     mInstance = vk::createInstanceUnique(instanceInfo);
   }
 
-  // load debug ext
-  if (HasExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME, availableExtensions))
-  {
-    vortex2d_vkCreateDebugReportCallbackEXT =
-        (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(*mInstance,
-                                                                  "vkCreateDebugReportCallbackEXT");
-    vortex2d_vkDestroyDebugReportCallbackEXT =
-        (PFN_vkDestroyDebugReportCallbackEXT)vkGetInstanceProcAddr(
-            *mInstance, "vkDestroyDebugReportCallbackEXT");
-    vortex2d_vkDebugReportMessageEXT =
-        (PFN_vkDebugReportMessageEXT)vkGetInstanceProcAddr(*mInstance, "vkDebugReportMessageEXT");
-  }
+  // init dynamic loader
+  mLoader.init(*mInstance);
 
   // add the validation calback if necessary
   if (validation && HasExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME, availableExtensions))
@@ -130,7 +90,7 @@ Instance::Instance(const std::string& name,
             .setPfnCallback(debugCallback)
             .setFlags(vk::DebugReportFlagBitsEXT::eWarning | vk::DebugReportFlagBitsEXT::eError);
 
-    mDebugCallback = mInstance->createDebugReportCallbackEXT(debugCallbackInfo);
+    mDebugCallback = mInstance->createDebugReportCallbackEXT(debugCallbackInfo, nullptr, mLoader);
   }
 
   // find first discrete GPU
@@ -151,7 +111,7 @@ Instance::Instance(const std::string& name,
 
 Instance::~Instance()
 {
-  mInstance->destroyDebugReportCallbackEXT(mDebugCallback);
+  mInstance->destroyDebugReportCallbackEXT(mDebugCallback, nullptr, mLoader);
 }
 
 vk::PhysicalDevice Instance::GetPhysicalDevice() const

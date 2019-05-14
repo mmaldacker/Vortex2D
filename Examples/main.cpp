@@ -84,7 +84,7 @@ public:
       : glfwWindow(GetGLFWWindow(windowSize))
       , instance("Vortex2D", GetGLFWExtensions(), validation)
       , surface(GetGLFWSurface(glfwWindow, static_cast<VkInstance>(instance.GetInstance())))
-      , device(instance.GetPhysicalDevice(), *surface, validation)
+      , device(instance, *surface, validation)
       , window(device,
                *surface,
                (uint32_t)(windowSize.x),

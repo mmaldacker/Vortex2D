@@ -98,6 +98,7 @@ private:
 
   void RecursiveBind(Pressure& pressure, std::size_t depth);
 
+  const Renderer::Device& mDevice;
   Depth mDepth;
   float mDelta;
 

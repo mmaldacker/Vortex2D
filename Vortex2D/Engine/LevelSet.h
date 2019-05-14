@@ -52,6 +52,7 @@ public:
   VORTEX2D_API void Extrapolate();
 
 private:
+  const Renderer::Device& mDevice;
   Renderer::Texture mLevelSet0;
   Renderer::Texture mLevelSetBack;
 

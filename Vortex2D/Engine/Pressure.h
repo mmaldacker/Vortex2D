@@ -61,6 +61,7 @@ public:
   VORTEX2D_API void ApplyPressure();
 
 private:
+  const Renderer::Device& mDevice;
   LinearSolver::Data& mData;
   Renderer::Work mBuildMatrix;
   Renderer::Work::Bound mBuildMatrixBound;

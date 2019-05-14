@@ -41,7 +41,8 @@ glm::ivec2 Depth::GetDepthSize(std::size_t i) const
 }
 
 Multigrid::Multigrid(const Renderer::Device& device, const glm::ivec2& size, float delta)
-    : mDepth(size)
+    : mDevice(device)
+    , mDepth(size)
     , mDelta(delta)
     , mResidualWork(device, size, SPIRV::Residual_comp)
     , mTransfer(device)
@@ -99,7 +100,7 @@ void Multigrid::BuildHierarchiesBind(Pressure& pressure,
   RecursiveBind(pressure, 1);
 
   mBuildHierarchies.Record([&](vk::CommandBuffer commandBuffer) {
-    commandBuffer.debugMarkerBeginEXT({"Build hierarchies", {{0.36f, 0.85f, 0.55f, 1.0f}}});
+    commandBuffer.debugMarkerBeginEXT({"Build hierarchies", {{0.36f, 0.85f, 0.55f, 1.0f}}}, mDevice.Loader());
     for (int i = 0; i < mDepth.GetMaxDepth(); i++)
     {
       mLiquidPhiScaleWorkBound[i].Record(commandBuffer);
@@ -132,7 +133,7 @@ void Multigrid::BuildHierarchiesBind(Pressure& pressure,
         commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
     mDatas[maxDepth - 1].Lower.Barrier(
         commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-    commandBuffer.debugMarkerEndEXT();
+    commandBuffer.debugMarkerEndEXT(mDevice.Loader());
   });
 }
 
@@ -200,7 +201,7 @@ void Multigrid::Smoother(vk::CommandBuffer commandBuffer, int n, int iterations)
 
 void Multigrid::Record(vk::CommandBuffer commandBuffer)
 {
-  commandBuffer.debugMarkerBeginEXT({"Multigrid", {{0.48f, 0.25f, 0.19f, 1.0f}}});
+  commandBuffer.debugMarkerBeginEXT({"Multigrid", {{0.48f, 0.25f, 0.19f, 1.0f}}}, mDevice.Loader());
 
   const int numIterations = 3;
 
@@ -229,7 +230,7 @@ void Multigrid::Record(vk::CommandBuffer commandBuffer)
     Smoother(commandBuffer, i, numIterations);
   }
 
-  commandBuffer.debugMarkerEndEXT();
+  commandBuffer.debugMarkerEndEXT(mDevice.Loader());
 }
 
 }  // namespace Fluid

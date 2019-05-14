@@ -12,7 +12,8 @@ namespace Vortex2D
 namespace Fluid
 {
 Cfl::Cfl(const Renderer::Device& device, const glm::ivec2& size, Velocity& velocity)
-    : mSize(size)
+    : mDevice(device)
+    , mSize(size)
     , mVelocity(velocity)
     , mVelocityMaxWork(device, size, SPIRV::VelocityMax_comp)
     , mVelocityMax(device, size.x * size.y)
@@ -23,12 +24,12 @@ Cfl::Cfl(const Renderer::Device& device, const glm::ivec2& size, Velocity& veloc
   mVelocityMaxBound = mVelocityMaxWork.Bind({mVelocity, mVelocityMax});
   mReduceVelocityMaxBound = mReduceVelocityMax.Bind(mVelocityMax, mCfl);
   mVelocityMaxCmd.Record([&](vk::CommandBuffer commandBuffer) {
-    commandBuffer.debugMarkerBeginEXT({"CFL", {{0.65f, 0.97f, 0.78f, 1.0f}}});
+    commandBuffer.debugMarkerBeginEXT({"CFL", {{0.65f, 0.97f, 0.78f, 1.0f}}}, mDevice.Loader());
 
     mVelocityMaxBound.Record(commandBuffer);
     mReduceVelocityMaxBound.Record(commandBuffer);
 
-    commandBuffer.debugMarkerEndEXT();
+    commandBuffer.debugMarkerEndEXT(mDevice.Loader());
   });
 }
 

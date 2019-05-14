@@ -21,7 +21,8 @@ Pressure::Pressure(const Renderer::Device& device,
                    Renderer::Texture& solidPhi,
                    Renderer::Texture& liquidPhi,
                    Renderer::GenericBuffer& valid)
-    : mData(data)
+    : mDevice(device)
+    , mData(data)
     , mBuildMatrix(device, size, SPIRV::BuildMatrix_comp)
     , mBuildMatrixBound(mBuildMatrix.Bind({data.Diagonal, data.Lower, liquidPhi, solidPhi}))
     , mBuildDiv(device, size, SPIRV::BuildDiv_comp)
@@ -33,7 +34,7 @@ Pressure::Pressure(const Renderer::Device& device,
     , mProjectCmd(device, false)
 {
   mBuildEquationCmd.Record([&](vk::CommandBuffer commandBuffer) {
-    commandBuffer.debugMarkerBeginEXT({"Build equations", {{0.02f, 0.68f, 0.84f, 1.0f}}});
+    commandBuffer.debugMarkerBeginEXT({"Build equations", {{0.02f, 0.68f, 0.84f, 1.0f}}}, mDevice.Loader());
     mBuildMatrixBound.PushConstant(commandBuffer, dt);
     mBuildMatrixBound.Record(commandBuffer);
     data.Diagonal.Barrier(
@@ -43,16 +44,16 @@ Pressure::Pressure(const Renderer::Device& device,
     mBuildDivBound.Record(commandBuffer);
     data.B.Barrier(
         commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-    commandBuffer.debugMarkerEndEXT();
+    commandBuffer.debugMarkerEndEXT(mDevice.Loader());
   });
 
   mProjectCmd.Record([&](vk::CommandBuffer commandBuffer) {
-    commandBuffer.debugMarkerBeginEXT({"Pressure", {{0.45f, 0.47f, 0.75f, 1.0f}}});
+    commandBuffer.debugMarkerBeginEXT({"Pressure", {{0.45f, 0.47f, 0.75f, 1.0f}}}, mDevice.Loader());
     valid.Clear(commandBuffer);
     mProjectBound.PushConstant(commandBuffer, dt);
     mProjectBound.Record(commandBuffer);
     velocity.CopyBack(commandBuffer);
-    commandBuffer.debugMarkerEndEXT();
+    commandBuffer.debugMarkerEndEXT(mDevice.Loader());
   });
 }
 

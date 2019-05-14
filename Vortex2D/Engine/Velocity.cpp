@@ -13,6 +13,7 @@ namespace Fluid
 {
 Velocity::Velocity(const Renderer::Device& device, const glm::ivec2& size)
     : Renderer::RenderTexture(device, size.x, size.y, vk::Format::eR32G32Sfloat)
+    , mDevice(device)
     , mOutputVelocity(device, size.x, size.y, vk::Format::eR32G32Sfloat)
     , mDVelocity(device, size.x, size.y, vk::Format::eR32G32Sfloat)
     , mVelocityDiff(device, size, SPIRV::VelocityDifference_comp)
@@ -24,7 +25,7 @@ Velocity::Velocity(const Renderer::Device& device, const glm::ivec2& size)
       [&](vk::CommandBuffer commandBuffer) { mDVelocity.CopyFrom(commandBuffer, *this); });
 
   mVelocityDiffCmd.Record([&](vk::CommandBuffer commandBuffer) {
-    commandBuffer.debugMarkerBeginEXT({"Velocity diff", {{0.32f, 0.60f, 0.67f, 1.0f}}});
+    commandBuffer.debugMarkerBeginEXT({"Velocity diff", {{0.32f, 0.60f, 0.67f, 1.0f}}}, mDevice.Loader());
     mVelocityDiffBound.Record(commandBuffer);
     mOutputVelocity.Barrier(commandBuffer,
                             vk::ImageLayout::eGeneral,
@@ -32,7 +33,7 @@ Velocity::Velocity(const Renderer::Device& device, const glm::ivec2& size)
                             vk::ImageLayout::eGeneral,
                             vk::AccessFlagBits::eShaderRead);
     mDVelocity.CopyFrom(commandBuffer, mOutputVelocity);
-    commandBuffer.debugMarkerEndEXT();
+    commandBuffer.debugMarkerEndEXT(mDevice.Loader());
   });
 }
 

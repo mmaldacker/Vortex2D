@@ -51,6 +51,7 @@ public:
                           const std::vector<RigidBody*>& rigidbodies = {}) override;
 
 private:
+  const Renderer::Device& mDevice;
   Preconditioner& mPreconditioner;
 
   Renderer::Buffer<float> r, s, z, inner, alpha, beta, rho, rho_new, sigma;

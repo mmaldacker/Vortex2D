@@ -48,6 +48,7 @@ public:
   VORTEX2D_API void ConstrainVelocity();
 
 private:
+  const Renderer::Device& mDevice;
   Renderer::Buffer<glm::ivec2> mValid;
   Velocity& mVelocity;
 
