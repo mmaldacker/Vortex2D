@@ -80,7 +80,7 @@ Instance::Instance(const std::string& name,
   }
 
   // init dynamic loader
-  mLoader.init(*mInstance);
+  mLoader.init(*mInstance, vkGetInstanceProcAddr, VK_NULL_HANDLE, nullptr);
 
   // add the validation calback if necessary
   if (validation && HasExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME, availableExtensions))
