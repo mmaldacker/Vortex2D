@@ -1,3 +1,27 @@
+# Release 1.7
+
+* Added `SetType` to rigidbody
+* Additional checks for texture and buffer copies
+* Added compute and graphics pipeline cache
+* Buffer not cleared on construction anymore
+* Fix PCG exit condition
+* Not loading surface for unit-tests
+* Clear swapchains on startup
+* Fix missing transferDst flag to swapchain images
+* Documentation improvements
+* vk_mem_alloc upgrade to 2.2.0
+* Fix prefix scan compute shader constants
+* Using spirv-cross version 2019-03-29
+* Prefer discrete gpu when creating device
+* Use static version of MoltenVK
+* Added `ParticlePhi` method to WaterWorld
+* Clear texture on construction only if device local memory
+* Fix family queue index selection
+* Minimum cmake requirements bumbed to 3.11 (because of FetchContent)
+* Fixed high-dpi scaling for example
+* Improved cmake install
+* Improved dynamic loading of vulkan extension functions
+
 # Release 1.6
 
 * Improved API of command buffer and render command. All functions return `*this`.
