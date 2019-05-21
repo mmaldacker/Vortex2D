@@ -34,7 +34,8 @@ Pressure::Pressure(const Renderer::Device& device,
     , mProjectCmd(device, false)
 {
   mBuildEquationCmd.Record([&](vk::CommandBuffer commandBuffer) {
-    commandBuffer.debugMarkerBeginEXT({"Build equations", {{0.02f, 0.68f, 0.84f, 1.0f}}}, mDevice.Loader());
+    commandBuffer.debugMarkerBeginEXT({"Build equations", {{0.02f, 0.68f, 0.84f, 1.0f}}},
+                                      mDevice.Loader());
     mBuildMatrixBound.PushConstant(commandBuffer, dt);
     mBuildMatrixBound.Record(commandBuffer);
     data.Diagonal.Barrier(
@@ -48,7 +49,8 @@ Pressure::Pressure(const Renderer::Device& device,
   });
 
   mProjectCmd.Record([&](vk::CommandBuffer commandBuffer) {
-    commandBuffer.debugMarkerBeginEXT({"Pressure", {{0.45f, 0.47f, 0.75f, 1.0f}}}, mDevice.Loader());
+    commandBuffer.debugMarkerBeginEXT({"Pressure", {{0.45f, 0.47f, 0.75f, 1.0f}}},
+                                      mDevice.Loader());
     valid.Clear(commandBuffer);
     mProjectBound.PushConstant(commandBuffer, dt);
     mProjectBound.Record(commandBuffer);

@@ -37,7 +37,8 @@ LevelSet::LevelSet(const Renderer::Device& device,
     , mShrinkWrapCmd(device, false)
 {
   mReinitialiseCmd.Record([&, reinitializeIterations](vk::CommandBuffer commandBuffer) {
-    commandBuffer.debugMarkerBeginEXT({"Reinitialise", {{0.98f, 0.49f, 0.26f, 1.0f}}}, mDevice.Loader());
+    commandBuffer.debugMarkerBeginEXT({"Reinitialise", {{0.98f, 0.49f, 0.26f, 1.0f}}},
+                                      mDevice.Loader());
 
     mLevelSet0.CopyFrom(commandBuffer, *this);
 
@@ -63,7 +64,8 @@ LevelSet::LevelSet(const Renderer::Device& device,
   });
 
   mShrinkWrapCmd.Record([&](vk::CommandBuffer commandBuffer) {
-    commandBuffer.debugMarkerBeginEXT({"Shrink Wrap", {{0.36f, 0.71f, 0.38f, 1.0f}}}, mDevice.Loader());
+    commandBuffer.debugMarkerBeginEXT({"Shrink Wrap", {{0.36f, 0.71f, 0.38f, 1.0f}}},
+                                      mDevice.Loader());
     mShrinkWrapBound.Record(commandBuffer);
     mLevelSetBack.Barrier(commandBuffer,
                           vk::ImageLayout::eGeneral,
@@ -98,7 +100,8 @@ void LevelSet::ExtrapolateBind(Renderer::Texture& solidPhi)
 {
   mExtrapolateBound = mExtrapolate.Bind({solidPhi, *this});
   mExtrapolateCmd.Record([&](vk::CommandBuffer commandBuffer) {
-    commandBuffer.debugMarkerBeginEXT({"Extrapolate phi", {{0.53f, 0.09f, 0.16f, 1.0f}}}, mDevice.Loader());
+    commandBuffer.debugMarkerBeginEXT({"Extrapolate phi", {{0.53f, 0.09f, 0.16f, 1.0f}}},
+                                      mDevice.Loader());
     mExtrapolateBound.Record(commandBuffer);
     Barrier(commandBuffer,
             vk::ImageLayout::eGeneral,

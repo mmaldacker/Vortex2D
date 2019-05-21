@@ -25,7 +25,8 @@ Velocity::Velocity(const Renderer::Device& device, const glm::ivec2& size)
       [&](vk::CommandBuffer commandBuffer) { mDVelocity.CopyFrom(commandBuffer, *this); });
 
   mVelocityDiffCmd.Record([&](vk::CommandBuffer commandBuffer) {
-    commandBuffer.debugMarkerBeginEXT({"Velocity diff", {{0.32f, 0.60f, 0.67f, 1.0f}}}, mDevice.Loader());
+    commandBuffer.debugMarkerBeginEXT({"Velocity diff", {{0.32f, 0.60f, 0.67f, 1.0f}}},
+                                      mDevice.Loader());
     mVelocityDiffBound.Record(commandBuffer);
     mOutputVelocity.Barrier(commandBuffer,
                             vk::ImageLayout::eGeneral,

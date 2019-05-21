@@ -85,10 +85,7 @@ public:
       , instance("Vortex2D", GetGLFWExtensions(), validation)
       , surface(GetGLFWSurface(glfwWindow, static_cast<VkInstance>(instance.GetInstance())))
       , device(instance, *surface, validation)
-      , window(device,
-               *surface,
-               (uint32_t)(windowSize.x),
-               (uint32_t)(windowSize.y))
+      , window(device, *surface, (uint32_t)(windowSize.x), (uint32_t)(windowSize.y))
       , clearRender(window.Record({clear}))
   {
     // setup callback

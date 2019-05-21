@@ -44,7 +44,9 @@ int ComputeFamilyIndex(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface
 }
 }  // namespace
 
-void DynamicDispatcher::vkCmdDebugMarkerBeginEXT(VkCommandBuffer commandBuffer, const VkDebugMarkerMarkerInfoEXT* pMarkerInfo) const
+void DynamicDispatcher::vkCmdDebugMarkerBeginEXT(
+    VkCommandBuffer commandBuffer,
+    const VkDebugMarkerMarkerInfoEXT* pMarkerInfo) const
 {
   if (mVkCmdDebugMarkerBeginEXT != nullptr)
   {
@@ -65,17 +67,12 @@ Device::Device(const Instance& instance, bool validation)
 {
 }
 
-Device::Device(const Instance& instance,
-               vk::SurfaceKHR surface,
-               bool validation)
+Device::Device(const Instance& instance, vk::SurfaceKHR surface, bool validation)
     : Device(instance, ComputeFamilyIndex(instance.GetPhysicalDevice(), surface), true, validation)
 {
 }
 
-Device::Device(const Instance& instance,
-               int familyIndex,
-               bool surface,
-               bool validation)
+Device::Device(const Instance& instance, int familyIndex, bool surface, bool validation)
     : mPhysicalDevice(instance.GetPhysicalDevice())
     , mFamilyIndex(familyIndex)
     , mLayoutManager(*this)

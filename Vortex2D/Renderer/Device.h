@@ -9,8 +9,8 @@
 #include <Vortex2D/Renderer/CommandBuffer.h>
 #include <Vortex2D/Renderer/Common.h>
 #include <Vortex2D/Renderer/DescriptorSet.h>
-#include <Vortex2D/Renderer/Pipeline.h>
 #include <Vortex2D/Renderer/Instance.h>
+#include <Vortex2D/Renderer/Pipeline.h>
 #include <Vortex2D/Utils/vk_mem_alloc.h>
 #include <map>
 
@@ -45,7 +45,8 @@ private:
  */
 struct DynamicDispatcher
 {
-  void vkCmdDebugMarkerBeginEXT(VkCommandBuffer commandBuffer, const VkDebugMarkerMarkerInfoEXT* pMarkerInfo) const;
+  void vkCmdDebugMarkerBeginEXT(VkCommandBuffer commandBuffer,
+                                const VkDebugMarkerMarkerInfoEXT* pMarkerInfo) const;
   void vkCmdDebugMarkerEndEXT(VkCommandBuffer commandBuffer) const;
 
   PFN_vkCmdDebugMarkerBeginEXT mVkCmdDebugMarkerBeginEXT = nullptr;
@@ -59,15 +60,9 @@ struct DynamicDispatcher
 class Device
 {
 public:
-  VORTEX2D_API Device(const Instance& instance,
-                      bool validation = true);
-  VORTEX2D_API Device(const Instance& instance,
-                      vk::SurfaceKHR surface,
-                      bool validation = true);
-  VORTEX2D_API Device(const Instance& instance,
-                      int familyIndex,
-                      bool surface,
-                      bool validation);
+  VORTEX2D_API Device(const Instance& instance, bool validation = true);
+  VORTEX2D_API Device(const Instance& instance, vk::SurfaceKHR surface, bool validation = true);
+  VORTEX2D_API Device(const Instance& instance, int familyIndex, bool surface, bool validation);
   VORTEX2D_API ~Device();
 
   Device(Device&&) = delete;

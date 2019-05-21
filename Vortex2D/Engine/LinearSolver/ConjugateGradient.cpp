@@ -67,7 +67,8 @@ void ConjugateGradient::Bind(Renderer::GenericBuffer& d,
   multiplyAddPBound = multiplyAdd.Bind({pressure, s, alpha, pressure});
 
   mSolveInit.Record([&](vk::CommandBuffer commandBuffer) {
-    commandBuffer.debugMarkerBeginEXT({"PCG Init", {{0.63f, 0.04f, 0.66f, 1.0f}}}, mDevice.Loader());
+    commandBuffer.debugMarkerBeginEXT({"PCG Init", {{0.63f, 0.04f, 0.66f, 1.0f}}},
+                                      mDevice.Loader());
 
     // r = b
     r.CopyFrom(commandBuffer, b);
@@ -96,7 +97,8 @@ void ConjugateGradient::Bind(Renderer::GenericBuffer& d,
   });
 
   mSolve.Record([&](vk::CommandBuffer commandBuffer) {
-    commandBuffer.debugMarkerBeginEXT({"PCG Step", {{0.51f, 0.90f, 0.72f, 1.0f}}}, mDevice.Loader());
+    commandBuffer.debugMarkerBeginEXT({"PCG Step", {{0.51f, 0.90f, 0.72f, 1.0f}}},
+                                      mDevice.Loader());
 
     // z = As
     matrixMultiplyBound.Record(commandBuffer);

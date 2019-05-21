@@ -31,7 +31,8 @@ Advection::Advection(const Renderer::Device& device,
     , mAdvectParticlesCmd(device, false)
 {
   mAdvectVelocityCmd.Record([&](vk::CommandBuffer commandBuffer) {
-    commandBuffer.debugMarkerBeginEXT({"Velocity advect", {{0.15f, 0.46f, 0.19f, 1.0f}}}, mDevice.Loader());
+    commandBuffer.debugMarkerBeginEXT({"Velocity advect", {{0.15f, 0.46f, 0.19f, 1.0f}}},
+                                      mDevice.Loader());
     mVelocityAdvectBound.PushConstant(commandBuffer, dt);
     mVelocityAdvectBound.Record(commandBuffer);
     velocity.CopyBack(commandBuffer);
@@ -48,7 +49,8 @@ void Advection::AdvectBind(Density& density)
 {
   mAdvectBound = mAdvect.Bind({mVelocity, density, density.mFieldBack});
   mAdvectCmd.Record([&](vk::CommandBuffer commandBuffer) {
-    commandBuffer.debugMarkerBeginEXT({"Density advect", {{0.86f, 0.14f, 0.52f, 1.0f}}}, mDevice.Loader());
+    commandBuffer.debugMarkerBeginEXT({"Density advect", {{0.86f, 0.14f, 0.52f, 1.0f}}},
+                                      mDevice.Loader());
     mAdvectBound.PushConstant(commandBuffer, mDt);
     mAdvectBound.Record(commandBuffer);
     density.mFieldBack.Barrier(commandBuffer,
@@ -77,7 +79,8 @@ void Advection::AdvectParticleBind(
   mAdvectParticlesBound =
       mAdvectParticles.Bind(mSize, {particles, dispatchParams, mVelocity, levelSet});
   mAdvectParticlesCmd.Record([&](vk::CommandBuffer commandBuffer) {
-    commandBuffer.debugMarkerBeginEXT({"Particle advect", {{0.09f, 0.17f, 0.36f, 1.0f}}}, mDevice.Loader());
+    commandBuffer.debugMarkerBeginEXT({"Particle advect", {{0.09f, 0.17f, 0.36f, 1.0f}}},
+                                      mDevice.Loader());
     mAdvectParticlesBound.PushConstant(commandBuffer, mDt);
     mAdvectParticlesBound.RecordIndirect(commandBuffer, dispatchParams);
     particles.Barrier(

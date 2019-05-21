@@ -100,7 +100,8 @@ void Multigrid::BuildHierarchiesBind(Pressure& pressure,
   RecursiveBind(pressure, 1);
 
   mBuildHierarchies.Record([&](vk::CommandBuffer commandBuffer) {
-    commandBuffer.debugMarkerBeginEXT({"Build hierarchies", {{0.36f, 0.85f, 0.55f, 1.0f}}}, mDevice.Loader());
+    commandBuffer.debugMarkerBeginEXT({"Build hierarchies", {{0.36f, 0.85f, 0.55f, 1.0f}}},
+                                      mDevice.Loader());
     for (int i = 0; i < mDepth.GetMaxDepth(); i++)
     {
       mLiquidPhiScaleWorkBound[i].Record(commandBuffer);
