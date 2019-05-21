@@ -110,7 +110,7 @@ public:
       : waterSource(device, {25.0, 25.0f})
       , waterForce(device, {25.0f, 25.0f})
       , gravity(device, glm::vec2(256.0f, 256.0f))
-      , world(device, size, dt, 2)
+      , world(device, size, dt, 2, Vortex2D::Fluid::Velocity::InterpolationMode::Linear)
       , solidPhi(world.SolidDistanceField())
       , liquidPhi(world.LiquidDistanceField())
       , rWorld(b2Vec2(0.0f, gravityForce))

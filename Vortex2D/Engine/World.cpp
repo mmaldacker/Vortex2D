@@ -21,7 +21,11 @@ void ForAll(std::vector<Class*>& elements, void (Class::*f)())
   }
 }
 
-World::World(const Renderer::Device& device, const glm::ivec2& size, float dt, int numSubSteps)
+World::World(const Renderer::Device& device,
+             const glm::ivec2& size,
+             float dt,
+             int numSubSteps,
+             Velocity::InterpolationMode interpolationMode)
     : mDevice(device)
     , mSize(size)
     , mDelta(dt / numSubSteps)
@@ -34,7 +38,7 @@ World::World(const Renderer::Device& device, const glm::ivec2& size, float dt, i
     , mStaticSolidPhi(device, size)
     , mDynamicSolidPhi(device, size)
     , mValid(device, size.x * size.y)
-    , mAdvection(device, size, mDelta, mVelocity)
+    , mAdvection(device, size, mDelta, mVelocity, interpolationMode)
     , mProjection(device, mDelta, size, mData, mVelocity, mDynamicSolidPhi, mLiquidPhi, mValid)
     , mExtrapolation(device, size, mValid, mVelocity)
     , mCopySolidPhi(device, false)
@@ -152,8 +156,11 @@ Renderer::Texture& World::GetVelocity()
   return mVelocity;
 }
 
-SmokeWorld::SmokeWorld(const Renderer::Device& device, const glm::ivec2& size, float dt)
-    : World(device, size, dt)
+SmokeWorld::SmokeWorld(const Renderer::Device& device,
+                       const glm::ivec2& size,
+                       float dt,
+                       Velocity::InterpolationMode interpolationMode)
+    : World(device, size, dt, 1, interpolationMode)
 {
 }
 
@@ -202,13 +209,14 @@ void SmokeWorld::FieldBind(Density& density)
 WaterWorld::WaterWorld(const Renderer::Device& device,
                        const glm::ivec2& size,
                        float dt,
-                       int numSubSteps)
-    : World(device, size, dt, numSubSteps)
+                       int numSubSteps,
+                       Velocity::InterpolationMode interpolationMode)
+    : World(device, size, dt, numSubSteps, interpolationMode)
     , mParticles(device,
                  vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eVertexBuffer,
                  VMA_MEMORY_USAGE_GPU_ONLY,
                  8 * size.x * size.y * sizeof(Particle))
-    , mParticleCount(device, size, mParticles, {0}, 0.02f)
+    , mParticleCount(device, size, mParticles, interpolationMode, {0}, 0.02f)
 {
   mParticleCount.LevelSetBind(mLiquidPhi);
   mParticleCount.VelocitiesBind(mVelocity, mValid);

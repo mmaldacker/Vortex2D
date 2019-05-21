@@ -24,6 +24,15 @@ namespace Fluid
 class Velocity : public Renderer::RenderTexture
 {
 public:
+  /**
+   * @brief Velocity interpolation when querying in the shader with non-integer locations.
+   */
+  enum class InterpolationMode : int
+  {
+    Linear = 0,
+    Cubic = 1,
+  };
+
   VORTEX2D_API Velocity(const Renderer::Device& device, const glm::ivec2& size);
 
   /**

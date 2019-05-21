@@ -143,7 +143,8 @@ TEST(ParticleTests, ParticleCounting)
   Buffer<Particle> particles(*device, 8 * size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
   CopyFrom(particles, particlesData);
 
-  ParticleCount particleCount(*device, size, particles, {numParticles});
+  ParticleCount particleCount(
+      *device, size, particles, Velocity::InterpolationMode::Cubic, {numParticles});
 
   particleCount.Scan();
   device->Handle().waitIdle();
@@ -165,7 +166,8 @@ TEST(ParticleTests, ParticleCounting_OffBounds)
   Buffer<Particle> particles(*device, 8 * size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
   CopyFrom(particles, particlesData);
 
-  ParticleCount particleCount(*device, size, particles, {numParticles});
+  ParticleCount particleCount(
+      *device, size, particles, Velocity::InterpolationMode::Cubic, {numParticles});
 
   particleCount.Scan();
   device->Handle().waitIdle();
@@ -186,7 +188,8 @@ TEST(ParticleTests, ParticleDelete)
   Buffer<Particle> particles(*device, 8 * size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
   CopyFrom(particles, particlesData);
 
-  ParticleCount particleCount(*device, size, particles, {numParticles});
+  ParticleCount particleCount(
+      *device, size, particles, Velocity::InterpolationMode::Cubic, {numParticles});
 
   // Count particles
   particleCount.Scan();
@@ -231,7 +234,8 @@ TEST(ParticleTests, ParticleClamp)
   Buffer<Particle> particles(*device, 8 * size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
   CopyFrom(particles, particlesData);
 
-  ParticleCount particleCount(*device, size, particles, {numParticles});
+  ParticleCount particleCount(
+      *device, size, particles, Velocity::InterpolationMode::Cubic, {numParticles});
 
   particleCount.Scan();
   device->Handle().waitIdle();
@@ -244,7 +248,7 @@ TEST(ParticleTests, ParticleSpawn)
   glm::ivec2 size(20);
 
   Buffer<Particle> particles(*device, 8 * size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
-  ParticleCount particleCount(*device, size, particles);
+  ParticleCount particleCount(*device, size, particles, Velocity::InterpolationMode::Cubic);
 
   // Add some particles
   IntRectangle rect(*device, {1, 1});
@@ -291,7 +295,7 @@ TEST(ParticleTests, ParticleAddDelete)
   glm::ivec2 size(20);
 
   Buffer<Particle> particles(*device, 8 * size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
-  ParticleCount particleCount(*device, size, particles);
+  ParticleCount particleCount(*device, size, particles, Velocity::InterpolationMode::Cubic);
 
   // Add some particles
   IntRectangle rectAdd(*device, {2, 4});
@@ -384,7 +388,8 @@ TEST(ParticleTests, Phi)
   particlesData.resize(8 * size.x * size.y);
   CopyFrom(particles, particlesData);
 
-  ParticleCount particleCount(*device, size, particles, {(int)sim.particles.size()});
+  ParticleCount particleCount(
+      *device, size, particles, Velocity::InterpolationMode::Cubic, {(int)sim.particles.size()});
 
   particleCount.Scan();
   device->Handle().waitIdle();
@@ -433,7 +438,12 @@ TEST(ParticleTests, FromGrid_PIC)
   particlesData.resize(8 * size.x * size.y);
   CopyFrom(particles, particlesData);
 
-  ParticleCount particleCount(*device, size, particles, {(int)sim.particles.size()}, alpha);
+  ParticleCount particleCount(*device,
+                              size,
+                              particles,
+                              Velocity::InterpolationMode::Cubic,
+                              {(int)sim.particles.size()},
+                              alpha);
 
   particleCount.Scan();
   device->Handle().waitIdle();
@@ -509,7 +519,12 @@ TEST(ParticleTests, FromGrid_FLIP)
   particlesData.resize(8 * size.x * size.y);
   CopyFrom(particles, particlesData);
 
-  ParticleCount particleCount(*device, size, particles, {(int)sim.particles.size()}, alpha);
+  ParticleCount particleCount(*device,
+                              size,
+                              particles,
+                              Velocity::InterpolationMode::Cubic,
+                              {(int)sim.particles.size()},
+                              alpha);
 
   particleCount.Scan();
   device->Handle().waitIdle();
@@ -590,7 +605,12 @@ TEST(ParticleTests, ToGrid)
   particlesData.resize(8 * size.x * size.y);
   CopyFrom(particles, particlesData);
 
-  ParticleCount particleCount(*device, size, particles, {(int)sim.particles.size()}, alpha);
+  ParticleCount particleCount(*device,
+                              size,
+                              particles,
+                              Velocity::InterpolationMode::Cubic,
+                              {(int)sim.particles.size()},
+                              alpha);
 
   particleCount.Scan();
   device->Handle().waitIdle();

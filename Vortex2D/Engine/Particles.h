@@ -33,6 +33,7 @@ public:
   VORTEX2D_API ParticleCount(const Renderer::Device& device,
                              const glm::ivec2& size,
                              Renderer::GenericBuffer& particles,
+                             Velocity::InterpolationMode interpolationMode,
                              const Renderer::DispatchParams& params = {0},
                              float alpha = 1.0f);
 

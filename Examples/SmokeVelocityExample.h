@@ -26,7 +26,7 @@ public:
       , force1(device, glm::vec2(5.0f))
       , force2(device, glm::vec2(5.0f))
       , density(device, size, vk::Format::eR8G8B8A8Unorm)
-      , world(device, size, dt)
+      , world(device, size, dt, Vortex2D::Fluid::Velocity::InterpolationMode::Linear)
       , clearObstacles({250.0f, 0.0f, 0.0f, 0.0f})
       , rWorld({0.0f, 0.0f})
       , solver(rWorld)

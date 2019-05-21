@@ -17,15 +17,22 @@ namespace Fluid
 Advection::Advection(const Renderer::Device& device,
                      const glm::ivec2& size,
                      float dt,
-                     Velocity& velocity)
+                     Velocity& velocity,
+                     Velocity::InterpolationMode interpolationMode)
     : mDevice(device)
     , mDt(dt)
     , mSize(size)
     , mVelocity(velocity)
-    , mVelocityAdvect(device, size, SPIRV::AdvectVelocity_comp)
+    , mVelocityAdvect(device,
+                      size,
+                      SPIRV::AdvectVelocity_comp,
+                      Renderer::SpecConst(Renderer::SpecConstValue(3, interpolationMode)))
     , mVelocityAdvectBound(mVelocityAdvect.Bind({velocity, velocity.Output()}))
     , mAdvect(device, size, SPIRV::Advect_comp)
-    , mAdvectParticles(device, Renderer::ComputeSize::Default1D(), SPIRV::AdvectParticles_comp)
+    , mAdvectParticles(device,
+                       Renderer::ComputeSize::Default1D(),
+                       SPIRV::AdvectParticles_comp,
+                       Renderer::SpecConst(Renderer::SpecConstValue(3, interpolationMode)))
     , mAdvectVelocityCmd(device, false)
     , mAdvectCmd(device, false)
     , mAdvectParticlesCmd(device, false)

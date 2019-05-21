@@ -53,12 +53,31 @@ float bicubic_interpolate_value(vec2 xy, int i)
     return bicubic(t, f)[i];
 }
 
+float linear_interpolate_value(vec2 xy, int i)
+{
+    ivec2 ij = ivec2(floor(xy));
+    vec2 f = xy - vec2(ij);
+
+    return mix(mix(imageLoad(Velocity, ij + ivec2(0, 0))[i], imageLoad(Velocity, ij + ivec2(1, 0))[i], f.x),
+               mix(imageLoad(Velocity, ij + ivec2(0, 1))[i], imageLoad(Velocity, ij + ivec2(1, 1))[i], f.x),
+               f.y);
+}
+
 vec2 get_velocity(vec2 xy)
 {
-    float u = bicubic_interpolate_value(xy - vec2(0.0, 0.5), 0);
-    float v = bicubic_interpolate_value(xy - vec2(0.5, 0.0), 1);
+    vec2 vel;
+    if (interpolationMode == 0)
+    {
+        vel.x = linear_interpolate_value(xy - vec2(0.0, 0.5), 0);
+        vel.y = linear_interpolate_value(xy - vec2(0.5, 0.0), 1);
+    }
+    else
+    {
+        vel.x = bicubic_interpolate_value(xy - vec2(0.0, 0.5), 0);
+        vel.y = bicubic_interpolate_value(xy - vec2(0.5, 0.0), 1);
+    }
 
-    return vec2(u, v);
+    return vel;
 }
 
 const float a = 2.0/9.0;

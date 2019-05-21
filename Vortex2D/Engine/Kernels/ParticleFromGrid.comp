@@ -2,7 +2,8 @@
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_GOOGLE_include_directive : enable
 
-layout (local_size_x_id = 1, local_size_y_id = 2) in;
+layout(local_size_x_id = 1, local_size_y_id = 2) in;
+layout(constant_id = 3) const int interpolationMode = 0;
 
 layout(push_constant) uniform Consts
 {
@@ -10,26 +11,28 @@ layout(push_constant) uniform Consts
   int width;
   int height;
   float alpha;
-}consts;
+}
+consts;
 
 #include "CommonParticles.comp"
 
 layout(std430, binding = 0) buffer Particles
 {
   Particle value[];
-}particles;
+}
+particles;
 
 struct DispatchParams
 {
-    uint x;
-    uint y;
-    uint z;
-    uint count;
+  uint x;
+  uint y;
+  uint z;
+  uint count;
 };
 
 layout(std430, binding = 1) buffer Params
 {
-    DispatchParams params;
+  DispatchParams params;
 };
 
 layout(binding = 2, rgba32f) uniform image2D Velocity;
@@ -39,46 +42,46 @@ layout(binding = 3, rgba32f) uniform image2D DVelocity;
 
 vec4[16] get_dsamples(ivec2 ij)
 {
-    vec4 t[16];
-    for(int j = 0; j < 4; ++j)
+  vec4 t[16];
+  for (int j = 0; j < 4; ++j)
+  {
+    for (int i = 0; i < 4; ++i)
     {
-        for(int i = 0; i < 4; ++i)
-        {
-            ivec2 pos = ij + ivec2(i,j) - ivec2(1);
-            pos = clamp(pos, ivec2(0, 0), ivec2(consts.width - 1, consts.height - 1));
-            t[i + 4*j] = imageLoad(DVelocity, pos);
-        }
+      ivec2 pos = ij + ivec2(i, j) - ivec2(1);
+      pos = clamp(pos, ivec2(0, 0), ivec2(consts.width - 1, consts.height - 1));
+      t[i + 4 * j] = imageLoad(DVelocity, pos);
     }
-    return t;
+  }
+  return t;
 }
 
 float bicubic_interpolate_value_d(vec2 xy, int i)
 {
-    ivec2 ij = ivec2(floor(xy));
-    vec2 f = xy - vec2(ij);
+  ivec2 ij = ivec2(floor(xy));
+  vec2 f = xy - vec2(ij);
 
-    vec4 t[16] = get_dsamples(ij);
-    return bicubic(t, f)[i];
+  vec4 t[16] = get_dsamples(ij);
+  return bicubic(t, f)[i];
 }
 
 vec2 get_dvelocity(vec2 xy)
 {
-    float u = bicubic_interpolate_value_d(xy - vec2(0.0, 0.5), 0);
-    float v = bicubic_interpolate_value_d(xy - vec2(0.5, 0.0), 1);
+  float u = bicubic_interpolate_value_d(xy - vec2(0.0, 0.5), 0);
+  float v = bicubic_interpolate_value_d(xy - vec2(0.5, 0.0), 1);
 
-    return vec2(u, v);
+  return vec2(u, v);
 }
 
 void main()
 {
-    uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
+  uvec2 localSize = gl_WorkGroupSize.xy;  // Hack for Mali-GPU
 
-    uint index = gl_GlobalInvocationID.x;
-    if (index < params.count)
-    {
-        vec2 pos = particles.value[index].Position;
-        vec2 pic = get_velocity(pos);
-        vec2 flip = particles.value[index].Velocity + get_dvelocity(pos);
-        particles.value[index].Velocity = mix(flip, pic, consts.alpha);
-    }
+  uint index = gl_GlobalInvocationID.x;
+  if (index < params.count)
+  {
+    vec2 pos = particles.value[index].Position;
+    vec2 pic = get_velocity(pos);
+    vec2 flip = particles.value[index].Velocity + get_dvelocity(pos);
+    particles.value[index].Velocity = mix(flip, pic, consts.alpha);
+  }
 }

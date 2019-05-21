@@ -23,7 +23,7 @@ public:
       , force1(device, glm::vec2(20.0f))
       , force2(device, glm::vec2(20.0f))
       , density(device, size, vk::Format::eR8G8B8A8Unorm)
-      , world(device, size, dt)
+      , world(device, size, dt, Vortex2D::Fluid::Velocity::InterpolationMode::Linear)
       , solidPhi(world.SolidDistanceField())
   {
     world.FieldBind(density);

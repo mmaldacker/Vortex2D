@@ -17,6 +17,7 @@ namespace Fluid
 ParticleCount::ParticleCount(const Renderer::Device& device,
                              const glm::ivec2& size,
                              Renderer::GenericBuffer& particles,
+                             Velocity::InterpolationMode interpolationMode,
                              const Renderer::DispatchParams& params,
                              float alpha)
     : Renderer::RenderTexture(device, size.x, size.y, vk::Format::eR32Sint)
@@ -47,7 +48,8 @@ ParticleCount::ParticleCount(const Renderer::Device& device,
     , mParticleToGridWork(device, size, SPIRV::ParticleToGrid_comp)
     , mParticleFromGridWork(device,
                             Renderer::ComputeSize::Default1D(),
-                            SPIRV::ParticleFromGrid_comp)
+                            SPIRV::ParticleFromGrid_comp,
+                            Renderer::SpecConst(Renderer::SpecConstValue(3, interpolationMode)))
     , mScanWork(device, false)
     , mDispatchCountWork(device)
     , mParticlePhi(device, false)

@@ -26,7 +26,7 @@ float PressureRigidbody_VelocityTest(float scale)
   glm::vec2 size(1024.0f, 1024.0f);
   size /= scale;
 
-  Fluid::SmokeWorld world(*device, size, dt);
+  Fluid::SmokeWorld world(*device, size, dt, Fluid::Velocity::InterpolationMode::Cubic);
 
   Fluid::Density density(*device, size, vk::Format::eR8G8B8A8Unorm);
   world.FieldBind(density);
@@ -102,7 +102,7 @@ float PressureRigidbody_RotationTest(float scale)
   glm::vec2 size(1024.0f, 1024.0f);
   size /= scale;
 
-  Fluid::SmokeWorld world(*device, size, dt);
+  Fluid::SmokeWorld world(*device, size, dt, Fluid::Velocity::InterpolationMode::Cubic);
 
   Fluid::Density density(*device, size, vk::Format::eR8G8B8A8Unorm);
   world.FieldBind(density);
@@ -181,7 +181,7 @@ TEST(WorldTests, Velocity)
   float dt = 0.01f;
   glm::vec2 size(256.0f, 256.0f);
 
-  Fluid::SmokeWorld world(*device, size, dt);
+  Fluid::SmokeWorld world(*device, size, dt, Fluid::Velocity::InterpolationMode::Cubic);
 
   Renderer::Clear fluidClear({-1.0f, 0.0f, 0.0f, 0.0f});
   world.RecordLiquidPhi({fluidClear}).Submit();

@@ -34,7 +34,8 @@ public:
   VORTEX2D_API Advection(const Renderer::Device& device,
                          const glm::ivec2& size,
                          float dt,
-                         Velocity& velocity);
+                         Velocity& velocity,
+                         Velocity::InterpolationMode interpolationMode);
 
   /**
    * @brief Self advect velocity
