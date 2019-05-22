@@ -16,16 +16,10 @@ namespace Fluid
 GaussSeidel::GaussSeidel(const Renderer::Device& device, const glm::ivec2& size)
     : mW(2.0f / (1.0f + std::sin(glm::pi<float>() / std::sqrt((float)(size.x * size.y)))))
     , mPreconditionerIterations(1)
-    , mResidual(device, size.x * size.y)
-    , mError(device)
-    , mLocalError(device, 1, VMA_MEMORY_USAGE_GPU_TO_CPU)
+    , mError(device, size)
     , mGaussSeidel(device, Renderer::MakeCheckerboardComputeSize(size), SPIRV::GaussSeidel_comp)
-    , mResidualWork(device, size, SPIRV::Residual_comp)
-    , mReduceMax(device, size)
-    , mReduceMaxBound(mReduceMax.Bind(mResidual, mError))
-    , mGaussSeidelCmd(device, false)
     , mInitCmd(device, false)
-    , mErrorCmd(device)
+    , mGaussSeidelCmd(device, false)
 {
 }
 
@@ -48,24 +42,11 @@ void GaussSeidel::Bind(Renderer::GenericBuffer& d,
 {
   mPressure = &pressure;
 
+  mError.Bind(d, l, div, pressure);
   mGaussSeidelBound = mGaussSeidel.Bind({pressure, d, l, div});
-  mGaussSeidelCmd.Record([&](vk::CommandBuffer commandBuffer) { Record(commandBuffer, 1); });
 
   mInitCmd.Record([&](vk::CommandBuffer commandBuffer) { pressure.Clear(commandBuffer); });
-
-  mResidualBound = mResidualWork.Bind({pressure, d, l, div, mResidual});
-
-  mErrorCmd.Record([&](vk::CommandBuffer commandBuffer) {
-    mResidualBound.Record(commandBuffer);
-    mResidual.Barrier(
-        commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-
-    mReduceMaxBound.Record(commandBuffer);
-    mError.Barrier(
-        commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-
-    mLocalError.CopyFrom(commandBuffer, mError);
-  });
+  mGaussSeidelCmd.Record([&](vk::CommandBuffer commandBuffer) { Record(commandBuffer, 1); });
 }
 
 void GaussSeidel::BindRigidbody(float /*delta*/,
@@ -82,15 +63,13 @@ void GaussSeidel::Solve(Parameters& params, const std::vector<RigidBody*>& /*rig
 
   if (params.Type == Parameters::SolverType::Iterative)
   {
-    mErrorCmd.Submit().Wait();
-
-    Renderer::CopyTo(mLocalError, params.OutError);
+    params.OutError = mError.Submit().Wait().GetError();
     if (params.OutError <= params.ErrorTolerance)
     {
       return;
     }
 
-    mErrorCmd.Submit();
+    mError.Submit();
   }
 
   auto initialError = params.OutError;
@@ -100,9 +79,8 @@ void GaussSeidel::Solve(Parameters& params, const std::vector<RigidBody*>& /*rig
 
     if (params.Type == Parameters::SolverType::Iterative)
     {
-      mErrorCmd.Wait();
-      Renderer::CopyTo(mLocalError, params.OutError);
-      mErrorCmd.Submit();
+      params.OutError = mError.Wait().GetError();
+      mError.Submit();
     }
   }
 }

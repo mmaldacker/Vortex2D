@@ -8,7 +8,6 @@
 
 #include <Vortex2D/Engine/LinearSolver/LinearSolver.h>
 #include <Vortex2D/Engine/LinearSolver/Preconditioner.h>
-#include <Vortex2D/Engine/LinearSolver/Reduce.h>
 #include <Vortex2D/Renderer/CommandBuffer.h>
 #include <Vortex2D/Renderer/Pipeline.h>
 #include <Vortex2D/Renderer/Work.h>
@@ -67,20 +66,13 @@ private:
   float mW;
   int mPreconditionerIterations;
 
-  Renderer::Buffer<float> mResidual;
-  Renderer::Buffer<float> mError, mLocalError;
+  LinearSolver::Error mError;
 
   Renderer::Work mGaussSeidel;
   Renderer::Work::Bound mGaussSeidelBound;
-  Renderer::Work mResidualWork;
-  Renderer::Work::Bound mResidualBound;
 
-  ReduceMax mReduceMax;
-  ReduceMax::Bound mReduceMaxBound;
-
-  Renderer::CommandBuffer mGaussSeidelCmd;
   Renderer::CommandBuffer mInitCmd;
-  Renderer::CommandBuffer mErrorCmd;
+  Renderer::CommandBuffer mGaussSeidelCmd;
   Renderer::GenericBuffer* mPressure;
 };
 
