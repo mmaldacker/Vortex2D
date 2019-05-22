@@ -177,6 +177,34 @@ TEST(LinearSolverTests, Transfer_Restrict)
   EXPECT_FLOAT_EQ((11.0f + 12.0f + 15.0f + 16.0f) / 4.0f, outputData[1 + coarseSize.x * 1]);
 }
 
+TEST(LinearSolverTests, Error)
+{
+  glm::ivec2 size(20);
+
+  LinearSolver::Error error(*device, size);
+  LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
+
+  error.Bind(data.Diagonal, data.Lower, data.B, data.X);
+
+  std::vector<float> inputData(size.x * size.y, 0.0f);
+
+  {
+    float n = 1.0f;
+    std::generate(inputData.begin(), inputData.end(), [&n] { return n++; });
+  }
+
+  CopyFrom(data.Diagonal, inputData);
+  CopyFrom(data.X, inputData);
+  CopyFrom(data.B, inputData);
+
+  // each value of residual will be:
+  // | n - n * n |
+
+  float n = 18.0f + 18.0f * 20.0f + 1.0f;
+  float e = n * n - n;
+  EXPECT_EQ(e, error.Submit().Wait().GetError());
+}
+
 TEST(LinearSolverTests, Simple_SOR)
 {
   glm::ivec2 size(50);

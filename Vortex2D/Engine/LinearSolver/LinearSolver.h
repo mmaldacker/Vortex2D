@@ -10,6 +10,8 @@
 #include <Vortex2D/Renderer/Texture.h>
 #include <Vortex2D/Renderer/Work.h>
 
+#include <Vortex2D/Engine/LinearSolver/Reduce.h>
+
 namespace Vortex2D
 {
 namespace Fluid
@@ -106,6 +108,57 @@ struct LinearSolver
    * @param rigidBodies rigidbody to include in solver's matrix
    */
   virtual void Solve(Parameters& params, const std::vector<RigidBody*>& rigidBodies = {}) = 0;
+
+  /**
+   * Calculates the max residual error of the linear system.
+   */
+  class Error
+  {
+  public:
+    VORTEX2D_API Error(const Renderer::Device& device, const glm::ivec2& size);
+
+    /**
+     * @brief Bind the linear system.
+     * @param d the diagonal of the matrxi
+     * @param l the lower matrix
+     * @param b the right hand side
+     * @param x the unknowns
+     */
+    VORTEX2D_API void Bind(Renderer::GenericBuffer& d,
+                           Renderer::GenericBuffer& l,
+                           Renderer::GenericBuffer& div,
+                           Renderer::GenericBuffer& pressure);
+
+    /**
+     * Submit the error calculation.
+     * @return this.
+     */
+    VORTEX2D_API Error& Submit();
+
+    /**
+     * @brief Wait for error to be calculated.
+     * @return this.
+     */
+    VORTEX2D_API Error& Wait();
+
+    /**
+     * @brief Get the maximum error.
+     * @return The error.
+     */
+    VORTEX2D_API float GetError();
+
+    // private:
+    Renderer::Buffer<float> mResidual;
+    Renderer::Buffer<float> mError, mLocalError;
+
+    Renderer::Work mResidualWork;
+    Renderer::Work::Bound mResidualBound;
+
+    ReduceMax mReduceMax;
+    ReduceMax::Bound mReduceMaxBound;
+
+    Renderer::CommandBuffer mErrorCmd;
+  };
 };
 
 /**

@@ -5,6 +5,8 @@
 
 #include "LinearSolver.h"
 
+#include "vortex2d_generated_spirv.h"
+
 namespace Vortex2D
 {
 namespace Fluid
@@ -66,6 +68,56 @@ LinearSolver::Parameters IterativeParams(float errorTolerance)
 {
   return LinearSolver::Parameters(
       LinearSolver::Parameters::SolverType::Iterative, 1000, errorTolerance);
+}
+
+LinearSolver::Error::Error(const Renderer::Device& device, const glm::ivec2& size)
+    : mResidual(device, size.x * size.y)
+    , mError(device)
+    , mLocalError(device, 1, VMA_MEMORY_USAGE_GPU_TO_CPU)
+    , mResidualWork(device, size, SPIRV::Residual_comp)
+    , mReduceMax(device, size)
+    , mReduceMaxBound(mReduceMax.Bind(mResidual, mError))
+    , mErrorCmd(device)
+{
+}
+
+void LinearSolver::Error::Bind(Renderer::GenericBuffer& d,
+                               Renderer::GenericBuffer& l,
+                               Renderer::GenericBuffer& div,
+                               Renderer::GenericBuffer& pressure)
+{
+  mResidualBound = mResidualWork.Bind({pressure, d, l, div, mResidual});
+
+  mErrorCmd.Record([&](vk::CommandBuffer commandBuffer) {
+    mResidualBound.Record(commandBuffer);
+    mResidual.Barrier(
+        commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+
+    mReduceMaxBound.Record(commandBuffer);
+    mError.Barrier(
+        commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+
+    mLocalError.CopyFrom(commandBuffer, mError);
+  });
+}
+
+LinearSolver::Error& LinearSolver::Error::Submit()
+{
+  mErrorCmd.Submit();
+  return *this;
+}
+
+LinearSolver::Error& LinearSolver::Error::Wait()
+{
+  mErrorCmd.Wait();
+  return *this;
+}
+
+float LinearSolver::Error::GetError()
+{
+  float error;
+  Renderer::CopyTo(mLocalError, error);
+  return error;
 }
 
 }  // namespace Fluid
