@@ -147,7 +147,7 @@ struct LinearSolver
      */
     VORTEX2D_API float GetError();
 
-    // private:
+  private:
     Renderer::Buffer<float> mResidual;
     Renderer::Buffer<float> mError, mLocalError;
 
