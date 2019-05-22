@@ -194,5 +194,14 @@ void ConjugateGradient::Solve(Parameters& params, const std::vector<RigidBody*>&
   }
 }
 
+float ConjugateGradient::GetError()
+{
+    mErrorRead.Submit().Wait();
+
+    float error;
+    Renderer::CopyTo(localError, error);
+    return error;
+}
+
 }  // namespace Fluid
 }  // namespace Vortex2D

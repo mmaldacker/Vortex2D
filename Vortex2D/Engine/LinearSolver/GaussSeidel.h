@@ -40,6 +40,8 @@ public:
   VORTEX2D_API void Solve(Parameters& params,
                           const std::vector<RigidBody*>& rigidbodies = {}) override;
 
+  VORTEX2D_API float GetError() override;
+
   void Record(vk::CommandBuffer commandBuffer) override;
 
   /**

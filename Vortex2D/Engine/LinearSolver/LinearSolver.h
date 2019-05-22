@@ -110,6 +110,11 @@ struct LinearSolver
   virtual void Solve(Parameters& params, const std::vector<RigidBody*>& rigidBodies = {}) = 0;
 
   /**
+   * @return the max error
+   */
+  virtual float GetError() = 0;
+
+  /**
    * Calculates the max residual error of the linear system.
    */
   class Error

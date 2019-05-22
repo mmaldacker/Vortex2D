@@ -85,6 +85,11 @@ void GaussSeidel::Solve(Parameters& params, const std::vector<RigidBody*>& /*rig
   }
 }
 
+float GaussSeidel::GetError()
+{
+  return mError.Submit().Wait().GetError();
+}
+
 void GaussSeidel::Record(vk::CommandBuffer commandBuffer)
 {
   assert(mPressure != nullptr);
