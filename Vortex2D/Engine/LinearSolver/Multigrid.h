@@ -58,7 +58,7 @@ class Pressure;
  * transfers the error on the level above. It then copies the error down, adds
  * to the current solution and apply a few more iterations of jacobi.
  */
-class Multigrid : public Preconditioner
+class Multigrid : public LinearSolver, public Preconditioner
 {
 public:
   /**
@@ -67,13 +67,18 @@ public:
    * @param size of the linear equations
    * @param delta timestep delta
    */
-  VORTEX2D_API Multigrid(const Renderer::Device& device, const glm::ivec2& size, float delta);
+  VORTEX2D_API Multigrid(const Renderer::Device& device,
+                         const glm::ivec2& size,
+                         float delta,
+                         int numIterations = 2,
+                         int numSmoothingIterations = 3);
+
   VORTEX2D_API ~Multigrid() override;
 
-  void Bind(Renderer::GenericBuffer& d,
-            Renderer::GenericBuffer& l,
-            Renderer::GenericBuffer& b,
-            Renderer::GenericBuffer& x) override;
+  VORTEX2D_API void Bind(Renderer::GenericBuffer& d,
+                         Renderer::GenericBuffer& l,
+                         Renderer::GenericBuffer& b,
+                         Renderer::GenericBuffer& x) override;
 
   /**
    * @brief Bind the level sets from which the hierarchy is built.
@@ -93,14 +98,34 @@ public:
 
   void Record(vk::CommandBuffer commandBuffer) override;
 
+  void BindRigidbody(float delta, Renderer::GenericBuffer& d, RigidBody& rigidBody) override;
+
+  /**
+   * @brief Solves the linear equations
+   * @param params solver iteration/error parameters
+   * @param rigidBodies rigidbody to include in solver's matrix
+   */
+  VORTEX2D_API void Solve(Parameters& params,
+                          const std::vector<RigidBody*>& rigidBodies = {}) override;
+
+  /**
+   * @return the max error
+   */
+  VORTEX2D_API float GetError() override;
+
 private:
   void Smoother(vk::CommandBuffer commandBuffer, int n, int iterations);
 
   void RecursiveBind(Pressure& pressure, std::size_t depth);
 
+  void RecordVCycle(vk::CommandBuffer commandBuffer, int depth);
+  void RecordFullCycle(vk::CommandBuffer commandBuffer);
+
   const Renderer::Device& mDevice;
   Depth mDepth;
   float mDelta;
+  int mNumIterations;
+  int mNumSmoothingIterations;
 
   Renderer::Work mResidualWork;
   std::vector<Renderer::Work::Bound> mResidualWorkBound;
@@ -130,6 +155,9 @@ private:
   LocalGaussSeidel mSmoother;
 
   Renderer::CommandBuffer mBuildHierarchies;
+  Renderer::CommandBuffer mSolver;
+
+  LinearSolver::Error mError;
 };
 
 }  // namespace Fluid

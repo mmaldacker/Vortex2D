@@ -40,15 +40,23 @@ glm::ivec2 Depth::GetDepthSize(std::size_t i) const
   return mDepths[i];
 }
 
-Multigrid::Multigrid(const Renderer::Device& device, const glm::ivec2& size, float delta)
+Multigrid::Multigrid(const Renderer::Device& device,
+                     const glm::ivec2& size,
+                     float delta,
+                     int numIterations,
+                     int numSmoothingIterations)
     : mDevice(device)
     , mDepth(size)
     , mDelta(delta)
+    , mNumIterations(numIterations)
+    , mNumSmoothingIterations(numSmoothingIterations)
     , mResidualWork(device, size, SPIRV::Residual_comp)
     , mTransfer(device)
     , mPhiScaleWork(device, size, SPIRV::PhiScale_comp)
     , mSmoother(device, mDepth.GetDepthSize(mDepth.GetMaxDepth()))
     , mBuildHierarchies(device, false)
+    , mSolver(device, false)
+    , mError(device, size)
 {
   for (int i = 1; i <= mDepth.GetMaxDepth(); i++)
   {
@@ -87,6 +95,17 @@ void Multigrid::Bind(Renderer::GenericBuffer& d,
   auto s = mDepth.GetDepthSize(0);
   mTransfer.RestrictBind(0, s, mResiduals[0], d, mDatas[0].B, mDatas[0].Diagonal);
   mTransfer.ProlongateBind(0, s, pressure, d, mDatas[0].X, mDatas[0].Diagonal);
+
+  mSolver.Record([&](vk::CommandBuffer commandBuffer) {
+    pressure.Clear(commandBuffer);
+    RecordFullCycle(commandBuffer);
+    for (int i = 0; i < mNumIterations; i++)
+    {
+      RecordVCycle(commandBuffer, 0);
+    }
+  });
+
+  mError.Bind(d, l, b, pressure);
 }
 
 void Multigrid::BuildHierarchiesBind(Pressure& pressure,
@@ -204,34 +223,77 @@ void Multigrid::Record(vk::CommandBuffer commandBuffer)
 {
   commandBuffer.debugMarkerBeginEXT({"Multigrid", {{0.48f, 0.25f, 0.19f, 1.0f}}}, mDevice.Loader());
 
-  const int numIterations = 3;
-
   assert(mPressure != nullptr);
   mPressure->Clear(commandBuffer);
 
-  for (int i = 0; i < mDepth.GetMaxDepth(); i++)
-  {
-    Smoother(commandBuffer, i, numIterations);
-
-    mResidualWorkBound[i].Record(commandBuffer);
-    mResiduals[i].Barrier(
-        commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-
-    mTransfer.Restrict(commandBuffer, i);
-
-    mDatas[i].X.Clear(commandBuffer);
-  }
-
-  mSmoother.Record(commandBuffer);
-
-  for (int i = mDepth.GetMaxDepth() - 1; i >= 0; --i)
-  {
-    mTransfer.Prolongate(commandBuffer, i);
-
-    Smoother(commandBuffer, i, numIterations);
-  }
+  RecordVCycle(commandBuffer, 0);
 
   commandBuffer.debugMarkerEndEXT(mDevice.Loader());
+}
+
+void Multigrid::BindRigidbody(float /*delta*/, Renderer::GenericBuffer& /*d*/, RigidBody& rigidBody)
+{
+  if (rigidBody.GetType() == RigidBody::Type::eStrong)
+  {
+    throw std::runtime_error("Strong coupling not supported for multigrid solver");
+  }
+}
+
+void Multigrid::Solve(Parameters& params, const std::vector<RigidBody*>& /*rigidBodies*/)
+{
+  params.Reset();
+
+  mSolver.Submit();
+}
+
+float Multigrid::GetError()
+{
+  return mError.Submit().Wait().GetError();
+}
+
+void Multigrid::RecordVCycle(vk::CommandBuffer commandBuffer, int depth)
+{
+  if (depth == mDepth.GetMaxDepth())
+  {
+    mSmoother.Record(commandBuffer);
+  }
+  else
+  {
+    Smoother(commandBuffer, depth, mNumSmoothingIterations);
+
+    mResidualWorkBound[depth].Record(commandBuffer);
+    mResiduals[depth].Barrier(
+        commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+
+    mTransfer.Restrict(commandBuffer, depth);
+
+    mDatas[depth].X.Clear(commandBuffer);
+
+    RecordVCycle(commandBuffer, depth + 1);
+
+    mTransfer.Prolongate(commandBuffer, depth);
+
+    Smoother(commandBuffer, depth, mNumSmoothingIterations);
+  }
+}
+
+void Multigrid::RecordFullCycle(vk::CommandBuffer commandBuffer)
+{
+  mResidualWorkBound[0].Record(commandBuffer);
+  for (int i = 0; i < mDepth.GetMaxDepth(); i++)
+  {
+    mTransfer.Restrict(commandBuffer, i);
+  }
+
+  int depth = mDepth.GetMaxDepth() - 1;
+  mDatas[depth].X.Clear(commandBuffer);
+  mSmoother.Record(commandBuffer);
+
+  for (int i = depth; i >= 0; i--)
+  {
+    mTransfer.Prolongate(commandBuffer, depth);
+    RecordVCycle(commandBuffer, i);
+  }
 }
 
 }  // namespace Fluid
