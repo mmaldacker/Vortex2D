@@ -280,9 +280,13 @@ void Multigrid::RecordVCycle(vk::CommandBuffer commandBuffer, int depth)
 void Multigrid::RecordFullCycle(vk::CommandBuffer commandBuffer)
 {
   mResidualWorkBound[0].Record(commandBuffer);
-  for (int i = 0; i < mDepth.GetMaxDepth(); i++)
+  mResiduals[0].Barrier(
+      commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+
+  for (int i = 0; i < mDepth.GetMaxDepth() - 1; i++)
   {
     mTransfer.Restrict(commandBuffer, i);
+    mResiduals[i + 1].CopyFrom(commandBuffer, mDatas[i].B);
   }
 
   int depth = mDepth.GetMaxDepth() - 1;
