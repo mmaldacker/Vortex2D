@@ -61,6 +61,12 @@ class Pressure;
 class Multigrid : public LinearSolver, public Preconditioner
 {
 public:
+  enum class SmootherSolver
+  {
+    Jacobi,
+    GaussSeidel,
+  };
+
   /**
    * @brief Initialize multigrid for given size and delta.
    * @param device vulkan device
@@ -71,7 +77,8 @@ public:
                          const glm::ivec2& size,
                          float delta,
                          int numIterations = 2,
-                         int numSmoothingIterations = 3);
+                         int numSmoothingIterations = 3,
+                         SmootherSolver smoother = SmootherSolver::Jacobi);
 
   VORTEX2D_API ~Multigrid() override;
 
@@ -114,7 +121,7 @@ public:
   VORTEX2D_API float GetError() override;
 
 private:
-  void Smoother(vk::CommandBuffer commandBuffer, int n, int iterations);
+  void Smoother(vk::CommandBuffer commandBuffer, int n);
 
   void RecursiveBind(Pressure& pressure, std::size_t depth);
 
@@ -151,7 +158,7 @@ private:
   std::vector<Renderer::Work::Bound> mMatrixBuildBound;
 
   // mSmoothers[0] is level 0
-  std::vector<Jacobi> mSmoothers;
+  std::vector<std::unique_ptr<Preconditioner>> mSmoothers;
   LocalGaussSeidel mSmoother;
 
   Renderer::CommandBuffer mBuildHierarchies;
