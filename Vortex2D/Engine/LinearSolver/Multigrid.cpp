@@ -68,20 +68,19 @@ std::unique_ptr<Preconditioner> MakeSmoother(const Renderer::Device& device,
 Multigrid::Multigrid(const Renderer::Device& device,
                      const glm::ivec2& size,
                      float delta,
-                     int numIterations,
                      int numSmoothingIterations,
                      SmootherSolver smoother)
     : mDevice(device)
     , mDepth(size)
     , mDelta(delta)
-    , mNumIterations(numIterations)
     , mNumSmoothingIterations(numSmoothingIterations)
     , mResidualWork(device, size, SPIRV::Residual_comp)
     , mTransfer(device)
     , mPhiScaleWork(device, size, SPIRV::PhiScale_comp)
     , mSmoother(device, mDepth.GetDepthSize(mDepth.GetMaxDepth()))
     , mBuildHierarchies(device, false)
-    , mSolver(device, false)
+    , mFullCycleSolver(device, false)
+    , mVCycleSolver(device, false)
     , mError(device, size)
 {
   for (int i = 1; i <= mDepth.GetMaxDepth(); i++)
@@ -122,14 +121,12 @@ void Multigrid::Bind(Renderer::GenericBuffer& d,
   mTransfer.RestrictBind(0, s, mResiduals[0], d, mDatas[0].B, mDatas[0].Diagonal);
   mTransfer.ProlongateBind(0, s, pressure, d, mDatas[0].X, mDatas[0].Diagonal);
 
-  mSolver.Record([&](vk::CommandBuffer commandBuffer) {
+  mFullCycleSolver.Record([&](vk::CommandBuffer commandBuffer) {
     pressure.Clear(commandBuffer);
     RecordFullCycle(commandBuffer);
-    for (int i = 0; i < mNumIterations; i++)
-    {
-      RecordVCycle(commandBuffer, 0);
-    }
   });
+
+  mVCycleSolver.Record([&](vk::CommandBuffer commandBuffer) { RecordVCycle(commandBuffer, 0); });
 
   mError.Bind(d, l, b, pressure);
 }
@@ -264,8 +261,11 @@ void Multigrid::BindRigidbody(float /*delta*/, Renderer::GenericBuffer& /*d*/, R
 void Multigrid::Solve(Parameters& params, const std::vector<RigidBody*>& /*rigidBodies*/)
 {
   params.Reset();
-
-  mSolver.Submit();
+  mFullCycleSolver.Submit();
+  for (int i = 0; i < params.Iterations; i++)
+  {
+    mVCycleSolver.Submit();
+  }
 }
 
 float Multigrid::GetError()

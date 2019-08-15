@@ -508,13 +508,13 @@ TEST(LinearSolverTests, Multigrid_Simple)
 
   Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
 
-  Multigrid solver(*device, size, 0.01f, 8, 8);
+  Multigrid solver(*device, size, 0.01f, 3, Multigrid::SmootherSolver::GaussSeidel);
   solver.BuildHierarchiesBind(pressure, solidPhi, liquidPhi);
   solver.BuildHierarchies();
 
-  LinearSolver::Parameters params(LinearSolver::Parameters::SolverType::Fixed, 0);
-
   solver.Bind(data.Diagonal, data.Lower, data.B, data.X);
+
+  LinearSolver::Parameters params(LinearSolver::Parameters::SolverType::Fixed, 3);
 
   float error0 = solver.GetError();
 
@@ -522,9 +522,5 @@ TEST(LinearSolverTests, Multigrid_Simple)
 
   device->Queue().waitIdle();
 
-  CheckPressure(size, sim.pressure, data.X, 1e-3f);
-
-  float error = solver.GetError();
-  std::cout << "Multigrid before: " << error0 << " after: " << error
-            << " improvement: " << error0 / error << std::endl;
+  CheckPressure(size, sim.pressure, data.X, 1e-2f);
 }

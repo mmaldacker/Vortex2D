@@ -76,7 +76,6 @@ public:
   VORTEX2D_API Multigrid(const Renderer::Device& device,
                          const glm::ivec2& size,
                          float delta,
-                         int numIterations = 2,
                          int numSmoothingIterations = 3,
                          SmootherSolver smoother = SmootherSolver::Jacobi);
 
@@ -131,7 +130,6 @@ private:
   const Renderer::Device& mDevice;
   Depth mDepth;
   float mDelta;
-  int mNumIterations;
   int mNumSmoothingIterations;
 
   Renderer::Work mResidualWork;
@@ -162,7 +160,7 @@ private:
   LocalGaussSeidel mSmoother;
 
   Renderer::CommandBuffer mBuildHierarchies;
-  Renderer::CommandBuffer mSolver;
+  Renderer::CommandBuffer mFullCycleSolver, mVCycleSolver;
 
   LinearSolver::Error mError;
 };
