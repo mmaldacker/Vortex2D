@@ -14,12 +14,18 @@ namespace Vortex2D
 {
 namespace Fluid
 {
+float DefaultParticleSize()
+{
+  return 1.02f / std::sqrtf(2.0f);
+}
+
 ParticleCount::ParticleCount(const Renderer::Device& device,
                              const glm::ivec2& size,
                              Renderer::GenericBuffer& particles,
                              Velocity::InterpolationMode interpolationMode,
                              const Renderer::DispatchParams& params,
-                             float alpha)
+                             float alpha,
+                             float particleSize)
     : Renderer::RenderTexture(device, size.x, size.y, vk::Format::eR32Sint)
     , mDevice(device)
     , mSize(size)
@@ -44,7 +50,10 @@ ParticleCount::ParticleCount(const Renderer::Device& device,
                                    {particles, mNewParticles, mIndex, mDelta, mDispatchParams}))
     , mParticleSpawnWork(device, size, SPIRV::ParticleSpawn_comp)
     , mParticleSpawnBound(mParticleSpawnWork.Bind({mNewParticles, mIndex, mDelta, mSeeds}))
-    , mParticlePhiWork(device, size, SPIRV::ParticlePhi_comp)
+    , mParticlePhiWork(device,
+                       size,
+                       SPIRV::ParticlePhi_comp,
+                       Renderer::SpecConst(Renderer::SpecConstValue(3, particleSize)))
     , mParticleToGridWork(device, size, SPIRV::ParticleToGrid_comp)
     , mParticleFromGridWork(device,
                             Renderer::ComputeSize::Default1D(),

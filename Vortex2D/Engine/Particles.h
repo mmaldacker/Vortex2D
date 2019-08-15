@@ -23,6 +23,8 @@ struct Particle
   alignas(8) glm::vec2 Velocity;
 };
 
+VORTEX2D_API float DefaultParticleSize();
+
 /**
  * @brief Container for particles used in the advection of the fluid simulation.
  * Also a level set that is built from the particles.
@@ -35,7 +37,8 @@ public:
                              Renderer::GenericBuffer& particles,
                              Velocity::InterpolationMode interpolationMode,
                              const Renderer::DispatchParams& params = {0},
-                             float alpha = 1.0f);
+                             float alpha = 1.0f,
+                             float particleSize = DefaultParticleSize());
 
   /**
    * @brief Count the number of particles and update the internal data
