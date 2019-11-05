@@ -131,9 +131,10 @@ set(SPIRV_CROSS_ENABLE_CPP OFF CACHE BOOL "" FORCE)
 set(SPIRV_CROSS_ENABLE_REFLECT OFF CACHE BOOL "" FORCE)
 set(SPIRV_CROSS_ENABLE_C_API OFF CACHE BOOL "" FORCE)
 set(SPIRV_CROSS_ENABLE_UTIL OFF CACHE BOOL "" FORCE)
+set(SPIRV_CROSS_SKIP_INSTALL  ON CACHE BOOL "" FORCE)
 FetchContent_Declare(spirv_cross
                      GIT_REPOSITORY      https://github.com/KhronosGroup/SPIRV-Cross.git
-                     GIT_TAG             2019-03-29)
+                     GIT_TAG             2019-11-01)
 FetchContent_GetProperties(spirv_cross)
 if(NOT spirv_cross_POPULATED)
     FetchContent_Populate(spirv_cross)
