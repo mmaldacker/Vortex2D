@@ -32,6 +32,8 @@ void main()
 {
   uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
 
+  int velocityWidth = imageSize(InVelocity).x;
+
   ivec2 pos = ivec2(gl_GlobalInvocationID);
   if (pos.x > 0 && pos.y > 0 && pos.x < consts.width - 1 && pos.y < consts.height - 1)
   {
@@ -65,21 +67,21 @@ void main()
     if (wuv.x > 0.0 && (phi < 0.0 || phixn < 0.0))
     {
       mask.x = 1.0;
-      valid.value[pos.x + pos.y * consts.width].x = 1;
+      valid.value[pos.x + pos.y * velocityWidth].x = 1;
     }
     else
     {
-      valid.value[pos.x + pos.y * consts.width].x = 0;
+      valid.value[pos.x + pos.y * velocityWidth].x = 0;
     }
 
     if (wuv.y > 0.0 && (phi < 0.0 || phiyn < 0.0))
     {
       mask.y = 1.0;
-      valid.value[pos.x + pos.y * consts.width].y = 1;
+      valid.value[pos.x + pos.y * velocityWidth].y = 1;
     }
     else
     {
-      valid.value[pos.x + pos.y * consts.width].y = 0;
+      valid.value[pos.x + pos.y * velocityWidth].y = 0;
     }
 
     vec2 new_cell = cell - consts.delta * pGrad * consts.width;

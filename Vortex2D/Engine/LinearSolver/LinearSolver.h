@@ -7,6 +7,7 @@
 #define Vortex2D_LinearSolver_h
 
 #include <Vortex2D/Renderer/Buffer.h>
+#include <Vortex2D/Renderer/RenderTexture.h>
 #include <Vortex2D/Renderer/Texture.h>
 #include <Vortex2D/Renderer/Work.h>
 
@@ -78,6 +79,39 @@ struct LinearSolver
     Renderer::Buffer<glm::vec2> Lower;
     Renderer::Buffer<float> B;
     Renderer::Buffer<float> X;
+  };
+
+  /**
+   * @brief Contains the linear equations as texture, so it can easily be visualised in RenderDoc
+   */
+  struct DebugData
+  {
+    VORTEX2D_API DebugData(const Renderer::Device& device, const glm::ivec2& size);
+
+    Renderer::RenderTexture Diagonal;
+    Renderer::RenderTexture Lower;
+    Renderer::RenderTexture B;
+    Renderer::RenderTexture X;
+  };
+
+  /**
+   * @brief Copies the linear solver data in the debug linear solver data
+   */
+  struct DebugCopy
+  {
+    VORTEX2D_API DebugCopy(const Renderer::Device& device,
+                           const glm::ivec2& size,
+                           Data& data,
+                           DebugData& debugData);
+
+    /**
+     * @brief Copies the linear solver data in the debug linear solver data
+     */
+    VORTEX2D_API void Copy();
+
+    Renderer::Work mDebugDataCopy;
+    Renderer::Work::Bound mDebugDataCopyBound;
+    Renderer::CommandBuffer mCopy;
   };
 
   virtual ~LinearSolver() {}

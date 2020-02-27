@@ -162,6 +162,12 @@ protected:
   ConjugateGradient mLinearSolver;
 
   LinearSolver::Data mData;
+
+#if !defined(NDEBUG)
+  LinearSolver::DebugData mDebugData;
+  LinearSolver::DebugCopy mDebugDataCopy;
+#endif
+
   Fluid::Velocity mVelocity;
   LevelSet mLiquidPhi;
   LevelSet mStaticSolidPhi;

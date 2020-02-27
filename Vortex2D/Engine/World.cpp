@@ -33,6 +33,10 @@ World::World(const Renderer::Device& device,
     , mPreconditioner(device, size, mDelta)
     , mLinearSolver(device, size, mPreconditioner)
     , mData(device, size)
+#if !defined(NDEBUG)
+    , mDebugData(device, mSolverSize)
+    , mDebugDataCopy(device, mSolverSize, mData, mDebugData)
+#endif
     , mVelocity(device, size)
     , mLiquidPhi(device, size)
     , mStaticSolidPhi(device, size)
@@ -188,6 +192,10 @@ void SmokeWorld::Substep(LinearSolver::Parameters& params)
   mLinearSolver.Solve(params, mRigidbodies);
   mProjection.ApplyPressure();
 
+#if !defined(NDEBUG)
+  mDebugDataCopy.Copy();
+#endif
+
   ForAll(mRigidbodies, &RigidBody::Force);
 
   mExtrapolation.Extrapolate();
@@ -267,6 +275,10 @@ void WaterWorld::Substep(LinearSolver::Parameters& params)
   mProjection.BuildLinearEquation();
   mLinearSolver.Solve(params, mRigidbodies);
   mProjection.ApplyPressure();
+
+#if !defined(NDEBUG)
+  mDebugDataCopy.Copy();
+#endif
 
   ForAll(mRigidbodies, &RigidBody::Force);
 
