@@ -21,6 +21,24 @@ void ForAll(std::vector<Class*>& elements, void (Class::*f)())
   }
 }
 
+uint32_t NextPowerOfTwo(uint32_t n)
+{
+  --n;
+
+  n |= n >> 1;
+  n |= n >> 2;
+  n |= n >> 4;
+  n |= n >> 8;
+  n |= n >> 16;
+
+  return n + 1;
+}
+
+glm::ivec2 NextPowerOfTwo(const glm::ivec2& s)
+{
+  return {NextPowerOfTwo(s.x), NextPowerOfTwo(s.y)};
+}
+
 World::World(const Renderer::Device& device,
              const glm::ivec2& size,
              float dt,
@@ -30,9 +48,10 @@ World::World(const Renderer::Device& device,
     , mSize(size)
     , mDelta(dt / numSubSteps)
     , mNumSubSteps(numSubSteps)
-    , mPreconditioner(device, size, mDelta)
-    , mLinearSolver(device, size, mPreconditioner)
-    , mData(device, size)
+    , mSolverSize(NextPowerOfTwo(size))
+    , mPreconditioner(device, mSolverSize, mDelta)
+    , mLinearSolver(device, mSolverSize, mPreconditioner)
+    , mData(device, mSolverSize)
 #if !defined(NDEBUG)
     , mDebugData(device, mSolverSize)
     , mDebugDataCopy(device, mSolverSize, mData, mDebugData)
@@ -43,7 +62,14 @@ World::World(const Renderer::Device& device,
     , mDynamicSolidPhi(device, size)
     , mValid(device, size.x * size.y)
     , mAdvection(device, size, mDelta, mVelocity, interpolationMode)
-    , mProjection(device, mDelta, size, mData, mVelocity, mDynamicSolidPhi, mLiquidPhi, mValid)
+    , mProjection(device,
+                  mDelta,
+                  mSolverSize,
+                  mData,
+                  mVelocity,
+                  mDynamicSolidPhi,
+                  mLiquidPhi,
+                  mValid)
     , mExtrapolation(device, size, mValid, mVelocity)
     , mCopySolidPhi(device, false)
     , mRigidBodySolver(nullptr)

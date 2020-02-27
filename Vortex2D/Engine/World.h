@@ -158,6 +158,7 @@ protected:
   float mDelta;
   int mNumSubSteps;
 
+  glm::ivec2 mSolverSize;
   Multigrid mPreconditioner;
   ConjugateGradient mLinearSolver;
 
