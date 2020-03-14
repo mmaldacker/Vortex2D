@@ -1,4 +1,5 @@
 #include <Vortex2D/Vortex2D.h>
+
 #include <GLFW/glfw3.h>
 
 #include "BuoyancyWaterExample.h"

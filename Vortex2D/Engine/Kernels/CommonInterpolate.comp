@@ -1,0 +1,29 @@
+vec4 cubic(vec4 f1, vec4 f2, vec4 f3, vec4 f4, float xd)
+{
+    const float q = 1.0 / 2.0;
+    const float t = 1.0 / 3.0;
+    const float s = 1.0 / 6.0;
+
+    float xd2 = xd * xd;
+    float xd3 = xd2 * xd;
+
+    return f1*(    - t*xd + q*xd2 - s*xd3) +
+           f2*(1.0 - q*xd - xd2   + q*xd3) +
+           f3*(      xd   + q*xd2 - q*xd3) +
+           f4*(    - s*xd         + s*xd3);
+}
+
+vec4 bicubic(vec4 t[16], vec2 f)
+{
+    vec4 x = cubic(
+              cubic(t[0], t[4], t[8], t[12], f.y),
+              cubic(t[1], t[5], t[9], t[13], f.y),
+              cubic(t[2], t[6], t[10], t[14], f.y),
+              cubic(t[3], t[7], t[11], t[15], f.y),
+              f.x);
+
+    vec4 maxValue = max(max(t[5], t[6]), max(t[9], t[10]));
+    vec4 minValue = min(min(t[5], t[6]), min(t[9], t[10]));
+
+    return clamp(x, minValue, maxValue);
+}
