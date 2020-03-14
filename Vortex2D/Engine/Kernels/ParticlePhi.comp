@@ -3,7 +3,7 @@
 #extension GL_GOOGLE_include_directive : enable
 
 layout (local_size_x_id = 1, local_size_y_id = 2) in;
-layout(constant_id = 3) const float particle_radius = 1.02 * 1.0 / sqrt(2.0);
+layout(constant_id = 3) const float particle_radius = 1.0 / sqrt(2.0);
 
 layout(push_constant) uniform Consts
 {
@@ -30,35 +30,67 @@ layout(std430, binding = 2) buffer Index
 
 layout(binding = 3, r32f) uniform image2D LevelSet;
 
-const int off = 3;
+const int off = 1;
+
+float kernel(float s)
+{
+  if (s < 1.0)
+  {
+    float t = 1 - s;
+    return t*t*t;
+  }
+
+  return 0.0;
+}
 
 void main()
 {
-    uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
+  uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
 
-    ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
-    if (pos.x < consts.width && pos.y < consts.height)
+  const float h = 2 * particle_radius;
+
+  ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
+  if (pos.x < consts.width && pos.y < consts.height)
+  {
+    vec2 x = vec2(0.0);
+    float r = 0.0;
+    float weight = 0.0;
+
+    for (int i = -off; i <= off; i++)
     {
-        for (int i = -off; i <= off; i++)
+      for (int j = -off; j <= off; j++)
+      {
+        ivec2 newPos = ivec2(pos) + ivec2(i, j);
+        if (newPos.x >= 0 && newPos.x < consts.width && newPos.y >=0 && newPos.y < consts.height)
         {
-            for (int j = -off; j <= off; j++)
-            {
-                ivec2 newPos = ivec2(pos) + ivec2(i, j);
-                if (newPos.x >= 0 && newPos.x < consts.width && newPos.y >=0 && newPos.y < consts.height)
-                {
-                    int index = newPos.x + newPos.y * consts.width;
-                    int total = count.value[index];
+          int index = newPos.x + newPos.y * consts.width;
+          int total = count.value[index];
 
-                    for (int k = 0; k < total; k++)
-                    {
-                        Particle p = particles.value[scanIndex.value[index] + k];
-                        float phi_temp = distance(pos + 0.5, p.Position) - particle_radius;
+          for (int k = 0; k < total; k++)
+          {
+            Particle p = particles.value[scanIndex.value[index] + k];
+            vec2 dist = pos + 0.5 - p.Position;
 
-                        float phi = imageLoad(LevelSet, pos).x;
-                        imageStore(LevelSet, pos, vec4(min(phi, phi_temp), 0.0, 0.0, 0.0));
-                    }
-                }
-            }
+            float w = kernel(dot(dist, dist) / (h * h));
+
+            x += w * p.Position;
+            r += w * particle_radius;
+            weight += w;
+          }
         }
+      }
     }
+
+    // Blobbys formula:
+    //float tau = kernel(particle_radius * particle_radius / (h * h));
+    //float phi = tau - weight;
+
+    float phi = 2.0 * off;
+    if (weight != 0.0)
+    {
+      phi = distance(pos + 0.5, x / weight) - r / weight;
+    }
+
+    imageStore(LevelSet, pos, vec4(phi, 0.0, 0.0, 0.0));
+  }
 }
