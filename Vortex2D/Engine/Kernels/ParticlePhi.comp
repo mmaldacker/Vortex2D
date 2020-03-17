@@ -32,7 +32,7 @@ layout(binding = 3, r32f) uniform image2D LevelSet;
 
 const int off = 1;
 
-float kernel(float s)
+float k(float s)
 {
   if (s < 1.0)
   {
@@ -66,12 +66,12 @@ void main()
           int index = newPos.x + newPos.y * consts.width;
           int total = count.value[index];
 
-          for (int k = 0; k < total; k++)
+          for (int n = 0; n < total; n++)
           {
-            Particle p = particles.value[scanIndex.value[index] + k];
+            Particle p = particles.value[scanIndex.value[index] + n];
             vec2 dist = pos + 0.5 - p.Position;
 
-            float w = kernel(dot(dist, dist) / (h * h));
+            float w = k(dot(dist, dist) / (h * h));
 
             x += w * p.Position;
             r += w * particle_radius;
@@ -82,7 +82,7 @@ void main()
     }
 
     // Blobbys formula:
-    //float tau = kernel(particle_radius * particle_radius / (h * h));
+    //float tau = k(particle_radius * particle_radius / (h * h));
     //float phi = tau - weight;
 
     float phi = 2.0 * off;
