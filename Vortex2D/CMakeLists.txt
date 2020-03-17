@@ -200,9 +200,10 @@ if (APPLE)
       POST_BUILD
       COMMAND install_name_tool -id \"@rpath/vortex2d.framework/vortex2d\" $<TARGET_FILE_DIR:vortex2d>/vortex2d)
 
+  set(EXTRA_LINK_FLAGS "--allow-multiple-definition")
 endif()
 
-target_link_libraries(vortex2d PUBLIC ${VULKAN_LIBRARIES} PRIVATE spirv-cross-core glm)
+target_link_libraries(vortex2d PUBLIC ${VULKAN_LIBRARIES} PRIVATE ${EXTRA_LINK_FLAGS} spirv-cross-core glm)
 
 target_include_directories(vortex2d
     PUBLIC
