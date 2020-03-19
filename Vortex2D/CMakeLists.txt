@@ -199,14 +199,12 @@ if (APPLE)
       TARGET vortex2d
       POST_BUILD
       COMMAND install_name_tool -id \"@rpath/vortex2d.framework/vortex2d\" $<TARGET_FILE_DIR:vortex2d>/vortex2d)
+
+    # On Apple, spirv-cross is already linked as part of MoltenVK
+  set(SPIRV_CROSS_LINK_FLAGS "-Wl,-force_load")
 endif()
 
-if(NOT APPLE)
-  # On Apple, spirv-cross is already linked as part of MoltenVK
-  set(SPIRV_CROSS_LINK spirv-cross-core)
-endif()
-
-target_link_libraries(vortex2d PUBLIC ${VULKAN_LIBRARIES} PRIVATE ${SPIRV_CROSS_LINK} glm)
+target_link_libraries(vortex2d PUBLIC ${VULKAN_LIBRARIES} PRIVATE ${SPIRV_CROSS_LINK_FLAGS} spirv-cross-core glm)
 
 target_include_directories(vortex2d
     PUBLIC
@@ -214,8 +212,7 @@ target_include_directories(vortex2d
         $<BUILD_INTERFACE:${VULKAN_INCLUDES}>
         $<INSTALL_INTERFACE:include/Vortex2D>
     PRIVATE
-        ${CMAKE_CURRENT_BINARY_DIR}
-        $<TARGET_PROPERTY:spirv-cross-core,INCLUDE_DIRECTORIES>)
+        ${CMAKE_CURRENT_BINARY_DIR})
 
 # windows definition to correctly generate the dll
 if(WIN32)
