@@ -1,15 +1,17 @@
+language: cpp
+
 branches:
   only:
     - master
 
-matrix:
+jobs:
   include:
     - os: linux
       dist: trusty
-      sudo: required
-    allow_failures:
     - os: osx
       osx_image: xcode10.2
+  allow_failures:
+    - os: osx
 
 addons:
   apt:
