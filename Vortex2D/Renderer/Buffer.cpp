@@ -192,12 +192,8 @@ void GenericBuffer::CopyFrom(uint32_t offset, const void* data, uint32_t size)
 
   if ((memFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) == 0)
   {
-    auto memRange = vk::MappedMemoryRange()
-                        .setMemory(mAllocationInfo.deviceMemory)
-                        .setOffset(mAllocationInfo.offset)
-                        .setSize(mAllocationInfo.size);
-
-    mDevice.Handle().flushMappedMemoryRanges(memRange);
+    vmaFlushAllocation(
+        mDevice.Allocator(), mAllocation, mAllocationInfo.offset, mAllocationInfo.size);
   }
 
   vmaUnmapMemory(mDevice.Allocator(), mAllocation);
@@ -218,12 +214,8 @@ void GenericBuffer::CopyTo(uint32_t offset, void* data, uint32_t size)
 
   if ((memFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) == 0)
   {
-    auto memRange = vk::MappedMemoryRange()
-                        .setMemory(mAllocationInfo.deviceMemory)
-                        .setOffset(mAllocationInfo.offset)
-                        .setSize(mAllocationInfo.size);
-
-    mDevice.Handle().invalidateMappedMemoryRanges(memRange);
+    vmaInvalidateAllocation(
+        mDevice.Allocator(), mAllocation, mAllocationInfo.offset, mAllocationInfo.size);
   }
 
   std::memcpy(data, (uint8_t*)pData + offset, size);

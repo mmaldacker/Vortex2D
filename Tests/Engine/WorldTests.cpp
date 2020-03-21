@@ -214,7 +214,8 @@ TEST(CflTets, Max)
 
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_real_distribution<> dis(-1.0, -1.0);
+  std::uniform_real_distribution<> dis(-1.0, 1.0);
+  float max = -1.0f;
 
   std::vector<glm::vec2> velocityData(size.x * size.y, glm::vec2(0.0f));
   for (int i = 0; i < size.x; i++)
@@ -224,15 +225,15 @@ TEST(CflTets, Max)
       std::size_t index = i + size.x * j;
       velocityData[index].x = dis(gen);
       velocityData[index].y = dis(gen);
+
+      max = std::max(std::max(velocityData[index].x, velocityData[index].y), max);
     }
   }
-
-  velocityData[12].x = -1.0;
 
   input.CopyFrom(velocityData);
   device->Execute(
       [&](vk::CommandBuffer commandBuffer) { velocity.CopyFrom(commandBuffer, input); });
 
   cfl.Compute();
-  EXPECT_EQ(1.0f / size.x, cfl.Get());
+  EXPECT_NEAR(1.0f / (max * size.x), cfl.Get(), 1e-4f);
 }
