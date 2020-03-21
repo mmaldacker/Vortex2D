@@ -16,7 +16,7 @@ namespace Fluid
 {
 float DefaultParticleSize()
 {
-  return 1.02f / std::sqrt(2.0f);
+  return 1.0f / std::sqrt(2.0f);
 }
 
 ParticleCount::ParticleCount(const Renderer::Device& device,

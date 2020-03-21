@@ -53,7 +53,7 @@ void main()
 
   vec2 x = vec2(0.0);
   float r = 0.0;
-  float total_weight = 0.0;
+  float sum_weight = 0.0;
 
   for (int i = -off; i <= off; i++)
   {
@@ -74,19 +74,19 @@ void main()
 
           x += w * p.Position;
           r += w * particle_radius;
-          total_weight += w;
+          sum_weight += w;
         }
       }
     }
 
     // Blobbys formula:
     //float tau = k(particle_radius * particle_radius / (h * h));
-    //float phi = tau - total_weight;
+    //float phi = tau - sum_weight;
 
     float phi = 2.0 * off;
-    if (total_weight != 0.0)
+    if (sum_weight != 0.0)
     {
-      phi = distance(pos + 0.5, x / total_weight) - r / total_weight;
+      phi = distance(pos + 0.5, x / sum_weight) - r / sum_weight;
     }
 
     imageStore(LevelSet, pos, vec4(phi, 0.0, 0.0, 0.0));
