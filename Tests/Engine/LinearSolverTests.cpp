@@ -516,8 +516,6 @@ TEST(LinearSolverTests, Multigrid_Simple)
 
   LinearSolver::Parameters params(LinearSolver::Parameters::SolverType::Fixed, 3);
 
-  float error0 = solver.GetError();
-
   solver.Solve(params);
 
   device->Queue().waitIdle();
