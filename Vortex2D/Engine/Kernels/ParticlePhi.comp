@@ -50,45 +50,43 @@ void main()
   const float h = 2 * particle_radius;
 
   ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
-  if (pos.x < consts.width && pos.y < consts.height)
+
+  vec2 x = vec2(0.0);
+  float r = 0.0;
+  float total_weight = 0.0;
+
+  for (int i = -off; i <= off; i++)
   {
-    vec2 x = vec2(0.0);
-    float r = 0.0;
-    float weight = 0.0;
-
-    for (int i = -off; i <= off; i++)
+    for (int j = -off; j <= off; j++)
     {
-      for (int j = -off; j <= off; j++)
+      ivec2 newPos = ivec2(pos) + ivec2(i, j);
+      if (newPos.x >= 0 && newPos.x < consts.width && newPos.y >= 0 && newPos.y < consts.height)
       {
-        ivec2 newPos = ivec2(pos) + ivec2(i, j);
-        if (newPos.x >= 0 && newPos.x < consts.width && newPos.y >=0 && newPos.y < consts.height)
+        int index = newPos.x + newPos.y * consts.width;
+        int total = count.value[index];
+
+        for (int n = 0; n < total; n++)
         {
-          int index = newPos.x + newPos.y * consts.width;
-          int total = count.value[index];
+          Particle p = particles.value[scanIndex.value[index] + n];
+          vec2 dist = pos + 0.5 - p.Position;
 
-          for (int n = 0; n < total; n++)
-          {
-            Particle p = particles.value[scanIndex.value[index] + n];
-            vec2 dist = pos + 0.5 - p.Position;
+          float w = k(dot(dist, dist) / (h * h));
 
-            float w = k(dot(dist, dist) / (h * h));
-
-            x += w * p.Position;
-            r += w * particle_radius;
-            weight += w;
-          }
+          x += w * p.Position;
+          r += w * particle_radius;
+          total_weight += w;
         }
       }
     }
 
     // Blobbys formula:
     //float tau = k(particle_radius * particle_radius / (h * h));
-    //float phi = tau - weight;
+    //float phi = tau - total_weight;
 
     float phi = 2.0 * off;
-    if (weight != 0.0)
+    if (total_weight != 0.0)
     {
-      phi = distance(pos + 0.5, x / weight) - r / weight;
+      phi = distance(pos + 0.5, x / total_weight) - r / total_weight;
     }
 
     imageStore(LevelSet, pos, vec4(phi, 0.0, 0.0, 0.0));
