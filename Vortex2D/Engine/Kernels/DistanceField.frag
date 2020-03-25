@@ -19,7 +19,7 @@ layout(push_constant) uniform Consts
 void main()
 {
     float value = texture(u_texture, v_texCoord).x;
-    float alpha = 1.0 - clamp(consts.scale * value + 0.5, 0.0, 1.0);
+    float alpha = 1.0 - smoothstep(0.0, 1.0, consts.scale * value + 0.5);
 
     out_color = vec4(u.colour.rgb, alpha);
 }
