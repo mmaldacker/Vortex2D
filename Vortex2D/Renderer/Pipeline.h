@@ -127,7 +127,7 @@ inline void InsertSpecConst(SpecConstInfo& specConstInfo, Arg&& arg, Args&&... a
  * @brief Constructs a specialization constant value
  */
 template <typename Type>
-inline SpecConstInfo::Value<Type> SpecConstValue(uint32_t id, Type&& value)
+inline SpecConstInfo::Value<Type> SpecConstValue(uint32_t id, Type value)
 {
   return SpecConstInfo::Value<Type>{id, value};
 }
