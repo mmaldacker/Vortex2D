@@ -96,7 +96,8 @@ struct CommandEncoder::Impl
   {
     if (pipelineBindPoint == PipelineBindPoint::Compute)
     {
-      // wgpu_compute_pass_set_bind_group(mRawPass, 0);
+      wgpu_compute_pass_set_bind_group(
+          mRawPass, 0, reinterpret_cast<WGPUBindGroupId>(bindGroup.Handle()), nullptr, 0);
     }
   }
 

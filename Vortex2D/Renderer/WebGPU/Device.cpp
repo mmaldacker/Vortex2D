@@ -56,8 +56,10 @@ void WebGPUDevice::Execute(CommandBuffer::CommandFn commandFn) const
 
 Handle::ShaderModule WebGPUDevice::CreateShaderModule(const SpirvBinary& spirv)
 {
+  // TODO missing caching
+
   WGPUShaderModuleDescriptor descriptor{};
-  descriptor.code = {spirv.data(), spirv.size()};
+  descriptor.code = {spirv.data(), spirv.words()};
 
   return reinterpret_cast<Handle::ShaderModule>(
       wgpu_device_create_shader_module(mDevice, &descriptor));
@@ -65,45 +67,67 @@ Handle::ShaderModule WebGPUDevice::CreateShaderModule(const SpirvBinary& spirv)
 
 Handle::BindGroupLayout WebGPUDevice::CreateBindGroupLayout(const SPIRV::ShaderLayouts& layouts)
 {
-  // TDODO missing caching
+  auto it = std::find_if(
+      mGroupLayouts.begin(), mGroupLayouts.end(), [&](const auto& descriptorSetLayout) {
+        return std::get<0>(descriptorSetLayout) == layouts;
+      });
 
-  std::vector<WGPUBindGroupLayoutEntry> entries;
-  for (auto& layout : layouts)
+  if (it == mGroupLayouts.end())
   {
-    for (auto& desciptorType : layout.bindings)
+    std::vector<WGPUBindGroupLayoutEntry> entries;
+    for (auto& layout : layouts)
     {
-      WGPUBindGroupLayoutEntry entry{};
-      entry.binding = desciptorType.first;
-      entry.visibility = ConvertShaderStage(layout.shaderStage);
-      entry.ty = ConvertBindingType(desciptorType.second);
+      for (auto& desciptorType : layout.bindings)
+      {
+        WGPUBindGroupLayoutEntry entry{};
+        entry.binding = desciptorType.first;
+        entry.visibility = ConvertShaderStage(layout.shaderStage);
+        entry.ty = ConvertBindingType(desciptorType.second);
 
-      // TODO do we need to fill the rest of the struct?
+        // TODO do we need to fill the rest of the struct?
 
-      entries.emplace_back(entry);
+        entries.emplace_back(entry);
+      }
     }
+
+    WGPUBindGroupLayoutDescriptor descriptor{};
+    descriptor.entries = entries.data();
+    descriptor.entries_length = entries.size();
+
+    auto handle = wgpu_device_create_bind_group_layout(mDevice, &descriptor);
+
+    mGroupLayouts.emplace_back(layouts, handle);
+    return reinterpret_cast<Handle::BindGroupLayout>(handle);
   }
 
-  WGPUBindGroupLayoutDescriptor descriptor{};
-  descriptor.entries = entries.data();
-  descriptor.entries_length = entries.size();
-
-  return reinterpret_cast<Handle::BindGroupLayout>(
-      wgpu_device_create_bind_group_layout(mDevice, &descriptor));
+  auto handle = std::get<1>(*it);
+  return reinterpret_cast<Handle::BindGroupLayout>(handle);
 }
 
 Handle::PipelineLayout WebGPUDevice::CreatePipelineLayout(const SPIRV::ShaderLayouts& layouts)
 {
-  // TODO missing caching
+  auto it = std::find_if(
+      mPipelineLayouts.begin(), mPipelineLayouts.end(), [&](const auto& pipelineLayout) {
+        return std::get<0>(pipelineLayout) == layouts;
+      });
 
-  WGPUBindGroupLayoutId bindGroupLayouts[] = {
-      Handle::ConvertBindGroupLayout(CreateBindGroupLayout(layouts))};
+  if (it == mPipelineLayouts.end())
+  {
+    WGPUBindGroupLayoutId bindGroupLayouts[] = {
+        Handle::ConvertBindGroupLayout(CreateBindGroupLayout(layouts))};
 
-  WGPUPipelineLayoutDescriptor descriptor{};
-  descriptor.bind_group_layouts = bindGroupLayouts;
-  descriptor.bind_group_layouts_length = 1;
+    WGPUPipelineLayoutDescriptor descriptor{};
+    descriptor.bind_group_layouts = bindGroupLayouts;
+    descriptor.bind_group_layouts_length = 1;
 
-  return reinterpret_cast<Handle::PipelineLayout>(
-      wgpu_device_create_pipeline_layout(mDevice, &descriptor));
+    auto handle = wgpu_device_create_pipeline_layout(mDevice, &descriptor);
+
+    mPipelineLayouts.emplace_back(layouts, handle);
+    return reinterpret_cast<Handle::PipelineLayout>(handle);
+  }
+
+  auto handle = std::get<1>(*it);
+  return reinterpret_cast<Handle::PipelineLayout>(handle);
 }
 
 BindGroup WebGPUDevice::CreateBindGroup(const Handle::BindGroupLayout& bindGroupLayout,
@@ -159,6 +183,8 @@ Handle::Pipeline WebGPUDevice::CreateComputePipeline(Handle::ShaderModule shader
                                                      Handle::PipelineLayout layout,
                                                      SpecConstInfo specConstInfo)
 {
+  // TODO missing caching
+
   WGPUProgrammableStageDescriptor computeStage{};
   computeStage.entry_point = "main";
   computeStage.module = reinterpret_cast<WGPUShaderModuleId>(shader);

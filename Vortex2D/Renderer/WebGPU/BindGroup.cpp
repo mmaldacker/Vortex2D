@@ -16,10 +16,19 @@ namespace Renderer
 {
 struct BindGroup::Impl
 {
-  Impl(Device& device, const Handle::BindGroupLayout& bindGroupLayout) {}
+  WGPUBindGroupId mBindGroup;
 
-  Handle::BindGroup Handle() { return {}; }
+  Impl(Device& device, const Handle::BindGroupLayout& bindGroupLayout)
+  {
+    throw std::runtime_error("Incorrect constructor");
+  }
+
+  Impl(Handle::BindGroup bindGroup) : mBindGroup(reinterpret_cast<WGPUBindGroupId>(bindGroup)) {}
+
+  Handle::BindGroup Handle() { return reinterpret_cast<Handle::BindGroup>(mBindGroup); }
 };
+
+BindGroup::BindGroup(Handle::BindGroup bindGroup) : mImpl(std::make_unique<Impl>(bindGroup)) {}
 
 BindGroup::BindGroup(Device& device, const Handle::BindGroupLayout& bindGroupLayout)
     : mImpl(std::make_unique<Impl>(device, bindGroupLayout))

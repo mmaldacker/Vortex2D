@@ -78,26 +78,24 @@ struct UBO
   alignas(4) int particleCount;
 };
 
-TEST(ComputeTests, BufferCompute)
+TEST(ComputeTests, CopyCompute)
 {
-  std::vector<Particle> particles(100, {{1.0f, 1.0f}, {10.0f, 10.0f}});
+  const int size = 10;
+  Buffer<float> input(*device, size, MemoryUsage::Cpu);
+  Buffer<float> output(*device, size, MemoryUsage::Cpu);
 
-  Buffer<Particle> buffer(*device, 100, MemoryUsage::Cpu);
-  UniformBuffer<UBO> uboBuffer(*device, MemoryUsage::Cpu);
+  std::vector<float> data(size, 0.5f);
 
-  UBO ubo = {0.2f, 100};
+  CopyFrom(input, data);
 
-  CopyFrom(buffer, particles);
-  CopyFrom(uboBuffer, ubo);
+  auto shader = device->CreateShaderModule(Copy_comp);
 
-  auto shader = device->CreateShaderModule(Buffer_comp);
-  Reflection reflection(Buffer_comp);
+  Reflection reflection(Copy_comp);
+  ShaderLayout layout(reflection);
 
-  ShaderLayouts layout = {reflection};
-  auto bindGroupLayout = device->CreateBindGroupLayout(layout);
-  auto pipelineLayout = device->CreatePipelineLayout(layout);
-  auto bindGroup = device->CreateBindGroup(bindGroupLayout, layout, {{buffer}, {uboBuffer}});
-
+  auto bindGroupLayout = device->CreateBindGroupLayout({layout});
+  auto pipelineLayout = device->CreatePipelineLayout({layout});
+  auto bindGroup = device->CreateBindGroup(bindGroupLayout, {layout}, {{input}, {output}});
   auto pipeline = device->CreateComputePipeline(shader, pipelineLayout);
 
   device->Execute([&](CommandEncoder& command) {
@@ -106,10 +104,44 @@ TEST(ComputeTests, BufferCompute)
     command.Dispatch(1, 1, 1);
   });
 
-  std::vector<Particle> output(100);
+  std::vector<float> dataOut(size, 0.0f);
+  CopyTo(output, dataOut);
+
+  EXPECT_EQ(data, dataOut);
+}
+
+TEST(ComputeTests, BufferCompute)
+{
+  const int numParticles = 100;
+  std::vector<Particle> particles(numParticles, {{1.0f, 1.0f}, {10.0f, 10.0f}});
+
+  Buffer<Particle> buffer(*device, numParticles, MemoryUsage::Cpu);
+  UniformBuffer<UBO> uboBuffer(*device, MemoryUsage::Cpu);
+
+  UBO ubo = {0.2f, numParticles};
+
+  CopyFrom(buffer, particles);
+  CopyFrom(uboBuffer, ubo);
+
+  auto shader = device->CreateShaderModule(Buffer_comp);
+
+  Reflection reflection(Buffer_comp);
+  ShaderLayouts layout = {reflection};
+  auto bindGroupLayout = device->CreateBindGroupLayout(layout);
+  auto pipelineLayout = device->CreatePipelineLayout(layout);
+  auto bindGroup = device->CreateBindGroup(bindGroupLayout, layout, {{buffer}, {uboBuffer}});
+  auto pipeline = device->CreateComputePipeline(shader, pipelineLayout);
+
+  device->Execute([&](CommandEncoder& command) {
+    command.SetPipeline(PipelineBindPoint::Compute, pipeline);
+    command.SetBindGroup(PipelineBindPoint::Compute, pipelineLayout, bindGroup);
+    command.Dispatch(1, 1, 1);
+  });
+
+  std::vector<Particle> output(numParticles);
   CopyTo(buffer, output);
 
-  for (int i = 0; i < 100; i++)
+  for (int i = 0; i < numParticles; i++)
   {
     auto particle = output[i];
     Particle expectedParticle = {{3.0f, 3.0f}, {10.0f, 10.0f}};

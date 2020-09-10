@@ -1,0 +1,22 @@
+#version 450
+
+#extension GL_ARB_separate_shader_objects : enable
+
+layout (local_size_x = 256) in;
+
+layout(binding = 0) buffer Input
+{
+   float x[];
+}i;
+
+
+layout (binding = 1) buffer Output
+{
+    float y[];
+}o;
+
+void main()
+{
+    uint index = gl_GlobalInvocationID.x;
+    o.y[index] = i.x[index];
+}

@@ -22,6 +22,7 @@ class BindGroup
 {
 public:
   BindGroup();
+  BindGroup(Handle::BindGroup bindGroup);
   BindGroup(Device& device, const Handle::BindGroupLayout& bindGroupLayout);
   BindGroup(BindGroup&& other);
   VORTEX2D_API ~BindGroup();
