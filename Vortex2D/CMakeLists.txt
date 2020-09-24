@@ -163,6 +163,7 @@ set(SPIRV_CROSS_ENABLE_REFLECT OFF CACHE BOOL "" FORCE)
 set(SPIRV_CROSS_ENABLE_C_API OFF CACHE BOOL "" FORCE)
 set(SPIRV_CROSS_ENABLE_UTIL OFF CACHE BOOL "" FORCE)
 set(SPIRV_CROSS_SKIP_INSTALL  ON CACHE BOOL "" FORCE)
+set(SPIRV_CROSS_FORCE_PIC ON CACHE BOOL "" FORCE)
 FetchContent_Declare(spirv_cross
                      GIT_REPOSITORY      https://github.com/KhronosGroup/SPIRV-Cross.git
                      GIT_TAG             2019-11-01)
@@ -171,7 +172,6 @@ if(NOT spirv_cross_POPULATED)
     FetchContent_Populate(spirv_cross)
     add_subdirectory(${spirv_cross_SOURCE_DIR} ${spirv_cross_BINARY_DIR})
 endif()
-set_property(TARGET spirv-cross-core PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 vortex2d_find_package(PythonInterp REQUIRED)
 compile_shader(SOURCES ${SHADER_SOURCES} OUTPUT "vortex2d_generated_spirv" VERSION 1.0)
@@ -210,6 +210,11 @@ elseif(VORTEX2D_BACKEND STREQUAL "WebGPU")
   set (BACKEND_LIB ${WEBGPU_LIB})
   set (BACKEND_INCLUDE "${webgpu_rust_SOURCE_DIR}/ffi")
   set (OS_LIBRARIES "userenv" "ws2_32" "Dwmapi" "dbghelp" "d3dcompiler" "D3D12" "D3D11" "DXGI" "setupapi")
+
+  if (WIN32)
+    # Hack for spirv under windows debug builds
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MD")
+  endif()
 else()
   message(FATAL_ERROR "Backend not set!")
 endif()

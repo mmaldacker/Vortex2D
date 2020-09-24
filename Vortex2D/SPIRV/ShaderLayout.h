@@ -21,6 +21,7 @@ using BindTypeBindings = std::map<uint32_t, Renderer::BindType>;
  */
 struct ShaderLayout
 {
+  VORTEX2D_API ShaderLayout();
   VORTEX2D_API ShaderLayout(const Reflection& reflection);
 
   Renderer::ShaderStage shaderStage;

@@ -62,6 +62,8 @@ private:
   WGPUQueueId mQueue;
 
   std::unique_ptr<CommandBuffer> mExecute;
+  std::vector<std::tuple<SPIRV::ShaderLayouts, WGPUBindGroupLayoutId>> mGroupLayouts;
+  std::vector<std::tuple<SPIRV::ShaderLayouts, WGPUPipelineLayoutId>> mPipelineLayouts;
 };
 
 }  // namespace Renderer

@@ -156,8 +156,17 @@ BindGroup WebGPUDevice::CreateBindGroup(const Handle::BindGroupLayout& bindGroup
         },
         [&](Image image) {
           WGPUBindingResource resource{};
-          resource.tag = WGPUBindingResource_Sampler;
-          resource.sampler = {reinterpret_cast<WGPUSamplerId>(image.Sampler->Handle())};
+
+          if (image.Sampler != nullptr)
+          {
+            resource.tag = WGPUBindingResource_Sampler;
+            resource.sampler = {reinterpret_cast<WGPUSamplerId>(image.Sampler->Handle())};
+          }
+          else
+          {
+            resource.tag = WGPUBindingResource_TextureView;
+            resource.texture_view = {reinterpret_cast<WGPUTextureViewId>(image.Texture->GetView())};
+          }
 
           entry.resource = resource;
         });

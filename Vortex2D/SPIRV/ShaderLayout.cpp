@@ -15,6 +15,8 @@ bool operator==(const ShaderLayout& left, const ShaderLayout& right)
          left.shaderStage == right.shaderStage;
 }
 
+ShaderLayout::ShaderLayout() {}
+
 ShaderLayout::ShaderLayout(const SPIRV::Reflection& reflection)
     : shaderStage(reflection.GetShaderStage())
     , bindings(reflection.GetDescriptorTypesMap())

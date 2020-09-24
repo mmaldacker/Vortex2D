@@ -16,6 +16,7 @@ namespace Renderer
 {
 class Device;
 class CommandEncoder;
+class GenericBuffer;
 
 /**
  * @brief Gets the number of bytes per pixel given the format
@@ -122,10 +123,17 @@ public:
 
   /**
    * @brief Copies source texture in this texture
-   * @param commandBuffer vulkan command buffer
+   * @param commandBuffer command buffer
    * @param srcImage source image
    */
   VORTEX2D_API void CopyFrom(CommandEncoder& command, Texture& srcImage);
+
+  /**
+   * @brief Copies source buffer in this texture
+   * @param command command buffer
+   * @param srcBuffer source buffer
+   */
+  VORTEX2D_API void CopyFrom(CommandEncoder& command, GenericBuffer& srcBuffer);
 
   /**
    * @brief Inserts a barrier for the given texture, command buffer and access.

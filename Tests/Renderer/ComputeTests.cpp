@@ -32,6 +32,17 @@ TEST(ComputeTests, WriteBuffer)
   CheckBuffer(data, buffer);
 }
 
+TEST(ComputeTests, WriteImage)
+{
+  const int size = 10;
+  std::vector<float> data(size * size, 23.4f);
+  Texture texture(*device, size, size, Format::R32Sfloat, MemoryUsage::Cpu);
+
+  texture.CopyFrom(data.data());
+
+  CheckTexture(data, texture);
+}
+
 TEST(ComputeTests, BufferCopy)
 {
   std::vector<float> data(100, 23.4f);
@@ -47,6 +58,25 @@ TEST(ComputeTests, BufferCopy)
   });
 
   CheckBuffer(data, outBuffer);
+}
+
+TEST(ComputeTests, ImageCopy)
+{
+  const int size = 10;
+  std::vector<float> data(size * size, 23.4f);
+
+  Texture texture(*device, size, size, Format::R32Sfloat);
+  Texture inTexture(*device, size, size, Format::R32Sfloat, MemoryUsage::Cpu);
+  Texture outTexture(*device, size, size, Format::R32Sfloat, MemoryUsage::Cpu);
+
+  inTexture.CopyFrom(data.data());
+
+  device->Execute([&](CommandEncoder& command) {
+    texture.CopyFrom(command, inTexture);
+    outTexture.CopyFrom(command, texture);
+  });
+
+  CheckTexture(data, outTexture);
 }
 
 TEST(ComputeTests, UpdateVectorBuffer)

@@ -124,7 +124,6 @@ struct GenericBuffer::Impl
     }
 
     WGPUTextureCopyView src{};
-    src.origin = {0, 0, 0};
     src.texture = Handle::ConvertImage(srcTexture.Handle());
 
     WGPUTextureDataLayout layout{};
@@ -139,7 +138,7 @@ struct GenericBuffer::Impl
     WGPUExtent3d extent{};
     extent.width = srcTexture.GetWidth();
     extent.height = srcTexture.GetHeight();
-    extent.depth = 0;
+    extent.depth = 1;
 
     wgpu_command_encoder_copy_texture_to_buffer(
         Handle::ConvertCommandEncoder(command.Handle()), &src, &dst, &extent);
