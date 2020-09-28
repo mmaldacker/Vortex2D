@@ -29,7 +29,8 @@ Instance::Instance() : mAdapter(0)
 
   std::promise<WGPUAdapterId> adapterPromise;
 
-  wgpu_request_adapter_async(nullptr, 2 | 4 | 8, RequestAdapterCallback, (void*)&adapterPromise);
+  wgpu_request_adapter_async(
+      nullptr, 2 | 4 | 8, false, &RequestAdapterCallback, (void*)&adapterPromise);
 
   mAdapter = adapterPromise.get_future().get();
 }

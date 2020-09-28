@@ -190,7 +190,7 @@ elseif(VORTEX2D_BACKEND STREQUAL "WebGPU")
   FetchContent_Declare(
     webgpu_rust
     GIT_REPOSITORY "https://github.com/gfx-rs/wgpu-native.git"
-    GIT_TAG        "v0.5.2"
+    GIT_TAG        "v0.6.0"
   )
   FetchContent_GetProperties(webgpu_rust)
   if(NOT webgpu_rust_POPULATED)

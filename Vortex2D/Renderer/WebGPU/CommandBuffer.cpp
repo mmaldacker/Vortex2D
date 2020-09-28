@@ -24,10 +24,11 @@ struct CommandEncoder::Impl
   WebGPUDevice& mDevice;
   WGPUCommandEncoderId mCommandEncoder;
 
-  WGPURawPass* mRawPass;
+  WGPURenderPass* mRenderPass;
+  WGPUComputePass* mComputePass;
 
   Impl(Device& device)
-      : mDevice(static_cast<WebGPUDevice&>(device)), mCommandEncoder(0), mRawPass(nullptr)
+      : mDevice(static_cast<WebGPUDevice&>(device)), mCommandEncoder(0), mRenderPass(nullptr)
   {
     WGPUCommandEncoderDescriptor descriptor{};
     mCommandEncoder = wgpu_device_create_command_encoder(mDevice.Handle(), &descriptor);
@@ -53,18 +54,18 @@ struct CommandEncoder::Impl
   void Begin()
   {
     WGPUComputePassDescriptor descriptor{};
-    mRawPass = wgpu_command_encoder_begin_compute_pass(mCommandEncoder, &descriptor);
+    mComputePass = wgpu_command_encoder_begin_compute_pass(mCommandEncoder, &descriptor);
   }
 
   void BeginRenderPass(const RenderTarget& renderTarget, Handle::Framebuffer framebuffer)
   {
     WGPURenderPassDescriptor descriptor{};
-    mRawPass = wgpu_command_encoder_begin_render_pass(mCommandEncoder, &descriptor);
+    mRenderPass = wgpu_command_encoder_begin_render_pass(mCommandEncoder, &descriptor);
   }
 
   Handle::CommandBuffer EndRenderPass()
   {
-    wgpu_render_pass_end_pass(mRawPass);
+    wgpu_render_pass_end_pass(mRenderPass);
     // TODO do we need to destroy the pass?
 
     WGPUCommandBufferDescriptor descriptor{};
@@ -74,7 +75,7 @@ struct CommandEncoder::Impl
 
   Handle::CommandBuffer End()
   {
-    wgpu_compute_pass_end_pass(mRawPass);
+    wgpu_compute_pass_end_pass(mComputePass);
     // TODO do we need to destroy the pass?
 
     WGPUCommandBufferDescriptor descriptor{};
@@ -86,7 +87,8 @@ struct CommandEncoder::Impl
   {
     if (pipelineBindPoint == PipelineBindPoint::Compute)
     {
-      wgpu_compute_pass_set_pipeline(mRawPass, reinterpret_cast<WGPUComputePipelineId>(pipeline));
+      wgpu_compute_pass_set_pipeline(mComputePass,
+                                     reinterpret_cast<WGPUComputePipelineId>(pipeline));
     }
   }
 
@@ -97,7 +99,7 @@ struct CommandEncoder::Impl
     if (pipelineBindPoint == PipelineBindPoint::Compute)
     {
       wgpu_compute_pass_set_bind_group(
-          mRawPass, 0, reinterpret_cast<WGPUBindGroupId>(bindGroup.Handle()), nullptr, 0);
+          mComputePass, 0, reinterpret_cast<WGPUBindGroupId>(bindGroup.Handle()), nullptr, 0);
     }
   }
 
@@ -115,12 +117,12 @@ struct CommandEncoder::Impl
 
   void Dispatch(std::uint32_t x, std::uint32_t y, std::uint32_t z)
   {
-    wgpu_compute_pass_dispatch(mRawPass, x, y, z);
+    wgpu_compute_pass_dispatch(mComputePass, x, y, z);
   }
 
   void DispatchIndirect(GenericBuffer& buffer)
   {
-    wgpu_compute_pass_dispatch_indirect(mRawPass, Handle::ConvertBuffer(buffer.Handle()), 0);
+    wgpu_compute_pass_dispatch_indirect(mComputePass, Handle::ConvertBuffer(buffer.Handle()), 0);
   }
 
   void Clear(const glm::ivec2& pos, const glm::uvec2& size, const glm::vec4& colour) {}

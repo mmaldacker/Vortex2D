@@ -14,7 +14,7 @@ namespace Renderer
 {
 WebGPUDevice::WebGPUDevice(const Instance& instance) : mDevice(0), mQueue(0)
 {
-  mDevice = wgpu_adapter_request_device(instance.GetAdapter(), nullptr, nullptr);
+  mDevice = wgpu_adapter_request_device(instance.GetAdapter(), 0, nullptr, false, nullptr);
   if (mDevice == 0)
   {
     throw std::runtime_error("Error creating device");
@@ -58,11 +58,8 @@ Handle::ShaderModule WebGPUDevice::CreateShaderModule(const SpirvBinary& spirv)
 {
   // TODO missing caching
 
-  WGPUShaderModuleDescriptor descriptor{};
-  descriptor.code = {spirv.data(), spirv.words()};
-
-  return reinterpret_cast<Handle::ShaderModule>(
-      wgpu_device_create_shader_module(mDevice, &descriptor));
+  WGPUShaderSource source = {spirv.data(), spirv.words()};
+  return reinterpret_cast<Handle::ShaderModule>(wgpu_device_create_shader_module(mDevice, source));
 }
 
 Handle::BindGroupLayout WebGPUDevice::CreateBindGroupLayout(const SPIRV::ShaderLayouts& layouts)
@@ -143,32 +140,19 @@ BindGroup WebGPUDevice::CreateBindGroup(const Handle::BindGroupLayout& bindGroup
 
     bindingInputs[i].Input.match(
         [&](Renderer::GenericBuffer* buffer) {
-          WGPUBufferBinding binding{};
-          binding.buffer = reinterpret_cast<WGPUBufferId>(buffer->Handle());
-          binding.offset = 0;
-          binding.size = buffer->Size();
-
-          WGPUBindingResource resource{};
-          resource.tag = WGPUBindingResource_Buffer;
-          resource.buffer = {binding};
-
-          entry.resource = resource;
+          entry.buffer = reinterpret_cast<WGPUBufferId>(buffer->Handle());
+          entry.offset = 0;
+          entry.size = buffer->Size();
         },
         [&](Image image) {
-          WGPUBindingResource resource{};
-
           if (image.Sampler != nullptr)
           {
-            resource.tag = WGPUBindingResource_Sampler;
-            resource.sampler = {reinterpret_cast<WGPUSamplerId>(image.Sampler->Handle())};
+            entry.sampler = {reinterpret_cast<WGPUSamplerId>(image.Sampler->Handle())};
           }
           else
           {
-            resource.tag = WGPUBindingResource_TextureView;
-            resource.texture_view = {reinterpret_cast<WGPUTextureViewId>(image.Texture->GetView())};
+            entry.texture_view = {reinterpret_cast<WGPUTextureViewId>(image.Texture->GetView())};
           }
-
-          entry.resource = resource;
         });
 
     entries.emplace_back(entry);

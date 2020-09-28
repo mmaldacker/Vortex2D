@@ -14,32 +14,6 @@ namespace Vortex2D
 {
 namespace Renderer
 {
-void BufferMapReadCallback(WGPUBufferMapAsyncStatus status, const uint8_t* data, uint8_t* userdata)
-{
-  auto promise = reinterpret_cast<std::promise<const uint8_t*>*>(userdata);
-  if (status == WGPUBufferMapAsyncStatus_Success)
-  {
-    promise->set_value(data);
-  }
-  else
-  {
-    promise->set_exception(std::make_exception_ptr(std::runtime_error("buffer read error")));
-  }
-}
-
-void BufferMapWriteCallback(WGPUBufferMapAsyncStatus status, uint8_t* data, uint8_t* userdata)
-{
-  auto promise = reinterpret_cast<std::promise<uint8_t*>*>(userdata);
-  if (status == WGPUBufferMapAsyncStatus_Success)
-  {
-    promise->set_value(data);
-  }
-  else
-  {
-    promise->set_exception(std::make_exception_ptr(std::runtime_error("buffer write error")));
-  }
-}
-
 struct GenericBuffer::Impl
 {
   WebGPUDevice& mDevice;
@@ -153,12 +127,8 @@ struct GenericBuffer::Impl
 
   void CopyFrom(uint32_t offset, const void* data, uint32_t size)
   {
-    std::promise<uint8_t*> promise;
-    wgpu_buffer_map_write_async(mBuffer, offset, size, BufferMapWriteCallback, (uint8_t*)&promise);
+    uint8_t* dstData = wgpu_buffer_get_mapped_range(mBuffer, offset, size);
 
-    wgpu_device_poll(mDevice.Handle(), false);
-
-    uint8_t* dstData = promise.get_future().get();
     std::memcpy(dstData, data, size);
 
     wgpu_buffer_unmap(mBuffer);
@@ -166,12 +136,8 @@ struct GenericBuffer::Impl
 
   void CopyTo(uint32_t offset, void* data, uint32_t size)
   {
-    std::promise<const uint8_t*> promise;
-    wgpu_buffer_map_read_async(mBuffer, offset, size, BufferMapReadCallback, (uint8_t*)&promise);
+    const uint8_t* srcData = wgpu_buffer_get_mapped_range(mBuffer, offset, size);
 
-    wgpu_device_poll(mDevice.Handle(), false);
-
-    const uint8_t* srcData = promise.get_future().get();
     std::memcpy(data, srcData, size);
 
     wgpu_buffer_unmap(mBuffer);

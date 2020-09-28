@@ -10,7 +10,7 @@
 
 extern "C"
 {
-#include <wgpu.h>
+#include "wgpu.h"
 }
 
 namespace Vortex2D
@@ -104,7 +104,7 @@ inline WGPUTextureUsage ConvertTextureUsage(MemoryUsage memoryUsage)
   switch (memoryUsage)
   {
     case MemoryUsage::Gpu:
-      return WGPUTextureUsage_COPY_DST | WGPUTextureUsage_COPY_DST |
+      return WGPUTextureUsage_COPY_DST | WGPUTextureUsage_COPY_SRC |
              WGPUTextureUsage_OUTPUT_ATTACHMENT | WGPUTextureUsage_SAMPLED |
              WGPUTextureUsage_STORAGE;
     case MemoryUsage::Cpu:
