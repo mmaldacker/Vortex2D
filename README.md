@@ -1,6 +1,4 @@
-[![Build Status](https://vortex2d.cachemiss.xyz/api/badges/mmaldacker/Vortex2D/status.svg)](https://vortex2d.cachemiss.xyz/mmaldacker/Vortex2D)
-[![Build Status](https://travis-ci.org/mmaldacker/Vortex2D.svg?branch=master)](https://travis-ci.org/mmaldacker/Vortex2D)
-[![Build Status](https://ci.appveyor.com/api/projects/status/p7q9aple11yhs1ck?svg=true)](https://ci.appveyor.com/project/mmaldacker/vortex2d)
+![Build Status](https://github.com/mmaldacker/Vortex2D/actions/workflows/main.yml/badge.svg)
 [![codecov](https://codecov.io/gh/mmaldacker/Vortex2D/branch/master/graph/badge.svg)](https://codecov.io/gh/mmaldacker/Vortex2D)
 [![Docs](https://readthedocs.org/projects/vortex2d/badge/?version=latest)](https://vortex2d.readthedocs.io)
 
