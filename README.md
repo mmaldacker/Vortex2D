@@ -1,5 +1,4 @@
 ![Build Status](https://github.com/mmaldacker/Vortex2D/actions/workflows/main.yml/badge.svg)
-[![codecov](https://codecov.io/gh/mmaldacker/Vortex2D/branch/master/graph/badge.svg)](https://codecov.io/gh/mmaldacker/Vortex2D)
 [![Docs](https://readthedocs.org/projects/vortex2d/badge/?version=latest)](https://vortex2d.readthedocs.io)
 
 # Vortex2D
