@@ -26,7 +26,7 @@ function(compile_shader)
     cmake_parse_arguments(SHADER "" "OUTPUT;VERSION" "SOURCES" ${ARGN})
 
     if (NOT DEFINED GLSL_VALIDATOR)
-      vortex2d_find_program(GLSL_VALIDATOR glslangValidator hints "$ENV{VULKAN_SDK}/Bin")
+      vortex2d_find_program(GLSL_VALIDATOR glslangValidator hints "$ENV{VULKAN_SDK}/Bin" "$ENV{VULKAN_SDK}/bin")
     elseif(NOT IS_ABSOLUTE ${GLSL_VALIDATOR})
       set(GLSL_VALIDATOR "${CMAKE_CURRENT_LIST_DIR}/${GLSL_VALIDATOR}")
     endif()
