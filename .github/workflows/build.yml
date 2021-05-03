@@ -20,6 +20,7 @@ jobs:
         id  : cache-vulkan-sdk
         uses: actions/cache@v1
         with:
+          path: "1.2.162.0"
           key: vulkan-sdk-1.2.162.0
 
       - name: Setup Vulkan
@@ -27,8 +28,6 @@ jobs:
         run: |
           wget https://sdk.lunarg.com/sdk/download/1.2.162.0/linux/vulkansdk-linux-x86_64-1.2.162.0.tar.gz?Human=true -O vulkansdk-linux-x86_64-1.2.162.0.tar.gz
           tar -xf vulkansdk-linux-x86_64-1.2.162.0.tar.gz
-          rm -rf 1.2.162.0/source 1.2.162.0/samples
-          find 1.2.162.0 -type f | grep -v -E 'vulkan|glslang' | xargs rm
 
       - name: Build
         run: |
@@ -55,7 +54,6 @@ jobs:
         run: |
           Invoke-WebRequest -Uri "https://sdk.lunarg.com/sdk/download/1.2.162.0/windows/VulkanSDK-1.2.162.0-Installer.exe" -OutFile VulkanSDK.exe
           7z x -aoa ./VulkanSDK-1.2.162.0-Installer.exe -oVulkanSDK
-          Remove-Item .\VulkanSDK\Demos, .\VulkanSDK\Samples, .\VulkanSDK\Third-Party, .\VulkanSDK\Tools, .\VulkanSDK\Tools32, .\VulkanSDK\Bin32, .\VulkanSDK\Lib32 -Recurse
 
       - name: Build
         env:
@@ -85,8 +83,6 @@ jobs:
         wget https://sdk.lunarg.com/sdk/download/1.2.162.0/mac/vulkansdk-macos-1.2.162.0.dmg?Human=true -O vulkansdk-macos-1.2.162.0.dmg
         hdiutil attach vulkansdk-macos-1.2.162.0.dmg
         cp -r /Volumes/vulkansdk-macos-1.2.162.0 .
-        rm -rf vulkansdk-macos-1.2.162.0/Applications
-        find vulkansdk-macos-1.2.162.0 -type f | grep -v -E 'vulkan|glslang|MoltenVK' | xargs rm
         hdiutil detach /Volumes/vulkansdk-macos-1.2.162.0
 
     - name: Build x86_64
