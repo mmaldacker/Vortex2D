@@ -11,7 +11,7 @@ on:
 jobs:
   build_ubuntu_x11:
     name: Build Ubuntu
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
@@ -50,7 +50,7 @@ jobs:
         id: cache-vulkan-sdk
         uses: actions/cache@v1
         with:
-          path: "C:\\VulkanSDK\\1.2.162.0"
+          path: "VulkanSDK"
           key: vulkan-sdk-1.2.162.0
 
       - name: Setup Vulkan
