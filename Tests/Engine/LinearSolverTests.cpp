@@ -52,7 +52,7 @@ TEST(LinearSolverTests, ReduceSum)
 
 TEST(LinearSolverTests, ReduceBigSum)
 {
-  glm::ivec2 size(500);
+  glm::ivec2 size(1000);
   int total_size = size.x * size.y;  // 1 million
 
   Buffer<float> input(*device, total_size, VMA_MEMORY_USAGE_CPU_ONLY);

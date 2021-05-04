@@ -212,6 +212,21 @@ TEST(BoundariesTests, Intersection)
   CheckLevelSet(data, outTexture);
 }
 
+float clamp(float x, float min, float max)
+{
+  if (x < min)
+    return min;
+  if (x > max)
+    return max;
+  return x;
+}
+
+float smoothstep(float edge0, float edge1, float x)
+{
+  x = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+  return x * x * (3 - 2 * x);
+}
+
 TEST(BoundariesTest, DistanceField)
 {
   glm::ivec2 size(50);
@@ -238,11 +253,11 @@ TEST(BoundariesTest, DistanceField)
   device->Execute(
       [&](vk::CommandBuffer commandBuffer) { localOutput.CopyFrom(commandBuffer, output); });
 
-  uint8_t alpha = static_cast<uint8_t>(255 * (0.1f + 0.5f));
-  uint8_t r = static_cast<uint8_t>(255 * distance.Colour.r);
-  uint8_t g = static_cast<uint8_t>(255 * distance.Colour.g);
-  uint8_t b = static_cast<uint8_t>(255 * distance.Colour.b);
-  std::vector<glm::u8vec4> outData(size.x * size.y, {r, g, b, 255 - alpha});
+  auto r = static_cast<uint8_t>(255 * distance.Colour.r);
+  auto g = static_cast<uint8_t>(255 * distance.Colour.g);
+  auto b = static_cast<uint8_t>(255 * distance.Colour.b);
+  auto a = static_cast<uint8_t>(255 - std::round(255 * smoothstep(0.0, 1.0, 0.1f + 0.5f)));
+  std::vector<glm::u8vec4> outData(size.x * size.y, {r, g, b, a});
 
   CheckTexture<glm::u8vec4>(outData, localOutput);
 }
