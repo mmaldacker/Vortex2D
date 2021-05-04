@@ -24,7 +24,7 @@ jobs:
           key: vulkan-sdk-1.2.162.0
 
       - name: Setup Vulkan
-        if: steps.cache.outputs.cache-hit != 'true'
+        if: steps.cache-vulkan-sdk.outputs.cache-hit != 'true'
         run: |
           wget https://sdk.lunarg.com/sdk/download/1.2.162.0/linux/vulkansdk-linux-x86_64-1.2.162.0.tar.gz?Human=true -O vulkansdk-linux-x86_64-1.2.162.0.tar.gz
           tar -xf vulkansdk-linux-x86_64-1.2.162.0.tar.gz
@@ -80,7 +80,7 @@ jobs:
         key: vulkansdk-macos-1.2.162.0
 
     - name: Setup Vulkan
-      if: steps.cache-vulkansdk.outputs.cache-hit != 'true'
+      if: steps.cache-vulkan-sdk.outputs.cache-hit != 'true'
       run: |
         wget https://sdk.lunarg.com/sdk/download/1.2.162.0/mac/vulkansdk-macos-1.2.162.0.dmg?Human=true -O vulkansdk-macos-1.2.162.0.dmg
         hdiutil attach vulkansdk-macos-1.2.162.0.dmg
