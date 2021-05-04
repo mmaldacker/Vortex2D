@@ -1,3 +1,15 @@
+# Release 1.8
+
+* velocity interpolation is now configurable (linear or cubic)
+* added function to calculate error residue of linear equations
+* multigrid can be used as linear solver
+* configurable particle size
+* added debug data of linear equations (to be viewed as texture in renderdoc)
+* support any size of world (not restricted to power of 2)
+* improved level set generation from particles
+* improved rendering of level sets
+
+
 # Release 1.7
 
 * Added `SetType` to rigidbody
