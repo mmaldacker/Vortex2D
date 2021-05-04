@@ -1,5 +1,0 @@
-ignore:
-  - "build/.*" 
-  - "Tests/.*" 
-  - "Examples/.*" 
-  - "Vortex2D/Utils/.*"
