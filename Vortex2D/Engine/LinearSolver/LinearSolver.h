@@ -44,7 +44,7 @@ struct LinearSolver
      * @param iterations max number of iterations to perform
      * @param errorTolerance solver stops when the error is smaller than this.
      */
-    VORTEX2D_API Parameters(SolverType type, unsigned iterations, float errorTolerance = 0.0f);
+    VORTEX_API Parameters(SolverType type, unsigned iterations, float errorTolerance = 0.0f);
 
     /**
      * @brief Checks if we've reacched the parameters.
@@ -70,9 +70,9 @@ struct LinearSolver
    */
   struct Data
   {
-    VORTEX2D_API Data(const Renderer::Device& device,
-                      const glm::ivec2& size,
-                      VmaMemoryUsage memoryUsage = VMA_MEMORY_USAGE_GPU_ONLY);
+    VORTEX_API Data(const Renderer::Device& device,
+                    const glm::ivec2& size,
+                    VmaMemoryUsage memoryUsage = VMA_MEMORY_USAGE_GPU_ONLY);
 
     Renderer::Buffer<float> Diagonal;
     Renderer::Buffer<glm::vec2> Lower;
@@ -85,7 +85,7 @@ struct LinearSolver
    */
   struct DebugData
   {
-    VORTEX2D_API DebugData(const Renderer::Device& device, const glm::ivec2& size);
+    VORTEX_API DebugData(const Renderer::Device& device, const glm::ivec2& size);
 
     Renderer::RenderTexture Diagonal;
     Renderer::RenderTexture Lower;
@@ -98,15 +98,15 @@ struct LinearSolver
    */
   struct DebugCopy
   {
-    VORTEX2D_API DebugCopy(const Renderer::Device& device,
-                           const glm::ivec2& size,
-                           Data& data,
-                           DebugData& debugData);
+    VORTEX_API DebugCopy(const Renderer::Device& device,
+                         const glm::ivec2& size,
+                         Data& data,
+                         DebugData& debugData);
 
     /**
      * @brief Copies the linear solver data in the debug linear solver data
      */
-    VORTEX2D_API void Copy();
+    VORTEX_API void Copy();
 
     Renderer::Work mDebugDataCopy;
     Renderer::Work::Bound mDebugDataCopyBound;
@@ -153,7 +153,7 @@ struct LinearSolver
   class Error
   {
   public:
-    VORTEX2D_API Error(const Renderer::Device& device, const glm::ivec2& size);
+    VORTEX_API Error(const Renderer::Device& device, const glm::ivec2& size);
 
     /**
      * @brief Bind the linear system.
@@ -162,28 +162,28 @@ struct LinearSolver
      * @param b the right hand side
      * @param x the unknowns
      */
-    VORTEX2D_API void Bind(Renderer::GenericBuffer& d,
-                           Renderer::GenericBuffer& l,
-                           Renderer::GenericBuffer& div,
-                           Renderer::GenericBuffer& pressure);
+    VORTEX_API void Bind(Renderer::GenericBuffer& d,
+                         Renderer::GenericBuffer& l,
+                         Renderer::GenericBuffer& div,
+                         Renderer::GenericBuffer& pressure);
 
     /**
      * Submit the error calculation.
      * @return this.
      */
-    VORTEX2D_API Error& Submit();
+    VORTEX_API Error& Submit();
 
     /**
      * @brief Wait for error to be calculated.
      * @return this.
      */
-    VORTEX2D_API Error& Wait();
+    VORTEX_API Error& Wait();
 
     /**
      * @brief Get the maximum error.
      * @return The error.
      */
-    VORTEX2D_API float GetError();
+    VORTEX_API float GetError();
 
   private:
     Renderer::Buffer<float> mResidual;
@@ -204,7 +204,7 @@ struct LinearSolver
  * @param iterations number of iterations to do
  * @return parameters
  */
-VORTEX2D_API LinearSolver::Parameters FixedParams(unsigned iterations);
+VORTEX_API LinearSolver::Parameters FixedParams(unsigned iterations);
 
 /**
  * @brief Create a linear solver parameters object,
@@ -212,7 +212,7 @@ VORTEX2D_API LinearSolver::Parameters FixedParams(unsigned iterations);
  * @param errorTolerance tolerance to reach before exiting
  * @return parameters
  */
-VORTEX2D_API LinearSolver::Parameters IterativeParams(float errorTolerance);
+VORTEX_API LinearSolver::Parameters IterativeParams(float errorTolerance);
 
 }  // namespace Fluid
 }  // namespace Vortex

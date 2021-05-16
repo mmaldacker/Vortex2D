@@ -34,17 +34,17 @@ public:
    * @param extent extend how far from the poylon the signed distance field is
    * calculated.
    */
-  VORTEX2D_API Polygon(const Renderer::Device& device,
-                       std::vector<glm::vec2> points,
-                       bool inverse = false,
-                       float extent = 10.0f);
+  VORTEX_API Polygon(const Renderer::Device& device,
+                     std::vector<glm::vec2> points,
+                     bool inverse = false,
+                     float extent = 10.0f);
 
-  VORTEX2D_API ~Polygon() override;
+  VORTEX_API ~Polygon() override;
 
-  VORTEX2D_API void Initialize(const Renderer::RenderState& renderState) override;
-  VORTEX2D_API void Update(const glm::mat4& projection, const glm::mat4& view) override;
-  VORTEX2D_API void Draw(vk::CommandBuffer commandBuffer,
-                         const Renderer::RenderState& renderState) override;
+  VORTEX_API void Initialize(const Renderer::RenderState& renderState) override;
+  VORTEX_API void Update(const glm::mat4& projection, const glm::mat4& view) override;
+  VORTEX_API void Draw(vk::CommandBuffer commandBuffer,
+                       const Renderer::RenderState& renderState) override;
 
 private:
   const Renderer::Device& mDevice;
@@ -72,17 +72,17 @@ public:
    * @param extent extent how far from the rectangle the signed distance field
    * is calculated.
    */
-  VORTEX2D_API Rectangle(const Renderer::Device& device,
-                         const glm::vec2& size,
-                         bool inverse = false,
-                         float extent = 10.0f);
+  VORTEX_API Rectangle(const Renderer::Device& device,
+                       const glm::vec2& size,
+                       bool inverse = false,
+                       float extent = 10.0f);
 
-  VORTEX2D_API ~Rectangle();
+  VORTEX_API ~Rectangle();
 
-  VORTEX2D_API void Initialize(const Renderer::RenderState& renderState) override;
-  VORTEX2D_API void Update(const glm::mat4& projection, const glm::mat4& view) override;
-  VORTEX2D_API void Draw(vk::CommandBuffer commandBuffer,
-                         const Renderer::RenderState& renderState) override;
+  VORTEX_API void Initialize(const Renderer::RenderState& renderState) override;
+  VORTEX_API void Update(const glm::mat4& projection, const glm::mat4& view) override;
+  VORTEX_API void Draw(vk::CommandBuffer commandBuffer,
+                       const Renderer::RenderState& renderState) override;
 };
 
 /**
@@ -98,14 +98,14 @@ public:
    * @param extent extend how far from the circle the signed distance field is
    * calculated.
    */
-  VORTEX2D_API Circle(const Renderer::Device& device, float radius, float extent = 10.0f);
+  VORTEX_API Circle(const Renderer::Device& device, float radius, float extent = 10.0f);
 
-  VORTEX2D_API ~Circle() override;
+  VORTEX_API ~Circle() override;
 
-  VORTEX2D_API void Initialize(const Renderer::RenderState& renderState) override;
-  VORTEX2D_API void Update(const glm::mat4& projection, const glm::mat4& view) override;
-  VORTEX2D_API void Draw(vk::CommandBuffer commandBuffer,
-                         const Renderer::RenderState& renderState) override;
+  VORTEX_API void Initialize(const Renderer::RenderState& renderState) override;
+  VORTEX_API void Update(const glm::mat4& projection, const glm::mat4& view) override;
+  VORTEX_API void Draw(vk::CommandBuffer commandBuffer,
+                       const Renderer::RenderState& renderState) override;
 
 private:
   const Renderer::Device& mDevice;
@@ -117,9 +117,9 @@ private:
   Renderer::GraphicsPipeline mPipeline;
 };
 
-extern VORTEX2D_API Renderer::ColorBlendState IntersectionBlend;
-extern VORTEX2D_API Renderer::ColorBlendState UnionBlend;
-extern VORTEX2D_API Renderer::Clear BoundariesClear;
+extern VORTEX_API Renderer::ColorBlendState IntersectionBlend;
+extern VORTEX_API Renderer::ColorBlendState UnionBlend;
+extern VORTEX_API Renderer::Clear BoundariesClear;
 
 /**
  * @brief Sprite of a distance field
@@ -133,16 +133,16 @@ public:
    * @param levelSet level set to use as sprite
    * @param scale scale of the level set
    */
-  VORTEX2D_API DistanceField(const Renderer::Device& device,
-                             Renderer::RenderTexture& levelSet,
-                             float scale = 1.0f);
+  VORTEX_API DistanceField(const Renderer::Device& device,
+                           Renderer::RenderTexture& levelSet,
+                           float scale = 1.0f);
 
-  VORTEX2D_API DistanceField(DistanceField&& other);
+  VORTEX_API DistanceField(DistanceField&& other);
 
-  VORTEX2D_API ~DistanceField() override;
+  VORTEX_API ~DistanceField() override;
 
-  VORTEX2D_API void Draw(vk::CommandBuffer commandBuffer,
-                         const Renderer::RenderState& renderState) override;
+  VORTEX_API void Draw(vk::CommandBuffer commandBuffer,
+                       const Renderer::RenderState& renderState) override;
 
 private:
   float mScale;

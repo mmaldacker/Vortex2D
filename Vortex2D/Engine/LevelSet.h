@@ -20,35 +20,35 @@ namespace Fluid
 class LevelSet : public Renderer::RenderTexture
 {
 public:
-  VORTEX2D_API LevelSet(const Renderer::Device& device,
-                        const glm::ivec2& size,
-                        int reinitializeIterations = 50);
+  VORTEX_API LevelSet(const Renderer::Device& device,
+                      const glm::ivec2& size,
+                      int reinitializeIterations = 50);
 
-  VORTEX2D_API LevelSet(LevelSet&& other);
+  VORTEX_API LevelSet(LevelSet&& other);
 
   /**
    * @brief Reinitialise the level set, i.e. ensure it is a correct signed
    * distance field.
    */
-  VORTEX2D_API void Reinitialise();
+  VORTEX_API void Reinitialise();
 
   /**
    * @brief Shrink wrap wholes.
    */
-  VORTEX2D_API void ShrinkWrap();
+  VORTEX_API void ShrinkWrap();
 
   /**
    * @brief Bind a solid level set, which will be used to extrapolate into this
    * level set
    * @param solidPhi
    */
-  VORTEX2D_API void ExtrapolateBind(Renderer::Texture& solidPhi);
+  VORTEX_API void ExtrapolateBind(Renderer::Texture& solidPhi);
 
   /**
    * @brief Extrapolate this level set into the solid level set it was attached
    * to. This only performs a single cell extrapolation.
    */
-  VORTEX2D_API void Extrapolate();
+  VORTEX_API void Extrapolate();
 
 private:
   const Renderer::Device& mDevice;

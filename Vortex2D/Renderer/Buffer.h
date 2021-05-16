@@ -21,44 +21,44 @@ class Device;
 class GenericBuffer
 {
 public:
-  VORTEX2D_API GenericBuffer(const Device& device,
-                             vk::BufferUsageFlags usageFlags,
-                             VmaMemoryUsage memoryUsage,
-                             vk::DeviceSize deviceSize);
+  VORTEX_API GenericBuffer(const Device& device,
+                           vk::BufferUsageFlags usageFlags,
+                           VmaMemoryUsage memoryUsage,
+                           vk::DeviceSize deviceSize);
 
-  VORTEX2D_API virtual ~GenericBuffer();
+  VORTEX_API virtual ~GenericBuffer();
 
-  VORTEX2D_API GenericBuffer(GenericBuffer&& other);
+  VORTEX_API GenericBuffer(GenericBuffer&& other);
 
   /**
    * @brief Copy a buffer to this buffer
    * @param commandBuffer command buffer to run the copy on.
    * @param srcBuffer the source buffer.
    */
-  VORTEX2D_API void CopyFrom(vk::CommandBuffer commandBuffer, GenericBuffer& srcBuffer);
+  VORTEX_API void CopyFrom(vk::CommandBuffer commandBuffer, GenericBuffer& srcBuffer);
 
   /**
    * @brief Copy a texture to this buffer
    * @param commandBuffer command buffer to run the copy on.
    * @param srcTexture the source texture
    */
-  VORTEX2D_API void CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcTexture);
+  VORTEX_API void CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcTexture);
 
   /**
    * @brief The vulkan handle
    */
-  VORTEX2D_API vk::Buffer Handle() const;
+  VORTEX_API vk::Buffer Handle() const;
 
   /**
    * @brief The size in bytes of the buffer
    */
-  VORTEX2D_API vk::DeviceSize Size() const;
+  VORTEX_API vk::DeviceSize Size() const;
 
   /**
    * @brief Resize the buffer. Invalidates the buffer handle
    * @param size buffer size
    */
-  VORTEX2D_API void Resize(vk::DeviceSize size);
+  VORTEX_API void Resize(vk::DeviceSize size);
 
   /**
    * @brief Inserts a barrier for this buffer
@@ -66,15 +66,15 @@ public:
    * @param oldAccess old access
    * @param newAccess new access
    */
-  VORTEX2D_API void Barrier(vk::CommandBuffer commandBuffer,
-                            vk::AccessFlags oldAccess,
-                            vk::AccessFlags newAccess);
+  VORTEX_API void Barrier(vk::CommandBuffer commandBuffer,
+                          vk::AccessFlags oldAccess,
+                          vk::AccessFlags newAccess);
 
   /**
    * @brief Clear the buffer with 0
    * @param commandBuffer the command buffer to clear on
    */
-  VORTEX2D_API void Clear(vk::CommandBuffer commandBuffer);
+  VORTEX_API void Clear(vk::CommandBuffer commandBuffer);
 
   /**
    * @brief copy from data to buffer
@@ -82,7 +82,7 @@ public:
    * @param data pointer
    * @param size of data
    */
-  VORTEX2D_API void CopyFrom(uint32_t offset, const void* data, uint32_t size);
+  VORTEX_API void CopyFrom(uint32_t offset, const void* data, uint32_t size);
 
   /**
    * @brief copy buffer to data
@@ -90,7 +90,7 @@ public:
    * @param data pointer
    * @param size of data
    */
-  VORTEX2D_API void CopyTo(uint32_t offset, void* data, uint32_t size);
+  VORTEX_API void CopyTo(uint32_t offset, void* data, uint32_t size);
 
 protected:
   void Create();
@@ -236,10 +236,10 @@ void CopyFrom(BufferType<T>& buffer, const std::vector<T>& t)
  * @param oldAccess old access
  * @param newAccess new access
  */
-VORTEX2D_API void BufferBarrier(vk::Buffer buffer,
-                                vk::CommandBuffer commandBuffer,
-                                vk::AccessFlags oldAccess,
-                                vk::AccessFlags newAccess);
+VORTEX_API void BufferBarrier(vk::Buffer buffer,
+                              vk::CommandBuffer commandBuffer,
+                              vk::AccessFlags oldAccess,
+                              vk::AccessFlags newAccess);
 
 }  // namespace Renderer
 }  // namespace Vortex

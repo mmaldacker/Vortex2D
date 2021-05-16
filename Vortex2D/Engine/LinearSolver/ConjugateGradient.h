@@ -29,27 +29,27 @@ public:
    * @param size
    * @param preconditioner
    */
-  VORTEX2D_API ConjugateGradient(const Renderer::Device& device,
-                                 const glm::ivec2& size,
-                                 Preconditioner& preconditioner);
+  VORTEX_API ConjugateGradient(const Renderer::Device& device,
+                               const glm::ivec2& size,
+                               Preconditioner& preconditioner);
 
-  VORTEX2D_API ~ConjugateGradient() override;
+  VORTEX_API ~ConjugateGradient() override;
 
-  VORTEX2D_API void Bind(Renderer::GenericBuffer& d,
-                         Renderer::GenericBuffer& l,
-                         Renderer::GenericBuffer& b,
-                         Renderer::GenericBuffer& pressure) override;
+  VORTEX_API void Bind(Renderer::GenericBuffer& d,
+                       Renderer::GenericBuffer& l,
+                       Renderer::GenericBuffer& b,
+                       Renderer::GenericBuffer& pressure) override;
 
-  VORTEX2D_API void BindRigidbody(float delta,
-                                  Renderer::GenericBuffer& d,
-                                  RigidBody& rigidBody) override;
+  VORTEX_API void BindRigidbody(float delta,
+                                Renderer::GenericBuffer& d,
+                                RigidBody& rigidBody) override;
   /**
    * @brief Solve iteratively solve the linear equations in data
    */
-  VORTEX2D_API void Solve(Parameters& params,
-                          const std::vector<RigidBody*>& rigidbodies = {}) override;
+  VORTEX_API void Solve(Parameters& params,
+                        const std::vector<RigidBody*>& rigidbodies = {}) override;
 
-  VORTEX2D_API float GetError() override;
+  VORTEX_API float GetError() override;
 
 private:
   const Renderer::Device& mDevice;

@@ -20,12 +20,12 @@ class Reflection
 public:
   using DescriptorTypesMap = std::map<unsigned, vk::DescriptorType>;
 
-  VORTEX2D_API Reflection(const Renderer::SpirvBinary& spirv);
+  VORTEX_API Reflection(const Renderer::SpirvBinary& spirv);
 
-  VORTEX2D_API DescriptorTypesMap GetDescriptorTypesMap() const;
-  VORTEX2D_API unsigned GetPushConstantsSize() const;
+  VORTEX_API DescriptorTypesMap GetDescriptorTypesMap() const;
+  VORTEX_API unsigned GetPushConstantsSize() const;
 
-  VORTEX2D_API vk::ShaderStageFlags GetShaderStage() const;
+  VORTEX_API vk::ShaderStageFlags GetShaderStage() const;
 
 private:
   DescriptorTypesMap mDescriptorTypes;

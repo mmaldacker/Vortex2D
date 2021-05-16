@@ -53,55 +53,55 @@ public:
     alignas(4) float angular_velocity;
   };
 
-  VORTEX2D_API RigidBody(const Renderer::Device& device,
-                         const glm::ivec2& size,
-                         Renderer::Drawable& drawable,
-                         vk::Flags<Type> type);
+  VORTEX_API RigidBody(const Renderer::Device& device,
+                       const glm::ivec2& size,
+                       Renderer::Drawable& drawable,
+                       vk::Flags<Type> type);
 
-  VORTEX2D_API ~RigidBody();
+  VORTEX_API ~RigidBody();
 
   /**
    * @brief function to override and apply forces from this rigidbody to the
    * external rigidbody
    */
-  VORTEX2D_API virtual void ApplyForces();
+  VORTEX_API virtual void ApplyForces();
 
   /**
    * @brief Override and apply velocities from the external rigidbody
    * to the this rigidbody
    */
-  VORTEX2D_API virtual void ApplyVelocities();
+  VORTEX_API virtual void ApplyVelocities();
 
   /**
    * @brief Sets the mass and inertia of the rigidbody
    * @param mass of the body
    * @param inertia of the body
    */
-  VORTEX2D_API void SetMassData(float mass, float inertia);
+  VORTEX_API void SetMassData(float mass, float inertia);
 
   /**
    * @brief sets the velocities and angular velocities of the body
    * @param velocity
    * @param angularVelocity
    */
-  VORTEX2D_API void SetVelocities(const glm::vec2& velocity, float angularVelocity);
+  VORTEX_API void SetVelocities(const glm::vec2& velocity, float angularVelocity);
 
   /**
    * @brief Upload the transform matrix to the GPU.
    */
-  VORTEX2D_API void UpdatePosition();
+  VORTEX_API void UpdatePosition();
 
   /**
    * @brief Render the current object orientation in an internal texture and the
    * external one.
    */
-  VORTEX2D_API void RenderPhi();
+  VORTEX_API void RenderPhi();
 
   /**
    * @brief Bind the rendertexture where this rigidbodies shape will be rendered
    * @param phi render texture of the world
    */
-  VORTEX2D_API void BindPhi(Renderer::RenderTexture& phi);
+  VORTEX_API void BindPhi(Renderer::RenderTexture& phi);
 
   /**
    * @brief Bind a the right hand side and diagonal of the linear system Ax = b.
@@ -109,20 +109,20 @@ public:
    * @param div right hand side of the linear system Ax=b
    * @param diagonal diagonal of matrix A
    */
-  VORTEX2D_API void BindDiv(Renderer::GenericBuffer& div, Renderer::GenericBuffer& diagonal);
+  VORTEX_API void BindDiv(Renderer::GenericBuffer& div, Renderer::GenericBuffer& diagonal);
 
   /**
    * @brief Bind velocities to constrain based on the body's velocity.
    * @param velocity
    */
-  VORTEX2D_API void BindVelocityConstrain(Fluid::Velocity& velocity);
+  VORTEX_API void BindVelocityConstrain(Fluid::Velocity& velocity);
 
   /**
    * @brief Bind pressure, to have the pressure update the body's forces
    * @param d diagonal of matrix A
    * @param pressure solved pressure buffer
    */
-  VORTEX2D_API void BindForce(Renderer::GenericBuffer& d, Renderer::GenericBuffer& pressure);
+  VORTEX_API void BindForce(Renderer::GenericBuffer& d, Renderer::GenericBuffer& pressure);
 
   /**
    * @brief Bind pressure, to have the pressure update the body's forces
@@ -131,55 +131,55 @@ public:
    * @param s
    * @param z
    */
-  VORTEX2D_API void BindPressure(float delta,
-                                 Renderer::GenericBuffer& d,
-                                 Renderer::GenericBuffer& s,
-                                 Renderer::GenericBuffer& z);
+  VORTEX_API void BindPressure(float delta,
+                               Renderer::GenericBuffer& d,
+                               Renderer::GenericBuffer& s,
+                               Renderer::GenericBuffer& z);
 
   /**
    * @brief Apply the body's velocities to the linear equations matrix A and
    * right hand side b.
    */
-  VORTEX2D_API void Div();
+  VORTEX_API void Div();
 
   /**
    * @brief Apply the pressure to body, updating its forces.
    */
-  VORTEX2D_API void Force();
+  VORTEX_API void Force();
 
   /**
    * @brief Reduce the force for pressure update.
    */
-  VORTEX2D_API void Pressure();
+  VORTEX_API void Pressure();
 
   /**
    * @brief Constrain the velocities field based on the body's velocity.
    */
-  VORTEX2D_API void VelocityConstrain();
+  VORTEX_API void VelocityConstrain();
 
   /**
    * @brief Download the forces from the GPU and return them.
    * @return
    */
-  VORTEX2D_API Velocity GetForces();
+  VORTEX_API Velocity GetForces();
 
   /**
    * @brief Type of this body.
    * @return
    */
-  VORTEX2D_API vk::Flags<Type> GetType();
+  VORTEX_API vk::Flags<Type> GetType();
 
   /**
    * @brief Set the type of the body.
    * @param type
    */
-  VORTEX2D_API void SetType(Type type);
+  VORTEX_API void SetType(Type type);
 
   /**
    * @brief the local level set of the body
    * @return
    */
-  VORTEX2D_API Renderer::RenderTexture& Phi();
+  VORTEX_API Renderer::RenderTexture& Phi();
 
 private:
   float mSize;

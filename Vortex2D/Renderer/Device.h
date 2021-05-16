@@ -59,31 +59,31 @@ struct DynamicDispatcher
 class Device
 {
 public:
-  VORTEX2D_API Device(const Instance& instance, bool validation = true);
-  VORTEX2D_API Device(const Instance& instance, vk::SurfaceKHR surface, bool validation = true);
-  VORTEX2D_API Device(const Instance& instance, int familyIndex, bool surface, bool validation);
-  VORTEX2D_API ~Device();
+  VORTEX_API Device(const Instance& instance, bool validation = true);
+  VORTEX_API Device(const Instance& instance, vk::SurfaceKHR surface, bool validation = true);
+  VORTEX_API Device(const Instance& instance, int familyIndex, bool surface, bool validation);
+  VORTEX_API ~Device();
 
   Device(Device&&) = delete;
   Device& operator=(Device&&) = delete;
 
   // Vulkan handles and helpers
-  VORTEX2D_API vk::Device Handle() const;
-  VORTEX2D_API vk::Queue Queue() const;
-  VORTEX2D_API const DynamicDispatcher& Loader() const;
-  VORTEX2D_API vk::PhysicalDevice GetPhysicalDevice() const;
-  VORTEX2D_API int GetFamilyIndex() const;
+  VORTEX_API vk::Device Handle() const;
+  VORTEX_API vk::Queue Queue() const;
+  VORTEX_API const DynamicDispatcher& Loader() const;
+  VORTEX_API vk::PhysicalDevice GetPhysicalDevice() const;
+  VORTEX_API int GetFamilyIndex() const;
 
   // Command buffer functions
-  VORTEX2D_API vk::CommandBuffer CreateCommandBuffer() const;
-  VORTEX2D_API void FreeCommandBuffer(vk::CommandBuffer commandBuffer) const;
-  VORTEX2D_API void Execute(CommandBuffer::CommandFn commandFn) const;
+  VORTEX_API vk::CommandBuffer CreateCommandBuffer() const;
+  VORTEX_API void FreeCommandBuffer(vk::CommandBuffer commandBuffer) const;
+  VORTEX_API void Execute(CommandBuffer::CommandFn commandFn) const;
 
   // Memory allocator
-  VORTEX2D_API VmaAllocator Allocator() const;
-  VORTEX2D_API LayoutManager& GetLayoutManager() const;
-  VORTEX2D_API PipelineCache& GetPipelineCache() const;
-  VORTEX2D_API vk::ShaderModule GetShaderModule(const SpirvBinary& spirv) const;
+  VORTEX_API VmaAllocator Allocator() const;
+  VORTEX_API LayoutManager& GetLayoutManager() const;
+  VORTEX_API PipelineCache& GetPipelineCache() const;
+  VORTEX_API vk::ShaderModule GetShaderModule(const SpirvBinary& spirv) const;
 
 private:
   vk::PhysicalDevice mPhysicalDevice;

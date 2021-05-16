@@ -24,14 +24,14 @@ namespace Fluid
 class Pressure
 {
 public:
-  VORTEX2D_API Pressure(const Renderer::Device& device,
-                        float dt,
-                        const glm::ivec2& size,
-                        LinearSolver::Data& data,
-                        Velocity& velocity,
-                        Renderer::Texture& solidPhi,
-                        Renderer::Texture& liquidPhi,
-                        Renderer::GenericBuffer& valid);
+  VORTEX_API Pressure(const Renderer::Device& device,
+                      float dt,
+                      const glm::ivec2& size,
+                      LinearSolver::Data& data,
+                      Velocity& velocity,
+                      Renderer::Texture& solidPhi,
+                      Renderer::Texture& liquidPhi,
+                      Renderer::GenericBuffer& valid);
 
   /**
    * @brief Bind the various buffes for the linear system Ax = b
@@ -51,13 +51,13 @@ public:
   /**
    * @brief Build the matrix A and right hand side b.
    */
-  VORTEX2D_API void BuildLinearEquation();
+  VORTEX_API void BuildLinearEquation();
 
   /**
    * @brief Apply the solution of the equation Ax = b, i.e. the pressure to the
    * velocity to make it non-divergent.
    */
-  VORTEX2D_API void ApplyPressure();
+  VORTEX_API void ApplyPressure();
 
 private:
   const Renderer::Device& mDevice;

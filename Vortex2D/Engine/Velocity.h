@@ -32,44 +32,44 @@ public:
     Cubic = 1,
   };
 
-  VORTEX2D_API Velocity(const Renderer::Device& device, const glm::ivec2& size);
+  VORTEX_API Velocity(const Renderer::Device& device, const glm::ivec2& size);
 
   /**
    * @brief An output texture used for algorithms that used the velocity as
    * input and need to create a new velocity field
    * @return
    */
-  VORTEX2D_API Renderer::Texture& Output();
+  VORTEX_API Renderer::Texture& Output();
 
   /**
    * @brief A difference velocity field, calculated with the difference between
    * this velocity field, and the output velocity field
    * @return
    */
-  VORTEX2D_API Renderer::Texture& D();
+  VORTEX_API Renderer::Texture& D();
 
   /**
    * @brief Copy the output field to the main field
    * @param commandBuffer
    */
-  VORTEX2D_API void CopyBack(vk::CommandBuffer commandBuffer);
+  VORTEX_API void CopyBack(vk::CommandBuffer commandBuffer);
 
   /**
    * @brief Clear the velocity field
    * @param commandBuffer
    */
-  VORTEX2D_API void Clear(vk::CommandBuffer commandBuffer);
+  VORTEX_API void Clear(vk::CommandBuffer commandBuffer);
 
   /**
    * @brief Copy to the difference field.
    */
-  VORTEX2D_API void SaveCopy();
+  VORTEX_API void SaveCopy();
 
   /**
    * @brief Calculate the difference between the difference field and this
    * velocity field, store it in the diference field.
    */
-  VORTEX2D_API void VelocityDiff();
+  VORTEX_API void VelocityDiff();
 
 private:
   const Renderer::Device& mDevice;

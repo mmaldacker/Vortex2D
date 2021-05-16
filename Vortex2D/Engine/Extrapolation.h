@@ -21,30 +21,30 @@ namespace Fluid
 class Extrapolation
 {
 public:
-  VORTEX2D_API Extrapolation(const Renderer::Device& device,
-                             const glm::ivec2& size,
-                             Renderer::GenericBuffer& valid,
-                             Velocity& velocity,
-                             int iterations = 10);
+  VORTEX_API Extrapolation(const Renderer::Device& device,
+                           const glm::ivec2& size,
+                           Renderer::GenericBuffer& valid,
+                           Velocity& velocity,
+                           int iterations = 10);
 
   /**
    * @brief Will extrapolate values from buffer into the dirichlet and neumann
    * boundaries
    */
-  VORTEX2D_API void Extrapolate();
+  VORTEX_API void Extrapolate();
 
   /**
    * @brief Binds a solid level set to use later and constrain the velocity
    * against
    * @param solidPhi solid level set
    */
-  VORTEX2D_API void ConstrainBind(Renderer::Texture& solidPhi);
+  VORTEX_API void ConstrainBind(Renderer::Texture& solidPhi);
 
   /**
    * @brief Constrain the velocity, i.e. ensure that the velocity normal to the
    * solid level set is 0.
    */
-  VORTEX2D_API void ConstrainVelocity();
+  VORTEX_API void ConstrainVelocity();
 
 private:
   const Renderer::Device& mDevice;

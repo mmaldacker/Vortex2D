@@ -39,15 +39,15 @@ public:
 class AbstractShape : public Shape
 {
 public:
-  VORTEX2D_API AbstractShape(const Device& device,
-                             const SpirvBinary& fragShader,
-                             const std::vector<glm::vec2>& vertices);
-  VORTEX2D_API AbstractShape(AbstractShape&& other);
-  VORTEX2D_API ~AbstractShape() override;
+  VORTEX_API AbstractShape(const Device& device,
+                           const SpirvBinary& fragShader,
+                           const std::vector<glm::vec2>& vertices);
+  VORTEX_API AbstractShape(AbstractShape&& other);
+  VORTEX_API ~AbstractShape() override;
 
-  VORTEX2D_API void Initialize(const RenderState& renderState) override;
-  VORTEX2D_API void Update(const glm::mat4& projection, const glm::mat4& view) override;
-  VORTEX2D_API void Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState) override;
+  VORTEX_API void Initialize(const RenderState& renderState) override;
+  VORTEX_API void Update(const glm::mat4& projection, const glm::mat4& view) override;
+  VORTEX_API void Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState) override;
 
 protected:
   const Device& mDevice;
@@ -66,7 +66,7 @@ protected:
 class Rectangle : public AbstractShape
 {
 public:
-  VORTEX2D_API Rectangle(const Device& device, const glm::vec2& size);
+  VORTEX_API Rectangle(const Device& device, const glm::vec2& size);
 };
 
 /**
@@ -76,7 +76,7 @@ public:
 class IntRectangle : public AbstractShape
 {
 public:
-  VORTEX2D_API IntRectangle(const Device& device, const glm::vec2& size);
+  VORTEX_API IntRectangle(const Device& device, const glm::vec2& size);
 };
 
 /**
@@ -86,8 +86,8 @@ public:
 class Ellipse : public Shape
 {
 public:
-  VORTEX2D_API Ellipse(const Device& device, const glm::vec2& radius);
-  VORTEX2D_API ~Ellipse() override;
+  VORTEX_API Ellipse(const Device& device, const glm::vec2& radius);
+  VORTEX_API ~Ellipse() override;
 
   void Initialize(const RenderState& renderState) override;
   void Update(const glm::mat4& projection, const glm::mat4& view) override;
@@ -119,8 +119,8 @@ private:
 class Clear : public Drawable
 {
 public:
-  VORTEX2D_API Clear(const glm::vec4& colour);
-  VORTEX2D_API ~Clear();
+  VORTEX_API Clear(const glm::vec4& colour);
+  VORTEX_API ~Clear();
 
   void Initialize(const RenderState& renderState) override;
   void Update(const glm::mat4& projection, const glm::mat4& view) override;

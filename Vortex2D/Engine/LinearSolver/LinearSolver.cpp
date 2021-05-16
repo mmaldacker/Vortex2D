@@ -115,9 +115,7 @@ LinearSolver::Error::Error(const Renderer::Device& device, const glm::ivec2& siz
     , mReduceMaxBound(mReduceMax.Bind(mResidual, mError))
     , mErrorCmd(device)
 {
-  device.Execute([&](vk::CommandBuffer command) {
-    mResidual.Clear(command);
-  });
+  device.Execute([&](vk::CommandBuffer command) { mResidual.Clear(command); });
 }
 
 void LinearSolver::Error::Bind(Renderer::GenericBuffer& d,

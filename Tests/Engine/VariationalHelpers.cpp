@@ -292,9 +292,7 @@ void CheckVelocity(const Vortex::Renderer::Device& device,
   }
 }
 
-void CheckValid(const glm::ivec2& size,
-                FluidSim& sim,
-                Vortex::Renderer::Buffer<glm::ivec2>& valid)
+void CheckValid(const glm::ivec2& size, FluidSim& sim, Vortex::Renderer::Buffer<glm::ivec2>& valid)
 {
   std::vector<glm::ivec2> validData(size.x * size.y);
   Vortex::Renderer::CopyTo(valid, validData);

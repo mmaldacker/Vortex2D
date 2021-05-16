@@ -24,18 +24,17 @@ class RenderCommand;
 class RenderTexture : public RenderTarget, public Texture
 {
 public:
-  VORTEX2D_API RenderTexture(const Device& device,
-                             uint32_t width,
-                             uint32_t height,
-                             vk::Format format);
+  VORTEX_API RenderTexture(const Device& device,
+                           uint32_t width,
+                           uint32_t height,
+                           vk::Format format);
 
-  VORTEX2D_API RenderTexture(RenderTexture&& other);
+  VORTEX_API RenderTexture(RenderTexture&& other);
 
-  VORTEX2D_API ~RenderTexture() override;
+  VORTEX_API ~RenderTexture() override;
 
-  VORTEX2D_API RenderCommand Record(DrawableList drawables,
-                                    ColorBlendState blendState = {}) override;
-  VORTEX2D_API void Submit(RenderCommand& renderCommand) override;
+  VORTEX_API RenderCommand Record(DrawableList drawables, ColorBlendState blendState = {}) override;
+  VORTEX_API void Submit(RenderCommand& renderCommand) override;
 
 private:
   const Device& mDevice;

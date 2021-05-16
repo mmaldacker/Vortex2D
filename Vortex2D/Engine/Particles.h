@@ -22,7 +22,7 @@ struct Particle
   alignas(8) glm::vec2 Velocity;
 };
 
-VORTEX2D_API float DefaultParticleSize();
+VORTEX_API float DefaultParticleSize();
 
 /**
  * @brief Container for particles used in the advection of the fluid simulation.
@@ -31,60 +31,60 @@ VORTEX2D_API float DefaultParticleSize();
 class ParticleCount : public Renderer::RenderTexture
 {
 public:
-  VORTEX2D_API ParticleCount(const Renderer::Device& device,
-                             const glm::ivec2& size,
-                             Renderer::GenericBuffer& particles,
-                             Velocity::InterpolationMode interpolationMode,
-                             const Renderer::DispatchParams& params = {0},
-                             float alpha = 1.0f,
-                             float particleSize = DefaultParticleSize());
+  VORTEX_API ParticleCount(const Renderer::Device& device,
+                           const glm::ivec2& size,
+                           Renderer::GenericBuffer& particles,
+                           Velocity::InterpolationMode interpolationMode,
+                           const Renderer::DispatchParams& params = {0},
+                           float alpha = 1.0f,
+                           float particleSize = DefaultParticleSize());
 
   /**
    * @brief Count the number of particles and update the internal data
    * structures.
    */
-  VORTEX2D_API void Scan();
+  VORTEX_API void Scan();
 
   /**
    * @brief Calculate the total number of particles and return it.
    * @return
    */
-  VORTEX2D_API int GetTotalCount();
+  VORTEX_API int GetTotalCount();
 
   /**
    * @brief Calculate the dispatch parameters to use on the particle buffer
    * @return
    */
-  VORTEX2D_API Renderer::IndirectBuffer<Renderer::DispatchParams>& GetDispatchParams();
+  VORTEX_API Renderer::IndirectBuffer<Renderer::DispatchParams>& GetDispatchParams();
 
   /**
    * @brief Bind a solid level set, which will be used to interpolate the
    * particles out of.
    * @param levelSet
    */
-  VORTEX2D_API void LevelSetBind(LevelSet& levelSet);
+  VORTEX_API void LevelSetBind(LevelSet& levelSet);
 
   /**
    * @brief Calculate the level set from the particles.
    */
-  VORTEX2D_API void Phi();
+  VORTEX_API void Phi();
 
   /**
    * @brief Bind the velocities, used for advection of the particles.
    * @param velocity
    * @param valid
    */
-  VORTEX2D_API void VelocitiesBind(Velocity& velocity, Renderer::GenericBuffer& valid);
+  VORTEX_API void VelocitiesBind(Velocity& velocity, Renderer::GenericBuffer& valid);
 
   /**
    * @brief Interpolate the velocities of the particles to the velocities field.
    */
-  VORTEX2D_API void TransferToGrid();
+  VORTEX_API void TransferToGrid();
 
   /**
    * @brief Interpolate the velocities field in to the particles' velocity.
    */
-  VORTEX2D_API void TransferFromGrid();
+  VORTEX_API void TransferFromGrid();
 
 private:
   const Renderer::Device& mDevice;

@@ -18,7 +18,7 @@ namespace Fluid
 class Density : public Renderer::RenderTexture, public Renderer::Sprite
 {
 public:
-  VORTEX2D_API Density(const Renderer::Device& device, const glm::ivec2& size, vk::Format format);
+  VORTEX_API Density(const Renderer::Device& device, const glm::ivec2& size, vk::Format format);
 
   friend class Advection;
 

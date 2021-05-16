@@ -33,7 +33,7 @@ public:
      * @brief Record the reduce operation.
      * @param commandBuffer the command buffer to record into.
      */
-    VORTEX2D_API void Record(vk::CommandBuffer commandBuffer);
+    VORTEX_API void Record(vk::CommandBuffer commandBuffer);
 
     friend class Reduce;
 
@@ -53,7 +53,7 @@ public:
    * @param output output buffer
    * @return a bound object that can be recorded in a command buffer.
    */
-  VORTEX2D_API Reduce::Bound Bind(Renderer::GenericBuffer& input, Renderer::GenericBuffer& output);
+  VORTEX_API Reduce::Bound Bind(Renderer::GenericBuffer& input, Renderer::GenericBuffer& output);
 
 protected:
   Reduce(const Renderer::Device& device,
@@ -78,7 +78,7 @@ public:
    * @param device
    * @param size
    */
-  VORTEX2D_API ReduceSum(const Renderer::Device& device, const glm::ivec2& size);
+  VORTEX_API ReduceSum(const Renderer::Device& device, const glm::ivec2& size);
 };
 
 /**
@@ -93,7 +93,7 @@ public:
    * @param device
    * @param size
    */
-  VORTEX2D_API ReduceJ(const Renderer::Device& device, const glm::ivec2& size);
+  VORTEX_API ReduceJ(const Renderer::Device& device, const glm::ivec2& size);
 };
 
 /**
@@ -107,7 +107,7 @@ public:
    * @param device
    * @param size
    */
-  VORTEX2D_API ReduceMax(const Renderer::Device& device, const glm::ivec2& size);
+  VORTEX_API ReduceMax(const Renderer::Device& device, const glm::ivec2& size);
 };
 
 }  // namespace Fluid

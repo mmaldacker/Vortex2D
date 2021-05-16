@@ -21,25 +21,25 @@ namespace Fluid
 class GaussSeidel : public LinearSolver, public Preconditioner
 {
 public:
-  VORTEX2D_API GaussSeidel(const Renderer::Device& device, const glm::ivec2& size);
-  VORTEX2D_API ~GaussSeidel() override;
+  VORTEX_API GaussSeidel(const Renderer::Device& device, const glm::ivec2& size);
+  VORTEX_API ~GaussSeidel() override;
 
-  VORTEX2D_API void Bind(Renderer::GenericBuffer& d,
-                         Renderer::GenericBuffer& l,
-                         Renderer::GenericBuffer& b,
-                         Renderer::GenericBuffer& pressure) override;
+  VORTEX_API void Bind(Renderer::GenericBuffer& d,
+                       Renderer::GenericBuffer& l,
+                       Renderer::GenericBuffer& b,
+                       Renderer::GenericBuffer& pressure) override;
 
-  VORTEX2D_API void BindRigidbody(float delta,
-                                  Renderer::GenericBuffer& d,
-                                  RigidBody& rigidBody) override;
+  VORTEX_API void BindRigidbody(float delta,
+                                Renderer::GenericBuffer& d,
+                                RigidBody& rigidBody) override;
 
   /**
    * @brief Iterative solving of the linear equations in data
    */
-  VORTEX2D_API void Solve(Parameters& params,
-                          const std::vector<RigidBody*>& rigidbodies = {}) override;
+  VORTEX_API void Solve(Parameters& params,
+                        const std::vector<RigidBody*>& rigidbodies = {}) override;
 
-  VORTEX2D_API float GetError() override;
+  VORTEX_API float GetError() override;
 
   void Record(vk::CommandBuffer commandBuffer) override;
 
@@ -55,13 +55,13 @@ public:
    * x_old
    * @param w
    */
-  VORTEX2D_API void SetW(float w);
+  VORTEX_API void SetW(float w);
 
   /**
    * @brief set number of iterations to be used when GS is a preconditioner
    * @param iterations
    */
-  VORTEX2D_API void SetPreconditionerIterations(int iterations);
+  VORTEX_API void SetPreconditionerIterations(int iterations);
 
 private:
   float mW;
@@ -84,13 +84,13 @@ private:
 class LocalGaussSeidel : public Preconditioner
 {
 public:
-  VORTEX2D_API LocalGaussSeidel(const Renderer::Device& device, const glm::ivec2& size);
-  VORTEX2D_API ~LocalGaussSeidel() override;
+  VORTEX_API LocalGaussSeidel(const Renderer::Device& device, const glm::ivec2& size);
+  VORTEX_API ~LocalGaussSeidel() override;
 
-  void VORTEX2D_API Bind(Renderer::GenericBuffer& d,
-                         Renderer::GenericBuffer& l,
-                         Renderer::GenericBuffer& b,
-                         Renderer::GenericBuffer& pressure) override;
+  void VORTEX_API Bind(Renderer::GenericBuffer& d,
+                       Renderer::GenericBuffer& l,
+                       Renderer::GenericBuffer& b,
+                       Renderer::GenericBuffer& pressure) override;
 
   void Record(vk::CommandBuffer commandBuffer) override;
 

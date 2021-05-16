@@ -23,7 +23,7 @@ class Device;
 class GraphicsPipeline
 {
 public:
-  VORTEX2D_API GraphicsPipeline();
+  VORTEX_API GraphicsPipeline();
 
   /**
    * @brief Set the shader
@@ -31,8 +31,7 @@ public:
    * @param shaderStage shader state (vertex, fragment or compute)
    * @return *this
    */
-  VORTEX2D_API GraphicsPipeline& Shader(vk::ShaderModule shader,
-                                        vk::ShaderStageFlagBits shaderStage);
+  VORTEX_API GraphicsPipeline& Shader(vk::ShaderModule shader, vk::ShaderStageFlagBits shaderStage);
 
   /**
    * @brief Sets the vertex attributes
@@ -42,10 +41,10 @@ public:
    * @param offset offset in the vertex
    * @return *this
    */
-  VORTEX2D_API GraphicsPipeline& VertexAttribute(uint32_t location,
-                                                 uint32_t binding,
-                                                 vk::Format format,
-                                                 uint32_t offset);
+  VORTEX_API GraphicsPipeline& VertexAttribute(uint32_t location,
+                                               uint32_t binding,
+                                               vk::Format format,
+                                               uint32_t offset);
 
   /**
    * @brief Sets the vertex binding
@@ -54,14 +53,14 @@ public:
    * @param inputRate inpute rate
    * @return *this
    */
-  VORTEX2D_API GraphicsPipeline& VertexBinding(
+  VORTEX_API GraphicsPipeline& VertexBinding(
       uint32_t binding,
       uint32_t stride,
       vk::VertexInputRate inputRate = vk::VertexInputRate::eVertex);
 
-  VORTEX2D_API GraphicsPipeline& Topology(vk::PrimitiveTopology topology);
-  VORTEX2D_API GraphicsPipeline& Layout(vk::PipelineLayout pipelineLayout);
-  VORTEX2D_API GraphicsPipeline& DynamicState(vk::DynamicState dynamicState);
+  VORTEX_API GraphicsPipeline& Topology(vk::PrimitiveTopology topology);
+  VORTEX_API GraphicsPipeline& Layout(vk::PipelineLayout pipelineLayout);
+  VORTEX_API GraphicsPipeline& DynamicState(vk::DynamicState dynamicState);
 
   friend class PipelineCache;
   friend bool operator==(const GraphicsPipeline&, const GraphicsPipeline&);
@@ -84,7 +83,7 @@ bool operator==(const GraphicsPipeline& left, const GraphicsPipeline& right);
  */
 struct SpecConstInfo
 {
-  VORTEX2D_API SpecConstInfo();
+  VORTEX_API SpecConstInfo();
 
   template <typename Type>
   struct Value
@@ -162,8 +161,8 @@ public:
    * @param renderState
    * @return
    */
-  VORTEX2D_API vk::Pipeline CreateGraphicsPipeline(const GraphicsPipeline& builder,
-                                                   const RenderState& renderState);
+  VORTEX_API vk::Pipeline CreateGraphicsPipeline(const GraphicsPipeline& builder,
+                                                 const RenderState& renderState);
 
   /**
    * @brief Create a compute pipeline
@@ -171,9 +170,9 @@ public:
    * @param layout
    * @param specConstInfo
    */
-  VORTEX2D_API vk::Pipeline CreateComputePipeline(vk::ShaderModule shader,
-                                                  vk::PipelineLayout layout,
-                                                  SpecConstInfo specConstInfo = {});
+  VORTEX_API vk::Pipeline CreateComputePipeline(vk::ShaderModule shader,
+                                                vk::PipelineLayout layout,
+                                                SpecConstInfo specConstInfo = {});
 
 private:
   struct GraphicsPipelineCache

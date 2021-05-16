@@ -29,7 +29,7 @@ using DescriptorTypeBindings = std::map<uint32_t, vk::DescriptorType>;
  */
 struct ShaderLayout
 {
-  VORTEX2D_API ShaderLayout(const SPIRV::Reflection& reflection);
+  VORTEX_API ShaderLayout(const SPIRV::Reflection& reflection);
 
   vk::ShaderStageFlags shaderStage;
   DescriptorTypeBindings bindings;
@@ -78,7 +78,7 @@ public:
    * @param layout pipeline/shader layout
    * @return built descriptor set
    */
-  VORTEX2D_API DescriptorSet MakeDescriptorSet(const PipelineLayout& layout);
+  VORTEX_API DescriptorSet MakeDescriptorSet(const PipelineLayout& layout);
 
   /**
    * @brief Create, cache and return a descriptor layout given the pipeline
@@ -86,14 +86,14 @@ public:
    * @param layout pipeline layout
    * @return cached descriptor set layout
    */
-  VORTEX2D_API vk::DescriptorSetLayout GetDescriptorSetLayout(const PipelineLayout& layout);
+  VORTEX_API vk::DescriptorSetLayout GetDescriptorSetLayout(const PipelineLayout& layout);
 
   /**
    * @brief create, cache and return a vulkan pipeline layout given the layout
    * @param layout pipeline layout
    * @return vulkan pipeline layout
    */
-  VORTEX2D_API vk::PipelineLayout GetPipelineLayout(const PipelineLayout& layout);
+  VORTEX_API vk::PipelineLayout GetPipelineLayout(const PipelineLayout& layout);
 
 private:
   const Device& mDevice;
@@ -121,11 +121,11 @@ struct BindingInput
 {
   static constexpr uint32_t DefaultBind = static_cast<uint32_t>(-1);
 
-  VORTEX2D_API BindingInput(Renderer::GenericBuffer& buffer, uint32_t bind = DefaultBind);
-  VORTEX2D_API BindingInput(Renderer::Texture& texture, uint32_t bind = DefaultBind);
-  VORTEX2D_API BindingInput(vk::Sampler sampler,
-                            Renderer::Texture& texture,
-                            uint32_t bind = DefaultBind);
+  VORTEX_API BindingInput(Renderer::GenericBuffer& buffer, uint32_t bind = DefaultBind);
+  VORTEX_API BindingInput(Renderer::Texture& texture, uint32_t bind = DefaultBind);
+  VORTEX_API BindingInput(vk::Sampler sampler,
+                          Renderer::Texture& texture,
+                          uint32_t bind = DefaultBind);
 
   uint32_t Bind;
   mapbox::util::variant<Renderer::GenericBuffer*, DescriptorImage> Input;
@@ -138,10 +138,10 @@ struct BindingInput
  * @param layout pipeline layout
  * @param bindingInputs list of resources (buffer or texture/sampler)
  */
-VORTEX2D_API void Bind(const Device& device,
-                       DescriptorSet& dstSet,
-                       const PipelineLayout& layout,
-                       const std::vector<BindingInput>& bindingInputs);
+VORTEX_API void Bind(const Device& device,
+                     DescriptorSet& dstSet,
+                     const PipelineLayout& layout,
+                     const std::vector<BindingInput>& bindingInputs);
 
 }  // namespace Renderer
 }  // namespace Vortex

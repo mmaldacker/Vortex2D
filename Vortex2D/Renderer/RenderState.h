@@ -18,7 +18,7 @@ struct RenderTarget;
  */
 struct ColorBlendState
 {
-  VORTEX2D_API ColorBlendState();
+  VORTEX_API ColorBlendState();
 
   vk::PipelineColorBlendAttachmentState ColorBlend;
   std::array<float, 4> BlendConstants;

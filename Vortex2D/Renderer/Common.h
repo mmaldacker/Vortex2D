@@ -17,10 +17,10 @@
 
 #ifdef _WIN32
 #ifdef VORTEX2D_API_EXPORTS
-#define VORTEX2D_API __declspec(dllexport)
+#define VORTEX_API __declspec(dllexport)
 #else
-#define VORTEX2D_API __declspec(dllimport)
+#define VORTEX_API __declspec(dllimport)
 #endif
 #else
-#define VORTEX2D_API
+#define VORTEX_API
 #endif

@@ -72,18 +72,18 @@ public:
    * @param size of the linear equations
    * @param delta timestep delta
    */
-  VORTEX2D_API Multigrid(const Renderer::Device& device,
-                         const glm::ivec2& size,
-                         float delta,
-                         int numSmoothingIterations = 3,
-                         SmootherSolver smoother = SmootherSolver::Jacobi);
+  VORTEX_API Multigrid(const Renderer::Device& device,
+                       const glm::ivec2& size,
+                       float delta,
+                       int numSmoothingIterations = 3,
+                       SmootherSolver smoother = SmootherSolver::Jacobi);
 
-  VORTEX2D_API ~Multigrid() override;
+  VORTEX_API ~Multigrid() override;
 
-  VORTEX2D_API void Bind(Renderer::GenericBuffer& d,
-                         Renderer::GenericBuffer& l,
-                         Renderer::GenericBuffer& b,
-                         Renderer::GenericBuffer& x) override;
+  VORTEX_API void Bind(Renderer::GenericBuffer& d,
+                       Renderer::GenericBuffer& l,
+                       Renderer::GenericBuffer& b,
+                       Renderer::GenericBuffer& x) override;
 
   /**
    * @brief Bind the level sets from which the hierarchy is built.
@@ -91,15 +91,15 @@ public:
    * @param solidPhi the solid level set
    * @param liquidPhi the liquid level set
    */
-  VORTEX2D_API void BuildHierarchiesBind(Pressure& pressure,
-                                         Renderer::Texture& solidPhi,
-                                         Renderer::Texture& liquidPhi);
+  VORTEX_API void BuildHierarchiesBind(Pressure& pressure,
+                                       Renderer::Texture& solidPhi,
+                                       Renderer::Texture& liquidPhi);
 
   /**
    * @brief Computes the hierarchy to be used by the multigrid. Asynchronous
    * operation.
    */
-  VORTEX2D_API void BuildHierarchies();
+  VORTEX_API void BuildHierarchies();
 
   void Record(vk::CommandBuffer commandBuffer) override;
 
@@ -110,13 +110,13 @@ public:
    * @param params solver iteration/error parameters
    * @param rigidBodies rigidbody to include in solver's matrix
    */
-  VORTEX2D_API void Solve(Parameters& params,
-                          const std::vector<RigidBody*>& rigidBodies = {}) override;
+  VORTEX_API void Solve(Parameters& params,
+                        const std::vector<RigidBody*>& rigidBodies = {}) override;
 
   /**
    * @return the max error
    */
-  VORTEX2D_API float GetError() override;
+  VORTEX_API float GetError() override;
 
 private:
   void Smoother(vk::CommandBuffer commandBuffer, int n);

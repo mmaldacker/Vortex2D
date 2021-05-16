@@ -66,7 +66,7 @@ public:
   /**
    * @brief Perform one step of the simulation.
    */
-  VORTEX2D_API void Step(LinearSolver::Parameters& params);
+  VORTEX_API void Step(LinearSolver::Parameters& params);
 
   /**
    * @brief Record drawables to the velocity field. The colour (r,g) will be
@@ -75,15 +75,14 @@ public:
    * @param op operation of the render: add velocity or set velocity
    * @return render command
    */
-  VORTEX2D_API Renderer::RenderCommand RecordVelocity(
-      Renderer::RenderTarget::DrawableList drawables,
-      VelocityOp op);
+  VORTEX_API Renderer::RenderCommand RecordVelocity(Renderer::RenderTarget::DrawableList drawables,
+                                                    VelocityOp op);
 
   /**
    * @brief submit the render command created with @ref RecordVelocity
    * @param renderCommand the render command
    */
-  VORTEX2D_API void SubmitVelocity(Renderer::RenderCommand& renderCommand);
+  VORTEX_API void SubmitVelocity(Renderer::RenderCommand& renderCommand);
 
   /**
    * @brief Record drawables to the liquid level set, i.e. to define the fluid
@@ -92,7 +91,7 @@ public:
    * @param drawables a list of signed distance field drawables
    * @return render command
    */
-  VORTEX2D_API Renderer::RenderCommand RecordLiquidPhi(
+  VORTEX_API Renderer::RenderCommand RecordLiquidPhi(
       Renderer::RenderTarget::DrawableList drawables);
 
   /**
@@ -102,7 +101,7 @@ public:
    * @param drawables a list of signed distance field drawables
    * @return render command
    */
-  VORTEX2D_API Renderer::RenderCommand RecordStaticSolidPhi(
+  VORTEX_API Renderer::RenderCommand RecordStaticSolidPhi(
       Renderer::RenderTarget::DrawableList drawables);
 
   /**
@@ -110,43 +109,43 @@ public:
    * set.
    * @return a sprite
    */
-  VORTEX2D_API DistanceField LiquidDistanceField();
+  VORTEX_API DistanceField LiquidDistanceField();
 
   /**
    * @brief Create sprite that can be rendered to visualize the solid level set.
    * @return a sprite
    */
-  VORTEX2D_API DistanceField SolidDistanceField();
+  VORTEX_API DistanceField SolidDistanceField();
 
   /**
    * @brief Add a rigibody to the solver
    * @param rigidbody
    */
-  VORTEX2D_API void AddRigidbody(RigidBody& rigidbody);
+  VORTEX_API void AddRigidbody(RigidBody& rigidbody);
 
   /**
    * @brief Remove a rigidbody from the solver
    * @param rigidbody
    */
-  VORTEX2D_API void RemoveRigidBody(RigidBody& rigidbody);
+  VORTEX_API void RemoveRigidBody(RigidBody& rigidbody);
 
   /**
    * @brief Attach a rigidbody solver, e.g. box2d
    * @param rigidbodySolver
    */
-  VORTEX2D_API void AttachRigidBodySolver(RigidBodySolver& rigidbodySolver);
+  VORTEX_API void AttachRigidBodySolver(RigidBodySolver& rigidbodySolver);
 
   /**
    * @brief Calculate the CFL number, i.e. the width divided by the max velocity
    * @return CFL number
    */
-  VORTEX2D_API float GetCFL();
+  VORTEX_API float GetCFL();
 
   /**
    * @brief Get the velocity, can be used to display it.
    * @return velocity field reference
    */
-  VORTEX2D_API Renderer::Texture& GetVelocity();
+  VORTEX_API Renderer::Texture& GetVelocity();
 
 protected:
   void StepRigidBodies();
@@ -195,17 +194,17 @@ protected:
 class SmokeWorld : public World
 {
 public:
-  VORTEX2D_API SmokeWorld(const Renderer::Device& device,
-                          const glm::ivec2& size,
-                          float dt,
-                          Velocity::InterpolationMode interpolationMode);
-  VORTEX2D_API ~SmokeWorld() override;
+  VORTEX_API SmokeWorld(const Renderer::Device& device,
+                        const glm::ivec2& size,
+                        float dt,
+                        Velocity::InterpolationMode interpolationMode);
+  VORTEX_API ~SmokeWorld() override;
 
   /**
    * @brief Bind a density field to be moved around with the fluid
    * @param density the density field
    */
-  VORTEX2D_API void FieldBind(Density& density);
+  VORTEX_API void FieldBind(Density& density);
 
 private:
   void Substep(LinearSolver::Parameters& params) override;
@@ -217,12 +216,12 @@ private:
 class WaterWorld : public World
 {
 public:
-  VORTEX2D_API WaterWorld(const Renderer::Device& device,
-                          const glm::ivec2& size,
-                          float dt,
-                          int numSubSteps,
-                          Velocity::InterpolationMode interpolationMode);
-  VORTEX2D_API ~WaterWorld() override;
+  VORTEX_API WaterWorld(const Renderer::Device& device,
+                        const glm::ivec2& size,
+                        float dt,
+                        int numSubSteps,
+                        Velocity::InterpolationMode interpolationMode);
+  VORTEX_API ~WaterWorld() override;
 
   /**
    * @brief The water simulation uses particles to define the water area.
@@ -233,14 +232,14 @@ public:
    * @param drawables list of drawables object with colour 8 or -8
    * @return render command
    */
-  VORTEX2D_API Renderer::RenderCommand RecordParticleCount(
+  VORTEX_API Renderer::RenderCommand RecordParticleCount(
       Renderer::RenderTarget::DrawableList drawables);
 
   /**
    * @brief Using the particles, create a level set (phi) encompassing all the particles.
    * This can be viewed with @ref LiquidDistanceField
    */
-  VORTEX2D_API void ParticlePhi();
+  VORTEX_API void ParticlePhi();
 
 private:
   void Substep(LinearSolver::Parameters& params) override;
