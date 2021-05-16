@@ -14,7 +14,7 @@
 #include <Vortex2D/Renderer/Texture.h>
 #include <Vortex2D/Renderer/Transformable.h>
 
-namespace Vortex2D
+namespace Vortex
 {
 namespace Renderer
 {

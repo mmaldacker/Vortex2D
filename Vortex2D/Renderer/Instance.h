@@ -13,7 +13,7 @@
 
 #define VK_LAYER_LUNARG_STANDARD_VALIDATION_NAME "VK_LAYER_LUNARG_standard_validation"
 
-namespace Vortex2D
+namespace Vortex
 {
 namespace Renderer
 {

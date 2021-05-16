@@ -9,7 +9,7 @@
 #include <Vortex2D/Renderer/Buffer.h>
 #include <Vortex2D/Renderer/CommandBuffer.h>
 
-namespace Vortex2D
+namespace Vortex
 {
 namespace Renderer
 {

@@ -10,7 +10,7 @@
 #include <Vortex2D/Renderer/Texture.h>
 #include <Vortex2D/SPIRV/Reflection.h>
 
-namespace Vortex2D
+namespace Vortex
 {
 namespace Renderer
 {

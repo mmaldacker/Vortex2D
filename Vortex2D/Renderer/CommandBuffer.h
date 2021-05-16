@@ -13,7 +13,7 @@
 #include <initializer_list>
 #include <vector>
 
-namespace Vortex2D
+namespace Vortex
 {
 namespace Renderer
 {

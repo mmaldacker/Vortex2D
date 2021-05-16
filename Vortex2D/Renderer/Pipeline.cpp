@@ -7,7 +7,7 @@
 #include <Vortex2D/Renderer/Device.h>
 #include <algorithm>
 
-namespace Vortex2D
+namespace Vortex
 {
 namespace Renderer
 {

@@ -13,7 +13,7 @@
 #include <Vortex2D/Renderer/Pipeline.h>
 #include <Vortex2D/Renderer/Texture.h>
 
-namespace Vortex2D
+namespace Vortex
 {
 namespace Renderer
 {

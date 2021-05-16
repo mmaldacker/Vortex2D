@@ -10,7 +10,7 @@
 #include <random>
 #include "vortex2d_generated_spirv.h"
 
-namespace Vortex2D
+namespace Vortex
 {
 namespace Fluid
 {

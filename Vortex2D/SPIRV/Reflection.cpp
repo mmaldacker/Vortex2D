@@ -6,7 +6,7 @@
 #include "Reflection.h"
 #include <spirv_cross.hpp>
 
-namespace Vortex2D
+namespace Vortex
 {
 namespace SPIRV
 {

@@ -26,12 +26,12 @@ def genCArray(file):
   with open(temp_file, 'r') as content_file:
     content = content_file.read()
   array = 'const uint32_t _' + basename + '[] = {\n' + content + '\n};\n'
-  spirv = 'Vortex2D::Renderer::SpirvBinary ' + basename + '(_' + basename + ');\n'
+  spirv = 'Vortex::Renderer::SpirvBinary ' + basename + '(_' + basename + ');\n'
   return array + spirv
 
 def genCArrayDef(file):
   basename = ntpath.basename(file).replace('.', '_')
-  return 'extern Vortex2D::Renderer::SpirvBinary ' + basename + ';\n'
+  return 'extern Vortex::Renderer::SpirvBinary ' + basename + ';\n'
 
 output = ntpath.basename(args.output)
 
@@ -41,7 +41,7 @@ with open(args.output + '.h', 'w') as f:
   f.write('#define GENERATED_' + output.upper() + '_H\n\n')
   f.write('''#include <cstdint>
 
-namespace Vortex2D
+namespace Vortex
 {
 namespace Renderer
 {
@@ -71,7 +71,7 @@ with open(args.output + '.cpp', 'w') as f:
   f.write('#include "' + ntpath.basename(args.output) +  '.h"\n\n')
   f.write('''
 
-namespace Vortex2D
+namespace Vortex
 {
 namespace SPIRV
 {

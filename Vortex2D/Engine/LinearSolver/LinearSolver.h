@@ -13,7 +13,7 @@
 
 #include <Vortex2D/Engine/LinearSolver/Reduce.h>
 
-namespace Vortex2D
+namespace Vortex
 {
 namespace Fluid
 {

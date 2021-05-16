@@ -8,7 +8,7 @@
 #include <Vortex2D/Renderer/CommandBuffer.h>
 #include <Vortex2D/Renderer/Drawable.h>
 
-namespace Vortex2D
+namespace Vortex
 {
 namespace Renderer
 {

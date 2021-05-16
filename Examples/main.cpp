@@ -20,7 +20,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/transform.hpp>
 
-using namespace Vortex2D;
+using namespace Vortex;
 
 glm::vec4 green = glm::vec4(92.0f, 173.0f, 159.0f, 255.0f) / glm::vec4(255.0f);
 glm::vec4 gray = glm::vec4(80.0f, 81.0f, 79.0f, 255.0f) / glm::vec4(255.0f);
@@ -178,13 +178,13 @@ public:
   }
 
   GLFWwindow* glfwWindow;
-  Vortex2D::Renderer::Instance instance;
+  Vortex::Renderer::Instance instance;
   vk::UniqueSurfaceKHR surface;
-  Vortex2D::Renderer::Device device;
+  Vortex::Renderer::Device device;
   Renderer::RenderWindow window;
   Renderer::Clear clear = {{0.1f, 0.1f, 0.1f, 1.0f}};
   std::unique_ptr<Runner> example;
-  Vortex2D::Renderer::RenderCommand clearRender;
+  Vortex::Renderer::RenderCommand clearRender;
 };
 
 int main()

@@ -13,7 +13,7 @@
 #define VMA_IMPLEMENTATION
 #include <Vortex2D/Utils/vk_mem_alloc.h>
 
-namespace Vortex2D
+namespace Vortex
 {
 namespace Renderer
 {

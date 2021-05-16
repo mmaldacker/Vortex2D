@@ -11,7 +11,7 @@
 
 #include "vortex2d_generated_spirv.h"
 
-namespace Vortex2D
+namespace Vortex
 {
 namespace Fluid
 {
@@ -255,7 +255,7 @@ Renderer::ColorBlendState UnionBlend = [] {
   return blendState;
 }();
 
-Vortex2D::Renderer::Clear BoundariesClear = Vortex2D::Renderer::Clear({10000.0f, 0.0f, 0.0f, 0.0f});
+Vortex::Renderer::Clear BoundariesClear = Vortex::Renderer::Clear({10000.0f, 0.0f, 0.0f, 0.0f});
 
 DistanceField::DistanceField(const Renderer::Device& device,
                              Renderer::RenderTexture& levelSet,

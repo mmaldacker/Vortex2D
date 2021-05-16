@@ -12,7 +12,7 @@
 
 #include <map>
 
-namespace Vortex2D
+namespace Vortex
 {
 namespace SPIRV
 {

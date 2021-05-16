@@ -12,7 +12,7 @@
 
 #include <Vortex2D/Engine/Velocity.h>
 
-namespace Vortex2D
+namespace Vortex
 {
 namespace Fluid
 {

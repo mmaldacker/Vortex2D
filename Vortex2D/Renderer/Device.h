@@ -14,7 +14,7 @@
 #include <Vortex2D/Utils/vk_mem_alloc.h>
 #include <map>
 
-namespace Vortex2D
+namespace Vortex
 {
 namespace Renderer
 {
@@ -103,6 +103,6 @@ private:
 };
 
 }  // namespace Renderer
-}  // namespace Vortex2D
+}  // namespace Vortex
 
 #endif

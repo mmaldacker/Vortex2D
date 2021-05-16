@@ -9,7 +9,7 @@
 #include <Vortex2D/Renderer/Device.h>
 #include <Vortex2D/Renderer/Texture.h>
 
-namespace Vortex2D
+namespace Vortex
 {
 namespace Renderer
 {

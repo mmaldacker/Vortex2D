@@ -13,7 +13,7 @@
 #include <Vortex2D/Engine/Rigidbody.h>
 #include <Vortex2D/Engine/World.h>
 
-class Box2DSolver : public Vortex2D::Fluid::RigidBodySolver
+class Box2DSolver : public Vortex::Fluid::RigidBodySolver
 {
 public:
   Box2DSolver(b2World& world);
@@ -23,13 +23,13 @@ private:
   b2World& mWorld;
 };
 
-class Box2DRigidbody : public Vortex2D::Fluid::RigidBody
+class Box2DRigidbody : public Vortex::Fluid::RigidBody
 {
 public:
-  Box2DRigidbody(const Vortex2D::Renderer::Device& device,
+  Box2DRigidbody(const Vortex::Renderer::Device& device,
                  const glm::ivec2& size,
-                 Vortex2D::Renderer::Drawable& drawable,
-                 Vortex2D::Fluid::RigidBody::Type type);
+                 Vortex::Renderer::Drawable& drawable,
+                 Vortex::Fluid::RigidBody::Type type);
 
   void ApplyForces();
   void ApplyVelocities();
@@ -42,26 +42,26 @@ public:
 class PolygonRigidbody
 {
 public:
-  PolygonRigidbody(const Vortex2D::Renderer::Device& device,
+  PolygonRigidbody(const Vortex::Renderer::Device& device,
                    const glm::ivec2& size,
                    b2World& rWorld,
                    b2BodyType rType,
-                   Vortex2D::Fluid::RigidBody::Type type,
+                   Vortex::Fluid::RigidBody::Type type,
                    const std::vector<glm::vec2>& points,
                    float density = 1.0f);
 
-  Vortex2D::Fluid::Polygon mPolygon;
+  Vortex::Fluid::Polygon mPolygon;
   Box2DRigidbody mRigidbody;
 };
 
 class RectangleRigidbody : public PolygonRigidbody
 {
 public:
-  RectangleRigidbody(const Vortex2D::Renderer::Device& device,
+  RectangleRigidbody(const Vortex::Renderer::Device& device,
                      const glm::ivec2& size,
                      b2World& rWorld,
                      b2BodyType rType,
-                     Vortex2D::Fluid::RigidBody::Type type,
+                     Vortex::Fluid::RigidBody::Type type,
                      const glm::vec2& halfSize,
                      float density = 1.0f)
       : PolygonRigidbody(device,
@@ -81,15 +81,15 @@ public:
 class CircleRigidbody
 {
 public:
-  CircleRigidbody(const Vortex2D::Renderer::Device& device,
+  CircleRigidbody(const Vortex::Renderer::Device& device,
                   const glm::ivec2& size,
                   b2World& rWorld,
                   b2BodyType rType,
-                  Vortex2D::Fluid::RigidBody::Type type,
+                  Vortex::Fluid::RigidBody::Type type,
                   const float radius,
                   float density = 1.0f);
 
-  Vortex2D::Fluid::Circle mCircle;
+  Vortex::Fluid::Circle mCircle;
   Box2DRigidbody mRigidbody;
 };
 

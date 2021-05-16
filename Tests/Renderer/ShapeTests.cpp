@@ -15,7 +15,7 @@
 #include <Vortex2D/Renderer/Shapes.h>
 #include <gtest/gtest.h>
 
-using namespace Vortex2D::Renderer;
+using namespace Vortex::Renderer;
 
 extern Device* device;
 

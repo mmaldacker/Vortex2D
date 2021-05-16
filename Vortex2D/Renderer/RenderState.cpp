@@ -7,7 +7,7 @@
 
 #include <Vortex2D/Renderer/RenderTarget.h>
 
-namespace Vortex2D
+namespace Vortex
 {
 namespace Renderer
 {

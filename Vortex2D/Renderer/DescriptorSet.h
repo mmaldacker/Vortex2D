@@ -13,7 +13,7 @@
 #include <Vortex2D/Utils/mapbox/variant.hpp>
 #include <map>
 
-namespace Vortex2D
+namespace Vortex
 {
 namespace SPIRV
 {

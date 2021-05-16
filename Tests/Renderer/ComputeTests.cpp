@@ -17,8 +17,8 @@
 
 #include "vortex2d_tests_generated_spirv.h"
 
-using namespace Vortex2D::Renderer;
-using namespace Vortex2D::SPIRV;
+using namespace Vortex::Renderer;
+using namespace Vortex::SPIRV;
 
 extern Device* device;
 

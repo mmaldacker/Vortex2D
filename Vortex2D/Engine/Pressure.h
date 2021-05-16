@@ -14,7 +14,7 @@
 #include <Vortex2D/Renderer/Texture.h>
 #include <Vortex2D/Renderer/Work.h>
 
-namespace Vortex2D
+namespace Vortex
 {
 namespace Fluid
 {

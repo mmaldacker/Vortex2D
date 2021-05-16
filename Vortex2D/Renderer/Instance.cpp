@@ -20,7 +20,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugReportFlagsEXT /*flags*/,
   return VK_FALSE;
 }
 
-namespace Vortex2D
+namespace Vortex
 {
 namespace Renderer
 {
@@ -144,4 +144,4 @@ bool HasExtension(const char* extension,
 }
 
 }  // namespace Renderer
-}  // namespace Vortex2D
+}  // namespace Vortex

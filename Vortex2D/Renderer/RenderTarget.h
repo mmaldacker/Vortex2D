@@ -12,7 +12,7 @@
 #include <functional>
 #include <initializer_list>
 
-namespace Vortex2D
+namespace Vortex
 {
 namespace Renderer
 {

@@ -12,7 +12,7 @@ extern glm::vec4 green;
 class RenderExample : public Runner
 {
 public:
-  RenderExample(const Vortex2D::Renderer::Device& device, const glm::vec2& /*size*/)
+  RenderExample(const Vortex::Renderer::Device& device, const glm::vec2& /*size*/)
       : rectangle(device, {25, 25}), circle(device, glm::vec2(10))
   {
     rectangle.Position = {50, 50};
@@ -23,10 +23,10 @@ public:
     circle.Colour = green;
   }
 
-  void Init(const Vortex2D::Renderer::Device& device,
-            Vortex2D::Renderer::RenderTarget& renderTarget) override
+  void Init(const Vortex::Renderer::Device& device,
+            Vortex::Renderer::RenderTarget& renderTarget) override
   {
-    Vortex2D::Renderer::ColorBlendState blendState;
+    Vortex::Renderer::ColorBlendState blendState;
     blendState.ColorBlend.setBlendEnable(true)
         .setAlphaBlendOp(vk::BlendOp::eAdd)
         .setColorBlendOp(vk::BlendOp::eAdd)
@@ -41,7 +41,7 @@ public:
   void Step() override { render.Submit(); }
 
 private:
-  Vortex2D::Renderer::Rectangle rectangle;
-  Vortex2D::Renderer::Ellipse circle;
-  Vortex2D::Renderer::RenderCommand render;
+  Vortex::Renderer::Rectangle rectangle;
+  Vortex::Renderer::Ellipse circle;
+  Vortex::Renderer::RenderCommand render;
 };

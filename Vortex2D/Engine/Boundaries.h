@@ -17,7 +17,7 @@
 
 #include <Vortex2D/Engine/Particles.h>
 
-namespace Vortex2D
+namespace Vortex
 {
 namespace Fluid
 {

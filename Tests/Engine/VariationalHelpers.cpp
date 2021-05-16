@@ -49,12 +49,12 @@ void AddParticles(const glm::ivec2& size, FluidSim& sim, float (*phi)(const Vec2
   }
 }
 
-void SetVelocity(const Vortex2D::Renderer::Device& device,
+void SetVelocity(const Vortex::Renderer::Device& device,
                  const glm::ivec2& size,
-                 Vortex2D::Fluid::Velocity& velocity,
+                 Vortex::Fluid::Velocity& velocity,
                  FluidSim& sim)
 {
-  Vortex2D::Renderer::Texture input(
+  Vortex::Renderer::Texture input(
       device, size.x, size.y, vk::Format::eR32G32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
 
   std::vector<glm::vec2> velocityData(size.x * size.y, glm::vec2(0.0f));
@@ -72,13 +72,13 @@ void SetVelocity(const Vortex2D::Renderer::Device& device,
   device.Execute([&](vk::CommandBuffer commandBuffer) { velocity.CopyFrom(commandBuffer, input); });
 }
 
-void SetSolidPhi(const Vortex2D::Renderer::Device& device,
+void SetSolidPhi(const Vortex::Renderer::Device& device,
                  const glm::ivec2& size,
-                 Vortex2D::Renderer::Texture& solidPhi,
+                 Vortex::Renderer::Texture& solidPhi,
                  FluidSim& sim,
                  float scale)
 {
-  Vortex2D::Renderer::Texture input(
+  Vortex::Renderer::Texture input(
       device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
 
   std::vector<float> phi(size.x * size.y, 0.0f);
@@ -95,13 +95,13 @@ void SetSolidPhi(const Vortex2D::Renderer::Device& device,
   device.Execute([&](vk::CommandBuffer commandBuffer) { solidPhi.CopyFrom(commandBuffer, input); });
 }
 
-void SetLiquidPhi(const Vortex2D::Renderer::Device& device,
+void SetLiquidPhi(const Vortex::Renderer::Device& device,
                   const glm::ivec2& size,
-                  Vortex2D::Renderer::Texture& liquidPhi,
+                  Vortex::Renderer::Texture& liquidPhi,
                   FluidSim& sim,
                   float scale)
 {
-  Vortex2D::Renderer::Texture input(
+  Vortex::Renderer::Texture input(
       device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
 
   std::vector<float> phi(size.x * size.y, 0.0f);
@@ -119,12 +119,12 @@ void SetLiquidPhi(const Vortex2D::Renderer::Device& device,
       [&](vk::CommandBuffer commandBuffer) { liquidPhi.CopyFrom(commandBuffer, input); });
 }
 
-void BuildInputs(const Vortex2D::Renderer::Device& device,
+void BuildInputs(const Vortex::Renderer::Device& device,
                  const glm::ivec2& size,
                  FluidSim& sim,
-                 Vortex2D::Fluid::Velocity& velocity,
-                 Vortex2D::Renderer::Texture& solidPhi,
-                 Vortex2D::Renderer::Texture& liquidPhi)
+                 Vortex::Fluid::Velocity& velocity,
+                 Vortex::Renderer::Texture& solidPhi,
+                 Vortex::Renderer::Texture& liquidPhi)
 {
   SetVelocity(device, size, velocity, sim);
 
@@ -138,9 +138,9 @@ void BuildInputs(const Vortex2D::Renderer::Device& device,
 }
 
 void BuildLinearEquation(const glm::ivec2& size,
-                         Vortex2D::Renderer::Buffer<float>& d,
-                         Vortex2D::Renderer::Buffer<glm::vec2>& l,
-                         Vortex2D::Renderer::Buffer<float>& div,
+                         Vortex::Renderer::Buffer<float>& d,
+                         Vortex::Renderer::Buffer<glm::vec2>& l,
+                         Vortex::Renderer::Buffer<float>& div,
                          FluidSim& sim)
 {
   std::vector<float> diagonalData(size.x * size.y);
@@ -159,17 +159,17 @@ void BuildLinearEquation(const glm::ivec2& size,
     }
   }
 
-  using Vortex2D::Renderer::CopyFrom;
+  using Vortex::Renderer::CopyFrom;
 
   CopyFrom(d, diagonalData);
   CopyFrom(l, lowerData);
   CopyFrom(div, divData);
 }
 
-void PrintDiagonal(const glm::ivec2& size, Vortex2D::Renderer::Buffer<float>& buffer)
+void PrintDiagonal(const glm::ivec2& size, Vortex::Renderer::Buffer<float>& buffer)
 {
   std::vector<float> pixels(size.x * size.y);
-  Vortex2D::Renderer::CopyTo(buffer, pixels);
+  Vortex::Renderer::CopyTo(buffer, pixels);
 
   for (int j = 0; j < size.y; j++)
   {
@@ -199,11 +199,11 @@ void PrintWeights(const glm::ivec2& size, FluidSim& sim)
   std::cout << std::endl;
 }
 
-void PrintVelocity(const Vortex2D::Renderer::Device& device,
+void PrintVelocity(const Vortex::Renderer::Device& device,
                    const glm::ivec2& size,
-                   Vortex2D::Renderer::Texture& velocity)
+                   Vortex::Renderer::Texture& velocity)
 {
-  Vortex2D::Renderer::Texture output(
+  Vortex::Renderer::Texture output(
       device, size.x, size.y, vk::Format::eR32G32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
   device.Execute(
       [&](vk::CommandBuffer commandBuffer) { output.CopyFrom(commandBuffer, velocity); });
@@ -236,13 +236,13 @@ void PrintVelocity(const glm::ivec2& size, FluidSim& sim)
   std::cout << std::endl;
 }
 
-void CheckVelocity(const Vortex2D::Renderer::Device& device,
+void CheckVelocity(const Vortex::Renderer::Device& device,
                    const glm::ivec2& size,
-                   Vortex2D::Fluid::Velocity& velocity,
+                   Vortex::Fluid::Velocity& velocity,
                    FluidSim& sim,
                    float error)
 {
-  Vortex2D::Renderer::Texture output(
+  Vortex::Renderer::Texture output(
       device, size.x, size.y, vk::Format::eR32G32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
   device.Execute(
       [&](vk::CommandBuffer commandBuffer) { output.CopyFrom(commandBuffer, velocity); });
@@ -262,15 +262,15 @@ void CheckVelocity(const Vortex2D::Renderer::Device& device,
   }
 }
 
-void CheckVelocity(const Vortex2D::Renderer::Device& device,
+void CheckVelocity(const Vortex::Renderer::Device& device,
                    const glm::ivec2& size,
-                   Vortex2D::Renderer::Texture& velocity,
+                   Vortex::Renderer::Texture& velocity,
                    const std::vector<glm::vec2>& velocityData,
                    float error)
 {
   assert(velocityData.size() == size.x * size.y);
 
-  Vortex2D::Renderer::Texture output(
+  Vortex::Renderer::Texture output(
       device, size.x, size.y, vk::Format::eR32G32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
   device.Execute(
       [&](vk::CommandBuffer commandBuffer) { output.CopyFrom(commandBuffer, velocity); });
@@ -294,10 +294,10 @@ void CheckVelocity(const Vortex2D::Renderer::Device& device,
 
 void CheckValid(const glm::ivec2& size,
                 FluidSim& sim,
-                Vortex2D::Renderer::Buffer<glm::ivec2>& valid)
+                Vortex::Renderer::Buffer<glm::ivec2>& valid)
 {
   std::vector<glm::ivec2> validData(size.x * size.y);
-  Vortex2D::Renderer::CopyTo(valid, validData);
+  Vortex::Renderer::CopyTo(valid, validData);
 
   for (int i = 0; i < size.x - 1; i++)
   {
@@ -311,12 +311,12 @@ void CheckValid(const glm::ivec2& size,
 }
 
 void CheckDiv(const glm::ivec2& size,
-              Vortex2D::Renderer::Buffer<float>& buffer,
+              Vortex::Renderer::Buffer<float>& buffer,
               FluidSim& sim,
               float error)
 {
   std::vector<float> pixels(size.x * size.y);
-  Vortex2D::Renderer::CopyTo(buffer, pixels);
+  Vortex::Renderer::CopyTo(buffer, pixels);
 
   for (int i = 0; i < size.x; i++)
   {
@@ -345,11 +345,11 @@ void PrintDiv(const glm::ivec2& size, FluidSim& sim)
 
 void CheckPressure(const glm::ivec2& size,
                    const std::vector<double>& pressure,
-                   Vortex2D::Renderer::Buffer<float>& bufferPressure,
+                   Vortex::Renderer::Buffer<float>& bufferPressure,
                    float error)
 {
   std::vector<float> bufferPressureData(size.x * size.y);
-  Vortex2D::Renderer::CopyTo(bufferPressure, bufferPressureData);
+  Vortex::Renderer::CopyTo(bufferPressure, bufferPressureData);
 
   for (int i = 0; i < size.x; i++)
   {

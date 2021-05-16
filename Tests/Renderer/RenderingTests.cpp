@@ -14,7 +14,7 @@
 #include "ShapeDrawer.h"
 #include "Verify.h"
 
-using namespace Vortex2D::Renderer;
+using namespace Vortex::Renderer;
 
 extern Device* device;
 
@@ -130,7 +130,7 @@ TEST(RenderingTest, BlendAdd)
   Rectangle rectangle(*device, size);
   rectangle.Colour = glm::vec4(0.5f, 0.0f, 0.0f, 0.0f);
 
-  Vortex2D::Renderer::ColorBlendState blendState;
+  Vortex::Renderer::ColorBlendState blendState;
   blendState.ColorBlend.setBlendEnable(true)
       .setColorBlendOp(vk::BlendOp::eAdd)
       .setSrcColorBlendFactor(vk::BlendFactor::eOne)

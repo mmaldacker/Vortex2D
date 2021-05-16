@@ -9,8 +9,8 @@
 #include "VariationalHelpers.h"
 #include "Verify.h"
 
-using namespace Vortex2D::Renderer;
-using namespace Vortex2D::Fluid;
+using namespace Vortex::Renderer;
+using namespace Vortex::Fluid;
 
 extern Device* device;
 

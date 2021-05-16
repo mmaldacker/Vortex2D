@@ -11,8 +11,8 @@
 #include <Vortex2D/Engine/Pressure.h>
 #include <iostream>
 
-using namespace Vortex2D::Renderer;
-using namespace Vortex2D::Fluid;
+using namespace Vortex::Renderer;
+using namespace Vortex::Fluid;
 using ::testing::_;
 using ::testing::Invoke;
 using ::testing::NiceMock;

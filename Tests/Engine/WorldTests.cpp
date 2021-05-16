@@ -16,7 +16,7 @@
 #include <iostream>
 #include <random>
 
-using namespace Vortex2D;
+using namespace Vortex;
 
 extern Renderer::Device* device;
 

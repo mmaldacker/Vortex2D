@@ -20,11 +20,11 @@ class WaterFallExample : public Runner
   const float gravityForce = 100.0f;
 
 public:
-  WaterFallExample(const Vortex2D::Renderer::Device& device, const glm::ivec2& size, float dt)
+  WaterFallExample(const Vortex::Renderer::Device& device, const glm::ivec2& size, float dt)
       : waterSource(device, {10.0f, 10.0f})
       , waterForce(device, {10.0f, 10.0f})
       , gravity(device, glm::vec2(256.0f, 256.0f))
-      , world(device, size, dt, 2, Vortex2D::Fluid::Velocity::InterpolationMode::Linear)
+      , world(device, size, dt, 2, Vortex::Fluid::Velocity::InterpolationMode::Linear)
       , solidPhi(world.SolidDistanceField())
       , liquidPhi(world.LiquidDistanceField())
       , rWorld(b2Vec2(0.0f, gravityForce))
@@ -33,31 +33,31 @@ public:
                size,
                rWorld,
                b2_dynamicBody,
-               Vortex2D::Fluid::RigidBody::Type::eStrong,
+               Vortex::Fluid::RigidBody::Type::eStrong,
                10.0f)
       , box(device,
             size,
             rWorld,
             b2_dynamicBody,
-            Vortex2D::Fluid::RigidBody::Type::eStrong,
+            Vortex::Fluid::RigidBody::Type::eStrong,
             {15.0f, 15.0f})
       , left(device,
              size,
              rWorld,
              b2_staticBody,
-             Vortex2D::Fluid::RigidBody::Type::eStatic,
+             Vortex::Fluid::RigidBody::Type::eStatic,
              {50.0f, 5.0f})
       , right(device,
               size,
               rWorld,
               b2_staticBody,
-              Vortex2D::Fluid::RigidBody::Type::eStatic,
+              Vortex::Fluid::RigidBody::Type::eStatic,
               {50.0f, 5.0f})
       , bottom(device,
                size,
                rWorld,
                b2_staticBody,
-               Vortex2D::Fluid::RigidBody::Type::eStatic,
+               Vortex::Fluid::RigidBody::Type::eStatic,
                {250.0f, 5.0f})
   {
     world.AttachRigidBodySolver(solver);
@@ -73,8 +73,8 @@ public:
     liquidPhi.Colour = blue;
   }
 
-  void Init(const Vortex2D::Renderer::Device& device,
-            Vortex2D::Renderer::RenderTarget& renderTarget) override
+  void Init(const Vortex::Renderer::Device& device,
+            Vortex::Renderer::RenderTarget& renderTarget) override
   {
     // Add particles
     waterSource.Position = {5.0f, 25.0f};
@@ -96,9 +96,9 @@ public:
     box.mRigidbody.SetTransform({75.0f, 50.0f}, 0.0f);
 
     // Set gravity
-    velocityRender = world.RecordVelocity({gravity, waterForce}, Vortex2D::Fluid::VelocityOp::Add);
+    velocityRender = world.RecordVelocity({gravity, waterForce}, Vortex::Fluid::VelocityOp::Add);
 
-    Vortex2D::Renderer::ColorBlendState blendState;
+    Vortex::Renderer::ColorBlendState blendState;
     blendState.ColorBlend.setBlendEnable(true)
         .setAlphaBlendOp(vk::BlendOp::eAdd)
         .setColorBlendOp(vk::BlendOp::eAdd)
@@ -114,18 +114,18 @@ public:
   {
     sourceRender.Submit();
     world.SubmitVelocity(velocityRender);
-    auto params = Vortex2D::Fluid::FixedParams(12);
+    auto params = Vortex::Fluid::FixedParams(12);
     world.Step(params);
     windowRender.Submit();
   }
 
 private:
-  Vortex2D::Renderer::IntRectangle waterSource;
-  Vortex2D::Renderer::Rectangle waterForce;
-  Vortex2D::Renderer::Rectangle gravity;
-  Vortex2D::Fluid::WaterWorld world;
-  Vortex2D::Fluid::DistanceField solidPhi, liquidPhi;
-  Vortex2D::Renderer::RenderCommand sourceRender, velocityRender, windowRender;
+  Vortex::Renderer::IntRectangle waterSource;
+  Vortex::Renderer::Rectangle waterForce;
+  Vortex::Renderer::Rectangle gravity;
+  Vortex::Fluid::WaterWorld world;
+  Vortex::Fluid::DistanceField solidPhi, liquidPhi;
+  Vortex::Renderer::RenderCommand sourceRender, velocityRender, windowRender;
 
   b2World rWorld;
 

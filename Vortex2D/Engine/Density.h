@@ -9,7 +9,7 @@
 #include <Vortex2D/Renderer/RenderTexture.h>
 #include <Vortex2D/Renderer/Sprite.h>
 
-namespace Vortex2D
+namespace Vortex
 {
 namespace Fluid
 {

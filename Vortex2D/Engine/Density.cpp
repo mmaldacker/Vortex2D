@@ -5,7 +5,7 @@
 
 #include "Density.h"
 
-namespace Vortex2D
+namespace Vortex
 {
 namespace Fluid
 {

@@ -7,7 +7,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-namespace Vortex2D
+namespace Vortex
 {
 namespace Renderer
 {

@@ -16,7 +16,7 @@
 
 #include <vector>
 
-namespace Vortex2D
+namespace Vortex
 {
 namespace Renderer
 {

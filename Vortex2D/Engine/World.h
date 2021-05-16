@@ -28,7 +28,7 @@
 #include <memory>
 #include <vector>
 
-namespace Vortex2D
+namespace Vortex
 {
 namespace Fluid
 {

@@ -11,7 +11,7 @@
 #include <Vortex2D/Renderer/Buffer.h>
 #include <Vortex2D/Renderer/RenderTexture.h>
 
-namespace Vortex2D
+namespace Vortex
 {
 namespace Fluid
 {
