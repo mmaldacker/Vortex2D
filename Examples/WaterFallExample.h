@@ -1,7 +1,9 @@
 //
 //  WaterFallExample.h
-//  Vortex2D
+//  Vortex
 //
+
+#pragma once
 
 #include <Vortex2D/Vortex2D.h>
 
@@ -29,12 +31,7 @@ public:
       , liquidPhi(world.LiquidDistanceField())
       , rWorld(b2Vec2(0.0f, gravityForce))
       , solver(rWorld)
-      , circle(device,
-               size,
-               rWorld,
-               b2_dynamicBody,
-               Vortex::Fluid::RigidBody::Type::eStrong,
-               10.0f)
+      , circle(device, size, rWorld, b2_dynamicBody, Vortex::Fluid::RigidBody::Type::eStrong, 10.0f)
       , box(device,
             size,
             rWorld,

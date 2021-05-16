@@ -1,6 +1,6 @@
 //
 //  Instance.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "Instance.h"

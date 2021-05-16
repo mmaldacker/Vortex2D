@@ -1,6 +1,6 @@
 //
 //  RigidbodyTests.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "VariationalHelpers.h"

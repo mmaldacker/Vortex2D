@@ -1,10 +1,9 @@
 //
 //  Jacobi.h
-//  Vortex2D
+//  Vortex
 //
 
-#ifndef Vortex2D_Jacobi_h
-#define Vortex2D_Jacobi_h
+#pragma once
 
 #include <Vortex2D/Engine/LinearSolver/LinearSolver.h>
 #include <Vortex2D/Engine/LinearSolver/Preconditioner.h>
@@ -60,6 +59,4 @@ private:
 };
 
 }  // namespace Fluid
-}  // namespace Vortex2D
-
-#endif
+}  // namespace Vortex

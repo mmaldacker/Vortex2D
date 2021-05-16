@@ -1,10 +1,9 @@
 //
 //  Drawable.h
-//  Vortex2d
+//  Vortex
 //
 
-#ifndef Vortex2d_Drawable_h
-#define Vortex2d_Drawable_h
+#pragma once
 
 #include <Vortex2D/Renderer/Common.h>
 
@@ -45,6 +44,4 @@ struct Drawable
 };
 
 }  // namespace Renderer
-}  // namespace Vortex2D
-
-#endif
+}  // namespace Vortex

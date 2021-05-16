@@ -1,10 +1,9 @@
 //
 //  LevelSet.h
-//  Vortex2D
+//  Vortex
 //
 
-#ifndef LevelSet_h
-#define LevelSet_h
+#pragma once
 
 #include <Vortex2D/Renderer/CommandBuffer.h>
 #include <Vortex2D/Renderer/RenderTexture.h>
@@ -72,6 +71,4 @@ private:
 };
 
 }  // namespace Fluid
-}  // namespace Vortex2D
-
-#endif
+}  // namespace Vortex

@@ -1,10 +1,9 @@
 //
 //  Multigrid.h
-//  Vortex2D
+//  Vortex
 //
 
-#ifndef Vortex2D_Multigrid_h
-#define Vortex2D_Multigrid_h
+#pragma once
 
 #include <Vortex2D/Engine/LevelSet.h>
 #include <Vortex2D/Engine/LinearSolver/GaussSeidel.h>
@@ -166,6 +165,4 @@ private:
 };
 
 }  // namespace Fluid
-}  // namespace Vortex2D
-
-#endif
+}  // namespace Vortex

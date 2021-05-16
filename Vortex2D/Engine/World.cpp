@@ -1,6 +1,6 @@
 //
 //  World.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "World.h"
@@ -338,4 +338,4 @@ void WaterWorld::ParticlePhi()
 }
 
 }  // namespace Fluid
-}  // namespace Vortex2D
+}  // namespace Vortex

@@ -1,10 +1,9 @@
 //
 //  Device.h
-//  Vortex2D
+//  Vortex
 //
 
-#ifndef Vortex2d_Device_h
-#define Vortex2d_Device_h
+#pragma once
 
 #include <Vortex2D/Renderer/CommandBuffer.h>
 #include <Vortex2D/Renderer/Common.h>
@@ -104,5 +103,3 @@ private:
 
 }  // namespace Renderer
 }  // namespace Vortex
-
-#endif

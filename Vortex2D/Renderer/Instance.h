@@ -1,10 +1,9 @@
 //
 //  Instance.h
-//  Vortex2D
+//  Vortex
 //
 
-#ifndef Vortex2d_Instance_h
-#define Vortex2d_Instance_h
+#pragma once
 
 #include <Vortex2D/Renderer/Common.h>
 
@@ -43,6 +42,4 @@ bool HasExtension(const char* extension,
                   const std::vector<vk::ExtensionProperties>& availableExtensions);
 
 }  // namespace Renderer
-}  // namespace Vortex2D
-
-#endif
+}  // namespace Vortex

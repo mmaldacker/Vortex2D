@@ -1,10 +1,9 @@
 //
 //  ConjugateGradient.h
-//  Vertex2D
+//  Vortex
 //
 
-#ifndef Vertex2D_ConjugateGradient_h
-#define Vertex2D_ConjugateGradient_h
+#pragma once
 
 #include <Vortex2D/Engine/LinearSolver/LinearSolver.h>
 #include <Vortex2D/Engine/LinearSolver/Preconditioner.h>
@@ -75,6 +74,4 @@ private:
 };
 
 }  // namespace Fluid
-}  // namespace Vortex2D
-
-#endif
+}  // namespace Vortex

@@ -1,10 +1,9 @@
 //
 //  Boundaries.h
-//  Vortex2D
+//  Vortex
 //
 
-#ifndef Vortex2d_Boundaries_h
-#define Vortex2d_Boundaries_h
+#pragma once
 
 #include <Vortex2D/Renderer/Buffer.h>
 #include <Vortex2D/Renderer/CommandBuffer.h>
@@ -150,6 +149,4 @@ private:
 };
 
 }  // namespace Fluid
-}  // namespace Vortex2D
-
-#endif
+}  // namespace Vortex

@@ -1,6 +1,6 @@
 //
 //  RenderTarget.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "RenderTarget.h"
@@ -143,4 +143,4 @@ vk::AttachmentReference* RenderpassBuilder::GetAttachmentReference()
 }
 
 }  // namespace Renderer
-}  // namespace Vortex2D
+}  // namespace Vortex

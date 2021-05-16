@@ -1,10 +1,9 @@
 //
 //  Rigidbody.h
-//  Vortex2D
+//  Vortex
 //
 
-#ifndef Examples_Rigidbody_h
-#define Examples_Rigidbody_h
+#pragma once
 
 #include <glm/trigonometric.hpp>
 
@@ -92,5 +91,3 @@ public:
   Vortex::Fluid::Circle mCircle;
   Box2DRigidbody mRigidbody;
 };
-
-#endif

@@ -1,6 +1,6 @@
 //
 //  Boundaries.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "Boundaries.h"
@@ -278,4 +278,4 @@ void DistanceField::Draw(vk::CommandBuffer commandBuffer, const Renderer::Render
 }
 
 }  // namespace Fluid
-}  // namespace Vortex2D
+}  // namespace Vortex

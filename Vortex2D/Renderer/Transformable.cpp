@@ -1,6 +1,6 @@
 //
 //  Transformable.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "Transformable.h"
@@ -31,4 +31,4 @@ const glm::mat4& Transformable::GetTransform() const
 }
 
 }  // namespace Renderer
-}  // namespace Vortex2D
+}  // namespace Vortex

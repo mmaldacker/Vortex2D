@@ -1,6 +1,6 @@
 //
 //  Transfer.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "Transfer.h"
@@ -75,4 +75,4 @@ void Transfer::Restrict(vk::CommandBuffer commandBuffer, std::size_t level)
 }
 
 }  // namespace Fluid
-}  // namespace Vortex2D
+}  // namespace Vortex

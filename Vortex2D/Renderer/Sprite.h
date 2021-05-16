@@ -1,10 +1,9 @@
 //
 //  Sprite.h
-//  Vortex2D
+//  Vortex
 //
 
-#ifndef Sprite_h
-#define Sprite_h
+#pragma once
 
 #include <Vortex2D/Renderer/Buffer.h>
 #include <Vortex2D/Renderer/DescriptorSet.h>
@@ -76,6 +75,4 @@ public:
 };
 
 }  // namespace Renderer
-}  // namespace Vortex2D
-
-#endif
+}  // namespace Vortex

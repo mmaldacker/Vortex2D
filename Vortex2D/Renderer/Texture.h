@@ -1,10 +1,9 @@
 //
 //  Texture.h
-//  Vortex2D
+//  Vortex
 //
 
-#ifndef Vortex2d_Texture_h
-#define Vortex2d_Texture_h
+#pragma once
 
 #include <Vortex2D/Renderer/Common.h>
 #include <Vortex2D/Utils/vk_mem_alloc.h>
@@ -156,6 +155,4 @@ VORTEX2D_API void TextureBarrier(vk::Image image,
                                  vk::AccessFlags dstMask);
 
 }  // namespace Renderer
-}  // namespace Vortex2D
-
-#endif
+}  // namespace Vortex

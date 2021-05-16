@@ -1,6 +1,6 @@
 //
 //  Reflection.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "Reflection.h"
@@ -99,4 +99,4 @@ vk::ShaderStageFlags Reflection::GetShaderStage() const
 }
 
 }  // namespace SPIRV
-}  // namespace Vortex2D
+}  // namespace Vortex

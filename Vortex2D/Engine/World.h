@@ -1,10 +1,9 @@
 //
 //  World.h
-//  Vortex2D
+//  Vortex
 //
 
-#ifndef Vortex2D_Engine_h
-#define Vortex2D_Engine_h
+#pragma once
 
 #include <Vortex2D/Renderer/CommandBuffer.h>
 #include <Vortex2D/Renderer/Drawable.h>
@@ -251,6 +250,4 @@ private:
 };
 
 }  // namespace Fluid
-}  // namespace Vortex2D
-
-#endif
+}  // namespace Vortex

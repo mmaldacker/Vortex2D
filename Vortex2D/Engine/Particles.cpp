@@ -211,4 +211,4 @@ void ParticleCount::TransferFromGrid()
 }
 
 }  // namespace Fluid
-}  // namespace Vortex2D
+}  // namespace Vortex

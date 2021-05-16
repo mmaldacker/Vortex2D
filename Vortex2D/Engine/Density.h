@@ -1,10 +1,9 @@
 //
 //  Density.h
-//  Vortex2D
+//  Vortex
 //
 
-#ifndef Vortex2D_Density_h
-#define Vortex2D_Density_h
+#pragma once
 
 #include <Vortex2D/Renderer/RenderTexture.h>
 #include <Vortex2D/Renderer/Sprite.h>
@@ -28,6 +27,4 @@ private:
 };
 
 }  // namespace Fluid
-}  // namespace Vortex2D
-
-#endif
+}  // namespace Vortex

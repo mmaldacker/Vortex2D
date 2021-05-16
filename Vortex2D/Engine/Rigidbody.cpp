@@ -1,6 +1,6 @@
 //
 //  Rigidbody.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "Rigidbody.h"
@@ -215,4 +215,4 @@ Renderer::RenderTexture& RigidBody::Phi()
 }
 
 }  // namespace Fluid
-}  // namespace Vortex2D
+}  // namespace Vortex

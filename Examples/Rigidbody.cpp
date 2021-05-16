@@ -1,6 +1,6 @@
 //
 //  Rigidbody.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "Rigidbody.h"

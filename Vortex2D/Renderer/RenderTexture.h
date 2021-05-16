@@ -1,10 +1,9 @@
 //
 //  RenderTexture.h
-//  Vortex2D
+//  Vortex
 //
 
-#ifndef RenderTexture_h
-#define RenderTexture_h
+#pragma once
 
 #include <Vortex2D/Renderer/CommandBuffer.h>
 #include <Vortex2D/Renderer/Common.h>
@@ -44,6 +43,4 @@ private:
 };
 
 }  // namespace Renderer
-}  // namespace Vortex2D
-
-#endif
+}  // namespace Vortex

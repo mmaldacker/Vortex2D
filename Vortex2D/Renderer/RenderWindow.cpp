@@ -1,6 +1,6 @@
 //
 //  RenderWindow.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "RenderWindow.h"
@@ -205,4 +205,4 @@ void RenderWindow::Display()
 }
 
 }  // namespace Renderer
-}  // namespace Vortex2D
+}  // namespace Vortex

@@ -1,7 +1,9 @@
 //
 //  RenderExample.h
-//  Vortex2D
+//  Vortex
 //
+
+#pragma once
 
 #include <Vortex2D/Vortex2D.h>
 

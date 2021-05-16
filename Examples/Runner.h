@@ -1,10 +1,9 @@
 //
 //  Runner.h
-//  Vortex2D
+//  Vortex
 //
 
-#ifndef Examples_Runner_h
-#define Examples_Runner_h
+#pragma once
 
 #include <Vortex2D/Renderer/Device.h>
 #include <Vortex2D/Renderer/RenderTarget.h>
@@ -17,5 +16,3 @@ public:
                     Vortex::Renderer::RenderTarget& renderTarget) = 0;
   virtual void Step() = 0;
 };
-
-#endif

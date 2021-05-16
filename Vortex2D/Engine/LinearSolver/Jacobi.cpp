@@ -1,6 +1,6 @@
 //
 //  Jacobi.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "Jacobi.h"
@@ -65,4 +65,4 @@ void Jacobi::Record(vk::CommandBuffer commandBuffer, int iterations)
 }
 
 }  // namespace Fluid
-}  // namespace Vortex2D
+}  // namespace Vortex

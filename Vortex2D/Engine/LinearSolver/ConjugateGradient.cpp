@@ -1,6 +1,6 @@
 //
 //  ConjugateGradient.cpp
-//  Vertex2D
+//  Vortex
 //
 
 #include "ConjugateGradient.h"
@@ -204,4 +204,4 @@ float ConjugateGradient::GetError()
 }
 
 }  // namespace Fluid
-}  // namespace Vortex2D
+}  // namespace Vortex

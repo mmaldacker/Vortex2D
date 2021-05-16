@@ -3,8 +3,7 @@
 //  Vortex
 //
 
-#ifndef Vortex2D_Common_h
-#define Vortex2D_Common_h
+#pragma once
 
 #define VULKAN_HPP_TYPESAFE_CONVERSION 1
 #include <vulkan/vulkan.hpp>
@@ -24,6 +23,4 @@
 #endif
 #else
 #define VORTEX2D_API
-#endif
-
 #endif

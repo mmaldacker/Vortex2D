@@ -1,6 +1,6 @@
 //
 //  IncompletePoisson.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "IncompletePoisson.h"
@@ -32,4 +32,4 @@ void IncompletePoisson::Record(vk::CommandBuffer commandBuffer)
 }
 
 }  // namespace Fluid
-}  // namespace Vortex2D
+}  // namespace Vortex

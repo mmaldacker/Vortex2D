@@ -1,10 +1,9 @@
 //
 //  Pipeline.h
-//  Vortex2D
+//  Vortex
 //
 
-#ifndef Vortex2d_Shader_h
-#define Vortex2d_Shader_h
+#pragma once
 
 #include <Vortex2D/Renderer/Common.h>
 #include <Vortex2D/Renderer/RenderState.h>
@@ -199,6 +198,4 @@ private:
 };
 
 }  // namespace Renderer
-}  // namespace Vortex2D
-
-#endif
+}  // namespace Vortex

@@ -1,10 +1,9 @@
 //
 //  RenderWindow.h
-//  Vortex2D
+//  Vortex
 //
 
-#ifndef RenderWindow_h
-#define RenderWindow_h
+#pragma once
 
 #include <Vortex2D/Renderer/Common.h>
 #include <Vortex2D/Renderer/Device.h>
@@ -56,6 +55,4 @@ private:
 };
 
 }  // namespace Renderer
-}  // namespace Vortex2D
-
-#endif
+}  // namespace Vortex

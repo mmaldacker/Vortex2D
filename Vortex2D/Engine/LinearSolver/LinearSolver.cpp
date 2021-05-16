@@ -1,6 +1,6 @@
 //
 //  LinearSolver.cpp
-//  Vertex2D
+//  Vortex
 //
 
 #include "LinearSolver.h"
@@ -160,4 +160,4 @@ float LinearSolver::Error::GetError()
 }
 
 }  // namespace Fluid
-}  // namespace Vortex2D
+}  // namespace Vortex

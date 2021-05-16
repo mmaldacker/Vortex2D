@@ -1,7 +1,9 @@
 //
 //  HydrostaticWaterExample.h
-//  Vortex2D
+//  Vortex
 //
+
+#pragma once
 
 #include <Vortex2D/Vortex2D.h>
 
@@ -20,9 +22,7 @@ class HydrostaticWaterExample : public Runner
   const float gravityForce = 100.0f;
 
 public:
-  HydrostaticWaterExample(const Vortex::Renderer::Device& device,
-                          const glm::ivec2& size,
-                          float dt)
+  HydrostaticWaterExample(const Vortex::Renderer::Device& device, const glm::ivec2& size, float dt)
       : gravity(device, glm::vec2(256.0f, 256.0f))
       , world(device, size, dt, 2, Vortex::Fluid::Velocity::InterpolationMode::Linear)
       , solidPhi(world.SolidDistanceField())

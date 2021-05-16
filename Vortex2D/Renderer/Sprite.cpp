@@ -1,6 +1,6 @@
 //
 //  Sprite.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "Sprite.h"
@@ -105,4 +105,4 @@ Sprite::Sprite(const Device& device, Texture& texture)
 }
 
 }  // namespace Renderer
-}  // namespace Vortex2D
+}  // namespace Vortex

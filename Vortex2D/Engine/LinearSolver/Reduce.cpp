@@ -1,6 +1,6 @@
 //
 //  Reduce.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "Reduce.h"
@@ -122,4 +122,4 @@ ReduceMax::ReduceMax(const Renderer::Device& device, const glm::ivec2& size)
 }
 
 }  // namespace Fluid
-}  // namespace Vortex2D
+}  // namespace Vortex

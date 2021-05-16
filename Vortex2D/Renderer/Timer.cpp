@@ -1,6 +1,6 @@
 //
 //  Timer.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "Timer.h"
@@ -103,4 +103,4 @@ uint64_t Timer::GetElapsedNs()
 }
 
 }  // namespace Renderer
-}  // namespace Vortex2D
+}  // namespace Vortex

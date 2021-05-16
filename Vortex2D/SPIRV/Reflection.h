@@ -1,10 +1,9 @@
 //
 //  Reflection.h
-//  Vortex2D
+//  Vortex
 //
 
-#ifndef Vortex2D_Reflection_h
-#define Vortex2D_Reflection_h
+#pragma once
 
 #include <Vortex2D/Renderer/Common.h>
 #include <Vortex2D/Renderer/DescriptorSet.h>
@@ -35,6 +34,4 @@ private:
 };
 
 }  // namespace SPIRV
-}  // namespace Vortex2D
-
-#endif
+}  // namespace Vortex

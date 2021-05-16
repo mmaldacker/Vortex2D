@@ -1,6 +1,6 @@
 //
 //  Work.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "Work.h"
@@ -191,4 +191,4 @@ void Work::Bound::RecordIndirect(vk::CommandBuffer commandBuffer,
 }
 
 }  // namespace Renderer
-}  // namespace Vortex2D
+}  // namespace Vortex

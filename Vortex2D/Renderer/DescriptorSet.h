@@ -1,10 +1,9 @@
 //
 //  DescriptorSet.h
-//  Vortex2D
+//  Vortex
 //
 
-#ifndef Vortex2d_DescriptorSet_h
-#define Vortex2d_DescriptorSet_h
+#pragma once
 
 #include <Vortex2D/Renderer/Buffer.h>
 #include <Vortex2D/Renderer/Common.h>
@@ -145,6 +144,4 @@ VORTEX2D_API void Bind(const Device& device,
                        const std::vector<BindingInput>& bindingInputs);
 
 }  // namespace Renderer
-}  // namespace Vortex2D
-
-#endif
+}  // namespace Vortex

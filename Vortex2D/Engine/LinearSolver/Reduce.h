@@ -1,10 +1,9 @@
 //
 //  Reduce.h
-//  Vortex2D
+//  Vortex
 //
 
-#ifndef Vortex2D_Reduce_h
-#define Vortex2D_Reduce_h
+#pragma once
 
 #include <Vortex2D/Renderer/CommandBuffer.h>
 #include <Vortex2D/Renderer/Work.h>
@@ -112,6 +111,4 @@ public:
 };
 
 }  // namespace Fluid
-}  // namespace Vortex2D
-
-#endif
+}  // namespace Vortex

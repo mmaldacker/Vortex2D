@@ -1,10 +1,9 @@
 //
 //  Pressure.h
-//  Vortex2D
+//  Vortex
 //
 
-#ifndef Vortex2d_Pressure_h
-#define Vortex2d_Pressure_h
+#pragma once
 
 #include <Vortex2D/Engine/LinearSolver/LinearSolver.h>
 #include <Vortex2D/Engine/Rigidbody.h>
@@ -74,6 +73,4 @@ private:
 };
 
 }  // namespace Fluid
-}  // namespace Vortex2D
-
-#endif
+}  // namespace Vortex

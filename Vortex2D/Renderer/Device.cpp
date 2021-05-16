@@ -1,6 +1,6 @@
 //
 //  Device.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "Device.h"
@@ -239,4 +239,4 @@ vk::ShaderModule Device::GetShaderModule(const SpirvBinary& spirv) const
 }
 
 }  // namespace Renderer
-}  // namespace Vortex2D
+}  // namespace Vortex

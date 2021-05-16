@@ -1,6 +1,6 @@
 //
 //  RenderState.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "RenderState.h"
@@ -36,4 +36,4 @@ bool operator==(const RenderState& left, const RenderState right)
 }
 
 }  // namespace Renderer
-}  // namespace Vortex2D
+}  // namespace Vortex

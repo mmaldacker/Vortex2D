@@ -1,6 +1,6 @@
 //
 //  Buffer.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "Buffer.h"
@@ -224,4 +224,4 @@ void GenericBuffer::CopyTo(uint32_t offset, void* data, uint32_t size)
 }
 
 }  // namespace Renderer
-}  // namespace Vortex2D
+}  // namespace Vortex

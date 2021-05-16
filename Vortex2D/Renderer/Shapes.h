@@ -1,10 +1,9 @@
 //
 //  Shapes.h
-//  Vortex2D
+//  Vortex
 //
 
-#ifndef Vortex_Shapes_h
-#define Vortex_Shapes_h
+#pragma once
 
 #include <Vortex2D/Renderer/Buffer.h>
 #include <Vortex2D/Renderer/Common.h>
@@ -132,6 +131,4 @@ private:
 };
 
 }  // namespace Renderer
-}  // namespace Vortex2D
-
-#endif
+}  // namespace Vortex

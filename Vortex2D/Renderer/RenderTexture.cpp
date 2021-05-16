@@ -71,4 +71,4 @@ void RenderTexture::Submit(RenderCommand& renderCommand)
 }
 
 }  // namespace Renderer
-}  // namespace Vortex2D
+}  // namespace Vortex

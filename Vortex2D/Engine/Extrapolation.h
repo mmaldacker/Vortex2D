@@ -1,10 +1,9 @@
 //
 //  Extrapolation.h
-//  Vortex2D
+//  Vortex
 //
 
-#ifndef Vortex2d_Extrapolation_h
-#define Vortex2d_Extrapolation_h
+#pragma once
 
 #include <Vortex2D/Engine/LevelSet.h>
 #include <Vortex2D/Engine/Velocity.h>
@@ -62,6 +61,4 @@ private:
 };
 
 }  // namespace Fluid
-}  // namespace Vortex2D
-
-#endif
+}  // namespace Vortex

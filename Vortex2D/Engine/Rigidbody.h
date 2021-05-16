@@ -1,10 +1,9 @@
 //
 //  Rigidbody.h
-//  Vortex2D
+//  Vortex
 //
 
-#ifndef Vortex2d_Rigidbody_h
-#define Vortex2d_Rigidbody_h
+#pragma once
 
 #include <Vortex2D/Engine/Boundaries.h>
 #include <Vortex2D/Engine/LinearSolver/Reduce.h>
@@ -209,6 +208,4 @@ private:
 };
 
 }  // namespace Fluid
-}  // namespace Vortex2D
-
-#endif
+}  // namespace Vortex

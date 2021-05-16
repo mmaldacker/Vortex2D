@@ -1,7 +1,9 @@
 //
 //  Verify.h
-//  Vortex2D
+//  Vortex
 //
+
+#pragma once
 
 #include <gtest/gtest.h>
 

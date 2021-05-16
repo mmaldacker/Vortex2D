@@ -1,6 +1,6 @@
 //
 //  Pipeline.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "Pipeline.h"
@@ -198,4 +198,4 @@ vk::Pipeline PipelineCache::CreateComputePipeline(vk::ShaderModule shader,
 }
 
 }  // namespace Renderer
-}  // namespace Vortex2D
+}  // namespace Vortex

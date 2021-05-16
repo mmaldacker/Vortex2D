@@ -1,6 +1,6 @@
 //
 //  Shapes.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "Shapes.h"
@@ -222,4 +222,4 @@ void Clear::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState
 }
 
 }  // namespace Renderer
-}  // namespace Vortex2D
+}  // namespace Vortex

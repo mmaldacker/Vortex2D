@@ -1,6 +1,6 @@
 //
 //  GaussSeidel.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "GaussSeidel.h"
@@ -145,4 +145,4 @@ void LocalGaussSeidel::Record(vk::CommandBuffer commandBuffer)
 }
 
 }  // namespace Fluid
-}  // namespace Vortex2D
+}  // namespace Vortex

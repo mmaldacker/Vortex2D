@@ -1,6 +1,6 @@
 //
 //  LevelSetSet.h
-//  Vortex2D
+//  Vortex
 //
 
 #include "Renderer/ShapeDrawer.h"

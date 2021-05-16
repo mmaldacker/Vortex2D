@@ -1,10 +1,9 @@
 //
 //  Cfl.h
-//  Vertex2D
+//  Vortex
 //
 
-#ifndef Vertex2D_Cfl_h
-#define Vertex2D_Cfl_h
+#pragma once
 
 #include <Vortex2D/Engine/LinearSolver/Reduce.h>
 #include <Vortex2D/Engine/Velocity.h>
@@ -49,6 +48,4 @@ private:
 };
 
 }  // namespace Fluid
-}  // namespace Vortex2D
-
-#endif
+}  // namespace Vortex

@@ -1,10 +1,9 @@
 //
 //  Transformable.h
-//  Vortex2D
+//  Vortex
 //
 
-#ifndef Vortex2d_Transformable_h
-#define Vortex2d_Transformable_h
+#pragma once
 
 #include <Vortex2D/Renderer/Common.h>
 
@@ -57,6 +56,4 @@ private:
 };
 
 }  // namespace Renderer
-}  // namespace Vortex2D
-
-#endif
+}  // namespace Vortex

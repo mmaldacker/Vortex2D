@@ -1,6 +1,6 @@
 //
 //  ExtrapolateTests.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include <Vortex2D/Engine/Extrapolation.h>

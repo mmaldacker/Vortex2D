@@ -1,10 +1,9 @@
 //
 //  Preconditioner.h
-//  Vortex2D
+//  Vortex
 //
 
-#ifndef Vortex2D_Preconditioner_h
-#define Vortex2D_Preconditioner_h
+#pragma once
 
 #include <Vortex2D/Renderer/Buffer.h>
 #include <Vortex2D/Renderer/Texture.h>
@@ -41,6 +40,4 @@ struct Preconditioner
 };
 
 }  // namespace Fluid
-}  // namespace Vortex2D
-
-#endif
+}  // namespace Vortex

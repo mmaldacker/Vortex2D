@@ -1,6 +1,6 @@
 //
 //  PrefixScan.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "PrefixScan.h"
@@ -139,4 +139,4 @@ void PrefixScan::Bound::Record(vk::CommandBuffer commandBuffer)
 }
 
 }  // namespace Fluid
-}  // namespace Vortex2D
+}  // namespace Vortex

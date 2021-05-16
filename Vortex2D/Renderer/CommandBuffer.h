@@ -1,10 +1,9 @@
 //
 //  CommandBuffer.h
-//  Vortex2D
+//  Vortex
 //
 
-#ifndef Vortex2d_CommandBuffer_h
-#define Vortex2d_CommandBuffer_h
+#pragma once
 
 #include <Vortex2D/Renderer/Common.h>
 #include <Vortex2D/Renderer/RenderTarget.h>
@@ -153,6 +152,4 @@ private:
 };
 
 }  // namespace Renderer
-}  // namespace Vortex2D
-
-#endif
+}  // namespace Vortex

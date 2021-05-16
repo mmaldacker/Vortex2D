@@ -1,6 +1,6 @@
 //
 //  LevelSet.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "LevelSet.h"
@@ -128,4 +128,4 @@ void LevelSet::Extrapolate()
 }
 
 }  // namespace Fluid
-}  // namespace Vortex2D
+}  // namespace Vortex

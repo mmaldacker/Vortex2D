@@ -102,4 +102,4 @@ void Advection::AdvectParticles()
 }
 
 }  // namespace Fluid
-}  // namespace Vortex2D
+}  // namespace Vortex

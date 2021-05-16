@@ -1,10 +1,9 @@
 //
 //  Buffer.h
-//  Vortex2D
+//  Vortex
 //
 
-#ifndef Vortex2D_Buffer_h
-#define Vortex2D_Buffer_h
+#pragma once
 
 #include <Vortex2D/Renderer/Common.h>
 #include <Vortex2D/Utils/vk_mem_alloc.h>
@@ -243,6 +242,4 @@ VORTEX2D_API void BufferBarrier(vk::Buffer buffer,
                                 vk::AccessFlags newAccess);
 
 }  // namespace Renderer
-}  // namespace Vortex2D
-
-#endif
+}  // namespace Vortex

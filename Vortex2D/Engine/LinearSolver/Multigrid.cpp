@@ -1,6 +1,6 @@
 //
 //  Multigrid.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "Multigrid.h"
@@ -323,4 +323,4 @@ void Multigrid::RecordFullCycle(vk::CommandBuffer commandBuffer)
 }
 
 }  // namespace Fluid
-}  // namespace Vortex2D
+}  // namespace Vortex

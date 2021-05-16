@@ -1,10 +1,9 @@
 //
 //  IncompletePoisson.h
-//  Vortex2D
+//  Vortex
 //
 
-#ifndef Vortex2D_IncompletePoisson_h
-#define Vortex2D_IncompletePoisson_h
+#pragma once
 
 #include <Vortex2D/Engine/LinearSolver/Preconditioner.h>
 #include <Vortex2D/Renderer/CommandBuffer.h>
@@ -37,6 +36,4 @@ private:
 };
 
 }  // namespace Fluid
-}  // namespace Vortex2D
-
-#endif
+}  // namespace Vortex

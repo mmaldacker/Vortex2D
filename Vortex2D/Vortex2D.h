@@ -1,6 +1,6 @@
 //
-//  Vortex2D.h
-//  Vortex2D
+//  Vortex.h
+//  Vortex
 //
 
 #include <Vortex2D/Renderer/CommandBuffer.h>

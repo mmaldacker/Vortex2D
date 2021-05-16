@@ -1,6 +1,6 @@
 //
 //  Pressure.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "Pressure.h"
@@ -79,4 +79,4 @@ void Pressure::ApplyPressure()
 }
 
 }  // namespace Fluid
-}  // namespace Vortex2D
+}  // namespace Vortex

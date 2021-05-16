@@ -1,7 +1,9 @@
 //
 //  Common.h
-//  Vortex2D
+//  Vortex
 //
+
+#pragma once
 
 #include <iostream>
 #include <random>
@@ -81,9 +83,7 @@ void CheckVelocity(const Vortex::Renderer::Device& device,
                    const std::vector<glm::vec2>& velocityData,
                    float error = 1e-6f);
 
-void CheckValid(const glm::ivec2& size,
-                FluidSim& sim,
-                Vortex::Renderer::Buffer<glm::ivec2>& valid);
+void CheckValid(const glm::ivec2& size, FluidSim& sim, Vortex::Renderer::Buffer<glm::ivec2>& valid);
 
 void CheckDiv(const glm::ivec2& size,
               Vortex::Renderer::Buffer<float>& buffer,

@@ -1,6 +1,6 @@
 //
 //  Cfl.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "Cfl.h"
@@ -49,4 +49,4 @@ float Cfl::Get()
 }
 
 }  // namespace Fluid
-}  // namespace Vortex2D
+}  // namespace Vortex

@@ -3,8 +3,7 @@
 //  Vortex
 //
 
-#ifndef Vortex2d_Particles_h
-#define Vortex2d_Particles_h
+#pragma once
 
 #include <Vortex2D/Engine/PrefixScan.h>
 #include <Vortex2D/Engine/Velocity.h>
@@ -126,6 +125,4 @@ private:
 };
 
 }  // namespace Fluid
-}  // namespace Vortex2D
-
-#endif
+}  // namespace Vortex

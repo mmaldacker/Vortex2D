@@ -1,6 +1,6 @@
 //
 //  Texture.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "Texture.h"
@@ -406,4 +406,4 @@ void TextureBarrier(vk::Image image,
 }
 
 }  // namespace Renderer
-}  // namespace Vortex2D
+}  // namespace Vortex

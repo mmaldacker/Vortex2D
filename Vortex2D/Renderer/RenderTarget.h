@@ -1,10 +1,9 @@
 //
 //  RenderTarget.h
-//  Vortex2D
+//  Vortex
 //
 
-#ifndef RenderTarget_h
-#define RenderTarget_h
+#pragma once
 
 #include <Vortex2D/Renderer/Common.h>
 #include <Vortex2D/Renderer/RenderState.h>
@@ -136,6 +135,4 @@ private:
 };
 
 }  // namespace Renderer
-}  // namespace Vortex2D
-
-#endif
+}  // namespace Vortex

@@ -1,10 +1,9 @@
 //
 //  LinearSolver.h
-//  Vortex2D
+//  Vortex
 //
 
-#ifndef Vortex2D_LinearSolver_h
-#define Vortex2D_LinearSolver_h
+#pragma once
 
 #include <Vortex2D/Renderer/Buffer.h>
 #include <Vortex2D/Renderer/RenderTexture.h>
@@ -216,6 +215,4 @@ VORTEX2D_API LinearSolver::Parameters FixedParams(unsigned iterations);
 VORTEX2D_API LinearSolver::Parameters IterativeParams(float errorTolerance);
 
 }  // namespace Fluid
-}  // namespace Vortex2D
-
-#endif
+}  // namespace Vortex

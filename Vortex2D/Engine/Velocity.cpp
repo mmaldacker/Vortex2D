@@ -1,6 +1,6 @@
 //
 //  Velocity.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "Velocity.h"
@@ -69,4 +69,4 @@ void Velocity::VelocityDiff()
 }
 
 }  // namespace Fluid
-}  // namespace Vortex2D
+}  // namespace Vortex

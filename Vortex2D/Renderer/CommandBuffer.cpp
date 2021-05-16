@@ -1,6 +1,6 @@
 //
 //  CommandBuffer.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "CommandBuffer.h"
@@ -289,4 +289,4 @@ RenderCommand::operator bool() const
 }
 
 }  // namespace Renderer
-}  // namespace Vortex2D
+}  // namespace Vortex

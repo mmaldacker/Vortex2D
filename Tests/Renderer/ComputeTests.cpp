@@ -1,6 +1,6 @@
 //
 //  ComputeTests.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include <gtest/gtest.h>

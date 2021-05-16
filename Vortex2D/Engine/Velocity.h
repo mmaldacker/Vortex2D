@@ -1,10 +1,9 @@
 //
 //  Velocity.h
-//  Vortex2D
+//  Vortex
 //
 
-#ifndef Vortex2d_Velocity_h
-#define Vortex2d_Velocity_h
+#pragma once
 
 #include <Vortex2D/Renderer/CommandBuffer.h>
 #include <Vortex2D/Renderer/Device.h>
@@ -85,6 +84,4 @@ private:
 };
 
 }  // namespace Fluid
-}  // namespace Vortex2D
-
-#endif
+}  // namespace Vortex

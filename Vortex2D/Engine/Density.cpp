@@ -1,6 +1,6 @@
 //
 //  Density.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "Density.h"
@@ -17,4 +17,4 @@ Density::Density(const Renderer::Device& device, const glm::ivec2& size, vk::For
 }
 
 }  // namespace Fluid
-}  // namespace Vortex2D
+}  // namespace Vortex

@@ -1,6 +1,6 @@
 //
 //  Diagonal.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "Diagonal.h"
@@ -32,4 +32,4 @@ void Diagonal::Record(vk::CommandBuffer commandBuffer)
 }
 
 }  // namespace Fluid
-}  // namespace Vortex2D
+}  // namespace Vortex

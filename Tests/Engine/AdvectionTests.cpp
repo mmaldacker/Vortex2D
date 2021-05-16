@@ -1,6 +1,6 @@
 //
 //  AdvectionTests.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include <Vortex2D/Engine/Advection.h>

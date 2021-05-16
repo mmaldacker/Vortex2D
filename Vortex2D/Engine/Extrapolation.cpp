@@ -1,6 +1,6 @@
 //
 //  Extrapolation.cpp
-//  Vortex2D
+//  Vortex
 
 #include "Extrapolation.h"
 
@@ -77,4 +77,4 @@ void Extrapolation::ConstrainVelocity()
 }
 
 }  // namespace Fluid
-}  // namespace Vortex2D
+}  // namespace Vortex

@@ -1,10 +1,9 @@
 //
 //  Work.h
-//  Vortex2D
+//  Vortex
 //
 
-#ifndef Vortex2D_Work_h
-#define Vortex2D_Work_h
+#pragma once
 
 #include <Vortex2D/Renderer/Buffer.h>
 #include <Vortex2D/Renderer/Common.h>
@@ -235,6 +234,4 @@ private:
 };
 
 }  // namespace Renderer
-}  // namespace Vortex2D
-
-#endif
+}  // namespace Vortex

@@ -1,10 +1,9 @@
 //
 //  RenderState.h
-//  Vortex2D
+//  Vortex
 //
 
-#ifndef Vortex2d_RenderState_h
-#define Vortex2d_RenderState_h
+#pragma once
 
 #include <Vortex2D/Renderer/Common.h>
 
@@ -52,6 +51,4 @@ struct RenderState
 bool operator==(const RenderState& left, const RenderState right);
 
 }  // namespace Renderer
-}  // namespace Vortex2D
-
-#endif
+}  // namespace Vortex

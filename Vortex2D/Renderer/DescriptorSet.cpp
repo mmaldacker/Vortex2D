@@ -1,6 +1,6 @@
 //
 //  DescriptorSet.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "DescriptorSet.h"
@@ -258,4 +258,4 @@ void Bind(const Device& device,
 }
 
 }  // namespace Renderer
-}  // namespace Vortex2D
+}  // namespace Vortex
