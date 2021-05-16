@@ -47,5 +47,5 @@ target_include_directories(vortex2d_examples PRIVATE
     ${box2d_SOURCE_DIR}/Box2D)
 
 if (WIN32)
-    vortex2d_copy_dll(vortex2d_examples)
+    vortex_copy_dll(vortex2d_examples)
 endif()

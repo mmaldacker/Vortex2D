@@ -143,8 +143,8 @@ if(NOT spirv_cross_POPULATED)
 endif()
 set_property(TARGET spirv-cross-core PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-vortex2d_find_package(PythonInterp REQUIRED)
-vortex2d_find_vulkan()
+vortex_find_package(PythonInterp REQUIRED)
+vortex_find_vulkan()
 
 compile_shader(SOURCES ${SHADER_SOURCES} OUTPUT "vortex_generated_spirv" VERSION 1.0)
 
@@ -228,4 +228,4 @@ install(TARGETS vortex2d
 install(DIRECTORY . DESTINATION include/Vortex
         FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp")
 
-vortex2d_export_targets()
+vortex_export_targets()
