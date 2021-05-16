@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <Vortex2D/Vortex2D.h>
+#include <Vortex/Vortex.h>
 
 #include "Rigidbody.h"
 #include "Runner.h"

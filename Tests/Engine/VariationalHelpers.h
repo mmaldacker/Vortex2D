@@ -11,12 +11,12 @@
 
 #include <gmock/gmock.h>
 
-#include <Vortex2D/Renderer/Buffer.h>
-#include <Vortex2D/Renderer/CommandBuffer.h>
-#include <Vortex2D/Renderer/Texture.h>
+#include <Vortex/Renderer/Buffer.h>
+#include <Vortex/Renderer/CommandBuffer.h>
+#include <Vortex/Renderer/Texture.h>
 
-#include <Vortex2D/Engine/LinearSolver/LinearSolver.h>
-#include <Vortex2D/Engine/Velocity.h>
+#include <Vortex/Engine/LinearSolver/LinearSolver.h>
+#include <Vortex/Engine/Velocity.h>
 
 #include "fluidsim.h"
 

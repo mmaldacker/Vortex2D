@@ -1,4 +1,4 @@
-#include <Vortex2D/Vortex2D.h>
+#include <Vortex/Vortex.h>
 
 #include <GLFW/glfw3.h>
 

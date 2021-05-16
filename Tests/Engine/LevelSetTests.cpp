@@ -7,8 +7,8 @@
 #include "VariationalHelpers.h"
 #include "Verify.h"
 
-#include <Vortex2D/Engine/LevelSet.h>
-#include <Vortex2D/Renderer/Shapes.h>
+#include <Vortex/Engine/LevelSet.h>
+#include <Vortex/Renderer/Shapes.h>
 
 using namespace Vortex::Renderer;
 using namespace Vortex::Fluid;

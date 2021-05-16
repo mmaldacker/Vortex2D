@@ -39,7 +39,7 @@ if(NOT glm_POPULATED)
     add_subdirectory(${glm_SOURCE_DIR} ${glm_BINARY_DIR})
 endif()
 
-add_subdirectory(Vortex2D)
+add_subdirectory(Vortex)
 
 if (VORTEX2D_ENABLE_EXAMPLES)
   add_subdirectory(Examples)

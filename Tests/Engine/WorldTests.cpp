@@ -3,11 +3,11 @@
 //  Vortex
 //
 
-#include <Vortex2D/Engine/Boundaries.h>
-#include <Vortex2D/Engine/Cfl.h>
-#include <Vortex2D/Engine/Density.h>
-#include <Vortex2D/Engine/Rigidbody.h>
-#include <Vortex2D/Engine/World.h>
+#include <Vortex/Engine/Boundaries.h>
+#include <Vortex/Engine/Cfl.h>
+#include <Vortex/Engine/Density.h>
+#include <Vortex/Engine/Rigidbody.h>
+#include <Vortex/Engine/World.h>
 #include <gtest/gtest.h>
 #include "VariationalHelpers.h"
 #include "Verify.h"

@@ -5,11 +5,11 @@
 
 #include <gtest/gtest.h>
 
-#include <Vortex2D/Renderer/CommandBuffer.h>
-#include <Vortex2D/Renderer/RenderTexture.h>
-#include <Vortex2D/Renderer/Shapes.h>
-#include <Vortex2D/Renderer/Sprite.h>
-#include <Vortex2D/Renderer/Texture.h>
+#include <Vortex/Renderer/CommandBuffer.h>
+#include <Vortex/Renderer/RenderTexture.h>
+#include <Vortex/Renderer/Shapes.h>
+#include <Vortex/Renderer/Sprite.h>
+#include <Vortex/Renderer/Texture.h>
 
 #include "ShapeDrawer.h"
 #include "Verify.h"

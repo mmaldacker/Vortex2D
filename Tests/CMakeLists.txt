@@ -56,15 +56,15 @@ endif()
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
-compile_shader(SOURCES ${SHADER_TEST_SOURCES} OUTPUT "vortex2d_tests_generated_spirv" VERSION 1.0)
+compile_shader(SOURCES ${SHADER_TEST_SOURCES} OUTPUT "vortex_tests_generated_spirv" VERSION 1.0)
 
 set(SOURCE_FILES
   ${ENGINE_TEST_SOURCES}
   ${RENDERER_TEST_SOURCES}
   ${SHADER_TEST_SOURCES}
   "main.cpp" "Verify.h"
-  ${CMAKE_CURRENT_BINARY_DIR}/vortex2d_tests_generated_spirv.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/vortex2d_tests_generated_spirv.h)
+  ${CMAKE_CURRENT_BINARY_DIR}/vortex_tests_generated_spirv.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/vortex_tests_generated_spirv.h)
 
 set(CMAKE_DIR "${PROJECT_SOURCE_DIR}/cmake")
 

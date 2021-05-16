@@ -3,14 +3,14 @@
 //  Vortex
 //
 
-#include <Vortex2D/Engine/LinearSolver/ConjugateGradient.h>
-#include <Vortex2D/Engine/LinearSolver/Diagonal.h>
-#include <Vortex2D/Engine/LinearSolver/GaussSeidel.h>
-#include <Vortex2D/Engine/LinearSolver/IncompletePoisson.h>
-#include <Vortex2D/Engine/LinearSolver/Multigrid.h>
-#include <Vortex2D/Engine/LinearSolver/Reduce.h>
-#include <Vortex2D/Engine/LinearSolver/Transfer.h>
-#include <Vortex2D/Engine/Pressure.h>
+#include <Vortex/Engine/LinearSolver/ConjugateGradient.h>
+#include <Vortex/Engine/LinearSolver/Diagonal.h>
+#include <Vortex/Engine/LinearSolver/GaussSeidel.h>
+#include <Vortex/Engine/LinearSolver/IncompletePoisson.h>
+#include <Vortex/Engine/LinearSolver/Multigrid.h>
+#include <Vortex/Engine/LinearSolver/Reduce.h>
+#include <Vortex/Engine/LinearSolver/Transfer.h>
+#include <Vortex/Engine/Pressure.h>
 #include "VariationalHelpers.h"
 #include "Verify.h"
 

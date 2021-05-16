@@ -8,13 +8,13 @@
 #include "box2dgeometry.h"
 #include "rigidbody.h"
 
-#include <Vortex2D/Engine/Boundaries.h>
-#include <Vortex2D/Engine/Extrapolation.h>
-#include <Vortex2D/Engine/LinearSolver/ConjugateGradient.h>
-#include <Vortex2D/Engine/LinearSolver/Diagonal.h>
-#include <Vortex2D/Engine/Pressure.h>
-#include <Vortex2D/Engine/Rigidbody.h>
-#include <Vortex2D/Renderer/RenderTexture.h>
+#include <Vortex/Engine/Boundaries.h>
+#include <Vortex/Engine/Extrapolation.h>
+#include <Vortex/Engine/LinearSolver/ConjugateGradient.h>
+#include <Vortex/Engine/LinearSolver/Diagonal.h>
+#include <Vortex/Engine/Pressure.h>
+#include <Vortex/Engine/Rigidbody.h>
+#include <Vortex/Renderer/RenderTexture.h>
 
 using namespace Vortex::Renderer;
 using namespace Vortex::Fluid;

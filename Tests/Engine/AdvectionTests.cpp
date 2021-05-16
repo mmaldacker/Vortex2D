@@ -3,9 +3,9 @@
 //  Vortex
 //
 
-#include <Vortex2D/Engine/Advection.h>
-#include <Vortex2D/Engine/Density.h>
-#include <Vortex2D/Engine/Particles.h>
+#include <Vortex/Engine/Advection.h>
+#include <Vortex/Engine/Density.h>
+#include <Vortex/Engine/Particles.h>
 #include "VariationalHelpers.h"
 #include "Verify.h"
 

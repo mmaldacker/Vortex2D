@@ -10,10 +10,10 @@
 #include <numeric>
 #include <random>
 
-#include <Vortex2D/Engine/LevelSet.h>
-#include <Vortex2D/Engine/Particles.h>
-#include <Vortex2D/Engine/PrefixScan.h>
-#include <Vortex2D/Renderer/Shapes.h>
+#include <Vortex/Engine/LevelSet.h>
+#include <Vortex/Engine/Particles.h>
+#include <Vortex/Engine/PrefixScan.h>
+#include <Vortex/Renderer/Shapes.h>
 
 using namespace Vortex::Renderer;
 using namespace Vortex::Fluid;

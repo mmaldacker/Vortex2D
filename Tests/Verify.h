@@ -10,9 +10,9 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/io.hpp>
 
-#include <Vortex2D/Engine/LinearSolver/LinearSolver.h>
-#include <Vortex2D/Renderer/Buffer.h>
-#include <Vortex2D/Renderer/Texture.h>
+#include <Vortex/Engine/LinearSolver/LinearSolver.h>
+#include <Vortex/Renderer/Buffer.h>
+#include <Vortex/Renderer/Texture.h>
 #include <vector>
 
 template <typename T>

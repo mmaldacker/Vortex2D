@@ -8,9 +8,9 @@
 #include <glm/trigonometric.hpp>
 
 #include <Box2D/Box2D.h>
-#include <Vortex2D/Engine/Boundaries.h>
-#include <Vortex2D/Engine/Rigidbody.h>
-#include <Vortex2D/Engine/World.h>
+#include <Vortex/Engine/Boundaries.h>
+#include <Vortex/Engine/Rigidbody.h>
+#include <Vortex/Engine/World.h>
 
 class Box2DSolver : public Vortex::Fluid::RigidBodySolver
 {

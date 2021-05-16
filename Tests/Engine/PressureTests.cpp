@@ -7,8 +7,8 @@
 #include "VariationalHelpers.h"
 #include "Verify.h"
 
-#include <Vortex2D/Engine/Boundaries.h>
-#include <Vortex2D/Engine/Pressure.h>
+#include <Vortex/Engine/Boundaries.h>
+#include <Vortex/Engine/Pressure.h>
 #include <iostream>
 
 using namespace Vortex::Renderer;

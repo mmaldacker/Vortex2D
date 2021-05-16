@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include <Vortex2D/Renderer/Device.h>
-#include <Vortex2D/Renderer/RenderTarget.h>
+#include <Vortex/Renderer/Device.h>
+#include <Vortex/Renderer/RenderTarget.h>
 
 class Runner
 {
