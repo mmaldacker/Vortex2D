@@ -1,6 +1,6 @@
 //
 //  BoundariesTests.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "../Renderer/ShapeDrawer.h"
@@ -8,12 +8,12 @@
 
 #include <glm/gtx/io.hpp>
 
-#include <Vortex2D/Engine/Boundaries.h>
-#include <Vortex2D/Engine/LevelSet.h>
-#include <Vortex2D/Renderer/Shapes.h>
+#include <Vortex/Engine/Boundaries.h>
+#include <Vortex/Engine/LevelSet.h>
+#include <Vortex/Renderer/Shapes.h>
 
-using namespace Vortex2D::Renderer;
-using namespace Vortex2D::Fluid;
+using namespace Vortex::Renderer;
+using namespace Vortex::Fluid;
 
 extern Device* device;
 
@@ -78,7 +78,7 @@ void DrawSignedSquare(const glm::ivec2& size,
 }
 
 void CheckLevelSet(const std::vector<float>& data,
-                   Vortex2D::Renderer::Texture& texture,
+                   Vortex::Renderer::Texture& texture,
                    float error = 1e-5f)
 {
   std::vector<float> pixels(data.size());

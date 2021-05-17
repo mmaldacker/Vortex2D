@@ -1,8 +1,8 @@
-#include <Vortex2D/Renderer/Device.h>
-#include <Vortex2D/Renderer/Instance.h>
+#include <Vortex/Renderer/Device.h>
+#include <Vortex/Renderer/Instance.h>
 #include <gtest/gtest.h>
 
-Vortex2D::Renderer::Device* device;
+Vortex::Renderer::Device* device;
 
 TEST(Vulkan, Init)
 {
@@ -27,8 +27,8 @@ int main(int argc, char** argv)
   bool debug = true;
 #endif
 
-  Vortex2D::Renderer::Instance instance("Tests", {}, debug);
-  Vortex2D::Renderer::Device device_(instance);
+  Vortex::Renderer::Instance instance("Tests", {}, debug);
+  Vortex::Renderer::Device device_(instance);
 
   device = &device_;
 

@@ -1,18 +1,18 @@
 //
 //  ExtrapolateTests.cpp
-//  Vortex2D
+//  Vortex
 //
 
-#include <Vortex2D/Engine/Extrapolation.h>
+#include <Vortex/Engine/Extrapolation.h>
 #include "VariationalHelpers.h"
 #include "Verify.h"
 
-using namespace Vortex2D::Fluid;
-using namespace Vortex2D::Renderer;
+using namespace Vortex::Fluid;
+using namespace Vortex::Renderer;
 
 extern Device* device;
 
-void PrintValid(const glm::ivec2& size, Vortex2D::Renderer::Buffer<glm::ivec2>& buffer)
+void PrintValid(const glm::ivec2& size, Vortex::Renderer::Buffer<glm::ivec2>& buffer)
 {
   std::vector<glm::ivec2> pixels(size.x * size.y);
   CopyTo(buffer, pixels);

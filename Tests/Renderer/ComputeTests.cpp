@@ -1,24 +1,24 @@
 //
 //  ComputeTests.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include <gtest/gtest.h>
 #include <fstream>
 
-#include <Vortex2D/Renderer/CommandBuffer.h>
-#include <Vortex2D/Renderer/DescriptorSet.h>
-#include <Vortex2D/Renderer/Pipeline.h>
-#include <Vortex2D/Renderer/Timer.h>
-#include <Vortex2D/Renderer/Work.h>
-#include <Vortex2D/SPIRV/Reflection.h>
+#include <Vortex/Renderer/CommandBuffer.h>
+#include <Vortex/Renderer/DescriptorSet.h>
+#include <Vortex/Renderer/Pipeline.h>
+#include <Vortex/Renderer/Timer.h>
+#include <Vortex/Renderer/Work.h>
+#include <Vortex/SPIRV/Reflection.h>
 
 #include "Verify.h"
 
-#include "vortex2d_tests_generated_spirv.h"
+#include "vortex_tests_generated_spirv.h"
 
-using namespace Vortex2D::Renderer;
-using namespace Vortex2D::SPIRV;
+using namespace Vortex::Renderer;
+using namespace Vortex::SPIRV;
 
 extern Device* device;
 

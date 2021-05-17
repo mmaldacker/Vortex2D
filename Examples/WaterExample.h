@@ -1,9 +1,11 @@
 //
 //  Water.h
-//  Vortex2D
+//  Vortex
 //
 
-#include <Vortex2D/Vortex2D.h>
+#pragma once
+
+#include <Vortex/Vortex.h>
 
 #include "Runner.h"
 
@@ -17,9 +19,9 @@ extern glm::vec4 blue;
 class WaterExample : public Runner
 {
 public:
-  WaterExample(const Vortex2D::Renderer::Device& device, const glm::ivec2& size, float dt)
+  WaterExample(const Vortex::Renderer::Device& device, const glm::ivec2& size, float dt)
       : gravity(device, {256.0f, 256.0f})
-      , world(device, size, dt, 2, Vortex2D::Fluid::Velocity::InterpolationMode::Linear)
+      , world(device, size, dt, 2, Vortex::Fluid::Velocity::InterpolationMode::Linear)
       , solidPhi(world.SolidDistanceField())
       , liquidPhi(world.LiquidDistanceField())
   {
@@ -29,20 +31,20 @@ public:
     liquidPhi.Colour = blue;
   }
 
-  void Init(const Vortex2D::Renderer::Device& device,
-            Vortex2D::Renderer::RenderTarget& renderTarget) override
+  void Init(const Vortex::Renderer::Device& device,
+            Vortex::Renderer::RenderTarget& renderTarget) override
   {
     // Add particles
-    Vortex2D::Renderer::IntRectangle fluid(device, {150.0f, 50.0f});
+    Vortex::Renderer::IntRectangle fluid(device, {150.0f, 50.0f});
     fluid.Position = {50.0f, 25.0f};
     fluid.Colour = glm::vec4(4);
 
     world.RecordParticleCount({fluid}).Submit().Wait();
 
     // Draw solid boundaries
-    Vortex2D::Fluid::Rectangle obstacle1(device, {50.0f, 25.0f});
-    Vortex2D::Fluid::Rectangle obstacle2(device, {50.0f, 25.0f});
-    Vortex2D::Fluid::Rectangle area(device, {250.0f, 250.0f}, true, 5.0f);
+    Vortex::Fluid::Rectangle obstacle1(device, {50.0f, 25.0f});
+    Vortex::Fluid::Rectangle obstacle2(device, {50.0f, 25.0f});
+    Vortex::Fluid::Rectangle area(device, {250.0f, 250.0f}, true, 5.0f);
 
     area.Position = glm::vec2(3.0f);
 
@@ -55,9 +57,9 @@ public:
     world.RecordStaticSolidPhi({area, obstacle1, obstacle2}).Submit().Wait();
 
     // Set gravity
-    velocityRender = world.RecordVelocity({gravity}, Vortex2D::Fluid::VelocityOp::Add);
+    velocityRender = world.RecordVelocity({gravity}, Vortex::Fluid::VelocityOp::Add);
 
-    Vortex2D::Renderer::ColorBlendState blendState;
+    Vortex::Renderer::ColorBlendState blendState;
     blendState.ColorBlend.setBlendEnable(true)
         .setAlphaBlendOp(vk::BlendOp::eAdd)
         .setColorBlendOp(vk::BlendOp::eAdd)
@@ -72,15 +74,15 @@ public:
   void Step() override
   {
     world.SubmitVelocity(velocityRender);
-    auto params = Vortex2D::Fluid::FixedParams(12);
+    auto params = Vortex::Fluid::FixedParams(12);
     world.Step(params);
 
     windowRender.Submit();
   }
 
 private:
-  Vortex2D::Renderer::Rectangle gravity;
-  Vortex2D::Fluid::WaterWorld world;
-  Vortex2D::Fluid::DistanceField solidPhi, liquidPhi;
-  Vortex2D::Renderer::RenderCommand velocityRender, windowRender;
+  Vortex::Renderer::Rectangle gravity;
+  Vortex::Fluid::WaterWorld world;
+  Vortex::Fluid::DistanceField solidPhi, liquidPhi;
+  Vortex::Renderer::RenderCommand velocityRender, windowRender;
 };

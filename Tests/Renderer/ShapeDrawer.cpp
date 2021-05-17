@@ -1,6 +1,6 @@
 //
 //  ShapeDrawer.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "ShapeDrawer.h"

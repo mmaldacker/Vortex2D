@@ -1,7 +1,9 @@
 //
 //  ShapeDrawer.h
-//  Vortex2D
+//  Vortex
 //
+
+#pragma once
 
 #include <glm/vec2.hpp>
 #include <vector>

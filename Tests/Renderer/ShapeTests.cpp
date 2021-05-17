@@ -1,6 +1,6 @@
 //
 //  ShapeTests.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "ShapeDrawer.h"
@@ -9,13 +9,13 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/transform.hpp>
 
-#include <Vortex2D/Renderer/CommandBuffer.h>
-#include <Vortex2D/Renderer/RenderState.h>
-#include <Vortex2D/Renderer/RenderTexture.h>
-#include <Vortex2D/Renderer/Shapes.h>
+#include <Vortex/Renderer/CommandBuffer.h>
+#include <Vortex/Renderer/RenderState.h>
+#include <Vortex/Renderer/RenderTexture.h>
+#include <Vortex/Renderer/Shapes.h>
 #include <gtest/gtest.h>
 
-using namespace Vortex2D::Renderer;
+using namespace Vortex::Renderer;
 
 extern Device* device;
 

@@ -1,21 +1,18 @@
 //
 //  Runner.h
-//  Vortex2D
+//  Vortex
 //
 
-#ifndef Examples_Runner_h
-#define Examples_Runner_h
+#pragma once
 
-#include <Vortex2D/Renderer/Device.h>
-#include <Vortex2D/Renderer/RenderTarget.h>
+#include <Vortex/Renderer/Device.h>
+#include <Vortex/Renderer/RenderTarget.h>
 
 class Runner
 {
 public:
   virtual ~Runner() {}
-  virtual void Init(const Vortex2D::Renderer::Device& device,
-                    Vortex2D::Renderer::RenderTarget& renderTarget) = 0;
+  virtual void Init(const Vortex::Renderer::Device& device,
+                    Vortex::Renderer::RenderTarget& renderTarget) = 0;
   virtual void Step() = 0;
 };
-
-#endif

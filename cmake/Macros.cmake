@@ -1,5 +1,5 @@
 # Find the requested package
-function(vortex2d_find_package)
+function(vortex_find_package)
     list(GET ARGN 0 target)
     list(REMOVE_AT ARGN 0)
 
@@ -11,7 +11,7 @@ function(vortex2d_find_package)
 endfunction()
 
 # Find the requested program
-function(vortex2d_find_program)
+function(vortex_find_program)
     if (IOS_PLATFORM)
         find_host_program(${ARGN})
     else()
@@ -19,14 +19,14 @@ function(vortex2d_find_program)
     endif()
 endfunction()
 
-set(vortex2d_macro__internal_dir ${CMAKE_CURRENT_LIST_DIR} CACHE INTERNAL "")
+set(vortex_macro__internal_dir ${CMAKE_CURRENT_LIST_DIR} CACHE INTERNAL "")
 
 # Function to compile the shaders and generate a C++ source file to include
 function(compile_shader)
     cmake_parse_arguments(SHADER "" "OUTPUT;VERSION" "SOURCES" ${ARGN})
 
     if (NOT DEFINED GLSL_VALIDATOR)
-      vortex2d_find_program(GLSL_VALIDATOR glslangValidator hints "$ENV{VULKAN_SDK}/Bin" "$ENV{VULKAN_SDK}/bin")
+      vortex_find_program(GLSL_VALIDATOR glslangValidator hints "$ENV{VULKAN_SDK}/Bin" "$ENV{VULKAN_SDK}/bin")
     elseif(NOT IS_ABSOLUTE ${GLSL_VALIDATOR})
       set(GLSL_VALIDATOR "${CMAKE_CURRENT_LIST_DIR}/${GLSL_VALIDATOR}")
     endif()
@@ -34,7 +34,7 @@ function(compile_shader)
 
     file(REMOVE "${SHADER_OUTPUT}.h" "${SHADER_OUTPUT}.cpp")
 
-    set(COMPILE_SCRIPT ${vortex2d_macro__internal_dir}/../Scripts/GenerateSPIRV.py)
+    set(COMPILE_SCRIPT ${vortex_macro__internal_dir}/../Scripts/GenerateSPIRV.py)
     add_custom_command(
        OUTPUT "${SHADER_OUTPUT}.h" "${SHADER_OUTPUT}.cpp"
        COMMAND ${PYTHON_EXECUTABLE} ${COMPILE_SCRIPT} --compiler ${GLSL_VALIDATOR} --vulkan_version ${SHADER_VERSION} --output ${SHADER_OUTPUT} ${SHADER_SOURCES}
@@ -42,7 +42,7 @@ function(compile_shader)
 endfunction()
 
 # Copy dlls
-function(vortex2d_copy_dll)
+function(vortex_copy_dll)
     list(GET ARGN 0 target)
     list(REMOVE_AT ARGN 0)
 
@@ -54,7 +54,7 @@ function(vortex2d_copy_dll)
 endfunction()
 
 # Find vulkan or MoltenVK on macOS/iOS
-function(vortex2d_find_vulkan)
+function(vortex_find_vulkan)
   if(APPLE)
     if(NOT DEFINED MOLTENVK_DIR)
       message(FATAL_ERROR "Must specify MOLTENVK_DIR")
@@ -82,7 +82,7 @@ endfunction()
 
 # Generate a Vortex2DConfig.cmake file (and associated files) from the targets registered against
 # the EXPORT name "Vortex2DConfigExport" (EXPORT parameter of install(TARGETS))
-function(vortex2d_export_targets)
+function(vortex_export_targets)
     # CMAKE_CURRENT_LIST_DIR or CMAKE_CURRENT_SOURCE_DIR not usable for files that are to be included like this one
     set(CURRENT_DIR "${PROJECT_SOURCE_DIR}/cmake")
 
@@ -110,7 +110,7 @@ function(vortex2d_export_targets)
             COMPONENT devel)
 endfunction()
 
-function(copy_vortex2d_framework target)
+function(copy_vortex_framework target)
   # Create Frameworks directory in app bundle
   add_custom_command(
       TARGET

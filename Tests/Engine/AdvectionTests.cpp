@@ -1,16 +1,16 @@
 //
 //  AdvectionTests.cpp
-//  Vortex2D
+//  Vortex
 //
 
-#include <Vortex2D/Engine/Advection.h>
-#include <Vortex2D/Engine/Density.h>
-#include <Vortex2D/Engine/Particles.h>
+#include <Vortex/Engine/Advection.h>
+#include <Vortex/Engine/Density.h>
+#include <Vortex/Engine/Particles.h>
 #include "VariationalHelpers.h"
 #include "Verify.h"
 
-using namespace Vortex2D::Renderer;
-using namespace Vortex2D::Fluid;
+using namespace Vortex::Renderer;
+using namespace Vortex::Fluid;
 
 extern Device* device;
 

@@ -1,7 +1,9 @@
 //
 //  Common.h
-//  Vortex2D
+//  Vortex
 //
+
+#pragma once
 
 #include <iostream>
 #include <random>
@@ -9,12 +11,12 @@
 
 #include <gmock/gmock.h>
 
-#include <Vortex2D/Renderer/Buffer.h>
-#include <Vortex2D/Renderer/CommandBuffer.h>
-#include <Vortex2D/Renderer/Texture.h>
+#include <Vortex/Renderer/Buffer.h>
+#include <Vortex/Renderer/CommandBuffer.h>
+#include <Vortex/Renderer/Texture.h>
 
-#include <Vortex2D/Engine/LinearSolver/LinearSolver.h>
-#include <Vortex2D/Engine/Velocity.h>
+#include <Vortex/Engine/LinearSolver/LinearSolver.h>
+#include <Vortex/Engine/Velocity.h>
 
 #include "fluidsim.h"
 
@@ -30,68 +32,66 @@ float boundary_phi(const Vec2f& position);
 float complex_boundary_phi(const Vec2f& position);
 
 void AddParticles(const glm::ivec2& size, FluidSim& sim, float (*phi)(const Vec2f&));
-void SetVelocity(const Vortex2D::Renderer::Device& device,
+void SetVelocity(const Vortex::Renderer::Device& device,
                  const glm::ivec2& size,
-                 Vortex2D::Fluid::Velocity& velocity,
+                 Vortex::Fluid::Velocity& velocity,
                  FluidSim& sim);
 
-void SetSolidPhi(const Vortex2D::Renderer::Device& device,
+void SetSolidPhi(const Vortex::Renderer::Device& device,
                  const glm::ivec2& size,
-                 Vortex2D::Renderer::Texture& solidPhi,
+                 Vortex::Renderer::Texture& solidPhi,
                  FluidSim& sim,
                  float scale = 1.0f);
 
-void SetLiquidPhi(const Vortex2D::Renderer::Device& device,
+void SetLiquidPhi(const Vortex::Renderer::Device& device,
                   const glm::ivec2& size,
-                  Vortex2D::Renderer::Texture& liquidPhi,
+                  Vortex::Renderer::Texture& liquidPhi,
                   FluidSim& sim,
                   float scale = 1.0f);
 
-void BuildInputs(const Vortex2D::Renderer::Device& device,
+void BuildInputs(const Vortex::Renderer::Device& device,
                  const glm::ivec2& size,
                  FluidSim& sim,
-                 Vortex2D::Fluid::Velocity& velocity,
-                 Vortex2D::Renderer::Texture& solidPhi,
-                 Vortex2D::Renderer::Texture& liquidPhi);
+                 Vortex::Fluid::Velocity& velocity,
+                 Vortex::Renderer::Texture& solidPhi,
+                 Vortex::Renderer::Texture& liquidPhi);
 
 void BuildLinearEquation(const glm::ivec2& size,
-                         Vortex2D::Renderer::Buffer<float>& d,
-                         Vortex2D::Renderer::Buffer<glm::vec2>& l,
-                         Vortex2D::Renderer::Buffer<float>& div,
+                         Vortex::Renderer::Buffer<float>& d,
+                         Vortex::Renderer::Buffer<glm::vec2>& l,
+                         Vortex::Renderer::Buffer<float>& div,
                          FluidSim& sim);
 
-void PrintDiagonal(const glm::ivec2& size, Vortex2D::Renderer::Buffer<float>& buffer);
+void PrintDiagonal(const glm::ivec2& size, Vortex::Renderer::Buffer<float>& buffer);
 void PrintWeights(const glm::ivec2& size, FluidSim& sim);
 
-void PrintVelocity(const Vortex2D::Renderer::Device& device,
+void PrintVelocity(const Vortex::Renderer::Device& device,
                    const glm::ivec2& size,
-                   Vortex2D::Renderer::Texture& velocity);
+                   Vortex::Renderer::Texture& velocity);
 
 void PrintVelocity(const glm::ivec2& size, FluidSim& sim);
 
-void CheckVelocity(const Vortex2D::Renderer::Device& device,
+void CheckVelocity(const Vortex::Renderer::Device& device,
                    const glm::ivec2& size,
-                   Vortex2D::Fluid::Velocity& velocity,
+                   Vortex::Fluid::Velocity& velocity,
                    FluidSim& sim,
                    float error = 1e-6f);
 
-void CheckVelocity(const Vortex2D::Renderer::Device& device,
+void CheckVelocity(const Vortex::Renderer::Device& device,
                    const glm::ivec2& size,
-                   Vortex2D::Renderer::Texture& velocity,
+                   Vortex::Renderer::Texture& velocity,
                    const std::vector<glm::vec2>& velocityData,
                    float error = 1e-6f);
 
-void CheckValid(const glm::ivec2& size,
-                FluidSim& sim,
-                Vortex2D::Renderer::Buffer<glm::ivec2>& valid);
+void CheckValid(const glm::ivec2& size, FluidSim& sim, Vortex::Renderer::Buffer<glm::ivec2>& valid);
 
 void CheckDiv(const glm::ivec2& size,
-              Vortex2D::Renderer::Buffer<float>& buffer,
+              Vortex::Renderer::Buffer<float>& buffer,
               FluidSim& sim,
               float error = 1e-6f);
 void PrintDiv(const glm::ivec2& size, FluidSim& sim);
 
 void CheckPressure(const glm::ivec2& size,
                    const std::vector<double>& pressure,
-                   Vortex2D::Renderer::Buffer<float>& bufferPressure,
+                   Vortex::Renderer::Buffer<float>& bufferPressure,
                    float error);

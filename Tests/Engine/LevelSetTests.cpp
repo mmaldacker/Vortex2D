@@ -1,17 +1,17 @@
 //
 //  LevelSetSet.h
-//  Vortex2D
+//  Vortex
 //
 
 #include "Renderer/ShapeDrawer.h"
 #include "VariationalHelpers.h"
 #include "Verify.h"
 
-#include <Vortex2D/Engine/LevelSet.h>
-#include <Vortex2D/Renderer/Shapes.h>
+#include <Vortex/Engine/LevelSet.h>
+#include <Vortex/Renderer/Shapes.h>
 
-using namespace Vortex2D::Renderer;
-using namespace Vortex2D::Fluid;
+using namespace Vortex::Renderer;
+using namespace Vortex::Fluid;
 
 extern Device* device;
 

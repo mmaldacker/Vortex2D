@@ -1,18 +1,18 @@
 //
 //  PressureTests.cpp
-//  Vortex2D
+//  Vortex
 //
 
 #include "Renderer/ShapeDrawer.h"
 #include "VariationalHelpers.h"
 #include "Verify.h"
 
-#include <Vortex2D/Engine/Boundaries.h>
-#include <Vortex2D/Engine/Pressure.h>
+#include <Vortex/Engine/Boundaries.h>
+#include <Vortex/Engine/Pressure.h>
 #include <iostream>
 
-using namespace Vortex2D::Renderer;
-using namespace Vortex2D::Fluid;
+using namespace Vortex::Renderer;
+using namespace Vortex::Fluid;
 using ::testing::_;
 using ::testing::Invoke;
 using ::testing::NiceMock;
