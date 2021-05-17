@@ -33,11 +33,6 @@ public:
   VORTEX_API void Reinitialise();
 
   /**
-   * @brief Shrink wrap wholes.
-   */
-  VORTEX_API void ShrinkWrap();
-
-  /**
    * @brief Bind a solid level set, which will be used to extrapolate into this
    * level set
    * @param solidPhi
@@ -62,12 +57,9 @@ private:
   Renderer::Work mRedistance;
   Renderer::Work::Bound mRedistanceFront;
   Renderer::Work::Bound mRedistanceBack;
-  Renderer::Work mShrinkWrap;
-  Renderer::Work::Bound mShrinkWrapBound;
 
   Renderer::CommandBuffer mExtrapolateCmd;
   Renderer::CommandBuffer mReinitialiseCmd;
-  Renderer::CommandBuffer mShrinkWrapCmd;
 };
 
 }  // namespace Fluid

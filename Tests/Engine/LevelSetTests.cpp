@@ -151,28 +151,3 @@ TEST(LevelSetTests, Extrapolate)
     EXPECT_FLOAT_EQ(-0.5f, liquidData[20 + (i + 10) * size.x]);
   }
 }
-
-TEST(LevelSetTests, ShrinkWrap)
-{
-  glm::ivec2 size(10);
-  LevelSet levelSet(*device, size);
-
-  Texture inTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
-  Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
-
-  std::vector<float> inData(size.x * size.y, -0.5f);
-  inData[6 + 5 * 5] = -0.4f;
-
-  inTexture.CopyFrom(inData);
-
-  device->Execute(
-      [&](vk::CommandBuffer commandBuffer) { levelSet.CopyFrom(commandBuffer, inTexture); });
-
-  levelSet.ShrinkWrap();
-
-  device->Execute(
-      [&](vk::CommandBuffer commandBuffer) { outTexture.CopyFrom(commandBuffer, levelSet); });
-
-  std::vector<float> outData(size.x * size.y, -0.5f);
-  CheckTexture(outData, outTexture);
-}
