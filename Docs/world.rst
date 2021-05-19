@@ -27,14 +27,14 @@ Of course, to get interesting fluid simulations, we need to set values on them. 
 
 Note that this only has to be done once. 
 
-For velocities however, the simulation needs to set the velocities at a specific time during the simulation, so instead of ourselves calling :cpp:func:`Vortex2D::Renderer::RenderCommand::Submit` we pass the :cpp:func:`Vortex2D::Renderer::RenderCommand` to the :cpp:func:`World::Fluid::World` class:
+For velocities however, the simulation needs to set the velocities at a specific time during the simulation, so instead of ourselves calling :cpp:func:`Vortex::Renderer::RenderCommand::Submit` we pass the :cpp:func:`Vortex::Renderer::RenderCommand` to the :cpp:func:`World::Fluid::World` class:
 
 .. code-block:: cpp
 
     Renderer::RenderCommand RecordVelocity(Renderer::RenderTarget::DrawableList drawables);
     void SubmitVelocity(Renderer::RenderCommand& renderCommand);
 
-Stepping through the simulation is done with the :cpp:func:`Vortex2D::Fluid::World::Step` function, which takes as parameter the number of iterations used in the linear solver.
+Stepping through the simulation is done with the :cpp:func:`Vortex::Fluid::World::Step` function, which takes as parameter the number of iterations used in the linear solver.
 This can either be a fixed number of steps, or until the error reaches a certain threshhold.
 
 .. code-block:: cpp
@@ -47,7 +47,7 @@ Smoke World
 
 This is a type of fluid simulation where the fluid area doesn't move. This is used to simulate smoke type effects by having a colored texture be advected by the velocity field.
 
-The class :cpp:class:`Vortex2D::Fluid::Density` is used for this, it is simply a texture that can be rendered (i.e. a sprite). 
+The class :cpp:class:`Vortex::Fluid::Density` is used for this, it is simply a texture that can be rendered (i.e. a sprite).
 
 The simulation is setup as so:
 

@@ -47,8 +47,8 @@ Rigid body coupling
 To have the fluid influence the rigid bodies and vice versa, 
 two functions need to be implemented by deriving:
 
- * :cpp:func:`Vortex2D::Fluid::RigidBody::ApplyForces`
- * :cpp:func:`Vortex2D::Fluid::RigidBody::ApplyVelocities`
+ * :cpp:func:`Vortex::Fluid::RigidBody::ApplyForces`
+ * :cpp:func:`Vortex::Fluid::RigidBody::ApplyVelocities`
 
 The first one has forces from the fluid applied to the rigidbody.
 The second has velocities from the rigidbody applied to the fluid.
@@ -59,7 +59,7 @@ An example implementation with Box2D is as follow:
 
     void Box2DRigidbody::ApplyForces()
     {
-      if (GetType() & Vortex2D::Fluid::RigidBody::Type::eWeak)
+      if (GetType() & Vortex::Fluid::RigidBody::Type::eWeak)
       {
         auto force = GetForces();
         b2Vec2 b2Force = {force.velocity.x, force.velocity.y};
@@ -75,7 +75,7 @@ An example implementation with Box2D is as follow:
       Position = {pos.x, pos.y};
       Rotation = glm::degrees(mBody->GetAngle());
 
-      if (GetType() & Vortex2D::Fluid::RigidBody::Type::eStatic)
+      if (GetType() & Vortex::Fluid::RigidBody::Type::eStatic)
       {
         glm::vec2 vel = {mBody->GetLinearVelocity().x, mBody->GetLinearVelocity().y};
         float angularVelocity = mBody->GetAngularVelocity();
@@ -90,7 +90,7 @@ Engine updates
 
 Finally the rigidbody also needs to be updates, in lock-step with the fluid simulation.
 
-Again, this is done by implementing :cpp:func:`Vortex2D::Fluid::RigidBody::Step`.
+Again, this is done by implementing :cpp:func:`Vortex::Fluid::RigidBody::Step`.
 
 An example implementation with Box2D:
 
