@@ -70,24 +70,24 @@ set(CMAKE_DIR "${PROJECT_SOURCE_DIR}/cmake")
 
 # create a bundle for unit-tests on ios so they can run on it.
 if (IOS_PLATFORM)
-  add_executable(vortex_tests MACOSX_BUNDLE ${SOURCE_FILES})
-  set_target_properties(vortex_tests PROPERTIES
+  add_executable(vortex2d_tests MACOSX_BUNDLE ${SOURCE_FILES})
+  set_target_properties(vortex2d_tests PROPERTIES
                         XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY ${CODE_SIGN_IDENTITY}
                         XCODE_ATTRIBUTE_DEVELOPMENT_TEAM ${DEVELOPMENT_TEAM_ID}
                         MACOSX_BUNDLE_GUI_IDENTIFIER org.vortex2d.tests
                         XCODE_ATTRIBUTE_ENABLE_TESTABILITY YES
                         XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path/Frameworks"
                         )
-  copy_vortex_framework(vortex_tests)
+  copy_vortex_framework(vortex2d_tests)
 else()
-  add_executable(vortex_tests ${SOURCE_FILES})
+  add_executable(vortex2d_tests ${SOURCE_FILES})
 endif()
 
-target_link_libraries(vortex_tests vortex2d gtest gmock gmock_main Threads::Threads fluidrigidcoupling2d_lib glm)
-target_include_directories(vortex_tests PRIVATE ./ ${CMAKE_CURRENT_BINARY_DIR})
+target_link_libraries(vortex2d_tests vortex2d gtest gmock gmock_main Threads::Threads fluidrigidcoupling2d_lib glm)
+target_include_directories(vortex2d_tests PRIVATE ./ ${CMAKE_CURRENT_BINARY_DIR})
 
 if (WIN32)
-    vortex_copy_dll(vortex_tests)
+    vortex_copy_dll(vortex2d_tests)
 endif()
 
-add_test(AllTests vortex_tests)
+add_test(AllTests vortex2d_tests)
