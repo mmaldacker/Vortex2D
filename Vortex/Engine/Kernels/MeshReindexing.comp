@@ -1,0 +1,95 @@
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+layout(local_size_x_id = 1, local_size_y_id = 2) in;
+
+layout(push_constant) uniform Consts
+{
+  int width;
+  int height;
+}consts;
+
+struct Voxel
+{
+  vec2 vertex;
+  bool has_x_edge;
+  bool has_y_edge;
+};
+
+layout(std430, binding = 0) buffer Voxels
+{
+  Voxel value[];
+}voxels;
+
+layout(std430, binding = 1) buffer Vertices
+{
+  vec2 value[];
+}vertices;
+
+layout(std430, binding = 2) buffer Indices
+{
+  int value[];
+}indices;
+
+layout(std430, binding = 3) buffer VertexCount
+{
+  int value[];
+}vertex_count;
+
+layout(std430, binding = 4) buffer IndexCount
+{
+  int value[];
+}index_count;
+
+layout(std430, binding = 5) buffer DrawIndexedIndirectCommand
+{
+    uint indexCount;
+    uint instanceCount;
+    uint firstIndex;
+    int vertexOffset;
+    uint firstInstance;
+}draw;
+
+void main()
+{
+  ivec2 pos = ivec2(gl_GlobalInvocationID);
+
+  if (pos == ivec2(0.0))
+  {
+    draw.indexCount = index_count.value[consts.width * consts.height - 1];
+    draw.instanceCount = 1;
+    draw.firstIndex = 0;
+    draw.vertexOffset = 0;
+    draw.firstInstance = 0;
+  }
+
+  if (pos.x < consts.width && pos.y < consts.height)
+  {
+    int index = pos.x + consts.width * pos.y;
+
+    // TODO won't work if a vertex goes through 0.0
+    if (voxels.value[index].vertex != vec2(0.0))
+    {
+      int vertex_index = vertex_count.value[index];
+      vertices.value[vertex_index] = voxels.value[index].vertex;
+    }
+
+    int index_index = index_count.value[index];
+    int offset = 0;
+
+    if (voxels.value[index].has_x_edge)
+    {
+      int prev_index = pos.x + (pos.y - 1) * consts.width;
+      indices.value[index_index] = vertex_count.value[prev_index];
+      indices.value[index_index + 1] = vertex_count.value[index];
+      offset = 2;
+    }
+
+    if (voxels.value[index].has_y_edge)
+    {
+      int prev_index = pos.x - 1 + pos.y * consts.width;
+      indices.value[index_index + offset] = vertex_count.value[prev_index];
+      indices.value[index_index + offset + 1] = vertex_count.value[index];
+    }
+  }
+}

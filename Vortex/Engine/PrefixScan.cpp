@@ -32,8 +32,8 @@ Renderer::ComputeSize MakeComputeSize(int size)
 }
 }  // namespace
 
-PrefixScan::PrefixScan(const Renderer::Device& device, const glm::ivec2& size)
-    : mSize(size.x * size.y)
+PrefixScan::PrefixScan(const Renderer::Device& device, int size)
+    : mSize(size)
     , mAddWork(device, Renderer::ComputeSize::Default1D(), SPIRV::PreScanAdd_comp)
     , mPreScanWork(device, Renderer::ComputeSize::Default1D(), SPIRV::PreScan_comp)
     , mPreScanStoreSumWork(device, Renderer::ComputeSize::Default1D(), SPIRV::PreScanStoreSum_comp)

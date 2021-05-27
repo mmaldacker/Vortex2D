@@ -112,7 +112,7 @@ Polygon::~Polygon() {}
 
 void Polygon::Initialize(const Renderer::RenderState& renderState)
 {
-  auto pipeline = mDevice.GetPipelineCache().CreateGraphicsPipeline(mPipeline, renderState);
+  mDevice.GetPipelineCache().CreateGraphicsPipeline(mPipeline, renderState);
 }
 
 void Polygon::Update(const glm::mat4& projection, const glm::mat4& view)
@@ -275,6 +275,89 @@ void DistanceField::Draw(vk::CommandBuffer commandBuffer, const Renderer::Render
 {
   PushConstant(commandBuffer, 0, mScale);
   AbstractSprite::Draw(commandBuffer, renderState);
+}
+
+Contour::Contour(const Renderer::Device& device,
+                 Renderer::RenderTexture& levelSet,
+                 const glm::vec2& size)
+    : mDevice(device)
+    , mSize(size)
+    , mVoxels(device, size.x * size.y)
+    , mVertices(device, size.x * size.y)
+    , mVertexCount(device, size.x * size.y)
+    , mIndexCount(device, size.x * size.y)
+    , mIndices(device, size.x * size.y * 4)
+    , mVerticesParam(device)
+    , mIndicesParam(device)
+    , mDrawParameters(device)
+    , mDualContour(device, {size}, SPIRV::DualContour_comp)
+    , mDualContourBound(mDualContour.Bind({{levelSet}, {mVoxels}, {mVertexCount}, {mIndexCount}}))
+    , mScan(device, size.x * size.y)
+    , mVerticesScanBound(mScan.Bind(mVertexCount, mVertexCount, mVerticesParam))
+    , mIndicesScanBound(mScan.Bind(mIndexCount, mIndexCount, mIndicesParam))
+    , mMeshReindexing(device, {size}, SPIRV::MeshReindexing_comp)
+    , mMeshReindexingBound(mMeshReindexing.Bind(
+          {{mVoxels}, {mVertices}, {mIndices}, {mVertexCount}, {mIndexCount}, {mDrawParameters}}))
+    , mContourCmd(device, false)
+{
+  device.Execute([&](vk::CommandBuffer commandBuffer) {
+    mVertices.Clear(commandBuffer);
+    mIndices.Clear(commandBuffer);
+    mVerticesParam.Clear(commandBuffer);
+    mIndicesParam.Clear(commandBuffer);
+    mDrawParameters.Clear(commandBuffer);
+  });
+
+  mContourCmd.Record([&](vk::CommandBuffer commandBuffer) {
+    commandBuffer.debugMarkerBeginEXT({"DualContour", {{0.47f, 0.73f, 0.58f, 1.0f}}},
+                                      mDevice.Loader());
+
+    mDualContourBound.Record(commandBuffer);
+    mVoxels.Barrier(
+        commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+
+    mVerticesScanBound.Record(commandBuffer);
+    mIndicesScanBound.Record(commandBuffer);
+
+    mMeshReindexingBound.Record(commandBuffer);
+
+    mVertices.Barrier(
+        commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+    mIndices.Barrier(
+        commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+
+    commandBuffer.debugMarkerEndEXT(mDevice.Loader());
+  });
+}
+
+void Contour::Generate()
+{
+  mContourCmd.Submit();
+}
+
+Renderer::VertexBuffer<glm::vec2>& Contour::GetVertices()
+{
+  return mVertices;
+}
+
+Renderer::IndexBuffer<std::uint32_t>& Contour::GetIndices()
+{
+  return mIndices;
+}
+
+Renderer::IndirectBuffer<Renderer::DispatchParams>& Contour::GetVerticesParam()
+{
+  return mVerticesParam;
+}
+
+Renderer::IndirectBuffer<Renderer::DispatchParams>& Contour::GetIndicesParam()
+{
+  return mIndicesParam;
+}
+
+Renderer::Buffer<vk::DrawIndexedIndirectCommand>& Contour::GetDrawParameters()
+{
+  return mDrawParameters;
 }
 
 }  // namespace Fluid

@@ -42,7 +42,7 @@ ParticleCount::ParticleCount(const Renderer::Device& device,
     , mParticleCountBound(mParticleCountWork.Bind(size, {particles, mDispatchParams, mDelta}))
     , mParticleClampWork(device, size, SPIRV::ParticleClamp_comp)
     , mParticleClampBound(mParticleClampWork.Bind(size, {mDelta}))
-    , mPrefixScan(device, size)
+    , mPrefixScan(device, size.x * size.y)
     , mPrefixScanBound(mPrefixScan.Bind(mDelta, mIndex, mNewDispatchParams))
     , mParticleBucketWork(device, Renderer::ComputeSize::Default1D(), SPIRV::ParticleBucket_comp)
     , mParticleBucketBound(

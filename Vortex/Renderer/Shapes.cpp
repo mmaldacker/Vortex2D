@@ -38,7 +38,7 @@ AbstractShape::AbstractShape(const Device& device,
 
   PipelineLayout layout = {{reflectionVert, reflectionFrag}};
   mDescriptorSet = device.GetLayoutManager().MakeDescriptorSet(layout);
-  Bind(device, mDescriptorSet, layout, {{mMVPBuffer, 0}, {mColourBuffer, 1}});
+  Bind(device, mDescriptorSet, layout, {{mMVPBuffer}, {mColourBuffer}});
 
   vk::ShaderModule vertexShader = device.GetShaderModule(SPIRV::Position_vert);
   vk::ShaderModule fragShader = device.GetShaderModule(fragName);
@@ -67,7 +67,7 @@ AbstractShape::~AbstractShape() {}
 
 void AbstractShape::Initialize(const RenderState& renderState)
 {
-  auto pipeline = mDevice.GetPipelineCache().CreateGraphicsPipeline(mPipeline, renderState);
+  mDevice.GetPipelineCache().CreateGraphicsPipeline(mPipeline, renderState);
 }
 
 void AbstractShape::Update(const glm::mat4& projection, const glm::mat4& view)
@@ -96,10 +96,7 @@ Rectangle::Rectangle(const Device& device, const glm::vec2& size)
                     {{0.0f, 0.0f},
                      {size.x, 0.0f},
                      {0.0f, size.y},
-                     {
-                         size.x,
-                         0.0f,
-                     },
+                     {size.x, 0.0f},
                      {size.x, size.y},
                      {0.0f, size.y}})
 {
@@ -111,13 +108,66 @@ IntRectangle::IntRectangle(const Device& device, const glm::vec2& size)
                     {{0.0f, 0.0f},
                      {size.x, 0.0f},
                      {0.0f, size.y},
-                     {
-                         size.x,
-                         0.0f,
-                     },
+                     {size.x, 0.0f},
                      {size.x, size.y},
                      {0.0f, size.y}})
 {
+}
+
+Mesh::Mesh(const Device& device,
+           VertexBuffer<glm::vec2>& vertexBuffer,
+           IndexBuffer<std::uint32_t>& indexBuffer,
+           Buffer<vk::DrawIndexedIndirectCommand>& parameters)
+    : mDevice(device)
+    , mMVPBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
+    , mColourBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
+    , mVertexBuffer(vertexBuffer)
+    , mIndexBuffer(indexBuffer)
+    , mParameters(parameters)
+{
+  SPIRV::Reflection reflectionVert(SPIRV::Position_vert);
+  SPIRV::Reflection reflectionFrag(SPIRV::Position_frag);
+
+  PipelineLayout layout = {{reflectionVert, reflectionFrag}};
+  mDescriptorSet = device.GetLayoutManager().MakeDescriptorSet(layout);
+  Bind(device, mDescriptorSet, layout, {{mMVPBuffer}, {mColourBuffer}});
+
+  vk::ShaderModule vertexShader = device.GetShaderModule(SPIRV::Position_vert);
+  vk::ShaderModule fragShader = device.GetShaderModule(SPIRV::Position_frag);
+
+  mPipeline = GraphicsPipeline()
+                  .Topology(vk::PrimitiveTopology::eLineList)
+                  .Shader(vertexShader, vk::ShaderStageFlagBits::eVertex)
+                  .Shader(fragShader, vk::ShaderStageFlagBits::eFragment)
+                  .VertexAttribute(0, 0, vk::Format::eR32G32Sfloat, 0)
+                  .VertexBinding(0, sizeof(glm::vec2))
+                  .Layout(mDescriptorSet.pipelineLayout);
+}
+
+void Mesh::Initialize(const RenderState& renderState)
+{
+  mDevice.GetPipelineCache().CreateGraphicsPipeline(mPipeline, renderState);
+}
+
+void Mesh::Update(const glm::mat4& projection, const glm::mat4& view)
+{
+  Transformable::Update();
+  Renderer::CopyFrom(mMVPBuffer, projection * view * GetTransform());
+  Renderer::CopyFrom(mColourBuffer, Colour);
+}
+
+void Mesh::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState)
+{
+  auto pipeline = mDevice.GetPipelineCache().CreateGraphicsPipeline(mPipeline, renderState);
+  commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline);
+  commandBuffer.bindVertexBuffers(0, {mVertexBuffer.Handle()}, {0ul});
+  commandBuffer.bindIndexBuffer(mIndexBuffer.Handle(), 0, vk::IndexType::eUint32);
+  commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
+                                   mDescriptorSet.pipelineLayout,
+                                   0,
+                                   {*mDescriptorSet.descriptorSet},
+                                   {});
+  commandBuffer.drawIndexedIndirect(mParameters.Handle(), 0, 1, 0);
 }
 
 Ellipse::Ellipse(const Device& device, const glm::vec2& radius)

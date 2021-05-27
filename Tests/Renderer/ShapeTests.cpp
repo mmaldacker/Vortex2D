@@ -46,6 +46,57 @@ TEST(ShapeTests, Square)
   CheckTexture(data, outTexture);
 }
 
+TEST(ShapeTests, Mesh)
+{
+  glm::vec2 size = {10.0f, 20.0f};
+
+  std::vector<glm::vec2> vertices = {
+      {0.0f, 0.0f}, {size.x, 0.0f}, {0.0f, size.y}, {size.x, size.y}};
+
+  VertexBuffer<glm::vec2> localVertices(*device, vertices.size(), VMA_MEMORY_USAGE_CPU_ONLY);
+  CopyFrom(localVertices, vertices);
+
+  VertexBuffer<glm::vec2> vertexBuffer(*device, vertices.size());
+  device->Execute([&](vk::CommandBuffer commandBuffer) {
+    vertexBuffer.CopyFrom(commandBuffer, localVertices);
+  });
+
+  std::vector<std::uint32_t> indices = {0, 1, 1, 3, 3, 2, 2, 0};
+
+  VertexBuffer<std::uint32_t> localIndices(*device, indices.size(), VMA_MEMORY_USAGE_CPU_ONLY);
+  CopyFrom(localIndices, indices);
+
+  IndexBuffer<std::uint32_t> indexBuffer(*device, indices.size());
+  device->Execute(
+      [&](vk::CommandBuffer commandBuffer) { indexBuffer.CopyFrom(commandBuffer, localIndices); });
+
+  Buffer<vk::DrawIndexedIndirectCommand> parameters(*device, 1, VMA_MEMORY_USAGE_CPU_ONLY);
+  auto localParameters =
+      vk::DrawIndexedIndirectCommand().setIndexCount(indices.size()).setInstanceCount(1);
+  CopyFrom(parameters, localParameters);
+
+  Mesh mesh(*device, vertexBuffer, indexBuffer, parameters);
+  mesh.Position = glm::vec2(5.0f, 7.0f);
+  mesh.Colour = glm::vec4(1.0f);
+
+  Clear clear(glm::vec4(0.0f));
+
+  RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
+  Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
+
+  texture.Record({clear, mesh}).Submit();
+
+  std::vector<float> data(50 * 50, 0.0f);
+
+  // TODO first pixel isn't drawn, why?
+  DrawSquareContour(50, 50, data, mesh.Position - glm::vec2(1.0f), size, 1.0f);
+
+  device->Execute(
+      [&](vk::CommandBuffer commandBuffer) { outTexture.CopyFrom(commandBuffer, texture); });
+
+  CheckTexture(data, outTexture);
+}
+
 TEST(ShapeTests, IntSquare)
 {
   glm::vec2 size = {10.0f, 20.0f};

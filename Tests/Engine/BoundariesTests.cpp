@@ -261,3 +261,123 @@ TEST(BoundariesTest, DistanceField)
 
   CheckTexture<glm::u8vec4>(outData, localOutput);
 }
+
+TEST(BoundariesTest, Contour)
+{
+  const glm::ivec2 size(10);
+  const int total = size.x * size.y;
+
+  RenderTexture render(*device, size.x, size.y, vk::Format::eR32Sfloat);
+
+  Vortex::Fluid::Rectangle rectangle(*device, {5, 5});
+  rectangle.Position = {2, 2};
+
+  render.Record({rectangle}).Submit().Wait();
+
+  Contour contour(*device, render, size);
+  contour.Generate();
+
+  device->Handle().waitIdle();
+
+  IndirectBuffer<DispatchParams> verticesParams(*device, VMA_MEMORY_USAGE_CPU_ONLY);
+  IndirectBuffer<DispatchParams> indicesParams(*device, VMA_MEMORY_USAGE_CPU_ONLY);
+
+  Buffer<glm::vec2> vertices(*device, total, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<std::uint32_t> indices(*device, total * 4, VMA_MEMORY_USAGE_CPU_ONLY);
+
+  device->Execute([&](vk::CommandBuffer commandBuffer) {
+    verticesParams.CopyFrom(commandBuffer, contour.GetVerticesParam());
+    indicesParams.CopyFrom(commandBuffer, contour.GetIndicesParam());
+
+    vertices.CopyFrom(commandBuffer, contour.GetVertices());
+    indices.CopyFrom(commandBuffer, contour.GetIndices());
+  });
+
+  DispatchParams params(0);
+
+  CopyTo(verticesParams, params);
+
+  std::vector<glm::vec2> localVertices(total);
+  CopyTo(vertices, localVertices);
+  localVertices.resize(params.count);
+
+  // Check all vertices are present
+  auto has_vertex = [&](auto vertex) {
+    return std::any_of(localVertices.begin(), localVertices.end(), [=](auto localVertex) {
+      return glm::floor(localVertex) == vertex;
+    });
+  };
+
+  for (int i = 0; i < 5; i++)
+  {
+    glm::vec2 top = glm::vec2{i, 0} + rectangle.Position;
+    glm::vec2 bottom = glm::vec2{i, 4} + rectangle.Position;
+
+    EXPECT_TRUE(has_vertex(top)) << "Missing " << top;
+    EXPECT_TRUE(has_vertex(bottom)) << "Missing " << bottom;
+  }
+
+  for (int j = 0; j < 5; j++)
+  {
+    glm::vec2 left = glm::vec2{0, j} + rectangle.Position;
+    glm::vec2 right = glm::vec2{4, j} + rectangle.Position;
+
+    EXPECT_TRUE(has_vertex(left)) << "Missing " << left;
+    EXPECT_TRUE(has_vertex(right)) << "Missing " << right;
+  }
+
+  EXPECT_EQ(localVertices.size(), 5 * 2 + 5 * 2 - 4);
+
+  CopyTo(indicesParams, params);
+
+  std::vector<std::uint32_t> localIndices(total * 4);
+  CopyTo(indices, localIndices);
+  localIndices.resize(params.count);
+
+  // Check all indices are present
+  auto get_vertex_index = [&](auto vertex) {
+    for (int i = 0; i < localVertices.size(); i++)
+    {
+      if (glm::floor(localVertices[i]) == vertex)
+      {
+        return i;
+      }
+    }
+
+    return -1;
+  };
+
+  auto has_index_pair = [&](auto first, auto second) {
+    for (int i = 1; i < localIndices.size(); i += 2)
+    {
+      if ((localIndices[i] == first && localIndices[i - 1] == second) ||
+          (localIndices[i] == second && localIndices[i - 1] == first))
+      {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
+  for (int i = 1; i < 5; i++)
+  {
+    glm::vec2 top = glm::vec2{i, 0} + rectangle.Position;
+    glm::vec2 bottom = glm::vec2{i, 4} + rectangle.Position;
+
+    EXPECT_TRUE(has_index_pair(get_vertex_index(top), get_vertex_index(top - glm::vec2{1, 0})));
+    EXPECT_TRUE(
+        has_index_pair(get_vertex_index(bottom), get_vertex_index(bottom - glm::vec2{1, 0})));
+  }
+
+  for (int j = 1; j < 5; j++)
+  {
+    glm::vec2 left = glm::vec2{0, j} + rectangle.Position;
+    glm::vec2 right = glm::vec2{4, j} + rectangle.Position;
+
+    EXPECT_TRUE(has_index_pair(get_vertex_index(left), get_vertex_index(left - glm::vec2{0, 1})));
+    EXPECT_TRUE(has_index_pair(get_vertex_index(right), get_vertex_index(right - glm::vec2{0, 1})));
+  }
+
+  EXPECT_EQ(localIndices.size(), (4 * 2 + 4 * 2) * 2);
+}

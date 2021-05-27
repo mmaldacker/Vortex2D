@@ -72,15 +72,15 @@ void PrintPrefixVector(const std::vector<int>& data)
 
 TEST(ParticleTests, PrefixScan)
 {
-  glm::ivec2 size(20);
+  const int size = 400;
 
   PrefixScan prefixScan(*device, size);
 
-  Buffer<int> input(*device, size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
-  Buffer<int> output(*device, size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<int> input(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<int> output(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
   Buffer<DispatchParams> dispatchParams(*device, 1, VMA_MEMORY_USAGE_CPU_ONLY);
 
-  std::vector<int> inputData = GenerateInput(size.x * size.y);
+  std::vector<int> inputData = GenerateInput(size);
   CopyFrom(input, inputData);
 
   auto bound = prefixScan.Bind(input, output, dispatchParams);
@@ -100,17 +100,46 @@ TEST(ParticleTests, PrefixScan)
   EXPECT_EQ(params.workSize.z, 1);
 }
 
-TEST(ParticleTests, PrefixScanBig)
+TEST(ParticleTests, PrefixScan_Self)
 {
-  glm::ivec2 size(100);
+  const int size = 400;
 
   PrefixScan prefixScan(*device, size);
 
-  Buffer<int> input(*device, size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
-  Buffer<int> output(*device, size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<int> input(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
   Buffer<DispatchParams> dispatchParams(*device, 1, VMA_MEMORY_USAGE_CPU_ONLY);
 
-  std::vector<int> inputData = GenerateInput(size.x * size.y);
+  std::vector<int> inputData = GenerateInput(size);
+  CopyFrom(input, inputData);
+
+  auto bound = prefixScan.Bind(input, input, dispatchParams);
+
+  device->Execute([&](vk::CommandBuffer commandBuffer) { bound.Record(commandBuffer); });
+
+  auto outputData = CalculatePrefixScan(inputData);
+  CheckBuffer(outputData, input);
+
+  DispatchParams params(0);
+  CopyTo(dispatchParams, params);
+
+  int total = outputData.back() + inputData.back();
+  EXPECT_EQ(params.count, total);
+  EXPECT_EQ(params.workSize.x, std::ceil((float)total / 256));
+  EXPECT_EQ(params.workSize.y, 1);
+  EXPECT_EQ(params.workSize.z, 1);
+}
+
+TEST(ParticleTests, PrefixScanBig)
+{
+  int size = 10000;
+
+  PrefixScan prefixScan(*device, size);
+
+  Buffer<int> input(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<int> output(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<DispatchParams> dispatchParams(*device, 1, VMA_MEMORY_USAGE_CPU_ONLY);
+
+  std::vector<int> inputData = GenerateInput(size);
   CopyFrom(input, inputData);
 
   auto bound = prefixScan.Bind(input, output, dispatchParams);

@@ -80,6 +80,33 @@ public:
 };
 
 /**
+ * @brief A solid colour mesh countour. Implements the
+ * Drawable interface and Transformable interface.
+ */
+class Mesh : public Shape
+{
+public:
+  VORTEX_API Mesh(const Device& device,
+                  VertexBuffer<glm::vec2>& vertexBuffer,
+                  IndexBuffer<std::uint32_t>& indexBuffer,
+                  Buffer<vk::DrawIndexedIndirectCommand>& parameters);
+
+  VORTEX_API void Initialize(const RenderState& renderState) override;
+  VORTEX_API void Update(const glm::mat4& projection, const glm::mat4& view) override;
+  VORTEX_API void Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState) override;
+
+protected:
+  const Device& mDevice;
+  UniformBuffer<glm::mat4> mMVPBuffer;
+  UniformBuffer<glm::vec4> mColourBuffer;
+  VertexBuffer<glm::vec2>& mVertexBuffer;
+  IndexBuffer<std::uint32_t>& mIndexBuffer;
+  Buffer<vk::DrawIndexedIndirectCommand>& mParameters;
+  DescriptorSet mDescriptorSet;
+  GraphicsPipeline mPipeline;
+};
+
+/**
  * @brief A solid colour ellipse. Implements the Drawable interface and
  * Transformable interface.
  */
