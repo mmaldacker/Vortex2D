@@ -120,6 +120,8 @@ file(GLOB SHADER_SOURCES
     "Engine/Kernels/AdvectParticles.comp"
     "Engine/Kernels/VelocityDifference.comp"
     "Engine/Kernels/VelocityMax.comp"
+    "Engine/Kernels/DualContour.comp"
+    "Engine/Kernels/MeshReindexing.comp"
     "Engine/LinearSolver/Kernels/*.comp")
 
 set(SPIRV_CROSS_CLI OFF CACHE BOOL "" FORCE)

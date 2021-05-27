@@ -1,0 +1,112 @@
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+layout(local_size_x_id = 1, local_size_y_id = 2) in;
+
+layout(push_constant) uniform Consts
+{
+  int width;
+  int height;
+}consts;
+
+layout(binding = 0, r32f) uniform image2D SolidLevelSet;
+
+struct Voxel
+{
+  vec2 vertex;
+  bool has_x_edge;
+  bool has_y_edge;
+};
+
+layout(std430, binding = 1) buffer Voxels
+{
+  Voxel value[];
+}voxels;
+
+layout(std430, binding = 2) buffer Vertices
+{
+  int value[];
+}vertices;
+
+layout(std430, binding = 3) buffer Indices
+{
+  int value[];
+}indices;
+
+vec2 dual_contour_2d_find_best_vertex(float f, vec2 f_normal, ivec2 pos)
+{
+  return vec2(pos.x + 0.5, pos.y + 0.5);
+}
+
+bool is_positive(float x)
+{
+  return x >= 0.0;
+}
+
+bool has_vertex(ivec2 pos)
+{
+  float x0y0 = imageLoad(SolidLevelSet, pos).x;
+  float x0y1 = imageLoad(SolidLevelSet, pos + ivec2(0, 1)).x;
+  float x1y0 = imageLoad(SolidLevelSet, pos + ivec2(1, 0)).x;
+  float x1y1 = imageLoad(SolidLevelSet, pos + ivec2(1, 1)).x;
+
+  if (is_positive(x0y0) != is_positive(x0y1))
+  {
+    return true;
+  }
+  if (is_positive(x1y0) != is_positive(x1y1))
+  {
+    return true;
+  }
+  if (is_positive(x0y0) != is_positive(x1y0))
+  {
+    return true;
+  }
+  if (is_positive(x0y1) != is_positive(x1y1))
+  {
+    return true;
+  }
+
+  return false;
+}
+
+void main()
+{
+  ivec2 pos = ivec2(gl_GlobalInvocationID);
+  if (pos.x < consts.width && pos.y < consts.height)
+  {
+    float f = imageLoad(SolidLevelSet, pos).x;
+    vec2 f_normal = vec2(0.0);
+
+    int index = pos.x + consts.width * pos.y;
+    if (has_vertex(pos))
+    {
+      voxels.value[index].vertex = dual_contour_2d_find_best_vertex(f, f_normal, pos);
+      vertices.value[index] = 1;
+    }
+    else
+    {
+      voxels.value[index].vertex = vec2(0.0);
+      vertices.value[index] = 0;
+    }
+
+    float fx = imageLoad(SolidLevelSet, pos + ivec2(1, 0)).x;
+    float fy = imageLoad(SolidLevelSet, pos + ivec2(0, 1)).x;
+
+    indices.value[index] = 0;
+    voxels.value[index].has_x_edge = false;
+    voxels.value[index].has_y_edge = false;
+
+    if (is_positive(f) != is_positive(fx))
+    {
+      voxels.value[index].has_x_edge = true;
+      indices.value[index] += 2;
+    }
+    if (is_positive(f) != is_positive(fy))
+    {
+      voxels.value[index].has_y_edge = true;
+      indices.value[index] += 2;
+    }
+
+  }
+}

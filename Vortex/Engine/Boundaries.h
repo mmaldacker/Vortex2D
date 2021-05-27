@@ -15,6 +15,7 @@
 #include <Vortex/Renderer/Work.h>
 
 #include <Vortex/Engine/Particles.h>
+#include <Vortex/Engine/PrefixScan.h>
 
 namespace Vortex
 {
@@ -146,6 +147,56 @@ public:
 
 private:
   float mScale;
+};
+
+/**
+ * @brief The Contour class
+ */
+class Contour
+{
+public:
+  VORTEX_API Contour(const Renderer::Device& device,
+                     Renderer::RenderTexture& levelSet,
+                     const glm::vec2& size);
+
+  struct Voxel
+  {
+    alignas(8) glm::vec2 Vertex;
+    alignas(4) bool Has_x_edge;
+    alignas(4) bool Has_y_edge;
+  };
+
+  VORTEX_API void Generate();
+
+  VORTEX_API Renderer::VertexBuffer<glm::vec2>& GetVertices();
+  VORTEX_API Renderer::IndirectBuffer<Renderer::DispatchParams>& GetVerticesParam();
+
+  VORTEX_API Renderer::IndexBuffer<std::uint32_t>& GetIndices();
+  VORTEX_API Renderer::IndirectBuffer<Renderer::DispatchParams>& GetIndicesParam();
+
+  VORTEX_API Renderer::Buffer<vk::DrawIndexedIndirectCommand>& GetDrawParameters();
+
+private:
+  const Renderer::Device& mDevice;
+  glm::vec2 mSize;
+
+  Renderer::Buffer<Voxel> mVoxels;
+  Renderer::VertexBuffer<glm::vec2> mVertices;
+  Renderer::Buffer<std::uint32_t> mVertexCount, mIndexCount;
+  Renderer::IndexBuffer<std::uint32_t> mIndices;
+  Renderer::IndirectBuffer<Renderer::DispatchParams> mVerticesParam, mIndicesParam;
+  Renderer::Buffer<vk::DrawIndexedIndirectCommand> mDrawParameters;
+
+  Renderer::Work mDualContour;
+  Renderer::Work::Bound mDualContourBound;
+
+  PrefixScan mScan;
+  PrefixScan::Bound mVerticesScanBound, mIndicesScanBound;
+
+  Renderer::Work mMeshReindexing;
+  Renderer::Work::Bound mMeshReindexingBound;
+
+  Renderer::CommandBuffer mContourCmd;
 };
 
 }  // namespace Fluid
