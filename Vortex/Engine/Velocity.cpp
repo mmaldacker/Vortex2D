@@ -21,21 +21,23 @@ Velocity::Velocity(const Renderer::Device& device, const glm::ivec2& size)
     , mSaveCopyCmd(device, false)
     , mVelocityDiffCmd(device, false)
 {
-  mSaveCopyCmd.Record(
-      [&](vk::CommandBuffer commandBuffer) { mDVelocity.CopyFrom(commandBuffer, *this); });
+  mSaveCopyCmd.Record([&](vk::CommandBuffer commandBuffer)
+                      { mDVelocity.CopyFrom(commandBuffer, *this); });
 
-  mVelocityDiffCmd.Record([&](vk::CommandBuffer commandBuffer) {
-    commandBuffer.debugMarkerBeginEXT({"Velocity diff", {{0.32f, 0.60f, 0.67f, 1.0f}}},
-                                      mDevice.Loader());
-    mVelocityDiffBound.Record(commandBuffer);
-    mOutputVelocity.Barrier(commandBuffer,
-                            vk::ImageLayout::eGeneral,
-                            vk::AccessFlagBits::eShaderWrite,
-                            vk::ImageLayout::eGeneral,
-                            vk::AccessFlagBits::eShaderRead);
-    mDVelocity.CopyFrom(commandBuffer, mOutputVelocity);
-    commandBuffer.debugMarkerEndEXT(mDevice.Loader());
-  });
+  mVelocityDiffCmd.Record(
+      [&](vk::CommandBuffer commandBuffer)
+      {
+        commandBuffer.debugMarkerBeginEXT({"Velocity diff", {{0.32f, 0.60f, 0.67f, 1.0f}}},
+                                          mDevice.Loader());
+        mVelocityDiffBound.Record(commandBuffer);
+        mOutputVelocity.Barrier(commandBuffer,
+                                vk::ImageLayout::eGeneral,
+                                vk::AccessFlagBits::eShaderWrite,
+                                vk::ImageLayout::eGeneral,
+                                vk::AccessFlagBits::eShaderRead);
+        mDVelocity.CopyFrom(commandBuffer, mOutputVelocity);
+        commandBuffer.debugMarkerEndEXT(mDevice.Loader());
+      });
 }
 
 Renderer::Texture& Velocity::Output()

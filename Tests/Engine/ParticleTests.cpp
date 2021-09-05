@@ -307,9 +307,10 @@ TEST(ParticleTests, ParticleSpawn)
                                          outParticlesData[1].Position,
                                          outParticlesData[2].Position,
                                          outParticlesData[3].Position};
-  std::sort(outParticles.begin(), outParticles.end(), [](const auto& left, const auto& right) {
-    return std::tie(left.x, left.y) < std::tie(right.x, right.y);
-  });
+  std::sort(outParticles.begin(),
+            outParticles.end(),
+            [](const auto& left, const auto& right)
+            { return std::tie(left.x, left.y) < std::tie(right.x, right.y); });
   auto it = std::adjacent_find(outParticles.begin(), outParticles.end());
   ASSERT_EQ(it, outParticles.end());
 
@@ -430,8 +431,8 @@ TEST(ParticleTests, Phi)
   device->Handle().waitIdle();
 
   Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
-  device->Execute(
-      [&](vk::CommandBuffer commandBuffer) { outTexture.CopyFrom(commandBuffer, phi); });
+  device->Execute([&](vk::CommandBuffer commandBuffer)
+                  { outTexture.CopyFrom(commandBuffer, phi); });
 
   CheckPhi(size, sim, outTexture);
 }

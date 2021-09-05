@@ -115,8 +115,8 @@ TEST(BoundariesTests, Square)
   device->Handle().waitIdle();
 
   Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
-  device->Execute(
-      [&](vk::CommandBuffer commandBuffer) { outTexture.CopyFrom(commandBuffer, levelSet); });
+  device->Execute([&](vk::CommandBuffer commandBuffer)
+                  { outTexture.CopyFrom(commandBuffer, levelSet); });
 
   CheckLevelSet(data, outTexture);
 }
@@ -144,8 +144,8 @@ TEST(BoundariesTests, InverseSquare)
   device->Handle().waitIdle();
 
   Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
-  device->Execute(
-      [&](vk::CommandBuffer commandBuffer) { outTexture.CopyFrom(commandBuffer, levelSet); });
+  device->Execute([&](vk::CommandBuffer commandBuffer)
+                  { outTexture.CopyFrom(commandBuffer, levelSet); });
 
   CheckLevelSet(data, outTexture);
 }
@@ -169,8 +169,8 @@ TEST(BoundariesTests, Circle)
   device->Handle().waitIdle();
 
   Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
-  device->Execute(
-      [&](vk::CommandBuffer commandBuffer) { outTexture.CopyFrom(commandBuffer, levelSet); });
+  device->Execute([&](vk::CommandBuffer commandBuffer)
+                  { outTexture.CopyFrom(commandBuffer, levelSet); });
 
   CheckLevelSet(data, outTexture);
 }
@@ -206,8 +206,8 @@ TEST(BoundariesTests, Intersection)
   device->Handle().waitIdle();
 
   Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
-  device->Execute(
-      [&](vk::CommandBuffer commandBuffer) { outTexture.CopyFrom(commandBuffer, levelSet); });
+  device->Execute([&](vk::CommandBuffer commandBuffer)
+                  { outTexture.CopyFrom(commandBuffer, levelSet); });
 
   CheckLevelSet(data, outTexture);
 }
@@ -235,10 +235,12 @@ TEST(BoundariesTest, DistanceField)
 
   std::vector<float> data(size.x * size.y, 0.1f);
   Texture localLevelSet(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
-  device->Execute([&](vk::CommandBuffer commandBuffer) {
-    localLevelSet.CopyFrom(data);
-    levelSet.CopyFrom(commandBuffer, localLevelSet);
-  });
+  device->Execute(
+      [&](vk::CommandBuffer commandBuffer)
+      {
+        localLevelSet.CopyFrom(data);
+        levelSet.CopyFrom(commandBuffer, localLevelSet);
+      });
 
   DistanceField distance(*device, levelSet);
   distance.Colour = glm::vec4(0.2f, 1.0f, 0.8f, 1.0f);
@@ -250,8 +252,8 @@ TEST(BoundariesTest, DistanceField)
   output.Record({distance}).Submit();
   device->Handle().waitIdle();
 
-  device->Execute(
-      [&](vk::CommandBuffer commandBuffer) { localOutput.CopyFrom(commandBuffer, output); });
+  device->Execute([&](vk::CommandBuffer commandBuffer)
+                  { localOutput.CopyFrom(commandBuffer, output); });
 
   auto r = static_cast<uint8_t>(255 * distance.Colour.r);
   auto g = static_cast<uint8_t>(255 * distance.Colour.g);
@@ -285,13 +287,15 @@ TEST(BoundariesTest, Contour)
   Buffer<glm::vec2> vertices(*device, total, VMA_MEMORY_USAGE_CPU_ONLY);
   Buffer<std::uint32_t> indices(*device, total * 4, VMA_MEMORY_USAGE_CPU_ONLY);
 
-  device->Execute([&](vk::CommandBuffer commandBuffer) {
-    verticesParams.CopyFrom(commandBuffer, contour.GetVerticesParam());
-    indicesParams.CopyFrom(commandBuffer, contour.GetIndicesParam());
+  device->Execute(
+      [&](vk::CommandBuffer commandBuffer)
+      {
+        verticesParams.CopyFrom(commandBuffer, contour.GetVerticesParam());
+        indicesParams.CopyFrom(commandBuffer, contour.GetIndicesParam());
 
-    vertices.CopyFrom(commandBuffer, contour.GetVertices());
-    indices.CopyFrom(commandBuffer, contour.GetIndices());
-  });
+        vertices.CopyFrom(commandBuffer, contour.GetVertices());
+        indices.CopyFrom(commandBuffer, contour.GetIndices());
+      });
 
   DispatchParams params(0);
 
@@ -302,10 +306,11 @@ TEST(BoundariesTest, Contour)
   localVertices.resize(params.count);
 
   // Check all vertices are present
-  auto has_vertex = [&](auto vertex) {
-    return std::any_of(localVertices.begin(), localVertices.end(), [=](auto localVertex) {
-      return glm::floor(localVertex) == vertex;
-    });
+  auto has_vertex = [&](auto vertex)
+  {
+    return std::any_of(localVertices.begin(),
+                       localVertices.end(),
+                       [=](auto localVertex) { return glm::floor(localVertex) == vertex; });
   };
 
   for (int i = 0; i < 5; i++)
@@ -335,7 +340,8 @@ TEST(BoundariesTest, Contour)
   localIndices.resize(params.count);
 
   // Check all indices are present
-  auto get_vertex_index = [&](auto vertex) {
+  auto get_vertex_index = [&](auto vertex)
+  {
     for (int i = 0; i < localVertices.size(); i++)
     {
       if (glm::floor(localVertices[i]) == vertex)
@@ -347,7 +353,8 @@ TEST(BoundariesTest, Contour)
     return -1;
   };
 
-  auto has_index_pair = [&](auto first, auto second) {
+  auto has_index_pair = [&](auto first, auto second)
+  {
     for (int i = 1; i < localIndices.size(); i += 2)
     {
       if ((localIndices[i] == first && localIndices[i - 1] == second) ||

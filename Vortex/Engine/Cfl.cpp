@@ -23,14 +23,16 @@ Cfl::Cfl(const Renderer::Device& device, const glm::ivec2& size, Velocity& veloc
 {
   mVelocityMaxBound = mVelocityMaxWork.Bind({mVelocity, mVelocityMax});
   mReduceVelocityMaxBound = mReduceVelocityMax.Bind(mVelocityMax, mCfl);
-  mVelocityMaxCmd.Record([&](vk::CommandBuffer commandBuffer) {
-    commandBuffer.debugMarkerBeginEXT({"CFL", {{0.65f, 0.97f, 0.78f, 1.0f}}}, mDevice.Loader());
+  mVelocityMaxCmd.Record(
+      [&](vk::CommandBuffer commandBuffer)
+      {
+        commandBuffer.debugMarkerBeginEXT({"CFL", {{0.65f, 0.97f, 0.78f, 1.0f}}}, mDevice.Loader());
 
-    mVelocityMaxBound.Record(commandBuffer);
-    mReduceVelocityMaxBound.Record(commandBuffer);
+        mVelocityMaxBound.Record(commandBuffer);
+        mReduceVelocityMaxBound.Record(commandBuffer);
 
-    commandBuffer.debugMarkerEndEXT(mDevice.Loader());
-  });
+        commandBuffer.debugMarkerEndEXT(mDevice.Loader());
+      });
 }
 
 void Cfl::Compute()

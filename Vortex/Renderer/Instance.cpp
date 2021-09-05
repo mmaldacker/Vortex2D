@@ -128,9 +128,8 @@ bool HasLayer(const char* extension, const std::vector<vk::LayerProperties>& ava
 {
   return std::any_of(availableExtensions.begin(),
                      availableExtensions.end(),
-                     [&](const vk::LayerProperties& layer) {
-                       return std::strcmp(extension, layer.layerName) == 0;
-                     });
+                     [&](const vk::LayerProperties& layer)
+                     { return std::strcmp(extension, layer.layerName) == 0; });
 }
 
 bool HasExtension(const char* extension,
@@ -138,9 +137,8 @@ bool HasExtension(const char* extension,
 {
   return std::any_of(availableExtensions.begin(),
                      availableExtensions.end(),
-                     [&](const vk::ExtensionProperties& layer) {
-                       return std::strcmp(extension, layer.extensionName) == 0;
-                     });
+                     [&](const vk::ExtensionProperties& layer)
+                     { return std::strcmp(extension, layer.extensionName) == 0; });
 }
 
 }  // namespace Renderer

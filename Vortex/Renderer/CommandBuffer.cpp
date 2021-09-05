@@ -208,12 +208,15 @@ RenderCommand::RenderCommand(const Device& device,
   }
 
   CommandBuffer cmd(device, true);
-  cmd.Record(renderTarget, *frameBuffer, [&](vk::CommandBuffer commandBuffer) {
-    for (auto& drawable : drawables)
-    {
-      drawable.get().Draw(commandBuffer, renderState);
-    }
-  });
+  cmd.Record(renderTarget,
+             *frameBuffer,
+             [&](vk::CommandBuffer commandBuffer)
+             {
+               for (auto& drawable : drawables)
+               {
+                 drawable.get().Draw(commandBuffer, renderState);
+               }
+             });
 
   mCmds.emplace_back(std::move(cmd));
 }
@@ -234,12 +237,15 @@ RenderCommand::RenderCommand(const Device& device,
   for (auto& frameBuffer : frameBuffers)
   {
     CommandBuffer cmd(device, true);
-    cmd.Record(renderTarget, *frameBuffer, [&](vk::CommandBuffer commandBuffer) {
-      for (auto& drawable : drawables)
-      {
-        drawable.get().Draw(commandBuffer, renderState);
-      }
-    });
+    cmd.Record(renderTarget,
+               *frameBuffer,
+               [&](vk::CommandBuffer commandBuffer)
+               {
+                 for (auto& drawable : drawables)
+                 {
+                   drawable.get().Draw(commandBuffer, renderState);
+                 }
+               });
 
     mCmds.emplace_back(std::move(cmd));
   }

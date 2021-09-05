@@ -40,8 +40,8 @@ TEST(ShapeTests, Square)
   std::vector<float> data(50 * 50, 0.0f);
   DrawSquare(50, 50, data, rect.Position, size, 1.0f);
 
-  device->Execute(
-      [&](vk::CommandBuffer commandBuffer) { outTexture.CopyFrom(commandBuffer, texture); });
+  device->Execute([&](vk::CommandBuffer commandBuffer)
+                  { outTexture.CopyFrom(commandBuffer, texture); });
 
   CheckTexture(data, outTexture);
 }
@@ -57,9 +57,8 @@ TEST(ShapeTests, Mesh)
   CopyFrom(localVertices, vertices);
 
   VertexBuffer<glm::vec2> vertexBuffer(*device, vertices.size());
-  device->Execute([&](vk::CommandBuffer commandBuffer) {
-    vertexBuffer.CopyFrom(commandBuffer, localVertices);
-  });
+  device->Execute([&](vk::CommandBuffer commandBuffer)
+                  { vertexBuffer.CopyFrom(commandBuffer, localVertices); });
 
   std::vector<std::uint32_t> indices = {0, 1, 1, 3, 3, 2, 2, 0};
 
@@ -67,8 +66,8 @@ TEST(ShapeTests, Mesh)
   CopyFrom(localIndices, indices);
 
   IndexBuffer<std::uint32_t> indexBuffer(*device, indices.size());
-  device->Execute(
-      [&](vk::CommandBuffer commandBuffer) { indexBuffer.CopyFrom(commandBuffer, localIndices); });
+  device->Execute([&](vk::CommandBuffer commandBuffer)
+                  { indexBuffer.CopyFrom(commandBuffer, localIndices); });
 
   Buffer<vk::DrawIndexedIndirectCommand> parameters(*device, 1, VMA_MEMORY_USAGE_CPU_ONLY);
   auto localParameters =
@@ -91,8 +90,8 @@ TEST(ShapeTests, Mesh)
   // TODO first pixel isn't drawn, why?
   DrawSquareContour(50, 50, data, mesh.Position - glm::vec2(1.0f), size, 1.0f);
 
-  device->Execute(
-      [&](vk::CommandBuffer commandBuffer) { outTexture.CopyFrom(commandBuffer, texture); });
+  device->Execute([&](vk::CommandBuffer commandBuffer)
+                  { outTexture.CopyFrom(commandBuffer, texture); });
 
   CheckTexture(data, outTexture);
 }
@@ -113,8 +112,8 @@ TEST(ShapeTests, IntSquare)
   std::vector<int> data(50 * 50, 0);
   DrawSquare(50, 50, data, rect.Position, size, 1);
 
-  device->Execute(
-      [&](vk::CommandBuffer commandBuffer) { outTexture.CopyFrom(commandBuffer, texture); });
+  device->Execute([&](vk::CommandBuffer commandBuffer)
+                  { outTexture.CopyFrom(commandBuffer, texture); });
 
   CheckTexture(data, outTexture);
 }
@@ -146,8 +145,8 @@ TEST(ShapeTests, MultipleSquares)
   size *= rect1.Scale;
   DrawSquare(50, 50, data, rect1.Position, size, 1.0f);
 
-  device->Execute(
-      [&](vk::CommandBuffer commandBuffer) { outTexture.CopyFrom(commandBuffer, texture); });
+  device->Execute([&](vk::CommandBuffer commandBuffer)
+                  { outTexture.CopyFrom(commandBuffer, texture); });
 
   CheckTexture(data, outTexture);
 }
@@ -168,8 +167,8 @@ TEST(ShapeTests, Circle)
   std::vector<float> data(50 * 50, 0.0f);
   DrawCircle(50, 50, data, ellipse.Position, 5.0f);
 
-  device->Execute(
-      [&](vk::CommandBuffer commandBuffer) { outTexture.CopyFrom(commandBuffer, texture); });
+  device->Execute([&](vk::CommandBuffer commandBuffer)
+                  { outTexture.CopyFrom(commandBuffer, texture); });
 
   CheckTexture(data, outTexture);
 }
@@ -192,8 +191,8 @@ TEST(ShapeTests, Ellipse)
   std::vector<float> data(50 * 50, 0.0f);
   DrawEllipse(50, 50, data, ellipse.Position, radius);
 
-  device->Execute(
-      [&](vk::CommandBuffer commandBuffer) { outTexture.CopyFrom(commandBuffer, texture); });
+  device->Execute([&](vk::CommandBuffer commandBuffer)
+                  { outTexture.CopyFrom(commandBuffer, texture); });
 
   CheckTexture(data, outTexture);
 }
@@ -219,8 +218,8 @@ TEST(ShapeTests, ScaledEllipse)
   std::vector<float> data(50 * 50, 0.0f);
   DrawEllipse(50, 50, data, ellipse.Position, radius);
 
-  device->Execute(
-      [&](vk::CommandBuffer commandBuffer) { outTexture.CopyFrom(commandBuffer, texture); });
+  device->Execute([&](vk::CommandBuffer commandBuffer)
+                  { outTexture.CopyFrom(commandBuffer, texture); });
 
   CheckTexture(data, outTexture);
 }
@@ -244,8 +243,8 @@ TEST(ShapeTests, RotatedEllipse)
   std::vector<float> data(50 * 50, 0.0f);
   DrawEllipse(50, 50, data, ellipse.Position, radius, ellipse.Rotation);
 
-  device->Execute(
-      [&](vk::CommandBuffer commandBuffer) { outTexture.CopyFrom(commandBuffer, texture); });
+  device->Execute([&](vk::CommandBuffer commandBuffer)
+                  { outTexture.CopyFrom(commandBuffer, texture); });
 
   CheckTexture(data, outTexture);
 }
@@ -272,8 +271,8 @@ TEST(ShapeTests, RenderScaledEllipse)
   std::vector<float> data(50 * 50, 0.0f);
   DrawEllipse(50, 50, data, pos, radius);
 
-  device->Execute(
-      [&](vk::CommandBuffer commandBuffer) { outTexture.CopyFrom(commandBuffer, texture); });
+  device->Execute([&](vk::CommandBuffer commandBuffer)
+                  { outTexture.CopyFrom(commandBuffer, texture); });
 
   CheckTexture(data, outTexture);
 }

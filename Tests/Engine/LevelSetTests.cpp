@@ -70,8 +70,8 @@ TEST(LevelSetTests, SimpleCircle)
 
   device->Handle().waitIdle();
 
-  device->Execute(
-      [&](vk::CommandBuffer commandBuffer) { outTexture.CopyFrom(commandBuffer, levelSet); });
+  device->Execute([&](vk::CommandBuffer commandBuffer)
+                  { outTexture.CopyFrom(commandBuffer, levelSet); });
 
   // NOTE difference should be at most 1 / sqrt(2)
   CheckDifference(outTexture, boundary_phi, 1.0f);
@@ -106,8 +106,8 @@ TEST(LevelSetTests, ComplexCircles)
 
   device->Handle().waitIdle();
 
-  device->Execute(
-      [&](vk::CommandBuffer commandBuffer) { outTexture.CopyFrom(commandBuffer, levelSet); });
+  device->Execute([&](vk::CommandBuffer commandBuffer)
+                  { outTexture.CopyFrom(commandBuffer, levelSet); });
 
   // NOTE difference should be at most 1 / sqrt(2)
   CheckDifference(outTexture, complex_boundary_phi, 1.0f);
@@ -126,8 +126,8 @@ TEST(LevelSetTests, Extrapolate)
   DrawSquare(size.x, size.y, solidData, glm::vec2(10.0f), glm::vec2(20.0f), -1.0f);
   localSolidPhi.CopyFrom(solidData);
 
-  device->Execute(
-      [&](vk::CommandBuffer commandBuffer) { solidPhi.CopyFrom(commandBuffer, localSolidPhi); });
+  device->Execute([&](vk::CommandBuffer commandBuffer)
+                  { solidPhi.CopyFrom(commandBuffer, localSolidPhi); });
 
   LevelSet liquidPhi(*device, size);
 
@@ -137,8 +137,8 @@ TEST(LevelSetTests, Extrapolate)
 
   device->Handle().waitIdle();
 
-  device->Execute(
-      [&](vk::CommandBuffer commandBuffer) { localLiquidPhi.CopyFrom(commandBuffer, liquidPhi); });
+  device->Execute([&](vk::CommandBuffer commandBuffer)
+                  { localLiquidPhi.CopyFrom(commandBuffer, liquidPhi); });
 
   std::vector<float> liquidData(size.x * size.y);
   localLiquidPhi.CopyTo(liquidData);

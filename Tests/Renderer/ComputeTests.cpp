@@ -41,10 +41,12 @@ TEST(ComputeTests, BufferCopy)
 
   CopyFrom(inBuffer, data);
 
-  device->Execute([&](vk::CommandBuffer commandBuffer) {
-    buffer.CopyFrom(commandBuffer, inBuffer);
-    outBuffer.CopyFrom(commandBuffer, buffer);
-  });
+  device->Execute(
+      [&](vk::CommandBuffer commandBuffer)
+      {
+        buffer.CopyFrom(commandBuffer, inBuffer);
+        outBuffer.CopyFrom(commandBuffer, buffer);
+      });
 
   CheckBuffer(data, outBuffer);
 }
@@ -58,8 +60,8 @@ TEST(ComputeTests, UpdateVectorBuffer)
   std::vector<float> data(size, 1.1f);
   CopyFrom(inBuffer, data);
 
-  device->Execute(
-      [&](vk::CommandBuffer commandBuffer) { outBuffer.CopyFrom(commandBuffer, inBuffer); });
+  device->Execute([&](vk::CommandBuffer commandBuffer)
+                  { outBuffer.CopyFrom(commandBuffer, inBuffer); });
 
   std::vector<float> outData(size);
   CopyTo(outBuffer, outData);
@@ -101,15 +103,17 @@ TEST(ComputeTests, BufferCompute)
   auto pipeline =
       device->GetPipelineCache().CreateComputePipeline(shader, descriptorSet.pipelineLayout);
 
-  device->Execute([&](vk::CommandBuffer commandBuffer) {
-    commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, pipeline);
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute,
-                                     descriptorSet.pipelineLayout,
-                                     0,
-                                     {*descriptorSet.descriptorSet},
-                                     {});
-    commandBuffer.dispatch(1, 1, 1);
-  });
+  device->Execute(
+      [&](vk::CommandBuffer commandBuffer)
+      {
+        commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, pipeline);
+        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute,
+                                         descriptorSet.pipelineLayout,
+                                         0,
+                                         {*descriptorSet.descriptorSet},
+                                         {});
+        commandBuffer.dispatch(1, 1, 1);
+      });
 
   std::vector<Particle> output(100);
   CopyTo(buffer, output);
@@ -145,17 +149,19 @@ TEST(ComputeTests, ImageCompute)
   auto pipeline =
       device->GetPipelineCache().CreateComputePipeline(shader, descriptorSet.pipelineLayout);
 
-  device->Execute([&](vk::CommandBuffer commandBuffer) {
-    inTexture.CopyFrom(commandBuffer, stagingTexture);
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute,
-                                     descriptorSet.pipelineLayout,
-                                     0,
-                                     {*descriptorSet.descriptorSet},
-                                     {});
-    commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, pipeline);
-    commandBuffer.dispatch(16, 16, 1);
-    stagingTexture.CopyFrom(commandBuffer, outTexture);
-  });
+  device->Execute(
+      [&](vk::CommandBuffer commandBuffer)
+      {
+        inTexture.CopyFrom(commandBuffer, stagingTexture);
+        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute,
+                                         descriptorSet.pipelineLayout,
+                                         0,
+                                         {*descriptorSet.descriptorSet},
+                                         {});
+        commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, pipeline);
+        commandBuffer.dispatch(16, 16, 1);
+        stagingTexture.CopyFrom(commandBuffer, outTexture);
+      });
 
   std::vector<float> doubleData(data.size(), 2.0f);
   CheckTexture(doubleData, stagingTexture);
@@ -207,10 +213,12 @@ TEST(ComputeTests, WorkIndirect)
   auto bound = work.Bind({buffer, dispatchParams});
 
   CommandBuffer cmd(*device, true);
-  cmd.Record([&](vk::CommandBuffer commandBuffer) {
-    buffer.Clear(commandBuffer);
-    bound.RecordIndirect(commandBuffer, dispatchParams);
-  });
+  cmd.Record(
+      [&](vk::CommandBuffer commandBuffer)
+      {
+        buffer.Clear(commandBuffer);
+        bound.RecordIndirect(commandBuffer, dispatchParams);
+      });
 
   // Run first time
   DispatchParams params(1);
@@ -267,20 +275,22 @@ TEST(ComputeTests, FloatImage)
   std::vector<glm::vec4> data(size.x * size.y, glm::vec4(2.0f, 3.0f, 0.0f, 0.0f));
   localTexture.CopyFrom(data);
 
-  device->Execute(
-      [&](vk::CommandBuffer commandBuffer) { texture.CopyFrom(commandBuffer, localTexture); });
+  device->Execute([&](vk::CommandBuffer commandBuffer)
+                  { texture.CopyFrom(commandBuffer, localTexture); });
 
   auto boundWork = work.Bind({texture});
 
-  device->Execute([&](vk::CommandBuffer commandBuffer) {
-    boundWork.Record(commandBuffer);
-    texture.Barrier(commandBuffer,
-                    vk::ImageLayout::eGeneral,
-                    vk::AccessFlagBits::eShaderWrite,
-                    vk::ImageLayout::eGeneral,
-                    vk::AccessFlagBits::eShaderRead);
-    localTexture.CopyFrom(commandBuffer, texture);
-  });
+  device->Execute(
+      [&](vk::CommandBuffer commandBuffer)
+      {
+        boundWork.Record(commandBuffer);
+        texture.Barrier(commandBuffer,
+                        vk::ImageLayout::eGeneral,
+                        vk::AccessFlagBits::eShaderWrite,
+                        vk::ImageLayout::eGeneral,
+                        vk::AccessFlagBits::eShaderRead);
+        localTexture.CopyFrom(commandBuffer, texture);
+      });
 
   CheckTexture<glm::vec4>(data, localTexture);
 }
@@ -347,11 +357,13 @@ TEST(ComputeTests, Checkerboard)
 
   auto boundWork = work.Bind({buffer});
 
-  device->Execute([&](vk::CommandBuffer commandBuffer) {
-    buffer.Clear(commandBuffer);
-    boundWork.PushConstant(commandBuffer, 1);
-    boundWork.Record(commandBuffer);
-  });
+  device->Execute(
+      [&](vk::CommandBuffer commandBuffer)
+      {
+        buffer.Clear(commandBuffer);
+        boundWork.PushConstant(commandBuffer, 1);
+        boundWork.Record(commandBuffer);
+      });
 
   std::vector<float> expectedOutput(size.x * size.y, 0.0f);
   for (int i = 0; i < size.x; i++)

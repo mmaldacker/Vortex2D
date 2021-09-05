@@ -85,10 +85,12 @@ Polygon::Polygon(const Renderer::Device& device,
       device, boundingBox.size(), VMA_MEMORY_USAGE_CPU_ONLY);
   Renderer::CopyFrom(localVertexBuffer, boundingBox);
 
-  device.Execute([&](vk::CommandBuffer commandBuffer) {
-    mPolygonVertexBuffer.CopyFrom(commandBuffer, localPolygonVertexBuffer);
-    mVertexBuffer.CopyFrom(commandBuffer, localVertexBuffer);
-  });
+  device.Execute(
+      [&](vk::CommandBuffer commandBuffer)
+      {
+        mPolygonVertexBuffer.CopyFrom(commandBuffer, localPolygonVertexBuffer);
+        mVertexBuffer.CopyFrom(commandBuffer, localVertexBuffer);
+      });
 
   SPIRV::Reflection reflectionVert(SPIRV::Position_vert);
   SPIRV::Reflection reflectionFrag(SPIRV::PolygonDist_frag);
@@ -182,9 +184,8 @@ Circle::Circle(const Renderer::Device& device, float radius, float extent)
       device, boundingBox.size(), VMA_MEMORY_USAGE_CPU_ONLY);
   Renderer::CopyFrom(localVertexBuffer, boundingBox);
 
-  device.Execute([&](vk::CommandBuffer commandBuffer) {
-    mVertexBuffer.CopyFrom(commandBuffer, localVertexBuffer);
-  });
+  device.Execute([&](vk::CommandBuffer commandBuffer)
+                 { mVertexBuffer.CopyFrom(commandBuffer, localVertexBuffer); });
 
   SPIRV::Reflection reflectionVert(SPIRV::Position_vert);
   SPIRV::Reflection reflectionFrag(SPIRV::CircleDist_frag);
@@ -233,7 +234,8 @@ void Circle::Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& 
   commandBuffer.draw(6, 1, 0, 0);
 }
 
-Renderer::ColorBlendState IntersectionBlend = [] {
+Renderer::ColorBlendState IntersectionBlend = []
+{
   Renderer::ColorBlendState blendState;
   blendState.ColorBlend.setBlendEnable(true)
       .setColorBlendOp(vk::BlendOp::eMax)
@@ -244,7 +246,8 @@ Renderer::ColorBlendState IntersectionBlend = [] {
   return blendState;
 }();
 
-Renderer::ColorBlendState UnionBlend = [] {
+Renderer::ColorBlendState UnionBlend = []
+{
   Renderer::ColorBlendState blendState;
   blendState.ColorBlend.setBlendEnable(true)
       .setColorBlendOp(vk::BlendOp::eMin)
@@ -300,34 +303,38 @@ Contour::Contour(const Renderer::Device& device,
           {{mVoxels}, {mVertices}, {mIndices}, {mVertexCount}, {mIndexCount}, {mDrawParameters}}))
     , mContourCmd(device, false)
 {
-  device.Execute([&](vk::CommandBuffer commandBuffer) {
-    mVertices.Clear(commandBuffer);
-    mIndices.Clear(commandBuffer);
-    mVerticesParam.Clear(commandBuffer);
-    mIndicesParam.Clear(commandBuffer);
-    mDrawParameters.Clear(commandBuffer);
-  });
+  device.Execute(
+      [&](vk::CommandBuffer commandBuffer)
+      {
+        mVertices.Clear(commandBuffer);
+        mIndices.Clear(commandBuffer);
+        mVerticesParam.Clear(commandBuffer);
+        mIndicesParam.Clear(commandBuffer);
+        mDrawParameters.Clear(commandBuffer);
+      });
 
-  mContourCmd.Record([&](vk::CommandBuffer commandBuffer) {
-    commandBuffer.debugMarkerBeginEXT({"DualContour", {{0.47f, 0.73f, 0.58f, 1.0f}}},
-                                      mDevice.Loader());
+  mContourCmd.Record(
+      [&](vk::CommandBuffer commandBuffer)
+      {
+        commandBuffer.debugMarkerBeginEXT({"DualContour", {{0.47f, 0.73f, 0.58f, 1.0f}}},
+                                          mDevice.Loader());
 
-    mDualContourBound.Record(commandBuffer);
-    mVoxels.Barrier(
-        commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        mDualContourBound.Record(commandBuffer);
+        mVoxels.Barrier(
+            commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
 
-    mVerticesScanBound.Record(commandBuffer);
-    mIndicesScanBound.Record(commandBuffer);
+        mVerticesScanBound.Record(commandBuffer);
+        mIndicesScanBound.Record(commandBuffer);
 
-    mMeshReindexingBound.Record(commandBuffer);
+        mMeshReindexingBound.Record(commandBuffer);
 
-    mVertices.Barrier(
-        commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-    mIndices.Barrier(
-        commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        mVertices.Barrier(
+            commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        mIndices.Barrier(
+            commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
 
-    commandBuffer.debugMarkerEndEXT(mDevice.Loader());
-  });
+        commandBuffer.debugMarkerEndEXT(mDevice.Loader());
+      });
 }
 
 void Contour::Generate()

@@ -91,9 +91,8 @@ public:
   {
     // setup callback
     glfwSetWindowUserPointer(glfwWindow, this);
-    auto func = [](GLFWwindow* window, int key, int scancode, int action, int mods) {
-      static_cast<App*>(glfwGetWindowUserPointer(window))->KeyCallback(key, action);
-    };
+    auto func = [](GLFWwindow* window, int key, int scancode, int action, int mods)
+    { static_cast<App*>(glfwGetWindowUserPointer(window))->KeyCallback(key, action); };
     glfwSetKeyCallback(glfwWindow, func);
 
     window.View = glm::scale(glm::vec3{windowScale, windowScale, 1.0f});

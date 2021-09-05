@@ -69,10 +69,14 @@ Reduce::Bound Reduce::Bind(Renderer::GenericBuffer& input, Renderer::GenericBuff
     computeSize = MakeComputeSize(computeSize.WorkSize.x);
 
     vk::Buffer buffer = buffers[i + 1]->Handle();
-    bufferBarriers.emplace_back([=](vk::CommandBuffer commandBuffer) {
-      Renderer::BufferBarrier(
-          buffer, commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-    });
+    bufferBarriers.emplace_back(
+        [=](vk::CommandBuffer commandBuffer)
+        {
+          Renderer::BufferBarrier(buffer,
+                                  commandBuffer,
+                                  vk::AccessFlagBits::eShaderWrite,
+                                  vk::AccessFlagBits::eShaderRead);
+        });
   }
 
   return Bound(mSize, bufferBarriers, std::move(bounds));

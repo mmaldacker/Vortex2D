@@ -34,14 +34,16 @@ Timer::Timer(const Device& device) : mDevice(device), mStart(device), mStop(devi
 
   mPool = device.Handle().createQueryPoolUnique(queryPoolInfo);
 
-  mStart.Record([&](vk::CommandBuffer commandBuffer) {
-    commandBuffer.resetQueryPool(*mPool, 0, 2);
-    commandBuffer.writeTimestamp(vk::PipelineStageFlagBits::eAllCommands, *mPool, 0);
-  });
+  mStart.Record(
+      [&](vk::CommandBuffer commandBuffer)
+      {
+        commandBuffer.resetQueryPool(*mPool, 0, 2);
+        commandBuffer.writeTimestamp(vk::PipelineStageFlagBits::eAllCommands, *mPool, 0);
+      });
 
-  mStop.Record([&](vk::CommandBuffer commandBuffer) {
-    commandBuffer.writeTimestamp(vk::PipelineStageFlagBits::eAllCommands, *mPool, 1);
-  });
+  mStop.Record(
+      [&](vk::CommandBuffer commandBuffer)
+      { commandBuffer.writeTimestamp(vk::PipelineStageFlagBits::eAllCommands, *mPool, 1); });
 }
 
 void Timer::Start(vk::CommandBuffer commandBuffer)

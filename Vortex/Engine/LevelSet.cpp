@@ -33,32 +33,34 @@ LevelSet::LevelSet(const Renderer::Device& device,
     , mExtrapolateCmd(device, false)
     , mReinitialiseCmd(device, false)
 {
-  mReinitialiseCmd.Record([&, reinitializeIterations](vk::CommandBuffer commandBuffer) {
-    commandBuffer.debugMarkerBeginEXT({"Reinitialise", {{0.98f, 0.49f, 0.26f, 1.0f}}},
-                                      mDevice.Loader());
+  mReinitialiseCmd.Record(
+      [&, reinitializeIterations](vk::CommandBuffer commandBuffer)
+      {
+        commandBuffer.debugMarkerBeginEXT({"Reinitialise", {{0.98f, 0.49f, 0.26f, 1.0f}}},
+                                          mDevice.Loader());
 
-    mLevelSet0.CopyFrom(commandBuffer, *this);
+        mLevelSet0.CopyFrom(commandBuffer, *this);
 
-    for (int i = 0; i < reinitializeIterations / 2; i++)
-    {
-      mRedistanceFront.PushConstant(commandBuffer, 0.1f);
-      mRedistanceFront.Record(commandBuffer);
-      mLevelSetBack.Barrier(commandBuffer,
-                            vk::ImageLayout::eGeneral,
-                            vk::AccessFlagBits::eShaderWrite,
-                            vk::ImageLayout::eGeneral,
-                            vk::AccessFlagBits::eShaderRead);
-      mRedistanceBack.PushConstant(commandBuffer, 0.1f);
-      mRedistanceBack.Record(commandBuffer);
-      Barrier(commandBuffer,
-              vk::ImageLayout::eGeneral,
-              vk::AccessFlagBits::eShaderWrite,
-              vk::ImageLayout::eGeneral,
-              vk::AccessFlagBits::eShaderRead);
-    }
+        for (int i = 0; i < reinitializeIterations / 2; i++)
+        {
+          mRedistanceFront.PushConstant(commandBuffer, 0.1f);
+          mRedistanceFront.Record(commandBuffer);
+          mLevelSetBack.Barrier(commandBuffer,
+                                vk::ImageLayout::eGeneral,
+                                vk::AccessFlagBits::eShaderWrite,
+                                vk::ImageLayout::eGeneral,
+                                vk::AccessFlagBits::eShaderRead);
+          mRedistanceBack.PushConstant(commandBuffer, 0.1f);
+          mRedistanceBack.Record(commandBuffer);
+          Barrier(commandBuffer,
+                  vk::ImageLayout::eGeneral,
+                  vk::AccessFlagBits::eShaderWrite,
+                  vk::ImageLayout::eGeneral,
+                  vk::AccessFlagBits::eShaderRead);
+        }
 
-    commandBuffer.debugMarkerEndEXT(mDevice.Loader());
-  });
+        commandBuffer.debugMarkerEndEXT(mDevice.Loader());
+      });
 }
 
 LevelSet::LevelSet(LevelSet&& other)
@@ -80,17 +82,19 @@ LevelSet::LevelSet(LevelSet&& other)
 void LevelSet::ExtrapolateBind(Renderer::Texture& solidPhi)
 {
   mExtrapolateBound = mExtrapolate.Bind({solidPhi, *this});
-  mExtrapolateCmd.Record([&](vk::CommandBuffer commandBuffer) {
-    commandBuffer.debugMarkerBeginEXT({"Extrapolate phi", {{0.53f, 0.09f, 0.16f, 1.0f}}},
-                                      mDevice.Loader());
-    mExtrapolateBound.Record(commandBuffer);
-    Barrier(commandBuffer,
-            vk::ImageLayout::eGeneral,
-            vk::AccessFlagBits::eShaderWrite,
-            vk::ImageLayout::eGeneral,
-            vk::AccessFlagBits::eShaderRead);
-    commandBuffer.debugMarkerEndEXT(mDevice.Loader());
-  });
+  mExtrapolateCmd.Record(
+      [&](vk::CommandBuffer commandBuffer)
+      {
+        commandBuffer.debugMarkerBeginEXT({"Extrapolate phi", {{0.53f, 0.09f, 0.16f, 1.0f}}},
+                                          mDevice.Loader());
+        mExtrapolateBound.Record(commandBuffer);
+        Barrier(commandBuffer,
+                vk::ImageLayout::eGeneral,
+                vk::AccessFlagBits::eShaderWrite,
+                vk::ImageLayout::eGeneral,
+                vk::AccessFlagBits::eShaderRead);
+        commandBuffer.debugMarkerEndEXT(mDevice.Loader());
+      });
 }
 
 void LevelSet::Reinitialise()

@@ -117,38 +117,40 @@ Texture::Texture(const Device& device,
 
   // Transition to eGeneral and clear texture
   // TODO perhaps have initial color or data in the constructor?
-  device.Execute([&](vk::CommandBuffer commandBuffer) {
-    if (memoryUsage != VMA_MEMORY_USAGE_CPU_ONLY)
-    {
-      Barrier(commandBuffer,
-              imageLayout,
-              vk::AccessFlagBits{},
-              vk::ImageLayout::eGeneral,
-              vk::AccessFlagBits::eTransferWrite);
+  device.Execute(
+      [&](vk::CommandBuffer commandBuffer)
+      {
+        if (memoryUsage != VMA_MEMORY_USAGE_CPU_ONLY)
+        {
+          Barrier(commandBuffer,
+                  imageLayout,
+                  vk::AccessFlagBits{},
+                  vk::ImageLayout::eGeneral,
+                  vk::AccessFlagBits::eTransferWrite);
 
-      auto clearValue = vk::ClearColorValue().setFloat32({{0.0f, 0.0f, 0.0f, 0.0f}});
+          auto clearValue = vk::ClearColorValue().setFloat32({{0.0f, 0.0f, 0.0f, 0.0f}});
 
-      commandBuffer.clearColorImage(
-          mImage,
-          vk::ImageLayout::eGeneral,
-          clearValue,
-          vk::ImageSubresourceRange{vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1});
+          commandBuffer.clearColorImage(
+              mImage,
+              vk::ImageLayout::eGeneral,
+              clearValue,
+              vk::ImageSubresourceRange{vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1});
 
-      Barrier(commandBuffer,
-              vk::ImageLayout::eGeneral,
-              vk::AccessFlagBits::eTransferWrite,
-              vk::ImageLayout::eGeneral,
-              vk::AccessFlagBits{});
-    }
-    else
-    {
-      Barrier(commandBuffer,
-              imageLayout,
-              vk::AccessFlagBits{},
-              vk::ImageLayout::eGeneral,
-              vk::AccessFlagBits{});
-    }
-  });
+          Barrier(commandBuffer,
+                  vk::ImageLayout::eGeneral,
+                  vk::AccessFlagBits::eTransferWrite,
+                  vk::ImageLayout::eGeneral,
+                  vk::AccessFlagBits{});
+        }
+        else
+        {
+          Barrier(commandBuffer,
+                  imageLayout,
+                  vk::AccessFlagBits{},
+                  vk::ImageLayout::eGeneral,
+                  vk::AccessFlagBits{});
+        }
+      });
 }
 
 Texture::~Texture()

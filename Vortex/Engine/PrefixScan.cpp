@@ -66,16 +66,18 @@ void PrefixScan::BindRecursive(std::vector<Renderer::CommandBuffer::CommandFn>& 
 
     vk::Buffer outputBuffer = output.Handle();
     vk::Buffer partialSumsBuffer = partialSums.Handle();
-    bufferBarriers.emplace_back([=](vk::CommandBuffer commandBuffer) {
-      Renderer::BufferBarrier(outputBuffer,
-                              commandBuffer,
-                              vk::AccessFlagBits::eShaderWrite,
-                              vk::AccessFlagBits::eShaderRead);
-      Renderer::BufferBarrier(partialSumsBuffer,
-                              commandBuffer,
-                              vk::AccessFlagBits::eShaderWrite,
-                              vk::AccessFlagBits::eShaderRead);
-    });
+    bufferBarriers.emplace_back(
+        [=](vk::CommandBuffer commandBuffer)
+        {
+          Renderer::BufferBarrier(outputBuffer,
+                                  commandBuffer,
+                                  vk::AccessFlagBits::eShaderWrite,
+                                  vk::AccessFlagBits::eShaderRead);
+          Renderer::BufferBarrier(partialSumsBuffer,
+                                  commandBuffer,
+                                  vk::AccessFlagBits::eShaderWrite,
+                                  vk::AccessFlagBits::eShaderRead);
+        });
 
     BindRecursive(bufferBarriers,
                   bound,
@@ -86,28 +88,32 @@ void PrefixScan::BindRecursive(std::vector<Renderer::CommandBuffer::CommandFn>& 
                   level + 1);
 
     bound.emplace_back(mAddWork.Bind(computeSize, {partialSums, output}));
-    bufferBarriers.emplace_back([=](vk::CommandBuffer commandBuffer) {
-      Renderer::BufferBarrier(outputBuffer,
-                              commandBuffer,
-                              vk::AccessFlagBits::eShaderWrite,
-                              vk::AccessFlagBits::eShaderRead);
-    });
+    bufferBarriers.emplace_back(
+        [=](vk::CommandBuffer commandBuffer)
+        {
+          Renderer::BufferBarrier(outputBuffer,
+                                  commandBuffer,
+                                  vk::AccessFlagBits::eShaderWrite,
+                                  vk::AccessFlagBits::eShaderRead);
+        });
   }
   else
   {
     bound.emplace_back(mPreScanWork.Bind(computeSize, {input, output, dispatchParams}));
     vk::Buffer outputBuffer = output.Handle();
     vk::Buffer dispatchBuffer = dispatchParams.Handle();
-    bufferBarriers.emplace_back([=](vk::CommandBuffer commandBuffer) {
-      Renderer::BufferBarrier(outputBuffer,
-                              commandBuffer,
-                              vk::AccessFlagBits::eShaderWrite,
-                              vk::AccessFlagBits::eShaderRead);
-      Renderer::BufferBarrier(dispatchBuffer,
-                              commandBuffer,
-                              vk::AccessFlagBits::eShaderWrite,
-                              vk::AccessFlagBits::eShaderRead);
-    });
+    bufferBarriers.emplace_back(
+        [=](vk::CommandBuffer commandBuffer)
+        {
+          Renderer::BufferBarrier(outputBuffer,
+                                  commandBuffer,
+                                  vk::AccessFlagBits::eShaderWrite,
+                                  vk::AccessFlagBits::eShaderRead);
+          Renderer::BufferBarrier(dispatchBuffer,
+                                  commandBuffer,
+                                  vk::AccessFlagBits::eShaderWrite,
+                                  vk::AccessFlagBits::eShaderRead);
+        });
   }
 }
 

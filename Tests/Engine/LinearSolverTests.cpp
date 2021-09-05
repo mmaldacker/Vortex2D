@@ -129,10 +129,12 @@ TEST(LinearSolverTests, Transfer_Prolongate)
   CopyFrom(input, data);
 
   t.ProlongateBind(0, fineSize, output, fineDiagonal, input, coarseDiagonal);
-  device->Execute([&](vk::CommandBuffer commandBuffer) {
-    output.Clear(commandBuffer);
-    t.Prolongate(commandBuffer, 0);
-  });
+  device->Execute(
+      [&](vk::CommandBuffer commandBuffer)
+      {
+        output.Clear(commandBuffer);
+        t.Prolongate(commandBuffer, 0);
+      });
 
   std::vector<float> outputData(fineSize.x * fineSize.y, 0.0f);
   CopyTo(output, outputData);

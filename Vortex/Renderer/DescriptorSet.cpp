@@ -53,10 +53,10 @@ void LayoutManager::CreateDescriptorPool(int size)
 
 vk::DescriptorSetLayout LayoutManager::GetDescriptorSetLayout(const PipelineLayout& layout)
 {
-  auto it = std::find_if(
-      mDescriptorSetLayouts.begin(),
-      mDescriptorSetLayouts.end(),
-      [&](const auto& descriptorSetLayout) { return std::get<0>(descriptorSetLayout) == layout; });
+  auto it = std::find_if(mDescriptorSetLayouts.begin(),
+                         mDescriptorSetLayouts.end(),
+                         [&](const auto& descriptorSetLayout)
+                         { return std::get<0>(descriptorSetLayout) == layout; });
 
   if (it == mDescriptorSetLayouts.end())
   {
@@ -86,10 +86,10 @@ vk::DescriptorSetLayout LayoutManager::GetDescriptorSetLayout(const PipelineLayo
 
 vk::PipelineLayout LayoutManager::GetPipelineLayout(const PipelineLayout& layout)
 {
-  auto it = std::find_if(
-      mPipelineLayouts.begin(), mPipelineLayouts.end(), [&](const auto& pipelineLayout) {
-        return std::get<0>(pipelineLayout) == layout;
-      });
+  auto it = std::find_if(mPipelineLayouts.begin(),
+                         mPipelineLayouts.end(),
+                         [&](const auto& pipelineLayout)
+                         { return std::get<0>(pipelineLayout) == layout; });
 
   if (it == mPipelineLayouts.end())
   {
@@ -192,7 +192,8 @@ void Bind(const Device& device,
   for (std::size_t i = 0; i < bindingInputs.size(); i++)
   {
     bindingInputs[i].Input.match(
-        [&](Renderer::GenericBuffer* buffer) {
+        [&](Renderer::GenericBuffer* buffer)
+        {
           uint32_t bind = bindingInputs[i].Bind == BindingInput::DefaultBind
                               ? static_cast<uint32_t>(i)
                               : bindingInputs[i].Bind;
@@ -222,7 +223,8 @@ void Bind(const Device& device,
             assert(false);
           }
         },
-        [&](DescriptorImage image) {
+        [&](DescriptorImage image)
+        {
           uint32_t bind = bindingInputs[i].Bind == BindingInput::DefaultBind
                               ? static_cast<uint32_t>(i)
                               : bindingInputs[i].Bind;

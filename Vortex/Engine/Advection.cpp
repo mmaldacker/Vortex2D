@@ -37,14 +37,16 @@ Advection::Advection(const Renderer::Device& device,
     , mAdvectCmd(device, false)
     , mAdvectParticlesCmd(device, false)
 {
-  mAdvectVelocityCmd.Record([&](vk::CommandBuffer commandBuffer) {
-    commandBuffer.debugMarkerBeginEXT({"Velocity advect", {{0.15f, 0.46f, 0.19f, 1.0f}}},
-                                      mDevice.Loader());
-    mVelocityAdvectBound.PushConstant(commandBuffer, dt);
-    mVelocityAdvectBound.Record(commandBuffer);
-    velocity.CopyBack(commandBuffer);
-    commandBuffer.debugMarkerEndEXT(mDevice.Loader());
-  });
+  mAdvectVelocityCmd.Record(
+      [&](vk::CommandBuffer commandBuffer)
+      {
+        commandBuffer.debugMarkerBeginEXT({"Velocity advect", {{0.15f, 0.46f, 0.19f, 1.0f}}},
+                                          mDevice.Loader());
+        mVelocityAdvectBound.PushConstant(commandBuffer, dt);
+        mVelocityAdvectBound.Record(commandBuffer);
+        velocity.CopyBack(commandBuffer);
+        commandBuffer.debugMarkerEndEXT(mDevice.Loader());
+      });
 }
 
 void Advection::AdvectVelocity()
@@ -55,19 +57,21 @@ void Advection::AdvectVelocity()
 void Advection::AdvectBind(Density& density)
 {
   mAdvectBound = mAdvect.Bind({mVelocity, density, density.mFieldBack});
-  mAdvectCmd.Record([&](vk::CommandBuffer commandBuffer) {
-    commandBuffer.debugMarkerBeginEXT({"Density advect", {{0.86f, 0.14f, 0.52f, 1.0f}}},
-                                      mDevice.Loader());
-    mAdvectBound.PushConstant(commandBuffer, mDt);
-    mAdvectBound.Record(commandBuffer);
-    density.mFieldBack.Barrier(commandBuffer,
-                               vk::ImageLayout::eGeneral,
-                               vk::AccessFlagBits::eShaderWrite,
-                               vk::ImageLayout::eGeneral,
-                               vk::AccessFlagBits::eShaderRead);
-    density.CopyFrom(commandBuffer, density.mFieldBack);
-    commandBuffer.debugMarkerEndEXT(mDevice.Loader());
-  });
+  mAdvectCmd.Record(
+      [&](vk::CommandBuffer commandBuffer)
+      {
+        commandBuffer.debugMarkerBeginEXT({"Density advect", {{0.86f, 0.14f, 0.52f, 1.0f}}},
+                                          mDevice.Loader());
+        mAdvectBound.PushConstant(commandBuffer, mDt);
+        mAdvectBound.Record(commandBuffer);
+        density.mFieldBack.Barrier(commandBuffer,
+                                   vk::ImageLayout::eGeneral,
+                                   vk::AccessFlagBits::eShaderWrite,
+                                   vk::ImageLayout::eGeneral,
+                                   vk::AccessFlagBits::eShaderRead);
+        density.CopyFrom(commandBuffer, density.mFieldBack);
+        commandBuffer.debugMarkerEndEXT(mDevice.Loader());
+      });
 }
 
 void Advection::Advect()
@@ -85,15 +89,17 @@ void Advection::AdvectParticleBind(
 {
   mAdvectParticlesBound =
       mAdvectParticles.Bind(mSize, {particles, dispatchParams, mVelocity, levelSet});
-  mAdvectParticlesCmd.Record([&](vk::CommandBuffer commandBuffer) {
-    commandBuffer.debugMarkerBeginEXT({"Particle advect", {{0.09f, 0.17f, 0.36f, 1.0f}}},
-                                      mDevice.Loader());
-    mAdvectParticlesBound.PushConstant(commandBuffer, mDt);
-    mAdvectParticlesBound.RecordIndirect(commandBuffer, dispatchParams);
-    particles.Barrier(
-        commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-    commandBuffer.debugMarkerEndEXT(mDevice.Loader());
-  });
+  mAdvectParticlesCmd.Record(
+      [&](vk::CommandBuffer commandBuffer)
+      {
+        commandBuffer.debugMarkerBeginEXT({"Particle advect", {{0.09f, 0.17f, 0.36f, 1.0f}}},
+                                          mDevice.Loader());
+        mAdvectParticlesBound.PushConstant(commandBuffer, mDt);
+        mAdvectParticlesBound.RecordIndirect(commandBuffer, dispatchParams);
+        particles.Barrier(
+            commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        commandBuffer.debugMarkerEndEXT(mDevice.Loader());
+      });
 }
 
 void Advection::AdvectParticles()

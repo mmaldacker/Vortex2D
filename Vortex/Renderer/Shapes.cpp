@@ -29,9 +29,8 @@ AbstractShape::AbstractShape(const Device& device,
 {
   VertexBuffer<glm::vec2> localVertices(device, vertices.size(), VMA_MEMORY_USAGE_CPU_ONLY);
   Renderer::CopyFrom(localVertices, vertices);
-  device.Execute([&](vk::CommandBuffer commandBuffer) {
-    mVertexBuffer.CopyFrom(commandBuffer, localVertices);
-  });
+  device.Execute([&](vk::CommandBuffer commandBuffer)
+                 { mVertexBuffer.CopyFrom(commandBuffer, localVertices); });
 
   SPIRV::Reflection reflectionVert(SPIRV::Position_vert);
   SPIRV::Reflection reflectionFrag(fragName);
@@ -186,9 +185,8 @@ Ellipse::Ellipse(const Device& device, const glm::vec2& radius)
                                      {radius.x + 1.0f, radius.y + 1.0f},
                                      {-radius.x, radius.y + 1.0f}};
   Renderer::CopyFrom(localVertices, vertices);
-  device.Execute([&](vk::CommandBuffer commandBuffer) {
-    mVertexBuffer.CopyFrom(commandBuffer, localVertices);
-  });
+  device.Execute([&](vk::CommandBuffer commandBuffer)
+                 { mVertexBuffer.CopyFrom(commandBuffer, localVertices); });
 
   SPIRV::Reflection reflectionVert(SPIRV::Ellipse_vert);
   SPIRV::Reflection reflectionFrag(SPIRV::Ellipse_frag);

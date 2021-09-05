@@ -78,16 +78,16 @@ World::World(const Renderer::Device& device,
   mExtrapolation.ConstrainBind(mDynamicSolidPhi);
   mLiquidPhi.ExtrapolateBind(mDynamicSolidPhi);
 
-  mCopySolidPhi.Record([&](vk::CommandBuffer commandBuffer) {
-    mDynamicSolidPhi.CopyFrom(commandBuffer, mStaticSolidPhi);
-  });
+  mCopySolidPhi.Record([&](vk::CommandBuffer commandBuffer)
+                       { mDynamicSolidPhi.CopyFrom(commandBuffer, mStaticSolidPhi); });
 
   mPreconditioner.BuildHierarchiesBind(mProjection, mDynamicSolidPhi, mLiquidPhi);
   mLinearSolver.Bind(mData.Diagonal, mData.Lower, mData.B, mData.X);
 
-  mDevice.Execute([&](vk::CommandBuffer commandBuffer) {
-    mStaticSolidPhi.Clear(commandBuffer, std::array<float, 4>{{10000.0f, 0.0f, 0.0f, 0.0f}});
-  });
+  mDevice.Execute(
+      [&](vk::CommandBuffer commandBuffer) {
+        mStaticSolidPhi.Clear(commandBuffer, std::array<float, 4>{{10000.0f, 0.0f, 0.0f, 0.0f}});
+      });
 }
 
 void World::Step(LinearSolver::Parameters& params)

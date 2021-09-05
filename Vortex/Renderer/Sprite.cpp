@@ -32,8 +32,8 @@ AbstractSprite::AbstractSprite(const Device& device,
                                   {{0.0f, 1.0f}, {0.0f, texture.GetHeight()}}};
 
   Renderer::CopyFrom(localBuffer, vertices);
-  device.Execute(
-      [&](vk::CommandBuffer commandBuffer) { mVertexBuffer.CopyFrom(commandBuffer, localBuffer); });
+  device.Execute([&](vk::CommandBuffer commandBuffer)
+                 { mVertexBuffer.CopyFrom(commandBuffer, localBuffer); });
 
   SPIRV::Reflection reflectionVert(SPIRV::TexturePosition_vert);
   SPIRV::Reflection reflectionFrag(fragShaderName);

@@ -67,9 +67,8 @@ ParticleCount::ParticleCount(const Renderer::Device& device,
     , mAlpha(alpha)
 {
   Renderer::CopyFrom(mLocalDispatchParams, params);
-  device.Execute([&](vk::CommandBuffer commandBuffer) {
-    mDispatchParams.CopyFrom(commandBuffer, mLocalDispatchParams);
-  });
+  device.Execute([&](vk::CommandBuffer commandBuffer)
+                 { mDispatchParams.CopyFrom(commandBuffer, mLocalDispatchParams); });
 
   // TODO clamp should be configurable
 
@@ -92,37 +91,38 @@ ParticleCount::ParticleCount(const Renderer::Device& device,
   //    -> set the new particles with random position
   // 8) copy new particles to particles
 
-  mScanWork.Record([&](vk::CommandBuffer commandBuffer) {
-    commandBuffer.debugMarkerBeginEXT({"Particle count", {{0.14f, 0.39f, 0.12f, 1.0f}}},
-                                      mDevice.Loader());
-    mDelta.CopyFrom(commandBuffer, *this);
-    Clear(commandBuffer, std::array<int, 4>{0, 0, 0, 0});
-    mParticleCountBound.RecordIndirect(commandBuffer, mDispatchParams);
-    mDelta.Barrier(
-        commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-    mParticleClampBound.Record(commandBuffer);
-    mDelta.Barrier(
-        commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-    mCount.CopyFrom(commandBuffer, mDelta);
-    commandBuffer.debugMarkerEndEXT(mDevice.Loader());
+  mScanWork.Record(
+      [&](vk::CommandBuffer commandBuffer)
+      {
+        commandBuffer.debugMarkerBeginEXT({"Particle count", {{0.14f, 0.39f, 0.12f, 1.0f}}},
+                                          mDevice.Loader());
+        mDelta.CopyFrom(commandBuffer, *this);
+        Clear(commandBuffer, std::array<int, 4>{0, 0, 0, 0});
+        mParticleCountBound.RecordIndirect(commandBuffer, mDispatchParams);
+        mDelta.Barrier(
+            commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        mParticleClampBound.Record(commandBuffer);
+        mDelta.Barrier(
+            commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        mCount.CopyFrom(commandBuffer, mDelta);
+        commandBuffer.debugMarkerEndEXT(mDevice.Loader());
 
-    commandBuffer.debugMarkerBeginEXT({"Particle scan", {{0.59f, 0.20f, 0.35f, 1.0f}}},
-                                      mDevice.Loader());
-    mPrefixScanBound.Record(commandBuffer);
-    mParticleBucketBound.RecordIndirect(commandBuffer, mDispatchParams);
-    mNewParticles.Barrier(
-        commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-    mParticleSpawnBound.Record(commandBuffer);
-    mNewParticles.Barrier(
-        commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-    particles.CopyFrom(commandBuffer, mNewParticles);
-    mDispatchParams.CopyFrom(commandBuffer, mNewDispatchParams);
-    commandBuffer.debugMarkerEndEXT(mDevice.Loader());
-  });
+        commandBuffer.debugMarkerBeginEXT({"Particle scan", {{0.59f, 0.20f, 0.35f, 1.0f}}},
+                                          mDevice.Loader());
+        mPrefixScanBound.Record(commandBuffer);
+        mParticleBucketBound.RecordIndirect(commandBuffer, mDispatchParams);
+        mNewParticles.Barrier(
+            commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        mParticleSpawnBound.Record(commandBuffer);
+        mNewParticles.Barrier(
+            commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        particles.CopyFrom(commandBuffer, mNewParticles);
+        mDispatchParams.CopyFrom(commandBuffer, mNewDispatchParams);
+        commandBuffer.debugMarkerEndEXT(mDevice.Loader());
+      });
 
-  mDispatchCountWork.Record([&](vk::CommandBuffer commandBuffer) {
-    mLocalDispatchParams.CopyFrom(commandBuffer, mDispatchParams);
-  });
+  mDispatchCountWork.Record([&](vk::CommandBuffer commandBuffer)
+                            { mLocalDispatchParams.CopyFrom(commandBuffer, mDispatchParams); });
 }
 
 void ParticleCount::Scan()
@@ -156,18 +156,20 @@ void ParticleCount::LevelSetBind(LevelSet& levelSet)
 {
   // TODO should shrink wrap wholes and redistance
   mParticlePhiBound = mParticlePhiWork.Bind({mCount, mParticles, mIndex, levelSet});
-  mParticlePhi.Record([&](vk::CommandBuffer commandBuffer) {
-    commandBuffer.debugMarkerBeginEXT({"Particle phi", {{0.86f, 0.72f, 0.29f, 1.0f}}},
-                                      mDevice.Loader());
-    levelSet.Clear(commandBuffer, std::array<float, 4>{3.0f, 0.0f, 0.0f, 0.0f});
-    mParticlePhiBound.Record(commandBuffer);
-    levelSet.Barrier(commandBuffer,
-                     vk::ImageLayout::eGeneral,
-                     vk::AccessFlagBits::eShaderWrite,
-                     vk::ImageLayout::eGeneral,
-                     vk::AccessFlagBits::eShaderRead);
-    commandBuffer.debugMarkerEndEXT(mDevice.Loader());
-  });
+  mParticlePhi.Record(
+      [&](vk::CommandBuffer commandBuffer)
+      {
+        commandBuffer.debugMarkerBeginEXT({"Particle phi", {{0.86f, 0.72f, 0.29f, 1.0f}}},
+                                          mDevice.Loader());
+        levelSet.Clear(commandBuffer, std::array<float, 4>{3.0f, 0.0f, 0.0f, 0.0f});
+        mParticlePhiBound.Record(commandBuffer);
+        levelSet.Barrier(commandBuffer,
+                         vk::ImageLayout::eGeneral,
+                         vk::AccessFlagBits::eShaderWrite,
+                         vk::ImageLayout::eGeneral,
+                         vk::AccessFlagBits::eShaderRead);
+        commandBuffer.debugMarkerEndEXT(mDevice.Loader());
+      });
 }
 
 void ParticleCount::Phi()
@@ -178,26 +180,31 @@ void ParticleCount::Phi()
 void ParticleCount::VelocitiesBind(Velocity& velocity, Renderer::GenericBuffer& valid)
 {
   mParticleToGridBound = mParticleToGridWork.Bind({mCount, mParticles, mIndex, velocity, valid});
-  mParticleToGrid.Record([&](vk::CommandBuffer commandBuffer) {
-    commandBuffer.debugMarkerBeginEXT({"Particle to grid", {{0.71f, 0.15f, 0.48f, 1.0f}}},
-                                      mDevice.Loader());
-    valid.Clear(commandBuffer);
-    mParticleToGridBound.Record(commandBuffer);
-    valid.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-    commandBuffer.debugMarkerEndEXT(mDevice.Loader());
-  });
+  mParticleToGrid.Record(
+      [&](vk::CommandBuffer commandBuffer)
+      {
+        commandBuffer.debugMarkerBeginEXT({"Particle to grid", {{0.71f, 0.15f, 0.48f, 1.0f}}},
+                                          mDevice.Loader());
+        valid.Clear(commandBuffer);
+        mParticleToGridBound.Record(commandBuffer);
+        valid.Barrier(
+            commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        commandBuffer.debugMarkerEndEXT(mDevice.Loader());
+      });
 
   mParticleFromGridBound =
       mParticleFromGridWork.Bind({mParticles, mDispatchParams, velocity, velocity.D()});
-  mParticleFromGrid.Record([&](vk::CommandBuffer commandBuffer) {
-    commandBuffer.debugMarkerBeginEXT({"Particle from grid", {{0.35f, 0.11f, 0.87f, 1.0f}}},
-                                      mDevice.Loader());
-    mParticleFromGridBound.PushConstant(commandBuffer, mSize.x, mSize.y, mAlpha);
-    mParticleFromGridBound.RecordIndirect(commandBuffer, mDispatchParams);
-    mParticles.Barrier(
-        commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-    commandBuffer.debugMarkerEndEXT(mDevice.Loader());
-  });
+  mParticleFromGrid.Record(
+      [&](vk::CommandBuffer commandBuffer)
+      {
+        commandBuffer.debugMarkerBeginEXT({"Particle from grid", {{0.35f, 0.11f, 0.87f, 1.0f}}},
+                                          mDevice.Loader());
+        mParticleFromGridBound.PushConstant(commandBuffer, mSize.x, mSize.y, mAlpha);
+        mParticleFromGridBound.RecordIndirect(commandBuffer, mDispatchParams);
+        mParticles.Barrier(
+            commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        commandBuffer.debugMarkerEndEXT(mDevice.Loader());
+      });
 }
 
 void ParticleCount::TransferToGrid()

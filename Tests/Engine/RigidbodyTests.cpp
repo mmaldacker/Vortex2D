@@ -102,9 +102,10 @@ TEST(RigidbodyTests, Phi)
   sim.update_rigid_body_grids();
 
   RenderTexture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-  device->Execute([&](vk::CommandBuffer commandBuffer) {
-    solidPhi.Clear(commandBuffer, std::array<float, 4>{{1000.0f, 0.0f, 0.0f, 0.0f}});
-  });
+  device->Execute(
+      [&](vk::CommandBuffer commandBuffer) {
+        solidPhi.Clear(commandBuffer, std::array<float, 4>{{1000.0f, 0.0f, 0.0f, 0.0f}});
+      });
 
   Vortex::Fluid::Rectangle rectangle(*device, rectangleSize * glm::vec2(size), false, size.x);
   Vortex::Fluid::RigidBody rigidBody(
@@ -120,8 +121,8 @@ TEST(RigidbodyTests, Phi)
   device->Handle().waitIdle();
 
   Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
-  device->Execute(
-      [&](vk::CommandBuffer commandBuffer) { outTexture.CopyFrom(commandBuffer, solidPhi); });
+  device->Execute([&](vk::CommandBuffer commandBuffer)
+                  { outTexture.CopyFrom(commandBuffer, solidPhi); });
 
   CheckPhi(size, sim, outTexture);
 }
@@ -368,9 +369,11 @@ TEST(RigidbodyTests, ReduceJSum)
 
   {
     float n = 1.0f;
-    std::generate(inputData.begin(), inputData.end(), [&n] {
-      return Vortex::Fluid::RigidBody::Velocity{glm::vec2(1.0f, -2.0), n++};
-    });
+    std::generate(inputData.begin(),
+                  inputData.end(),
+                  [&n] {
+                    return Vortex::Fluid::RigidBody::Velocity{glm::vec2(1.0f, -2.0), n++};
+                  });
   }
 
   CopyFrom(input, inputData);
