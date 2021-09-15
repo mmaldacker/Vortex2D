@@ -117,6 +117,12 @@ RenderpassBuilder& RenderpassBuilder::DependencyDstAccessMask(vk::AccessFlags va
   return *this;
 }
 
+RenderpassBuilder& RenderpassBuilder::DependencyFlag(vk::DependencyFlags flags)
+{
+  mSubpassDependencies.back().setDependencyFlags(flags);
+  return *this;
+}
+
 vk::UniqueRenderPass RenderpassBuilder::Create(vk::Device device)
 {
   auto renderPassInfo = vk::RenderPassCreateInfo()

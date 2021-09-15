@@ -126,7 +126,7 @@ Texture::Texture(const Device& device,
                   imageLayout,
                   vk::AccessFlagBits{},
                   vk::ImageLayout::eGeneral,
-                  vk::AccessFlagBits::eTransferWrite);
+                  vk::AccessFlagBits::eMemoryRead);
 
           auto clearValue = vk::ClearColorValue().setFloat32({{0.0f, 0.0f, 0.0f, 0.0f}});
 
@@ -138,9 +138,9 @@ Texture::Texture(const Device& device,
 
           Barrier(commandBuffer,
                   vk::ImageLayout::eGeneral,
-                  vk::AccessFlagBits::eTransferWrite,
+                  vk::AccessFlagBits::eMemoryWrite,
                   vk::ImageLayout::eGeneral,
-                  vk::AccessFlagBits{});
+                  vk::AccessFlagBits::eMemoryRead);
         }
         else
         {
@@ -148,7 +148,7 @@ Texture::Texture(const Device& device,
                   imageLayout,
                   vk::AccessFlagBits{},
                   vk::ImageLayout::eGeneral,
-                  vk::AccessFlagBits{});
+                  vk::AccessFlagBits::eMemoryRead);
         }
       });
 }
@@ -189,13 +189,6 @@ void Texture::Clear(vk::CommandBuffer commandBuffer, const std::array<float, 4>&
 
 void Texture::Clear(vk::CommandBuffer commandBuffer, vk::ClearColorValue colour)
 {
-  // TODO access flags wrong?
-  Barrier(commandBuffer,
-          vk::ImageLayout::eGeneral,
-          vk::AccessFlagBits{},
-          vk::ImageLayout::eGeneral,
-          vk::AccessFlagBits::eTransferWrite);
-
   commandBuffer.clearColorImage(
       mImage,
       vk::ImageLayout::eGeneral,
@@ -204,9 +197,9 @@ void Texture::Clear(vk::CommandBuffer commandBuffer, vk::ClearColorValue colour)
 
   Barrier(commandBuffer,
           vk::ImageLayout::eGeneral,
-          vk::AccessFlagBits::eTransferWrite,
+          vk::AccessFlagBits::eMemoryWrite,
           vk::ImageLayout::eGeneral,
-          vk::AccessFlagBits{});
+          vk::AccessFlagBits::eMemoryRead);
 }
 
 void Texture::CopyFrom(const void* data)
@@ -314,12 +307,12 @@ void Texture::CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcImage)
                    vk::ImageLayout::eGeneral,
                    vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eColorAttachmentRead,
                    vk::ImageLayout::eTransferSrcOptimal,
-                   vk::AccessFlagBits::eTransferRead);
+                   vk::AccessFlagBits::eMemoryRead);
   Barrier(commandBuffer,
           vk::ImageLayout::eGeneral,
           vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eColorAttachmentRead,
           vk::ImageLayout::eTransferDstOptimal,
-          vk::AccessFlagBits::eTransferWrite);
+          vk::AccessFlagBits::eMemoryWrite);
 
   auto region = vk::ImageCopy()
                     .setSrcSubresource({vk::ImageAspectFlagBits::eColor, 0, 0, 1})
@@ -334,14 +327,14 @@ void Texture::CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcImage)
 
   srcImage.Barrier(commandBuffer,
                    vk::ImageLayout::eTransferSrcOptimal,
-                   vk::AccessFlagBits::eTransferRead,
+                   vk::AccessFlagBits::eMemoryRead,
                    vk::ImageLayout::eGeneral,
                    vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eColorAttachmentRead |
                        vk::AccessFlagBits::eHostRead);
 
   Barrier(commandBuffer,
           vk::ImageLayout::eTransferDstOptimal,
-          vk::AccessFlagBits::eTransferWrite,
+          vk::AccessFlagBits::eMemoryWrite,
           vk::ImageLayout::eGeneral,
           vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eColorAttachmentRead |
               vk::AccessFlagBits::eHostRead);

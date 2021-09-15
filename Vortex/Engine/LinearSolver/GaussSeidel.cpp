@@ -139,6 +139,8 @@ void LocalGaussSeidel::Bind(Renderer::GenericBuffer& d,
 
 void LocalGaussSeidel::Record(vk::CommandBuffer commandBuffer)
 {
+  assert(mPressure != nullptr);
+
   mLocalGaussSeidelBound.Record(commandBuffer);
   mPressure->Barrier(
       commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);

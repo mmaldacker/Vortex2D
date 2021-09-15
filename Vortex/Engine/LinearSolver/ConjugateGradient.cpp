@@ -150,8 +150,8 @@ void ConjugateGradient::Bind(Renderer::GenericBuffer& d,
 
         // s = z + beta * s
         multiplyAddZBound.Record(commandBuffer);
-        z.Clear(commandBuffer);
         s.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        z.Clear(commandBuffer);
 
         // rho = rho_new
         rho.CopyFrom(commandBuffer, rho_new);

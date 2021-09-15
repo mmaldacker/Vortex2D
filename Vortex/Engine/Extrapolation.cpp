@@ -70,6 +70,12 @@ void Extrapolation::ConstrainBind(Renderer::Texture& solidPhi)
         commandBuffer.debugMarkerBeginEXT({"Constrain Velocity", {{0.82f, 0.20f, 0.20f, 1.0f}}},
                                           mDevice.Loader());
         mConstrainVelocityBound.Record(commandBuffer);
+        mVelocity.Output().Barrier(commandBuffer,
+                                   vk::ImageLayout::eGeneral,
+                                   vk::AccessFlagBits::eShaderWrite,
+                                   vk::ImageLayout::eGeneral,
+                                   vk::AccessFlagBits::eShaderRead);
+
         mVelocity.CopyBack(commandBuffer);
         commandBuffer.debugMarkerEndEXT(mDevice.Loader());
       });

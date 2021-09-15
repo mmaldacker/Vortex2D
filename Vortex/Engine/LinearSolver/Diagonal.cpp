@@ -23,12 +23,17 @@ void Diagonal::Bind(Renderer::GenericBuffer& d,
                     Renderer::GenericBuffer& b,
                     Renderer::GenericBuffer& pressure)
 {
+  mPressure = &pressure;
   mDiagonalBound = mDiagonal.Bind({d, b, pressure});
 }
 
 void Diagonal::Record(vk::CommandBuffer commandBuffer)
 {
+  assert(mPressure != nullptr);
+
   mDiagonalBound.Record(commandBuffer);
+  mPressure->Barrier(
+      commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
 }
 
 }  // namespace Fluid

@@ -50,6 +50,8 @@ void Jacobi::Record(vk::CommandBuffer commandBuffer)
 void Jacobi::Record(vk::CommandBuffer commandBuffer, int iterations)
 {
   mBackPressure.Clear(commandBuffer);
+  mBackPressure.Barrier(
+      commandBuffer, vk::AccessFlagBits::eMemoryWrite, vk::AccessFlagBits::eShaderWrite);
 
   for (int i = 0; i < iterations; i++)
   {

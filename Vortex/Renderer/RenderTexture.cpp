@@ -23,16 +23,24 @@ RenderTexture::RenderTexture(const Device& device,
                    .Attachement(format)
                    .AttachementLoadOp(vk::AttachmentLoadOp::eLoad)
                    .AttachementStoreOp(vk::AttachmentStoreOp::eStore)
-                   // TODO should they both be general?
                    .AttachementInitialLayout(vk::ImageLayout::eGeneral)
                    .AttachementFinalLayout(vk::ImageLayout::eGeneral)
                    .Subpass(vk::PipelineBindPoint::eGraphics)
                    .SubpassColorAttachment(vk::ImageLayout::eColorAttachmentOptimal, 0)
                    .Dependency(VK_SUBPASS_EXTERNAL, 0)
-                   .DependencySrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
+                   .DependencySrcStageMask(vk::PipelineStageFlagBits::eBottomOfPipe)
                    .DependencyDstStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
-                   .DependencySrcAccessMask(vk::AccessFlagBits::eColorAttachmentRead)
-                   .DependencyDstAccessMask(vk::AccessFlagBits::eColorAttachmentWrite)
+                   .DependencySrcAccessMask(vk::AccessFlagBits::eMemoryRead)
+                   .DependencyDstAccessMask(vk::AccessFlagBits::eColorAttachmentWrite |
+                                            vk::AccessFlagBits::eColorAttachmentRead)
+                   .DependencyFlag(vk::DependencyFlagBits::eByRegion)
+                   .Dependency(0, VK_SUBPASS_EXTERNAL)
+                   .DependencySrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
+                   .DependencyDstStageMask(vk::PipelineStageFlagBits::eBottomOfPipe)
+                   .DependencySrcAccessMask(vk::AccessFlagBits::eColorAttachmentWrite |
+                                            vk::AccessFlagBits::eColorAttachmentRead)
+                   .DependencyDstAccessMask(vk::AccessFlagBits::eMemoryRead)
+                   .DependencyFlag(vk::DependencyFlagBits::eByRegion)
                    .Create(device.Handle());
 
   // Create framebuffer

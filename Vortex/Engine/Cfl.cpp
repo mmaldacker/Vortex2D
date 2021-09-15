@@ -29,6 +29,8 @@ Cfl::Cfl(const Renderer::Device& device, const glm::ivec2& size, Velocity& veloc
         commandBuffer.debugMarkerBeginEXT({"CFL", {{0.65f, 0.97f, 0.78f, 1.0f}}}, mDevice.Loader());
 
         mVelocityMaxBound.Record(commandBuffer);
+        mVelocityMax.Barrier(
+            commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
         mReduceVelocityMaxBound.Record(commandBuffer);
 
         commandBuffer.debugMarkerEndEXT(mDevice.Loader());

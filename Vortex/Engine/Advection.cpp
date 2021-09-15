@@ -44,6 +44,11 @@ Advection::Advection(const Renderer::Device& device,
                                           mDevice.Loader());
         mVelocityAdvectBound.PushConstant(commandBuffer, dt);
         mVelocityAdvectBound.Record(commandBuffer);
+        velocity.Output().Barrier(commandBuffer,
+                                  vk::ImageLayout::eGeneral,
+                                  vk::AccessFlagBits::eShaderWrite,
+                                  vk::ImageLayout::eGeneral,
+                                  vk::AccessFlagBits::eShaderRead);
         velocity.CopyBack(commandBuffer);
         commandBuffer.debugMarkerEndEXT(mDevice.Loader());
       });

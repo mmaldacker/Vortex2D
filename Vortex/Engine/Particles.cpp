@@ -97,6 +97,11 @@ ParticleCount::ParticleCount(const Renderer::Device& device,
         commandBuffer.debugMarkerBeginEXT({"Particle count", {{0.14f, 0.39f, 0.12f, 1.0f}}},
                                           mDevice.Loader());
         mDelta.CopyFrom(commandBuffer, *this);
+        Barrier(commandBuffer,
+                vk::ImageLayout::eGeneral,
+                vk::AccessFlagBits::eShaderWrite,
+                vk::ImageLayout::eGeneral,
+                vk::AccessFlagBits::eMemoryWrite);
         Clear(commandBuffer, std::array<int, 4>{0, 0, 0, 0});
         mParticleCountBound.RecordIndirect(commandBuffer, mDispatchParams);
         mDelta.Barrier(
@@ -162,6 +167,11 @@ void ParticleCount::LevelSetBind(LevelSet& levelSet)
         commandBuffer.debugMarkerBeginEXT({"Particle phi", {{0.86f, 0.72f, 0.29f, 1.0f}}},
                                           mDevice.Loader());
         levelSet.Clear(commandBuffer, std::array<float, 4>{3.0f, 0.0f, 0.0f, 0.0f});
+        levelSet.Barrier(commandBuffer,
+                         vk::ImageLayout::eGeneral,
+                         vk::AccessFlagBits::eMemoryWrite,
+                         vk::ImageLayout::eGeneral,
+                         vk::AccessFlagBits::eShaderWrite);
         mParticlePhiBound.Record(commandBuffer);
         levelSet.Barrier(commandBuffer,
                          vk::ImageLayout::eGeneral,
@@ -185,7 +195,6 @@ void ParticleCount::VelocitiesBind(Velocity& velocity, Renderer::GenericBuffer& 
       {
         commandBuffer.debugMarkerBeginEXT({"Particle to grid", {{0.71f, 0.15f, 0.48f, 1.0f}}},
                                           mDevice.Loader());
-        valid.Clear(commandBuffer);
         mParticleToGridBound.Record(commandBuffer);
         valid.Barrier(
             commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);

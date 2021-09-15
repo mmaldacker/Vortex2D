@@ -239,15 +239,15 @@ void Multigrid::BuildHierarchies()
 
 void Multigrid::Smoother(vk::CommandBuffer commandBuffer, int n)
 {
+  // TODO do we need to clear X?
   mSmoothers[n]->Record(commandBuffer);
 }
 
 void Multigrid::Record(vk::CommandBuffer commandBuffer)
 {
-  commandBuffer.debugMarkerBeginEXT({"Multigrid", {{0.48f, 0.25f, 0.19f, 1.0f}}}, mDevice.Loader());
-
   assert(mPressure != nullptr);
-  mPressure->Clear(commandBuffer);
+
+  commandBuffer.debugMarkerBeginEXT({"Multigrid", {{0.48f, 0.25f, 0.19f, 1.0f}}}, mDevice.Loader());
 
   RecordVCycle(commandBuffer, 0);
 
@@ -294,6 +294,8 @@ void Multigrid::RecordVCycle(vk::CommandBuffer commandBuffer, int depth)
     mTransfer.Restrict(commandBuffer, depth);
 
     mDatas[depth].X.Clear(commandBuffer);
+    mDatas[depth].X.Barrier(
+        commandBuffer, vk::AccessFlagBits::eMemoryWrite, vk::AccessFlagBits::eShaderWrite);
 
     RecordVCycle(commandBuffer, depth + 1);
 
@@ -317,11 +319,16 @@ void Multigrid::RecordFullCycle(vk::CommandBuffer commandBuffer)
 
   int depth = mDepth.GetMaxDepth() - 1;
   mDatas[depth].X.Clear(commandBuffer);
+  mDatas[depth].X.Barrier(
+      commandBuffer, vk::AccessFlagBits::eMemoryWrite, vk::AccessFlagBits::eShaderWrite);
   mSmoother.Record(commandBuffer);
 
   for (int i = depth; i >= 0; i--)
   {
-    mTransfer.Prolongate(commandBuffer, depth);
+    // TODO this looks wrong, do we prolongate to correct buffer?
+    mTransfer.Prolongate(commandBuffer, i);
+    mResiduals[i].Barrier(
+        commandBuffer, vk::AccessFlagBits::eMemoryWrite, vk::AccessFlagBits::eShaderWrite);
     RecordVCycle(commandBuffer, i);
   }
 }

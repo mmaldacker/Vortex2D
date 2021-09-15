@@ -56,8 +56,17 @@ Pressure::Pressure(const Renderer::Device& device,
         commandBuffer.debugMarkerBeginEXT({"Pressure", {{0.45f, 0.47f, 0.75f, 1.0f}}},
                                           mDevice.Loader());
         valid.Clear(commandBuffer);
+        valid.Barrier(
+            commandBuffer, vk::AccessFlagBits::eMemoryWrite, vk::AccessFlagBits::eShaderWrite);
         mProjectBound.PushConstant(commandBuffer, dt);
         mProjectBound.Record(commandBuffer);
+        valid.Barrier(
+            commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        velocity.Output().Barrier(commandBuffer,
+                                  vk::ImageLayout::eGeneral,
+                                  vk::AccessFlagBits::eShaderWrite,
+                                  vk::ImageLayout::eGeneral,
+                                  vk::AccessFlagBits::eShaderRead);
         velocity.CopyBack(commandBuffer);
         commandBuffer.debugMarkerEndEXT(mDevice.Loader());
       });

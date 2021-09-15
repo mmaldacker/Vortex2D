@@ -116,18 +116,11 @@ void GenericBuffer::CopyFrom(vk::CommandBuffer commandBuffer, GenericBuffer& src
     throw std::runtime_error("Cannot copy buffers of different sizes");
   }
 
-  // TODO improve barriers
-  srcBuffer.Barrier(
-      commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eTransferRead);
-  Barrier(commandBuffer, vk::AccessFlagBits::eShaderRead, vk::AccessFlagBits::eTransferWrite);
-
   auto region = vk::BufferCopy().setSize(mSize);
 
+  srcBuffer.Barrier(commandBuffer, {}, vk::AccessFlagBits::eMemoryRead);
   commandBuffer.copyBuffer(srcBuffer.Handle(), mBuffer, region);
-
-  Barrier(commandBuffer, vk::AccessFlagBits::eTransferWrite, vk::AccessFlagBits::eShaderRead);
-  srcBuffer.Barrier(
-      commandBuffer, vk::AccessFlagBits::eTransferRead, vk::AccessFlagBits::eShaderRead);
+  Barrier(commandBuffer, vk::AccessFlagBits::eMemoryWrite, vk::AccessFlagBits::eMemoryRead);
 }
 
 void GenericBuffer::CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcTexture)
@@ -141,9 +134,9 @@ void GenericBuffer::CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcTextur
 
   srcTexture.Barrier(commandBuffer,
                      vk::ImageLayout::eGeneral,
-                     vk::AccessFlagBits::eShaderWrite | vk::AccessFlagBits::eColorAttachmentWrite,
+                     {},
                      vk::ImageLayout::eTransferSrcOptimal,
-                     vk::AccessFlagBits::eTransferRead);
+                     vk::AccessFlagBits::eMemoryRead);
 
   auto info = vk::BufferImageCopy()
                   .setImageSubresource({vk::ImageAspectFlagBits::eColor, 0, 0, 1})
@@ -154,11 +147,11 @@ void GenericBuffer::CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcTextur
 
   srcTexture.Barrier(commandBuffer,
                      vk::ImageLayout::eTransferSrcOptimal,
-                     vk::AccessFlagBits::eTransferRead,
+                     vk::AccessFlagBits::eMemoryRead,
                      vk::ImageLayout::eGeneral,
                      vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eColorAttachmentRead);
 
-  Barrier(commandBuffer, vk::AccessFlagBits::eTransferWrite, vk::AccessFlagBits::eShaderRead);
+  Barrier(commandBuffer, vk::AccessFlagBits::eMemoryWrite, vk::AccessFlagBits::eMemoryRead);
 }
 
 void GenericBuffer::Barrier(vk::CommandBuffer commandBuffer,
@@ -170,9 +163,8 @@ void GenericBuffer::Barrier(vk::CommandBuffer commandBuffer,
 
 void GenericBuffer::Clear(vk::CommandBuffer commandBuffer)
 {
-  Barrier(commandBuffer, vk::AccessFlagBits::eShaderRead, vk::AccessFlagBits::eTransferWrite);
   commandBuffer.fillBuffer(mBuffer, 0, mSize, 0);
-  Barrier(commandBuffer, vk::AccessFlagBits::eTransferWrite, vk::AccessFlagBits::eShaderRead);
+  Barrier(commandBuffer, vk::AccessFlagBits::eMemoryWrite, vk::AccessFlagBits::eMemoryRead);
 }
 
 void GenericBuffer::CopyFrom(uint32_t offset, const void* data, uint32_t size)

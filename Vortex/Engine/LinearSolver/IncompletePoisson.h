@@ -31,6 +31,8 @@ public:
   void Record(vk::CommandBuffer) override;
 
 private:
+  Renderer::GenericBuffer* mPressure;
+
   Renderer::Work mIncompletePoisson;
   Renderer::Work::Bound mIncompletePoissonBound;
 };

@@ -67,6 +67,26 @@ LinearSolver::DebugCopy::DebugCopy(const Renderer::Device& device,
         commandBuffer.debugMarkerBeginEXT({"Debug data copy", {{0.30f, 0.01f, 0.19f, 1.0f}}},
                                           device.Loader());
         mDebugDataCopyBound.Record(commandBuffer);
+        debugData.Diagonal.Barrier(commandBuffer,
+                                   vk::ImageLayout::eGeneral,
+                                   vk::AccessFlagBits::eShaderWrite,
+                                   vk::ImageLayout::eGeneral,
+                                   vk::AccessFlagBits::eShaderRead);
+        debugData.Lower.Barrier(commandBuffer,
+                                vk::ImageLayout::eGeneral,
+                                vk::AccessFlagBits::eShaderWrite,
+                                vk::ImageLayout::eGeneral,
+                                vk::AccessFlagBits::eShaderRead);
+        debugData.X.Barrier(commandBuffer,
+                            vk::ImageLayout::eGeneral,
+                            vk::AccessFlagBits::eShaderWrite,
+                            vk::ImageLayout::eGeneral,
+                            vk::AccessFlagBits::eShaderRead);
+        debugData.B.Barrier(commandBuffer,
+                            vk::ImageLayout::eGeneral,
+                            vk::AccessFlagBits::eShaderWrite,
+                            vk::ImageLayout::eGeneral,
+                            vk::AccessFlagBits::eShaderRead);
         commandBuffer.debugMarkerEndEXT(device.Loader());
       });
 }

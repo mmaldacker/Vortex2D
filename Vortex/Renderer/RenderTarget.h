@@ -113,6 +113,7 @@ public:
   RenderpassBuilder& DependencyDstStageMask(vk::PipelineStageFlags value);
   RenderpassBuilder& DependencySrcAccessMask(vk::AccessFlags value);
   RenderpassBuilder& DependencyDstAccessMask(vk::AccessFlags value);
+  RenderpassBuilder& DependencyFlag(vk::DependencyFlags flags);
 
   /**
    * @brief Create the render pass

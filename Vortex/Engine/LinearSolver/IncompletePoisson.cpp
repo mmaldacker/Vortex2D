@@ -23,12 +23,17 @@ void IncompletePoisson::Bind(Renderer::GenericBuffer& d,
                              Renderer::GenericBuffer& b,
                              Renderer::GenericBuffer& pressure)
 {
+  mPressure = &pressure;
   mIncompletePoissonBound = mIncompletePoisson.Bind({d, l, b, pressure});
 }
 
 void IncompletePoisson::Record(vk::CommandBuffer commandBuffer)
 {
+  assert(mPressure != nullptr);
+
   mIncompletePoissonBound.Record(commandBuffer);
+  mPressure->Barrier(
+      commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
 }
 
 }  // namespace Fluid
