@@ -49,7 +49,7 @@ World::World(const Renderer::Device& device,
     , mDelta(dt / numSubSteps)
     , mNumSubSteps(numSubSteps)
     , mSolverSize(NextPowerOfTwo(size))
-    , mPreconditioner(device, mSolverSize, mDelta)
+    , mPreconditioner(device, mSolverSize, mDelta, 2, Multigrid::SmootherSolver::GaussSeidel)
     , mLinearSolver(device, mSolverSize, mPreconditioner)
     , mData(device, mSolverSize)
 #if !defined(NDEBUG)

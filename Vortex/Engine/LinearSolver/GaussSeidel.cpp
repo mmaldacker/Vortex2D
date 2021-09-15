@@ -98,16 +98,22 @@ void GaussSeidel::Record(vk::CommandBuffer commandBuffer)
 
 void GaussSeidel::Record(vk::CommandBuffer commandBuffer, int iterations)
 {
+  mPressure->Barrier(commandBuffer,
+                     vk::AccessFlagBits::eMemoryWrite,
+                     vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite);
+
   for (int i = 0; i < iterations; ++i)
   {
     mGaussSeidelBound.PushConstant(commandBuffer, mW, 1);
     mGaussSeidelBound.Record(commandBuffer);
-    mPressure->Barrier(
-        commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+    mPressure->Barrier(commandBuffer,
+                       vk::AccessFlagBits::eShaderWrite,
+                       vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite);
     mGaussSeidelBound.PushConstant(commandBuffer, mW, 0);
     mGaussSeidelBound.Record(commandBuffer);
-    mPressure->Barrier(
-        commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+    mPressure->Barrier(commandBuffer,
+                       vk::AccessFlagBits::eShaderWrite,
+                       vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite);
   }
 }
 

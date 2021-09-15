@@ -239,7 +239,6 @@ void Multigrid::BuildHierarchies()
 
 void Multigrid::Smoother(vk::CommandBuffer commandBuffer, int n)
 {
-  // TODO do we need to clear X?
   mSmoothers[n]->Record(commandBuffer);
 }
 
