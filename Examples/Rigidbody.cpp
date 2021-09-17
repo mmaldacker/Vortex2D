@@ -72,7 +72,7 @@ void Box2DSolver::Step(float delta)
 
 Box2DRigidbody::Box2DRigidbody(const Vortex::Renderer::Device& device,
                                const glm::ivec2& size,
-                               Vortex::Renderer::Drawable& drawable,
+                               Vortex::Renderer::DrawablePtr drawable,
                                Vortex::Fluid::RigidBody::Type type)
     : Vortex::Fluid::RigidBody(device, size, drawable, type)
 {
@@ -118,7 +118,8 @@ PolygonRigidbody::PolygonRigidbody(const Vortex::Renderer::Device& device,
                                    Vortex::Fluid::RigidBody::Type type,
                                    const std::vector<glm::vec2>& points,
                                    float density)
-    : mPolygon(device, points), mRigidbody(device, size, mPolygon, type)
+    : mPolygon(std::make_shared<Vortex::Fluid::Polygon>(device, points))
+    , mRigidbody(device, size, mPolygon, type)
 {
   mRigidbody.mBody = CreateBody(rWorld, GetPolygonFixtureDef(points), rType, density);
   mRigidbody.SetMassData(mRigidbody.mBody->GetMass(), mRigidbody.mBody->GetInertia());
@@ -131,7 +132,8 @@ CircleRigidbody::CircleRigidbody(const Vortex::Renderer::Device& device,
                                  Vortex::Fluid::RigidBody::Type type,
                                  const float radius,
                                  float density)
-    : mCircle(device, radius), mRigidbody(device, size, mCircle, type)
+    : mCircle(std::make_shared<Vortex::Fluid::Circle>(device, radius))
+    , mRigidbody(device, size, mCircle, type)
 {
   mRigidbody.mBody = CreateBody(rWorld, GetCircleFixtureDef(radius), rType, density);
   mRigidbody.SetMassData(mRigidbody.mBody->GetMass(), mRigidbody.mBody->GetInertia());

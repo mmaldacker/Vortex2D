@@ -23,10 +23,8 @@ class HydrostaticWaterExample : public Runner
 
 public:
   HydrostaticWaterExample(const Vortex::Renderer::Device& device, const glm::ivec2& size, float dt)
-      : gravity(device, glm::vec2(256.0f, 256.0f))
+      : dt(dt)
       , world(device, size, dt, 2, Vortex::Fluid::Velocity::InterpolationMode::Linear)
-      , solidPhi(world.SolidDistanceField())
-      , liquidPhi(world.LiquidDistanceField())
       , rWorld(b2Vec2(0.0f, gravityForce))
       , solver(rWorld)
       , circle1(device,
@@ -76,20 +74,19 @@ public:
     world.AddRigidbody(left.mRigidbody);
     world.AddRigidbody(right.mRigidbody);
     world.AddRigidbody(bottom.mRigidbody);
-
-    gravity.Colour = glm::vec4(0.0f, dt * gravityForce, 0.0f, 0.0f);
-
-    solidPhi.Colour = green;
-    liquidPhi.Colour = blue;
   }
 
   void Init(const Vortex::Renderer::Device& device,
             Vortex::Renderer::RenderTarget& renderTarget) override
   {
+    auto gravity = std::make_shared<Vortex::Renderer::Rectangle>(device, glm::vec2(256.0f, 256.0f));
+    gravity->Colour = glm::vec4(0.0f, dt * gravityForce, 0.0f, 0.0f);
+
     // Add particles
-    Vortex::Renderer::IntRectangle fluid(device, {245.0f, 100.0f});
-    fluid.Position = {8.0f, 150.0f};
-    fluid.Colour = glm::vec4(4);
+    auto fluid =
+        std::make_shared<Vortex::Renderer::IntRectangle>(device, glm::vec2{245.0f, 100.0f});
+    fluid->Position = {8.0f, 150.0f};
+    fluid->Colour = glm::vec4(4);
 
     world.RecordParticleCount({fluid}).Submit().Wait();
 
@@ -105,6 +102,11 @@ public:
 
     // Set gravity
     velocityRender = world.RecordVelocity({gravity}, Vortex::Fluid::VelocityOp::Add);
+
+    auto solidPhi = world.MakeSolidDistanceField();
+    auto liquidPhi = world.MakeLiquidDistanceField();
+    solidPhi->Colour = green;
+    liquidPhi->Colour = blue;
 
     Vortex::Renderer::ColorBlendState blendState;
     blendState.ColorBlend.setBlendEnable(true)
@@ -127,9 +129,8 @@ public:
   }
 
 private:
-  Vortex::Renderer::Rectangle gravity;
+  float dt;
   Vortex::Fluid::WaterWorld world;
-  Vortex::Fluid::DistanceField solidPhi, liquidPhi;
   Vortex::Renderer::RenderCommand velocityRender, windowRender;
 
   b2World rWorld;

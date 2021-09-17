@@ -43,5 +43,7 @@ struct Drawable
   virtual void Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState) = 0;
 };
 
+using DrawablePtr = std::shared_ptr<Drawable>;
+
 }  // namespace Renderer
 }  // namespace Vortex

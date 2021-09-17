@@ -87,7 +87,8 @@ public:
       , surface(GetGLFWSurface(glfwWindow, static_cast<VkInstance>(instance.GetInstance())))
       , device(instance, *surface, validation)
       , window(device, *surface, (uint32_t)(windowSize.x), (uint32_t)(windowSize.y))
-      , clearRender(window.Record({clear}))
+      , clearRender(
+            window.Record({std::make_shared<Renderer::Clear>(glm::vec4{0.1f, 0.1f, 0.1f, 1.0f})}))
   {
     // setup callback
     glfwSetWindowUserPointer(glfwWindow, this);
@@ -181,7 +182,6 @@ public:
   vk::UniqueSurfaceKHR surface;
   Vortex::Renderer::Device device;
   Renderer::RenderWindow window;
-  Renderer::Clear clear = {{0.1f, 0.1f, 0.1f, 1.0f}};
   std::unique_ptr<Runner> example;
   Vortex::Renderer::RenderCommand clearRender;
 };

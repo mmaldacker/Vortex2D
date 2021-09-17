@@ -59,11 +59,11 @@ TEST(LevelSetTests, SimpleCircle)
   LevelSet levelSet(*device, size, 2000);
   Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
 
-  Ellipse circle(*device, glm::vec2{rad0} * glm::vec2(size));
-  circle.Position = glm::vec2(c0[0], c0[1]) * glm::vec2(size) - glm::vec2(0.5f);
-  circle.Colour = glm::vec4(0.5f);
+  auto circle = std::make_shared<Ellipse>(*device, glm::vec2{rad0} * glm::vec2(size));
+  circle->Position = glm::vec2(c0[0], c0[1]) * glm::vec2(size) - glm::vec2(0.5f);
+  circle->Colour = glm::vec4(0.5f);
 
-  Clear clear(glm::vec4(-0.5f));
+  auto clear = std::make_shared<Clear>(glm::vec4(-0.5f));
 
   levelSet.Record({clear, circle}).Submit();
   levelSet.Reinitialise();
@@ -84,22 +84,22 @@ TEST(LevelSetTests, ComplexCircles)
   LevelSet levelSet(*device, size, 2000);
   Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
 
-  Ellipse circle0(*device, glm::vec2{rad0} * glm::vec2(size));
-  Ellipse circle1(*device, glm::vec2{rad1} * glm::vec2(size));
-  Ellipse circle2(*device, glm::vec2{rad2} * glm::vec2(size));
-  Ellipse circle3(*device, glm::vec2{rad3} * glm::vec2(size));
+  auto circle0 = std::make_shared<Ellipse>(*device, glm::vec2{rad0} * glm::vec2(size));
+  auto circle1 = std::make_shared<Ellipse>(*device, glm::vec2{rad1} * glm::vec2(size));
+  auto circle2 = std::make_shared<Ellipse>(*device, glm::vec2{rad2} * glm::vec2(size));
+  auto circle3 = std::make_shared<Ellipse>(*device, glm::vec2{rad3} * glm::vec2(size));
 
-  Clear clear(glm::vec4(-1.0f));
+  auto clear = std::make_shared<Clear>(glm::vec4(-1.0f));
 
-  circle0.Position = glm::vec2(c0[0], c0[1]) * glm::vec2(size) - glm::vec2(0.5f);
-  circle1.Position = glm::vec2(c1[0], c1[1]) * glm::vec2(size) - glm::vec2(0.5f);
-  circle2.Position = glm::vec2(c2[0], c2[1]) * glm::vec2(size) - glm::vec2(0.5f);
-  circle3.Position = glm::vec2(c3[0], c3[1]) * glm::vec2(size) - glm::vec2(0.5f);
+  circle0->Position = glm::vec2(c0[0], c0[1]) * glm::vec2(size) - glm::vec2(0.5f);
+  circle1->Position = glm::vec2(c1[0], c1[1]) * glm::vec2(size) - glm::vec2(0.5f);
+  circle2->Position = glm::vec2(c2[0], c2[1]) * glm::vec2(size) - glm::vec2(0.5f);
+  circle3->Position = glm::vec2(c3[0], c3[1]) * glm::vec2(size) - glm::vec2(0.5f);
 
-  circle0.Colour = glm::vec4(1.0f);
-  circle1.Colour = glm::vec4(-1.0f);
-  circle2.Colour = glm::vec4(-1.0f);
-  circle3.Colour = glm::vec4(-1.0f);
+  circle0->Colour = glm::vec4(1.0f);
+  circle1->Colour = glm::vec4(-1.0f);
+  circle2->Colour = glm::vec4(-1.0f);
+  circle3->Colour = glm::vec4(-1.0f);
 
   levelSet.Record({clear, circle0, circle1, circle2, circle3}).Submit();
   levelSet.Reinitialise();

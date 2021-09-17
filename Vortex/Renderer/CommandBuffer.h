@@ -147,7 +147,7 @@ private:
   RenderTarget* mRenderTarget;
   std::vector<CommandBuffer> mCmds;
   const uint32_t* mIndex;
-  std::vector<std::reference_wrapper<Drawable>> mDrawables;
+  std::vector<std::shared_ptr<Drawable>> mDrawables;
   glm::mat4 mView;
 };
 

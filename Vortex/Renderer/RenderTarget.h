@@ -9,7 +9,6 @@
 #include <Vortex/Renderer/RenderState.h>
 
 #include <functional>
-#include <initializer_list>
 
 namespace Vortex
 {
@@ -29,8 +28,7 @@ struct RenderTarget
 
   VORTEX_API virtual ~RenderTarget();
 
-  // TODO should use shared_ptr?
-  using DrawableList = std::initializer_list<std::reference_wrapper<Drawable>>;
+  using DrawableList = std::vector<std::shared_ptr<Drawable>>;
 
   VORTEX_API virtual RenderCommand Record(DrawableList drawables,
                                           ColorBlendState blendState = {}) = 0;

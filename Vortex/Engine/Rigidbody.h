@@ -55,7 +55,7 @@ public:
 
   VORTEX_API RigidBody(const Renderer::Device& device,
                        const glm::ivec2& size,
-                       Renderer::Drawable& drawable,
+                       Renderer::DrawablePtr drawable,
                        vk::Flags<Type> type);
 
   VORTEX_API ~RigidBody();
@@ -185,14 +185,13 @@ private:
   float mSize;
 
   const Renderer::Device& mDevice;
-  Renderer::Drawable& mDrawable;
+  Renderer::DrawablePtr mDrawable;
   Renderer::RenderTexture mPhi;
   Renderer::UniformBuffer<Velocity> mVelocity;
   Renderer::Buffer<Velocity> mForce, mReducedForce, mLocalForce;
   Renderer::UniformBuffer<glm::vec2> mCenter;
   Renderer::UniformBuffer<Velocity> mLocalVelocity;
 
-  Renderer::Clear mClear;
   Renderer::RenderCommand mLocalPhiRender, mPhiRender;
 
   Renderer::Work mDiv, mConstrain, mForceWork, mPressureWork;

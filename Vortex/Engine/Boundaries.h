@@ -120,7 +120,7 @@ private:
 
 extern VORTEX_API Renderer::ColorBlendState IntersectionBlend;
 extern VORTEX_API Renderer::ColorBlendState UnionBlend;
-extern VORTEX_API Renderer::Clear BoundariesClear;
+extern VORTEX_API std::shared_ptr<Renderer::Clear> BoundariesClear;
 
 /**
  * @brief Sprite of a distance field
