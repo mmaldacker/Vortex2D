@@ -23,22 +23,22 @@ TEST(ShapeTests, Square)
 {
   glm::vec2 size = {10.0f, 20.0f};
 
-  Rectangle rect(*device, size);
-  rect.Position = glm::vec2(5.0f, 7.0f);
-  rect.Scale = glm::vec2(1.5f, 1.0f);
-  rect.Colour = glm::vec4(1.0f);
+  auto rect = std::make_shared<Rectangle>(*device, size);
+  rect->Position = glm::vec2(5.0f, 7.0f);
+  rect->Scale = glm::vec2(1.5f, 1.0f);
+  rect->Colour = glm::vec4(1.0f);
 
-  Clear clear(glm::vec4(0.0f));
+  auto clear = std::make_shared<Clear>(glm::vec4(0.0f));
 
   RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
   Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
 
   texture.Record({clear, rect}).Submit();
 
-  size *= rect.Scale;
+  size *= rect->Scale;
 
   std::vector<float> data(50 * 50, 0.0f);
-  DrawSquare(50, 50, data, rect.Position, size, 1.0f);
+  DrawSquare(50, 50, data, rect->Position, size, 1.0f);
 
   device->Execute([&](vk::CommandBuffer commandBuffer)
                   { outTexture.CopyFrom(commandBuffer, texture); });
@@ -74,11 +74,11 @@ TEST(ShapeTests, Mesh)
       vk::DrawIndexedIndirectCommand().setIndexCount(indices.size()).setInstanceCount(1);
   CopyFrom(parameters, localParameters);
 
-  Mesh mesh(*device, vertexBuffer, indexBuffer, parameters);
-  mesh.Position = glm::vec2(5.0f, 7.0f);
-  mesh.Colour = glm::vec4(1.0f);
+  auto mesh = std::make_shared<Mesh>(*device, vertexBuffer, indexBuffer, parameters);
+  mesh->Position = glm::vec2(5.0f, 7.0f);
+  mesh->Colour = glm::vec4(1.0f);
 
-  Clear clear(glm::vec4(0.0f));
+  auto clear = std::make_shared<Clear>(glm::vec4(0.0f));
 
   RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
   Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
@@ -88,7 +88,7 @@ TEST(ShapeTests, Mesh)
   std::vector<float> data(50 * 50, 0.0f);
 
   // TODO first pixel isn't drawn, why?
-  DrawSquareContour(50, 50, data, mesh.Position - glm::vec2(1.0f), size, 1.0f);
+  DrawSquareContour(50, 50, data, mesh->Position - glm::vec2(1.0f), size, 1.0f);
 
   device->Execute([&](vk::CommandBuffer commandBuffer)
                   { outTexture.CopyFrom(commandBuffer, texture); });
@@ -100,9 +100,9 @@ TEST(ShapeTests, IntSquare)
 {
   glm::vec2 size = {10.0f, 20.0f};
 
-  IntRectangle rect(*device, size);
-  rect.Position = glm::vec2(5.0f, 7.0f);
-  rect.Colour = glm::vec4(1);
+  auto rect = std::make_shared<IntRectangle>(*device, size);
+  rect->Position = glm::vec2(5.0f, 7.0f);
+  rect->Colour = glm::vec4(1);
 
   RenderTexture texture(*device, 50, 50, vk::Format::eR32Sint);
   Texture outTexture(*device, 50, 50, vk::Format::eR32Sint, VMA_MEMORY_USAGE_CPU_ONLY);
@@ -110,7 +110,7 @@ TEST(ShapeTests, IntSquare)
   texture.Record({rect}).Submit();
 
   std::vector<int> data(50 * 50, 0);
-  DrawSquare(50, 50, data, rect.Position, size, 1);
+  DrawSquare(50, 50, data, rect->Position, size, 1);
 
   device->Execute([&](vk::CommandBuffer commandBuffer)
                   { outTexture.CopyFrom(commandBuffer, texture); });
@@ -122,16 +122,16 @@ TEST(ShapeTests, MultipleSquares)
 {
   glm::vec2 size = {10.0f, 20.0f};
 
-  Rectangle rect1(*device, size);
-  rect1.Position = glm::vec2(5.0f, 7.0f);
-  rect1.Scale = glm::vec2(1.5f, 1.0f);
-  rect1.Colour = glm::vec4(1.0f);
+  auto rect1 = std::make_shared<Rectangle>(*device, size);
+  rect1->Position = glm::vec2(5.0f, 7.0f);
+  rect1->Scale = glm::vec2(1.5f, 1.0f);
+  rect1->Colour = glm::vec4(1.0f);
 
-  Rectangle rect2(*device, size);
-  rect2.Position = glm::vec2(20.0f, 27.0f);
-  rect2.Colour = glm::vec4(1.0f);
+  auto rect2 = std::make_shared<Rectangle>(*device, size);
+  rect2->Position = glm::vec2(20.0f, 27.0f);
+  rect2->Colour = glm::vec4(1.0f);
 
-  Clear clear(glm::vec4(0.0f));
+  auto clear = std::make_shared<Clear>(glm::vec4(0.0f));
 
   RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
   Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
@@ -140,10 +140,10 @@ TEST(ShapeTests, MultipleSquares)
   texture.Record({rect2}).Submit();
 
   std::vector<float> data(50 * 50, 0.0f);
-  DrawSquare(50, 50, data, rect2.Position, size, 1.0f);
+  DrawSquare(50, 50, data, rect2->Position, size, 1.0f);
 
-  size *= rect1.Scale;
-  DrawSquare(50, 50, data, rect1.Position, size, 1.0f);
+  size *= rect1->Scale;
+  DrawSquare(50, 50, data, rect1->Position, size, 1.0f);
 
   device->Execute([&](vk::CommandBuffer commandBuffer)
                   { outTexture.CopyFrom(commandBuffer, texture); });
@@ -153,11 +153,11 @@ TEST(ShapeTests, MultipleSquares)
 
 TEST(ShapeTests, Circle)
 {
-  Ellipse ellipse(*device, glm::vec2(5.0f));
-  ellipse.Position = glm::vec2(10.0f, 15.0f);
-  ellipse.Colour = glm::vec4(1.0f);
+  auto ellipse = std::make_shared<Ellipse>(*device, glm::vec2(5.0f));
+  ellipse->Position = glm::vec2(10.0f, 15.0f);
+  ellipse->Colour = glm::vec4(1.0f);
 
-  Clear clear(glm::vec4(0.0f));
+  auto clear = std::make_shared<Clear>(glm::vec4(0.0f));
 
   RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
   Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
@@ -165,7 +165,7 @@ TEST(ShapeTests, Circle)
   texture.Record({clear, ellipse}).Submit();
 
   std::vector<float> data(50 * 50, 0.0f);
-  DrawCircle(50, 50, data, ellipse.Position, 5.0f);
+  DrawCircle(50, 50, data, ellipse->Position, 5.0f);
 
   device->Execute([&](vk::CommandBuffer commandBuffer)
                   { outTexture.CopyFrom(commandBuffer, texture); });
@@ -177,11 +177,11 @@ TEST(ShapeTests, Ellipse)
 {
   glm::vec2 radius(4.0f, 7.0f);
 
-  Ellipse ellipse(*device, radius);
-  ellipse.Position = glm::vec2(20.0f, 15.0f);
-  ellipse.Colour = glm::vec4(1.0f);
+  auto ellipse = std::make_shared<Ellipse>(*device, radius);
+  ellipse->Position = glm::vec2(20.0f, 15.0f);
+  ellipse->Colour = glm::vec4(1.0f);
 
-  Clear clear(glm::vec4(0.0f));
+  auto clear = std::make_shared<Clear>(glm::vec4(0.0f));
 
   RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
   Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
@@ -189,7 +189,7 @@ TEST(ShapeTests, Ellipse)
   texture.Record({clear, ellipse}).Submit();
 
   std::vector<float> data(50 * 50, 0.0f);
-  DrawEllipse(50, 50, data, ellipse.Position, radius);
+  DrawEllipse(50, 50, data, ellipse->Position, radius);
 
   device->Execute([&](vk::CommandBuffer commandBuffer)
                   { outTexture.CopyFrom(commandBuffer, texture); });
@@ -202,21 +202,21 @@ TEST(ShapeTests, ScaledEllipse)
   glm::vec2 pos(20.0f, 15.0f);
   glm::vec2 radius(4.0f, 7.0f);
 
-  Ellipse ellipse(*device, radius);
-  ellipse.Position = pos;
-  ellipse.Scale = glm::vec2(1.0f, 2.0f);
-  ellipse.Colour = glm::vec4(1.0f);
+  auto ellipse = std::make_shared<Ellipse>(*device, radius);
+  ellipse->Position = pos;
+  ellipse->Scale = glm::vec2(1.0f, 2.0f);
+  ellipse->Colour = glm::vec4(1.0f);
 
-  Clear clear(glm::vec4(0.0f));
+  auto clear = std::make_shared<Clear>(glm::vec4(0.0f));
 
   RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
   Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
 
   texture.Record({clear, ellipse}).Submit();
 
-  radius *= ellipse.Scale;
+  radius *= ellipse->Scale;
   std::vector<float> data(50 * 50, 0.0f);
-  DrawEllipse(50, 50, data, ellipse.Position, radius);
+  DrawEllipse(50, 50, data, ellipse->Position, radius);
 
   device->Execute([&](vk::CommandBuffer commandBuffer)
                   { outTexture.CopyFrom(commandBuffer, texture); });
@@ -228,12 +228,12 @@ TEST(ShapeTests, RotatedEllipse)
 {
   glm::vec2 radius(4.0f, 7.0f);
 
-  Ellipse ellipse(*device, radius);
-  ellipse.Position = glm::vec2(20.0f, 15.0f);
-  ellipse.Rotation = 33.0f;
-  ellipse.Colour = glm::vec4(1.0f);
+  auto ellipse = std::make_shared<Ellipse>(*device, radius);
+  ellipse->Position = glm::vec2(20.0f, 15.0f);
+  ellipse->Rotation = 33.0f;
+  ellipse->Colour = glm::vec4(1.0f);
 
-  Clear clear(glm::vec4(0.0f));
+  auto clear = std::make_shared<Clear>(glm::vec4(0.0f));
 
   RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
   Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
@@ -241,7 +241,7 @@ TEST(ShapeTests, RotatedEllipse)
   texture.Record({clear, ellipse}).Submit();
 
   std::vector<float> data(50 * 50, 0.0f);
-  DrawEllipse(50, 50, data, ellipse.Position, radius, ellipse.Rotation);
+  DrawEllipse(50, 50, data, ellipse->Position, radius, ellipse->Rotation);
 
   device->Execute([&](vk::CommandBuffer commandBuffer)
                   { outTexture.CopyFrom(commandBuffer, texture); });
@@ -254,11 +254,11 @@ TEST(ShapeTests, RenderScaledEllipse)
   glm::vec2 pos(10.0f, 10.0f);
   glm::vec2 radius(5.0f, 8.0f);
 
-  Ellipse ellipse(*device, radius);
-  ellipse.Position = pos;
-  ellipse.Colour = glm::vec4(1.0f);
+  auto ellipse = std::make_shared<Ellipse>(*device, radius);
+  ellipse->Position = pos;
+  ellipse->Colour = glm::vec4(1.0f);
 
-  Clear clear(glm::vec4(0.0f));
+  auto clear = std::make_shared<Clear>(glm::vec4(0.0f));
 
   RenderTexture texture(*device, 50, 50, vk::Format::eR32Sfloat);
   Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);

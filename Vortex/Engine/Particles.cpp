@@ -159,7 +159,6 @@ Renderer::IndirectBuffer<Renderer::DispatchParams>& ParticleCount::GetDispatchPa
 
 void ParticleCount::LevelSetBind(LevelSet& levelSet)
 {
-  // TODO should shrink wrap wholes and redistance
   mParticlePhiBound = mParticlePhiWork.Bind({mCount, mParticles, mIndex, levelSet});
   mParticlePhi.Record(
       [&](vk::CommandBuffer commandBuffer)

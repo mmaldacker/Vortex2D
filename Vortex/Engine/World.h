@@ -109,13 +109,13 @@ public:
    * set.
    * @return a sprite
    */
-  VORTEX_API DistanceField LiquidDistanceField();
+  VORTEX_API std::shared_ptr<DistanceField> MakeLiquidDistanceField();
 
   /**
    * @brief Create sprite that can be rendered to visualize the solid level set.
    * @return a sprite
    */
-  VORTEX_API DistanceField SolidDistanceField();
+  VORTEX_API std::shared_ptr<DistanceField> MakeSolidDistanceField();
 
   /**
    * @brief Add a rigibody to the solver

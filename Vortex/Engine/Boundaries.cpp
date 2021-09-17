@@ -258,7 +258,8 @@ Renderer::ColorBlendState UnionBlend = []
   return blendState;
 }();
 
-Vortex::Renderer::Clear BoundariesClear = Vortex::Renderer::Clear({10000.0f, 0.0f, 0.0f, 0.0f});
+std::shared_ptr<Vortex::Renderer::Clear> BoundariesClear =
+    std::make_shared<Vortex::Renderer::Clear>(glm::vec4{10000.0f, 0.0f, 0.0f, 0.0f});
 
 DistanceField::DistanceField(const Renderer::Device& device,
                              Renderer::RenderTexture& levelSet,

@@ -85,7 +85,7 @@ TEST(RenderingTest, ClearTexture)
 
   std::vector<float> data(50 * 50, 3.5f);
 
-  Clear clear({3.5f, 0.0f, 0.0f, 0.0f});
+  auto clear = std::make_shared<Clear>(glm::vec4{3.5f, 0.0f, 0.0f, 0.0f});
 
   texture.Record({clear}).Submit();
 
@@ -130,8 +130,8 @@ TEST(RenderingTest, BlendAdd)
   device->Execute([&](vk::CommandBuffer commandBuffer)
                   { texture.CopyFrom(commandBuffer, localTexture); });
 
-  Rectangle rectangle(*device, size);
-  rectangle.Colour = glm::vec4(0.5f, 0.0f, 0.0f, 0.0f);
+  auto rectangle = std::make_shared<Rectangle>(*device, size);
+  rectangle->Colour = glm::vec4(0.5f, 0.0f, 0.0f, 0.0f);
 
   Vortex::Renderer::ColorBlendState blendState;
   blendState.ColorBlend.setBlendEnable(true)
@@ -159,7 +159,7 @@ TEST(RenderingTest, MoveCommandBuffer)
   Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
 
   {
-    Clear clear1({1.0f, 0.0f, 0.0f, 1.0f});
+    auto clear1 = std::make_shared<Clear>(glm::vec4{1.0f, 0.0f, 0.0f, 1.0f});
 
     // clear with 1
     renderCommand = texture.Record({clear1});
@@ -174,7 +174,7 @@ TEST(RenderingTest, MoveCommandBuffer)
   }
 
   {
-    Clear clear2({2.0f, 0.0f, 0.0f, 1.0f});
+    auto clear2 = std::make_shared<Clear>(glm::vec4{2.0f, 0.0f, 0.0f, 1.0f});
 
     // clear with 2
     renderCommand = texture.Record({clear2});
@@ -229,7 +229,7 @@ TEST(RenderingTest, Sprite)
                   { texture.CopyFrom(commandBuffer, localTexture); });
 
   RenderTexture output(*device, size.x, size.y, vk::Format::eR8G8B8A8Unorm);
-  Sprite sprite(*device, texture);
+  auto sprite = std::make_shared<Sprite>(*device, texture);
 
   output.Record({sprite}).Submit();
   device->Handle().waitIdle();

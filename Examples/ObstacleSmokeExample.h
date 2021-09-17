@@ -25,10 +25,8 @@ class ObstacleSmokeExample : public Runner
 {
 public:
   ObstacleSmokeExample(const Vortex::Renderer::Device& device, const glm::ivec2& size, float dt)
-      : density(device, size, vk::Format::eR8G8B8A8Unorm)
+      : density(std::make_shared<Vortex::Fluid::Density>(device, size, vk::Format::eR8G8B8A8Unorm))
       , world(device, size, dt, Vortex::Fluid::Velocity::InterpolationMode::Linear)
-      , solidPhi(world.SolidDistanceField())
-      , velocityClear({0.0f, 0.0f, 0.0f, 0.0f})
       , rWorld({0.0f, 100.0f})
       , solver(rWorld)
       , body1(device,
@@ -50,31 +48,29 @@ public:
                Vortex::Fluid::RigidBody::Type::eStatic,
                {125.0f, 5.0f})
   {
-    world.FieldBind(density);
+    world.FieldBind(*density);
     world.AttachRigidBodySolver(solver);
     world.AddRigidbody(body1.mRigidbody);
     world.AddRigidbody(body2.mRigidbody);
     world.AddRigidbody(bottom.mRigidbody);
-
-    solidPhi.Colour = green;
   }
 
   void Init(const Vortex::Renderer::Device& device,
             Vortex::Renderer::RenderTarget& renderTarget) override
   {
     // Draw density
-    Vortex::Renderer::Rectangle source(device, {200, 100.0f});
-    source.Position = {25.0f, 125.0f};
-    source.Colour = gray;
+    auto source = std::make_shared<Vortex::Renderer::Rectangle>(device, glm::vec2{200, 100.0f});
+    source->Position = {25.0f, 125.0f};
+    source->Colour = gray;
 
-    density.Record({source}).Submit().Wait();
+    density->Record({source}).Submit().Wait();
 
     // Draw liquid boundaries
-    Vortex::Renderer::Clear clear({1.0f, 0.0f, 0.0f, 0.0f});
-
-    Vortex::Renderer::Rectangle liquidArea(device, {250.0f, 250.0f});
-    liquidArea.Colour = {-1.0f, 0.0f, 0.0f, 0.0f};
-    liquidArea.Position = {3.0f, 3.0};
+    auto clear = std::make_shared<Vortex::Renderer::Clear>(glm::vec4{1.0f, 0.0f, 0.0f, 0.0f});
+    auto liquidArea =
+        std::make_shared<Vortex::Renderer::Rectangle>(device, glm::vec2{250.0f, 250.0f});
+    liquidArea->Colour = {-1.0f, 0.0f, 0.0f, 0.0f};
+    liquidArea->Position = {3.0f, 3.0};
 
     world.RecordLiquidPhi({clear, liquidArea}).Submit().Wait();
 
@@ -92,6 +88,9 @@ public:
 
     // Bottom
     bottom.mRigidbody.SetTransform({128.0f, 256.5f}, 0.0f);
+
+    auto solidPhi = world.MakeSolidDistanceField();
+    solidPhi->Colour = green;
 
     Vortex::Renderer::ColorBlendState blendState;
     blendState.ColorBlend.setBlendEnable(true)
@@ -113,11 +112,9 @@ public:
   }
 
 private:
-  Vortex::Fluid::Density density;
+  std::shared_ptr<Vortex::Fluid::Density> density;
   Vortex::Fluid::SmokeWorld world;
-  Vortex::Fluid::DistanceField solidPhi;
 
-  Vortex::Renderer::Clear velocityClear;
   Vortex::Renderer::RenderCommand windowRender;
 
   b2World rWorld;

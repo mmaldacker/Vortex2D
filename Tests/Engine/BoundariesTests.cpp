@@ -101,15 +101,15 @@ TEST(BoundariesTests, Square)
 
   std::vector<glm::vec2> points = {{0.0f, 0.0f}, {4.0f, 0.0f}, {4.0f, 4.0f}, {0.0f, 4.0f}};
 
-  Polygon square(*device, points, false, 20);
-  square.Position = glm::vec2(5.0f, 10.0f);
+  auto square = std::make_shared<Polygon>(*device, points, false, 20);
+  square->Position = glm::vec2(5.0f, 10.0f);
 
   std::vector<float> data(size.x * size.y, 100.0f);
-  DrawSignedSquare(size, points, data, square.Position);
+  DrawSignedSquare(size, points, data, square->Position);
 
   LevelSet levelSet(*device, size);
 
-  Clear clear({100.0f, 0.0f, 0.0f, 0.0f});
+  auto clear = std::make_shared<Clear>(glm::vec4{100.0f, 0.0f, 0.0f, 0.0f});
 
   levelSet.Record({clear, square}).Submit();
   device->Handle().waitIdle();
@@ -127,18 +127,18 @@ TEST(BoundariesTests, InverseSquare)
 
   std::vector<glm::vec2> points = {{0.0f, 0.0f}, {4.0f, 0.0f}, {4.0f, 4.0f}, {0.0f, 4.0f}};
 
-  Polygon square(*device, points, true, 20);
-  square.Position = glm::vec2(5.0f, 10.0f);
+  auto square = std::make_shared<Polygon>(*device, points, true, 20);
+  square->Position = glm::vec2(5.0f, 10.0f);
 
   std::vector<float> data(size.x * size.y, 100.0f);
-  DrawSignedSquare(size, points, data, square.Position);
+  DrawSignedSquare(size, points, data, square->Position);
 
   for (float& x : data)
     x *= -1.0f;
 
   LevelSet levelSet(*device, size);
 
-  Clear clear({100.0f, 0.0f, 0.0f, 0.0f});
+  auto clear = std::make_shared<Clear>(glm::vec4{100.0f, 0.0f, 0.0f, 0.0f});
 
   levelSet.Record({clear, square}).Submit();
   device->Handle().waitIdle();
@@ -156,14 +156,14 @@ TEST(BoundariesTests, Circle)
 
   std::vector<glm::vec2> points = {{0.0f, 0.0f}, {4.0f, 0.0f}, {4.0f, 4.0f}, {0.0f, 4.0f}};
 
-  Circle circle(*device, 5.0f, 20);
-  circle.Position = glm::vec2(8.0f, 10.0f);
+  auto circle = std::make_shared<Circle>(*device, 5.0f, 20);
+  circle->Position = glm::vec2(8.0f, 10.0f);
 
   std::vector<float> data(size.x * size.y, 100.0f);
-  DrawCircle(size, data, 5.0f, circle.Position);
+  DrawCircle(size, data, 5.0f, circle->Position);
 
   LevelSet levelSet(*device, size);
-  Clear clear({100.0f, 0.0f, 0.0f, 0.0f});
+  auto clear = std::make_shared<Clear>(glm::vec4{100.0f, 0.0f, 0.0f, 0.0f});
 
   levelSet.Record({clear, circle}).Submit();
   device->Handle().waitIdle();
@@ -181,17 +181,17 @@ TEST(BoundariesTests, Intersection)
 
   std::vector<glm::vec2> points = {{0.0f, 0.0f}, {4.0f, 0.0f}, {4.0f, 4.0f}, {0.0f, 4.0f}};
 
-  Polygon square1(*device, points, false, 20);
-  square1.Position = glm::vec2(5.0f, 10.0f);
+  auto square1 = std::make_shared<Polygon>(*device, points, false, 20);
+  square1->Position = glm::vec2(5.0f, 10.0f);
 
-  Polygon square2(*device, points, false, 20);
-  square2.Position = glm::vec2(12.0f, 10.0f);
+  auto square2 = std::make_shared<Polygon>(*device, points, false, 20);
+  square2->Position = glm::vec2(12.0f, 10.0f);
 
   std::vector<float> data1(size.x * size.y, 100.0f);
-  DrawSignedSquare(size, points, data1, square1.Position);
+  DrawSignedSquare(size, points, data1, square1->Position);
 
   std::vector<float> data2(size.x * size.y, 100.0f);
-  DrawSignedSquare(size, points, data2, square2.Position);
+  DrawSignedSquare(size, points, data2, square2->Position);
 
   std::vector<float> data(size.x * size.y, 100.0f);
   for (std::size_t i = 0; i < data.size(); i++)
@@ -200,7 +200,7 @@ TEST(BoundariesTests, Intersection)
   }
 
   LevelSet levelSet(*device, size);
-  Clear clear({100.0f, 0.0f, 0.0f, 0.0f});
+  auto clear = std::make_shared<Clear>(glm::vec4{100.0f, 0.0f, 0.0f, 0.0f});
 
   levelSet.Record({clear, square1, square2}, UnionBlend).Submit();
   device->Handle().waitIdle();
@@ -242,8 +242,8 @@ TEST(BoundariesTest, DistanceField)
         levelSet.CopyFrom(commandBuffer, localLevelSet);
       });
 
-  DistanceField distance(*device, levelSet);
-  distance.Colour = glm::vec4(0.2f, 1.0f, 0.8f, 1.0f);
+  auto distance = std::make_shared<DistanceField>(*device, levelSet);
+  distance->Colour = glm::vec4(0.2f, 1.0f, 0.8f, 1.0f);
 
   RenderTexture output(*device, size.x, size.y, vk::Format::eR8G8B8A8Unorm);
   Texture localOutput(
@@ -255,9 +255,9 @@ TEST(BoundariesTest, DistanceField)
   device->Execute([&](vk::CommandBuffer commandBuffer)
                   { localOutput.CopyFrom(commandBuffer, output); });
 
-  auto r = static_cast<uint8_t>(255 * distance.Colour.r);
-  auto g = static_cast<uint8_t>(255 * distance.Colour.g);
-  auto b = static_cast<uint8_t>(255 * distance.Colour.b);
+  auto r = static_cast<uint8_t>(255 * distance->Colour.r);
+  auto g = static_cast<uint8_t>(255 * distance->Colour.g);
+  auto b = static_cast<uint8_t>(255 * distance->Colour.b);
   auto a = static_cast<uint8_t>(255 - std::round(255 * smoothstep(0.0, 1.0, 0.1f + 0.5f)));
   std::vector<glm::u8vec4> outData(size.x * size.y, {r, g, b, a});
 
@@ -271,8 +271,8 @@ TEST(BoundariesTest, Contour)
 
   RenderTexture render(*device, size.x, size.y, vk::Format::eR32Sfloat);
 
-  Vortex::Fluid::Rectangle rectangle(*device, {5, 5});
-  rectangle.Position = {2, 2};
+  auto rectangle = std::make_shared<Vortex::Fluid::Rectangle>(*device, glm::vec2{5, 5});
+  rectangle->Position = {2, 2};
 
   render.Record({rectangle}).Submit().Wait();
 
@@ -315,8 +315,8 @@ TEST(BoundariesTest, Contour)
 
   for (int i = 0; i < 5; i++)
   {
-    glm::vec2 top = glm::vec2{i, 0} + rectangle.Position;
-    glm::vec2 bottom = glm::vec2{i, 4} + rectangle.Position;
+    glm::vec2 top = glm::vec2{i, 0} + rectangle->Position;
+    glm::vec2 bottom = glm::vec2{i, 4} + rectangle->Position;
 
     EXPECT_TRUE(has_vertex(top)) << "Missing " << top;
     EXPECT_TRUE(has_vertex(bottom)) << "Missing " << bottom;
@@ -324,8 +324,8 @@ TEST(BoundariesTest, Contour)
 
   for (int j = 0; j < 5; j++)
   {
-    glm::vec2 left = glm::vec2{0, j} + rectangle.Position;
-    glm::vec2 right = glm::vec2{4, j} + rectangle.Position;
+    glm::vec2 left = glm::vec2{0, j} + rectangle->Position;
+    glm::vec2 right = glm::vec2{4, j} + rectangle->Position;
 
     EXPECT_TRUE(has_vertex(left)) << "Missing " << left;
     EXPECT_TRUE(has_vertex(right)) << "Missing " << right;
@@ -369,8 +369,8 @@ TEST(BoundariesTest, Contour)
 
   for (int i = 1; i < 5; i++)
   {
-    glm::vec2 top = glm::vec2{i, 0} + rectangle.Position;
-    glm::vec2 bottom = glm::vec2{i, 4} + rectangle.Position;
+    glm::vec2 top = glm::vec2{i, 0} + rectangle->Position;
+    glm::vec2 bottom = glm::vec2{i, 4} + rectangle->Position;
 
     EXPECT_TRUE(has_index_pair(get_vertex_index(top), get_vertex_index(top - glm::vec2{1, 0})));
     EXPECT_TRUE(
@@ -379,8 +379,8 @@ TEST(BoundariesTest, Contour)
 
   for (int j = 1; j < 5; j++)
   {
-    glm::vec2 left = glm::vec2{0, j} + rectangle.Position;
-    glm::vec2 right = glm::vec2{4, j} + rectangle.Position;
+    glm::vec2 left = glm::vec2{0, j} + rectangle->Position;
+    glm::vec2 right = glm::vec2{4, j} + rectangle->Position;
 
     EXPECT_TRUE(has_index_pair(get_vertex_index(left), get_vertex_index(left - glm::vec2{0, 1})));
     EXPECT_TRUE(has_index_pair(get_vertex_index(right), get_vertex_index(right - glm::vec2{0, 1})));

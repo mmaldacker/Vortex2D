@@ -23,12 +23,8 @@ class WaterFallExample : public Runner
 
 public:
   WaterFallExample(const Vortex::Renderer::Device& device, const glm::ivec2& size, float dt)
-      : waterSource(device, {10.0f, 10.0f})
-      , waterForce(device, {10.0f, 10.0f})
-      , gravity(device, glm::vec2(256.0f, 256.0f))
+      : dt(dt)
       , world(device, size, dt, 2, Vortex::Fluid::Velocity::InterpolationMode::Linear)
-      , solidPhi(world.SolidDistanceField())
-      , liquidPhi(world.LiquidDistanceField())
       , rWorld(b2Vec2(0.0f, gravityForce))
       , solver(rWorld)
       , circle(device, size, rWorld, b2_dynamicBody, Vortex::Fluid::RigidBody::Type::eStrong, 10.0f)
@@ -63,23 +59,26 @@ public:
     world.AddRigidbody(left.mRigidbody);
     world.AddRigidbody(right.mRigidbody);
     world.AddRigidbody(bottom.mRigidbody);
-
-    gravity.Colour = glm::vec4(0.0f, dt * gravityForce, 0.0f, 0.0f);
-
-    solidPhi.Colour = green;
-    liquidPhi.Colour = blue;
   }
 
   void Init(const Vortex::Renderer::Device& device,
             Vortex::Renderer::RenderTarget& renderTarget) override
   {
+    auto waterSource =
+        std::make_shared<Vortex::Renderer::IntRectangle>(device, glm::vec2{10.0f, 10.0f});
+    auto waterForce =
+        std::make_shared<Vortex::Renderer::Rectangle>(device, glm::vec2{10.0f, 10.0f});
+    auto gravity = std::make_shared<Vortex::Renderer::Rectangle>(device, glm::vec2{256.0f, 256.0f});
+
+    gravity->Colour = glm::vec4(0.0f, dt * gravityForce, 0.0f, 0.0f);
+
     // Add particles
-    waterSource.Position = {5.0f, 25.0f};
-    waterSource.Colour = glm::vec4(4);
+    waterSource->Position = {5.0f, 25.0f};
+    waterSource->Colour = glm::vec4(4);
 
     // Add force
-    waterForce.Position = {5.0f, 25.0f};
-    waterForce.Colour = glm::vec4(10.0f, 0.0f, 0.0f, 0.0f);
+    waterForce->Position = {5.0f, 25.0f};
+    waterForce->Colour = glm::vec4(10.0f, 0.0f, 0.0f, 0.0f);
 
     sourceRender = world.RecordParticleCount({waterSource});
 
@@ -94,6 +93,11 @@ public:
 
     // Set gravity
     velocityRender = world.RecordVelocity({gravity, waterForce}, Vortex::Fluid::VelocityOp::Add);
+
+    auto solidPhi = world.MakeSolidDistanceField();
+    auto liquidPhi = world.MakeLiquidDistanceField();
+    solidPhi->Colour = green;
+    liquidPhi->Colour = blue;
 
     Vortex::Renderer::ColorBlendState blendState;
     blendState.ColorBlend.setBlendEnable(true)
@@ -117,11 +121,8 @@ public:
   }
 
 private:
-  Vortex::Renderer::IntRectangle waterSource;
-  Vortex::Renderer::Rectangle waterForce;
-  Vortex::Renderer::Rectangle gravity;
+  float dt;
   Vortex::Fluid::WaterWorld world;
-  Vortex::Fluid::DistanceField solidPhi, liquidPhi;
   Vortex::Renderer::RenderCommand sourceRender, velocityRender, windowRender;
 
   b2World rWorld;

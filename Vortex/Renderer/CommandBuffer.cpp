@@ -204,7 +204,7 @@ RenderCommand::RenderCommand(const Device& device,
 {
   for (auto& drawable : drawables)
   {
-    drawable.get().Initialize(renderState);
+    drawable->Initialize(renderState);
   }
 
   CommandBuffer cmd(device, true);
@@ -214,7 +214,7 @@ RenderCommand::RenderCommand(const Device& device,
              {
                for (auto& drawable : drawables)
                {
-                 drawable.get().Draw(commandBuffer, renderState);
+                 drawable->Draw(commandBuffer, renderState);
                }
              });
 
@@ -231,7 +231,7 @@ RenderCommand::RenderCommand(const Device& device,
 {
   for (auto& drawable : drawables)
   {
-    drawable.get().Initialize(renderState);
+    drawable->Initialize(renderState);
   }
 
   for (auto& frameBuffer : frameBuffers)
@@ -243,7 +243,7 @@ RenderCommand::RenderCommand(const Device& device,
                {
                  for (auto& drawable : drawables)
                  {
-                   drawable.get().Draw(commandBuffer, renderState);
+                   drawable->Draw(commandBuffer, renderState);
                  }
                });
 
@@ -282,7 +282,7 @@ void RenderCommand::Render(const std::initializer_list<vk::Semaphore>& waitSemap
   for (auto& drawable : mDrawables)
   {
     assert(mRenderTarget);
-    drawable.get().Update(mRenderTarget->Orth, mRenderTarget->View * mView);
+    drawable->Update(mRenderTarget->Orth, mRenderTarget->View * mView);
   }
 
   mCmds[*mIndex].Wait();

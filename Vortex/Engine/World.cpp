@@ -129,14 +129,14 @@ Renderer::RenderCommand World::RecordStaticSolidPhi(Renderer::RenderTarget::Draw
   return mStaticSolidPhi.Record(drawables, UnionBlend);
 }
 
-DistanceField World::LiquidDistanceField()
+std::shared_ptr<DistanceField> World::MakeLiquidDistanceField()
 {
-  return {mDevice, mLiquidPhi};
+  return std::make_shared<DistanceField>(mDevice, mLiquidPhi);
 }
 
-DistanceField World::SolidDistanceField()
+std::shared_ptr<DistanceField> World::MakeSolidDistanceField()
 {
-  return {mDevice, mDynamicSolidPhi};
+  return std::make_shared<DistanceField>(mDevice, mDynamicSolidPhi);
 }
 
 void World::AddRigidbody(RigidBody& rigidbody)

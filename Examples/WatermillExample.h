@@ -24,7 +24,7 @@ class Watermill
 public:
   Watermill(const Vortex::Renderer::Device& device, const glm::ivec2& size, b2World& rWorld)
       : mWatermillTexture(device, 150, 150, vk::Format::eR32Sfloat)
-      , mWatermill(device, mWatermillTexture)
+      , mWatermill(std::make_shared<Vortex::Renderer::Sprite>(device, mWatermillTexture))
       , mRigidbody(device, size, mWatermill, Vortex::Fluid::RigidBody::Type::eStrong)
   {
     {  // create centre body
@@ -80,10 +80,10 @@ public:
 
       mRigidbody.mBody->CreateFixture(&fixtureDef);
 
-      Vortex::Fluid::Rectangle fluidWing(device, wingSize);
-      fluidWing.Anchor = wingSize / glm::vec2(2.0f);
-      fluidWing.Position = glm::vec2(x, y) + centre;
-      fluidWing.Rotation = glm::degrees(angle);
+      auto fluidWing = std::make_shared<Vortex::Fluid::Rectangle>(device, wingSize);
+      fluidWing->Anchor = wingSize / glm::vec2(2.0f);
+      fluidWing->Position = glm::vec2(x, y) + centre;
+      fluidWing->Rotation = glm::degrees(angle);
       mWatermillTexture.Record({fluidWing}, Vortex::Fluid::UnionBlend).Submit().Wait();
     }
 
@@ -98,7 +98,7 @@ public:
   }
 
   Vortex::Renderer::RenderTexture mWatermillTexture;
-  Vortex::Renderer::Sprite mWatermill;
+  std::shared_ptr<Vortex::Renderer::Sprite> mWatermill;
   Box2DRigidbody mRigidbody;
   b2Body* mCentre;
 };
@@ -109,12 +109,8 @@ class WatermillExample : public Runner
 
 public:
   WatermillExample(const Vortex::Renderer::Device& device, const glm::ivec2& size, float dt)
-      : waterSource(device, {25.0, 25.0f})
-      , waterForce(device, {25.0f, 25.0f})
-      , gravity(device, glm::vec2(256.0f, 256.0f))
+      : dt(dt)
       , world(device, size, dt, 2, Vortex::Fluid::Velocity::InterpolationMode::Linear)
-      , solidPhi(world.SolidDistanceField())
-      , liquidPhi(world.LiquidDistanceField())
       , rWorld(b2Vec2(0.0f, gravityForce))
       , solver(rWorld)
       , left(device,
@@ -129,29 +125,32 @@ public:
                b2_staticBody,
                Vortex::Fluid::RigidBody::Type::eStatic,
                {250.0f, 5.0f})
-      , watermill(device, size, rWorld)
+      , watermill(std::make_shared<Watermill>(device, size, rWorld))
   {
     world.AttachRigidBodySolver(solver);
     world.AddRigidbody(left.mRigidbody);
     world.AddRigidbody(bottom.mRigidbody);
-    world.AddRigidbody(watermill.mRigidbody);
-
-    gravity.Colour = glm::vec4(0.0f, dt * gravityForce, 0.0f, 0.0f);
-
-    solidPhi.Colour = green;
-    liquidPhi.Colour = blue;
+    world.AddRigidbody(watermill->mRigidbody);
   }
 
   void Init(const Vortex::Renderer::Device& device,
             Vortex::Renderer::RenderTarget& renderTarget) override
   {
+    auto waterSource =
+        std::make_shared<Vortex::Renderer::IntRectangle>(device, glm::vec2{25.0, 25.0f});
+    auto waterForce =
+        std::make_shared<Vortex::Renderer::Rectangle>(device, glm::vec2{25.0f, 25.0f});
+    auto gravity = std::make_shared<Vortex::Renderer::Rectangle>(device, glm::vec2{256.0f, 256.0f});
+
+    gravity->Colour = glm::vec4(0.0f, dt * gravityForce, 0.0f, 0.0f);
+
     // Add particles
-    waterSource.Position = {15.0f, 25.0f};
-    waterSource.Colour = glm::vec4(4);
+    waterSource->Position = {15.0f, 25.0f};
+    waterSource->Colour = glm::vec4(4);
 
     // Add force
-    waterForce.Position = {5.0f, 25.0f};
-    waterForce.Colour = glm::vec4(5.0f, 0.0f, 0.0f, 0.0f);
+    waterForce->Position = {5.0f, 25.0f};
+    waterForce->Colour = glm::vec4(5.0f, 0.0f, 0.0f, 0.0f);
 
     sourceRender = world.RecordParticleCount({waterSource});
 
@@ -159,10 +158,15 @@ public:
     left.mRigidbody.SetTransform({40.0f, 90.0f}, 40.0f);
     bottom.mRigidbody.SetTransform({5.0f, 250.0f}, 0.0f);
 
-    watermill.SetTransform({160.0f, 170.0f}, 25.0f);
+    watermill->SetTransform({160.0f, 170.0f}, 25.0f);
 
     // Set gravity
     velocityRender = world.RecordVelocity({gravity, waterForce}, Vortex::Fluid::VelocityOp::Add);
+
+    auto solidPhi = world.MakeSolidDistanceField();
+    auto liquidPhi = world.MakeLiquidDistanceField();
+    solidPhi->Colour = green;
+    liquidPhi->Colour = blue;
 
     Vortex::Renderer::ColorBlendState blendState;
     blendState.ColorBlend.setBlendEnable(true)
@@ -186,16 +190,13 @@ public:
   }
 
 private:
-  Vortex::Renderer::IntRectangle waterSource;
-  Vortex::Renderer::Rectangle waterForce;
-  Vortex::Renderer::Rectangle gravity;
+  float dt;
   Vortex::Fluid::WaterWorld world;
-  Vortex::Fluid::DistanceField solidPhi, liquidPhi;
   Vortex::Renderer::RenderCommand sourceRender, velocityRender, windowRender;
 
   b2World rWorld;
 
   Box2DSolver solver;
   RectangleRigidbody left, bottom;
-  Watermill watermill;
+  std::shared_ptr<Watermill> watermill;
 };

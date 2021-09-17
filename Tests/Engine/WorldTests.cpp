@@ -31,28 +31,29 @@ float PressureRigidbody_VelocityTest(float scale)
   Fluid::Density density(*device, size, vk::Format::eR8G8B8A8Unorm);
   world.FieldBind(density);
 
-  Renderer::Clear fluidClear({-1.0f, 0.0f, 0.0f, 0.0f});
+  auto fluidClear = std::make_shared<Renderer::Clear>(glm::vec4{-1.0f, 0.0f, 0.0f, 0.0f});
   world.RecordLiquidPhi({fluidClear}).Submit();
 
   glm::vec2 rectangleSize(32.0f, 256.0f);
   rectangleSize /= scale;
 
-  Fluid::Rectangle rectangle(*device, rectangleSize);
+  auto rectangle = std::make_shared<Fluid::Rectangle>(*device, rectangleSize);
 
   float mass = rectangleSize.x * rectangleSize.y / (scale * scale);
   float inertia = rectangleSize.x * rectangleSize.y *
                   (rectangleSize.x * rectangleSize.x + rectangleSize.y * rectangleSize.y) /
                   (12.0f * std::pow(scale, 4.0f));
 
-  Fluid::RigidBody rigidbody(*device, size, rectangle, Fluid::RigidBody::Type::eWeak);
-  rigidbody.SetMassData(mass, inertia);
+  auto rigidbody =
+      std::make_shared<Fluid::RigidBody>(*device, size, rectangle, Fluid::RigidBody::Type::eWeak);
+  rigidbody->SetMassData(mass, inertia);
 
-  world.AddRigidbody(rigidbody);
-  rigidbody.Anchor = rectangleSize / glm::vec2(2.0f);
-  rigidbody.Position = size / glm::vec2(2.0f);
+  world.AddRigidbody(*rigidbody);
+  rigidbody->Anchor = rectangleSize / glm::vec2(2.0f);
+  rigidbody->Position = size / glm::vec2(2.0f);
 
-  Renderer::Rectangle velocity(*device, size);
-  velocity.Colour = {10.0f / scale, 0.0f, 0.0f, 0.0f};
+  auto velocity = std::make_shared<Renderer::Rectangle>(*device, size);
+  velocity->Colour = {10.0f / scale, 0.0f, 0.0f, 0.0f};
 
   world.RecordVelocity({velocity}, Fluid::VelocityOp::Set).Submit();
 
@@ -61,7 +62,7 @@ float PressureRigidbody_VelocityTest(float scale)
 
   device->Handle().waitIdle();
 
-  auto forces = rigidbody.GetForces();
+  auto forces = rigidbody->GetForces();
   float force = forces.velocity.x / (mass * scale);
   std::cout << "Scale " << scale << " Mass " << mass << " Scaled Force (" << force << ")"
             << std::endl;
@@ -107,32 +108,35 @@ float PressureRigidbody_RotationTest(float scale)
   Fluid::Density density(*device, size, vk::Format::eR8G8B8A8Unorm);
   world.FieldBind(density);
 
-  Renderer::Clear fluidClear({-1.0f, 0.0f, 0.0f, 0.0f});
+  auto fluidClear = std::make_shared<Renderer::Clear>(glm::vec4{-1.0f, 0.0f, 0.0f, 0.0f});
   world.RecordLiquidPhi({fluidClear}).Submit();
 
   glm::vec2 rectangleSize(32.0f, 256.0f);
   rectangleSize /= scale;
 
-  Fluid::Rectangle rectangle(*device, rectangleSize);
+  auto rectangle = std::make_shared<Fluid::Rectangle>(*device, rectangleSize);
 
   float mass = rectangleSize.x * rectangleSize.y / (scale * scale);
   float inertia = rectangleSize.x * rectangleSize.y *
                   (rectangleSize.x * rectangleSize.x + rectangleSize.y * rectangleSize.y) /
                   (12.0f * std::pow(scale, 4.0f));
 
-  Fluid::RigidBody rigidbody(*device, size, rectangle, Fluid::RigidBody::Type::eWeak);
-  rigidbody.SetMassData(mass, inertia);
-  world.AddRigidbody(rigidbody);
-  rigidbody.Anchor = rectangleSize / glm::vec2(2.0f);
-  rigidbody.Position = size / glm::vec2(2.0f);
+  auto rigidbody =
+      std::make_shared<Fluid::RigidBody>(*device, size, rectangle, Fluid::RigidBody::Type::eWeak);
+  rigidbody->SetMassData(mass, inertia);
+  world.AddRigidbody(*rigidbody);
+  rigidbody->Anchor = rectangleSize / glm::vec2(2.0f);
+  rigidbody->Position = size / glm::vec2(2.0f);
 
-  Renderer::Rectangle velocityUp(*device, glm::vec2(size.x, size.y / 2.0f));
-  velocityUp.Position = {0.0f, 0.0f};
-  velocityUp.Colour = {10.0f / scale, 0.0f, 0.0f, 0.0f};
+  auto velocityUp =
+      std::make_shared<Renderer::Rectangle>(*device, glm::vec2(size.x, size.y / 2.0f));
+  velocityUp->Position = {0.0f, 0.0f};
+  velocityUp->Colour = {10.0f / scale, 0.0f, 0.0f, 0.0f};
 
-  Renderer::Rectangle velocityDown(*device, glm::vec2(size.x, size.y / 2.0f));
-  velocityDown.Position = {0.0f, size.x / 2.0f};
-  velocityDown.Colour = {-10.0f / scale, 0.0f, 0.0f, 0.0f};
+  auto velocityDown =
+      std::make_shared<Renderer::Rectangle>(*device, glm::vec2(size.x, size.y / 2.0f));
+  velocityDown->Position = {0.0f, size.x / 2.0f};
+  velocityDown->Colour = {-10.0f / scale, 0.0f, 0.0f, 0.0f};
 
   world.RecordVelocity({velocityUp, velocityDown}, Fluid::VelocityOp::Set).Submit();
 
@@ -141,7 +145,7 @@ float PressureRigidbody_RotationTest(float scale)
 
   device->Handle().waitIdle();
 
-  auto forces = rigidbody.GetForces();
+  auto forces = rigidbody->GetForces();
   float force = forces.angular_velocity / (inertia * std::pow(scale, 4.0f));
   std::cout << "Scale " << scale << " Inertia " << inertia << " Scaled Torque (" << force << ")"
             << std::endl;
@@ -183,11 +187,11 @@ TEST(WorldTests, Velocity)
 
   Fluid::SmokeWorld world(*device, size, dt, Fluid::Velocity::InterpolationMode::Cubic);
 
-  Renderer::Clear fluidClear({-1.0f, 0.0f, 0.0f, 0.0f});
+  auto fluidClear = std::make_shared<Renderer::Clear>(glm::vec4{-1.0f, 0.0f, 0.0f, 0.0f});
   world.RecordLiquidPhi({fluidClear}).Submit();
 
-  Renderer::Rectangle velocity(*device, size);
-  velocity.Colour = {-10.0f, -10.0f, 0.0f, 0.0f};
+  auto velocity = std::make_shared<Renderer::Rectangle>(*device, size);
+  velocity->Colour = {-10.0f, -10.0f, 0.0f, 0.0f};
 
   world.RecordVelocity({velocity}, Fluid::VelocityOp::Set).Submit();
 

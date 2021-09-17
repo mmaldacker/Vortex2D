@@ -19,7 +19,7 @@ namespace Fluid
 {
 RigidBody::RigidBody(const Renderer::Device& device,
                      const glm::ivec2& size,
-                     Renderer::Drawable& drawable,
+                     Renderer::DrawablePtr drawable,
                      vk::Flags<Type> type)
     : mSize(static_cast<float>(size.x))
     , mDevice(device)
@@ -31,7 +31,6 @@ RigidBody::RigidBody(const Renderer::Device& device,
     , mLocalForce(device, 1, VMA_MEMORY_USAGE_GPU_TO_CPU)
     , mCenter(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
     , mLocalVelocity(device, VMA_MEMORY_USAGE_CPU_ONLY)
-    , mClear({1000.0f, 0.0f, 0.0f, 0.0f})
     , mDiv(device, size, SPIRV::BuildRigidbodyDiv_comp)
     , mConstrain(device, size, SPIRV::ConstrainRigidbodyVelocity_comp)
     , mForceWork(device, size, SPIRV::RigidbodyForce_comp)
@@ -46,7 +45,7 @@ RigidBody::RigidBody(const Renderer::Device& device,
     , mMass(0.0f)
     , mInertia(0.0f)
 {
-  mLocalPhiRender = mPhi.Record({mClear, drawable}, UnionBlend);
+  mLocalPhiRender = mPhi.Record({BoundariesClear, drawable}, UnionBlend);
 
   mVelocityCmd.Record([&](vk::CommandBuffer commandBuffer)
                       { mVelocity.CopyFrom(commandBuffer, mLocalVelocity); });

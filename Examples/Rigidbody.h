@@ -27,7 +27,7 @@ class Box2DRigidbody : public Vortex::Fluid::RigidBody
 public:
   Box2DRigidbody(const Vortex::Renderer::Device& device,
                  const glm::ivec2& size,
-                 Vortex::Renderer::Drawable& drawable,
+                 Vortex::Renderer::DrawablePtr drawable,
                  Vortex::Fluid::RigidBody::Type type);
 
   void ApplyForces();
@@ -49,7 +49,7 @@ public:
                    const std::vector<glm::vec2>& points,
                    float density = 1.0f);
 
-  Vortex::Fluid::Polygon mPolygon;
+  std::shared_ptr<Vortex::Fluid::Polygon> mPolygon;
   Box2DRigidbody mRigidbody;
 };
 
@@ -88,6 +88,6 @@ public:
                   const float radius,
                   float density = 1.0f);
 
-  Vortex::Fluid::Circle mCircle;
+  std::shared_ptr<Vortex::Fluid::Circle> mCircle;
   Box2DRigidbody mRigidbody;
 };
