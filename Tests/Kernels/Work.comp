@@ -4,21 +4,23 @@
 
 layout(std430, binding = 0) buffer Pos
 {
-    float numbers[];
-}pos;
+  float numbers[];
+}
+pos;
 
-layout (local_size_x_id = 1, local_size_y_id = 2) in;
-layout (constant_id = 3) const int value = 0;
+layout(local_size_x_id = 1, local_size_y_id = 2) in;
+layout(constant_id = 3) const int value = 0;
 
 layout(push_constant) uniform PushConsts
 {
-    int width;
-    int height;
-} consts;
+  int width;
+  int height;
+}
+consts;
 
 void main()
 {
-  uvec2 localSize = gl_WorkGroupSize.xy; // hack for Mali-GPU
+  uvec2 localSize = gl_WorkGroupSize.xy;  // hack for Mali-GPU
 
   uvec2 index = gl_GlobalInvocationID.xy;
   if (index.x < consts.width && index.y < consts.height)

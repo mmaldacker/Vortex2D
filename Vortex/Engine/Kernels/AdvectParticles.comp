@@ -10,14 +10,16 @@ layout(push_constant) uniform Consts
   int width;
   int height;
   float delta;
-}consts;
+}
+consts;
 
 #include "CommonParticles.comp"
 
 layout(std430, binding = 0) buffer Particles
 {
   Particle value[];
-}particles;
+}
+particles;
 
 struct DispatchParams
 {

@@ -2,35 +2,38 @@
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_GOOGLE_include_directive : enable
 
-layout (local_size_x_id = 1, local_size_y_id = 2) in;
-layout (constant_id = 1) const int blockSize = 256; // same as gl_WorkGroupSize.x or local_size_x
+layout(local_size_x_id = 1, local_size_y_id = 2) in;
+layout(constant_id = 1) const int blockSize = 256;  // same as gl_WorkGroupSize.x or local_size_x
 
 layout(push_constant) uniform Consts
 {
   int n;
-}consts;
+}
+consts;
 
 layout(std430, binding = 0) buffer Input
 {
   int value[];
-}i;
+}
+i;
 
 layout(std430, binding = 1) buffer Output
 {
   int value[];
-}o;
+}
+o;
 
 struct DispatchParams
 {
-    uint x;
-    uint y;
-    uint z;
-    uint count;
+  uint x;
+  uint y;
+  uint z;
+  uint count;
 };
 
 layout(std430, binding = 2) buffer Params
 {
-    DispatchParams params;
+  DispatchParams params;
 };
 
 shared int sdata[2 * blockSize + 2 * blockSize / 16];
@@ -39,38 +42,38 @@ shared int sdata[2 * blockSize + 2 * blockSize / 16];
 
 void ClearLastElement()
 {
-    uint local_id = gl_LocalInvocationID.x;
+  uint local_id = gl_LocalInvocationID.x;
 
-    if (local_id == 0)
-    {
-        uint index = (blockSize * 2) - 1;
-        index += MEMORY_BANK_OFFSET(index);
+  if (local_id == 0)
+  {
+    uint index = (blockSize * 2) - 1;
+    index += MEMORY_BANK_OFFSET(index);
 
-        params.count = sdata[index];
-        params.x = int(ceil(float(params.count) / float(blockSize)));
-        params.y = 1;
-        params.z = 1;
+    params.count = sdata[index];
+    params.x = int(ceil(float(params.count) / float(blockSize)));
+    params.y = 1;
+    params.z = 1;
 
-        sdata[index] = 0;
-    }
+    sdata[index] = 0;
+  }
 }
 
 void PreScanGroup()
 {
-    uint stride = BuildPartialSum();
-    ClearLastElement();
-    ScanRootToLeaves(stride);
+  uint stride = BuildPartialSum();
+  ClearLastElement();
+  ScanRootToLeaves(stride);
 }
 
 void main()
 {
-    uint group_id = gl_WorkGroupID.x;
-    uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
+  uint group_id = gl_WorkGroupID.x;
+  uvec2 localSize = gl_WorkGroupSize.xy;  // Hack for Mali-GPU
 
-    uint local_index = group_id * blockSize * 2;
-    uvec4 address_pair = GetAddressMapping(local_index);
+  uint local_index = group_id * blockSize * 2;
+  uvec4 address_pair = GetAddressMapping(local_index);
 
-    LoadLocalFromGlobal(address_pair);
-    PreScanGroup();
-    StoreLocalToGlobal(address_pair);
+  LoadLocalFromGlobal(address_pair);
+  PreScanGroup();
+  StoreLocalToGlobal(address_pair);
 }

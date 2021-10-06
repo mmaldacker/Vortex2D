@@ -2,24 +2,27 @@
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_GOOGLE_include_directive : enable
 
-layout (local_size_x_id = 1, local_size_y_id = 2) in;
+layout(local_size_x_id = 1, local_size_y_id = 2) in;
 
 layout(push_constant) uniform Consts
 {
   int width;
   int height;
   float delta;
-}consts;
+}
+consts;
 
 layout(std430, binding = 0) buffer Diagonal
 {
   float value[];
-}diagonal;
+}
+diagonal;
 
 layout(std430, binding = 1) buffer Lower
 {
   vec2 value[];
-}lower;
+}
+lower;
 
 // TODO use sampler
 layout(binding = 2, r32f) uniform image2D FluidLevelSet;
@@ -29,7 +32,7 @@ layout(binding = 3, r32f) uniform image2D SolidLevelSet;
 
 void main()
 {
-  uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
+  uvec2 localSize = gl_WorkGroupSize.xy;  // Hack for Mali-GPU
 
   ivec2 pos = ivec2(gl_GlobalInvocationID);
   if (pos.x > 0 && pos.y > 0 && pos.x < consts.width - 1 && pos.y < consts.height - 1)
@@ -41,16 +44,17 @@ void main()
       float wxp = get_weightxp(pos);
       float wyp = get_weightyp(pos);
 
-      float pxp = imageLoad(FluidLevelSet, pos + ivec2(1,0)).x;
-      float pxn = imageLoad(FluidLevelSet, pos + ivec2(-1,0)).x;
-      float pyp = imageLoad(FluidLevelSet, pos + ivec2(0,1)).x;
-      float pyn = imageLoad(FluidLevelSet, pos + ivec2(0,-1)).x;
+      float pxp = imageLoad(FluidLevelSet, pos + ivec2(1, 0)).x;
+      float pxn = imageLoad(FluidLevelSet, pos + ivec2(-1, 0)).x;
+      float pyp = imageLoad(FluidLevelSet, pos + ivec2(0, 1)).x;
+      float pyn = imageLoad(FluidLevelSet, pos + ivec2(0, -1)).x;
 
       vec2 weights;
       weights.x = pxn >= 0.0 ? 0.0 : -wuv.x;
       weights.y = pyn >= 0.0 ? 0.0 : -wuv.y;
 
-      lower.value[pos.x + pos.y * consts.width] = consts.delta * weights * consts.width * consts.width;
+      lower.value[pos.x + pos.y * consts.width] =
+          consts.delta * weights * consts.width * consts.width;
 
       vec4 diagonalWeights;
       diagonalWeights.x = wxp;
@@ -66,7 +70,8 @@ void main()
 
       diagonalWeights /= max(theta, 0.01);
 
-      diagonal.value[pos.x + pos.y * consts.width] = consts.delta * dot(diagonalWeights, vec4(1.0)) * consts.width * consts.width;
+      diagonal.value[pos.x + pos.y * consts.width] =
+          consts.delta * dot(diagonalWeights, vec4(1.0)) * consts.width * consts.width;
     }
     else
     {

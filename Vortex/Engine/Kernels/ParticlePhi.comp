@@ -2,31 +2,35 @@
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_GOOGLE_include_directive : enable
 
-layout (local_size_x_id = 1, local_size_y_id = 2) in;
+layout(local_size_x_id = 1, local_size_y_id = 2) in;
 layout(constant_id = 3) const float particle_radius = 1.0 / sqrt(2.0);
 
 layout(push_constant) uniform Consts
 {
   int width;
   int height;
-}consts;
+}
+consts;
 
 #include "CommonParticles.comp"
 
 layout(std430, binding = 0) buffer Count
 {
   int value[];
-}count;
+}
+count;
 
 layout(std430, binding = 1) buffer Particles
 {
   Particle value[];
-}particles;
+}
+particles;
 
 layout(std430, binding = 2) buffer Index
 {
   int value[];
-}scanIndex;
+}
+scanIndex;
 
 layout(binding = 3, r32f) uniform image2D LevelSet;
 
@@ -37,7 +41,7 @@ float k(float s)
   if (s < 1.0)
   {
     float t = 1 - s;
-    return t*t*t;
+    return t * t * t;
   }
 
   return 0.0;
@@ -45,7 +49,7 @@ float k(float s)
 
 void main()
 {
-  uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
+  uvec2 localSize = gl_WorkGroupSize.xy;  // Hack for Mali-GPU
 
   const float h = 2 * particle_radius;
 
@@ -80,8 +84,8 @@ void main()
     }
 
     // Blobbys formula:
-    //float tau = k(particle_radius * particle_radius / (h * h));
-    //float phi = tau - sum_weight;
+    // float tau = k(particle_radius * particle_radius / (h * h));
+    // float phi = tau - sum_weight;
 
     float phi = 2.0 * off;
     if (sum_weight != 0.0)

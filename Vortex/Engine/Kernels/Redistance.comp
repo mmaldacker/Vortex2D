@@ -1,84 +1,80 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-layout (local_size_x_id = 1, local_size_y_id = 2) in;
+layout(local_size_x_id = 1, local_size_y_id = 2) in;
 
-layout (binding = 0) uniform sampler2D levelSet0;
-layout (binding = 1) uniform sampler2D levelSet;
-layout (binding = 2, r32f) uniform image2D levelSetBack;
+layout(binding = 0) uniform sampler2D levelSet0;
+layout(binding = 1) uniform sampler2D levelSet;
+layout(binding = 2, r32f) uniform image2D levelSetBack;
 layout(push_constant) uniform PushConsts
 {
   int width;
   int height;
   float delta;
-} consts;
+}
+consts;
 
 const float dx = 1.0;
 
 float g(float s, float w, float wxp, float wxn, float wyp, float wyn)
 {
-    float a = (w - wxn) / dx;
-    float b = (wxp - w) / dx;
-    float c = (w - wyn) / dx;
-    float d = (wyp - w) / dx;
+  float a = (w - wxn) / dx;
+  float b = (wxp - w) / dx;
+  float c = (w - wyn) / dx;
+  float d = (wyp - w) / dx;
 
-    if (s > 0)
-    {
-        float ap = max(a,0);
-        float bn = min(b,0);
-        float cp = max(c,0);
-        float dn = min(d,0);
+  if (s > 0)
+  {
+    float ap = max(a, 0);
+    float bn = min(b, 0);
+    float cp = max(c, 0);
+    float dn = min(d, 0);
 
-        return sqrt(max(ap * ap, bn * bn) + max(cp * cp, dn * dn)) - 1.0;
-    }
-    else
-    {
-        float an = min(a,0);
-        float bp = max(b,0);
-        float cn = min(c,0);
-        float dp = max(d,0);
+    return sqrt(max(ap * ap, bn * bn) + max(cp * cp, dn * dn)) - 1.0;
+  }
+  else
+  {
+    float an = min(a, 0);
+    float bp = max(b, 0);
+    float cn = min(c, 0);
+    float dp = max(d, 0);
 
-        return sqrt(max(an * an, bp * bp) + max(cn * cn, dp * dp)) - 1.0;
-    }
+    return sqrt(max(an * an, bp * bp) + max(cn * cn, dp * dp)) - 1.0;
+  }
 }
 
 void main()
 {
-    uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
+  uvec2 localSize = gl_WorkGroupSize.xy;  // Hack for Mali-GPU
 
-    ivec2 pos = ivec2(gl_GlobalInvocationID);
-    vec2 texPos = vec2((pos.x + 0.5) / consts.width, (pos.y + 0.5) / consts.height);
+  ivec2 pos = ivec2(gl_GlobalInvocationID);
+  vec2 texPos = vec2((pos.x + 0.5) / consts.width, (pos.y + 0.5) / consts.height);
 
-    float w0 = texture(levelSet0, texPos).x;
-    float wxp0 = textureOffset(levelSet0, texPos, ivec2(1,0)).x;
-    float wxn0 = textureOffset(levelSet0, texPos, ivec2(-1,0)).x;
-    float wyp0 = textureOffset(levelSet0, texPos, ivec2(0,1)).x;
-    float wyn0 = textureOffset(levelSet0, texPos, ivec2(0,-1)).x;
+  float w0 = texture(levelSet0, texPos).x;
+  float wxp0 = textureOffset(levelSet0, texPos, ivec2(1, 0)).x;
+  float wxn0 = textureOffset(levelSet0, texPos, ivec2(-1, 0)).x;
+  float wyp0 = textureOffset(levelSet0, texPos, ivec2(0, 1)).x;
+  float wyn0 = textureOffset(levelSet0, texPos, ivec2(0, -1)).x;
 
-    float w = texture(levelSet, texPos).x;
-    float wxp = textureOffset(levelSet, texPos, ivec2(1,0)).x;
-    float wxn = textureOffset(levelSet, texPos, ivec2(-1,0)).x;
-    float wyp = textureOffset(levelSet, texPos, ivec2(0,1)).x;
-    float wyn = textureOffset(levelSet, texPos, ivec2(0,-1)).x;
+  float w = texture(levelSet, texPos).x;
+  float wxp = textureOffset(levelSet, texPos, ivec2(1, 0)).x;
+  float wxn = textureOffset(levelSet, texPos, ivec2(-1, 0)).x;
+  float wyp = textureOffset(levelSet, texPos, ivec2(0, 1)).x;
+  float wyn = textureOffset(levelSet, texPos, ivec2(0, -1)).x;
 
-    float s = sign(w0);
+  float s = sign(w0);
 
-    if (w0 * wxp0 < 0.0 || w0 * wxn0 < 0.0 || w0 * wyp0 < 0.0 || w0 * wyn0 < 0.0)
-    {
-        float wx0 = max(max(abs(0.5 * (wxp0 - wxn0)),
-                            abs(wxp0 - w0)),
-                            max(abs(w0 - wxn0),
-                            0.001));
-        float wy0 = max(max(abs(0.5 * (wyp0 - wyn0)),
-                            abs(wyp0 - w0)),
-                            max(abs(w0 - wyn0),
-                            0.001));
-        float d = dx * w0 / sqrt(wx0 * wx0 + wy0 * wy0);
+  if (w0 * wxp0 < 0.0 || w0 * wxn0 < 0.0 || w0 * wyp0 < 0.0 || w0 * wyn0 < 0.0)
+  {
+    float wx0 = max(max(abs(0.5 * (wxp0 - wxn0)), abs(wxp0 - w0)), max(abs(w0 - wxn0), 0.001));
+    float wy0 = max(max(abs(0.5 * (wyp0 - wyn0)), abs(wyp0 - w0)), max(abs(w0 - wyn0), 0.001));
+    float d = dx * w0 / sqrt(wx0 * wx0 + wy0 * wy0);
 
-        imageStore(levelSetBack, pos, vec4(w - consts.delta * (s * abs(w) - d) / dx, 0.0, 0.0, 0.0));
-    }
-    else
-    {
-        imageStore(levelSetBack, pos, vec4(w - consts.delta * s * g(s, w, wxp, wxn, wyp, wyn), 0.0, 0.0, 0.0));
-    }
+    imageStore(levelSetBack, pos, vec4(w - consts.delta * (s * abs(w) - d) / dx, 0.0, 0.0, 0.0));
+  }
+  else
+  {
+    imageStore(
+        levelSetBack, pos, vec4(w - consts.delta * s * g(s, w, wxp, wxn, wyp, wyn), 0.0, 0.0, 0.0));
+  }
 }

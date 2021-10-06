@@ -2,48 +2,51 @@
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_GOOGLE_include_directive : enable
 
-layout (local_size_x_id = 1, local_size_y_id = 2) in;
-layout (constant_id = 1) const int blockSize = 256; // same as gl_WorkGroupSize.x or local_size_x
+layout(local_size_x_id = 1, local_size_y_id = 2) in;
+layout(constant_id = 1) const int blockSize = 256;  // same as gl_WorkGroupSize.x or local_size_x
 
 layout(push_constant) uniform Consts
 {
   int n;
-}consts;
+}
+consts;
 
 layout(std430, binding = 0) buffer Input
 {
   int value[];
-}i;
+}
+i;
 
 layout(std430, binding = 1) buffer Output
 {
   int value[];
-}o;
+}
+o;
 
 shared int sdata[blockSize];
 
 void main()
 {
-    uint local_id = gl_LocalInvocationID.x;
-    uint group_id = gl_WorkGroupID.x;
-    uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
+  uint local_id = gl_LocalInvocationID.x;
+  uint group_id = gl_WorkGroupID.x;
+  uvec2 localSize = gl_WorkGroupSize.xy;  // Hack for Mali-GPU
 
-    if (local_id == 0)
+  if (local_id == 0)
+  {
+    sdata[0] = i.value[group_id];
+  }
+
+  memoryBarrierShared();
+  barrier();
+
+  uint address = group_id * blockSize * 2 + local_id;
+
+  if (address < consts.n)
+  {
+    o.value[address] += sdata[0];
+    if (address + blockSize < consts.n)
     {
-        sdata[0] = i.value[group_id];
+      o.value[address + blockSize] += sdata[0];
     }
-
-    memoryBarrierShared();
-    barrier();
-
-    uint address = group_id * blockSize * 2 + local_id;
-
-    if (address < consts.n)
-    {
-        o.value[address] += sdata[0];
-        if (address + blockSize < consts.n)
-        {
-            o.value[address + blockSize] += sdata[0];
-        }
-    }
+  }
 }

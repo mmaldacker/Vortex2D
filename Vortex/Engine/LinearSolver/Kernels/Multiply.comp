@@ -1,38 +1,42 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-layout (local_size_x_id = 1, local_size_y_id = 2) in;
+layout(local_size_x_id = 1, local_size_y_id = 2) in;
 
 layout(push_constant) uniform Consts
 {
   int width;
   int height;
-}consts;
+}
+consts;
 
 layout(std430, binding = 0) buffer Input1
 {
   float value[];
-}x;
+}
+x;
 
 layout(std430, binding = 1) buffer Input2
 {
   float value[];
-}y;
+}
+y;
 
 layout(std430, binding = 2) buffer Output
 {
   float value[];
-}z;
+}
+z;
 
 void main()
 {
-    uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
+  uvec2 localSize = gl_WorkGroupSize.xy;  // Hack for Mali-GPU
 
-    ivec2 pos = ivec2(gl_GlobalInvocationID);
+  ivec2 pos = ivec2(gl_GlobalInvocationID);
 
-    if (pos.x < consts.width && pos.y < consts.height)
-    {
-        int index = pos.x + pos.y * consts.width;
-        z.value[index] = x.value[index] * y.value[index];
-    }
+  if (pos.x < consts.width && pos.y < consts.height)
+  {
+    int index = pos.x + pos.y * consts.width;
+    z.value[index] = x.value[index] * y.value[index];
+  }
 }

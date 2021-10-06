@@ -8,7 +8,5 @@ vec3 get_base(ivec2 pos)
 
   vec2 rad = (pos + vec2(0.5) - centre.xy);
 
-  return vec3(u_term * consts.width,
-              v_term * consts.width,
-              v_term * rad.x - u_term * rad.y);
+  return vec3(u_term * consts.width, v_term * consts.width, v_term * rad.x - u_term * rad.y);
 }

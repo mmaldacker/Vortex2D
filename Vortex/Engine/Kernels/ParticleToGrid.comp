@@ -2,37 +2,42 @@
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_GOOGLE_include_directive : enable
 
-layout (local_size_x_id = 1, local_size_y_id = 2) in;
+layout(local_size_x_id = 1, local_size_y_id = 2) in;
 
 layout(push_constant) uniform Consts
 {
   int width;
   int height;
-}consts;
+}
+consts;
 
 #include "CommonParticles.comp"
 
 layout(std430, binding = 0) buffer Count
 {
   int value[];
-}count;
+}
+count;
 
 layout(std430, binding = 1) buffer Particles
 {
   Particle value[];
-}particles;
+}
+particles;
 
 layout(std430, binding = 2) buffer Index
 {
   int value[];
-}scanIndex;
+}
+scanIndex;
 
 layout(binding = 3, rgba32f) uniform image2D Velocity;
 
 layout(std430, binding = 4) buffer Valid
 {
   ivec2 value[];
-}valid;
+}
+valid;
 
 float hat(float t)
 {
@@ -41,69 +46,69 @@ float hat(float t)
 
 float get_weight(vec2 pos, ivec2 ipos)
 {
-    return hat(pos.x - ipos.x) * hat(pos.y - ipos.y);
+  return hat(pos.x - ipos.x) * hat(pos.y - ipos.y);
 }
 
 void main()
 {
-    uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
+  uvec2 localSize = gl_WorkGroupSize.xy;  // Hack for Mali-GPU
 
-    ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
-    if (pos.x < consts.width && pos.y < consts.height)
+  ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
+  if (pos.x < consts.width && pos.y < consts.height)
+  {
+    vec2 accum = vec2(0.0);
+    vec2 sum = vec2(0.0);
+    vec2 weight;
+    vec2 f;
+
+    for (int i = -1; i <= 1; i++)
     {
-        vec2 accum = vec2(0.0);
-        vec2 sum = vec2(0.0);
-        vec2 weight;
-        vec2 f;
-
-        for (int i = -1; i <= 1; i++)
+      for (int j = -1; j <= 1; j++)
+      {
+        ivec2 newPos = ivec2(pos) + ivec2(i, j);
+        if (newPos.x >= 0 && newPos.x < consts.width && newPos.y >= 0 && newPos.y < consts.height)
         {
-            for (int j = -1; j <= 1; j++)
-            {
-                ivec2 newPos = ivec2(pos) + ivec2(i, j);
-                if (newPos.x >= 0 && newPos.x < consts.width && newPos.y >=0 && newPos.y < consts.height)
-                {
-                    int index = newPos.x + newPos.y * consts.width;
-                    int total = count.value[index];
+          int index = newPos.x + newPos.y * consts.width;
+          int total = count.value[index];
 
-                    for (int k = 0; k < total; k++)
-                    {
-                        Particle p = particles.value[scanIndex.value[index] + k];
+          for (int k = 0; k < total; k++)
+          {
+            Particle p = particles.value[scanIndex.value[index] + k];
 
-                        vec2 up = p.Position - vec2(0.0, 0.5);
-                        vec2 vp = p.Position - vec2(0.5, 0.0);
+            vec2 up = p.Position - vec2(0.0, 0.5);
+            vec2 vp = p.Position - vec2(0.5, 0.0);
 
-                        weight.x = get_weight(up, pos);
-                        weight.y = get_weight(vp, pos);
+            weight.x = get_weight(up, pos);
+            weight.y = get_weight(vp, pos);
 
-                        accum += weight * p.Velocity;
-                        sum += weight;
-                    }
-                }
-            }
+            accum += weight * p.Velocity;
+            sum += weight;
+          }
         }
-
-        vec2 value = vec2(0.0);
-        if (sum.x != 0.0)
-        {
-            value.x = accum.x / sum.x;
-            valid.value[pos.x + pos.y * consts.width].x = 1;
-        }
-        else
-        {
-            valid.value[pos.x + pos.y * consts.width].x = 0;
-        }
-
-        if (sum.y != 0.0)
-        {
-            value.y = accum.y / sum.y;
-            valid.value[pos.x + pos.y * consts.width].y = 1;
-        }
-        else
-        {
-            valid.value[pos.x + pos.y * consts.width].y = 0;
-        }
-
-        imageStore(Velocity, pos, vec4(value, 0.0, 0.0));
+      }
     }
+
+    vec2 value = vec2(0.0);
+    if (sum.x != 0.0)
+    {
+      value.x = accum.x / sum.x;
+      valid.value[pos.x + pos.y * consts.width].x = 1;
+    }
+    else
+    {
+      valid.value[pos.x + pos.y * consts.width].x = 0;
+    }
+
+    if (sum.y != 0.0)
+    {
+      value.y = accum.y / sum.y;
+      valid.value[pos.x + pos.y * consts.width].y = 1;
+    }
+    else
+    {
+      valid.value[pos.x + pos.y * consts.width].y = 0;
+    }
+
+    imageStore(Velocity, pos, vec4(value, 0.0, 0.0));
+  }
 }

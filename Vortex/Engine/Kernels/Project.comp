@@ -2,19 +2,21 @@
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_GOOGLE_include_directive : enable
 
-layout (local_size_x_id = 1, local_size_y_id = 2) in;
+layout(local_size_x_id = 1, local_size_y_id = 2) in;
 
 layout(push_constant) uniform Consts
 {
   int width;
   int height;
   float delta;
-}consts;
+}
+consts;
 
 layout(std430, binding = 0) buffer Pressure
 {
   float value[];
-}pressure;
+}
+pressure;
 
 layout(binding = 1, r32f) uniform image2D FluidLevelSet;
 layout(binding = 2, r32f) uniform image2D SolidLevelSet;
@@ -24,13 +26,14 @@ layout(binding = 4, rgba32f) uniform image2D OutVelocity;
 layout(std430, binding = 5) buffer Valid
 {
   ivec2 value[];
-}valid;
+}
+valid;
 
 #include "CommonProject.comp"
 
 void main()
 {
-  uvec2 localSize = gl_WorkGroupSize.xy; // Hack for Mali-GPU
+  uvec2 localSize = gl_WorkGroupSize.xy;  // Hack for Mali-GPU
 
   int velocityWidth = imageSize(InVelocity).x;
 
@@ -43,11 +46,11 @@ void main()
     float pxn = pressure.value[(pos.x - 1) + pos.y * consts.width];
     float pyn = pressure.value[pos.x + (pos.y - 1) * consts.width];
 
-    vec2 pGrad = vec2(p-pxn, p-pyn);
+    vec2 pGrad = vec2(p - pxn, p - pyn);
 
     float phi = imageLoad(FluidLevelSet, pos).x;
-    float phixn = imageLoad(FluidLevelSet, pos + ivec2(-1,0)).x;
-    float phiyn = imageLoad(FluidLevelSet, pos + ivec2(0,-1)).x;
+    float phixn = imageLoad(FluidLevelSet, pos + ivec2(-1, 0)).x;
+    float phiyn = imageLoad(FluidLevelSet, pos + ivec2(0, -1)).x;
 
     vec2 theta = vec2(1.0);
     if (phi >= 0 || phixn >= 0)

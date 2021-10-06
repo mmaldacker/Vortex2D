@@ -1,6 +1,6 @@
 @echo off
 
-FOR /f %%f IN ('DIR /s/b "Vortex\*.h", "Vortex\*.cpp", "Tests\*.h", "Tests\*.cpp", "Examples\*.h", "Examples\*.cpp",') DO (
+FOR /f %%f IN ('DIR /s/b "*.h", "*.cpp", "*.comp", "*.frag", "*.vert",') DO (
     ECHO Formatting %%f 
     clang-format.exe -i -style=file %%f   
 )
