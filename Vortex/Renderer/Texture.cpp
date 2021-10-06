@@ -351,6 +351,11 @@ void Texture::Barrier(vk::CommandBuffer commandBuffer,
 
 vk::ImageView Texture::GetView() const
 {
+  if (!mImageView)
+  {
+    throw std::runtime_error("No image view created!");
+  }
+
   return *mImageView;
 }
 
