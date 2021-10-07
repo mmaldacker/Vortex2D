@@ -15,8 +15,8 @@ class RenderExample : public Runner
 {
 public:
   RenderExample(const Vortex::Renderer::Device& device, const glm::vec2& size)
-      : renderCircle(device, size.x, size.y, vk::Format::eR32Sfloat)
-      , contour(device, renderCircle, size)
+      : renderCircle(device, 50, 50, vk::Format::eR32Sfloat)
+      , contour(device, renderCircle, glm::ivec2(50))
   {
   }
 
@@ -24,8 +24,8 @@ public:
             Vortex::Renderer::RenderTarget& renderTarget) override
   {
     {
-      auto circle = std::make_shared<Vortex::Fluid::Circle>(device, 30.0f);
-      circle->Position = {175, 175};
+      auto circle = std::make_shared<Vortex::Fluid::Circle>(device, 10.0f);
+      circle->Position = {25., 25.};
 
       renderCircle.Record({circle}).Submit().Wait();
       contour.Generate();
@@ -42,7 +42,8 @@ public:
 
     auto mesh = std::make_shared<Vortex::Renderer::Mesh>(
         device, contour.GetVertices(), contour.GetIndices(), contour.GetDrawParameters());
-    mesh->Position = {0, 0};
+    mesh->Position = {100, 100};
+    mesh->Scale = {3., 3.};
     mesh->Colour = green;
 
     Vortex::Renderer::ColorBlendState blendState;

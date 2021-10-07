@@ -160,6 +160,7 @@ add_library(vortex2d
     "Engine/Kernels/CommonParticles.comp"
     "Engine/Kernels/CommonRigidbody.comp"
     "Engine/Kernels/CommonInterpolate.comp"
+    "Engine/Kernels/QEF.comp"
     vortex_generated_spirv.cpp
     vortex_generated_spirv.h)
 
