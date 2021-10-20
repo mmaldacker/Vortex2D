@@ -26,7 +26,7 @@ struct RenderTarget;
 class AbstractSprite : public Drawable, public Transformable
 {
 public:
-  VORTEX_API AbstractSprite(const Device& device,
+  VORTEX_API AbstractSprite(Device& device,
                             const SpirvBinary& fragShaderName,
                             Texture& texture);
   VORTEX_API AbstractSprite(AbstractSprite&& other);
@@ -55,7 +55,7 @@ protected:
     glm::vec2 pos;
   };
 
-  const Device& mDevice;
+  Device& mDevice;
   UniformBuffer<glm::mat4> mMVPBuffer;
   VertexBuffer<Vertex> mVertexBuffer;
   Renderer::UniformBuffer<glm::vec4> mColourBuffer;
@@ -71,7 +71,7 @@ protected:
 class Sprite : public AbstractSprite
 {
 public:
-  VORTEX_API Sprite(const Device& device, Texture& texture);
+  VORTEX_API Sprite(Device& device, Texture& texture);
 };
 
 }  // namespace Renderer

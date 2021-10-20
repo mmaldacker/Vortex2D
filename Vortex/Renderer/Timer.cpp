@@ -27,7 +27,7 @@ uint64_t GetMask(uint32_t validBits)
 }
 }  // namespace
 
-Timer::Timer(const Device& device) : mDevice(device), mStart(device), mStop(device)
+Timer::Timer(Device& device) : mDevice(device), mStart(device), mStop(device)
 {
   auto queryPoolInfo =
       vk::QueryPoolCreateInfo().setQueryType(vk::QueryType::eTimestamp).setQueryCount(2);

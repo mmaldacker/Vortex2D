@@ -31,7 +31,7 @@ VORTEX_API float DefaultParticleSize();
 class ParticleCount : public Renderer::RenderTexture
 {
 public:
-  VORTEX_API ParticleCount(const Renderer::Device& device,
+  VORTEX_API ParticleCount(Renderer::Device& device,
                            const glm::ivec2& size,
                            Renderer::GenericBuffer& particles,
                            Velocity::InterpolationMode interpolationMode,
@@ -87,7 +87,7 @@ public:
   VORTEX_API void TransferFromGrid();
 
 private:
-  const Renderer::Device& mDevice;
+  Renderer::Device& mDevice;
   glm::ivec2 mSize;
   Renderer::GenericBuffer& mParticles;
   Renderer::Buffer<Particle> mNewParticles;

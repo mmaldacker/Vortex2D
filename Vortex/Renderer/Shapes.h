@@ -39,7 +39,7 @@ public:
 class AbstractShape : public Shape
 {
 public:
-  VORTEX_API AbstractShape(const Device& device,
+  VORTEX_API AbstractShape(Device& device,
                            const SpirvBinary& fragShader,
                            const std::vector<glm::vec2>& vertices);
   VORTEX_API AbstractShape(AbstractShape&& other);
@@ -50,7 +50,7 @@ public:
   VORTEX_API void Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState) override;
 
 protected:
-  const Device& mDevice;
+  Device& mDevice;
   UniformBuffer<glm::mat4> mMVPBuffer;
   UniformBuffer<glm::vec4> mColourBuffer;
   VertexBuffer<glm::vec2> mVertexBuffer;
@@ -66,7 +66,7 @@ protected:
 class Rectangle : public AbstractShape
 {
 public:
-  VORTEX_API Rectangle(const Device& device, const glm::vec2& size);
+  VORTEX_API Rectangle(Device& device, const glm::vec2& size);
 };
 
 /**
@@ -76,7 +76,7 @@ public:
 class IntRectangle : public AbstractShape
 {
 public:
-  VORTEX_API IntRectangle(const Device& device, const glm::vec2& size);
+  VORTEX_API IntRectangle(Device& device, const glm::vec2& size);
 };
 
 /**
@@ -86,7 +86,7 @@ public:
 class Mesh : public Shape
 {
 public:
-  VORTEX_API Mesh(const Device& device,
+  VORTEX_API Mesh(Device& device,
                   VertexBuffer<glm::vec2>& vertexBuffer,
                   IndexBuffer<std::uint32_t>& indexBuffer,
                   Buffer<vk::DrawIndexedIndirectCommand>& parameters);
@@ -96,7 +96,7 @@ public:
   VORTEX_API void Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState) override;
 
 protected:
-  const Device& mDevice;
+  Device& mDevice;
   UniformBuffer<glm::mat4> mMVPBuffer;
   UniformBuffer<glm::vec4> mColourBuffer;
   VertexBuffer<glm::vec2>& mVertexBuffer;
@@ -113,7 +113,7 @@ protected:
 class Ellipse : public Shape
 {
 public:
-  VORTEX_API Ellipse(const Device& device, const glm::vec2& radius);
+  VORTEX_API Ellipse(Device& device, const glm::vec2& radius);
   VORTEX_API ~Ellipse() override;
 
   void Initialize(const RenderState& renderState) override;
@@ -130,7 +130,7 @@ private:
     alignas(16) glm::mat2x4 rotation;
   };
 
-  const Device& mDevice;
+  Device& mDevice;
   glm::vec2 mRadius;
   UniformBuffer<glm::mat4> mMVPBuffer;
   UniformBuffer<glm::vec4> mColourBuffer;

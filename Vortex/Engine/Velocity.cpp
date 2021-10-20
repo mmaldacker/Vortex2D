@@ -11,7 +11,7 @@ namespace Vortex
 {
 namespace Fluid
 {
-Velocity::Velocity(const Renderer::Device& device, const glm::ivec2& size)
+Velocity::Velocity(Renderer::Device& device, const glm::ivec2& size)
     : Renderer::RenderTexture(device, size.x, size.y, vk::Format::eR32G32Sfloat)
     , mDevice(device)
     , mOutputVelocity(device, size.x, size.y, vk::Format::eR32G32Sfloat)

@@ -174,12 +174,12 @@ const DynamicDispatcher& Device::Loader() const
   return mLoader;
 }
 
-LayoutManager& Device::GetLayoutManager() const
+LayoutManager& Device::GetLayoutManager()
 {
   return mLayoutManager;
 }
 
-PipelineCache& Device::GetPipelineCache() const
+PipelineCache& Device::GetPipelineCache()
 {
   return mPipelineCache;
 }
@@ -219,7 +219,7 @@ VmaAllocator Device::Allocator() const
   return mAllocator;
 }
 
-vk::ShaderModule Device::GetShaderModule(const SpirvBinary& spirv) const
+vk::ShaderModule Device::GetShaderModule(const SpirvBinary& spirv)
 {
   auto it = mShaders.find(spirv.data());
   if (it != mShaders.end())

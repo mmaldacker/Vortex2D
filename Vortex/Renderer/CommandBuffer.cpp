@@ -19,7 +19,7 @@ const uint32_t zero = 0;
 
 }
 
-CommandBuffer::CommandBuffer(const Device& device, bool synchronise)
+CommandBuffer::CommandBuffer(Device& device, bool synchronise)
     : mDevice(device)
     , mSynchronise(synchronise)
     , mRecorded(false)
@@ -195,7 +195,7 @@ RenderCommand& RenderCommand::operator=(RenderCommand&& other)
   return *this;
 }
 
-RenderCommand::RenderCommand(const Device& device,
+RenderCommand::RenderCommand(Device& device,
                              RenderTarget& renderTarget,
                              const RenderState& renderState,
                              const vk::UniqueFramebuffer& frameBuffer,
@@ -221,7 +221,7 @@ RenderCommand::RenderCommand(const Device& device,
   mCmds.emplace_back(std::move(cmd));
 }
 
-RenderCommand::RenderCommand(const Device& device,
+RenderCommand::RenderCommand(Device& device,
                              RenderTarget& renderTarget,
                              const RenderState& renderState,
                              const std::vector<vk::UniqueFramebuffer>& frameBuffers,

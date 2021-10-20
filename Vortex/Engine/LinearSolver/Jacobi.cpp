@@ -13,7 +13,7 @@ namespace Vortex
 {
 namespace Fluid
 {
-Jacobi::Jacobi(const Renderer::Device& device, const glm::ivec2& size)
+Jacobi::Jacobi(Renderer::Device& device, const glm::ivec2& size)
     : mW(1.0f)
     , mPreconditionerIterations(1)
     , mBackPressure(device, size.x * size.y)

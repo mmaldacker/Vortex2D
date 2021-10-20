@@ -21,7 +21,7 @@ namespace Fluid
 class GaussSeidel : public LinearSolver, public Preconditioner
 {
 public:
-  VORTEX_API GaussSeidel(const Renderer::Device& device, const glm::ivec2& size);
+  VORTEX_API GaussSeidel(Renderer::Device& device, const glm::ivec2& size);
   VORTEX_API ~GaussSeidel() override;
 
   VORTEX_API void Bind(Renderer::GenericBuffer& d,
@@ -84,7 +84,7 @@ private:
 class LocalGaussSeidel : public Preconditioner
 {
 public:
-  VORTEX_API LocalGaussSeidel(const Renderer::Device& device, const glm::ivec2& size);
+  VORTEX_API LocalGaussSeidel(Renderer::Device& device, const glm::ivec2& size);
   VORTEX_API ~LocalGaussSeidel() override;
 
   void VORTEX_API Bind(Renderer::GenericBuffer& d,

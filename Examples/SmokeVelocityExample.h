@@ -22,7 +22,7 @@ extern glm::vec4 gray;
 class SmokeVelocityExample : public Runner
 {
 public:
-  SmokeVelocityExample(const Vortex::Renderer::Device& device, const glm::ivec2& size, float dt)
+  SmokeVelocityExample(Vortex::Renderer::Device& device, const glm::ivec2& size, float dt)
       : density(std::make_shared<Vortex::Fluid::Density>(device, size, vk::Format::eR8G8B8A8Unorm))
       , world(device, size, dt, Vortex::Fluid::Velocity::InterpolationMode::Linear)
       , rWorld({0.0f, 0.0f})
@@ -40,7 +40,7 @@ public:
     world.AddRigidbody(body.mRigidbody);
   }
 
-  void Init(const Vortex::Renderer::Device& device,
+  void Init(Vortex::Renderer::Device& device,
             Vortex::Renderer::RenderTarget& renderTarget) override
   {
     auto source1 = std::make_shared<Vortex::Renderer::Ellipse>(device, glm::vec2(5.0f));

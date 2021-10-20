@@ -70,7 +70,7 @@ void Box2DSolver::Step(float delta)
   mWorld.Step(delta, velocityStep, positionStep);
 }
 
-Box2DRigidbody::Box2DRigidbody(const Vortex::Renderer::Device& device,
+Box2DRigidbody::Box2DRigidbody(Vortex::Renderer::Device& device,
                                const glm::ivec2& size,
                                Vortex::Renderer::DrawablePtr drawable,
                                Vortex::Fluid::RigidBody::Type type)
@@ -111,7 +111,7 @@ void Box2DRigidbody::SetTransform(const glm::vec2& pos, float angle)
   mBody->SetTransform({pos.x, pos.y}, glm::radians(angle));
 }
 
-PolygonRigidbody::PolygonRigidbody(const Vortex::Renderer::Device& device,
+PolygonRigidbody::PolygonRigidbody(Vortex::Renderer::Device& device,
                                    const glm::ivec2& size,
                                    b2World& rWorld,
                                    b2BodyType rType,
@@ -125,7 +125,7 @@ PolygonRigidbody::PolygonRigidbody(const Vortex::Renderer::Device& device,
   mRigidbody.SetMassData(mRigidbody.mBody->GetMass(), mRigidbody.mBody->GetInertia());
 }
 
-CircleRigidbody::CircleRigidbody(const Vortex::Renderer::Device& device,
+CircleRigidbody::CircleRigidbody(Vortex::Renderer::Device& device,
                                  const glm::ivec2& size,
                                  b2World& rWorld,
                                  b2BodyType rType,

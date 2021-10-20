@@ -13,7 +13,7 @@ namespace Vortex
 {
 namespace Fluid
 {
-Pressure::Pressure(const Renderer::Device& device,
+Pressure::Pressure(Renderer::Device& device,
                    float dt,
                    const glm::ivec2& size,
                    LinearSolver::Data& data,

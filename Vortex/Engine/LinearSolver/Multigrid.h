@@ -72,7 +72,7 @@ public:
    * @param size of the linear equations
    * @param delta timestep delta
    */
-  VORTEX_API Multigrid(const Renderer::Device& device,
+  VORTEX_API Multigrid(Renderer::Device& device,
                        const glm::ivec2& size,
                        float delta,
                        int numSmoothingIterations = 3,
@@ -126,7 +126,7 @@ private:
   void RecordVCycle(vk::CommandBuffer commandBuffer, int depth);
   void RecordFullCycle(vk::CommandBuffer commandBuffer);
 
-  const Renderer::Device& mDevice;
+  Renderer::Device& mDevice;
   Depth mDepth;
   float mDelta;
   int mNumSmoothingIterations;

@@ -34,7 +34,7 @@ void BufferBarrier(vk::Buffer buffer,
                                 nullptr);
 }
 
-GenericBuffer::GenericBuffer(const Device& device,
+GenericBuffer::GenericBuffer(Device& device,
                              vk::BufferUsageFlags usageFlags,
                              VmaMemoryUsage memoryUsage,
                              vk::DeviceSize deviceSize)

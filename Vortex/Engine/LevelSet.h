@@ -20,7 +20,7 @@ namespace Fluid
 class LevelSet : public Renderer::RenderTexture
 {
 public:
-  VORTEX_API LevelSet(const Renderer::Device& device,
+  VORTEX_API LevelSet(Renderer::Device& device,
                       const glm::ivec2& size,
                       int reinitializeIterations = 50);
 
@@ -46,7 +46,7 @@ public:
   VORTEX_API void Extrapolate();
 
 private:
-  const Renderer::Device& mDevice;
+  Renderer::Device& mDevice;
   Renderer::Texture mLevelSet0;
   Renderer::Texture mLevelSetBack;
 

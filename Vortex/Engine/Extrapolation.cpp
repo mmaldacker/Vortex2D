@@ -10,7 +10,7 @@ namespace Vortex
 {
 namespace Fluid
 {
-Extrapolation::Extrapolation(const Renderer::Device& device,
+Extrapolation::Extrapolation(Renderer::Device& device,
                              const glm::ivec2& size,
                              Renderer::GenericBuffer& valid,
                              Velocity& velocity,

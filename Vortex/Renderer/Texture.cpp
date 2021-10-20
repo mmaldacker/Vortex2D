@@ -56,7 +56,7 @@ vk::UniqueSampler SamplerBuilder::Create(vk::Device device)
   return device.createSamplerUnique(mSamplerInfo);
 }
 
-Texture::Texture(const Device& device,
+Texture::Texture(Device& device,
                  uint32_t width,
                  uint32_t height,
                  vk::Format format,

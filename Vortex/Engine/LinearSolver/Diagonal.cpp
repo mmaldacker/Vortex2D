@@ -11,7 +11,7 @@ namespace Vortex
 {
 namespace Fluid
 {
-Diagonal::Diagonal(const Renderer::Device& device, const glm::ivec2& size)
+Diagonal::Diagonal(Renderer::Device& device, const glm::ivec2& size)
     : mDiagonal(device, size, SPIRV::Diagonal_comp)
 {
 }

@@ -12,7 +12,7 @@ namespace Vortex
 {
 namespace Renderer
 {
-RenderTexture::RenderTexture(const Device& device,
+RenderTexture::RenderTexture(Device& device,
                              uint32_t width,
                              uint32_t height,
                              vk::Format format)

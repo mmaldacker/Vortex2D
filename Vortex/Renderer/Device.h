@@ -81,9 +81,9 @@ public:
 
   // Memory allocator
   VORTEX_API VmaAllocator Allocator() const;
-  VORTEX_API LayoutManager& GetLayoutManager() const;
-  VORTEX_API PipelineCache& GetPipelineCache() const;
-  VORTEX_API vk::ShaderModule GetShaderModule(const SpirvBinary& spirv) const;
+  VORTEX_API LayoutManager& GetLayoutManager();
+  VORTEX_API PipelineCache& GetPipelineCache();
+  VORTEX_API vk::ShaderModule GetShaderModule(const SpirvBinary& spirv);
 
 private:
   vk::PhysicalDevice mPhysicalDevice;
@@ -95,10 +95,10 @@ private:
   vk::UniqueDescriptorPool mDescriptorPool;
   VmaAllocator mAllocator;
 
-  mutable std::unique_ptr<CommandBuffer> mCommandBuffer;
-  mutable std::map<const uint32_t*, vk::UniqueShaderModule> mShaders;
-  mutable LayoutManager mLayoutManager;
-  mutable PipelineCache mPipelineCache;
+  std::unique_ptr<CommandBuffer> mCommandBuffer;
+  std::map<const uint32_t*, vk::UniqueShaderModule> mShaders;
+  LayoutManager mLayoutManager;
+  PipelineCache mPipelineCache;
 };
 
 }  // namespace Renderer

@@ -13,7 +13,7 @@ namespace Vortex
 {
 namespace Fluid
 {
-GaussSeidel::GaussSeidel(const Renderer::Device& device, const glm::ivec2& size)
+GaussSeidel::GaussSeidel(Renderer::Device& device, const glm::ivec2& size)
     : mW(2.0f / (1.0f + std::sin(glm::pi<float>() / std::sqrt((float)(size.x * size.y)))))
     , mPreconditionerIterations(1)
     , mError(device, size)
@@ -126,7 +126,7 @@ Renderer::ComputeSize MakeLocalSize(const glm::ivec2& size)
   return computeSize;
 }
 
-LocalGaussSeidel::LocalGaussSeidel(const Renderer::Device& device, const glm::ivec2& size)
+LocalGaussSeidel::LocalGaussSeidel(Renderer::Device& device, const glm::ivec2& size)
     : mLocalGaussSeidel(device, MakeLocalSize(size), SPIRV::LocalGaussSeidel_comp)
 {
   // TODO check size is within local size

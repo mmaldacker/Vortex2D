@@ -32,7 +32,7 @@ public:
     Cubic = 1,
   };
 
-  VORTEX_API Velocity(const Renderer::Device& device, const glm::ivec2& size);
+  VORTEX_API Velocity(Renderer::Device& device, const glm::ivec2& size);
 
   /**
    * @brief An output texture used for algorithms that used the velocity as
@@ -72,7 +72,7 @@ public:
   VORTEX_API void VelocityDiff();
 
 private:
-  const Renderer::Device& mDevice;
+  Renderer::Device& mDevice;
   Renderer::Texture mOutputVelocity;
   Renderer::Texture mDVelocity;
 

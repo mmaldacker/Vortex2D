@@ -35,7 +35,7 @@ public:
    * @param extent extend how far from the poylon the signed distance field is
    * calculated.
    */
-  VORTEX_API Polygon(const Renderer::Device& device,
+  VORTEX_API Polygon(Renderer::Device& device,
                      std::vector<glm::vec2> points,
                      bool inverse = false,
                      float extent = 10.0f);
@@ -48,7 +48,7 @@ public:
                        const Renderer::RenderState& renderState) override;
 
 private:
-  const Renderer::Device& mDevice;
+  Renderer::Device& mDevice;
   uint32_t mSize;
   uint32_t mInv;
   Renderer::UniformBuffer<glm::mat4> mMVPBuffer;
@@ -73,7 +73,7 @@ public:
    * @param extent extent how far from the rectangle the signed distance field
    * is calculated.
    */
-  VORTEX_API Rectangle(const Renderer::Device& device,
+  VORTEX_API Rectangle(Renderer::Device& device,
                        const glm::vec2& size,
                        bool inverse = false,
                        float extent = 10.0f);
@@ -99,7 +99,7 @@ public:
    * @param extent extend how far from the circle the signed distance field is
    * calculated.
    */
-  VORTEX_API Circle(const Renderer::Device& device, float radius, float extent = 10.0f);
+  VORTEX_API Circle(Renderer::Device& device, float radius, float extent = 10.0f);
 
   VORTEX_API ~Circle() override;
 
@@ -109,7 +109,7 @@ public:
                        const Renderer::RenderState& renderState) override;
 
 private:
-  const Renderer::Device& mDevice;
+  Renderer::Device& mDevice;
   float mSize;
   Renderer::UniformBuffer<glm::mat4> mMVPBuffer;
   Renderer::UniformBuffer<glm::mat4> mMVBuffer;
@@ -134,7 +134,7 @@ public:
    * @param levelSet level set to use as sprite
    * @param scale scale of the level set
    */
-  VORTEX_API DistanceField(const Renderer::Device& device,
+  VORTEX_API DistanceField(Renderer::Device& device,
                            Renderer::RenderTexture& levelSet,
                            float scale = 1.0f);
 
@@ -155,7 +155,7 @@ private:
 class Contour
 {
 public:
-  VORTEX_API Contour(const Renderer::Device& device,
+  VORTEX_API Contour(Renderer::Device& device,
                      Renderer::RenderTexture& levelSet,
                      const glm::vec2& size);
 
@@ -177,7 +177,7 @@ public:
   VORTEX_API Renderer::Buffer<vk::DrawIndexedIndirectCommand>& GetDrawParameters();
 
 private:
-  const Renderer::Device& mDevice;
+  Renderer::Device& mDevice;
   glm::vec2 mSize;
 
   Renderer::Buffer<Voxel> mVoxels;

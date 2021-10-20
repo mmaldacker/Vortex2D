@@ -20,7 +20,7 @@ LinearSolver::Parameters::Parameters(SolverType type, unsigned iterations, float
 {
 }
 
-LinearSolver::Data::Data(const Renderer::Device& device,
+LinearSolver::Data::Data(Renderer::Device& device,
                          const glm::ivec2& size,
                          VmaMemoryUsage memoryUsage)
     : Diagonal(device, size.x * size.y, memoryUsage)
@@ -38,7 +38,7 @@ LinearSolver::Data::Data(const Renderer::Device& device,
       });
 }
 
-LinearSolver::DebugData::DebugData(const Renderer::Device& device, const glm::ivec2& size)
+LinearSolver::DebugData::DebugData(Renderer::Device& device, const glm::ivec2& size)
     : Diagonal(device, size.x, size.y, vk::Format::eR32Sfloat)
     , Lower(device, size.x, size.y, vk::Format::eR32G32Sfloat)
     , B(device, size.x, size.y, vk::Format::eR32Sfloat)
@@ -46,7 +46,7 @@ LinearSolver::DebugData::DebugData(const Renderer::Device& device, const glm::iv
 {
 }
 
-LinearSolver::DebugCopy::DebugCopy(const Renderer::Device& device,
+LinearSolver::DebugCopy::DebugCopy(Renderer::Device& device,
                                    const glm::ivec2& size,
                                    LinearSolver::Data& data,
                                    LinearSolver::DebugData& debugData)
@@ -130,7 +130,7 @@ LinearSolver::Parameters IterativeParams(float errorTolerance)
       LinearSolver::Parameters::SolverType::Iterative, 1000, errorTolerance);
 }
 
-LinearSolver::Error::Error(const Renderer::Device& device, const glm::ivec2& size)
+LinearSolver::Error::Error(Renderer::Device& device, const glm::ivec2& size)
     : mResidual(device, size.x * size.y)
     , mError(device)
     , mLocalError(device, 1, VMA_MEMORY_USAGE_GPU_TO_CPU)

@@ -53,7 +53,7 @@ public:
     alignas(4) float angular_velocity;
   };
 
-  VORTEX_API RigidBody(const Renderer::Device& device,
+  VORTEX_API RigidBody(Renderer::Device& device,
                        const glm::ivec2& size,
                        Renderer::DrawablePtr drawable,
                        vk::Flags<Type> type);
@@ -184,7 +184,7 @@ public:
 private:
   float mSize;
 
-  const Renderer::Device& mDevice;
+  Renderer::Device& mDevice;
   Renderer::DrawablePtr mDrawable;
   Renderer::RenderTexture mPhi;
   Renderer::UniformBuffer<Velocity> mVelocity;

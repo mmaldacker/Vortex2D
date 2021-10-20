@@ -56,7 +56,7 @@ public:
   VORTEX_API Reduce::Bound Bind(Renderer::GenericBuffer& input, Renderer::GenericBuffer& output);
 
 protected:
-  Reduce(const Renderer::Device& device,
+  Reduce(Renderer::Device& device,
          const Renderer::SpirvBinary& spirv,
          const glm::ivec2& size,
          std::size_t typeSize);
@@ -78,7 +78,7 @@ public:
    * @param device
    * @param size
    */
-  VORTEX_API ReduceSum(const Renderer::Device& device, const glm::ivec2& size);
+  VORTEX_API ReduceSum(Renderer::Device& device, const glm::ivec2& size);
 };
 
 /**
@@ -93,7 +93,7 @@ public:
    * @param device
    * @param size
    */
-  VORTEX_API ReduceJ(const Renderer::Device& device, const glm::ivec2& size);
+  VORTEX_API ReduceJ(Renderer::Device& device, const glm::ivec2& size);
 };
 
 /**
@@ -107,7 +107,7 @@ public:
    * @param device
    * @param size
    */
-  VORTEX_API ReduceMax(const Renderer::Device& device, const glm::ivec2& size);
+  VORTEX_API ReduceMax(Renderer::Device& device, const glm::ivec2& size);
 };
 
 }  // namespace Fluid
