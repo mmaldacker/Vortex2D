@@ -46,7 +46,7 @@ public:
     std::vector<Renderer::Work::Bound> mBounds;
   };
 
-  VORTEX_API PrefixScan(const Renderer::Device& device, int size);
+  VORTEX_API PrefixScan(Renderer::Device& device, int size);
 
   VORTEX_API Bound Bind(Renderer::GenericBuffer& input,
                         Renderer::GenericBuffer& output,

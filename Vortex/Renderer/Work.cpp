@@ -88,7 +88,7 @@ DispatchParams::DispatchParams(int count)
 {
 }
 
-Work::Work(const Device& device,
+Work::Work(Device& device,
            const ComputeSize& computeSize,
            const SpirvBinary& spirv,
            const SpecConstInfo& additionalSpecConstInfo)

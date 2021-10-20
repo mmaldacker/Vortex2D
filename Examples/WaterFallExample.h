@@ -22,7 +22,7 @@ class WaterFallExample : public Runner
   const float gravityForce = 100.0f;
 
 public:
-  WaterFallExample(const Vortex::Renderer::Device& device, const glm::ivec2& size, float dt)
+  WaterFallExample(Vortex::Renderer::Device& device, const glm::ivec2& size, float dt)
       : dt(dt)
       , world(device, size, dt, 2, Vortex::Fluid::Velocity::InterpolationMode::Linear)
       , rWorld(b2Vec2(0.0f, gravityForce))
@@ -61,7 +61,7 @@ public:
     world.AddRigidbody(bottom.mRigidbody);
   }
 
-  void Init(const Vortex::Renderer::Device& device,
+  void Init(Vortex::Renderer::Device& device,
             Vortex::Renderer::RenderTarget& renderTarget) override
   {
     auto waterSource =

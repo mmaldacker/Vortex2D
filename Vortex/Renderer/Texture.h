@@ -60,7 +60,7 @@ private:
 class Texture
 {
 public:
-  VORTEX_API Texture(const Device& device,
+  VORTEX_API Texture(Device& device,
                      uint32_t width,
                      uint32_t height,
                      vk::Format format,
@@ -128,7 +128,7 @@ public:
 
 private:
   void Clear(vk::CommandBuffer commandBuffer, vk::ClearColorValue colourValue);
-  const Device& mDevice;
+  Device& mDevice;
   uint32_t mWidth;
   uint32_t mHeight;
   vk::Format mFormat;

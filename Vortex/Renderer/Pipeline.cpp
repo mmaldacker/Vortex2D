@@ -93,7 +93,7 @@ bool operator==(const SpecConstInfo& left, const SpecConstInfo& right)
   return left.data == right.data && left.mapEntries == right.mapEntries;
 }
 
-PipelineCache::PipelineCache(const Device& device) : mDevice(device) {}
+PipelineCache::PipelineCache(Device& device) : mDevice(device) {}
 
 void PipelineCache::CreateCache()
 {

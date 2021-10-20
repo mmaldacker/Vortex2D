@@ -49,7 +49,7 @@ void AddParticles(const glm::ivec2& size, FluidSim& sim, float (*phi)(const Vec2
   }
 }
 
-void SetVelocity(const Vortex::Renderer::Device& device,
+void SetVelocity(Vortex::Renderer::Device& device,
                  const glm::ivec2& size,
                  Vortex::Fluid::Velocity& velocity,
                  FluidSim& sim)
@@ -72,7 +72,7 @@ void SetVelocity(const Vortex::Renderer::Device& device,
   device.Execute([&](vk::CommandBuffer commandBuffer) { velocity.CopyFrom(commandBuffer, input); });
 }
 
-void SetSolidPhi(const Vortex::Renderer::Device& device,
+void SetSolidPhi(Vortex::Renderer::Device& device,
                  const glm::ivec2& size,
                  Vortex::Renderer::Texture& solidPhi,
                  FluidSim& sim,
@@ -95,7 +95,7 @@ void SetSolidPhi(const Vortex::Renderer::Device& device,
   device.Execute([&](vk::CommandBuffer commandBuffer) { solidPhi.CopyFrom(commandBuffer, input); });
 }
 
-void SetLiquidPhi(const Vortex::Renderer::Device& device,
+void SetLiquidPhi(Vortex::Renderer::Device& device,
                   const glm::ivec2& size,
                   Vortex::Renderer::Texture& liquidPhi,
                   FluidSim& sim,
@@ -119,7 +119,7 @@ void SetLiquidPhi(const Vortex::Renderer::Device& device,
                  { liquidPhi.CopyFrom(commandBuffer, input); });
 }
 
-void BuildInputs(const Vortex::Renderer::Device& device,
+void BuildInputs(Vortex::Renderer::Device& device,
                  const glm::ivec2& size,
                  FluidSim& sim,
                  Vortex::Fluid::Velocity& velocity,
@@ -199,7 +199,7 @@ void PrintWeights(const glm::ivec2& size, FluidSim& sim)
   std::cout << std::endl;
 }
 
-void PrintVelocity(const Vortex::Renderer::Device& device,
+void PrintVelocity(Vortex::Renderer::Device& device,
                    const glm::ivec2& size,
                    Vortex::Renderer::Texture& velocity)
 {
@@ -236,7 +236,7 @@ void PrintVelocity(const glm::ivec2& size, FluidSim& sim)
   std::cout << std::endl;
 }
 
-void CheckVelocity(const Vortex::Renderer::Device& device,
+void CheckVelocity(Vortex::Renderer::Device& device,
                    const glm::ivec2& size,
                    Vortex::Fluid::Velocity& velocity,
                    FluidSim& sim,
@@ -262,7 +262,7 @@ void CheckVelocity(const Vortex::Renderer::Device& device,
   }
 }
 
-void CheckVelocity(const Vortex::Renderer::Device& device,
+void CheckVelocity(Vortex::Renderer::Device& device,
                    const glm::ivec2& size,
                    Vortex::Renderer::Texture& velocity,
                    const std::vector<glm::vec2>& velocityData,

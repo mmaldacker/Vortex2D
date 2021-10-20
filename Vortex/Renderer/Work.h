@@ -127,7 +127,7 @@ public:
    * @param spirv binary spirv
    * @param additionalSpecConstInfo additional specialization constants
    */
-  VORTEX_API Work(const Device& device,
+  VORTEX_API Work(Device& device,
                   const ComputeSize& computeSize,
                   const SpirvBinary& spirv,
                   const SpecConstInfo& additionalSpecConstInfo = {});
@@ -228,7 +228,7 @@ public:
 
 private:
   ComputeSize mComputeSize;
-  const Device& mDevice;
+  Device& mDevice;
   Renderer::PipelineLayout mPipelineLayout;
   vk::Pipeline mPipeline;
 };

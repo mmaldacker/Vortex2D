@@ -20,7 +20,7 @@ namespace Fluid
 class IncompletePoisson : public Preconditioner
 {
 public:
-  VORTEX_API IncompletePoisson(const Renderer::Device& device, const glm::ivec2& size);
+  VORTEX_API IncompletePoisson(Renderer::Device& device, const glm::ivec2& size);
   VORTEX_API ~IncompletePoisson() override;
 
   VORTEX_API void Bind(Renderer::GenericBuffer& d,

@@ -22,7 +22,7 @@ namespace Fluid
 class Jacobi : public Preconditioner
 {
 public:
-  Jacobi(const Renderer::Device& device, const glm::ivec2& size);
+  Jacobi(Renderer::Device& device, const glm::ivec2& size);
 
   void Bind(Renderer::GenericBuffer& d,
             Renderer::GenericBuffer& l,

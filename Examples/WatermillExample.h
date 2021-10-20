@@ -22,7 +22,7 @@ extern glm::vec4 blue;
 class Watermill
 {
 public:
-  Watermill(const Vortex::Renderer::Device& device, const glm::ivec2& size, b2World& rWorld)
+  Watermill(Vortex::Renderer::Device& device, const glm::ivec2& size, b2World& rWorld)
       : mWatermillTexture(device, 150, 150, vk::Format::eR32Sfloat)
       , mWatermill(std::make_shared<Vortex::Renderer::Sprite>(device, mWatermillTexture))
       , mRigidbody(device, size, mWatermill, Vortex::Fluid::RigidBody::Type::eStrong)
@@ -108,7 +108,7 @@ class WatermillExample : public Runner
   const float gravityForce = 100.0f;
 
 public:
-  WatermillExample(const Vortex::Renderer::Device& device, const glm::ivec2& size, float dt)
+  WatermillExample(Vortex::Renderer::Device& device, const glm::ivec2& size, float dt)
       : dt(dt)
       , world(device, size, dt, 2, Vortex::Fluid::Velocity::InterpolationMode::Linear)
       , rWorld(b2Vec2(0.0f, gravityForce))
@@ -133,7 +133,7 @@ public:
     world.AddRigidbody(watermill->mRigidbody);
   }
 
-  void Init(const Vortex::Renderer::Device& device,
+  void Init(Vortex::Renderer::Device& device,
             Vortex::Renderer::RenderTarget& renderTarget) override
   {
     auto waterSource =

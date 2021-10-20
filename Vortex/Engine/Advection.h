@@ -30,7 +30,7 @@ public:
    * @param dt delta time for integration
    * @param velocity velocity field
    */
-  VORTEX_API Advection(const Renderer::Device& device,
+  VORTEX_API Advection(Renderer::Device& device,
                        const glm::ivec2& size,
                        float dt,
                        Velocity& velocity,
@@ -70,7 +70,7 @@ public:
   VORTEX_API void AdvectParticles();
 
 private:
-  const Renderer::Device& mDevice;
+  Renderer::Device& mDevice;
   float mDt;
   glm::ivec2 mSize;
   Velocity& mVelocity;

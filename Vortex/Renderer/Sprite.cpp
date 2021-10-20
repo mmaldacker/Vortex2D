@@ -15,7 +15,7 @@ namespace Vortex
 {
 namespace Renderer
 {
-AbstractSprite::AbstractSprite(const Device& device,
+AbstractSprite::AbstractSprite(Device& device,
                                const SpirvBinary& fragShaderName,
                                Texture& texture)
     : mDevice(device)
@@ -99,7 +99,7 @@ void AbstractSprite::Draw(vk::CommandBuffer commandBuffer, const RenderState& re
   commandBuffer.draw(6, 1, 0, 0);
 }
 
-Sprite::Sprite(const Device& device, Texture& texture)
+Sprite::Sprite(Device& device, Texture& texture)
     : AbstractSprite(device, SPIRV::TexturePosition_frag, texture)
 {
 }

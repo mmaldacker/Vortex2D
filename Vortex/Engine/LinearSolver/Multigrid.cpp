@@ -40,7 +40,7 @@ glm::ivec2 Depth::GetDepthSize(std::size_t i) const
   return mDepths[i];
 }
 
-std::unique_ptr<Preconditioner> MakeSmoother(const Renderer::Device& device,
+std::unique_ptr<Preconditioner> MakeSmoother(Renderer::Device& device,
                                              glm::ivec2 size,
                                              Multigrid::SmootherSolver smoother,
                                              int numSmoothingIterations)
@@ -65,7 +65,7 @@ std::unique_ptr<Preconditioner> MakeSmoother(const Renderer::Device& device,
   return {};
 }
 
-Multigrid::Multigrid(const Renderer::Device& device,
+Multigrid::Multigrid(Renderer::Device& device,
                      const glm::ivec2& size,
                      float delta,
                      int numSmoothingIterations,

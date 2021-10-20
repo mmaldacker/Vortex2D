@@ -22,7 +22,7 @@ class HydrostaticWaterExample : public Runner
   const float gravityForce = 100.0f;
 
 public:
-  HydrostaticWaterExample(const Vortex::Renderer::Device& device, const glm::ivec2& size, float dt)
+  HydrostaticWaterExample(Vortex::Renderer::Device& device, const glm::ivec2& size, float dt)
       : dt(dt)
       , world(device, size, dt, 2, Vortex::Fluid::Velocity::InterpolationMode::Linear)
       , rWorld(b2Vec2(0.0f, gravityForce))
@@ -76,8 +76,7 @@ public:
     world.AddRigidbody(bottom.mRigidbody);
   }
 
-  void Init(const Vortex::Renderer::Device& device,
-            Vortex::Renderer::RenderTarget& renderTarget) override
+  void Init(Vortex::Renderer::Device& device, Vortex::Renderer::RenderTarget& renderTarget) override
   {
     auto gravity = std::make_shared<Vortex::Renderer::Rectangle>(device, glm::vec2(256.0f, 256.0f));
     gravity->Colour = glm::vec4(0.0f, dt * gravityForce, 0.0f, 0.0f);

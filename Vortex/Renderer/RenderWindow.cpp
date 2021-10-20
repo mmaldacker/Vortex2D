@@ -28,7 +28,7 @@ struct SwapChainSupportDetails
   bool IsValid() const { return !formats.empty() && !presentModes.empty(); }
 };
 
-RenderWindow::RenderWindow(const Device& device,
+RenderWindow::RenderWindow(Device& device,
                            vk::SurfaceKHR surface,
                            uint32_t width,
                            uint32_t height)

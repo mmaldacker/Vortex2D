@@ -148,7 +148,7 @@ inline SpecConstInfo SpecConst(Args&&... args)
 class PipelineCache
 {
 public:
-  PipelineCache(const Device& device);
+  PipelineCache(Device& device);
 
   /**
    * @brief Create the pipeline cache.
@@ -190,7 +190,7 @@ private:
     vk::UniquePipeline Pipeline;
   };
 
-  const Device& mDevice;
+  Device& mDevice;
   std::vector<GraphicsPipelineCache> mGraphicsPipelines;
   std::vector<ComputePipelineCache> mComputePipelines;
   vk::UniquePipelineCache mCache;

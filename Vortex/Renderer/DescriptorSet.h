@@ -64,7 +64,7 @@ struct DescriptorSet
 class LayoutManager
 {
 public:
-  LayoutManager(const Device& device);
+  LayoutManager(Device& device);
 
   /**
    * @brief Create or re-create the descriptor pool, will render invalid
@@ -96,7 +96,7 @@ public:
   VORTEX_API vk::PipelineLayout GetPipelineLayout(const PipelineLayout& layout);
 
 private:
-  const Device& mDevice;
+  Device& mDevice;
   vk::UniqueDescriptorPool mDescriptorPool;
   std::vector<std::tuple<PipelineLayout, vk::UniqueDescriptorSetLayout>> mDescriptorSetLayouts;
   std::vector<std::tuple<PipelineLayout, vk::UniquePipelineLayout>> mPipelineLayouts;
@@ -138,7 +138,7 @@ struct BindingInput
  * @param layout pipeline layout
  * @param bindingInputs list of resources (buffer or texture/sampler)
  */
-VORTEX_API void Bind(const Device& device,
+VORTEX_API void Bind(Device& device,
                      DescriptorSet& dstSet,
                      const PipelineLayout& layout,
                      const std::vector<BindingInput>& bindingInputs);

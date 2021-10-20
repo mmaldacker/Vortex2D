@@ -13,7 +13,7 @@ namespace Vortex
 {
 namespace Fluid
 {
-ConjugateGradient::ConjugateGradient(const Renderer::Device& device,
+ConjugateGradient::ConjugateGradient(Renderer::Device& device,
                                      const glm::ivec2& size,
                                      Preconditioner& preconditioner)
     : mDevice(device)

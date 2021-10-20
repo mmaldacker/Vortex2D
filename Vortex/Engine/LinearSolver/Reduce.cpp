@@ -29,7 +29,7 @@ Renderer::ComputeSize MakeComputeSize(int size)
 }
 }  // namespace
 
-Reduce::Reduce(const Renderer::Device& device,
+Reduce::Reduce(Renderer::Device& device,
                const Renderer::SpirvBinary& spirv,
                const glm::ivec2& size,
                std::size_t typeSize)
@@ -103,7 +103,7 @@ void Reduce::Bound::Record(vk::CommandBuffer commandBuffer)
   }
 }
 
-ReduceSum::ReduceSum(const Renderer::Device& device, const glm::ivec2& size)
+ReduceSum::ReduceSum(Renderer::Device& device, const glm::ivec2& size)
     : Reduce(device, SPIRV::Sum_comp, size, sizeof(float))
 {
 }
@@ -115,12 +115,12 @@ struct J
   alignas(4) float angular;
 };
 
-ReduceJ::ReduceJ(const Renderer::Device& device, const glm::ivec2& size)
+ReduceJ::ReduceJ(Renderer::Device& device, const glm::ivec2& size)
     : Reduce(device, SPIRV::SumJ_comp, size, sizeof(J))
 {
 }
 
-ReduceMax::ReduceMax(const Renderer::Device& device, const glm::ivec2& size)
+ReduceMax::ReduceMax(Renderer::Device& device, const glm::ivec2& size)
     : Reduce(device, SPIRV::Max_comp, size, sizeof(float))
 {
 }

@@ -18,7 +18,7 @@ namespace Renderer
 class Timer
 {
 public:
-  VORTEX_API Timer(const Device& device);
+  VORTEX_API Timer(Device& device);
 
   /**
    * @brief Start the timer after the current last command buffer
@@ -56,7 +56,7 @@ public:
   VORTEX_API uint64_t GetElapsedNs();
 
 private:
-  const Device& mDevice;
+  Device& mDevice;
   CommandBuffer mStart;
   CommandBuffer mStop;
   vk::UniqueQueryPool mPool;

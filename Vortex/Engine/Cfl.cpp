@@ -11,7 +11,7 @@ namespace Vortex
 {
 namespace Fluid
 {
-Cfl::Cfl(const Renderer::Device& device, const glm::ivec2& size, Velocity& velocity)
+Cfl::Cfl(Renderer::Device& device, const glm::ivec2& size, Velocity& velocity)
     : mDevice(device)
     , mSize(size)
     , mVelocity(velocity)
