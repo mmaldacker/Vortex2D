@@ -24,7 +24,7 @@ namespace Fluid
 class Pressure
 {
 public:
-  VORTEX_API Pressure(const Renderer::Device& device,
+  VORTEX_API Pressure(Renderer::Device& device,
                       float dt,
                       const glm::ivec2& size,
                       LinearSolver::Data& data,
@@ -60,7 +60,7 @@ public:
   VORTEX_API void ApplyPressure();
 
 private:
-  const Renderer::Device& mDevice;
+  Renderer::Device& mDevice;
   LinearSolver::Data& mData;
   Renderer::Work mBuildMatrix;
   Renderer::Work::Bound mBuildMatrixBound;

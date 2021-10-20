@@ -32,7 +32,7 @@ ShaderLayout::ShaderLayout(const SPIRV::Reflection& reflection)
 {
 }
 
-LayoutManager::LayoutManager(const Device& device) : mDevice(device) {}
+LayoutManager::LayoutManager(Device& device) : mDevice(device) {}
 
 void LayoutManager::CreateDescriptorPool(int size)
 {
@@ -178,7 +178,7 @@ vk::DescriptorType GetDescriptorType(uint32_t bind, const PipelineLayout& layout
   throw std::runtime_error("no bindings defined");
 }
 
-void Bind(const Device& device,
+void Bind(Device& device,
           DescriptorSet& dstSet,
           const PipelineLayout& layout,
           const std::vector<BindingInput>& bindingInputs)

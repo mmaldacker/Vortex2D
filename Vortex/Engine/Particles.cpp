@@ -19,7 +19,7 @@ float DefaultParticleSize()
   return 1.0f / std::sqrt(2.0f);
 }
 
-ParticleCount::ParticleCount(const Renderer::Device& device,
+ParticleCount::ParticleCount(Renderer::Device& device,
                              const glm::ivec2& size,
                              Renderer::GenericBuffer& particles,
                              Velocity::InterpolationMode interpolationMode,

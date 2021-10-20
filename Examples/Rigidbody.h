@@ -25,7 +25,7 @@ private:
 class Box2DRigidbody : public Vortex::Fluid::RigidBody
 {
 public:
-  Box2DRigidbody(const Vortex::Renderer::Device& device,
+  Box2DRigidbody(Vortex::Renderer::Device& device,
                  const glm::ivec2& size,
                  Vortex::Renderer::DrawablePtr drawable,
                  Vortex::Fluid::RigidBody::Type type);
@@ -41,7 +41,7 @@ public:
 class PolygonRigidbody
 {
 public:
-  PolygonRigidbody(const Vortex::Renderer::Device& device,
+  PolygonRigidbody(Vortex::Renderer::Device& device,
                    const glm::ivec2& size,
                    b2World& rWorld,
                    b2BodyType rType,
@@ -56,7 +56,7 @@ public:
 class RectangleRigidbody : public PolygonRigidbody
 {
 public:
-  RectangleRigidbody(const Vortex::Renderer::Device& device,
+  RectangleRigidbody(Vortex::Renderer::Device& device,
                      const glm::ivec2& size,
                      b2World& rWorld,
                      b2BodyType rType,
@@ -80,7 +80,7 @@ public:
 class CircleRigidbody
 {
 public:
-  CircleRigidbody(const Vortex::Renderer::Device& device,
+  CircleRigidbody(Vortex::Renderer::Device& device,
                   const glm::ivec2& size,
                   b2World& rWorld,
                   b2BodyType rType,

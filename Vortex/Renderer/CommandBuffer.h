@@ -33,7 +33,7 @@ public:
    * @param synchronise flag to determine if the command buffer can be waited
    * on.
    */
-  VORTEX_API explicit CommandBuffer(const Device& device, bool synchronise = true);
+  VORTEX_API explicit CommandBuffer(Device& device, bool synchronise = true);
   VORTEX_API ~CommandBuffer();
 
   VORTEX_API CommandBuffer(CommandBuffer&&);
@@ -85,7 +85,7 @@ public:
   VORTEX_API explicit operator bool() const;
 
 private:
-  const Device& mDevice;
+  Device& mDevice;
   bool mSynchronise;
   bool mRecorded;
   vk::CommandBuffer mCommandBuffer;
@@ -128,13 +128,13 @@ public:
   friend class RenderWindow;
 
 private:
-  RenderCommand(const Device& device,
+  RenderCommand(Device& device,
                 RenderTarget& renderTarget,
                 const RenderState& renderState,
                 const vk::UniqueFramebuffer& frameBuffer,
                 RenderTarget::DrawableList drawables);
 
-  RenderCommand(const Device& device,
+  RenderCommand(Device& device,
                 RenderTarget& renderTarget,
                 const RenderState& renderState,
                 const std::vector<vk::UniqueFramebuffer>& frameBuffers,

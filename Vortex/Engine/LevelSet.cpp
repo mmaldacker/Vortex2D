@@ -14,7 +14,7 @@ namespace Vortex
 {
 namespace Fluid
 {
-LevelSet::LevelSet(const Renderer::Device& device,
+LevelSet::LevelSet(Renderer::Device& device,
                    const glm::ivec2& size,
                    int reinitializeIterations)
     : Renderer::RenderTexture(device, size.x, size.y, vk::Format::eR32Sfloat)

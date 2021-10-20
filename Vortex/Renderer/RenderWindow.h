@@ -27,7 +27,7 @@ public:
    * @param width
    * @param height
    */
-  VORTEX_API RenderWindow(const Device& device,
+  VORTEX_API RenderWindow(Device& device,
                           vk::SurfaceKHR surface,
                           uint32_t width,
                           uint32_t height);
@@ -42,7 +42,7 @@ public:
   VORTEX_API void Display();
 
 private:
-  const Device& mDevice;
+  Device& mDevice;
   vk::UniqueSwapchainKHR mSwapChain;
   std::vector<vk::UniqueImageView> mSwapChainImageViews;
   std::vector<vk::UniqueFramebuffer> mFrameBuffers;

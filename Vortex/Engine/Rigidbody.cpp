@@ -17,7 +17,7 @@ namespace Vortex
 {
 namespace Fluid
 {
-RigidBody::RigidBody(const Renderer::Device& device,
+RigidBody::RigidBody(Renderer::Device& device,
                      const glm::ivec2& size,
                      Renderer::DrawablePtr drawable,
                      vk::Flags<Type> type)

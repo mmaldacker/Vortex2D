@@ -19,14 +19,14 @@ extern glm::vec4 gray;
 class SmokeExample : public Runner
 {
 public:
-  SmokeExample(const Vortex::Renderer::Device& device, const glm::ivec2& size, float dt)
+  SmokeExample(Vortex::Renderer::Device& device, const glm::ivec2& size, float dt)
       : density(std::make_shared<Vortex::Fluid::Density>(device, size, vk::Format::eR8G8B8A8Unorm))
       , world(device, size, dt, Vortex::Fluid::Velocity::InterpolationMode::Linear)
   {
     world.FieldBind(*density);
   }
 
-  void Init(const Vortex::Renderer::Device& device,
+  void Init(Vortex::Renderer::Device& device,
             Vortex::Renderer::RenderTarget& renderTarget) override
   {
     auto source1 = std::make_shared<Vortex::Renderer::Rectangle>(device, glm::vec2(20.0f));

@@ -14,13 +14,13 @@ extern glm::vec4 green;
 class RenderExample : public Runner
 {
 public:
-  RenderExample(const Vortex::Renderer::Device& device, const glm::vec2& size)
+  RenderExample(Vortex::Renderer::Device& device, const glm::vec2& size)
       : renderCircle(device, 50, 50, vk::Format::eR32Sfloat)
       , contour(device, renderCircle, glm::ivec2(50))
   {
   }
 
-  void Init(const Vortex::Renderer::Device& device,
+  void Init(Vortex::Renderer::Device& device,
             Vortex::Renderer::RenderTarget& renderTarget) override
   {
     {

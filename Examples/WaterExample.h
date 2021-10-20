@@ -19,13 +19,13 @@ extern glm::vec4 blue;
 class WaterExample : public Runner
 {
 public:
-  WaterExample(const Vortex::Renderer::Device& device, const glm::ivec2& size, float dt)
+  WaterExample(Vortex::Renderer::Device& device, const glm::ivec2& size, float dt)
       : world(device, size, dt, 2, Vortex::Fluid::Velocity::InterpolationMode::Linear)
 
   {
   }
 
-  void Init(const Vortex::Renderer::Device& device,
+  void Init(Vortex::Renderer::Device& device,
             Vortex::Renderer::RenderTarget& renderTarget) override
   {
     auto gravity = std::make_shared<Vortex::Renderer::Rectangle>(device, glm::vec2{256.0f, 256.0f});

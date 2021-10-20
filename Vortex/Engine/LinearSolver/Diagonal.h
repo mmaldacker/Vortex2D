@@ -20,7 +20,7 @@ namespace Fluid
 class Diagonal : public Preconditioner
 {
 public:
-  VORTEX_API Diagonal(const Renderer::Device& device, const glm::ivec2& size);
+  VORTEX_API Diagonal(Renderer::Device& device, const glm::ivec2& size);
   VORTEX_API ~Diagonal() override;
 
   VORTEX_API void Bind(Renderer::GenericBuffer& d,

@@ -22,7 +22,7 @@ public:
    * @brief Initialize prolongate and restrict compute pipelines
    * @param device
    */
-  VORTEX_API Transfer(const Renderer::Device& device);
+  VORTEX_API Transfer(Renderer::Device& device);
 
   /**
    * @brief Prolongate a level set on a finer level set. Setting the 4 cells to
@@ -80,7 +80,7 @@ public:
   VORTEX_API void Restrict(vk::CommandBuffer commandBuffer, std::size_t level);
 
 private:
-  const Renderer::Device& mDevice;
+  Renderer::Device& mDevice;
   Renderer::Work mProlongateWork;
   std::vector<Renderer::Work::Bound> mProlongateBound;
   std::vector<Renderer::GenericBuffer*> mProlongateBuffer;

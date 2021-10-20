@@ -24,7 +24,7 @@ extern glm::vec4 gray;
 class ObstacleSmokeExample : public Runner
 {
 public:
-  ObstacleSmokeExample(const Vortex::Renderer::Device& device, const glm::ivec2& size, float dt)
+  ObstacleSmokeExample(Vortex::Renderer::Device& device, const glm::ivec2& size, float dt)
       : density(std::make_shared<Vortex::Fluid::Density>(device, size, vk::Format::eR8G8B8A8Unorm))
       , world(device, size, dt, Vortex::Fluid::Velocity::InterpolationMode::Linear)
       , rWorld({0.0f, 100.0f})
@@ -55,7 +55,7 @@ public:
     world.AddRigidbody(bottom.mRigidbody);
   }
 
-  void Init(const Vortex::Renderer::Device& device,
+  void Init(Vortex::Renderer::Device& device,
             Vortex::Renderer::RenderTarget& renderTarget) override
   {
     // Draw density

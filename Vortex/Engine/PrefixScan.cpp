@@ -32,7 +32,7 @@ Renderer::ComputeSize MakeComputeSize(int size)
 }
 }  // namespace
 
-PrefixScan::PrefixScan(const Renderer::Device& device, int size)
+PrefixScan::PrefixScan(Renderer::Device& device, int size)
     : mSize(size)
     , mAddWork(device, Renderer::ComputeSize::Default1D(), SPIRV::PreScanAdd_comp)
     , mPreScanWork(device, Renderer::ComputeSize::Default1D(), SPIRV::PreScan_comp)

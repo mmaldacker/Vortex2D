@@ -21,7 +21,7 @@ class Device;
 class GenericBuffer
 {
 public:
-  VORTEX_API GenericBuffer(const Device& device,
+  VORTEX_API GenericBuffer(Device& device,
                            vk::BufferUsageFlags usageFlags,
                            VmaMemoryUsage memoryUsage,
                            vk::DeviceSize deviceSize);
@@ -95,7 +95,7 @@ public:
 protected:
   void Create();
 
-  const Device& mDevice;
+  Device& mDevice;
   vk::DeviceSize mSize;
   vk::BufferUsageFlags mUsageFlags;
   VmaMemoryUsage mMemoryUsage;
@@ -111,7 +111,7 @@ template <typename T>
 class VertexBuffer : public GenericBuffer
 {
 public:
-  VertexBuffer(const Device& device,
+  VertexBuffer(Device& device,
                std::size_t size,
                VmaMemoryUsage memoryUsage = VMA_MEMORY_USAGE_GPU_ONLY)
       : GenericBuffer(device, vk::BufferUsageFlagBits::eVertexBuffer, memoryUsage, sizeof(T) * size)
@@ -126,7 +126,7 @@ template <typename T>
 class UniformBuffer : public GenericBuffer
 {
 public:
-  UniformBuffer(const Device& device, VmaMemoryUsage memoryUsage = VMA_MEMORY_USAGE_GPU_ONLY)
+  UniformBuffer(Device& device, VmaMemoryUsage memoryUsage = VMA_MEMORY_USAGE_GPU_ONLY)
       : GenericBuffer(device, vk::BufferUsageFlagBits::eUniformBuffer, memoryUsage, sizeof(T))
   {
   }
@@ -139,7 +139,7 @@ template <typename T>
 class Buffer : public GenericBuffer
 {
 public:
-  Buffer(const Device& device,
+  Buffer(Device& device,
          std::size_t size = 1,
          VmaMemoryUsage memoryUsage = VMA_MEMORY_USAGE_GPU_ONLY)
       : GenericBuffer(device,
@@ -157,7 +157,7 @@ template <typename T>
 class IndirectBuffer : public GenericBuffer
 {
 public:
-  IndirectBuffer(const Device& device, VmaMemoryUsage memoryUsage = VMA_MEMORY_USAGE_GPU_ONLY)
+  IndirectBuffer(Device& device, VmaMemoryUsage memoryUsage = VMA_MEMORY_USAGE_GPU_ONLY)
       : GenericBuffer(
             device,
             vk::BufferUsageFlagBits::eIndirectBuffer | vk::BufferUsageFlagBits::eStorageBuffer,
@@ -174,7 +174,7 @@ template <typename T>
 class IndexBuffer : public GenericBuffer
 {
 public:
-  IndexBuffer(const Device& device,
+  IndexBuffer(Device& device,
               std::size_t size,
               VmaMemoryUsage memoryUsage = VMA_MEMORY_USAGE_GPU_ONLY)
       : GenericBuffer(device, vk::BufferUsageFlagBits::eIndexBuffer, memoryUsage, sizeof(T) * size)

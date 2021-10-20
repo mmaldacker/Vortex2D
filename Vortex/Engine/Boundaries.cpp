@@ -58,7 +58,7 @@ std::vector<glm::vec2> GetBoundingBox(const std::vector<glm::vec2>& points, floa
 
 }  // namespace
 
-Polygon::Polygon(const Renderer::Device& device,
+Polygon::Polygon(Renderer::Device& device,
                  std::vector<glm::vec2> points,
                  bool inverse,
                  float extent)
@@ -141,7 +141,7 @@ void Polygon::Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState&
   commandBuffer.draw(6, 1, 0, 0);
 }
 
-Rectangle::Rectangle(const Renderer::Device& device,
+Rectangle::Rectangle(Renderer::Device& device,
                      const glm::vec2& size,
                      bool inverse,
                      float extent)
@@ -169,7 +169,7 @@ void Rectangle::Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderStat
   Polygon::Draw(commandBuffer, renderState);
 }
 
-Circle::Circle(const Renderer::Device& device, float radius, float extent)
+Circle::Circle(Renderer::Device& device, float radius, float extent)
     : mDevice(device)
     , mSize(radius)
     , mMVPBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
@@ -261,7 +261,7 @@ Renderer::ColorBlendState UnionBlend = []
 std::shared_ptr<Vortex::Renderer::Clear> BoundariesClear =
     std::make_shared<Vortex::Renderer::Clear>(glm::vec4{10000.0f, 0.0f, 0.0f, 0.0f});
 
-DistanceField::DistanceField(const Renderer::Device& device,
+DistanceField::DistanceField(Renderer::Device& device,
                              Renderer::RenderTexture& levelSet,
                              float scale)
     : Renderer::AbstractSprite(device, SPIRV::DistanceField_frag, levelSet), mScale(scale)
@@ -281,7 +281,7 @@ void DistanceField::Draw(vk::CommandBuffer commandBuffer, const Renderer::Render
   AbstractSprite::Draw(commandBuffer, renderState);
 }
 
-Contour::Contour(const Renderer::Device& device,
+Contour::Contour(Renderer::Device& device,
                  Renderer::RenderTexture& levelSet,
                  const glm::vec2& size)
     : mDevice(device)

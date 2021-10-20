@@ -18,7 +18,7 @@ namespace Vortex
 {
 namespace Renderer
 {
-AbstractShape::AbstractShape(const Device& device,
+AbstractShape::AbstractShape(Device& device,
                              const SpirvBinary& fragName,
                              const std::vector<glm::vec2>& vertices)
     : mDevice(device)
@@ -52,7 +52,7 @@ AbstractShape::AbstractShape(const Device& device,
 
 AbstractShape::AbstractShape(AbstractShape&& other)
     : mDevice(other.mDevice)
-    , mMVPBuffer(std::move(other.mDevice))
+    , mMVPBuffer(std::move(other.mMVPBuffer))
     , mColourBuffer(std::move(other.mColourBuffer))
     , mVertexBuffer(std::move(other.mVertexBuffer))
     , mDescriptorSet(std::move(other.mDescriptorSet))
@@ -89,7 +89,7 @@ void AbstractShape::Draw(vk::CommandBuffer commandBuffer, const RenderState& ren
   commandBuffer.draw(mNumVertices, 1, 0, 0);
 }
 
-Rectangle::Rectangle(const Device& device, const glm::vec2& size)
+Rectangle::Rectangle(Device& device, const glm::vec2& size)
     : AbstractShape(device,
                     SPIRV::Position_frag,
                     {{0.0f, 0.0f},
@@ -101,7 +101,7 @@ Rectangle::Rectangle(const Device& device, const glm::vec2& size)
 {
 }
 
-IntRectangle::IntRectangle(const Device& device, const glm::vec2& size)
+IntRectangle::IntRectangle(Device& device, const glm::vec2& size)
     : AbstractShape(device,
                     SPIRV::IntPosition_frag,
                     {{0.0f, 0.0f},
@@ -113,7 +113,7 @@ IntRectangle::IntRectangle(const Device& device, const glm::vec2& size)
 {
 }
 
-Mesh::Mesh(const Device& device,
+Mesh::Mesh(Device& device,
            VertexBuffer<glm::vec2>& vertexBuffer,
            IndexBuffer<std::uint32_t>& indexBuffer,
            Buffer<vk::DrawIndexedIndirectCommand>& parameters)
@@ -169,7 +169,7 @@ void Mesh::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState)
   commandBuffer.drawIndexedIndirect(mParameters.Handle(), 0, 1, 0);
 }
 
-Ellipse::Ellipse(const Device& device, const glm::vec2& radius)
+Ellipse::Ellipse(Device& device, const glm::vec2& radius)
     : mDevice(device)
     , mRadius(radius)
     , mMVPBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)

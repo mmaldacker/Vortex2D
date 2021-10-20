@@ -14,7 +14,7 @@ namespace Vortex
 {
 namespace Fluid
 {
-Advection::Advection(const Renderer::Device& device,
+Advection::Advection(Renderer::Device& device,
                      const glm::ivec2& size,
                      float dt,
                      Velocity& velocity,
