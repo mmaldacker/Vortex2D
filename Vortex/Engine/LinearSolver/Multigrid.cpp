@@ -74,9 +74,9 @@ Multigrid::Multigrid(Renderer::Device& device,
     , mDepth(size)
     , mDelta(delta)
     , mNumSmoothingIterations(numSmoothingIterations)
-    , mResidualWork(device, size, SPIRV::Residual_comp)
+    , mResidualWork(device, Renderer::ComputeSize{size}, SPIRV::Residual_comp)
     , mTransfer(device)
-    , mPhiScaleWork(device, size, SPIRV::PhiScale_comp)
+    , mPhiScaleWork(device, Renderer::ComputeSize{size}, SPIRV::PhiScale_comp)
     , mSmoother(device, mDepth.GetDepthSize(mDepth.GetMaxDepth()))
     , mBuildHierarchies(device, false)
     , mFullCycleSolver(device, false)
@@ -138,8 +138,10 @@ void Multigrid::BuildHierarchiesBind(Pressure& pressure,
                                      Renderer::Texture& liquidPhi)
 {
   auto s = mDepth.GetDepthSize(1);
-  mLiquidPhiScaleWorkBound.push_back(mPhiScaleWork.Bind(s, {liquidPhi, mLiquidPhis[0]}));
-  mSolidPhiScaleWorkBound.push_back(mPhiScaleWork.Bind(s, {solidPhi, mSolidPhis[0]}));
+  mLiquidPhiScaleWorkBound.push_back(
+      mPhiScaleWork.Bind(Renderer::ComputeSize{s}, {liquidPhi, mLiquidPhis[0]}));
+  mSolidPhiScaleWorkBound.push_back(
+      mPhiScaleWork.Bind(Renderer::ComputeSize{s}, {solidPhi, mSolidPhis[0]}));
 
   RecursiveBind(pressure, 1);
 
@@ -191,12 +193,12 @@ void Multigrid::RecursiveBind(Pressure& pressure, std::size_t depth)
   if (static_cast<int32_t>(depth) < mDepth.GetMaxDepth())
   {
     auto s1 = mDepth.GetDepthSize(depth + 1);
-    mLiquidPhiScaleWorkBound.push_back(
-        mPhiScaleWork.Bind(s1, {mLiquidPhis[depth - 1], mLiquidPhis[depth]}));
+    mLiquidPhiScaleWorkBound.push_back(mPhiScaleWork.Bind(
+        Renderer::ComputeSize{s1}, {mLiquidPhis[depth - 1], mLiquidPhis[depth]}));
     mSolidPhiScaleWorkBound.push_back(
-        mPhiScaleWork.Bind(s1, {mSolidPhis[depth - 1], mSolidPhis[depth]}));
+        mPhiScaleWork.Bind(Renderer::ComputeSize{s1}, {mSolidPhis[depth - 1], mSolidPhis[depth]}));
 
-    mResidualWorkBound[depth] = mResidualWork.Bind(s0,
+    mResidualWorkBound[depth] = mResidualWork.Bind(Renderer::ComputeSize{s0},
                                                    {mDatas[depth - 1].X,
                                                     mDatas[depth - 1].Diagonal,
                                                     mDatas[depth - 1].Lower,

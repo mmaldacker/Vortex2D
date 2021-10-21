@@ -31,8 +31,8 @@ void Transfer::ProlongateBind(std::size_t level,
     mProlongateBuffer.resize(level + 1);
   }
 
-  mProlongateBound[level] =
-      mProlongateWork.Bind(fineSize, {fineDiagonal, fine, coarseDiagonal, coarse});
+  mProlongateBound[level] = mProlongateWork.Bind(Renderer::ComputeSize{fineSize},
+                                                 {fineDiagonal, fine, coarseDiagonal, coarse});
   mProlongateBuffer[level] = &fine;
 }
 
@@ -51,8 +51,8 @@ void Transfer::RestrictBind(std::size_t level,
 
   glm::ivec2 coarseSize = fineSize / glm::ivec2(2);
 
-  mRestrictBound[level] =
-      mRestrictWork.Bind(coarseSize, {fineDiagonal, fine, coarseDiagonal, coarse});
+  mRestrictBound[level] = mRestrictWork.Bind(Renderer::ComputeSize{coarseSize},
+                                             {fineDiagonal, fine, coarseDiagonal, coarse});
   mRestrictBuffer[level] = &coarse;
 }
 

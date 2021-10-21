@@ -17,7 +17,7 @@ Jacobi::Jacobi(Renderer::Device& device, const glm::ivec2& size)
     : mW(1.0f)
     , mPreconditionerIterations(1)
     , mBackPressure(device, size.x * size.y)
-    , mJacobi(device, size, SPIRV::DampedJacobi_comp)
+    , mJacobi(device, Renderer::ComputeSize{size}, SPIRV::DampedJacobi_comp)
 {
 }
 

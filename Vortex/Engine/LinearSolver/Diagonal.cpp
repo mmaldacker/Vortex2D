@@ -12,7 +12,7 @@ namespace Vortex
 namespace Fluid
 {
 Diagonal::Diagonal(Renderer::Device& device, const glm::ivec2& size)
-    : mDiagonal(device, size, SPIRV::Diagonal_comp)
+    : mDiagonal(device, Renderer::ComputeSize{size}, SPIRV::Diagonal_comp)
 {
 }
 

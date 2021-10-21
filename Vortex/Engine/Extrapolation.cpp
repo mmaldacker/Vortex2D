@@ -18,12 +18,12 @@ Extrapolation::Extrapolation(Renderer::Device& device,
     : mDevice(device)
     , mValid(device, size.x * size.y)
     , mVelocity(velocity)
-    , mExtrapolateVelocity(device, size, SPIRV::ExtrapolateVelocity_comp)
+    , mExtrapolateVelocity(device, Renderer::ComputeSize{size}, SPIRV::ExtrapolateVelocity_comp)
     , mExtrapolateVelocityBound(
           mExtrapolateVelocity.Bind({valid, mValid, velocity, velocity.Output()}))
     , mExtrapolateVelocityBackBound(
           mExtrapolateVelocity.Bind({mValid, valid, velocity.Output(), velocity}))
-    , mConstrainVelocity(device, size, SPIRV::ConstrainVelocity_comp)
+    , mConstrainVelocity(device, Renderer::ComputeSize{size}, SPIRV::ConstrainVelocity_comp)
     , mExtrapolateCmd(device, false)
     , mConstrainCmd(device, false)
 {

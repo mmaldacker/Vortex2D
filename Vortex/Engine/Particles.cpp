@@ -39,22 +39,23 @@ ParticleCount::ParticleCount(Renderer::Device& device,
     , mLocalDispatchParams(device, 1, VMA_MEMORY_USAGE_CPU_ONLY)
     , mNewDispatchParams(device)
     , mParticleCountWork(device, Renderer::ComputeSize::Default1D(), SPIRV::ParticleCount_comp)
-    , mParticleCountBound(mParticleCountWork.Bind(size, {particles, mDispatchParams, mDelta}))
-    , mParticleClampWork(device, size, SPIRV::ParticleClamp_comp)
-    , mParticleClampBound(mParticleClampWork.Bind(size, {mDelta}))
+    , mParticleCountBound(mParticleCountWork.Bind(Renderer::ComputeSize{size},
+                                                  {particles, mDispatchParams, mDelta}))
+    , mParticleClampWork(device, Renderer::ComputeSize{size}, SPIRV::ParticleClamp_comp)
+    , mParticleClampBound(mParticleClampWork.Bind(Renderer::ComputeSize{size}, {mDelta}))
     , mPrefixScan(device, size.x * size.y)
     , mPrefixScanBound(mPrefixScan.Bind(mDelta, mIndex, mNewDispatchParams))
     , mParticleBucketWork(device, Renderer::ComputeSize::Default1D(), SPIRV::ParticleBucket_comp)
     , mParticleBucketBound(
-          mParticleBucketWork.Bind(size,
+          mParticleBucketWork.Bind(Renderer::ComputeSize{size},
                                    {particles, mNewParticles, mIndex, mDelta, mDispatchParams}))
-    , mParticleSpawnWork(device, size, SPIRV::ParticleSpawn_comp)
+    , mParticleSpawnWork(device, Renderer::ComputeSize{size}, SPIRV::ParticleSpawn_comp)
     , mParticleSpawnBound(mParticleSpawnWork.Bind({mNewParticles, mIndex, mDelta, mSeeds}))
     , mParticlePhiWork(device,
-                       size,
+                       Renderer::ComputeSize{size},
                        SPIRV::ParticlePhi_comp,
                        Renderer::SpecConst(Renderer::SpecConstValue(3, particleSize)))
-    , mParticleToGridWork(device, size, SPIRV::ParticleToGrid_comp)
+    , mParticleToGridWork(device, Renderer::ComputeSize{size}, SPIRV::ParticleToGrid_comp)
     , mParticleFromGridWork(device,
                             Renderer::ComputeSize::Default1D(),
                             SPIRV::ParticleFromGrid_comp,

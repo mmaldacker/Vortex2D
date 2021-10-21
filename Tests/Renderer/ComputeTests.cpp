@@ -170,7 +170,7 @@ TEST(ComputeTests, ImageCompute)
 TEST(ComputeTests, Work)
 {
   Buffer<float> buffer(*device, 16 * 16, VMA_MEMORY_USAGE_CPU_ONLY);
-  Work work(*device, glm::ivec2(16), Work_comp, SpecConst(SpecConstValue(3, 1)));
+  Work work(*device, ComputeSize{glm::ivec2(16)}, Work_comp, SpecConst(SpecConstValue(3, 1)));
 
   auto boundWork = work.Bind({buffer});
 
@@ -270,7 +270,7 @@ TEST(ComputeTests, FloatImage)
       *device, size.x, size.y, vk::Format::eR32G32B32A32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
   Texture texture(*device, size.x, size.y, vk::Format::eR32G32B32A32Sfloat);
 
-  Work work(*device, size, ImageFloat_comp);
+  Work work(*device, ComputeSize{size}, ImageFloat_comp);
 
   std::vector<glm::vec4> data(size.x * size.y, glm::vec4(2.0f, 3.0f, 0.0f, 0.0f));
   localTexture.CopyFrom(data);
@@ -391,7 +391,7 @@ TEST(ComputeTests, Timer)
   glm::ivec2 size(500);
 
   Buffer<float> buffer(*device, size.x * size.y);
-  Work work(*device, size, Work_comp);
+  Work work(*device, ComputeSize{size}, Work_comp);
 
   auto boundWork = work.Bind({buffer});
 

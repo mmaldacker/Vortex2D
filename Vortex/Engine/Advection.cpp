@@ -24,11 +24,11 @@ Advection::Advection(Renderer::Device& device,
     , mSize(size)
     , mVelocity(velocity)
     , mVelocityAdvect(device,
-                      size,
+                      Renderer::ComputeSize{size},
                       SPIRV::AdvectVelocity_comp,
                       Renderer::SpecConst(Renderer::SpecConstValue(3, interpolationMode)))
     , mVelocityAdvectBound(mVelocityAdvect.Bind({velocity, velocity.Output()}))
-    , mAdvect(device, size, SPIRV::Advect_comp)
+    , mAdvect(device, Renderer::ComputeSize{size}, SPIRV::Advect_comp)
     , mAdvectParticles(device,
                        Renderer::ComputeSize::Default1D(),
                        SPIRV::AdvectParticles_comp,
@@ -92,8 +92,8 @@ void Advection::AdvectParticleBind(
     Renderer::Texture& levelSet,
     Renderer::IndirectBuffer<Renderer::DispatchParams>& dispatchParams)
 {
-  mAdvectParticlesBound =
-      mAdvectParticles.Bind(mSize, {particles, dispatchParams, mVelocity, levelSet});
+  mAdvectParticlesBound = mAdvectParticles.Bind(Renderer::ComputeSize{mSize},
+                                                {particles, dispatchParams, mVelocity, levelSet});
   mAdvectParticlesCmd.Record(
       [&](vk::CommandBuffer commandBuffer)
       {

@@ -50,7 +50,7 @@ LinearSolver::DebugCopy::DebugCopy(Renderer::Device& device,
                                    const glm::ivec2& size,
                                    LinearSolver::Data& data,
                                    LinearSolver::DebugData& debugData)
-    : mDebugDataCopy(device, size, SPIRV::DebugDataCopy_comp)
+    : mDebugDataCopy(device, Renderer::ComputeSize{size}, SPIRV::DebugDataCopy_comp)
     , mDebugDataCopyBound(mDebugDataCopy.Bind({data.Diagonal,
                                                data.Lower,
                                                data.X,
@@ -134,7 +134,7 @@ LinearSolver::Error::Error(Renderer::Device& device, const glm::ivec2& size)
     : mResidual(device, size.x * size.y)
     , mError(device)
     , mLocalError(device, 1, VMA_MEMORY_USAGE_GPU_TO_CPU)
-    , mResidualWork(device, size, SPIRV::Residual_comp)
+    , mResidualWork(device, Renderer::ComputeSize{size}, SPIRV::Residual_comp)
     , mReduceMax(device, size.x * size.y)
     , mReduceMaxBound(mReduceMax.Bind(mResidual, mError))
     , mErrorCmd(device)

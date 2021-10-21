@@ -14,9 +14,7 @@ namespace Vortex
 {
 namespace Fluid
 {
-LevelSet::LevelSet(Renderer::Device& device,
-                   const glm::ivec2& size,
-                   int reinitializeIterations)
+LevelSet::LevelSet(Renderer::Device& device, const glm::ivec2& size, int reinitializeIterations)
     : Renderer::RenderTexture(device, size.x, size.y, vk::Format::eR32Sfloat)
     , mDevice(device)
     , mLevelSet0(device, size.x, size.y, vk::Format::eR32Sfloat)
@@ -24,8 +22,8 @@ LevelSet::LevelSet(Renderer::Device& device,
     , mSampler(Renderer::SamplerBuilder()
                    .AddressMode(vk::SamplerAddressMode::eClampToEdge)
                    .Create(device.Handle()))
-    , mExtrapolate(device, size, SPIRV::Extrapolate_comp)
-    , mRedistance(device, size, SPIRV::Redistance_comp)
+    , mExtrapolate(device, Renderer::ComputeSize{size}, SPIRV::Extrapolate_comp)
+    , mRedistance(device, Renderer::ComputeSize{size}, SPIRV::Redistance_comp)
     , mRedistanceFront(
           mRedistance.Bind({{*mSampler, mLevelSet0}, {*mSampler, *this}, mLevelSetBack}))
     , mRedistanceBack(

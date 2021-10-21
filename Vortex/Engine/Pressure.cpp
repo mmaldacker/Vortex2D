@@ -23,11 +23,11 @@ Pressure::Pressure(Renderer::Device& device,
                    Renderer::GenericBuffer& valid)
     : mDevice(device)
     , mData(data)
-    , mBuildMatrix(device, size, SPIRV::BuildMatrix_comp)
+    , mBuildMatrix(device, Renderer::ComputeSize{size}, SPIRV::BuildMatrix_comp)
     , mBuildMatrixBound(mBuildMatrix.Bind({data.Diagonal, data.Lower, liquidPhi, solidPhi}))
-    , mBuildDiv(device, size, SPIRV::BuildDiv_comp)
+    , mBuildDiv(device, Renderer::ComputeSize{size}, SPIRV::BuildDiv_comp)
     , mBuildDivBound(mBuildDiv.Bind({data.B, data.Diagonal, liquidPhi, solidPhi, velocity}))
-    , mProject(device, size, SPIRV::Project_comp)
+    , mProject(device, Renderer::ComputeSize{size}, SPIRV::Project_comp)
     , mProjectBound(
           mProject.Bind({data.X, liquidPhi, solidPhi, velocity, velocity.Output(), valid}))
     , mBuildEquationCmd(device, false)
@@ -78,7 +78,7 @@ Renderer::Work::Bound Pressure::BindMatrixBuild(const glm::ivec2& size,
                                                 Renderer::Texture& liquidPhi,
                                                 Renderer::Texture& solidPhi)
 {
-  return mBuildMatrix.Bind(size, {diagonal, lower, liquidPhi, solidPhi});
+  return mBuildMatrix.Bind(Renderer::ComputeSize{size}, {diagonal, lower, liquidPhi, solidPhi});
 }
 
 void Pressure::BuildLinearEquation()

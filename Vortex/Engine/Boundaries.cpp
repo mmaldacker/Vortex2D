@@ -141,10 +141,7 @@ void Polygon::Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState&
   commandBuffer.draw(6, 1, 0, 0);
 }
 
-Rectangle::Rectangle(Renderer::Device& device,
-                     const glm::vec2& size,
-                     bool inverse,
-                     float extent)
+Rectangle::Rectangle(Renderer::Device& device, const glm::vec2& size, bool inverse, float extent)
     : Polygon(device,
               {{0.0f, 0.0f}, {size.x, 0.0f}, {size.x, size.y}, {0.0f, size.y}},
               inverse,
@@ -281,9 +278,7 @@ void DistanceField::Draw(vk::CommandBuffer commandBuffer, const Renderer::Render
   AbstractSprite::Draw(commandBuffer, renderState);
 }
 
-Contour::Contour(Renderer::Device& device,
-                 Renderer::RenderTexture& levelSet,
-                 const glm::vec2& size)
+Contour::Contour(Renderer::Device& device, Renderer::RenderTexture& levelSet, const glm::vec2& size)
     : mDevice(device)
     , mSize(size)
     , mVoxels(device, size.x * size.y)
@@ -294,12 +289,12 @@ Contour::Contour(Renderer::Device& device,
     , mVerticesParam(device)
     , mIndicesParam(device)
     , mDrawParameters(device)
-    , mDualContour(device, {size}, SPIRV::DualContour_comp)
+    , mDualContour(device, Renderer::ComputeSize{size}, SPIRV::DualContour_comp)
     , mDualContourBound(mDualContour.Bind({{levelSet}, {mVoxels}, {mVertexCount}, {mIndexCount}}))
     , mScan(device, size.x * size.y)
     , mVerticesScanBound(mScan.Bind(mVertexCount, mVertexCount, mVerticesParam))
     , mIndicesScanBound(mScan.Bind(mIndexCount, mIndexCount, mIndicesParam))
-    , mMeshReindexing(device, {size}, SPIRV::MeshReindexing_comp)
+    , mMeshReindexing(device, Renderer::ComputeSize{size}, SPIRV::MeshReindexing_comp)
     , mMeshReindexingBound(mMeshReindexing.Bind(
           {{mVoxels}, {mVertices}, {mIndices}, {mVertexCount}, {mIndexCount}, {mDrawParameters}}))
     , mContourCmd(device, false)
