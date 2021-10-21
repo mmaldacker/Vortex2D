@@ -32,7 +32,7 @@ layout(binding = 4) uniform Centre
   vec2 centre;
 };
 
-#include "CommonProject.comp"
+#include "../CommonProject.comp"
 
 vec2 get_solid_velocity(vec2 pos)
 {

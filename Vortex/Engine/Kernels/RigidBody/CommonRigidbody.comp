@@ -1,4 +1,4 @@
-#include "CommonProject.comp"
+#include "../CommonProject.comp"
 
 vec3 get_base(ivec2 pos)
 {

@@ -1,4 +1,4 @@
-#include "CommonInterpolate.comp"
+#include "../CommonInterpolate.comp"
 
 vec4[16] get_samples(ivec2 ij)
 {
