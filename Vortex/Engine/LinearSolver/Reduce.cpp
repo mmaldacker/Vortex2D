@@ -31,9 +31,9 @@ Renderer::ComputeSize MakeComputeSize(int size)
 
 Reduce::Reduce(Renderer::Device& device,
                const Renderer::SpirvBinary& spirv,
-               const glm::ivec2& size,
+               int size,
                std::size_t typeSize)
-    : mSize(size.x * size.y), mReduce(device, Renderer::ComputeSize::Default1D(), spirv)
+    : mSize(size), mReduce(device, Renderer::ComputeSize::Default1D(), spirv)
 {
   auto computeSize = MakeComputeSize(mSize);
   while (computeSize.WorkSize.x > 1)
@@ -103,7 +103,7 @@ void Reduce::Bound::Record(vk::CommandBuffer commandBuffer)
   }
 }
 
-ReduceSum::ReduceSum(Renderer::Device& device, const glm::ivec2& size)
+ReduceSum::ReduceSum(Renderer::Device& device, int size)
     : Reduce(device, SPIRV::Sum_comp, size, sizeof(float))
 {
 }
@@ -115,12 +115,12 @@ struct J
   alignas(4) float angular;
 };
 
-ReduceJ::ReduceJ(Renderer::Device& device, const glm::ivec2& size)
+ReduceJ::ReduceJ(Renderer::Device& device, int size)
     : Reduce(device, SPIRV::SumJ_comp, size, sizeof(J))
 {
 }
 
-ReduceMax::ReduceMax(Renderer::Device& device, const glm::ivec2& size)
+ReduceMax::ReduceMax(Renderer::Device& device, int size)
     : Reduce(device, SPIRV::Max_comp, size, sizeof(float))
 {
 }

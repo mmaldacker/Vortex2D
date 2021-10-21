@@ -40,7 +40,7 @@ RigidBody::RigidBody(Renderer::Device& device,
     , mForceCmd(device, true)
     , mPressureCmd(device, false)
     , mVelocityCmd(device, false)
-    , mSum(device, size)
+    , mSum(device, size.x * size.y)
     , mType(type)
     , mMass(0.0f)
     , mInertia(0.0f)

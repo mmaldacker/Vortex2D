@@ -19,7 +19,7 @@ Cfl::Cfl(Renderer::Device& device, const glm::ivec2& size, Velocity& velocity)
     , mVelocityMax(device, size.x * size.y)
     , mCfl(device, 1, VMA_MEMORY_USAGE_GPU_TO_CPU)
     , mVelocityMaxCmd(device, true)
-    , mReduceVelocityMax(device, size)
+    , mReduceVelocityMax(device, size.x * size.y)
 {
   mVelocityMaxBound = mVelocityMaxWork.Bind({mVelocity, mVelocityMax});
   mReduceVelocityMaxBound = mReduceVelocityMax.Bind(mVelocityMax, mCfl);

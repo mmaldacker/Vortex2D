@@ -367,7 +367,7 @@ TEST(RigidbodyTests, ReduceJSum)
   Buffer<Vortex::Fluid::RigidBody::Velocity> input(*device, n, VMA_MEMORY_USAGE_CPU_ONLY);
   Buffer<Vortex::Fluid::RigidBody::Velocity> output(*device, 1, VMA_MEMORY_USAGE_CPU_ONLY);
 
-  ReduceJ reduce(*device, size);
+  ReduceJ reduce(*device, size.x * size.y);
   auto reduceBound = reduce.Bind(input, output);
 
   std::vector<Vortex::Fluid::RigidBody::Velocity> inputData(n);

@@ -30,7 +30,7 @@ TEST(LinearSolverTests, ReduceSum)
   Buffer<float> input(*device, total_size, VMA_MEMORY_USAGE_CPU_ONLY);
   Buffer<float> output(*device, 1, VMA_MEMORY_USAGE_CPU_ONLY);
 
-  ReduceSum reduce(*device, size);
+  ReduceSum reduce(*device, size.x * size.y);
   auto reduceBound = reduce.Bind(input, output);
 
   std::vector<float> inputData(total_size);
@@ -58,7 +58,7 @@ TEST(LinearSolverTests, ReduceBigSum)
   Buffer<float> input(*device, total_size, VMA_MEMORY_USAGE_CPU_ONLY);
   Buffer<float> output(*device, 1, VMA_MEMORY_USAGE_CPU_ONLY);
 
-  ReduceSum reduce(*device, size);
+  ReduceSum reduce(*device, size.x * size.y);
   auto reduceBound = reduce.Bind(input, output);
 
   std::vector<float> inputData(total_size, 1.0f);
@@ -86,7 +86,7 @@ TEST(LinearSolverTests, ReduceMax)
   Buffer<float> input(*device, total_size, VMA_MEMORY_USAGE_CPU_ONLY);
   Buffer<float> output(*device, 1, VMA_MEMORY_USAGE_CPU_ONLY);
 
-  ReduceMax reduce(*device, size);
+  ReduceMax reduce(*device, size.x * size.y);
   auto reduceBound = reduce.Bind(input, output);
 
   std::vector<float> inputData(10 * 15);

@@ -135,7 +135,7 @@ LinearSolver::Error::Error(Renderer::Device& device, const glm::ivec2& size)
     , mError(device)
     , mLocalError(device, 1, VMA_MEMORY_USAGE_GPU_TO_CPU)
     , mResidualWork(device, size, SPIRV::Residual_comp)
-    , mReduceMax(device, size)
+    , mReduceMax(device, size.x * size.y)
     , mReduceMaxBound(mReduceMax.Bind(mResidual, mError))
     , mErrorCmd(device)
 {

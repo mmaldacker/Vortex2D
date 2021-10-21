@@ -58,7 +58,7 @@ public:
 protected:
   Reduce(Renderer::Device& device,
          const Renderer::SpirvBinary& spirv,
-         const glm::ivec2& size,
+         int size,
          std::size_t typeSize);
 
 private:
@@ -78,7 +78,7 @@ public:
    * @param device
    * @param size
    */
-  VORTEX_API ReduceSum(Renderer::Device& device, const glm::ivec2& size);
+  VORTEX_API ReduceSum(Renderer::Device& device, int size);
 };
 
 /**
@@ -93,7 +93,7 @@ public:
    * @param device
    * @param size
    */
-  VORTEX_API ReduceJ(Renderer::Device& device, const glm::ivec2& size);
+  VORTEX_API ReduceJ(Renderer::Device& device, int size);
 };
 
 /**
@@ -107,7 +107,7 @@ public:
    * @param device
    * @param size
    */
-  VORTEX_API ReduceMax(Renderer::Device& device, const glm::ivec2& size);
+  VORTEX_API ReduceMax(Renderer::Device& device, int size);
 };
 
 }  // namespace Fluid
