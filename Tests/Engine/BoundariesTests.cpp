@@ -271,7 +271,7 @@ TEST(BoundariesTest, Contour)
 
   RenderTexture render(*device, size.x, size.y, vk::Format::eR32Sfloat);
 
-  auto rectangle = std::make_shared<Vortex::Fluid::Rectangle>(*device, glm::vec2{5, 5});
+  auto rectangle = std::make_shared<Vortex::Fluid::Rectangle>(*device, glm::vec2{2, 2});
   rectangle->Position = {2, 2};
 
   render.Record({rectangle}).Submit().Wait();
@@ -305,33 +305,31 @@ TEST(BoundariesTest, Contour)
   CopyTo(vertices, localVertices);
   localVertices.resize(params.count);
 
+  auto is_same_vertex = [](auto localVertex, auto vertex)
+  {
+    auto diff = glm::abs(localVertex - vertex);
+    return diff.x < 1e-4f && diff.y < 1e-4f;
+  };
+
   // Check all vertices are present
   auto has_vertex = [&](auto vertex)
   {
     return std::any_of(localVertices.begin(),
                        localVertices.end(),
-                       [=](auto localVertex) { return glm::floor(localVertex) == vertex; });
+                       [=](auto localVertex) { return is_same_vertex(localVertex, vertex); });
   };
 
-  for (int i = 0; i < 5; i++)
-  {
-    glm::vec2 top = glm::vec2{i, 0} + rectangle->Position;
-    glm::vec2 bottom = glm::vec2{i, 4} + rectangle->Position;
+  glm::vec2 topLeft = glm::vec2{0, 0} + rectangle->Position;
+  glm::vec2 topRight = glm::vec2{2, 0} + rectangle->Position;
+  glm::vec2 bottomLeft = glm::vec2{0, 2} + rectangle->Position;
+  glm::vec2 bottomRight = glm::vec2{2, 2} + rectangle->Position;
 
-    EXPECT_TRUE(has_vertex(top)) << "Missing " << top;
-    EXPECT_TRUE(has_vertex(bottom)) << "Missing " << bottom;
-  }
+  EXPECT_TRUE(has_vertex(topLeft)) << "Missing " << topLeft;
+  EXPECT_TRUE(has_vertex(topRight)) << "Missing " << topRight;
+  EXPECT_TRUE(has_vertex(bottomLeft)) << "Missing " << bottomLeft;
+  EXPECT_TRUE(has_vertex(bottomRight)) << "Missing " << bottomRight;
 
-  for (int j = 0; j < 5; j++)
-  {
-    glm::vec2 left = glm::vec2{0, j} + rectangle->Position;
-    glm::vec2 right = glm::vec2{4, j} + rectangle->Position;
-
-    EXPECT_TRUE(has_vertex(left)) << "Missing " << left;
-    EXPECT_TRUE(has_vertex(right)) << "Missing " << right;
-  }
-
-  EXPECT_EQ(localVertices.size(), 5 * 2 + 5 * 2 - 4);
+  EXPECT_EQ(localVertices.size(), 4);
 
   CopyTo(indicesParams, params);
 
@@ -344,7 +342,7 @@ TEST(BoundariesTest, Contour)
   {
     for (int i = 0; i < localVertices.size(); i++)
     {
-      if (glm::floor(localVertices[i]) == vertex)
+      if (is_same_vertex(localVertices[i], vertex))
       {
         return i;
       }
@@ -367,24 +365,10 @@ TEST(BoundariesTest, Contour)
     return false;
   };
 
-  for (int i = 1; i < 5; i++)
-  {
-    glm::vec2 top = glm::vec2{i, 0} + rectangle->Position;
-    glm::vec2 bottom = glm::vec2{i, 4} + rectangle->Position;
+  EXPECT_TRUE(has_index_pair(get_vertex_index(topLeft), get_vertex_index(topRight)));
+  EXPECT_TRUE(has_index_pair(get_vertex_index(bottomLeft), get_vertex_index(bottomRight)));
+  EXPECT_TRUE(has_index_pair(get_vertex_index(topLeft), get_vertex_index(bottomLeft)));
+  EXPECT_TRUE(has_index_pair(get_vertex_index(topRight), get_vertex_index(bottomRight)));
 
-    EXPECT_TRUE(has_index_pair(get_vertex_index(top), get_vertex_index(top - glm::vec2{1, 0})));
-    EXPECT_TRUE(
-        has_index_pair(get_vertex_index(bottom), get_vertex_index(bottom - glm::vec2{1, 0})));
-  }
-
-  for (int j = 1; j < 5; j++)
-  {
-    glm::vec2 left = glm::vec2{0, j} + rectangle->Position;
-    glm::vec2 right = glm::vec2{4, j} + rectangle->Position;
-
-    EXPECT_TRUE(has_index_pair(get_vertex_index(left), get_vertex_index(left - glm::vec2{0, 1})));
-    EXPECT_TRUE(has_index_pair(get_vertex_index(right), get_vertex_index(right - glm::vec2{0, 1})));
-  }
-
-  EXPECT_EQ(localIndices.size(), (4 * 2 + 4 * 2) * 2);
+  EXPECT_EQ(localIndices.size(), 4 * 2);
 }
