@@ -114,7 +114,6 @@ file(GLOB SHADER_SOURCES
     "Engine/Kernels/Advection/AdvectParticles.comp"
     "Engine/Kernels/BuildDiv.comp"
     "Engine/Kernels/BuildMatrix.comp"
-    "Engine/Kernels/DebugDataCopy.comp"
     "Engine/Kernels/Extrapolate.comp"
     "Engine/Kernels/Project.comp"
     "Engine/Kernels/ConstrainVelocity.comp"
