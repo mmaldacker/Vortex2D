@@ -302,6 +302,8 @@ Contour::Contour(Renderer::Device& device, Renderer::RenderTexture& levelSet, co
   device.Execute(
       [&](vk::CommandBuffer commandBuffer)
       {
+        mVertexCount.Clear(commandBuffer);
+        mIndexCount.Clear(commandBuffer);
         mVertices.Clear(commandBuffer);
         mIndices.Clear(commandBuffer);
         mVerticesParam.Clear(commandBuffer);
@@ -324,10 +326,14 @@ Contour::Contour(Renderer::Device& device, Renderer::RenderTexture& levelSet, co
 
         mMeshReindexingBound.Record(commandBuffer);
 
-        mVertices.Barrier(
-            commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        mVertices.Barrier(commandBuffer,
+                          vk::AccessFlagBits::eShaderWrite,
+                          vk::AccessFlagBits::eVertexAttributeRead);
         mIndices.Barrier(
-            commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+            commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eIndexRead);
+        mDrawParameters.Barrier(commandBuffer,
+                                vk::AccessFlagBits::eShaderWrite,
+                                vk::AccessFlagBits::eIndirectCommandRead);
 
         commandBuffer.debugMarkerEndEXT(mDevice.Loader());
       });
