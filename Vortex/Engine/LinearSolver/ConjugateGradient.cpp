@@ -201,6 +201,11 @@ void ConjugateGradient::Solve(Parameters& params, const std::vector<RigidBody*>&
       mErrorRead.Submit();
     }
   }
+
+  if (params.Type == Parameters::SolverType::Iterative)
+  {
+    mErrorRead.Wait();
+  }
 }
 
 float ConjugateGradient::GetError()

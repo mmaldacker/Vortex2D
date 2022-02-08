@@ -83,6 +83,11 @@ void GaussSeidel::Solve(Parameters& params, const std::vector<RigidBody*>& /*rig
       mError.Submit();
     }
   }
+
+  if (params.Type == Parameters::SolverType::Iterative)
+  {
+    mError.Wait();
+  }
 }
 
 float GaussSeidel::GetError()
