@@ -29,9 +29,9 @@ public:
             Renderer::GenericBuffer& b,
             Renderer::GenericBuffer& pressure) override;
 
-  void Record(vk::CommandBuffer commandBuffer) override;
+  void Record(Renderer::CommandEncoder& command) override;
 
-  void Record(vk::CommandBuffer commandBuffer, int iterations);
+  void Record(Renderer::CommandEncoder& command, int iterations);
 
   /**
    * @brief Set the w factor of the GS iterations : x_new = w * x_new + (1-w) *

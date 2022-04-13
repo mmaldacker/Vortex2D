@@ -5,8 +5,8 @@
 
 #pragma once
 
+#include <Vortex/Renderer/BindGroup.h>
 #include <Vortex/Renderer/Buffer.h>
-#include <Vortex/Renderer/DescriptorSet.h>
 #include <Vortex/Renderer/Device.h>
 #include <Vortex/Renderer/Drawable.h>
 #include <Vortex/Renderer/Pipeline.h>
@@ -26,24 +26,18 @@ struct RenderTarget;
 class AbstractSprite : public Drawable, public Transformable
 {
 public:
-  VORTEX_API AbstractSprite(Device& device,
-                            const SpirvBinary& fragShaderName,
-                            Texture& texture);
+  VORTEX_API AbstractSprite(Device& device, const SpirvBinary& fragShaderName, Texture& texture);
   VORTEX_API AbstractSprite(AbstractSprite&& other);
   VORTEX_API virtual ~AbstractSprite() override;
 
   VORTEX_API void Initialize(const RenderState& renderState) override;
   VORTEX_API void Update(const glm::mat4& projection, const glm::mat4& view) override;
-  VORTEX_API void Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState) override;
+  VORTEX_API void Draw(CommandEncoder& command, const RenderState& renderState) override;
 
   template <typename T>
-  void PushConstant(vk::CommandBuffer commandBuffer, uint32_t offset, const T& data)
+  void PushConstant(CommandEncoder& command, uint32_t offset, const T& data)
   {
-    commandBuffer.pushConstants(mDescriptorSet.pipelineLayout,
-                                vk::ShaderStageFlagBits::eFragment,
-                                offset,
-                                sizeof(T),
-                                &data);
+    command.PushConstants(mPipelineLayout, ShaderStage::Fragment, offset, sizeof(T), &data);
   }
 
   glm::vec4 Colour = {1.0f, 1.0f, 1.0f, 1.0f};
@@ -58,10 +52,11 @@ protected:
   Device& mDevice;
   UniformBuffer<glm::mat4> mMVPBuffer;
   VertexBuffer<Vertex> mVertexBuffer;
-  Renderer::UniformBuffer<glm::vec4> mColourBuffer;
-  vk::UniqueSampler mSampler;
-  DescriptorSet mDescriptorSet;
-  GraphicsPipeline mPipeline;
+  UniformBuffer<glm::vec4> mColourBuffer;
+  Sampler mSampler;
+  Handle::PipelineLayout mPipelineLayout;
+  BindGroup mBindGroup;
+  GraphicsPipelineDescriptor mPipeline;
 };
 
 /**

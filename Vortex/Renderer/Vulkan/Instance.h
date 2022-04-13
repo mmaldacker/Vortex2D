@@ -6,7 +6,9 @@
 #pragma once
 
 #include <Vortex/Renderer/Common.h>
+#include <Vortex/Renderer/Vulkan/Vulkan.h>
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -36,10 +38,6 @@ private:
   vk::PhysicalDevice mPhysicalDevice;
   vk::DebugReportCallbackEXT mDebugCallback;
 };
-
-bool HasLayer(const char* extension, const std::vector<vk::LayerProperties>& availableExtensions);
-bool HasExtension(const char* extension,
-                  const std::vector<vk::ExtensionProperties>& availableExtensions);
 
 }  // namespace Renderer
 }  // namespace Vortex

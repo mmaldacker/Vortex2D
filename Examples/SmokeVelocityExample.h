@@ -23,7 +23,9 @@ class SmokeVelocityExample : public Runner
 {
 public:
   SmokeVelocityExample(Vortex::Renderer::Device& device, const glm::ivec2& size, float dt)
-      : density(std::make_shared<Vortex::Fluid::Density>(device, size, vk::Format::eR8G8B8A8Unorm))
+      : density(std::make_shared<Vortex::Fluid::Density>(device,
+                                                         size,
+                                                         Vortex::Renderer::Format::R8G8B8A8Unorm))
       , world(device, size, dt, Vortex::Fluid::Velocity::InterpolationMode::Linear)
       , rWorld({0.0f, 0.0f})
       , solver(rWorld)
@@ -40,8 +42,7 @@ public:
     world.AddRigidbody(body.mRigidbody);
   }
 
-  void Init(Vortex::Renderer::Device& device,
-            Vortex::Renderer::RenderTarget& renderTarget) override
+  void Init(Vortex::Renderer::Device& device, Vortex::Renderer::RenderTarget& renderTarget) override
   {
     auto source1 = std::make_shared<Vortex::Renderer::Ellipse>(device, glm::vec2(5.0f));
     auto source2 = std::make_shared<Vortex::Renderer::Ellipse>(device, glm::vec2(5.0f));
@@ -75,14 +76,12 @@ public:
     // Draw rigid body
     body.mRigidbody.SetTransform({100.0f, 100.0f}, -45.0f);
 
-    Vortex::Renderer::ColorBlendState blendState;
-    blendState.ColorBlend.setBlendEnable(true)
-        .setAlphaBlendOp(vk::BlendOp::eAdd)
-        .setColorBlendOp(vk::BlendOp::eAdd)
-        .setSrcColorBlendFactor(vk::BlendFactor::eSrcAlpha)
-        .setSrcAlphaBlendFactor(vk::BlendFactor::eOne)
-        .setDstColorBlendFactor(vk::BlendFactor::eOneMinusSrcAlpha)
-        .setDstAlphaBlendFactor(vk::BlendFactor::eZero);
+    Vortex::Renderer::ColorBlendState blendState(Vortex::Renderer::BlendFactor::SrcAlpha,
+                                                 Vortex::Renderer::BlendFactor::OneMinusSrcAlpha,
+                                                 Vortex::Renderer::BlendOp::Add,
+                                                 Vortex::Renderer::BlendFactor::One,
+                                                 Vortex::Renderer::BlendFactor::Zero,
+                                                 Vortex::Renderer::BlendOp::Add);
 
     windowRender = renderTarget.Record({density, solidPhi}, blendState);
   }

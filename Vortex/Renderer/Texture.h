@@ -6,52 +6,49 @@
 #pragma once
 
 #include <Vortex/Renderer/Common.h>
-#include <Vortex/Utils/vk_mem_alloc.h>
 
 namespace Vortex
 {
 namespace Renderer
 {
 class Device;
+class CommandEncoder;
 
 /**
  * @brief Gets the number of bytes per pixel given the format
  * @param format of texture
  * @return bytes per pixel
  */
-VORTEX_API vk::DeviceSize GetBytesPerPixel(vk::Format format);
+VORTEX_API std::uint64_t GetBytesPerPixel(Format format);
 
-/**
- * @brief Factory for a vullkan sampler
- */
-class SamplerBuilder
+class Sampler
 {
 public:
-  VORTEX_API SamplerBuilder();
+  enum class AddressMode
+  {
+    ClampToEdge,
+    Repeat,
+  };
 
-  /**
-   * @brief Mode of the sampler: repeat, clamp, etc
-   * @param mode vulkan mode
-   * @return *this
-   */
-  VORTEX_API SamplerBuilder& AddressMode(vk::SamplerAddressMode mode);
+  enum class Filter
+  {
+    Linear,
+    Nearest,
+  };
 
-  /**
-   * @brief Filter of the sampler: linear, nearest, etc
-   * @param filter vulkan filter
-   * @return *this
-   */
-  VORTEX_API SamplerBuilder& Filter(vk::Filter filter);
+  Sampler(Device& device,
+          AddressMode adressMode = AddressMode::Repeat,
+          Filter filter = Filter::Nearest);
 
-  /**
-   * @brief Create the vulkan sampler
-   * @param device vulkan device
-   * @return unique sampler
-   */
-  VORTEX_API vk::UniqueSampler Create(vk::Device device);
+  Sampler(Sampler&& other);
+
+  VORTEX_API ~Sampler();
+
+  Handle::Sampler Handle();
 
 private:
-  vk::SamplerCreateInfo mSamplerInfo;
+  struct Impl;
+  std::unique_ptr<Impl> mImpl;
 };
 
 /**
@@ -63,8 +60,8 @@ public:
   VORTEX_API Texture(Device& device,
                      uint32_t width,
                      uint32_t height,
-                     vk::Format format,
-                     VmaMemoryUsage memoryUsage = VMA_MEMORY_USAGE_GPU_ONLY);
+                     Format format,
+                     MemoryUsage memoryUsage = MemoryUsage::Gpu);
   VORTEX_API Texture(Texture&& other);
 
   VORTEX_API virtual ~Texture();
@@ -72,9 +69,9 @@ public:
   template <typename T>
   void CopyFrom(const std::vector<T>& data)
   {
-    if (data.size() != mWidth * mHeight)
+    if (data.size() != GetWidth() * GetHeight())
       throw std::runtime_error("Invalid input data size");
-    if (sizeof(T) != GetBytesPerPixel(mFormat))
+    if (sizeof(T) != GetBytesPerPixel(GetFormat()))
       throw std::runtime_error("Invalid input data format");
     CopyFrom(data.data());
   }
@@ -82,9 +79,9 @@ public:
   template <typename T>
   void CopyTo(std::vector<T>& data)
   {
-    if (data.size() != mWidth * mHeight)
+    if (data.size() != GetWidth() * GetHeight())
       throw std::runtime_error("Invalid input data size");
-    if (sizeof(T) != GetBytesPerPixel(mFormat))
+    if (sizeof(T) != GetBytesPerPixel(GetFormat()))
       throw std::runtime_error("Invalid input data format");
     CopyTo(data.data());
   }
@@ -106,53 +103,37 @@ public:
    * @param commandBuffer vulkan command buffer
    * @param srcImage source image
    */
-  VORTEX_API void CopyFrom(vk::CommandBuffer commandBuffer, Texture& srcImage);
+  VORTEX_API void CopyFrom(CommandEncoder& command, Texture& srcImage);
 
-  VORTEX_API void Barrier(vk::CommandBuffer commandBuffer,
-                          vk::ImageLayout oldLayout,
-                          vk::AccessFlags oldAccess,
-                          vk::ImageLayout newLayout,
-                          vk::AccessFlags newAccess);
+  /**
+   * @brief Inserts a barrier for the given texture, command buffer and access.
+   * @param image the vulkan image handle
+   * @param commandBuffer the vulkan command buffer
+   * @param oldLayout old layout
+   * @param srcMask old access
+   * @param newLayout new layout
+   * @param dstMask new access
+   */
+  VORTEX_API void Barrier(CommandEncoder& command,
+                          ImageLayout oldLayout,
+                          Access oldAccess,
+                          ImageLayout newLayout,
+                          Access newAccess);
 
-  VORTEX_API vk::ImageView GetView() const;
+  VORTEX_API Handle::ImageView GetView() const;
   VORTEX_API uint32_t GetWidth() const;
   VORTEX_API uint32_t GetHeight() const;
-  VORTEX_API vk::Format GetFormat() const;
+  VORTEX_API Format GetFormat() const;
 
-  VORTEX_API void Clear(vk::CommandBuffer commandBuffer, const std::array<int, 4>& colour);
-  VORTEX_API void Clear(vk::CommandBuffer commandBuffer, const std::array<float, 4>& colour);
+  VORTEX_API void Clear(CommandEncoder& command, const std::array<int, 4>& colour);
+  VORTEX_API void Clear(CommandEncoder& command, const std::array<float, 4>& colour);
 
-  VORTEX_API vk::Image Handle() const;
-
-  friend class GenericBuffer;
+  VORTEX_API Handle::Image Handle() const;
 
 private:
-  void Clear(vk::CommandBuffer commandBuffer, vk::ClearColorValue colourValue);
-  Device& mDevice;
-  uint32_t mWidth;
-  uint32_t mHeight;
-  vk::Format mFormat;
-  VkImage mImage;
-  VmaAllocation mAllocation;
-  VmaAllocationInfo mAllocationInfo;
-  vk::UniqueImageView mImageView;
+  struct Impl;
+  std::unique_ptr<Impl> mImpl;
 };
-
-/**
- * @brief Inserts a barrier for the given texture, command buffer and access.
- * @param image the vulkan image handle
- * @param commandBuffer the vulkan command buffer
- * @param oldLayout old layout
- * @param srcMask old access
- * @param newLayout new layout
- * @param dstMask new access
- */
-VORTEX_API void TextureBarrier(vk::Image image,
-                               vk::CommandBuffer commandBuffer,
-                               vk::ImageLayout oldLayout,
-                               vk::AccessFlags srcMask,
-                               vk::ImageLayout newLayout,
-                               vk::AccessFlags dstMask);
 
 }  // namespace Renderer
 }  // namespace Vortex

@@ -22,32 +22,34 @@ AbstractShape::AbstractShape(Device& device,
                              const SpirvBinary& fragName,
                              const std::vector<glm::vec2>& vertices)
     : mDevice(device)
-    , mMVPBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
-    , mColourBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
+    , mMVPBuffer(device, MemoryUsage::CpuToGpu)
+    , mColourBuffer(device, MemoryUsage::CpuToGpu)
     , mVertexBuffer(device, vertices.size())
     , mNumVertices(static_cast<uint32_t>(vertices.size()))
 {
-  VertexBuffer<glm::vec2> localVertices(device, vertices.size(), VMA_MEMORY_USAGE_CPU_ONLY);
+  VertexBuffer<glm::vec2> localVertices(device, vertices.size(), MemoryUsage::Cpu);
   Renderer::CopyFrom(localVertices, vertices);
-  device.Execute([&](vk::CommandBuffer commandBuffer)
-                 { mVertexBuffer.CopyFrom(commandBuffer, localVertices); });
+  device.Execute([&](CommandEncoder& command) { mVertexBuffer.CopyFrom(command, localVertices); });
 
   SPIRV::Reflection reflectionVert(SPIRV::Position_vert);
   SPIRV::Reflection reflectionFrag(fragName);
 
-  PipelineLayout layout = {{reflectionVert, reflectionFrag}};
-  mDescriptorSet = device.GetLayoutManager().MakeDescriptorSet(layout);
-  Bind(device, mDescriptorSet, layout, {{mMVPBuffer}, {mColourBuffer}});
+  SPIRV::ShaderLayouts layout = {reflectionVert, reflectionFrag};
 
-  vk::ShaderModule vertexShader = device.GetShaderModule(SPIRV::Position_vert);
-  vk::ShaderModule fragShader = device.GetShaderModule(fragName);
+  mPipelineLayout = mDevice.CreatePipelineLayout(layout);
+  auto bindGroupLayout = mDevice.CreateBindGroupLayout(layout);
+  mBindGroup =
+      mDevice.CreateBindGroup(bindGroupLayout, layout, {{mMVPBuffer, 0}, {mColourBuffer, 1}});
 
-  mPipeline = GraphicsPipeline()
-                  .Shader(vertexShader, vk::ShaderStageFlagBits::eVertex)
-                  .Shader(fragShader, vk::ShaderStageFlagBits::eFragment)
-                  .VertexAttribute(0, 0, vk::Format::eR32G32Sfloat, 0)
+  Handle::ShaderModule vertexShader = mDevice.CreateShaderModule(SPIRV::Position_vert);
+  Handle::ShaderModule fragShader = mDevice.CreateShaderModule(fragName);
+
+  mPipeline = GraphicsPipelineDescriptor()
+                  .Shader(vertexShader, ShaderStage::Vertex)
+                  .Shader(fragShader, ShaderStage::Fragment)
+                  .VertexAttribute(0, 0, Format::R32G32Sfloat, 0)
                   .VertexBinding(0, sizeof(glm::vec2))
-                  .Layout(mDescriptorSet.pipelineLayout);
+                  .Layout(mPipelineLayout);
 }
 
 AbstractShape::AbstractShape(AbstractShape&& other)
@@ -55,7 +57,8 @@ AbstractShape::AbstractShape(AbstractShape&& other)
     , mMVPBuffer(std::move(other.mMVPBuffer))
     , mColourBuffer(std::move(other.mColourBuffer))
     , mVertexBuffer(std::move(other.mVertexBuffer))
-    , mDescriptorSet(std::move(other.mDescriptorSet))
+    , mPipelineLayout(std::move(other.mPipelineLayout))
+    , mBindGroup(std::move(other.mBindGroup))
     , mPipeline(std::move(other.mPipeline))
     , mNumVertices(other.mNumVertices)
 {
@@ -66,7 +69,7 @@ AbstractShape::~AbstractShape() {}
 
 void AbstractShape::Initialize(const RenderState& renderState)
 {
-  mDevice.GetPipelineCache().CreateGraphicsPipeline(mPipeline, renderState);
+  auto pipeline = mDevice.CreateGraphicsPipeline(mPipeline, renderState);
 }
 
 void AbstractShape::Update(const glm::mat4& projection, const glm::mat4& view)
@@ -76,17 +79,14 @@ void AbstractShape::Update(const glm::mat4& projection, const glm::mat4& view)
   Renderer::CopyFrom(mColourBuffer, Colour);
 }
 
-void AbstractShape::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState)
+void AbstractShape::Draw(CommandEncoder& command, const RenderState& renderState)
 {
-  auto pipeline = mDevice.GetPipelineCache().CreateGraphicsPipeline(mPipeline, renderState);
-  commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline);
-  commandBuffer.bindVertexBuffers(0, {mVertexBuffer.Handle()}, {0ul});
-  commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
-                                   mDescriptorSet.pipelineLayout,
-                                   0,
-                                   {*mDescriptorSet.descriptorSet},
-                                   {});
-  commandBuffer.draw(mNumVertices, 1, 0, 0);
+  auto pipeline = mDevice.CreateGraphicsPipeline(mPipeline, renderState);
+
+  command.SetPipeline(PipelineBindPoint::Graphics, pipeline);
+  command.SetBindGroup(PipelineBindPoint::Graphics, mPipelineLayout, mBindGroup);
+  command.SetVertexBuffer(mVertexBuffer);
+  command.Draw(mNumVertices);
 }
 
 Rectangle::Rectangle(Device& device, const glm::vec2& size)
@@ -116,10 +116,10 @@ IntRectangle::IntRectangle(Device& device, const glm::vec2& size)
 Mesh::Mesh(Device& device,
            VertexBuffer<glm::vec2>& vertexBuffer,
            IndexBuffer<std::uint32_t>& indexBuffer,
-           Buffer<vk::DrawIndexedIndirectCommand>& parameters)
+           Buffer<DrawIndexedIndirect>& parameters)
     : mDevice(device)
-    , mMVPBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
-    , mColourBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
+    , mMVPBuffer(device, MemoryUsage::CpuToGpu)
+    , mColourBuffer(device, MemoryUsage::CpuToGpu)
     , mVertexBuffer(vertexBuffer)
     , mIndexBuffer(indexBuffer)
     , mParameters(parameters)
@@ -127,25 +127,27 @@ Mesh::Mesh(Device& device,
   SPIRV::Reflection reflectionVert(SPIRV::Position_vert);
   SPIRV::Reflection reflectionFrag(SPIRV::Position_frag);
 
-  PipelineLayout layout = {{reflectionVert, reflectionFrag}};
-  mDescriptorSet = device.GetLayoutManager().MakeDescriptorSet(layout);
-  Bind(device, mDescriptorSet, layout, {{mMVPBuffer}, {mColourBuffer}});
+  SPIRV::ShaderLayouts layout = {reflectionVert, reflectionFrag};
 
-  vk::ShaderModule vertexShader = device.GetShaderModule(SPIRV::Position_vert);
-  vk::ShaderModule fragShader = device.GetShaderModule(SPIRV::Position_frag);
+  mPipelineLayout = mDevice.CreatePipelineLayout(layout);
+  auto bindGroupLayout = mDevice.CreateBindGroupLayout(layout);
+  mBindGroup = mDevice.CreateBindGroup(bindGroupLayout, layout, {{mMVPBuffer}, {mColourBuffer}});
 
-  mPipeline = GraphicsPipeline()
-                  .Topology(vk::PrimitiveTopology::eLineList)
-                  .Shader(vertexShader, vk::ShaderStageFlagBits::eVertex)
-                  .Shader(fragShader, vk::ShaderStageFlagBits::eFragment)
-                  .VertexAttribute(0, 0, vk::Format::eR32G32Sfloat, 0)
+  auto vertexShader = device.CreateShaderModule(SPIRV::Position_vert);
+  auto fragShader = device.CreateShaderModule(SPIRV::Position_frag);
+
+  mPipeline = GraphicsPipelineDescriptor()
+                  .Topology(PrimitiveTopology::LineList)
+                  .Shader(vertexShader, ShaderStage::Vertex)
+                  .Shader(fragShader, ShaderStage::Fragment)
+                  .VertexAttribute(0, 0, Format::R32G32Sfloat, 0)
                   .VertexBinding(0, sizeof(glm::vec2))
-                  .Layout(mDescriptorSet.pipelineLayout);
+                  .Layout(mPipelineLayout);
 }
 
 void Mesh::Initialize(const RenderState& renderState)
 {
-  mDevice.GetPipelineCache().CreateGraphicsPipeline(mPipeline, renderState);
+  mDevice.CreateGraphicsPipeline(mPipeline, renderState);
 }
 
 void Mesh::Update(const glm::mat4& projection, const glm::mat4& view)
@@ -155,29 +157,25 @@ void Mesh::Update(const glm::mat4& projection, const glm::mat4& view)
   Renderer::CopyFrom(mColourBuffer, Colour);
 }
 
-void Mesh::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState)
+void Mesh::Draw(CommandEncoder& command, const RenderState& renderState)
 {
-  auto pipeline = mDevice.GetPipelineCache().CreateGraphicsPipeline(mPipeline, renderState);
-  commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline);
-  commandBuffer.bindVertexBuffers(0, {mVertexBuffer.Handle()}, {0ul});
-  commandBuffer.bindIndexBuffer(mIndexBuffer.Handle(), 0, vk::IndexType::eUint32);
-  commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
-                                   mDescriptorSet.pipelineLayout,
-                                   0,
-                                   {*mDescriptorSet.descriptorSet},
-                                   {});
-  commandBuffer.drawIndexedIndirect(mParameters.Handle(), 0, 1, 0);
+  auto pipeline = mDevice.CreateGraphicsPipeline(mPipeline, renderState);
+  command.SetPipeline(PipelineBindPoint::Graphics, pipeline);
+  command.SetVertexBuffer(mVertexBuffer);
+  command.SetIndexBuffer(mIndexBuffer);
+  command.SetBindGroup(PipelineBindPoint::Graphics, mPipelineLayout, mBindGroup);
+  command.DrawIndexedIndirect(mParameters);
 }
 
 Ellipse::Ellipse(Device& device, const glm::vec2& radius)
     : mDevice(device)
     , mRadius(radius)
-    , mMVPBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
-    , mColourBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
+    , mMVPBuffer(device, MemoryUsage::CpuToGpu)
+    , mColourBuffer(device, MemoryUsage::CpuToGpu)
     , mVertexBuffer(device, 6)
-    , mSizeBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
+    , mSizeBuffer(device, MemoryUsage::CpuToGpu)
 {
-  VertexBuffer<glm::vec2> localVertices(device, 6, VMA_MEMORY_USAGE_CPU_ONLY);
+  VertexBuffer<glm::vec2> localVertices(device, 6, MemoryUsage::Cpu);
   std::vector<glm::vec2> vertices = {{-radius.x, -radius.y},
                                      {radius.x + 1.0f, -radius.y},
                                      {-radius.x, radius.y + 1.0f},
@@ -185,32 +183,34 @@ Ellipse::Ellipse(Device& device, const glm::vec2& radius)
                                      {radius.x + 1.0f, radius.y + 1.0f},
                                      {-radius.x, radius.y + 1.0f}};
   Renderer::CopyFrom(localVertices, vertices);
-  device.Execute([&](vk::CommandBuffer commandBuffer)
-                 { mVertexBuffer.CopyFrom(commandBuffer, localVertices); });
+  device.Execute([&](CommandEncoder& command) { mVertexBuffer.CopyFrom(command, localVertices); });
 
   SPIRV::Reflection reflectionVert(SPIRV::Ellipse_vert);
   SPIRV::Reflection reflectionFrag(SPIRV::Ellipse_frag);
 
-  Renderer::PipelineLayout layout = {{reflectionVert, reflectionFrag}};
-  mDescriptorSet = device.GetLayoutManager().MakeDescriptorSet(layout);
-  Bind(device, mDescriptorSet, layout, {{mMVPBuffer}, {mSizeBuffer}, {mColourBuffer}});
+  SPIRV::ShaderLayouts layout = {reflectionVert, reflectionFrag};
 
-  vk::ShaderModule vertexShader = device.GetShaderModule(SPIRV::Ellipse_vert);
-  vk::ShaderModule fragShader = device.GetShaderModule(SPIRV::Ellipse_frag);
+  auto bindGroupLayout = mDevice.CreateBindGroupLayout(layout);
+  mPipelineLayout = mDevice.CreatePipelineLayout(layout);
+  mBindGroup = mDevice.CreateBindGroup(
+      bindGroupLayout, layout, {{mMVPBuffer}, {mSizeBuffer}, {mColourBuffer}});
 
-  mPipeline = GraphicsPipeline()
-                  .Shader(vertexShader, vk::ShaderStageFlagBits::eVertex)
-                  .Shader(fragShader, vk::ShaderStageFlagBits::eFragment)
-                  .VertexAttribute(0, 0, vk::Format::eR32G32Sfloat, 0)
+  Handle::ShaderModule vertexShader = mDevice.CreateShaderModule(SPIRV::Ellipse_vert);
+  Handle::ShaderModule fragShader = mDevice.CreateShaderModule(SPIRV::Ellipse_frag);
+
+  mPipeline = GraphicsPipelineDescriptor()
+                  .Shader(vertexShader, ShaderStage::Vertex)
+                  .Shader(fragShader, ShaderStage::Fragment)
+                  .VertexAttribute(0, 0, Format::R32G32Sfloat, 0)
                   .VertexBinding(0, sizeof(glm::vec2))
-                  .Layout(mDescriptorSet.pipelineLayout);
+                  .Layout(mPipelineLayout);
 }
 
 Ellipse::~Ellipse() {}
 
 void Ellipse::Initialize(const RenderState& renderState)
 {
-  mDevice.GetPipelineCache().CreateGraphicsPipeline(mPipeline, renderState);
+  mDevice.CreateGraphicsPipeline(mPipeline, renderState);
 }
 
 void Ellipse::Update(const glm::mat4& projection, const glm::mat4& view)
@@ -233,17 +233,14 @@ void Ellipse::Update(const glm::mat4& projection, const glm::mat4& view)
   Renderer::CopyFrom(mSizeBuffer, size);
 }
 
-void Ellipse::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState)
+void Ellipse::Draw(CommandEncoder& command, const RenderState& renderState)
 {
-  auto pipeline = mDevice.GetPipelineCache().CreateGraphicsPipeline(mPipeline, renderState);
-  commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline);
-  commandBuffer.bindVertexBuffers(0, {mVertexBuffer.Handle()}, {0ul});
-  commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
-                                   mDescriptorSet.pipelineLayout,
-                                   0,
-                                   {*mDescriptorSet.descriptorSet},
-                                   {});
-  commandBuffer.draw(6, 1, 0, 0);
+  auto pipeline = mDevice.CreateGraphicsPipeline(mPipeline, renderState);
+
+  command.SetPipeline(PipelineBindPoint::Graphics, pipeline);
+  command.SetBindGroup(PipelineBindPoint::Graphics, mPipelineLayout, mBindGroup);
+  command.SetVertexBuffer(mVertexBuffer);
+  command.Draw(6);
 }
 
 Clear::Clear(const glm::vec4& colour) : mColour(colour) {}
@@ -254,19 +251,11 @@ void Clear::Initialize(const RenderState& /*renderState*/) {}
 
 void Clear::Update(const glm::mat4& /*projection*/, const glm::mat4& /*view*/) {}
 
-void Clear::Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState)
+void Clear::Draw(CommandEncoder& command, const RenderState& renderState)
 {
-  auto clearValue =
-      vk::ClearValue().setColor(std::array<float, 4>{{mColour.r, mColour.g, mColour.b, mColour.a}});
-
-  auto clearAttachement = vk::ClearAttachment()
-                              .setAspectMask(vk::ImageAspectFlagBits::eColor)
-                              .setClearValue(clearValue);
-
-  auto clearRect =
-      vk::ClearRect().setRect({{0, 0}, {renderState.Width, renderState.Height}}).setLayerCount(1);
-
-  commandBuffer.clearAttachments({clearAttachement}, {clearRect});
+  command.Clear({0, 0},
+                {renderState.Width, renderState.Height},
+                {mColour.r, mColour.g, mColour.b, mColour.a});
 }
 
 }  // namespace Renderer

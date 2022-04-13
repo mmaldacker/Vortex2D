@@ -101,10 +101,10 @@ TEST(RigidbodyTests, Phi)
 
   sim.update_rigid_body_grids();
 
-  RenderTexture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+  RenderTexture solidPhi(*device, size.x, size.y, Format::R32Sfloat);
   device->Execute(
-      [&](vk::CommandBuffer commandBuffer) {
-        solidPhi.Clear(commandBuffer, std::array<float, 4>{{1000.0f, 0.0f, 0.0f, 0.0f}});
+      [&](CommandEncoder& command) {
+        solidPhi.Clear(command, std::array<float, 4>{{1000.0f, 0.0f, 0.0f, 0.0f}});
       });
 
   auto rectangle = std::make_shared<Vortex::Fluid::Rectangle>(
@@ -119,11 +119,10 @@ TEST(RigidbodyTests, Phi)
 
   rigidBody->RenderPhi();
 
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
-  Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
-  device->Execute([&](vk::CommandBuffer commandBuffer)
-                  { outTexture.CopyFrom(commandBuffer, solidPhi); });
+  Texture outTexture(*device, size.x, size.y, Format::R32Sfloat, MemoryUsage::Cpu);
+  device->Execute([&](CommandEncoder& command) { outTexture.CopyFrom(command, solidPhi); });
 
   CheckPhi(size, sim, outTexture);
 }
@@ -151,14 +150,14 @@ TEST(RigidbodyTests, Div)
   sim.add_force(0.01f);
 
   Velocity velocity(*device, size);
-  RenderTexture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-  Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+  RenderTexture solidPhi(*device, size.x, size.y, Format::R32Sfloat);
+  Texture liquidPhi(*device, size.x, size.y, Format::R32Sfloat);
 
   BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
   SetSolidPhi(*device, size, solidPhi, sim, (float)size.x);
 
-  LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
-  Buffer<glm::ivec2> valid(*device, size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  LinearSolver::Data data(*device, size, MemoryUsage::Cpu);
+  Buffer<glm::ivec2> valid(*device, size.x * size.y, MemoryUsage::Cpu);
   Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
 
   auto rectangle = std::make_shared<Vortex::Fluid::Rectangle>(
@@ -177,7 +176,7 @@ TEST(RigidbodyTests, Div)
   rigidBody->BindDiv(data.B, data.Diagonal);
   pressure.BuildLinearEquation();
   rigidBody->Div();
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
   CheckDiv(size, data.B, sim);
 }
@@ -209,14 +208,14 @@ TEST(RigidbodyTests, VelocityDiv)
   sim.add_force(0.01f);
 
   Velocity velocity(*device, size);
-  RenderTexture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-  Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+  RenderTexture solidPhi(*device, size.x, size.y, Format::R32Sfloat);
+  Texture liquidPhi(*device, size.x, size.y, Format::R32Sfloat);
 
   BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
   SetSolidPhi(*device, size, solidPhi, sim, (float)size.x);
 
-  LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
-  Buffer<glm::ivec2> valid(*device, size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  LinearSolver::Data data(*device, size, MemoryUsage::Cpu);
+  Buffer<glm::ivec2> valid(*device, size.x * size.y, MemoryUsage::Cpu);
   Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
 
   auto rectangle = std::make_shared<Vortex::Fluid::Rectangle>(
@@ -237,7 +236,7 @@ TEST(RigidbodyTests, VelocityDiv)
   pressure.BuildLinearEquation();
   rigidBody->Div();
 
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
   CheckDiv(size, data.B, sim);
 }
@@ -269,14 +268,14 @@ TEST(RigidbodyTests, RotationDiv)
   sim.add_force(0.01f);
 
   Velocity velocity(*device, size);
-  RenderTexture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-  Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+  RenderTexture solidPhi(*device, size.x, size.y, Format::R32Sfloat);
+  Texture liquidPhi(*device, size.x, size.y, Format::R32Sfloat);
 
   BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
   SetSolidPhi(*device, size, solidPhi, sim, (float)size.x);
 
-  LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
-  Buffer<glm::ivec2> valid(*device, size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  LinearSolver::Data data(*device, size, MemoryUsage::Cpu);
+  Buffer<glm::ivec2> valid(*device, size.x * size.y, MemoryUsage::Cpu);
   Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
 
   auto rectangle = std::make_shared<Vortex::Fluid::Rectangle>(
@@ -296,7 +295,7 @@ TEST(RigidbodyTests, RotationDiv)
   pressure.BuildLinearEquation();
   rigidBody->Div();
 
-  device->Handle().waitIdle();
+  device->WaitIdle();
   CheckDiv(size, data.B, sim, 1e-5f);
 }
 
@@ -329,14 +328,14 @@ TEST(RigidbodyTests, VelocityRotationDiv)
   sim.add_force(0.01f);
 
   Velocity velocity(*device, size);
-  RenderTexture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-  Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+  RenderTexture solidPhi(*device, size.x, size.y, Format::R32Sfloat);
+  Texture liquidPhi(*device, size.x, size.y, Format::R32Sfloat);
 
   BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
   SetSolidPhi(*device, size, solidPhi, sim, (float)size.x);
 
-  LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
-  Buffer<glm::ivec2> valid(*device, size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  LinearSolver::Data data(*device, size, MemoryUsage::Cpu);
+  Buffer<glm::ivec2> valid(*device, size.x * size.y, MemoryUsage::Cpu);
   Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
 
   auto rectangle = std::make_shared<Vortex::Fluid::Rectangle>(
@@ -356,7 +355,7 @@ TEST(RigidbodyTests, VelocityRotationDiv)
   pressure.BuildLinearEquation();
   rigidBody->Div();
 
-  device->Handle().waitIdle();
+  device->WaitIdle();
   CheckDiv(size, data.B, sim, 1e-5f);
 }
 
@@ -364,8 +363,8 @@ TEST(RigidbodyTests, ReduceJSum)
 {
   glm::ivec2 size(10, 15);
   int n = size.x * size.y;
-  Buffer<Vortex::Fluid::RigidBody::Velocity> input(*device, n, VMA_MEMORY_USAGE_CPU_ONLY);
-  Buffer<Vortex::Fluid::RigidBody::Velocity> output(*device, 1, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<Vortex::Fluid::RigidBody::Velocity> input(*device, n, MemoryUsage::Cpu);
+  Buffer<Vortex::Fluid::RigidBody::Velocity> output(*device, 1, MemoryUsage::Cpu);
 
   ReduceJ reduce(*device, size.x * size.y);
   auto reduceBound = reduce.Bind(input, output);
@@ -383,7 +382,7 @@ TEST(RigidbodyTests, ReduceJSum)
 
   CopyFrom(input, inputData);
 
-  device->Execute([&](vk::CommandBuffer commandBuffer) { reduceBound.Record(commandBuffer); });
+  device->Execute([&](CommandEncoder& command) { reduceBound.Record(command); });
 
   std::vector<Vortex::Fluid::RigidBody::Velocity> outputData(1);
   CopyTo(output, outputData);
@@ -423,14 +422,14 @@ TEST(RigidbodyTests, Force)
   sim.add_force(0.01f);
 
   Velocity velocity(*device, size);
-  RenderTexture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-  Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+  RenderTexture solidPhi(*device, size.x, size.y, Format::R32Sfloat);
+  Texture liquidPhi(*device, size.x, size.y, Format::R32Sfloat);
 
   BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
   SetSolidPhi(*device, size, solidPhi, sim, (float)size.x);
 
-  Buffer<float> pressure(*device, size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
-  Buffer<float> diagonal(*device, size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<float> pressure(*device, size.x * size.y, MemoryUsage::Cpu);
+  Buffer<float> diagonal(*device, size.x * size.y, MemoryUsage::Cpu);
 
   std::vector<float> computedPressureData(size.x * size.y, 0.0f);
   std::vector<float> computedDiagonalData(size.x * size.y, 0.0f);
@@ -458,7 +457,7 @@ TEST(RigidbodyTests, Force)
 
   rigidBody->BindForce(diagonal, pressure);
   rigidBody->Force();
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
   float new_angular_momentum;
   Vec2f new_vel;
@@ -501,8 +500,8 @@ TEST(RigidbodyTests, Pressure)
   sim.update_rigid_body_grids();
 
   Velocity velocity(*device, size);
-  RenderTexture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-  Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+  RenderTexture solidPhi(*device, size.x, size.y, Format::R32Sfloat);
+  Texture liquidPhi(*device, size.x, size.y, Format::R32Sfloat);
 
   SetVelocity(*device, size, velocity, sim);
 
@@ -517,8 +516,8 @@ TEST(RigidbodyTests, Pressure)
   SetLiquidPhi(*device, size, liquidPhi, sim);
   SetSolidPhi(*device, size, solidPhi, sim, (float)size.x);
 
-  LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
-  Buffer<glm::ivec2> valid(*device, size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  LinearSolver::Data data(*device, size, MemoryUsage::Cpu);
+  Buffer<glm::ivec2> valid(*device, size.x * size.y, MemoryUsage::Cpu);
   Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
 
   auto rectangle =
@@ -535,9 +534,9 @@ TEST(RigidbodyTests, Pressure)
   rigidBody->RenderPhi();
 
   // setup equations
-  Buffer<float> input(*device, size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
-  Buffer<float> output(*device, size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
-  device->Execute([&](vk::CommandBuffer commandBuffer) { output.Clear(commandBuffer); });
+  Buffer<float> input(*device, size.x * size.y, MemoryUsage::Cpu);
+  Buffer<float> output(*device, size.x * size.y, MemoryUsage::Cpu);
+  device->Execute([&](CommandEncoder& command) { output.Clear(command); });
 
   std::vector<float> inputData(size.x * size.y, 0.1f);
   CopyFrom(input, inputData);
@@ -547,7 +546,7 @@ TEST(RigidbodyTests, Pressure)
 
   // multiply matrix
   rigidBody->Pressure();
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
   std::vector<double> outputData(size.x * size.y);
   std::vector<double> inputData2(size.x * size.y, 0.1);
@@ -583,8 +582,8 @@ TEST(RigidbodyTests, PressureVelocity)
   sim.add_force(0.01f);
 
   Velocity velocity(*device, size);
-  RenderTexture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-  Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+  RenderTexture solidPhi(*device, size.x, size.y, Format::R32Sfloat);
+  Texture liquidPhi(*device, size.x, size.y, Format::R32Sfloat);
 
   sim.rigid_u_mass = sim.rbd->getMass();
   sim.rigid_v_mass = sim.rbd->getMass();
@@ -592,7 +591,7 @@ TEST(RigidbodyTests, PressureVelocity)
   BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
   SetSolidPhi(*device, size, solidPhi, sim, (float)size.x);
 
-  LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
+  LinearSolver::Data data(*device, size, MemoryUsage::Cpu);
 
   BuildLinearEquation(size, data.Diagonal, data.Lower, data.B, sim);
 
@@ -621,7 +620,7 @@ TEST(RigidbodyTests, PressureVelocity)
   // solve
   solver.Solve(params, {rigidBody.get()});
 
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
   std::cout << "Solved in " << params.OutIterations << " iterations. Error " << params.OutError
             << std::endl;
@@ -657,8 +656,8 @@ TEST(RigidbodyTests, PressureRotation)
   sim.add_force(0.01f);
 
   Velocity velocity(*device, size);
-  RenderTexture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-  Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+  RenderTexture solidPhi(*device, size.x, size.y, Format::R32Sfloat);
+  Texture liquidPhi(*device, size.x, size.y, Format::R32Sfloat);
 
   sim.rigid_u_mass = sim.rbd->getMass();
   sim.rigid_v_mass = sim.rbd->getMass();
@@ -666,7 +665,7 @@ TEST(RigidbodyTests, PressureRotation)
   BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
   SetSolidPhi(*device, size, solidPhi, sim, (float)size.x);
 
-  LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
+  LinearSolver::Data data(*device, size, MemoryUsage::Cpu);
 
   BuildLinearEquation(size, data.Diagonal, data.Lower, data.B, sim);
 
@@ -695,7 +694,7 @@ TEST(RigidbodyTests, PressureRotation)
   // solve
   solver.Solve(params, {rigidBody.get()});
 
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
   std::cout << "Solved in " << params.OutIterations << " iterations. Error " << params.OutError
             << std::endl;
@@ -728,7 +727,7 @@ TEST(RigidbodyTests, VelocityConstrain)
   sim.rbd->setAngularMomentum(0.0f);
   sim.rbd->setLinearVelocity(Vec2f(solid_velocity.x, solid_velocity.y));
 
-  RenderTexture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+  RenderTexture solidPhi(*device, size.x, size.y, Format::R32Sfloat);
   SetSolidPhi(*device, size, solidPhi, sim, (float)size.x);
 
   extrapolate(sim.u, sim.u_valid);
@@ -758,7 +757,7 @@ TEST(RigidbodyTests, VelocityConstrain)
   rigidBody->BindVelocityConstrain(velocity);
   rigidBody->VelocityConstrain();
 
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
   CheckVelocity(*device, size, velocity, sim, 1e-3f);
 }
@@ -789,7 +788,7 @@ TEST(RigidbodyTests, RotationConstrain)
   float w;
   sim.rbd->getAngularVelocity(w);
 
-  RenderTexture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+  RenderTexture solidPhi(*device, size.x, size.y, Format::R32Sfloat);
   SetSolidPhi(*device, size, solidPhi, sim, (float)size.x);
 
   extrapolate(sim.u, sim.u_valid);
@@ -819,7 +818,7 @@ TEST(RigidbodyTests, RotationConstrain)
   rigidBody->BindVelocityConstrain(velocity);
   rigidBody->VelocityConstrain();
 
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
   CheckVelocity(*device, size, velocity, sim, 1e-3f);
 }

@@ -122,13 +122,13 @@ void Multigrid::Bind(Renderer::GenericBuffer& d,
   mTransfer.ProlongateBind(0, s, pressure, d, mDatas[0].X, mDatas[0].Diagonal);
 
   mFullCycleSolver.Record(
-      [&](vk::CommandBuffer commandBuffer)
+      [&](Renderer::CommandEncoder& command)
       {
-        pressure.Clear(commandBuffer);
-        RecordFullCycle(commandBuffer);
+        pressure.Clear(command);
+        RecordFullCycle(command);
       });
 
-  mVCycleSolver.Record([&](vk::CommandBuffer commandBuffer) { RecordVCycle(commandBuffer, 0); });
+  mVCycleSolver.Record([&](Renderer::CommandEncoder& command) { RecordVCycle(command, 0); });
 
   mError.Bind(d, l, b, pressure);
 }
@@ -146,43 +146,40 @@ void Multigrid::BuildHierarchiesBind(Pressure& pressure,
   RecursiveBind(pressure, 1);
 
   mBuildHierarchies.Record(
-      [&](vk::CommandBuffer commandBuffer)
+      [&](Renderer::CommandEncoder& command)
       {
-        commandBuffer.debugMarkerBeginEXT({"Build hierarchies", {{0.36f, 0.85f, 0.55f, 1.0f}}},
-                                          mDevice.Loader());
+        command.DebugMarkerBegin("Build hierarchies", {0.36f, 0.85f, 0.55f, 1.0f});
         for (int i = 0; i < mDepth.GetMaxDepth(); i++)
         {
-          mLiquidPhiScaleWorkBound[i].Record(commandBuffer);
-          mLiquidPhis[i].Barrier(commandBuffer,
-                                 vk::ImageLayout::eGeneral,
-                                 vk::AccessFlagBits::eShaderWrite,
-                                 vk::ImageLayout::eGeneral,
-                                 vk::AccessFlagBits::eShaderRead);
+          mLiquidPhiScaleWorkBound[i].Record(command);
+          mLiquidPhis[i].Barrier(command,
+                                 Renderer::ImageLayout::General,
+                                 Renderer::Access::Write,
+                                 Renderer::ImageLayout::General,
+                                 Renderer::Access::Read);
 
-          mSolidPhiScaleWorkBound[i].Record(commandBuffer);
-          mSolidPhis[i].Barrier(commandBuffer,
-                                vk::ImageLayout::eGeneral,
-                                vk::AccessFlagBits::eShaderWrite,
-                                vk::ImageLayout::eGeneral,
-                                vk::AccessFlagBits::eShaderRead);
+          mSolidPhiScaleWorkBound[i].Record(command);
+          mSolidPhis[i].Barrier(command,
+                                Renderer::ImageLayout::General,
+                                Renderer::Access::Write,
+                                Renderer::ImageLayout::General,
+                                Renderer::Access::Read);
 
-          mMatrixBuildBound[i].PushConstant(commandBuffer, mDelta);
-          mMatrixBuildBound[i].Record(commandBuffer);
-          mDatas[i].Diagonal.Barrier(
-              commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-          mDatas[i].Lower.Barrier(
-              commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-          mDatas[i].B.Clear(commandBuffer);
+          mMatrixBuildBound[i].PushConstant(command, mDelta);
+          mMatrixBuildBound[i].Record(command);
+          mDatas[i].Diagonal.Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
+          mDatas[i].Lower.Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
+          mDatas[i].B.Clear(command);
         }
 
         int maxDepth = mDepth.GetMaxDepth();
-        mMatrixBuildBound[maxDepth - 1].PushConstant(commandBuffer, mDelta);
-        mMatrixBuildBound[maxDepth - 1].Record(commandBuffer);
+        mMatrixBuildBound[maxDepth - 1].PushConstant(command, mDelta);
+        mMatrixBuildBound[maxDepth - 1].Record(command);
         mDatas[maxDepth - 1].Diagonal.Barrier(
-            commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+            command, Renderer::Access::Write, Renderer::Access::Read);
         mDatas[maxDepth - 1].Lower.Barrier(
-            commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-        commandBuffer.debugMarkerEndEXT(mDevice.Loader());
+            command, Renderer::Access::Write, Renderer::Access::Read);
+        command.DebugMarkerEnd();
       });
 }
 
@@ -239,20 +236,21 @@ void Multigrid::BuildHierarchies()
   mBuildHierarchies.Submit();
 }
 
-void Multigrid::Smoother(vk::CommandBuffer commandBuffer, int n)
+void Multigrid::Smoother(Renderer::CommandEncoder& command, int n)
 {
-  mSmoothers[n]->Record(commandBuffer);
+  mSmoothers[n]->Record(command);
 }
 
-void Multigrid::Record(vk::CommandBuffer commandBuffer)
+void Multigrid::Record(Renderer::CommandEncoder& command)
 {
+  command.DebugMarkerBegin("Multigrid", {0.48f, 0.25f, 0.19f, 1.0f});
   assert(mPressure != nullptr);
 
-  commandBuffer.debugMarkerBeginEXT({"Multigrid", {{0.48f, 0.25f, 0.19f, 1.0f}}}, mDevice.Loader());
+  mPressure->Clear(command);
 
-  RecordVCycle(commandBuffer, 0);
+  RecordVCycle(command, 0);
 
-  commandBuffer.debugMarkerEndEXT(mDevice.Loader());
+  command.DebugMarkerEnd();
 }
 
 void Multigrid::BindRigidbody(float /*delta*/, Renderer::GenericBuffer& /*d*/, RigidBody& rigidBody)
@@ -278,59 +276,50 @@ float Multigrid::GetError()
   return mError.Submit().Wait().GetError();
 }
 
-void Multigrid::RecordVCycle(vk::CommandBuffer commandBuffer, int depth)
+void Multigrid::RecordVCycle(Renderer::CommandEncoder& command, int depth)
 {
   if (depth == mDepth.GetMaxDepth())
   {
-    mSmoother.Record(commandBuffer);
+    mSmoother.Record(command);
   }
   else
   {
-    Smoother(commandBuffer, depth);
+    Smoother(command, depth);
 
-    mResidualWorkBound[depth].Record(commandBuffer);
-    mResiduals[depth].Barrier(
-        commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+    mResidualWorkBound[depth].Record(command);
+    mResiduals[depth].Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
 
-    mTransfer.Restrict(commandBuffer, depth);
+    mTransfer.Restrict(command, depth);
 
-    mDatas[depth].X.Clear(commandBuffer);
-    mDatas[depth].X.Barrier(
-        commandBuffer, vk::AccessFlagBits::eMemoryWrite, vk::AccessFlagBits::eShaderWrite);
+    mDatas[depth].X.Clear(command);
 
-    RecordVCycle(commandBuffer, depth + 1);
+    RecordVCycle(command, depth + 1);
 
-    mTransfer.Prolongate(commandBuffer, depth);
+    mTransfer.Prolongate(command, depth);
 
-    Smoother(commandBuffer, depth);
+    Smoother(command, depth);
   }
 }
 
-void Multigrid::RecordFullCycle(vk::CommandBuffer commandBuffer)
+void Multigrid::RecordFullCycle(Renderer::CommandEncoder& command)
 {
-  mResidualWorkBound[0].Record(commandBuffer);
-  mResiduals[0].Barrier(
-      commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+  mResidualWorkBound[0].Record(command);
+  mResiduals[0].Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
 
   for (int i = 0; i < mDepth.GetMaxDepth() - 1; i++)
   {
-    mTransfer.Restrict(commandBuffer, i);
-    mResiduals[i + 1].CopyFrom(commandBuffer, mDatas[i].B);
+    mTransfer.Restrict(command, i);
+    mResiduals[i + 1].CopyFrom(command, mDatas[i].B);
   }
 
   int depth = mDepth.GetMaxDepth() - 1;
-  mDatas[depth].X.Clear(commandBuffer);
-  mDatas[depth].X.Barrier(
-      commandBuffer, vk::AccessFlagBits::eMemoryWrite, vk::AccessFlagBits::eShaderWrite);
-  mSmoother.Record(commandBuffer);
+  mDatas[depth].X.Clear(command);
+  mSmoother.Record(command);
 
   for (int i = depth; i >= 0; i--)
   {
-    // TODO this looks wrong, do we prolongate to correct buffer?
-    mTransfer.Prolongate(commandBuffer, i);
-    mResiduals[i].Barrier(
-        commandBuffer, vk::AccessFlagBits::eMemoryWrite, vk::AccessFlagBits::eShaderWrite);
-    RecordVCycle(commandBuffer, i);
+    mTransfer.Prolongate(command, depth);
+    RecordVCycle(command, i);
   }
 }
 

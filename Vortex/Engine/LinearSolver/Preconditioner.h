@@ -5,12 +5,13 @@
 
 #pragma once
 
-#include <Vortex/Renderer/Buffer.h>
-#include <Vortex/Renderer/Texture.h>
-#include <Vortex/Renderer/Work.h>
-
 namespace Vortex
 {
+namespace Renderer
+{
+class CommandEncoder;
+class GenericBuffer;
+}  // namespace Renderer
 namespace Fluid
 {
 /**
@@ -36,7 +37,7 @@ struct Preconditioner
    * @brief Record the preconditioner
    * @param commandBuffer the command buffer to record into.
    */
-  virtual void Record(vk::CommandBuffer commandBuffer) = 0;
+  virtual void Record(Renderer::CommandEncoder& command) = 0;
 };
 
 }  // namespace Fluid

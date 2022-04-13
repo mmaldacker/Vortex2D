@@ -27,10 +27,7 @@ public:
    * @param width
    * @param height
    */
-  VORTEX_API RenderWindow(Device& device,
-                          vk::SurfaceKHR surface,
-                          uint32_t width,
-                          uint32_t height);
+  VORTEX_API RenderWindow(Device& device, Handle::Surface surface, uint32_t width, uint32_t height);
   VORTEX_API ~RenderWindow() override;
 
   VORTEX_API RenderCommand Record(DrawableList drawables, ColorBlendState blendState = {}) override;
@@ -42,15 +39,8 @@ public:
   VORTEX_API void Display();
 
 private:
-  Device& mDevice;
-  vk::UniqueSwapchainKHR mSwapChain;
-  std::vector<vk::UniqueImageView> mSwapChainImageViews;
-  std::vector<vk::UniqueFramebuffer> mFrameBuffers;
-  std::vector<vk::UniqueSemaphore> mImageAvailableSemaphores;
-  std::vector<vk::UniqueSemaphore> mRenderFinishedSemaphores;
-  std::vector<std::reference_wrapper<RenderCommand>> mRenderCommands;
-  uint32_t mIndex;
-  uint32_t mFrameIndex;
+  struct Impl;
+  std::unique_ptr<Impl> mImpl;
 };
 
 }  // namespace Renderer

@@ -101,7 +101,7 @@ public:
    */
   VORTEX_API void BuildHierarchies();
 
-  void Record(vk::CommandBuffer commandBuffer) override;
+  void Record(Renderer::CommandEncoder& command) override;
 
   void BindRigidbody(float delta, Renderer::GenericBuffer& d, RigidBody& rigidBody) override;
 
@@ -119,12 +119,12 @@ public:
   VORTEX_API float GetError() override;
 
 private:
-  void Smoother(vk::CommandBuffer commandBuffer, int n);
+  void Smoother(Renderer::CommandEncoder& command, int n);
 
   void RecursiveBind(Pressure& pressure, std::size_t depth);
 
-  void RecordVCycle(vk::CommandBuffer commandBuffer, int depth);
-  void RecordFullCycle(vk::CommandBuffer commandBuffer);
+  void RecordVCycle(Renderer::CommandEncoder& command, int depth);
+  void RecordFullCycle(Renderer::CommandEncoder& command);
 
   Renderer::Device& mDevice;
   Depth mDepth;

@@ -11,16 +11,51 @@ namespace Vortex
 {
 namespace Renderer
 {
-ColorBlendState::ColorBlendState() : BlendConstants({1.0f})
+ColorBlendState::ColorBlendState()
+    : Enabled(false)
+    , Src(BlendFactor::Zero)
+    , Dst(BlendFactor::Zero)
+    , ColorBlend(BlendOp::Add)
+    , SrcAlpha(BlendFactor::Zero)
+    , DstAlpha(BlendFactor::Zero)
+    , AlphaBlend(BlendOp::Add)
+    , BlendConstants({1.0f})
 {
-  ColorBlend.setColorWriteMask(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG |
-                               vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA);
+}
+
+ColorBlendState::ColorBlendState(BlendFactor src, BlendFactor dst, BlendOp colorBlend)
+    : Enabled(true)
+    , Src(src)
+    , Dst(dst)
+    , ColorBlend(colorBlend)
+    , SrcAlpha(BlendFactor::Zero)
+    , DstAlpha(BlendFactor::Zero)
+    , AlphaBlend(BlendOp::Add)
+    , BlendConstants({1.0f})
+{
+}
+
+ColorBlendState::ColorBlendState(BlendFactor src,
+                                 BlendFactor dst,
+                                 BlendOp colorBlend,
+                                 BlendFactor srcAlpha,
+                                 BlendFactor dstAlpha,
+                                 BlendOp alphaBlend)
+    : Enabled(true)
+    , Src(src)
+    , Dst(dst)
+    , ColorBlend(colorBlend)
+    , SrcAlpha(srcAlpha)
+    , DstAlpha(dstAlpha)
+    , AlphaBlend(alphaBlend)
+    , BlendConstants({1.0f})
+{
 }
 
 RenderState::RenderState(const RenderTarget& renderTarget, struct ColorBlendState blendState)
-    : Width(renderTarget.Width)
-    , Height(renderTarget.Height)
-    , RenderPass(*renderTarget.RenderPass)
+    : Width(renderTarget.GetWidth())
+    , Height(renderTarget.GetHeight())
+    , RenderPass(renderTarget.GetRenderPass())
     , BlendState(blendState)
 {
 }

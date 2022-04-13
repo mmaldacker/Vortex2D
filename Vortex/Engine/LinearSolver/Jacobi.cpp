@@ -41,28 +41,24 @@ void Jacobi::Bind(Renderer::GenericBuffer& d,
   mJacobiBackBound = mJacobi.Bind({mBackPressure, pressure, d, l, div});
 }
 
-void Jacobi::Record(vk::CommandBuffer commandBuffer)
+void Jacobi::Record(Renderer::CommandEncoder& command)
 {
   assert(mPressure != nullptr);
-  Record(commandBuffer, mPreconditionerIterations);
+  Record(command, mPreconditionerIterations);
 }
 
-void Jacobi::Record(vk::CommandBuffer commandBuffer, int iterations)
+void Jacobi::Record(Renderer::CommandEncoder& command, int iterations)
 {
-  mBackPressure.Clear(commandBuffer);
-  mBackPressure.Barrier(
-      commandBuffer, vk::AccessFlagBits::eMemoryWrite, vk::AccessFlagBits::eShaderWrite);
+  mBackPressure.Clear(command);
 
   for (int i = 0; i < iterations; i++)
   {
-    mJacobiFrontBound.PushConstant(commandBuffer, mW);
-    mJacobiFrontBound.Record(commandBuffer);
-    mBackPressure.Barrier(
-        commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-    mJacobiBackBound.PushConstant(commandBuffer, mW);
-    mJacobiBackBound.Record(commandBuffer);
-    mPressure->Barrier(
-        commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+    mJacobiFrontBound.PushConstant(command, mW);
+    mJacobiFrontBound.Record(command);
+    mBackPressure.Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
+    mJacobiBackBound.PushConstant(command, mW);
+    mJacobiBackBound.Record(command);
+    mPressure->Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
   }
 }
 

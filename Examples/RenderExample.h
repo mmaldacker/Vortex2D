@@ -15,13 +15,12 @@ class RenderExample : public Runner
 {
 public:
   RenderExample(Vortex::Renderer::Device& device, const glm::vec2& size)
-      : renderCircle(device, 50, 50, vk::Format::eR32Sfloat)
+      : renderCircle(device, 50, 50, Vortex::Renderer::Format::R32Sfloat)
       , contour(device, renderCircle, glm::ivec2(50))
   {
   }
 
-  void Init(Vortex::Renderer::Device& device,
-            Vortex::Renderer::RenderTarget& renderTarget) override
+  void Init(Vortex::Renderer::Device& device, Vortex::Renderer::RenderTarget& renderTarget) override
   {
     {
       auto circle = std::make_shared<Vortex::Fluid::Circle>(device, 10.0f);
@@ -46,14 +45,12 @@ public:
     mesh->Scale = {3., 3.};
     mesh->Colour = green;
 
-    Vortex::Renderer::ColorBlendState blendState;
-    blendState.ColorBlend.setBlendEnable(true)
-        .setAlphaBlendOp(vk::BlendOp::eAdd)
-        .setColorBlendOp(vk::BlendOp::eAdd)
-        .setSrcColorBlendFactor(vk::BlendFactor::eSrcAlpha)
-        .setSrcAlphaBlendFactor(vk::BlendFactor::eOne)
-        .setDstColorBlendFactor(vk::BlendFactor::eOneMinusSrcAlpha)
-        .setDstAlphaBlendFactor(vk::BlendFactor::eZero);
+    Vortex::Renderer::ColorBlendState blendState(Vortex::Renderer::BlendFactor::SrcAlpha,
+                                                 Vortex::Renderer::BlendFactor::OneMinusSrcAlpha,
+                                                 Vortex::Renderer::BlendOp::Add,
+                                                 Vortex::Renderer::BlendFactor::One,
+                                                 Vortex::Renderer::BlendFactor::Zero,
+                                                 Vortex::Renderer::BlendOp::Add);
 
     render = renderTarget.Record({rectangle, circle, mesh}, blendState);
   }

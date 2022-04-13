@@ -28,7 +28,7 @@ ConjugateGradient::ConjugateGradient(Renderer::Device& device,
     , rho_new(device, 1)
     , sigma(device, 1)
     , error(device)
-    , localError(device, 1, VMA_MEMORY_USAGE_GPU_TO_CPU)
+    , localError(device, 1, Renderer::MemoryUsage::GpuToCpu)
     , matrixMultiply(device, Renderer::ComputeSize{size}, SPIRV::MultiplyMatrix_comp)
     , scalarDivision(device, Renderer::ComputeSize{glm::ivec2(1)}, SPIRV::Divide_comp)
     , scalarMultiply(device, Renderer::ComputeSize{size}, SPIRV::Multiply_comp)
@@ -50,8 +50,8 @@ ConjugateGradient::ConjugateGradient(Renderer::Device& device,
     , mSolve(device, false)
     , mErrorRead(device)
 {
-  mErrorRead.Record([&](vk::CommandBuffer commandBuffer)
-                    { localError.CopyFrom(commandBuffer, error); });
+  mErrorRead.Record([&](Renderer::CommandEncoder& command)
+                    { localError.CopyFrom(command, error); });
 }
 
 ConjugateGradient::~ConjugateGradient() {}
@@ -67,96 +67,88 @@ void ConjugateGradient::Bind(Renderer::GenericBuffer& d,
   multiplyAddPBound = multiplyAdd.Bind({pressure, s, alpha, pressure});
 
   mSolveInit.Record(
-      [&](vk::CommandBuffer commandBuffer)
+      [&](Renderer::CommandEncoder& command)
       {
-        commandBuffer.debugMarkerBeginEXT({"PCG Init", {{0.63f, 0.04f, 0.66f, 1.0f}}},
-                                          mDevice.Loader());
+        command.DebugMarkerBegin("PCG Init", {0.63f, 0.04f, 0.66f, 1.0f});
 
         // r = b
-        r.CopyFrom(commandBuffer, b);
+        r.CopyFrom(command, b);
 
         // calculate error
-        reduceMaxBound.Record(commandBuffer);
+        reduceMaxBound.Record(command);
 
         // p = 0
-        pressure.Clear(commandBuffer);
+        pressure.Clear(command);
 
         // z = M^-1 r
-        z.Clear(commandBuffer);
-        mPreconditioner.Record(commandBuffer);
-        z.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        z.Clear(command);
+        mPreconditioner.Record(command);
+        z.Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
 
         // s = z
-        s.CopyFrom(commandBuffer, z);
+        s.CopyFrom(command, z);
 
         // rho = zTr
-        multiplyZBound.Record(commandBuffer);
-        inner.Barrier(
-            commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-        reduceSumRhoBound.Record(commandBuffer);
-        z.Clear(commandBuffer);
+        multiplyZBound.Record(command);
+        inner.Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
+        reduceSumRhoBound.Record(command);
+        z.Clear(command);
 
-        commandBuffer.debugMarkerEndEXT(mDevice.Loader());
+        command.DebugMarkerEnd();
       });
 
   mSolve.Record(
-      [&](vk::CommandBuffer commandBuffer)
+      [&](Renderer::CommandEncoder& command)
       {
-        commandBuffer.debugMarkerBeginEXT({"PCG Step", {{0.51f, 0.90f, 0.72f, 1.0f}}},
-                                          mDevice.Loader());
+        command.DebugMarkerBegin("PCG Step", {0.51f, 0.90f, 0.72f, 1.0f});
 
         // z = As
-        matrixMultiplyBound.Record(commandBuffer);
-        z.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        matrixMultiplyBound.Record(command);
+        z.Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
 
         // sigma = zTs
-        multiplySBound.Record(commandBuffer);
-        inner.Barrier(
-            commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-        reduceSumSigmaBound.Record(commandBuffer);
+        multiplySBound.Record(command);
+        inner.Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
+        reduceSumSigmaBound.Record(command);
 
         // alpha = rho / sigma
-        divideRhoBound.Record(commandBuffer);
-        alpha.Barrier(
-            commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        divideRhoBound.Record(command);
+        alpha.Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
 
         // p = p + alpha * s
-        multiplyAddPBound.Record(commandBuffer);
-        pressure.Barrier(
-            commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        multiplyAddPBound.Record(command);
+        pressure.Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
 
         // r = r - alpha * z
-        multiplySubRBound.Record(commandBuffer);
-        r.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        multiplySubRBound.Record(command);
+        r.Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
 
         // calculate max error
-        reduceMaxBound.Record(commandBuffer);
+        reduceMaxBound.Record(command);
 
         // z = M^-1 r
-        z.Clear(commandBuffer);
-        mPreconditioner.Record(commandBuffer);
-        z.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        z.Clear(command);
+        mPreconditioner.Record(command);
+        z.Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
 
         // rho_new = zTr
-        multiplyZBound.Record(commandBuffer);
-        inner.Barrier(
-            commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-        reduceSumRhoNewBound.Record(commandBuffer);
+        multiplyZBound.Record(command);
+        inner.Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
+        reduceSumRhoNewBound.Record(command);
 
         // beta = rho_new / rho
-        divideRhoNewBound.Record(commandBuffer);
-        beta.Barrier(
-            commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        divideRhoNewBound.Record(command);
+        beta.Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
 
         // s = z + beta * s
-        multiplyAddZBound.Record(commandBuffer);
-        s.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-        z.Clear(commandBuffer);
+        multiplyAddZBound.Record(command);
+        s.Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
+        z.Clear(command);
 
         // rho = rho_new
-        rho.CopyFrom(commandBuffer, rho_new);
+        rho.CopyFrom(command, rho_new);
 
-        commandBuffer.debugMarkerEndEXT(mDevice.Loader());
+        command.DebugMarkerEnd();
       });
 }
 

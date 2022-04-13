@@ -6,8 +6,6 @@
 #pragma once
 
 #include <Vortex/Renderer/Common.h>
-#include <Vortex/Renderer/DescriptorSet.h>
-#include <Vortex/Renderer/Device.h>
 
 #include <map>
 
@@ -18,19 +16,19 @@ namespace SPIRV
 class Reflection
 {
 public:
-  using DescriptorTypesMap = std::map<unsigned, vk::DescriptorType>;
+  using DescriptorTypesMap = std::map<unsigned, Renderer::BindType>;
 
   VORTEX_API Reflection(const Renderer::SpirvBinary& spirv);
 
   VORTEX_API DescriptorTypesMap GetDescriptorTypesMap() const;
   VORTEX_API unsigned GetPushConstantsSize() const;
 
-  VORTEX_API vk::ShaderStageFlags GetShaderStage() const;
+  VORTEX_API Renderer::ShaderStage GetShaderStage() const;
 
 private:
   DescriptorTypesMap mDescriptorTypes;
   unsigned mPushConstantSize;
-  vk::ShaderStageFlags mStageFlag;
+  Renderer::ShaderStage mStageFlag;
 };
 
 }  // namespace SPIRV

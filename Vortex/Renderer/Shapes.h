@@ -5,9 +5,9 @@
 
 #pragma once
 
+#include <Vortex/Renderer/BindGroup.h>
 #include <Vortex/Renderer/Buffer.h>
 #include <Vortex/Renderer/Common.h>
-#include <Vortex/Renderer/DescriptorSet.h>
 #include <Vortex/Renderer/Device.h>
 #include <Vortex/Renderer/Drawable.h>
 #include <Vortex/Renderer/Pipeline.h>
@@ -47,15 +47,16 @@ public:
 
   VORTEX_API void Initialize(const RenderState& renderState) override;
   VORTEX_API void Update(const glm::mat4& projection, const glm::mat4& view) override;
-  VORTEX_API void Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState) override;
+  VORTEX_API void Draw(CommandEncoder& encoder, const RenderState& renderState) override;
 
 protected:
   Device& mDevice;
   UniformBuffer<glm::mat4> mMVPBuffer;
   UniformBuffer<glm::vec4> mColourBuffer;
   VertexBuffer<glm::vec2> mVertexBuffer;
-  DescriptorSet mDescriptorSet;
-  GraphicsPipeline mPipeline;
+  Handle::PipelineLayout mPipelineLayout;
+  BindGroup mBindGroup;
+  GraphicsPipelineDescriptor mPipeline;
   uint32_t mNumVertices;
 };
 
@@ -89,11 +90,11 @@ public:
   VORTEX_API Mesh(Device& device,
                   VertexBuffer<glm::vec2>& vertexBuffer,
                   IndexBuffer<std::uint32_t>& indexBuffer,
-                  Buffer<vk::DrawIndexedIndirectCommand>& parameters);
+                  Buffer<DrawIndexedIndirect>& parameters);
 
   VORTEX_API void Initialize(const RenderState& renderState) override;
   VORTEX_API void Update(const glm::mat4& projection, const glm::mat4& view) override;
-  VORTEX_API void Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState) override;
+  VORTEX_API void Draw(CommandEncoder& command, const RenderState& renderState) override;
 
 protected:
   Device& mDevice;
@@ -101,9 +102,10 @@ protected:
   UniformBuffer<glm::vec4> mColourBuffer;
   VertexBuffer<glm::vec2>& mVertexBuffer;
   IndexBuffer<std::uint32_t>& mIndexBuffer;
-  Buffer<vk::DrawIndexedIndirectCommand>& mParameters;
-  DescriptorSet mDescriptorSet;
-  GraphicsPipeline mPipeline;
+  Buffer<DrawIndexedIndirect>& mParameters;
+  Handle::PipelineLayout mPipelineLayout;
+  BindGroup mBindGroup;
+  GraphicsPipelineDescriptor mPipeline;
 };
 
 /**
@@ -118,7 +120,7 @@ public:
 
   void Initialize(const RenderState& renderState) override;
   void Update(const glm::mat4& projection, const glm::mat4& view) override;
-  void Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState) override;
+  void Draw(CommandEncoder& command, const RenderState& renderState) override;
 
 private:
   // std140 aligned structure
@@ -136,8 +138,9 @@ private:
   UniformBuffer<glm::vec4> mColourBuffer;
   VertexBuffer<glm::vec2> mVertexBuffer;
   UniformBuffer<Size> mSizeBuffer;
-  DescriptorSet mDescriptorSet;
-  GraphicsPipeline mPipeline;
+  Handle::PipelineLayout mPipelineLayout;
+  BindGroup mBindGroup;
+  GraphicsPipelineDescriptor mPipeline;
 };
 
 /**
@@ -151,7 +154,7 @@ public:
 
   void Initialize(const RenderState& renderState) override;
   void Update(const glm::mat4& projection, const glm::mat4& view) override;
-  void Draw(vk::CommandBuffer commandBuffer, const RenderState& renderState) override;
+  void Draw(CommandEncoder& command, const RenderState& renderState) override;
 
 private:
   glm::vec4 mColour;

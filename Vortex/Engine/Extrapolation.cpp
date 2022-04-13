@@ -28,30 +28,27 @@ Extrapolation::Extrapolation(Renderer::Device& device,
     , mConstrainCmd(device, false)
 {
   mExtrapolateCmd.Record(
-      [&, iterations](vk::CommandBuffer commandBuffer)
+      [&, iterations](Renderer::CommandEncoder& command)
       {
-        commandBuffer.debugMarkerBeginEXT({"Extrapolate", {{0.60f, 0.87f, 0.12f, 1.0f}}},
-                                          mDevice.Loader());
+        command.DebugMarkerBegin("Extrapolate", {0.60f, 0.87f, 0.12f, 1.0f});
         for (int i = 0; i < iterations / 2; i++)
         {
-          mExtrapolateVelocityBound.Record(commandBuffer);
-          velocity.Output().Barrier(commandBuffer,
-                                    vk::ImageLayout::eGeneral,
-                                    vk::AccessFlagBits::eShaderWrite,
-                                    vk::ImageLayout::eGeneral,
-                                    vk::AccessFlagBits::eShaderRead);
-          mValid.Barrier(
-              commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-          mExtrapolateVelocityBackBound.Record(commandBuffer);
-          velocity.Barrier(commandBuffer,
-                           vk::ImageLayout::eGeneral,
-                           vk::AccessFlagBits::eShaderWrite,
-                           vk::ImageLayout::eGeneral,
-                           vk::AccessFlagBits::eShaderRead);
-          valid.Barrier(
-              commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+          mExtrapolateVelocityBound.Record(command);
+          velocity.Output().Barrier(command,
+                                    Renderer::ImageLayout::General,
+                                    Renderer::Access::Write,
+                                    Renderer::ImageLayout::General,
+                                    Renderer::Access::Read);
+          mValid.Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
+          mExtrapolateVelocityBackBound.Record(command);
+          velocity.Barrier(command,
+                           Renderer::ImageLayout::General,
+                           Renderer::Access::Write,
+                           Renderer::ImageLayout::General,
+                           Renderer::Access::Read);
+          valid.Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
         }
-        commandBuffer.debugMarkerEndEXT(mDevice.Loader());
+        command.DebugMarkerEnd();
       });
 }
 
@@ -65,19 +62,18 @@ void Extrapolation::ConstrainBind(Renderer::Texture& solidPhi)
   mConstrainVelocityBound = mConstrainVelocity.Bind({solidPhi, mVelocity, mVelocity.Output()});
 
   mConstrainCmd.Record(
-      [&](vk::CommandBuffer commandBuffer)
+      [&](Renderer::CommandEncoder& command)
       {
-        commandBuffer.debugMarkerBeginEXT({"Constrain Velocity", {{0.82f, 0.20f, 0.20f, 1.0f}}},
-                                          mDevice.Loader());
-        mConstrainVelocityBound.Record(commandBuffer);
-        mVelocity.Output().Barrier(commandBuffer,
-                                   vk::ImageLayout::eGeneral,
-                                   vk::AccessFlagBits::eShaderWrite,
-                                   vk::ImageLayout::eGeneral,
-                                   vk::AccessFlagBits::eShaderRead);
+        command.DebugMarkerBegin("Constrain Velocity", {0.82f, 0.20f, 0.20f, 1.0f});
+        mConstrainVelocityBound.Record(command);
+        mVelocity.Output().Barrier(command,
+                                   Renderer::ImageLayout::General,
+                                   Renderer::Access::Write,
+                                   Renderer::ImageLayout::General,
+                                   Renderer::Access::Read);
 
-        mVelocity.CopyBack(commandBuffer);
-        commandBuffer.debugMarkerEndEXT(mDevice.Loader());
+        mVelocity.CopyBack(command);
+        command.DebugMarkerEnd();
       });
 }
 

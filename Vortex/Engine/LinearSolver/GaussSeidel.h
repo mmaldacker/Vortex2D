@@ -41,14 +41,14 @@ public:
 
   VORTEX_API float GetError() override;
 
-  void Record(vk::CommandBuffer commandBuffer) override;
+  void Record(Renderer::CommandEncoder& commandEncoder) override;
 
   /**
    * @brief Record a determined number of iterations
    * @param commandBuffer
    * @param iterations
    */
-  void Record(vk::CommandBuffer commandBuffer, int iterations);
+  void Record(Renderer::CommandEncoder& command, int iterations);
 
   /**
    * @brief Set the w factor of the GS iterations : x_new = w * x_new + (1-w) *
@@ -92,7 +92,7 @@ public:
                        Renderer::GenericBuffer& b,
                        Renderer::GenericBuffer& pressure) override;
 
-  void Record(vk::CommandBuffer commandBuffer) override;
+  void Record(Renderer::CommandEncoder& commandEncoder) override;
 
 private:
   Renderer::GenericBuffer* mPressure;

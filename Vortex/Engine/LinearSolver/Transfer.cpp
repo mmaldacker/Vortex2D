@@ -56,22 +56,20 @@ void Transfer::RestrictBind(std::size_t level,
   mRestrictBuffer[level] = &coarse;
 }
 
-void Transfer::Prolongate(vk::CommandBuffer commandBuffer, std::size_t level)
+void Transfer::Prolongate(Renderer::CommandEncoder& command, std::size_t level)
 {
   assert(level < mProlongateBound.size());
 
-  mProlongateBound[level].Record(commandBuffer);
-  mProlongateBuffer[level]->Barrier(
-      commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+  mProlongateBound[level].Record(command);
+  mProlongateBuffer[level]->Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
 }
 
-void Transfer::Restrict(vk::CommandBuffer commandBuffer, std::size_t level)
+void Transfer::Restrict(Renderer::CommandEncoder& command, std::size_t level)
 {
   assert(level < mRestrictBound.size());
 
-  mRestrictBound[level].Record(commandBuffer);
-  mRestrictBuffer[level]->Barrier(
-      commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+  mRestrictBound[level].Record(command);
+  mRestrictBuffer[level]->Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
 }
 
 }  // namespace Fluid
