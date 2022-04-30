@@ -62,7 +62,7 @@ jobs:
       - name: Build
         run: |
           set VULKAN_SDK="%CD%\VulkanSDK"
-          echo VULKAN_SDK
+          echo %VULKAN_SDK%
           mkdir build && cd build
           cmake .. -DVORTEX3D_ENABLE_TESTS=On -DVORTEX3D_ENABLE_EXAMPLES=On
           cmake --build . -j 2
