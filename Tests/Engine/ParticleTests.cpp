@@ -76,16 +76,16 @@ TEST(ParticleTests, PrefixScan)
 
   PrefixScan prefixScan(*device, size);
 
-  Buffer<int> input(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
-  Buffer<int> output(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
-  Buffer<DispatchParams> dispatchParams(*device, 1, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<int> input(*device, size, MemoryUsage::Cpu);
+  Buffer<int> output(*device, size, MemoryUsage::Cpu);
+  Buffer<DispatchParams> dispatchParams(*device, 1, MemoryUsage::Cpu);
 
   std::vector<int> inputData = GenerateInput(size);
   CopyFrom(input, inputData);
 
   auto bound = prefixScan.Bind(input, output, dispatchParams);
 
-  device->Execute([&](vk::CommandBuffer commandBuffer) { bound.Record(commandBuffer); });
+  device->Execute([&](CommandEncoder& command) { bound.Record(command); });
 
   auto outputData = CalculatePrefixScan(inputData);
   CheckBuffer(outputData, output);
@@ -106,15 +106,15 @@ TEST(ParticleTests, PrefixScan_Self)
 
   PrefixScan prefixScan(*device, size);
 
-  Buffer<int> input(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
-  Buffer<DispatchParams> dispatchParams(*device, 1, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<int> input(*device, size, MemoryUsage::Cpu);
+  Buffer<DispatchParams> dispatchParams(*device, 1, MemoryUsage::Cpu);
 
   std::vector<int> inputData = GenerateInput(size);
   CopyFrom(input, inputData);
 
   auto bound = prefixScan.Bind(input, input, dispatchParams);
 
-  device->Execute([&](vk::CommandBuffer commandBuffer) { bound.Record(commandBuffer); });
+  device->Execute([&](CommandEncoder& command) { bound.Record(command); });
 
   auto outputData = CalculatePrefixScan(inputData);
   CheckBuffer(outputData, input);
@@ -135,16 +135,16 @@ TEST(ParticleTests, PrefixScanBig)
 
   PrefixScan prefixScan(*device, size);
 
-  Buffer<int> input(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
-  Buffer<int> output(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
-  Buffer<DispatchParams> dispatchParams(*device, 1, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<int> input(*device, size, MemoryUsage::Cpu);
+  Buffer<int> output(*device, size, MemoryUsage::Cpu);
+  Buffer<DispatchParams> dispatchParams(*device, 1, MemoryUsage::Cpu);
 
   std::vector<int> inputData = GenerateInput(size);
   CopyFrom(input, inputData);
 
   auto bound = prefixScan.Bind(input, output, dispatchParams);
 
-  device->Execute([&](vk::CommandBuffer commandBuffer) { bound.Record(commandBuffer); });
+  device->Execute([&](CommandEncoder& command) { bound.Record(command); });
 
   auto outputData = CalculatePrefixScan(inputData);
   CheckBuffer(outputData, output);
@@ -169,14 +169,14 @@ TEST(ParticleTests, ParticleCounting)
   particlesData[2].Position = glm::vec2(5.4f, 6.7f);
   int numParticles = 3;
 
-  Buffer<Particle> particles(*device, 8 * size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<Particle> particles(*device, 8 * size.x * size.y, MemoryUsage::Cpu);
   CopyFrom(particles, particlesData);
 
   ParticleCount particleCount(
       *device, size, particles, Velocity::InterpolationMode::Cubic, {numParticles});
 
   particleCount.Scan();
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
   ASSERT_EQ(numParticles, particleCount.GetTotalCount());
 }
@@ -192,14 +192,14 @@ TEST(ParticleTests, ParticleCounting_OffBounds)
   particlesData[3].Position = glm::vec2(5.4f, 46.7f);
   int numParticles = 4;
 
-  Buffer<Particle> particles(*device, 8 * size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<Particle> particles(*device, 8 * size.x * size.y, MemoryUsage::Cpu);
   CopyFrom(particles, particlesData);
 
   ParticleCount particleCount(
       *device, size, particles, Velocity::InterpolationMode::Cubic, {numParticles});
 
   particleCount.Scan();
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
   ASSERT_EQ(0, particleCount.GetTotalCount());
 }
@@ -214,7 +214,7 @@ TEST(ParticleTests, ParticleDelete)
   particlesData[2].Position = glm::vec2(3.5f, 2.4f);
   int numParticles = 3;
 
-  Buffer<Particle> particles(*device, 8 * size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<Particle> particles(*device, 8 * size.x * size.y, MemoryUsage::Cpu);
   CopyFrom(particles, particlesData);
 
   ParticleCount particleCount(
@@ -222,7 +222,7 @@ TEST(ParticleTests, ParticleDelete)
 
   // Count particles
   particleCount.Scan();
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
   // Delete some particles
   auto rect = std::make_shared<IntRectangle>(*device, glm::vec2{10, 10});
@@ -233,7 +233,7 @@ TEST(ParticleTests, ParticleDelete)
 
   // Now scan and copy them
   particleCount.Scan();
-  device->Queue().waitIdle();
+  device->WaitIdle();
 
   ASSERT_EQ(2, particleCount.GetTotalCount());
 
@@ -260,14 +260,14 @@ TEST(ParticleTests, ParticleClamp)
     particlesData[i].Position = glm::vec2(3.4f, 2.3f);
   }
 
-  Buffer<Particle> particles(*device, 8 * size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<Particle> particles(*device, 8 * size.x * size.y, MemoryUsage::Cpu);
   CopyFrom(particles, particlesData);
 
   ParticleCount particleCount(
       *device, size, particles, Velocity::InterpolationMode::Cubic, {numParticles});
 
   particleCount.Scan();
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
   ASSERT_EQ(8, particleCount.GetTotalCount());
 }
@@ -276,7 +276,7 @@ TEST(ParticleTests, ParticleSpawn)
 {
   glm::ivec2 size(20);
 
-  Buffer<Particle> particles(*device, 8 * size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<Particle> particles(*device, 8 * size.x * size.y, MemoryUsage::Cpu);
   ParticleCount particleCount(*device, size, particles, Velocity::InterpolationMode::Cubic);
 
   // Add some particles
@@ -288,7 +288,7 @@ TEST(ParticleTests, ParticleSpawn)
 
   // Now scan and spawn them
   particleCount.Scan();
-  device->Queue().waitIdle();
+  device->WaitIdle();
 
   int particleNum = particleCount.GetTotalCount();
   ASSERT_EQ(4, particleNum);
@@ -324,7 +324,7 @@ TEST(ParticleTests, ParticleAddDelete)
 {
   glm::ivec2 size(20);
 
-  Buffer<Particle> particles(*device, 8 * size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<Particle> particles(*device, 8 * size.x * size.y, MemoryUsage::Cpu);
   ParticleCount particleCount(*device, size, particles, Velocity::InterpolationMode::Cubic);
 
   // Add some particles
@@ -336,7 +336,7 @@ TEST(ParticleTests, ParticleAddDelete)
 
   // Now scan and spawn them
   particleCount.Scan();
-  device->Queue().waitIdle();
+  device->WaitIdle();
 
   // Remove some particles
   auto rectRemove = std::make_shared<IntRectangle>(*device, glm::vec2{1, 4});
@@ -347,7 +347,7 @@ TEST(ParticleTests, ParticleAddDelete)
 
   // Scan again
   particleCount.Scan();
-  device->Queue().waitIdle();
+  device->WaitIdle();
 
   // Read particles
   std::vector<Particle> outParticlesData(size.x * size.y * 8);
@@ -406,7 +406,7 @@ TEST(ParticleTests, Phi)
   AddParticles(size, sim, boundary_phi);
   sim.compute_phi();
 
-  Buffer<Particle> particles(*device, 8 * size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<Particle> particles(*device, 8 * size.x * size.y, MemoryUsage::Cpu);
 
   std::vector<Particle> particlesData;
   for (auto& p : sim.particles)
@@ -422,17 +422,16 @@ TEST(ParticleTests, Phi)
       *device, size, particles, Velocity::InterpolationMode::Cubic, {(int)sim.particles.size()});
 
   particleCount.Scan();
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
   LevelSet phi(*device, size);
 
   particleCount.LevelSetBind(phi);
   particleCount.Phi();
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
-  Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
-  device->Execute([&](vk::CommandBuffer commandBuffer)
-                  { outTexture.CopyFrom(commandBuffer, phi); });
+  Texture outTexture(*device, size.x, size.y, Format::R32Sfloat, MemoryUsage::Cpu);
+  device->Execute([&](CommandEncoder& command) { outTexture.CopyFrom(command, phi); });
 
   CheckPhi(size, sim, outTexture);
 }
@@ -455,7 +454,7 @@ TEST(ParticleTests, FromGrid_PIC)
   sim.update_from_grid(1.0f);
 
   // setup ParticleCount
-  Buffer<Particle> particles(*device, 8 * size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<Particle> particles(*device, 8 * size.x * size.y, MemoryUsage::Cpu);
 
   std::vector<Particle> particlesData;
   for (std::size_t p = 0; p < sim.particles.size(); p++)
@@ -476,19 +475,19 @@ TEST(ParticleTests, FromGrid_PIC)
                               alpha);
 
   particleCount.Scan();
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
   ASSERT_EQ(sim.particles.size(), particleCount.GetTotalCount());
 
   // FromGrid test
   Velocity velocity(*device, size);
-  Buffer<glm::ivec2> valid(*device, size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<glm::ivec2> valid(*device, size.x * size.y, MemoryUsage::Cpu);
 
   SetVelocity(*device, size, velocity, sim);
 
   particleCount.VelocitiesBind(velocity, valid);
   particleCount.TransferFromGrid();
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
   // Verify particle velocities
 
@@ -536,7 +535,7 @@ TEST(ParticleTests, FromGrid_FLIP)
   sim.update_from_grid(1.0f);
 
   // setup ParticleCount
-  Buffer<Particle> particles(*device, 8 * size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<Particle> particles(*device, 8 * size.x * size.y, MemoryUsage::Cpu);
 
   std::vector<Particle> particlesData;
   for (std::size_t p = 0; p < sim.particles.size(); p++)
@@ -557,13 +556,13 @@ TEST(ParticleTests, FromGrid_FLIP)
                               alpha);
 
   particleCount.Scan();
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
   ASSERT_EQ(sim.particles.size(), particleCount.GetTotalCount());
 
   // FromGrid test
   Velocity velocity(*device, size);
-  Buffer<glm::ivec2> valid(*device, size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<glm::ivec2> valid(*device, size.x * size.y, MemoryUsage::Cpu);
 
   SetVelocity(*device, size, velocity, sim);
 
@@ -571,7 +570,7 @@ TEST(ParticleTests, FromGrid_FLIP)
 
   velocity.VelocityDiff();
   particleCount.TransferFromGrid();
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
   // Verify particle velocities
 
@@ -622,7 +621,7 @@ TEST(ParticleTests, ToGrid)
   sim.transfer_to_grid();
 
   // setup ParticleCount
-  Buffer<Particle> particles(*device, 8 * size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<Particle> particles(*device, 8 * size.x * size.y, MemoryUsage::Cpu);
 
   std::vector<Particle> particlesData;
   for (std::size_t p = 0; p < sim.particles.size(); p++)
@@ -643,17 +642,17 @@ TEST(ParticleTests, ToGrid)
                               alpha);
 
   particleCount.Scan();
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
   ASSERT_EQ(sim.particles.size(), particleCount.GetTotalCount());
 
   // ToGrid test
   Velocity velocity(*device, size);
-  Buffer<glm::ivec2> valid(*device, size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<glm::ivec2> valid(*device, size.x * size.y, MemoryUsage::Cpu);
 
   particleCount.VelocitiesBind(velocity, valid);
   particleCount.TransferToGrid();
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
   // TODO check valid
 

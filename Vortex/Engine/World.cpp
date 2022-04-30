@@ -8,6 +8,8 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/transform.hpp>
 
+#include <algorithm>
+
 namespace Vortex
 {
 namespace Fluid
@@ -78,15 +80,15 @@ World::World(Renderer::Device& device,
   mExtrapolation.ConstrainBind(mDynamicSolidPhi);
   mLiquidPhi.ExtrapolateBind(mDynamicSolidPhi);
 
-  mCopySolidPhi.Record([&](vk::CommandBuffer commandBuffer)
-                       { mDynamicSolidPhi.CopyFrom(commandBuffer, mStaticSolidPhi); });
+  mCopySolidPhi.Record([&](Renderer::CommandEncoder& command)
+                       { mDynamicSolidPhi.CopyFrom(command, mStaticSolidPhi); });
 
   mPreconditioner.BuildHierarchiesBind(mProjection, mDynamicSolidPhi, mLiquidPhi);
   mLinearSolver.Bind(mData.Diagonal, mData.Lower, mData.B, mData.X);
 
   mDevice.Execute(
-      [&](vk::CommandBuffer commandBuffer) {
-        mStaticSolidPhi.Clear(commandBuffer, std::array<float, 4>{{10000.0f, 0.0f, 0.0f, 0.0f}});
+      [&](Renderer::CommandEncoder& command) {
+        mStaticSolidPhi.Clear(command, std::array<float, 4>{{10000.0f, 0.0f, 0.0f, 0.0f}});
       });
 }
 
@@ -101,12 +103,10 @@ void World::Step(LinearSolver::Parameters& params)
 Renderer::RenderCommand World::RecordVelocity(Renderer::RenderTarget::DrawableList drawables,
                                               VelocityOp op)
 {
-  Renderer::ColorBlendState blendState;
-  blendState.ColorBlend.setBlendEnable(true)
-      .setColorBlendOp(vk::BlendOp::eAdd)
-      .setSrcColorBlendFactor(vk::BlendFactor::eConstantColor)
-      .setDstColorBlendFactor(op == VelocityOp::Add ? vk::BlendFactor::eOne
-                                                    : vk::BlendFactor::eZero);
+  Renderer::ColorBlendState blendState(
+      Renderer::BlendFactor::ConstantColor,
+      op == VelocityOp::Add ? Renderer::BlendFactor::One : Renderer::BlendFactor::Zero,
+      Renderer::BlendOp::Add);
 
   float scale = 1.0f / mSize.x;
   blendState.BlendConstants = {scale, scale, scale, scale};
@@ -247,8 +247,8 @@ WaterWorld::WaterWorld(Renderer::Device& device,
                        Velocity::InterpolationMode interpolationMode)
     : World(device, size, dt, numSubSteps, interpolationMode)
     , mParticles(device,
-                 vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eVertexBuffer,
-                 VMA_MEMORY_USAGE_GPU_ONLY,
+                 Renderer::BufferUsage::Vertex,
+                 Renderer::MemoryUsage::Gpu,
                  8 * size.x * size.y * sizeof(Particle))
     , mParticleCount(device, size, mParticles, interpolationMode, {0}, 0.02f)
 {

@@ -20,17 +20,17 @@ namespace Fluid
 RigidBody::RigidBody(Renderer::Device& device,
                      const glm::ivec2& size,
                      Renderer::DrawablePtr drawable,
-                     vk::Flags<Type> type)
+                     Type type)
     : mSize(static_cast<float>(size.x))
     , mDevice(device)
     , mDrawable(drawable)
-    , mPhi(device, size.x, size.y, vk::Format::eR32Sfloat)
+    , mPhi(device, size.x, size.y, Renderer::Format::R32Sfloat)
     , mVelocity(device)
     , mForce(device, size.x * size.y)
     , mReducedForce(device, 1)
-    , mLocalForce(device, 1, VMA_MEMORY_USAGE_GPU_TO_CPU)
-    , mCenter(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
-    , mLocalVelocity(device, VMA_MEMORY_USAGE_CPU_ONLY)
+    , mLocalForce(device, 1, Renderer::MemoryUsage::GpuToCpu)
+    , mCenter(device, Renderer::MemoryUsage::CpuToGpu)
+    , mLocalVelocity(device, Renderer::MemoryUsage::Cpu)
     , mDiv(device, Renderer::ComputeSize{size}, SPIRV::BuildRigidbodyDiv_comp)
     , mConstrain(device, Renderer::ComputeSize{size}, SPIRV::ConstrainRigidbodyVelocity_comp)
     , mForceWork(device, Renderer::ComputeSize{size}, SPIRV::RigidbodyForce_comp)
@@ -47,8 +47,8 @@ RigidBody::RigidBody(Renderer::Device& device,
 {
   mLocalPhiRender = mPhi.Record({BoundariesClear, drawable}, UnionBlend);
 
-  mVelocityCmd.Record([&](vk::CommandBuffer commandBuffer)
-                      { mVelocity.CopyFrom(commandBuffer, mLocalVelocity); });
+  mVelocityCmd.Record([&](Renderer::CommandEncoder& command)
+                      { mVelocity.CopyFrom(command, mLocalVelocity); });
 
   SetVelocities(glm::vec2(0.0f), 0.0f);
 }
@@ -107,14 +107,12 @@ void RigidBody::BindDiv(Renderer::GenericBuffer& div, Renderer::GenericBuffer& d
 {
   mDivBound = mDiv.Bind({div, diagonal, mPhi, mVelocity, mCenter});
   mDivCmd.Record(
-      [&](vk::CommandBuffer commandBuffer)
+      [&](Renderer::CommandEncoder& command)
       {
-        commandBuffer.debugMarkerBeginEXT(
-            {"Rigidbody build equation", {{0.90f, 0.27f, 0.28f, 1.0f}}}, mDevice.Loader());
-        mDivBound.Record(commandBuffer);
-        div.Barrier(
-            commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-        commandBuffer.debugMarkerEndEXT(mDevice.Loader());
+        command.DebugMarkerBegin("Rigidbody build equation", {0.90f, 0.27f, 0.28f, 1.0f});
+        mDivBound.Record(command);
+        div.Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
+        command.DebugMarkerEnd();
       });
 }
 
@@ -122,13 +120,12 @@ void RigidBody::BindVelocityConstrain(Fluid::Velocity& velocity)
 {
   mConstrainBound = mConstrain.Bind({velocity, velocity.Output(), mPhi, mVelocity, mCenter});
   mConstrainCmd.Record(
-      [&](vk::CommandBuffer commandBuffer)
+      [&](Renderer::CommandEncoder& command)
       {
-        commandBuffer.debugMarkerBeginEXT({"Rigidbody constrain", {{0.29f, 0.36f, 0.21f, 1.0f}}},
-                                          mDevice.Loader());
-        mConstrainBound.Record(commandBuffer);
-        velocity.CopyBack(commandBuffer);
-        commandBuffer.debugMarkerEndEXT(mDevice.Loader());
+        command.DebugMarkerBegin("Rigidbody constrain", {0.29f, 0.36f, 0.21f, 1.0f});
+        mConstrainBound.Record(command);
+        velocity.CopyBack(command);
+        command.DebugMarkerEnd();
       });
 }
 
@@ -137,16 +134,14 @@ void RigidBody::BindForce(Renderer::GenericBuffer& diagonal, Renderer::GenericBu
   mForceBound = mForceWork.Bind({diagonal, mPhi, pressure, mForce, mCenter});
   mLocalSumBound = mSum.Bind(mForce, mLocalForce);
   mForceCmd.Record(
-      [&](vk::CommandBuffer commandBuffer)
+      [&](Renderer::CommandEncoder& command)
       {
-        commandBuffer.debugMarkerBeginEXT({"Rigidbody force", {{0.70f, 0.59f, 0.63f, 1.0f}}},
-                                          mDevice.Loader());
-        mForce.Clear(commandBuffer);
-        mForceBound.Record(commandBuffer);
-        mForce.Barrier(
-            commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-        mLocalSumBound.Record(commandBuffer);
-        commandBuffer.debugMarkerEndEXT(mDevice.Loader());
+        command.DebugMarkerBegin("Rigidbody force", {0.70f, 0.59f, 0.63f, 1.0f});
+        mForce.Clear(command);
+        mForceBound.Record(command);
+        mForce.Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
+        mLocalSumBound.Record(command);
+        command.DebugMarkerEnd();
       });
 }
 
@@ -159,25 +154,23 @@ void RigidBody::BindPressure(float delta,
   mPressureBound = mPressureWork.Bind({d, mPhi, mReducedForce, z, mCenter});
   mSumBound = mSum.Bind(mForce, mReducedForce);
   mPressureCmd.Record(
-      [&](vk::CommandBuffer commandBuffer)
+      [&](Renderer::CommandEncoder& command)
       {
-        commandBuffer.debugMarkerBeginEXT({"Rigidbody pressure", {{0.70f, 0.59f, 0.63f, 1.0f}}},
-                                          mDevice.Loader());
-        mForce.Clear(commandBuffer);
-        mPressureForceBound.Record(commandBuffer);
-        mForce.Barrier(
-            commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-        mSumBound.Record(commandBuffer);
-        mPressureBound.PushConstant(commandBuffer, delta, mMass, mInertia);
-        mPressureBound.Record(commandBuffer);
-        z.Barrier(commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-        commandBuffer.debugMarkerEndEXT(mDevice.Loader());
+        command.DebugMarkerBegin("Rigidbody pressure", {0.70f, 0.59f, 0.63f, 1.0f});
+        mForce.Clear(command);
+        mPressureForceBound.Record(command);
+        mForce.Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
+        mSumBound.Record(command);
+        mPressureBound.PushConstant(command, delta, mMass, mInertia);
+        mPressureBound.Record(command);
+        z.Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
+        command.DebugMarkerEnd();
       });
 }
 
 void RigidBody::Div()
 {
-  if (mType & RigidBody::Type::eStatic)
+  if (mType == RigidBody::Type::eStatic || mType == RigidBody::Type::eStrong)
   {
     mDivCmd.Submit();
   }
@@ -185,7 +178,7 @@ void RigidBody::Div()
 
 void RigidBody::Force()
 {
-  if (mType & RigidBody::Type::eWeak)
+  if (mType == RigidBody::Type::eWeak || mType == Vortex::Fluid::RigidBody::Type::eStrong)
   {
     mForceCmd.Submit();
   }
@@ -201,13 +194,13 @@ void RigidBody::Pressure()
 
 void RigidBody::VelocityConstrain()
 {
-  if (mType & RigidBody::Type::eStatic)
+  if (mType == RigidBody::Type::eStatic || mType == RigidBody::Type::eStrong)
   {
     mConstrainCmd.Submit();
   }
 }
 
-vk::Flags<RigidBody::Type> RigidBody::GetType()
+RigidBody::Type RigidBody::GetType()
 {
   return mType;
 }

@@ -5,6 +5,7 @@
 
 #include "Diagonal.h"
 
+#include <Vortex/Renderer/CommandBuffer.h>
 #include "vortex_generated_spirv.h"
 
 namespace Vortex
@@ -27,13 +28,9 @@ void Diagonal::Bind(Renderer::GenericBuffer& d,
   mDiagonalBound = mDiagonal.Bind({d, b, pressure});
 }
 
-void Diagonal::Record(vk::CommandBuffer commandBuffer)
+void Diagonal::Record(Renderer::CommandEncoder& command)
 {
-  assert(mPressure != nullptr);
-
-  mDiagonalBound.Record(commandBuffer);
-  mPressure->Barrier(
-      commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+  mDiagonalBound.Record(command);
 }
 
 }  // namespace Fluid

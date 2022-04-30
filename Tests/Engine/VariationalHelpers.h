@@ -23,7 +23,7 @@
 // Boundary definition - several circles in a circular domain.
 
 const Vec2f c0(0.5f, 0.5f), c1(0.7f, 0.5f), c2(0.3f, 0.35f), c3(0.5f, 0.7f);
-const float rad0 = 0.4f, rad1 = 0.1f, rad2 = 0.1f, rad3 = 0.1f;
+const float radius0 = 0.4f, radius1 = 0.1f, radius2 = 0.1f, radius3 = 0.1f;
 
 float circle_phi(const Vec2f& position, const Vec2f& centre, float radius);
 

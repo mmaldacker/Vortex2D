@@ -1,3 +1,24 @@
+set(LIB_VULKAN_HEADERS
+    "Renderer/Vulkan/Vulkan.h"
+    "Renderer/Vulkan/Instance.h"
+    "Renderer/Vulkan/Device.h"
+    "Renderer/Vulkan/RenderPass.h"
+    )
+
+set(LIB_VULKAN_SOURCES
+    "Renderer/Vulkan/Device.cpp"
+    "Renderer/Vulkan/Instance.cpp"
+    "Renderer/Vulkan/RenderPass.cpp"
+    "Renderer/Vulkan/CommandBuffer.cpp"
+    "Renderer/Vulkan/Texture.cpp"
+    "Renderer/Vulkan/Buffer.cpp"
+    "Renderer/Vulkan/Timer.cpp"
+    "Renderer/Vulkan/RenderTexture.cpp"
+    "Renderer/Vulkan/RenderWindow.cpp"
+    "Renderer/Vulkan/RenderTarget.cpp"
+    "Renderer/Vulkan/BindGroup.cpp"
+    "Renderer/Vulkan/vk_mem_alloc.h")
+
 set(LIB_SOURCES
     "Engine/Density.cpp"
     "Engine/LevelSet.cpp"
@@ -20,23 +41,14 @@ set(LIB_SOURCES
     "Engine/LinearSolver/IncompletePoisson.cpp"
     "Engine/LinearSolver/Transfer.cpp"
     "Engine/LinearSolver/Multigrid.cpp"
-    "Renderer/Buffer.cpp"
-    "Renderer/CommandBuffer.cpp"
-    "Renderer/DescriptorSet.cpp"
-    "Renderer/Device.cpp"
-    "Renderer/Instance.cpp"
     "Renderer/Pipeline.cpp"
     "Renderer/RenderState.cpp"
-    "Renderer/RenderTexture.cpp"
-    "Renderer/RenderWindow.cpp"
-    "Renderer/RenderTarget.cpp"
     "Renderer/Shapes.cpp"
     "Renderer/Sprite.cpp"
-    "Renderer/Texture.cpp"
-    "Renderer/Timer.cpp"
     "Renderer/Transformable.cpp"
     "Renderer/Work.cpp"
-    "SPIRV/Reflection.cpp")
+    "SPIRV/Reflection.cpp"
+    "SPIRV/ShaderLayout.cpp")
 
 set(LIB_HEADERS
     "Vortex.h"
@@ -63,12 +75,12 @@ set(LIB_HEADERS
     "Engine/LinearSolver/Transfer.h"
     "Engine/LinearSolver/Multigrid.h"
     "Renderer/Common.h"
+    "Renderer/Gpu.h"
     "Renderer/Drawable.h"
     "Renderer/Buffer.h"
     "Renderer/CommandBuffer.h"
-    "Renderer/DescriptorSet.h"
+    "Renderer/BindGroup.h"
     "Renderer/Device.h"
-    "Renderer/Instance.h"
     "Renderer/Pipeline.h"
     "Renderer/RenderState.h"
     "Renderer/RenderTexture.h"
@@ -81,10 +93,10 @@ set(LIB_HEADERS
     "Renderer/Transformable.h"
     "Renderer/Work.h"
     "SPIRV/Reflection.h"
+    "SPIRV/ShaderLayout.h"
     "Utils/mapbox/variant.hpp"
     "Utils/mapbox/variant_visitor.hpp"
-    "Utils/mapbox/recursive_wrapper.hpp"
-    "Utils/vk_mem_alloc.h")
+    "Utils/mapbox/recursive_wrapper.hpp")
 
 file(GLOB SHADER_SOURCES
     "Renderer/Kernels/*.vert"
@@ -149,6 +161,8 @@ compile_shader(SOURCES ${SHADER_SOURCES} OUTPUT "vortex_generated_spirv" VERSION
 
 add_library(vortex2d
   SHARED
+    ${LIB_VULKAN_HEADERS}
+    ${LIB_VULKAN_SOURCES}
     ${LIB_SOURCES}
     ${LIB_HEADERS}
     ${SHADER_SOURCES}

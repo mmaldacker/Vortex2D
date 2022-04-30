@@ -17,23 +17,22 @@ Cfl::Cfl(Renderer::Device& device, const glm::ivec2& size, Velocity& velocity)
     , mVelocity(velocity)
     , mVelocityMaxWork(device, Renderer::ComputeSize{size}, SPIRV::VelocityMax_comp)
     , mVelocityMax(device, size.x * size.y)
-    , mCfl(device, 1, VMA_MEMORY_USAGE_GPU_TO_CPU)
+    , mCfl(device, 1, Renderer::MemoryUsage::GpuToCpu)
     , mVelocityMaxCmd(device, true)
     , mReduceVelocityMax(device, size.x * size.y)
 {
   mVelocityMaxBound = mVelocityMaxWork.Bind({mVelocity, mVelocityMax});
   mReduceVelocityMaxBound = mReduceVelocityMax.Bind(mVelocityMax, mCfl);
   mVelocityMaxCmd.Record(
-      [&](vk::CommandBuffer commandBuffer)
+      [&](Renderer::CommandEncoder& command)
       {
-        commandBuffer.debugMarkerBeginEXT({"CFL", {{0.65f, 0.97f, 0.78f, 1.0f}}}, mDevice.Loader());
+        command.DebugMarkerBegin("CFL", {0.65f, 0.97f, 0.78f, 1.0f});
 
-        mVelocityMaxBound.Record(commandBuffer);
-        mVelocityMax.Barrier(
-            commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-        mReduceVelocityMaxBound.Record(commandBuffer);
+        mVelocityMaxBound.Record(command);
+        mVelocityMax.Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
+        mReduceVelocityMaxBound.Record(command);
 
-        commandBuffer.debugMarkerEndEXT(mDevice.Loader());
+        command.DebugMarkerEnd();
       });
 }
 

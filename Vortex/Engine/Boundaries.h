@@ -44,7 +44,7 @@ public:
 
   VORTEX_API void Initialize(const Renderer::RenderState& renderState) override;
   VORTEX_API void Update(const glm::mat4& projection, const glm::mat4& view) override;
-  VORTEX_API void Draw(vk::CommandBuffer commandBuffer,
+  VORTEX_API void Draw(Renderer::CommandEncoder& commandEncoder,
                        const Renderer::RenderState& renderState) override;
 
 private:
@@ -54,8 +54,9 @@ private:
   Renderer::UniformBuffer<glm::mat4> mMVPBuffer;
   Renderer::UniformBuffer<glm::mat4> mMVBuffer;
   Renderer::VertexBuffer<glm::vec2> mVertexBuffer;
-  Renderer::DescriptorSet mDescriptorSet;
-  Renderer::GraphicsPipeline mPipeline;
+  Renderer::Handle::PipelineLayout mPipelineLayout;
+  Renderer::BindGroup mBindGroup;
+  Renderer::GraphicsPipelineDescriptor mPipeline;
   Renderer::Buffer<glm::vec2> mPolygonVertexBuffer;
 };
 
@@ -82,7 +83,7 @@ public:
 
   VORTEX_API void Initialize(const Renderer::RenderState& renderState) override;
   VORTEX_API void Update(const glm::mat4& projection, const glm::mat4& view) override;
-  VORTEX_API void Draw(vk::CommandBuffer commandBuffer,
+  VORTEX_API void Draw(Renderer::CommandEncoder& commandEncoder,
                        const Renderer::RenderState& renderState) override;
 };
 
@@ -105,7 +106,7 @@ public:
 
   VORTEX_API void Initialize(const Renderer::RenderState& renderState) override;
   VORTEX_API void Update(const glm::mat4& projection, const glm::mat4& view) override;
-  VORTEX_API void Draw(vk::CommandBuffer commandBuffer,
+  VORTEX_API void Draw(Renderer::CommandEncoder& commandEncoder,
                        const Renderer::RenderState& renderState) override;
 
 private:
@@ -114,8 +115,9 @@ private:
   Renderer::UniformBuffer<glm::mat4> mMVPBuffer;
   Renderer::UniformBuffer<glm::mat4> mMVBuffer;
   Renderer::VertexBuffer<glm::vec2> mVertexBuffer;
-  Renderer::DescriptorSet mDescriptorSet;
-  Renderer::GraphicsPipeline mPipeline;
+  Renderer::Handle::PipelineLayout mPipelineLayout;
+  Renderer::BindGroup mBindGroup;
+  Renderer::GraphicsPipelineDescriptor mPipeline;
 };
 
 extern VORTEX_API Renderer::ColorBlendState IntersectionBlend;
@@ -142,7 +144,7 @@ public:
 
   VORTEX_API ~DistanceField() override;
 
-  VORTEX_API void Draw(vk::CommandBuffer commandBuffer,
+  VORTEX_API void Draw(Renderer::CommandEncoder& commandEncoder,
                        const Renderer::RenderState& renderState) override;
 
 private:
@@ -174,7 +176,7 @@ public:
   VORTEX_API Renderer::IndexBuffer<std::uint32_t>& GetIndices();
   VORTEX_API Renderer::IndirectBuffer<Renderer::DispatchParams>& GetIndicesParam();
 
-  VORTEX_API Renderer::Buffer<vk::DrawIndexedIndirectCommand>& GetDrawParameters();
+  VORTEX_API Renderer::Buffer<Renderer::DrawIndexedIndirect>& GetDrawParameters();
 
 private:
   Renderer::Device& mDevice;
@@ -185,7 +187,7 @@ private:
   Renderer::Buffer<std::uint32_t> mVertexCount, mIndexCount;
   Renderer::IndexBuffer<std::uint32_t> mIndices;
   Renderer::IndirectBuffer<Renderer::DispatchParams> mVerticesParam, mIndicesParam;
-  Renderer::Buffer<vk::DrawIndexedIndirectCommand> mDrawParameters;
+  Renderer::Buffer<Renderer::DrawIndexedIndirect> mDrawParameters;
 
   Renderer::Work mDualContour;
   Renderer::Work::Bound mDualContourBound;

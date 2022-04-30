@@ -59,7 +59,7 @@ TEST(ExtrapolateTest, Extrapolate)
   sim.add_force(0.01f);
   sim.apply_projection(0.01f);
 
-  Buffer<glm::ivec2> valid(*device, size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<glm::ivec2> valid(*device, size.x * size.y, MemoryUsage::Cpu);
   SetValid(size, sim, valid);
 
   Velocity velocity(*device, size);
@@ -71,7 +71,7 @@ TEST(ExtrapolateTest, Extrapolate)
   Extrapolation extrapolation(*device, size, valid, velocity, 10);
   extrapolation.Extrapolate();
 
-  device->Queue().waitIdle();
+  device->WaitIdle();
 
   CheckVelocity(*device, size, velocity, sim);
   CheckValid(size, sim, valid);
@@ -91,9 +91,9 @@ TEST(ExtrapolateTest, Constrain)
   sim.add_force(0.01f);
   sim.apply_projection(0.01f);
 
-  Buffer<glm::ivec2> valid(*device, size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<glm::ivec2> valid(*device, size.x * size.y, MemoryUsage::Cpu);
 
-  Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+  Texture solidPhi(*device, size.x, size.y, Format::R32Sfloat);
   SetSolidPhi(*device, size, solidPhi, sim, (float)size.x);
 
   extrapolate(sim.u, sim.u_valid);
@@ -108,7 +108,7 @@ TEST(ExtrapolateTest, Constrain)
   extrapolation.ConstrainBind(solidPhi);
   extrapolation.ConstrainVelocity();
 
-  device->Queue().waitIdle();
+  device->WaitIdle();
 
   CheckVelocity(*device, size, velocity, sim, 1e-3f);  // FIXME reduce error tolerance
 }

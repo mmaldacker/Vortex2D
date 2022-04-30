@@ -27,13 +27,9 @@ void IncompletePoisson::Bind(Renderer::GenericBuffer& d,
   mIncompletePoissonBound = mIncompletePoisson.Bind({d, l, b, pressure});
 }
 
-void IncompletePoisson::Record(vk::CommandBuffer commandBuffer)
+void IncompletePoisson::Record(Renderer::CommandEncoder& command)
 {
-  assert(mPressure != nullptr);
-
-  mIncompletePoissonBound.Record(commandBuffer);
-  mPressure->Barrier(
-      commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+  mIncompletePoissonBound.Record(command);
 }
 
 }  // namespace Fluid

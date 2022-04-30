@@ -21,8 +21,7 @@ Pressure::Pressure(Renderer::Device& device,
                    Renderer::Texture& solidPhi,
                    Renderer::Texture& liquidPhi,
                    Renderer::GenericBuffer& valid)
-    : mDevice(device)
-    , mData(data)
+    : mData(data)
     , mBuildMatrix(device, Renderer::ComputeSize{size}, SPIRV::BuildMatrix_comp)
     , mBuildMatrixBound(mBuildMatrix.Bind({data.Diagonal, data.Lower, liquidPhi, solidPhi}))
     , mBuildDiv(device, Renderer::ComputeSize{size}, SPIRV::BuildDiv_comp)
@@ -34,41 +33,34 @@ Pressure::Pressure(Renderer::Device& device,
     , mProjectCmd(device, false)
 {
   mBuildEquationCmd.Record(
-      [&](vk::CommandBuffer commandBuffer)
+      [&](Renderer::CommandEncoder& command)
       {
-        commandBuffer.debugMarkerBeginEXT({"Build equations", {{0.02f, 0.68f, 0.84f, 1.0f}}},
-                                          mDevice.Loader());
-        mBuildMatrixBound.PushConstant(commandBuffer, dt);
-        mBuildMatrixBound.Record(commandBuffer);
-        data.Diagonal.Barrier(
-            commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-        data.Lower.Barrier(
-            commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-        mBuildDivBound.Record(commandBuffer);
-        data.B.Barrier(
-            commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-        commandBuffer.debugMarkerEndEXT(mDevice.Loader());
+        command.DebugMarkerBegin("Build equations", {0.02f, 0.68f, 0.84f, 1.0f});
+        mBuildMatrixBound.PushConstant(command, dt);
+        mBuildMatrixBound.Record(command);
+        data.Diagonal.Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
+        data.Lower.Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
+        mBuildDivBound.Record(command);
+        data.B.Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
+        command.DebugMarkerEnd();
       });
 
   mProjectCmd.Record(
-      [&](vk::CommandBuffer commandBuffer)
+      [&](Renderer::CommandEncoder& command)
       {
-        commandBuffer.debugMarkerBeginEXT({"Pressure", {{0.45f, 0.47f, 0.75f, 1.0f}}},
-                                          mDevice.Loader());
-        valid.Clear(commandBuffer);
-        valid.Barrier(
-            commandBuffer, vk::AccessFlagBits::eMemoryWrite, vk::AccessFlagBits::eShaderWrite);
-        mProjectBound.PushConstant(commandBuffer, dt);
-        mProjectBound.Record(commandBuffer);
-        valid.Barrier(
-            commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-        velocity.Output().Barrier(commandBuffer,
-                                  vk::ImageLayout::eGeneral,
-                                  vk::AccessFlagBits::eShaderWrite,
-                                  vk::ImageLayout::eGeneral,
-                                  vk::AccessFlagBits::eShaderRead);
-        velocity.CopyBack(commandBuffer);
-        commandBuffer.debugMarkerEndEXT(mDevice.Loader());
+        command.DebugMarkerBegin("Pressure", {0.45f, 0.47f, 0.75f, 1.0f});
+        valid.Clear(command);
+        valid.Barrier(command, Renderer::Access::Write, Renderer::Access::Write);
+        mProjectBound.PushConstant(command, dt);
+        mProjectBound.Record(command);
+        valid.Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
+        velocity.Output().Barrier(command,
+                                  Renderer::ImageLayout::General,
+                                  Renderer::Access::Write,
+                                  Renderer::ImageLayout::General,
+                                  Renderer::Access::Read);
+        velocity.CopyBack(command);
+        command.DebugMarkerEnd();
       });
 }
 

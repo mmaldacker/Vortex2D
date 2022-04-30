@@ -1,38 +1,17 @@
 //
-//  RenderTarget.cpp
+//  RenderPass.cpp
 //  Vortex
 //
 
-#include "RenderTarget.h"
-
-#include <glm/gtc/matrix_transform.hpp>
+#include "RenderPass.h"
 
 namespace Vortex
 {
 namespace Renderer
 {
-RenderTarget::RenderTarget(uint32_t width, uint32_t height)
-    : Width(width)
-    , Height(height)
-    , Orth(glm::ortho(0.0f, (float)width, 0.0f, (float)height))
-    , View(1.0f)
+RenderpassBuilder& RenderpassBuilder::Attachement(Format format)
 {
-}
-
-RenderTarget::RenderTarget(RenderTarget&& other)
-    : Width(other.Width)
-    , Height(other.Height)
-    , Orth(other.Orth)
-    , View(other.View)
-    , RenderPass(std::move(other.RenderPass))
-{
-}
-
-RenderTarget::~RenderTarget() {}
-
-RenderpassBuilder& RenderpassBuilder::Attachement(vk::Format format)
-{
-  mAttachementDescriptions.push_back({{}, format});
+  mAttachementDescriptions.push_back({{}, ConvertFormat(format)});
   return *this;
 }
 
@@ -93,6 +72,12 @@ RenderpassBuilder& RenderpassBuilder::Dependency(uint32_t srcSubpass, uint32_t d
   return *this;
 }
 
+RenderpassBuilder& RenderpassBuilder::DependencyFlag(vk::DependencyFlags flag)
+{
+  mSubpassDependencies.back().setDependencyFlags(flag);
+  return *this;
+}
+
 RenderpassBuilder& RenderpassBuilder::DependencySrcStageMask(vk::PipelineStageFlags value)
 {
   mSubpassDependencies.back().setSrcStageMask(value);
@@ -117,13 +102,7 @@ RenderpassBuilder& RenderpassBuilder::DependencyDstAccessMask(vk::AccessFlags va
   return *this;
 }
 
-RenderpassBuilder& RenderpassBuilder::DependencyFlag(vk::DependencyFlags flags)
-{
-  mSubpassDependencies.back().setDependencyFlags(flags);
-  return *this;
-}
-
-vk::UniqueRenderPass RenderpassBuilder::Create(vk::Device device)
+vk::RenderPass RenderpassBuilder::Create(vk::Device device)
 {
   auto renderPassInfo = vk::RenderPassCreateInfo()
                             .setAttachmentCount((uint32_t)mAttachementDescriptions.size())
@@ -133,7 +112,7 @@ vk::UniqueRenderPass RenderpassBuilder::Create(vk::Device device)
                             .setDependencyCount((uint32_t)mSubpassDependencies.size())
                             .setPDependencies(mSubpassDependencies.data());
 
-  return device.createRenderPassUnique(renderPassInfo);
+  return device.createRenderPass(renderPassInfo);
 }
 
 vk::AttachmentReference* RenderpassBuilder::GetAttachmentReference()

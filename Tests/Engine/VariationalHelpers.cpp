@@ -12,17 +12,17 @@ float circle_phi(const Vec2f& position, const Vec2f& centre, float radius)
 
 float boundary_phi(const Vec2f& position)
 {
-  float phi0 = -circle_phi(position, c0, rad0);
+  float phi0 = -circle_phi(position, c0, radius0);
 
   return phi0;
 }
 
 float complex_boundary_phi(const Vec2f& position)
 {
-  float phi0 = -circle_phi(position, c0, rad0);
-  float phi1 = circle_phi(position, c1, rad1);
-  float phi2 = circle_phi(position, c2, rad2);
-  float phi3 = circle_phi(position, c3, rad3);
+  float phi0 = -circle_phi(position, c0, radius0);
+  float phi1 = circle_phi(position, c1, radius1);
+  float phi2 = circle_phi(position, c2, radius2);
+  float phi3 = circle_phi(position, c3, radius3);
 
   return min(min(phi0, phi1), min(phi2, phi3));
 }
@@ -54,8 +54,11 @@ void SetVelocity(Vortex::Renderer::Device& device,
                  Vortex::Fluid::Velocity& velocity,
                  FluidSim& sim)
 {
-  Vortex::Renderer::Texture input(
-      device, size.x, size.y, vk::Format::eR32G32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
+  Vortex::Renderer::Texture input(device,
+                                  size.x,
+                                  size.y,
+                                  Vortex::Renderer::Format::R32G32Sfloat,
+                                  Vortex::Renderer::MemoryUsage::Cpu);
 
   std::vector<glm::vec2> velocityData(size.x * size.y, glm::vec2(0.0f));
   for (int i = 0; i < size.x; i++)
@@ -69,7 +72,8 @@ void SetVelocity(Vortex::Renderer::Device& device,
   }
 
   input.CopyFrom(velocityData);
-  device.Execute([&](vk::CommandBuffer commandBuffer) { velocity.CopyFrom(commandBuffer, input); });
+  device.Execute([&](Vortex::Renderer::CommandEncoder& command)
+                 { velocity.CopyFrom(command, input); });
 }
 
 void SetSolidPhi(Vortex::Renderer::Device& device,
@@ -78,8 +82,11 @@ void SetSolidPhi(Vortex::Renderer::Device& device,
                  FluidSim& sim,
                  float scale)
 {
-  Vortex::Renderer::Texture input(
-      device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
+  Vortex::Renderer::Texture input(device,
+                                  size.x,
+                                  size.y,
+                                  Vortex::Renderer::Format::R32Sfloat,
+                                  Vortex::Renderer::MemoryUsage::Cpu);
 
   std::vector<float> phi(size.x * size.y, 0.0f);
   for (int i = 0; i < size.x; i++)
@@ -92,7 +99,8 @@ void SetSolidPhi(Vortex::Renderer::Device& device,
   }
 
   input.CopyFrom(phi);
-  device.Execute([&](vk::CommandBuffer commandBuffer) { solidPhi.CopyFrom(commandBuffer, input); });
+  device.Execute([&](Vortex::Renderer::CommandEncoder& command)
+                 { solidPhi.CopyFrom(command, input); });
 }
 
 void SetLiquidPhi(Vortex::Renderer::Device& device,
@@ -101,8 +109,11 @@ void SetLiquidPhi(Vortex::Renderer::Device& device,
                   FluidSim& sim,
                   float scale)
 {
-  Vortex::Renderer::Texture input(
-      device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
+  Vortex::Renderer::Texture input(device,
+                                  size.x,
+                                  size.y,
+                                  Vortex::Renderer::Format::R32Sfloat,
+                                  Vortex::Renderer::MemoryUsage::Cpu);
 
   std::vector<float> phi(size.x * size.y, 0.0f);
   for (int i = 0; i < size.x; i++)
@@ -115,8 +126,8 @@ void SetLiquidPhi(Vortex::Renderer::Device& device,
   }
 
   input.CopyFrom(phi);
-  device.Execute([&](vk::CommandBuffer commandBuffer)
-                 { liquidPhi.CopyFrom(commandBuffer, input); });
+  device.Execute([&](Vortex::Renderer::CommandEncoder& command)
+                 { liquidPhi.CopyFrom(command, input); });
 }
 
 void BuildInputs(Vortex::Renderer::Device& device,
@@ -203,10 +214,13 @@ void PrintVelocity(Vortex::Renderer::Device& device,
                    const glm::ivec2& size,
                    Vortex::Renderer::Texture& velocity)
 {
-  Vortex::Renderer::Texture output(
-      device, size.x, size.y, vk::Format::eR32G32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
-  device.Execute([&](vk::CommandBuffer commandBuffer)
-                 { output.CopyFrom(commandBuffer, velocity); });
+  Vortex::Renderer::Texture output(device,
+                                   size.x,
+                                   size.y,
+                                   Vortex::Renderer::Format::R32G32Sfloat,
+                                   Vortex::Renderer::MemoryUsage::Cpu);
+  device.Execute([&](Vortex::Renderer::CommandEncoder& command)
+                 { output.CopyFrom(command, velocity); });
 
   std::vector<glm::vec2> pixels(size.x * size.y);
   output.CopyTo(pixels);
@@ -242,10 +256,13 @@ void CheckVelocity(Vortex::Renderer::Device& device,
                    FluidSim& sim,
                    float error)
 {
-  Vortex::Renderer::Texture output(
-      device, size.x, size.y, vk::Format::eR32G32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
-  device.Execute([&](vk::CommandBuffer commandBuffer)
-                 { output.CopyFrom(commandBuffer, velocity); });
+  Vortex::Renderer::Texture output(device,
+                                   size.x,
+                                   size.y,
+                                   Vortex::Renderer::Format::R32G32Sfloat,
+                                   Vortex::Renderer::MemoryUsage::Cpu);
+  device.Execute([&](Vortex::Renderer::CommandEncoder& command)
+                 { output.CopyFrom(command, velocity); });
 
   std::vector<glm::vec2> pixels(size.x * size.y);
   output.CopyTo(pixels);
@@ -270,10 +287,13 @@ void CheckVelocity(Vortex::Renderer::Device& device,
 {
   assert(velocityData.size() == size.x * size.y);
 
-  Vortex::Renderer::Texture output(
-      device, size.x, size.y, vk::Format::eR32G32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
-  device.Execute([&](vk::CommandBuffer commandBuffer)
-                 { output.CopyFrom(commandBuffer, velocity); });
+  Vortex::Renderer::Texture output(device,
+                                   size.x,
+                                   size.y,
+                                   Vortex::Renderer::Format::R32G32Sfloat,
+                                   Vortex::Renderer::MemoryUsage::Cpu);
+  device.Execute([&](Vortex::Renderer::CommandEncoder& command)
+                 { output.CopyFrom(command, velocity); });
 
   std::vector<glm::vec2> pixels(size.x * size.y);
   output.CopyTo(pixels);

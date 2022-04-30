@@ -27,8 +27,8 @@ TEST(LinearSolverTests, ReduceSum)
 {
   glm::ivec2 size(10, 15);
   int total_size = size.x * size.y;
-  Buffer<float> input(*device, total_size, VMA_MEMORY_USAGE_CPU_ONLY);
-  Buffer<float> output(*device, 1, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<float> input(*device, total_size, MemoryUsage::Cpu);
+  Buffer<float> output(*device, 1, MemoryUsage::Cpu);
 
   ReduceSum reduce(*device, size.x * size.y);
   auto reduceBound = reduce.Bind(input, output);
@@ -42,7 +42,7 @@ TEST(LinearSolverTests, ReduceSum)
 
   CopyFrom(input, inputData);
 
-  device->Execute([&](vk::CommandBuffer commandBuffer) { reduceBound.Record(commandBuffer); });
+  device->Execute([&](CommandEncoder& command) { reduceBound.Record(command); });
 
   std::vector<float> outputData(1, 0.0f);
   CopyTo(output, outputData);
@@ -55,8 +55,8 @@ TEST(LinearSolverTests, ReduceBigSum)
   glm::ivec2 size(1000);
   int total_size = size.x * size.y;  // 1 million
 
-  Buffer<float> input(*device, total_size, VMA_MEMORY_USAGE_CPU_ONLY);
-  Buffer<float> output(*device, 1, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<float> input(*device, total_size, MemoryUsage::Cpu);
+  Buffer<float> output(*device, 1, MemoryUsage::Cpu);
 
   ReduceSum reduce(*device, size.x * size.y);
   auto reduceBound = reduce.Bind(input, output);
@@ -70,7 +70,7 @@ TEST(LinearSolverTests, ReduceBigSum)
 
   CopyFrom(input, inputData);
 
-  device->Execute([&](vk::CommandBuffer commandBuffer) { reduceBound.Record(commandBuffer); });
+  device->Execute([&](CommandEncoder& command) { reduceBound.Record(command); });
 
   std::vector<float> outputData(1, 0.0f);
   CopyTo(output, outputData);
@@ -83,8 +83,8 @@ TEST(LinearSolverTests, ReduceMax)
   glm::ivec2 size(10, 15);
   int total_size = size.x * size.y;
 
-  Buffer<float> input(*device, total_size, VMA_MEMORY_USAGE_CPU_ONLY);
-  Buffer<float> output(*device, 1, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<float> input(*device, total_size, MemoryUsage::Cpu);
+  Buffer<float> output(*device, 1, MemoryUsage::Cpu);
 
   ReduceMax reduce(*device, size.x * size.y);
   auto reduceBound = reduce.Bind(input, output);
@@ -98,7 +98,7 @@ TEST(LinearSolverTests, ReduceMax)
 
   CopyFrom(input, inputData);
 
-  device->Execute([&](vk::CommandBuffer commandBuffer) { reduceBound.Record(commandBuffer); });
+  device->Execute([&](CommandEncoder& command) { reduceBound.Record(command); });
 
   std::vector<float> outputData(1, 0.0f);
   CopyTo(output, outputData);
@@ -113,16 +113,16 @@ TEST(LinearSolverTests, Transfer_Prolongate)
 
   Transfer t(*device);
 
-  Buffer<float> fineDiagonal(*device, fineSize.x * fineSize.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<float> fineDiagonal(*device, fineSize.x * fineSize.y, MemoryUsage::Cpu);
   std::vector<float> fineDiagonalData(fineSize.x * fineSize.y, {1.0f});
   CopyFrom(fineDiagonal, fineDiagonalData);
 
-  Buffer<float> coarseDiagonal(*device, coarseSize.x * coarseSize.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<float> coarseDiagonal(*device, coarseSize.x * coarseSize.y, MemoryUsage::Cpu);
   std::vector<float> coarseDiagonalData(coarseSize.x * coarseSize.y, {1.0f});
   CopyFrom(coarseDiagonal, coarseDiagonalData);
 
-  Buffer<float> input(*device, coarseSize.x * coarseSize.y, VMA_MEMORY_USAGE_CPU_ONLY);
-  Buffer<float> output(*device, fineSize.x * fineSize.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<float> input(*device, coarseSize.x * coarseSize.y, MemoryUsage::Cpu);
+  Buffer<float> output(*device, fineSize.x * fineSize.y, MemoryUsage::Cpu);
 
   std::vector<float> data(coarseSize.x * coarseSize.y, 0.0f);
   std::iota(data.begin(), data.end(), 1.0f);
@@ -130,10 +130,10 @@ TEST(LinearSolverTests, Transfer_Prolongate)
 
   t.ProlongateBind(0, fineSize, output, fineDiagonal, input, coarseDiagonal);
   device->Execute(
-      [&](vk::CommandBuffer commandBuffer)
+      [&](CommandEncoder& command)
       {
-        output.Clear(commandBuffer);
-        t.Prolongate(commandBuffer, 0);
+        output.Clear(command);
+        t.Prolongate(command, 0);
       });
 
   std::vector<float> outputData(fineSize.x * fineSize.y, 0.0f);
@@ -152,23 +152,23 @@ TEST(LinearSolverTests, Transfer_Restrict)
 
   Transfer t(*device);
 
-  Buffer<float> fineDiagonal(*device, fineSize.x * fineSize.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<float> fineDiagonal(*device, fineSize.x * fineSize.y, MemoryUsage::Cpu);
   std::vector<float> fineDiagonalData(fineSize.x * fineSize.y, {1.0f});
   CopyFrom(fineDiagonal, fineDiagonalData);
 
-  Buffer<float> coarseDiagonal(*device, coarseSize.x * coarseSize.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<float> coarseDiagonal(*device, coarseSize.x * coarseSize.y, MemoryUsage::Cpu);
   std::vector<float> coarseDiagonalData(coarseSize.x * coarseSize.y, {1.0f});
   CopyFrom(coarseDiagonal, coarseDiagonalData);
 
-  Buffer<float> input(*device, fineSize.x * fineSize.y, VMA_MEMORY_USAGE_CPU_ONLY);
-  Buffer<float> output(*device, coarseSize.x * coarseSize.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<float> input(*device, fineSize.x * fineSize.y, MemoryUsage::Cpu);
+  Buffer<float> output(*device, coarseSize.x * coarseSize.y, MemoryUsage::Cpu);
 
   std::vector<float> data(fineSize.x * fineSize.y, 1.0f);
   std::iota(data.begin(), data.end(), 1.0f);
   CopyFrom(input, data);
 
   t.RestrictBind(0, fineSize, input, fineDiagonal, output, coarseDiagonal);
-  device->Execute([&](vk::CommandBuffer commandBuffer) { t.Restrict(commandBuffer, 0); });
+  device->Execute([&](CommandEncoder& command) { t.Restrict(command, 0); });
 
   std::vector<float> outputData(coarseSize.x * coarseSize.y, 1.0f);
   CopyTo(output, outputData);
@@ -184,7 +184,7 @@ TEST(LinearSolverTests, Error)
   glm::ivec2 size(20);
 
   LinearSolver::Error error(*device, size);
-  LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
+  LinearSolver::Data data(*device, size, MemoryUsage::Cpu);
 
   error.Bind(data.Diagonal, data.Lower, data.B, data.X);
 
@@ -222,7 +222,7 @@ TEST(LinearSolverTests, Simple_SOR)
   sim.extrapolate_phi();
   sim.apply_projection(0.01f);
 
-  LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
+  LinearSolver::Data data(*device, size, MemoryUsage::Cpu);
 
   BuildLinearEquation(size, data.Diagonal, data.Lower, data.B, sim);
 
@@ -232,7 +232,7 @@ TEST(LinearSolverTests, Simple_SOR)
   solver.Bind(data.Diagonal, data.Lower, data.B, data.X);
   solver.Solve(params);
 
-  device->Queue().waitIdle();
+  device->WaitIdle();
 
   CheckPressure(size, sim.pressure, data.X, 1e-4f);
 
@@ -254,7 +254,7 @@ TEST(LinearSolverTests, Complex_SOR)
   sim.extrapolate_phi();
   sim.apply_projection(0.01f);
 
-  LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
+  LinearSolver::Data data(*device, size, MemoryUsage::Cpu);
 
   BuildLinearEquation(size, data.Diagonal, data.Lower, data.B, sim);
 
@@ -264,7 +264,7 @@ TEST(LinearSolverTests, Complex_SOR)
   solver.Bind(data.Diagonal, data.Lower, data.B, data.X);
   solver.Solve(params);
 
-  device->Queue().waitIdle();
+  device->WaitIdle();
 
   CheckPressure(size, sim.pressure, data.X, 1e-4f);
 
@@ -286,16 +286,16 @@ TEST(LinearSolverTests, LocalGaussSeidel)
   sim.extrapolate_phi();
   sim.apply_projection(0.01f);
 
-  LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
+  LinearSolver::Data data(*device, size, MemoryUsage::Cpu);
 
   BuildLinearEquation(size, data.Diagonal, data.Lower, data.B, sim);
 
   LocalGaussSeidel solver(*device, size);
 
   solver.Bind(data.Diagonal, data.Lower, data.B, data.X);
-  device->Execute([&](vk::CommandBuffer commandBuffer) { solver.Record(commandBuffer); });
+  device->Execute([&](CommandEncoder& command) { solver.Record(command); });
 
-  device->Queue().waitIdle();
+  device->WaitIdle();
 
   CheckPressure(size, sim.pressure, data.X, 1e-3f);
 }
@@ -315,7 +315,7 @@ TEST(LinearSolverTests, Diagonal_Simple_PCG)
   sim.extrapolate_phi();
   sim.apply_projection(0.01f);
 
-  LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
+  LinearSolver::Data data(*device, size, MemoryUsage::Cpu);
 
   BuildLinearEquation(size, data.Diagonal, data.Lower, data.B, sim);
 
@@ -327,7 +327,7 @@ TEST(LinearSolverTests, Diagonal_Simple_PCG)
   solver.Bind(data.Diagonal, data.Lower, data.B, data.X);
   solver.Solve(params);
 
-  device->Queue().waitIdle();
+  device->WaitIdle();
 
   CheckPressure(size, sim.pressure, data.X, 1e-5f);
 
@@ -349,7 +349,7 @@ TEST(LinearSolverTests, GaussSeidel_Simple_PCG)
   sim.extrapolate_phi();
   sim.apply_projection(0.01f);
 
-  LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
+  LinearSolver::Data data(*device, size, MemoryUsage::Cpu);
 
   BuildLinearEquation(size, data.Diagonal, data.Lower, data.B, sim);
 
@@ -363,7 +363,7 @@ TEST(LinearSolverTests, GaussSeidel_Simple_PCG)
   solver.Bind(data.Diagonal, data.Lower, data.B, data.X);
   solver.Solve(params);
 
-  device->Queue().waitIdle();
+  device->WaitIdle();
 
   CheckPressure(size, sim.pressure, data.X, 1e-4f);
 
@@ -385,7 +385,7 @@ TEST(LinearSolverTests, IncompletePoisson_Simple_PCG)
   sim.extrapolate_phi();
   sim.apply_projection(0.01f);
 
-  LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
+  LinearSolver::Data data(*device, size, MemoryUsage::Cpu);
 
   BuildLinearEquation(size, data.Diagonal, data.Lower, data.B, sim);
 
@@ -397,7 +397,7 @@ TEST(LinearSolverTests, IncompletePoisson_Simple_PCG)
   solver.Bind(data.Diagonal, data.Lower, data.B, data.X);
   solver.Solve(params);
 
-  device->Queue().waitIdle();
+  device->WaitIdle();
 
   CheckPressure(size, sim.pressure, data.X, 1e-5f);
 
@@ -408,7 +408,7 @@ TEST(LinearSolverTests, Zero_PCG)
 {
   glm::ivec2 size(50);
 
-  LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
+  LinearSolver::Data data(*device, size, MemoryUsage::Cpu);
 
   Diagonal preconditioner(*device, size);
 
@@ -418,7 +418,7 @@ TEST(LinearSolverTests, Zero_PCG)
   solver.Bind(data.Diagonal, data.Lower, data.B, data.X);
   solver.Solve(params);
 
-  device->Queue().waitIdle();
+  device->WaitIdle();
 
   ASSERT_EQ(0, params.OutIterations);
 
@@ -449,12 +449,12 @@ TEST(LinearSolverTests, Multigrid_Simple_PCG)
   sim.extrapolate_phi();
   sim.apply_projection(0.01f);
 
-  LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
+  LinearSolver::Data data(*device, size, MemoryUsage::Cpu);
 
   Velocity velocity(*device, size);
-  Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-  Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-  Buffer<glm::ivec2> valid(*device, size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  Texture liquidPhi(*device, size.x, size.y, Format::R32Sfloat);
+  Texture solidPhi(*device, size.x, size.y, Format::R32Sfloat);
+  Buffer<glm::ivec2> valid(*device, size.x * size.y, MemoryUsage::Cpu);
 
   SetSolidPhi(*device, size, solidPhi, sim, (float)size.x);
   SetLiquidPhi(*device, size, liquidPhi, sim, (float)size.x);
@@ -474,7 +474,7 @@ TEST(LinearSolverTests, Multigrid_Simple_PCG)
   preconditioner.BuildHierarchies();
   solver.Solve(params);
 
-  device->Queue().waitIdle();
+  device->WaitIdle();
 
   CheckPressure(size, sim.pressure, data.X, 1e-5f);
 
@@ -496,12 +496,12 @@ TEST(LinearSolverTests, Multigrid_Simple)
   sim.extrapolate_phi();
   sim.apply_projection(0.01f);
 
-  LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
+  LinearSolver::Data data(*device, size, MemoryUsage::Cpu);
 
   Velocity velocity(*device, size);
-  Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-  Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-  Buffer<glm::ivec2> valid(*device, size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  Texture liquidPhi(*device, size.x, size.y, Format::R32Sfloat);
+  Texture solidPhi(*device, size.x, size.y, Format::R32Sfloat);
+  Buffer<glm::ivec2> valid(*device, size.x * size.y, MemoryUsage::Cpu);
 
   SetSolidPhi(*device, size, solidPhi, sim, (float)size.x);
   SetLiquidPhi(*device, size, liquidPhi, sim, (float)size.x);
@@ -520,7 +520,7 @@ TEST(LinearSolverTests, Multigrid_Simple)
 
   solver.Solve(params);
 
-  device->Queue().waitIdle();
+  device->WaitIdle();
 
   // Very bad error due to multigrid optimized as preconditioner and not solver
   CheckPressure(size, sim.pressure, data.X, 1e-1f);

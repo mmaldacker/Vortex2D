@@ -4,10 +4,11 @@
 //
 
 #include <gtest/gtest.h>
+#include <algorithm>
 #include <fstream>
 
+#include <Vortex/Renderer/BindGroup.h>
 #include <Vortex/Renderer/CommandBuffer.h>
-#include <Vortex/Renderer/DescriptorSet.h>
 #include <Vortex/Renderer/Pipeline.h>
 #include <Vortex/Renderer/Timer.h>
 #include <Vortex/Renderer/Work.h>
@@ -25,7 +26,7 @@ extern Device* device;
 TEST(ComputeTests, WriteBuffer)
 {
   std::vector<float> data(100, 23.4f);
-  Buffer<float> buffer(*device, data.size(), VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<float> buffer(*device, data.size(), MemoryUsage::Cpu);
 
   CopyFrom(buffer, data);
 
@@ -36,16 +37,16 @@ TEST(ComputeTests, BufferCopy)
 {
   std::vector<float> data(100, 23.4f);
   Buffer<float> buffer(*device, data.size());
-  Buffer<float> inBuffer(*device, data.size(), VMA_MEMORY_USAGE_CPU_ONLY);
-  Buffer<float> outBuffer(*device, data.size(), VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<float> inBuffer(*device, data.size(), MemoryUsage::Cpu);
+  Buffer<float> outBuffer(*device, data.size(), MemoryUsage::Cpu);
 
   CopyFrom(inBuffer, data);
 
   device->Execute(
-      [&](vk::CommandBuffer commandBuffer)
+      [&](CommandEncoder& command)
       {
-        buffer.CopyFrom(commandBuffer, inBuffer);
-        outBuffer.CopyFrom(commandBuffer, buffer);
+        buffer.CopyFrom(command, inBuffer);
+        outBuffer.CopyFrom(command, buffer);
       });
 
   CheckBuffer(data, outBuffer);
@@ -54,14 +55,13 @@ TEST(ComputeTests, BufferCopy)
 TEST(ComputeTests, UpdateVectorBuffer)
 {
   int size = 3;
-  Buffer<float> inBuffer(*device, size, VMA_MEMORY_USAGE_CPU_TO_GPU);
-  Buffer<float> outBuffer(*device, size, VMA_MEMORY_USAGE_GPU_TO_CPU);
+  Buffer<float> inBuffer(*device, size, MemoryUsage::CpuToGpu);
+  Buffer<float> outBuffer(*device, size, MemoryUsage::GpuToCpu);
 
   std::vector<float> data(size, 1.1f);
   CopyFrom(inBuffer, data);
 
-  device->Execute([&](vk::CommandBuffer commandBuffer)
-                  { outBuffer.CopyFrom(commandBuffer, inBuffer); });
+  device->Execute([&](CommandEncoder& command) { outBuffer.CopyFrom(command, inBuffer); });
 
   std::vector<float> outData(size);
   CopyTo(outBuffer, outData);
@@ -85,34 +85,30 @@ TEST(ComputeTests, BufferCompute)
 {
   std::vector<Particle> particles(100, {{1.0f, 1.0f}, {10.0f, 10.0f}});
 
-  Buffer<Particle> buffer(*device, 100, VMA_MEMORY_USAGE_CPU_ONLY);
-  UniformBuffer<UBO> uboBuffer(*device, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<Particle> buffer(*device, 100, MemoryUsage::Cpu);
+  UniformBuffer<UBO> uboBuffer(*device, MemoryUsage::Cpu);
 
   UBO ubo = {0.2f, 100};
 
   CopyFrom(buffer, particles);
   CopyFrom(uboBuffer, ubo);
 
-  auto shader = device->GetShaderModule(Buffer_comp);
+  auto shader = device->CreateShaderModule(Buffer_comp);
   Reflection reflection(Buffer_comp);
 
-  PipelineLayout layout = {{reflection}};
-  DescriptorSet descriptorSet = device->GetLayoutManager().MakeDescriptorSet(layout);
-  Bind(*device, descriptorSet, layout, {{buffer}, {uboBuffer}});
+  ShaderLayouts layout = {reflection};
+  auto bindGroupLayout = device->CreateBindGroupLayout(layout);
+  auto pipelineLayout = device->CreatePipelineLayout(layout);
+  auto bindGroup = device->CreateBindGroup(bindGroupLayout, layout, {{buffer}, {uboBuffer}});
 
-  auto pipeline =
-      device->GetPipelineCache().CreateComputePipeline(shader, descriptorSet.pipelineLayout);
+  auto pipeline = device->CreateComputePipeline(shader, pipelineLayout);
 
   device->Execute(
-      [&](vk::CommandBuffer commandBuffer)
+      [&](CommandEncoder& command)
       {
-        commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, pipeline);
-        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute,
-                                         descriptorSet.pipelineLayout,
-                                         0,
-                                         {*descriptorSet.descriptorSet},
-                                         {});
-        commandBuffer.dispatch(1, 1, 1);
+        command.SetPipeline(PipelineBindPoint::Compute, pipeline);
+        command.SetBindGroup(PipelineBindPoint::Compute, pipelineLayout, bindGroup);
+        command.Dispatch(1, 1, 1);
       });
 
   std::vector<Particle> output(100);
@@ -132,35 +128,32 @@ TEST(ComputeTests, BufferCompute)
 
 TEST(ComputeTests, ImageCompute)
 {
-  Texture stagingTexture(*device, 50, 50, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
-  Texture inTexture(*device, 50, 50, vk::Format::eR32Sfloat);
-  Texture outTexture(*device, 50, 50, vk::Format::eR32Sfloat);
+  Texture stagingTexture(*device, 50, 50, Format::R32Sfloat, MemoryUsage::Cpu);
+  Texture inTexture(*device, 50, 50, Format::R32Sfloat);
+  Texture outTexture(*device, 50, 50, Format::R32Sfloat);
 
   std::vector<float> data(50 * 50, 1.0f);
   stagingTexture.CopyFrom(data);
 
-  auto shader = device->GetShaderModule(Image_comp);
+  auto shader = device->CreateShaderModule(Image_comp);
   Reflection reflection(Image_comp);
 
-  PipelineLayout layout = {{reflection}};
-  DescriptorSet descriptorSet = device->GetLayoutManager().MakeDescriptorSet(layout);
-  Bind(*device, descriptorSet, layout, {{inTexture}, {outTexture}});
+  ShaderLayouts layout = {reflection};
 
-  auto pipeline =
-      device->GetPipelineCache().CreateComputePipeline(shader, descriptorSet.pipelineLayout);
+  auto pipelineLayout = device->CreatePipelineLayout(layout);
+  auto bindGroupLayout = device->CreateBindGroupLayout(layout);
+  auto bindGroup = device->CreateBindGroup(bindGroupLayout, layout, {{inTexture}, {outTexture}});
+
+  auto pipeline = device->CreateComputePipeline(shader, pipelineLayout);
 
   device->Execute(
-      [&](vk::CommandBuffer commandBuffer)
+      [&](CommandEncoder& command)
       {
-        inTexture.CopyFrom(commandBuffer, stagingTexture);
-        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute,
-                                         descriptorSet.pipelineLayout,
-                                         0,
-                                         {*descriptorSet.descriptorSet},
-                                         {});
-        commandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, pipeline);
-        commandBuffer.dispatch(16, 16, 1);
-        stagingTexture.CopyFrom(commandBuffer, outTexture);
+        inTexture.CopyFrom(command, stagingTexture);
+        command.SetPipeline(PipelineBindPoint::Compute, pipeline);
+        command.SetBindGroup(PipelineBindPoint::Compute, pipelineLayout, bindGroup);
+        command.Dispatch(16, 16, 1);
+        stagingTexture.CopyFrom(command, outTexture);
       });
 
   std::vector<float> doubleData(data.size(), 2.0f);
@@ -169,12 +162,12 @@ TEST(ComputeTests, ImageCompute)
 
 TEST(ComputeTests, Work)
 {
-  Buffer<float> buffer(*device, 16 * 16, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<float> buffer(*device, 16 * 16, MemoryUsage::Cpu);
   Work work(*device, ComputeSize{glm::ivec2(16)}, Work_comp, SpecConst(SpecConstValue(3, 1)));
 
   auto boundWork = work.Bind({buffer});
 
-  device->Execute([&](vk::CommandBuffer commandBuffer) { boundWork.Record(commandBuffer); });
+  device->Execute([&](CommandEncoder& command) { boundWork.Record(command); });
 
   std::vector<float> expectedOutput(16 * 16);
   for (int i = 0; i < 16; i++)
@@ -200,8 +193,8 @@ TEST(ComputeTests, WorkIndirect)
   glm::ivec2 size(16, 1);
 
   // create bigger buffer than size to check the indirect buffer is correct
-  Buffer<float> buffer(*device, 100 * size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
-  IndirectBuffer<DispatchParams> dispatchParams(*device, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<float> buffer(*device, 100 * size.x * size.y, MemoryUsage::Cpu);
+  IndirectBuffer<DispatchParams> dispatchParams(*device, MemoryUsage::Cpu);
 
   // build work
   ComputeSize computeSize(16);
@@ -214,10 +207,10 @@ TEST(ComputeTests, WorkIndirect)
 
   CommandBuffer cmd(*device, true);
   cmd.Record(
-      [&](vk::CommandBuffer commandBuffer)
+      [&](CommandEncoder& command)
       {
-        buffer.Clear(commandBuffer);
-        bound.RecordIndirect(commandBuffer, dispatchParams);
+        buffer.Clear(command);
+        bound.RecordIndirect(command, dispatchParams);
       });
 
   // Run first time
@@ -266,30 +259,25 @@ TEST(ComputeTests, FloatImage)
 {
   glm::ivec2 size(20);
 
-  Texture localTexture(
-      *device, size.x, size.y, vk::Format::eR32G32B32A32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
-  Texture texture(*device, size.x, size.y, vk::Format::eR32G32B32A32Sfloat);
+  Texture localTexture(*device, size.x, size.y, Format::R32G32B32A32Sfloat, MemoryUsage::Cpu);
+  Texture texture(*device, size.x, size.y, Format::R32G32B32A32Sfloat);
 
   Work work(*device, ComputeSize{size}, ImageFloat_comp);
 
   std::vector<glm::vec4> data(size.x * size.y, glm::vec4(2.0f, 3.0f, 0.0f, 0.0f));
   localTexture.CopyFrom(data);
 
-  device->Execute([&](vk::CommandBuffer commandBuffer)
-                  { texture.CopyFrom(commandBuffer, localTexture); });
+  device->Execute([&](CommandEncoder& command) { texture.CopyFrom(command, localTexture); });
 
   auto boundWork = work.Bind({texture});
 
   device->Execute(
-      [&](vk::CommandBuffer commandBuffer)
+      [&](CommandEncoder& command)
       {
-        boundWork.Record(commandBuffer);
-        texture.Barrier(commandBuffer,
-                        vk::ImageLayout::eGeneral,
-                        vk::AccessFlagBits::eShaderWrite,
-                        vk::ImageLayout::eGeneral,
-                        vk::AccessFlagBits::eShaderRead);
-        localTexture.CopyFrom(commandBuffer, texture);
+        boundWork.Record(command);
+        texture.Barrier(
+            command, ImageLayout::General, Access::Write, ImageLayout::General, Access::Read);
+        localTexture.CopyFrom(command, texture);
       });
 
   CheckTexture<glm::vec4>(data, localTexture);
@@ -299,8 +287,8 @@ TEST(ComputeTests, Stencil)
 {
   glm::ivec2 size(50);
 
-  Buffer<float> input(*device, size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
-  Buffer<float> output(*device, size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<float> input(*device, size.x * size.y, MemoryUsage::Cpu);
+  Buffer<float> output(*device, size.x * size.y, MemoryUsage::Cpu);
 
   auto computeSize = MakeStencilComputeSize(size, 1);
 
@@ -316,7 +304,7 @@ TEST(ComputeTests, Stencil)
 
   CopyFrom(input, inputData);
 
-  device->Execute([&](vk::CommandBuffer commandBuffer) { boundWork.Record(commandBuffer); });
+  device->Execute([&](CommandEncoder& command) { boundWork.Record(command); });
 
   std::vector<float> expectedOutput(size.x * size.y, 0.0f);
   for (int i = 1; i < size.x - 1; i++)
@@ -349,7 +337,7 @@ TEST(ComputeTests, Checkerboard)
 {
   glm::ivec2 size(50);
 
-  Buffer<float> buffer(*device, size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<float> buffer(*device, size.x * size.y, MemoryUsage::Cpu);
 
   ComputeSize computeSize = MakeCheckerboardComputeSize(size);
 
@@ -358,11 +346,11 @@ TEST(ComputeTests, Checkerboard)
   auto boundWork = work.Bind({buffer});
 
   device->Execute(
-      [&](vk::CommandBuffer commandBuffer)
+      [&](CommandEncoder& command)
       {
-        buffer.Clear(commandBuffer);
-        boundWork.PushConstant(commandBuffer, 1);
-        boundWork.Record(commandBuffer);
+        buffer.Clear(command);
+        boundWork.PushConstant(command, 1);
+        boundWork.Record(command);
       });
 
   std::vector<float> expectedOutput(size.x * size.y, 0.0f);
@@ -382,8 +370,7 @@ TEST(ComputeTests, Checkerboard)
 
 TEST(ComputeTests, Timer)
 {
-  auto properties = device->GetPhysicalDevice().getProperties();
-  if (!properties.limits.timestampComputeAndGraphics)
+  if (!device->HasTimer())
   {
     return;
   }
@@ -396,7 +383,7 @@ TEST(ComputeTests, Timer)
   auto boundWork = work.Bind({buffer});
 
   CommandBuffer cmd(*device);
-  cmd.Record([&](vk::CommandBuffer commandBuffer) { boundWork.Record(commandBuffer); });
+  cmd.Record([&](CommandEncoder& command) { boundWork.Record(command); });
 
   Timer timer(*device);
 
@@ -420,16 +407,15 @@ TEST(ComputeTests, Reflection)
   Reflection spirv1(Stencil_comp);
 
   auto descriptorTypes = spirv1.GetDescriptorTypesMap();
-  DescriptorTypeBindings expectedDescriptorTypes = {{0, vk::DescriptorType::eStorageBuffer},
-                                                    {1, vk::DescriptorType::eStorageBuffer}};
+  BindTypeBindings expectedDescriptorTypes = {{0, BindType::StorageBuffer},
+                                              {1, BindType::StorageBuffer}};
 
   EXPECT_EQ(expectedDescriptorTypes, descriptorTypes);
 
   Reflection spirv2(Image_comp);
 
   descriptorTypes = spirv2.GetDescriptorTypesMap();
-  expectedDescriptorTypes = {{0, vk::DescriptorType::eStorageImage},
-                             {1, vk::DescriptorType::eStorageImage}};
+  expectedDescriptorTypes = {{0, BindType::StorageImage}, {1, BindType::StorageImage}};
 
   EXPECT_EQ(expectedDescriptorTypes, descriptorTypes);
 
@@ -439,32 +425,31 @@ TEST(ComputeTests, Reflection)
 
 TEST(ComputeTests, Cache)
 {
-  auto shader1 = device->GetShaderModule(Buffer_comp);
+  auto shader1 = device->CreateShaderModule(Buffer_comp);
   Reflection reflection1(Buffer_comp);
 
-  PipelineLayout layout1 = {{reflection1}};
-  vk::PipelineLayout pipelineLayout1 = device->GetLayoutManager().GetPipelineLayout(layout1);
-  vk::Pipeline pipeline1 =
-      device->GetPipelineCache().CreateComputePipeline(shader1, pipelineLayout1);
+  ShaderLayouts layout1 = {reflection1};
 
-  auto shader2 = device->GetShaderModule(Image_comp);
+  Handle::PipelineLayout pipelineLayout1 = device->CreatePipelineLayout(layout1);
+  Handle::Pipeline pipeline1 = device->CreateComputePipeline(shader1, pipelineLayout1);
+
+  auto shader2 = device->CreateShaderModule(Image_comp);
   Reflection reflection2(Image_comp);
 
-  PipelineLayout layout2 = {{reflection2}};
-  vk::PipelineLayout pipelineLayout2 = device->GetLayoutManager().GetPipelineLayout(layout2);
+  ShaderLayouts layout2 = {reflection2};
+  Handle::PipelineLayout pipelineLayout2 = device->CreatePipelineLayout(layout2);
 
-  vk::Pipeline pipeline2 =
-      device->GetPipelineCache().CreateComputePipeline(shader2, pipelineLayout2);
+  Handle::Pipeline pipeline2 = device->CreateComputePipeline(shader2, pipelineLayout2);
 
   EXPECT_NE(shader1, shader2);
   EXPECT_NE(pipelineLayout1, pipelineLayout2);
   EXPECT_NE(pipeline1, pipeline2);
 
-  EXPECT_EQ(shader1, device->GetShaderModule(Buffer_comp));
-  EXPECT_EQ(pipelineLayout1, device->GetLayoutManager().GetPipelineLayout(layout1));
-  EXPECT_EQ(pipeline1, device->GetPipelineCache().CreateComputePipeline(shader1, pipelineLayout1));
+  EXPECT_EQ(shader1, device->CreateShaderModule(Buffer_comp));
+  EXPECT_EQ(pipelineLayout1, device->CreatePipelineLayout(layout1));
+  EXPECT_EQ(pipeline1, device->CreateComputePipeline(shader1, pipelineLayout1));
 
-  EXPECT_EQ(shader2, device->GetShaderModule(Image_comp));
-  EXPECT_EQ(pipelineLayout2, device->GetLayoutManager().GetPipelineLayout(layout2));
-  EXPECT_EQ(pipeline2, device->GetPipelineCache().CreateComputePipeline(shader2, pipelineLayout2));
+  EXPECT_EQ(shader2, device->CreateShaderModule(Image_comp));
+  EXPECT_EQ(pipelineLayout2, device->CreatePipelineLayout(layout2));
+  EXPECT_EQ(pipeline2, device->CreateComputePipeline(shader2, pipelineLayout2));
 }

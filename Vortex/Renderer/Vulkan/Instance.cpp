@@ -5,6 +5,8 @@
 
 #include "Instance.h"
 
+#include "Vulkan.h"
+
 #include <iostream>
 
 VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugReportFlagsEXT /*flags*/,
@@ -122,23 +124,6 @@ vk::PhysicalDevice Instance::GetPhysicalDevice() const
 vk::Instance Instance::GetInstance() const
 {
   return *mInstance;
-}
-
-bool HasLayer(const char* extension, const std::vector<vk::LayerProperties>& availableExtensions)
-{
-  return std::any_of(availableExtensions.begin(),
-                     availableExtensions.end(),
-                     [&](const vk::LayerProperties& layer)
-                     { return std::strcmp(extension, layer.layerName) == 0; });
-}
-
-bool HasExtension(const char* extension,
-                  const std::vector<vk::ExtensionProperties>& availableExtensions)
-{
-  return std::any_of(availableExtensions.begin(),
-                     availableExtensions.end(),
-                     [&](const vk::ExtensionProperties& layer)
-                     { return std::strcmp(extension, layer.extensionName) == 0; });
 }
 
 }  // namespace Renderer

@@ -5,10 +5,10 @@
 
 #pragma once
 
-#define VULKAN_HPP_TYPESAFE_CONVERSION 1
-#include <vulkan/vulkan.hpp>
+#include <Vortex/Renderer/Gpu.h>
 
-#define VMA_RECORDING_ENABLED 0
+#include <memory>
+#include <vector>
 
 #include <glm/mat2x2.hpp>
 #include <glm/mat4x4.hpp>
@@ -24,3 +24,32 @@
 #else
 #define VORTEX_API
 #endif
+
+namespace Vortex
+{
+namespace Renderer
+{
+/**
+ * @brief A binary SPIRV shader, to be feed to vulkan.
+ */
+class SpirvBinary
+{
+public:
+  template <std::size_t N>
+  SpirvBinary(const uint32_t (&spirv)[N]) : mData(spirv), mSize(N * 4)
+  {
+  }
+
+  const uint32_t* data() const { return mData; }
+
+  std::size_t size() const { return mSize; }
+
+  std::size_t words() const { return mSize / 4; }
+
+private:
+  const uint32_t* mData;
+  std::size_t mSize;
+};
+
+}  // namespace Renderer
+}  // namespace Vortex

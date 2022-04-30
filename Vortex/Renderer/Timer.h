@@ -19,18 +19,19 @@ class Timer
 {
 public:
   VORTEX_API Timer(Device& device);
+  VORTEX_API ~Timer();
 
   /**
    * @brief Start the timer after the current last command buffer
    * @param commandBuffer command buffer to write timestamp
    */
-  VORTEX_API void Start(vk::CommandBuffer commandBuffer);
+  VORTEX_API void Start(CommandEncoder& command);
 
   /**
    * @brief Start the timer after the current last command buffer
    * @param commandBuffer command buffer to write timestamp
    */
-  VORTEX_API void Stop(vk::CommandBuffer commandBuffer);
+  VORTEX_API void Stop(CommandEncoder& command);
 
   /**
    * @brief Start the timer after the current last command buffer
@@ -56,10 +57,8 @@ public:
   VORTEX_API uint64_t GetElapsedNs();
 
 private:
-  Device& mDevice;
-  CommandBuffer mStart;
-  CommandBuffer mStop;
-  vk::UniqueQueryPool mPool;
+  struct Impl;
+  std::unique_ptr<Impl> mImpl;
 };
 
 }  // namespace Renderer

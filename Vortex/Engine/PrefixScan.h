@@ -34,7 +34,7 @@ public:
   class Bound
   {
   public:
-    VORTEX_API void Record(vk::CommandBuffer commandBuffer);
+    VORTEX_API void Record(Renderer::CommandEncoder& command);
 
     friend class PrefixScan;
 

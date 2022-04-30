@@ -34,7 +34,7 @@ TEST(AdvectionTests, AdvectVelocity_Simple)
   Advection advection(*device, size, 0.01f, velocity, Velocity::InterpolationMode::Cubic);
   advection.AdvectVelocity();
 
-  device->Queue().waitIdle();
+  device->WaitIdle();
 
   CheckVelocity(*device, size, velocity, sim, 1e-5f);
 }
@@ -60,7 +60,7 @@ TEST(AdvectionTests, AdvectVelocity_Complex)
   Advection advection(*device, size, 0.01f, velocity, Velocity::InterpolationMode::Cubic);
   advection.AdvectVelocity();
 
-  device->Queue().waitIdle();
+  device->WaitIdle();
 
   CheckVelocity(*device, size, velocity, sim, 1e-5f);
 }
@@ -72,35 +72,30 @@ TEST(AdvectionTests, Advect)
   glm::vec2 vel(3.0f, 1.0f);
   glm::ivec2 pos(3, 4);
 
-  Texture velocityInput(
-      *device, size.x, size.y, vk::Format::eR32G32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
+  Texture velocityInput(*device, size.x, size.y, Format::R32G32Sfloat, MemoryUsage::Cpu);
   Velocity velocity(*device, size);
 
   std::vector<glm::vec2> velocityData(size.x * size.y, vel / glm::vec2(size));
   velocityInput.CopyFrom(velocityData);
 
-  device->Execute([&](vk::CommandBuffer commandBuffer)
-                  { velocity.CopyFrom(commandBuffer, velocityInput); });
+  device->Execute([&](CommandEncoder& command) { velocity.CopyFrom(command, velocityInput); });
 
-  Texture fieldInput(
-      *device, size.x, size.y, vk::Format::eB8G8R8A8Unorm, VMA_MEMORY_USAGE_CPU_ONLY);
-  Density field(*device, size, vk::Format::eB8G8R8A8Unorm);
+  Texture fieldInput(*device, size.x, size.y, Format::B8G8R8A8Unorm, MemoryUsage::Cpu);
+  Density field(*device, size, Format::B8G8R8A8Unorm);
 
   std::vector<glm::u8vec4> fieldData(size.x * size.y);
   fieldData[pos.x + size.x * pos.y].x = 128;
   fieldInput.CopyFrom(fieldData);
 
-  device->Execute([&](vk::CommandBuffer commandBuffer)
-                  { field.CopyFrom(commandBuffer, fieldInput); });
+  device->Execute([&](CommandEncoder& command) { field.CopyFrom(command, fieldInput); });
 
   Advection advection(*device, size, 1.0f, velocity, Velocity::InterpolationMode::Cubic);
   advection.AdvectBind(field);
   advection.Advect();
 
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
-  device->Execute([&](vk::CommandBuffer commandBuffer)
-                  { fieldInput.CopyFrom(commandBuffer, field); });
+  device->Execute([&](CommandEncoder& command) { fieldInput.CopyFrom(command, field); });
 
   std::vector<glm::u8vec4> pixels(fieldInput.GetWidth() * fieldInput.GetHeight());
   fieldInput.CopyTo(pixels);
@@ -122,8 +117,8 @@ TEST(AdvectionTests, ParticleAdvect)
   sim.advance(0.01f);
 
   // setup particles
-  Buffer<Particle> particles(*device, 8 * size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
-  IndirectBuffer<DispatchParams> dispatchParams(*device, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<Particle> particles(*device, 8 * size.x * size.y, MemoryUsage::Cpu);
+  IndirectBuffer<DispatchParams> dispatchParams(*device, MemoryUsage::Cpu);
 
   DispatchParams params(static_cast<int32_t>(sim.particles.size()));
   CopyFrom(dispatchParams, params);
@@ -144,14 +139,14 @@ TEST(AdvectionTests, ParticleAdvect)
   SetVelocity(*device, size, velocity, sim);
 
   // setup level set
-  Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+  Texture solidPhi(*device, size.x, size.y, Format::R32Sfloat);
   SetSolidPhi(*device, size, solidPhi, sim, (float)size.x);
 
   // advection
   Advection advection(*device, size, 0.01f, velocity, Velocity::InterpolationMode::Cubic);
   advection.AdvectParticleBind(particles, solidPhi, dispatchParams);
   advection.AdvectParticles();
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
   // test
   sim.advect_particles(0.01f);
@@ -187,8 +182,8 @@ TEST(AdvectionTests, ParticleProject)
   sim.add_particle(bottomRight);
 
   // setup particles
-  Buffer<Particle> particles(*device, 8 * size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
-  IndirectBuffer<DispatchParams> dispatchParams(*device, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<Particle> particles(*device, 8 * size.x * size.y, MemoryUsage::Cpu);
+  IndirectBuffer<DispatchParams> dispatchParams(*device, MemoryUsage::Cpu);
 
   DispatchParams params(static_cast<int32_t>(sim.particles.size()));
   CopyFrom(dispatchParams, params);
@@ -207,14 +202,14 @@ TEST(AdvectionTests, ParticleProject)
   Velocity velocity(*device, size);
 
   // setup level set
-  Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+  Texture solidPhi(*device, size.x, size.y, Format::R32Sfloat);
   SetSolidPhi(*device, size, solidPhi, sim, (float)size.x);
 
   // advection
   Advection advection(*device, size, 0.01f, velocity, Velocity::InterpolationMode::Cubic);
   advection.AdvectParticleBind(particles, solidPhi, dispatchParams);
   advection.AdvectParticles();
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
   // test
   sim.advect_particles(0.01f);

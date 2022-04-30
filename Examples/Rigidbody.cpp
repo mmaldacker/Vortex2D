@@ -80,7 +80,8 @@ Box2DRigidbody::Box2DRigidbody(Vortex::Renderer::Device& device,
 
 void Box2DRigidbody::ApplyForces()
 {
-  if (GetType() & Vortex::Fluid::RigidBody::Type::eWeak)
+  if (GetType() == Vortex::Fluid::RigidBody::Type::eWeak ||
+      GetType() == Vortex::Fluid::RigidBody::Type::eStrong)
   {
     auto force = GetForces();
     b2Vec2 b2Force = {force.velocity.x, force.velocity.y};
@@ -96,7 +97,8 @@ void Box2DRigidbody::ApplyVelocities()
   Position = {pos.x, pos.y};
   Rotation = glm::degrees(mBody->GetAngle());
 
-  if (GetType() & Vortex::Fluid::RigidBody::Type::eStatic)
+  if (GetType() == Vortex::Fluid::RigidBody::Type::eStatic ||
+      GetType() == Vortex::Fluid::RigidBody::Type::eStrong)
   {
     glm::vec2 vel = {mBody->GetLinearVelocity().x, mBody->GetLinearVelocity().y};
     float angularVelocity = mBody->GetAngularVelocity();

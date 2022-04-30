@@ -52,13 +52,13 @@ public:
    * @brief Copy the output field to the main field
    * @param commandBuffer
    */
-  VORTEX_API void CopyBack(vk::CommandBuffer commandBuffer);
+  VORTEX_API void CopyBack(Renderer::CommandEncoder& command);
 
   /**
    * @brief Clear the velocity field
    * @param commandBuffer
    */
-  VORTEX_API void Clear(vk::CommandBuffer commandBuffer);
+  VORTEX_API void Clear(Renderer::CommandEncoder& command);
 
   /**
    * @brief Copy to the difference field.

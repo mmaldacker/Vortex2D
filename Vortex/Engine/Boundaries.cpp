@@ -9,6 +9,7 @@
 #include <Vortex/Engine/Particles.h>
 #include <Vortex/SPIRV/Reflection.h>
 
+#include <algorithm>
 #include "vortex_generated_spirv.h"
 
 namespace Vortex
@@ -65,8 +66,8 @@ Polygon::Polygon(Renderer::Device& device,
     : mDevice(device)
     , mSize(static_cast<uint32_t>(points.size()))
     , mInv(inverse)
-    , mMVPBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
-    , mMVBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
+    , mMVPBuffer(device, Renderer::MemoryUsage::CpuToGpu)
+    , mMVBuffer(device, Renderer::MemoryUsage::CpuToGpu)
     , mVertexBuffer(device, 6ul)
     , mPolygonVertexBuffer(device, static_cast<unsigned>(points.size()))
 {
@@ -77,44 +78,47 @@ Polygon::Polygon(Renderer::Device& device,
   }
 
   Renderer::Buffer<glm::vec2> localPolygonVertexBuffer(
-      device, points.size(), VMA_MEMORY_USAGE_CPU_ONLY);
+      device, points.size(), Renderer::MemoryUsage::Cpu);
   Renderer::CopyFrom(localPolygonVertexBuffer, points);
 
   auto boundingBox = GetBoundingBox(points, extent);
   Renderer::Buffer<glm::vec2> localVertexBuffer(
-      device, boundingBox.size(), VMA_MEMORY_USAGE_CPU_ONLY);
+      device, boundingBox.size(), Renderer::MemoryUsage::Cpu);
   Renderer::CopyFrom(localVertexBuffer, boundingBox);
 
   device.Execute(
-      [&](vk::CommandBuffer commandBuffer)
+      [&](Renderer::CommandEncoder& command)
       {
-        mPolygonVertexBuffer.CopyFrom(commandBuffer, localPolygonVertexBuffer);
-        mVertexBuffer.CopyFrom(commandBuffer, localVertexBuffer);
+        mPolygonVertexBuffer.CopyFrom(command, localPolygonVertexBuffer);
+        mVertexBuffer.CopyFrom(command, localVertexBuffer);
       });
 
   SPIRV::Reflection reflectionVert(SPIRV::Position_vert);
   SPIRV::Reflection reflectionFrag(SPIRV::PolygonDist_frag);
 
-  Renderer::PipelineLayout layout = {{reflectionVert, reflectionFrag}};
-  mDescriptorSet = device.GetLayoutManager().MakeDescriptorSet(layout);
-  Bind(device, mDescriptorSet, layout, {{mMVPBuffer}, {mMVBuffer}, {mPolygonVertexBuffer}});
+  SPIRV::ShaderLayouts layout = {reflectionVert, reflectionFrag};
+
+  mPipelineLayout = mDevice.CreatePipelineLayout(layout);
+  auto bindGroupLayout = mDevice.CreateBindGroupLayout(layout);
+  mBindGroup = mDevice.CreateBindGroup(
+      bindGroupLayout, layout, {{mMVPBuffer}, {mMVBuffer}, {mPolygonVertexBuffer}});
 
   mPipeline =
-      Renderer::GraphicsPipeline()
-          .Topology(vk::PrimitiveTopology::eTriangleList)
-          .Shader(device.GetShaderModule(SPIRV::Position_vert), vk::ShaderStageFlagBits::eVertex)
-          .Shader(device.GetShaderModule(SPIRV::PolygonDist_frag),
-                  vk::ShaderStageFlagBits::eFragment)
-          .VertexAttribute(0, 0, vk::Format::eR32G32Sfloat, 0)
+      Renderer::GraphicsPipelineDescriptor()
+          .Topology(Renderer::PrimitiveTopology::Triangle)
+          .Shader(mDevice.CreateShaderModule(SPIRV::Position_vert), Renderer::ShaderStage::Vertex)
+          .Shader(mDevice.CreateShaderModule(SPIRV::PolygonDist_frag),
+                  Renderer::ShaderStage::Fragment)
+          .VertexAttribute(0, 0, Renderer::Format::R32G32Sfloat, 0)
           .VertexBinding(0, sizeof(glm::vec2))
-          .Layout(mDescriptorSet.pipelineLayout);
+          .Layout(mPipelineLayout);
 }
 
 Polygon::~Polygon() {}
 
 void Polygon::Initialize(const Renderer::RenderState& renderState)
 {
-  mDevice.GetPipelineCache().CreateGraphicsPipeline(mPipeline, renderState);
+  auto pipeline = mDevice.CreateGraphicsPipeline(mPipeline, renderState);
 }
 
 void Polygon::Update(const glm::mat4& projection, const glm::mat4& view)
@@ -124,21 +128,16 @@ void Polygon::Update(const glm::mat4& projection, const glm::mat4& view)
   Renderer::CopyFrom(mMVBuffer, view * GetTransform());
 }
 
-void Polygon::Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState)
+void Polygon::Draw(Renderer::CommandEncoder& command, const Renderer::RenderState& renderState)
 {
-  auto pipeline = mDevice.GetPipelineCache().CreateGraphicsPipeline(mPipeline, renderState);
-  commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline);
-  commandBuffer.pushConstants(
-      mDescriptorSet.pipelineLayout, vk::ShaderStageFlagBits::eFragment, 0, 4, &mSize);
-  commandBuffer.pushConstants(
-      mDescriptorSet.pipelineLayout, vk::ShaderStageFlagBits::eFragment, 4, 4, &mInv);
-  commandBuffer.bindVertexBuffers(0, {mVertexBuffer.Handle()}, {0ul});
-  commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
-                                   mDescriptorSet.pipelineLayout,
-                                   0,
-                                   {*mDescriptorSet.descriptorSet},
-                                   {});
-  commandBuffer.draw(6, 1, 0, 0);
+  auto pipeline = mDevice.CreateGraphicsPipeline(mPipeline, renderState);
+
+  command.SetPipeline(Renderer::PipelineBindPoint::Graphics, pipeline);
+  command.SetBindGroup(Renderer::PipelineBindPoint::Graphics, mPipelineLayout, mBindGroup);
+  command.SetVertexBuffer(mVertexBuffer);
+  command.PushConstants(mPipelineLayout, Renderer::ShaderStage::Fragment, 0, 4, &mSize);
+  command.PushConstants(mPipelineLayout, Renderer::ShaderStage::Fragment, 4, 4, &mInv);
+  command.Draw(6);
 }
 
 Rectangle::Rectangle(Renderer::Device& device, const glm::vec2& size, bool inverse, float extent)
@@ -161,16 +160,16 @@ void Rectangle::Update(const glm::mat4& projection, const glm::mat4& view)
   Polygon::Update(projection, view);
 }
 
-void Rectangle::Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState)
+void Rectangle::Draw(Renderer::CommandEncoder& command, const Renderer::RenderState& renderState)
 {
-  Polygon::Draw(commandBuffer, renderState);
+  Polygon::Draw(command, renderState);
 }
 
 Circle::Circle(Renderer::Device& device, float radius, float extent)
     : mDevice(device)
     , mSize(radius)
-    , mMVPBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
-    , mMVBuffer(device, VMA_MEMORY_USAGE_CPU_TO_GPU)
+    , mMVPBuffer(device, Renderer::MemoryUsage::CpuToGpu)
+    , mMVBuffer(device, Renderer::MemoryUsage::CpuToGpu)
     , mVertexBuffer(device, 6)
 {
   std::vector<glm::vec2> points = {
@@ -178,35 +177,37 @@ Circle::Circle(Renderer::Device& device, float radius, float extent)
 
   auto boundingBox = GetBoundingBox(points, extent);
   Renderer::Buffer<glm::vec2> localVertexBuffer(
-      device, boundingBox.size(), VMA_MEMORY_USAGE_CPU_ONLY);
+      device, boundingBox.size(), Renderer::MemoryUsage::Cpu);
   Renderer::CopyFrom(localVertexBuffer, boundingBox);
 
-  device.Execute([&](vk::CommandBuffer commandBuffer)
-                 { mVertexBuffer.CopyFrom(commandBuffer, localVertexBuffer); });
+  device.Execute([&](Renderer::CommandEncoder& command)
+                 { mVertexBuffer.CopyFrom(command, localVertexBuffer); });
 
   SPIRV::Reflection reflectionVert(SPIRV::Position_vert);
   SPIRV::Reflection reflectionFrag(SPIRV::CircleDist_frag);
 
-  Renderer::PipelineLayout layout = {{reflectionVert, reflectionFrag}};
-  mDescriptorSet = device.GetLayoutManager().MakeDescriptorSet(layout);
-  Bind(device, mDescriptorSet, layout, {{mMVPBuffer}, {mMVBuffer}});
+  SPIRV::ShaderLayouts layout = {reflectionVert, reflectionFrag};
+
+  mPipelineLayout = mDevice.CreatePipelineLayout(layout);
+  auto bindGroupLayout = mDevice.CreateBindGroupLayout(layout);
+  mBindGroup = mDevice.CreateBindGroup(bindGroupLayout, layout, {{mMVPBuffer}, {mMVBuffer}});
 
   mPipeline =
-      Renderer::GraphicsPipeline()
-          .Topology(vk::PrimitiveTopology::eTriangleList)
-          .Shader(device.GetShaderModule(SPIRV::Position_vert), vk::ShaderStageFlagBits::eVertex)
-          .Shader(device.GetShaderModule(SPIRV::CircleDist_frag),
-                  vk::ShaderStageFlagBits::eFragment)
-          .VertexAttribute(0, 0, vk::Format::eR32G32Sfloat, 0)
+      Renderer::GraphicsPipelineDescriptor()
+          .Topology(Renderer::PrimitiveTopology::Triangle)
+          .Shader(mDevice.CreateShaderModule(SPIRV::Position_vert), Renderer::ShaderStage::Vertex)
+          .Shader(mDevice.CreateShaderModule(SPIRV::CircleDist_frag),
+                  Renderer::ShaderStage::Fragment)
+          .VertexAttribute(0, 0, Renderer::Format::R32G32Sfloat, 0)
           .VertexBinding(0, sizeof(glm::vec2))
-          .Layout(mDescriptorSet.pipelineLayout);
+          .Layout(mPipelineLayout);
 }
 
 Circle::~Circle() {}
 
 void Circle::Initialize(const Renderer::RenderState& renderState)
 {
-  mDevice.GetPipelineCache().CreateGraphicsPipeline(mPipeline, renderState);
+  mDevice.CreateGraphicsPipeline(mPipeline, renderState);
 }
 
 void Circle::Update(const glm::mat4& projection, const glm::mat4& view)
@@ -216,44 +217,24 @@ void Circle::Update(const glm::mat4& projection, const glm::mat4& view)
   Renderer::CopyFrom(mMVBuffer, view * GetTransform());
 }
 
-void Circle::Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState)
+void Circle::Draw(Renderer::CommandEncoder& command, const Renderer::RenderState& renderState)
 {
-  auto pipeline = mDevice.GetPipelineCache().CreateGraphicsPipeline(mPipeline, renderState);
-  commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline);
-  commandBuffer.pushConstants(
-      mDescriptorSet.pipelineLayout, vk::ShaderStageFlagBits::eFragment, 0, 4, &mSize);
-  commandBuffer.bindVertexBuffers(0, {mVertexBuffer.Handle()}, {0ul});
-  commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
-                                   mDescriptorSet.pipelineLayout,
-                                   0,
-                                   {*mDescriptorSet.descriptorSet},
-                                   {});
-  commandBuffer.draw(6, 1, 0, 0);
+  auto pipeline = mDevice.CreateGraphicsPipeline(mPipeline, renderState);
+
+  command.SetPipeline(Renderer::PipelineBindPoint::Graphics, pipeline);
+  command.SetBindGroup(Renderer::PipelineBindPoint::Graphics, mPipelineLayout, mBindGroup);
+  command.SetVertexBuffer(mVertexBuffer);
+  command.PushConstants(mPipelineLayout, Renderer::ShaderStage::Fragment, 0, 4, &mSize);
+  command.Draw(6);
 }
 
-Renderer::ColorBlendState IntersectionBlend = []
-{
-  Renderer::ColorBlendState blendState;
-  blendState.ColorBlend.setBlendEnable(true)
-      .setColorBlendOp(vk::BlendOp::eMax)
-      .setSrcColorBlendFactor(vk::BlendFactor::eOne)
-      .setDstColorBlendFactor(vk::BlendFactor::eOne)
-      .setColorWriteMask(vk::ColorComponentFlagBits::eR);
+Renderer::ColorBlendState IntersectionBlend = Renderer::ColorBlendState(Renderer::BlendFactor::One,
+                                                                        Renderer::BlendFactor::One,
+                                                                        Renderer::BlendOp::Max);
 
-  return blendState;
-}();
-
-Renderer::ColorBlendState UnionBlend = []
-{
-  Renderer::ColorBlendState blendState;
-  blendState.ColorBlend.setBlendEnable(true)
-      .setColorBlendOp(vk::BlendOp::eMin)
-      .setSrcColorBlendFactor(vk::BlendFactor::eOne)
-      .setDstColorBlendFactor(vk::BlendFactor::eOne)
-      .setColorWriteMask(vk::ColorComponentFlagBits::eR);
-
-  return blendState;
-}();
+Renderer::ColorBlendState UnionBlend = Renderer::ColorBlendState(Renderer::BlendFactor::One,
+                                                                 Renderer::BlendFactor::One,
+                                                                 Renderer::BlendOp::Min);
 
 std::shared_ptr<Vortex::Renderer::Clear> BoundariesClear =
     std::make_shared<Vortex::Renderer::Clear>(glm::vec4{10000.0f, 0.0f, 0.0f, 0.0f});
@@ -272,10 +253,11 @@ DistanceField::DistanceField(DistanceField&& other)
 
 DistanceField::~DistanceField() {}
 
-void DistanceField::Draw(vk::CommandBuffer commandBuffer, const Renderer::RenderState& renderState)
+void DistanceField::Draw(Renderer::CommandEncoder& command,
+                         const Renderer::RenderState& renderState)
 {
-  PushConstant(commandBuffer, 0, mScale);
-  AbstractSprite::Draw(commandBuffer, renderState);
+  PushConstant(command, 0, mScale);
+  AbstractSprite::Draw(command, renderState);
 }
 
 Contour::Contour(Renderer::Device& device, Renderer::RenderTexture& levelSet, const glm::vec2& size)
@@ -300,42 +282,35 @@ Contour::Contour(Renderer::Device& device, Renderer::RenderTexture& levelSet, co
     , mContourCmd(device, false)
 {
   device.Execute(
-      [&](vk::CommandBuffer commandBuffer)
+      [&](Renderer::CommandEncoder& command)
       {
-        mVertexCount.Clear(commandBuffer);
-        mIndexCount.Clear(commandBuffer);
-        mVertices.Clear(commandBuffer);
-        mIndices.Clear(commandBuffer);
-        mVerticesParam.Clear(commandBuffer);
-        mIndicesParam.Clear(commandBuffer);
-        mDrawParameters.Clear(commandBuffer);
+        mVertexCount.Clear(command);
+        mIndexCount.Clear(command);
+        mVertices.Clear(command);
+        mIndices.Clear(command);
+        mVerticesParam.Clear(command);
+        mIndicesParam.Clear(command);
+        mDrawParameters.Clear(command);
       });
 
   mContourCmd.Record(
-      [&](vk::CommandBuffer commandBuffer)
+      [&](Renderer::CommandEncoder& command)
       {
-        commandBuffer.debugMarkerBeginEXT({"DualContour", {{0.47f, 0.73f, 0.58f, 1.0f}}},
-                                          mDevice.Loader());
+        command.DebugMarkerBegin("DualContour", {0.47f, 0.73f, 0.58f, 1.0f});
 
-        mDualContourBound.Record(commandBuffer);
-        mVoxels.Barrier(
-            commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
+        mDualContourBound.Record(command);
+        mVoxels.Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
 
-        mVerticesScanBound.Record(commandBuffer);
-        mIndicesScanBound.Record(commandBuffer);
+        mVerticesScanBound.Record(command);
+        mIndicesScanBound.Record(command);
 
-        mMeshReindexingBound.Record(commandBuffer);
+        mMeshReindexingBound.Record(command);
 
-        mVertices.Barrier(commandBuffer,
-                          vk::AccessFlagBits::eShaderWrite,
-                          vk::AccessFlagBits::eVertexAttributeRead);
-        mIndices.Barrier(
-            commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eIndexRead);
-        mDrawParameters.Barrier(commandBuffer,
-                                vk::AccessFlagBits::eShaderWrite,
-                                vk::AccessFlagBits::eIndirectCommandRead);
+        mVertices.Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
+        mIndices.Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
+        mDrawParameters.Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
 
-        commandBuffer.debugMarkerEndEXT(mDevice.Loader());
+        command.DebugMarkerEnd();
       });
 }
 
@@ -364,7 +339,7 @@ Renderer::IndirectBuffer<Renderer::DispatchParams>& Contour::GetIndicesParam()
   return mIndicesParam;
 }
 
-Renderer::Buffer<vk::DrawIndexedIndirectCommand>& Contour::GetDrawParameters()
+Renderer::Buffer<Renderer::DrawIndexedIndirect>& Contour::GetDrawParameters()
 {
   return mDrawParameters;
 }

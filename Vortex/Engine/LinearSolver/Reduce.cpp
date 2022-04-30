@@ -5,7 +5,7 @@
 
 #include "Reduce.h"
 
-#include <Vortex/Renderer/DescriptorSet.h>
+#include <Vortex/Renderer/BindGroup.h>
 #include <Vortex/Renderer/Work.h>
 
 #include "vortex_generated_spirv.h"
@@ -39,8 +39,8 @@ Reduce::Reduce(Renderer::Device& device,
   while (computeSize.WorkSize.x > 1)
   {
     mBuffers.emplace_back(device,
-                          vk::BufferUsageFlagBits::eStorageBuffer,
-                          VMA_MEMORY_USAGE_GPU_ONLY,
+                          Renderer::BufferUsage::Storage,
+                          Renderer::MemoryUsage::Gpu,
                           typeSize * computeSize.WorkSize.x);
 
     computeSize = MakeComputeSize(computeSize.WorkSize.x);
@@ -68,15 +68,10 @@ Reduce::Bound Reduce::Bind(Renderer::GenericBuffer& input, Renderer::GenericBuff
     bounds.emplace_back(mReduce.Bind(computeSize, {*buffers[i], *buffers[i + 1]}));
     computeSize = MakeComputeSize(computeSize.WorkSize.x);
 
-    vk::Buffer buffer = buffers[i + 1]->Handle();
+    auto* buffer = buffers[i + 1];
     bufferBarriers.emplace_back(
-        [=](vk::CommandBuffer commandBuffer)
-        {
-          Renderer::BufferBarrier(buffer,
-                                  commandBuffer,
-                                  vk::AccessFlagBits::eShaderWrite,
-                                  vk::AccessFlagBits::eShaderRead);
-        });
+        [=](Renderer::CommandEncoder& command)
+        { buffer->Barrier(command, Renderer::Access::Write, Renderer::Access::Read); });
   }
 
   return Bound(mSize, bufferBarriers, std::move(bounds));
@@ -89,15 +84,15 @@ Reduce::Bound::Bound(int size,
 {
 }
 
-void Reduce::Bound::Record(vk::CommandBuffer commandBuffer)
+void Reduce::Bound::Record(Renderer::CommandEncoder& command)
 {
   int localSize = 2 * Renderer::ComputeSize::GetLocalSize1D();
   int workGroupSize = mSize;
 
   for (std::size_t i = 0; i < mBounds.size(); i++)
   {
-    mBounds[i].Record(commandBuffer);
-    mBufferBarriers[i](commandBuffer);
+    mBounds[i].Record(command);
+    mBufferBarriers[i](command);
 
     workGroupSize = (workGroupSize + localSize - 1) / localSize;
   }
