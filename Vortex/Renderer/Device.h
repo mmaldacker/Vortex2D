@@ -42,7 +42,7 @@ private:
 /**
  * @brief A vulkan dynamic dispatcher that checks if the function is not null.
  */
-struct DynamicDispatcher
+struct DynamicDispatcher : vk::DispatchLoaderBase
 {
   void vkCmdDebugMarkerBeginEXT(VkCommandBuffer commandBuffer,
                                 const VkDebugMarkerMarkerInfoEXT* pMarkerInfo) const;

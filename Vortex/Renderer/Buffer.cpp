@@ -74,7 +74,7 @@ void GenericBuffer::Create()
                         .setUsage(mUsageFlags)
                         .setSharingMode(vk::SharingMode::eExclusive);
 
-  VkBufferCreateInfo vkBufferInfo = bufferInfo;
+  VkBufferCreateInfo vkBufferInfo = static_cast<VkBufferCreateInfo>(bufferInfo);
   VmaAllocationCreateInfo allocInfo = {};
   allocInfo.usage = mMemoryUsage;
   if (vmaCreateBuffer(mDevice.Allocator(),

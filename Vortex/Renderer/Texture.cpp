@@ -90,7 +90,7 @@ Texture::Texture(Device& device,
           .setSharingMode(vk::SharingMode::eExclusive)
           .setSamples(vk::SampleCountFlagBits::e1);
 
-  VkImageCreateInfo vkImageInfo = imageInfo;
+  VkImageCreateInfo vkImageInfo = static_cast<VkImageCreateInfo>(imageInfo);
   VmaAllocationCreateInfo allocInfo = {};
   allocInfo.usage = memoryUsage;
   if (vmaCreateImage(
