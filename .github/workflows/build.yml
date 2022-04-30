@@ -29,7 +29,6 @@ jobs:
 
       - name: Build
         run: |
-          export VULKAN_SDK=`pwd`/1.3.204.1/x86_64
           cmake . -DVORTEX3D_ENABLE_TESTS=On -DVORTEX3D_ENABLE_EXAMPLES=On
           make -j 2
   build_windows:
