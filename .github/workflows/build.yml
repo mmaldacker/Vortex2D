@@ -46,20 +46,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Cache Vulkan SDK
-        id: cache-vulkan-sdk
-        uses: actions/cache@v1
-        with:
-          path: "VulkanSDK"
-          key: vulkan-sdk-1.3.204.1
-
-      - name: Setup Vulkan
-        if: steps.cache-vulkan-sdk.outputs.cache-hit != 'true'
-        run: |
-          Invoke-WebRequest -Uri "https://sdk.lunarg.com/sdk/download/1.3.204.1/windows/VulkanSDK-1.3.204.1-Installer.exe" -OutFile VulkanSDK.exe
-          7z x -aoa ./VulkanSDK.exe -oVulkanSDK
-
       - name: Build
+        uses: humbletim/setup-vulkan-sdk@v1.2.0
+        with:
+          vulkan-query-version: 1.3.204.0
+          vulkan-components: Vulkan-Headers, Vulkan-Loader
+          vulkan-use-cache: true
         run: |
           set VULKAN_SDK="%CD%\VulkanSDK"
           echo %VULKAN_SDK%
