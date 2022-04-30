@@ -113,6 +113,7 @@ typedef struct Pipeline_T* Pipeline;
 typedef struct ShaderModule_T* ShaderModule;
 typedef struct RenderPass_T* RenderPass;
 typedef struct Framebuffer_T* Framebuffer;
+typedef struct CommandEncoder_T* CommandEncoder;
 typedef struct CommandBuffer_T* CommandBuffer;
 typedef struct Semaphore_T* Semaphore;
 typedef struct BindGroup_T* BindGroup;

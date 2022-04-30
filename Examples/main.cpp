@@ -1,6 +1,10 @@
-#include <Vortex/Renderer/Vulkan/Device.h>
-#include <Vortex/Renderer/Vulkan/Vulkan.h>
 #include <Vortex/Vortex.h>
+
+#ifdef VORTEX2D_BACKEND_VULKAN
+#include <Vortex/Renderer/Vulkan/Device.h>
+#else
+#include <Vortex/Renderer/WebGPU/Device.h>
+#endif
 
 #include <GLFW/glfw3.h>
 
@@ -34,6 +38,7 @@ static void ErrorCallback(int error, const char* description)
                            " What: " + std::string(description));
 }
 
+#ifdef VORTEX2D_BACKEND_VULKAN
 std::vector<const char*> GetGLFWExtensions()
 {
   std::vector<const char*> extensions;
@@ -63,6 +68,7 @@ vk::UniqueSurfaceKHR GetGLFWSurface(GLFWwindow* window, vk::Instance instance)
   vk::UniqueSurfaceKHR uniqueSurface(surface, instance);
   return uniqueSurface;
 }
+#endif
 
 GLFWwindow* GetGLFWWindow(const glm::ivec2& size)
 {
@@ -85,6 +91,7 @@ public:
 
   App(bool validation = true)
       : glfwWindow(GetGLFWWindow(windowSize))
+#ifdef VORTEX2D_BACKEND_VULKAN
       , instance("Vortex2D", GetGLFWExtensions(), validation)
       , surface(GetGLFWSurface(glfwWindow, static_cast<VkInstance>(instance.GetInstance())))
       , device(instance, *surface, validation)
@@ -92,6 +99,10 @@ public:
                Vortex::Renderer::Handle::ConvertSurface(*surface),
                (uint32_t)(windowSize.x),
                (uint32_t)(windowSize.y))
+#else
+      , device(instance)
+      , window(device, {}, (uint32_t)(windowSize.x), (uint32_t)(windowSize.y))
+#endif
       , clearRender(
             window.Record({std::make_shared<Renderer::Clear>(glm::vec4{0.1f, 0.1f, 0.1f, 1.0f})}))
   {
@@ -183,11 +194,15 @@ public:
   }
 
   GLFWwindow* glfwWindow;
+#ifdef VORTEX2D_BACKEND_VULKAN
   Vortex::Renderer::Instance instance;
   vk::UniqueSurfaceKHR surface;
   Vortex::Renderer::VulkanDevice device;
+#else
+  Vortex::Renderer::Instance instance;
+  Vortex::Renderer::WebGPUDevice device;
+#endif
   Renderer::RenderWindow window;
-  Renderer::Clear clear = {{0.1f, 0.1f, 0.1f, 1.0f}};
   std::unique_ptr<Runner> example;
   Vortex::Renderer::RenderCommand clearRender;
 };

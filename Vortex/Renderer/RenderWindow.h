@@ -27,7 +27,11 @@ public:
    * @param width
    * @param height
    */
-  VORTEX_API RenderWindow(Device& device, Handle::Surface surface, uint32_t width, uint32_t height);
+  VORTEX_API RenderWindow(Device& device,
+                            Handle::Surface surface,
+                            uint32_t width,
+                            uint32_t height);
+
   VORTEX_API ~RenderWindow() override;
 
   VORTEX_API RenderCommand Record(DrawableList drawables, ColorBlendState blendState = {}) override;

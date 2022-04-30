@@ -39,27 +39,6 @@ void TextureBarrier(Handle::Image image,
                       imageMemoryBarriers);
 }
 
-std::uint64_t GetBytesPerPixel(Format format)
-{
-  switch (format)
-  {
-    case Format::R8Uint:
-    case Format::R8Sint:
-      return 1;
-    case Format::R32Sfloat:
-    case Format::R32Sint:
-    case Format::R8G8B8A8Unorm:
-    case Format::B8G8R8A8Unorm:
-      return 4;
-    case Format::R32G32Sfloat:
-      return 8;
-    case Format::R32G32B32A32Sfloat:
-      return 16;
-    default:
-      throw std::runtime_error("unsupported format");
-  }
-}
-
 vk::SamplerAddressMode ConvertAddressMode(Sampler::AddressMode addressMode)
 {
   switch (addressMode)
@@ -283,7 +262,7 @@ struct Texture::Impl
                    vk::AccessFlagBits{});
   }
 
-  void CopyFrom(const void* data)
+  void CopyFrom(const void* data, int size)
   {
     std::uint64_t bytesPerPixel = GetBytesPerPixel(mFormat);
 
@@ -311,6 +290,11 @@ struct Texture::Impl
     dst += srcLayout.offset;
     for (uint32_t y = 0; y < mHeight; y++)
     {
+      if ((src - (const uint8_t*)data) + mWidth * bytesPerPixel > size)
+      {
+        throw std::runtime_error("Copy past data");
+      }
+
       std::memcpy(dst, src, mWidth * bytesPerPixel);
 
       dst += srcLayout.rowPitch;
@@ -330,7 +314,7 @@ struct Texture::Impl
     vmaUnmapMemory(mDevice.Allocator(), mAllocation);
   }
 
-  void CopyTo(void* data)
+  void CopyTo(void* data, int size)
   {
     std::uint64_t bytesPerPixel = GetBytesPerPixel(mFormat);
 
@@ -368,6 +352,11 @@ struct Texture::Impl
     src += srcLayout.offset;
     for (uint32_t y = 0; y < mHeight; y++)
     {
+      if ((dst - (const uint8_t*)data) + mWidth * bytesPerPixel > size)
+      {
+        throw std::runtime_error("Copy past data");
+      }
+
       std::memcpy(dst, src, mWidth * bytesPerPixel);
 
       src += srcLayout.rowPitch;
@@ -465,14 +454,14 @@ Texture::Texture(Texture&& other) : mImpl(std::move(other.mImpl)) {}
 
 Texture::~Texture() {}
 
-void Texture::CopyFrom(const void* data)
+void Texture::CopyFrom(const void* data, int size)
 {
-  mImpl->CopyFrom(data);
+  mImpl->CopyFrom(data, size);
 }
 
-void Texture::CopyTo(void* data)
+void Texture::CopyTo(void* data, int size)
 {
-  mImpl->CopyTo(data);
+  mImpl->CopyTo(data, size);
 }
 
 void Texture::CopyFrom(CommandEncoder& command, Texture& srcImage)

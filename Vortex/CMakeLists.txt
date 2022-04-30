@@ -19,6 +19,24 @@ set(LIB_VULKAN_SOURCES
     "Renderer/Vulkan/BindGroup.cpp"
     "Renderer/Vulkan/vk_mem_alloc.h")
 
+set(LIB_WEBGPU_HEADERS
+    "Renderer/WebGPU/WebGPU.h"
+    "Renderer/WebGPU/Device.h"
+    "Renderer/WebGPU/Instance.h"
+    )
+
+set(LIB_WEBGPU_SOURCES
+    "Renderer/WebGPU/Device.cpp"
+    "Renderer/WebGPU/Instance.cpp"
+    "Renderer/WebGPU/CommandBuffer.cpp"
+    "Renderer/WebGPU/Texture.cpp"
+    "Renderer/WebGPU/Buffer.cpp"
+    "Renderer/WebGPU/Timer.cpp"
+    "Renderer/WebGPU/RenderTexture.cpp"
+    "Renderer/WebGPU/RenderWindow.cpp"
+    "Renderer/WebGPU/RenderTarget.cpp"
+    "Renderer/WebGPU/BindGroup.cpp")
+
 set(LIB_SOURCES
     "Engine/Density.cpp"
     "Engine/LevelSet.cpp"
@@ -144,6 +162,7 @@ set(SPIRV_CROSS_ENABLE_REFLECT OFF CACHE BOOL "" FORCE)
 set(SPIRV_CROSS_ENABLE_C_API OFF CACHE BOOL "" FORCE)
 set(SPIRV_CROSS_ENABLE_UTIL OFF CACHE BOOL "" FORCE)
 set(SPIRV_CROSS_SKIP_INSTALL  ON CACHE BOOL "" FORCE)
+set(SPIRV_CROSS_FORCE_PIC ON CACHE BOOL "" FORCE)
 FetchContent_Declare(spirv_cross
                      GIT_REPOSITORY      https://github.com/KhronosGroup/SPIRV-Cross.git
                      GIT_TAG             2019-11-01)
@@ -152,17 +171,61 @@ if(NOT spirv_cross_POPULATED)
     FetchContent_Populate(spirv_cross)
     add_subdirectory(${spirv_cross_SOURCE_DIR} ${spirv_cross_BINARY_DIR})
 endif()
-set_property(TARGET spirv-cross-core PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 vortex_find_package(PythonInterp REQUIRED)
-vortex_find_vulkan()
-
 compile_shader(SOURCES ${SHADER_SOURCES} OUTPUT "vortex_generated_spirv" VERSION 1.0)
+
+if(VORTEX2D_BACKEND STREQUAL "Vulkan")
+  set (BACKEND_SOURCES ${LIB_VULKAN_SOURCES})
+  set (BACKEND_HEADERS ${LIB_VULKAN_HEADERS})
+
+  vortex_find_vulkan()
+  set (BACKEND_LIB ${VULKAN_LIBRARIES})
+  set (BACKEND_INCLUDE ${VULKAN_INCLUDES})
+elseif(VORTEX2D_BACKEND STREQUAL "WebGPU")
+  set (BACKEND_SOURCES ${LIB_WEBGPU_SOURCES})
+  set (BACKEND_HEADERS ${LIB_WEBGPU_HEADERS})
+
+  FetchContent_Declare(
+    webgpu_rust
+    GIT_REPOSITORY "https://github.com/gfx-rs/wgpu-native.git"
+    GIT_TAG        "1a4751006bd81926ffda6b5eed06ebb23ffdcea0"
+  )
+  FetchContent_GetProperties(webgpu_rust)
+  if(NOT webgpu_rust_POPULATED)
+    FetchContent_Populate(webgpu_rust)
+  endif()
+
+  string(TOLOWER ${CMAKE_BUILD_TYPE} BUILD_TYPE)
+  if(BUILD_TYPE STREQUAL "release")
+    message("Building wegpu in release")
+    execute_process(COMMAND cargo build --release
+                    WORKING_DIRECTORY ${webgpu_rust_SOURCE_DIR})
+  elseif(BUILD_TYPE STREQUAL "debug")
+    message("Building wegpu in debug")
+    execute_process(COMMAND cargo build
+                    WORKING_DIRECTORY ${webgpu_rust_SOURCE_DIR})
+  else()
+    message(FATAL_ERROR "Invalid build type")
+  endif()
+
+  find_library(WEBGPU_LIB NAMES wgpu_native HINTS "${webgpu_rust_SOURCE_DIR}/target/${BUILD_TYPE}/")
+  set (BACKEND_LIB ${WEBGPU_LIB})
+  set (BACKEND_INCLUDE "${webgpu_rust_SOURCE_DIR}/ffi")
+  set (OS_LIBRARIES "userenv" "ws2_32" "Dwmapi" "dbghelp" "d3dcompiler" "D3D12" "D3D11" "DXGI" "setupapi")
+
+  if (WIN32)
+    # Hack for spirv under windows debug builds
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MD")
+  endif()
+else()
+  message(FATAL_ERROR "Backend not set!")
+endif()
 
 add_library(vortex2d
   SHARED
-    ${LIB_VULKAN_HEADERS}
-    ${LIB_VULKAN_SOURCES}
+    ${BACKEND_HEADERS}
+    ${BACKEND_SOURCES}
     ${LIB_SOURCES}
     ${LIB_HEADERS}
     ${SHADER_SOURCES}
@@ -218,12 +281,12 @@ if (APPLE)
   target_link_options(vortex2d PUBLIC "LINKER:-force_load,$<TARGET_FILE:spirv-cross-core>")
 endif()
 
-target_link_libraries(vortex2d PUBLIC ${VULKAN_LIBRARIES} PRIVATE spirv-cross-core glm)
+target_link_libraries(vortex2d PUBLIC ${BACKEND_LIB} ${OS_LIBRARIES} PRIVATE spirv-cross-core glm)
 
 target_include_directories(vortex2d
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/..
-        $<BUILD_INTERFACE:${VULKAN_INCLUDES}>
+        $<BUILD_INTERFACE:${BACKEND_INCLUDE}>
         $<INSTALL_INTERFACE:include/Vortex>
     PRIVATE
         ${CMAKE_CURRENT_BINARY_DIR})
@@ -231,6 +294,14 @@ target_include_directories(vortex2d
 # windows definition to correctly generate the dll
 if(WIN32)
     target_compile_definitions(vortex2d PRIVATE VORTEX2D_API_EXPORTS)
+endif()
+
+if(VORTEX2D_BACKEND STREQUAL "Vulkan")
+  target_compile_definitions(vortex2d PUBLIC VORTEX2D_BACKEND_VULKAN)
+elseif(VORTEX2D_BACKEND STREQUAL "WebGPU")
+  target_compile_definitions(vortex2d PUBLIC VORTEX2D_BACKEND_WEBGPU)
+else()
+  message(FATAL_ERROR "Backend not set!")
 endif()
 
 install(TARGETS vortex2d
