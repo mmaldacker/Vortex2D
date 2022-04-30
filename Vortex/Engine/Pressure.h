@@ -60,7 +60,6 @@ public:
   VORTEX_API void ApplyPressure();
 
 private:
-  Renderer::Device& mDevice;
   LinearSolver::Data& mData;
   Renderer::Work mBuildMatrix;
   Renderer::Work::Bound mBuildMatrixBound;

@@ -64,19 +64,11 @@ void PrefixScan::BindRecursive(std::vector<Renderer::CommandBuffer::CommandFn>& 
 
     bound.emplace_back(mPreScanStoreSumWork.Bind(computeSize, {input, output, partialSums}));
 
-    vk::Buffer outputBuffer = output.Handle();
-    vk::Buffer partialSumsBuffer = partialSums.Handle();
     bufferBarriers.emplace_back(
-        [=](vk::CommandBuffer commandBuffer)
+        [&](Renderer::CommandEncoder& command)
         {
-          Renderer::BufferBarrier(outputBuffer,
-                                  commandBuffer,
-                                  vk::AccessFlagBits::eShaderWrite,
-                                  vk::AccessFlagBits::eShaderRead);
-          Renderer::BufferBarrier(partialSumsBuffer,
-                                  commandBuffer,
-                                  vk::AccessFlagBits::eShaderWrite,
-                                  vk::AccessFlagBits::eShaderRead);
+          output.Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
+          partialSums.Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
         });
 
     BindRecursive(bufferBarriers,
@@ -89,30 +81,18 @@ void PrefixScan::BindRecursive(std::vector<Renderer::CommandBuffer::CommandFn>& 
 
     bound.emplace_back(mAddWork.Bind(computeSize, {partialSums, output}));
     bufferBarriers.emplace_back(
-        [=](vk::CommandBuffer commandBuffer)
-        {
-          Renderer::BufferBarrier(outputBuffer,
-                                  commandBuffer,
-                                  vk::AccessFlagBits::eShaderWrite,
-                                  vk::AccessFlagBits::eShaderRead);
-        });
+        [&](Renderer::CommandEncoder& command)
+        { output.Barrier(command, Renderer::Access::Write, Renderer::Access::Read); });
   }
   else
   {
     bound.emplace_back(mPreScanWork.Bind(computeSize, {input, output, dispatchParams}));
-    vk::Buffer outputBuffer = output.Handle();
-    vk::Buffer dispatchBuffer = dispatchParams.Handle();
+
     bufferBarriers.emplace_back(
-        [=](vk::CommandBuffer commandBuffer)
+        [&](Renderer::CommandEncoder& command)
         {
-          Renderer::BufferBarrier(outputBuffer,
-                                  commandBuffer,
-                                  vk::AccessFlagBits::eShaderWrite,
-                                  vk::AccessFlagBits::eShaderRead);
-          Renderer::BufferBarrier(dispatchBuffer,
-                                  commandBuffer,
-                                  vk::AccessFlagBits::eShaderWrite,
-                                  vk::AccessFlagBits::eShaderRead);
+          output.Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
+          dispatchParams.Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
         });
   }
 }
@@ -135,12 +115,12 @@ PrefixScan::Bound::Bound(const std::vector<Renderer::CommandBuffer::CommandFn>& 
 {
 }
 
-void PrefixScan::Bound::Record(vk::CommandBuffer commandBuffer)
+void PrefixScan::Bound::Record(Renderer::CommandEncoder& command)
 {
   for (std::size_t i = 0; i < mBounds.size(); i++)
   {
-    mBounds[i].Record(commandBuffer);
-    mBufferBarriers[i](commandBuffer);
+    mBounds[i].Record(command);
+    mBufferBarriers[i](command);
   }
 }
 

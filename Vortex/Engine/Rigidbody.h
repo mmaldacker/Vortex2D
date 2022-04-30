@@ -42,9 +42,9 @@ class RigidBody : public Renderer::Transformable
 public:
   enum class Type
   {
-    eStatic = 0x01,
-    eWeak = 0x02,
-    eStrong = 0x3,
+    eStatic,
+    eWeak,
+    eStrong,
   };
 
   struct Velocity
@@ -56,7 +56,7 @@ public:
   VORTEX_API RigidBody(Renderer::Device& device,
                        const glm::ivec2& size,
                        Renderer::DrawablePtr drawable,
-                       vk::Flags<Type> type);
+                       Type type);
 
   VORTEX_API ~RigidBody();
 
@@ -167,7 +167,7 @@ public:
    * @brief Type of this body.
    * @return
    */
-  VORTEX_API vk::Flags<Type> GetType();
+  VORTEX_API Type GetType();
 
   /**
    * @brief Set the type of the body.
@@ -201,7 +201,7 @@ private:
   ReduceJ mSum;
   ReduceSum::Bound mLocalSumBound, mSumBound;
 
-  vk::Flags<Type> mType;
+  Type mType;
   float mMass;
   float mInertia;
 };

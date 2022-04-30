@@ -23,7 +23,7 @@ class Watermill
 {
 public:
   Watermill(Vortex::Renderer::Device& device, const glm::ivec2& size, b2World& rWorld)
-      : mWatermillTexture(device, 150, 150, vk::Format::eR32Sfloat)
+      : mWatermillTexture(device, 150, 150, Vortex::Renderer::Format::R32Sfloat)
       , mWatermill(std::make_shared<Vortex::Renderer::Sprite>(device, mWatermillTexture))
       , mRigidbody(device, size, mWatermill, Vortex::Fluid::RigidBody::Type::eStrong)
   {
@@ -109,8 +109,7 @@ class WatermillExample : public Runner
 
 public:
   WatermillExample(Vortex::Renderer::Device& device, const glm::ivec2& size, float dt)
-      : dt(dt)
-      , world(device, size, dt, 2, Vortex::Fluid::Velocity::InterpolationMode::Linear)
+      : world(device, size, dt, 2, Vortex::Fluid::Velocity::InterpolationMode::Linear)
       , rWorld(b2Vec2(0.0f, gravityForce))
       , solver(rWorld)
       , left(device,
@@ -133,8 +132,7 @@ public:
     world.AddRigidbody(watermill->mRigidbody);
   }
 
-  void Init(Vortex::Renderer::Device& device,
-            Vortex::Renderer::RenderTarget& renderTarget) override
+  void Init(Vortex::Renderer::Device& device, Vortex::Renderer::RenderTarget& renderTarget) override
   {
     auto waterSource =
         std::make_shared<Vortex::Renderer::IntRectangle>(device, glm::vec2{25.0, 25.0f});
@@ -168,15 +166,12 @@ public:
     solidPhi->Colour = green;
     liquidPhi->Colour = blue;
 
-    Vortex::Renderer::ColorBlendState blendState;
-    blendState.ColorBlend.setBlendEnable(true)
-        .setAlphaBlendOp(vk::BlendOp::eAdd)
-        .setColorBlendOp(vk::BlendOp::eAdd)
-        .setSrcColorBlendFactor(vk::BlendFactor::eSrcAlpha)
-        .setSrcAlphaBlendFactor(vk::BlendFactor::eOne)
-        .setDstColorBlendFactor(vk::BlendFactor::eOneMinusSrcAlpha)
-        .setDstAlphaBlendFactor(vk::BlendFactor::eZero);
-
+    Vortex::Renderer::ColorBlendState blendState(Vortex::Renderer::BlendFactor::SrcAlpha,
+                                                 Vortex::Renderer::BlendFactor::OneMinusSrcAlpha,
+                                                 Vortex::Renderer::BlendOp::Add,
+                                                 Vortex::Renderer::BlendFactor::One,
+                                                 Vortex::Renderer::BlendFactor::Zero,
+                                                 Vortex::Renderer::BlendOp::Add);
     windowRender = renderTarget.Record({liquidPhi, solidPhi}, blendState);
   }
 

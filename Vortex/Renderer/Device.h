@@ -5,12 +5,10 @@
 
 #pragma once
 
+#include <Vortex/Renderer/BindGroup.h>
 #include <Vortex/Renderer/CommandBuffer.h>
 #include <Vortex/Renderer/Common.h>
-#include <Vortex/Renderer/DescriptorSet.h>
-#include <Vortex/Renderer/Instance.h>
 #include <Vortex/Renderer/Pipeline.h>
-#include <Vortex/Utils/vk_mem_alloc.h>
 #include <map>
 
 namespace Vortex
@@ -18,87 +16,65 @@ namespace Vortex
 namespace Renderer
 {
 /**
- * @brief A binary SPIRV shader, to be feed to vulkan.
- */
-class SpirvBinary
-{
-public:
-  template <std::size_t N>
-  SpirvBinary(const uint32_t (&spirv)[N]) : mData(spirv), mSize(N * 4)
-  {
-  }
-
-  const uint32_t* data() const { return mData; }
-
-  std::size_t size() const { return mSize; }
-
-  std::size_t words() const { return mSize / 4; }
-
-private:
-  const uint32_t* mData;
-  std::size_t mSize;
-};
-
-/**
- * @brief A vulkan dynamic dispatcher that checks if the function is not null.
- */
-struct DynamicDispatcher : vk::DispatchLoaderBase
-{
-  void vkCmdDebugMarkerBeginEXT(VkCommandBuffer commandBuffer,
-                                const VkDebugMarkerMarkerInfoEXT* pMarkerInfo) const;
-  void vkCmdDebugMarkerEndEXT(VkCommandBuffer commandBuffer) const;
-
-  PFN_vkCmdDebugMarkerBeginEXT mVkCmdDebugMarkerBeginEXT = nullptr;
-  PFN_vkCmdDebugMarkerEndEXT mVkCmdDebugMarkerEndEXT = nullptr;
-};
-
-/**
  * @brief Encapsulation around the vulkan device. Allows to create command
  * buffers, layout, bindings, memory and shaders.
  */
 class Device
 {
 public:
-  VORTEX_API Device(const Instance& instance, bool validation = true);
-  VORTEX_API Device(const Instance& instance, vk::SurfaceKHR surface, bool validation = true);
-  VORTEX_API Device(const Instance& instance, int familyIndex, bool surface, bool validation);
-  VORTEX_API ~Device();
+  VORTEX_API Device() = default;
+  VORTEX_API ~Device() = default;
 
   Device(Device&&) = delete;
   Device& operator=(Device&&) = delete;
 
-  // Vulkan handles and helpers
-  VORTEX_API vk::Device Handle() const;
-  VORTEX_API vk::Queue Queue() const;
-  VORTEX_API const DynamicDispatcher& Loader() const;
-  VORTEX_API vk::PhysicalDevice GetPhysicalDevice() const;
-  VORTEX_API int GetFamilyIndex() const;
+  VORTEX_API virtual void WaitIdle() = 0;
 
-  // Command buffer functions
-  VORTEX_API vk::CommandBuffer CreateCommandBuffer() const;
-  VORTEX_API void FreeCommandBuffer(vk::CommandBuffer commandBuffer) const;
-  VORTEX_API void Execute(CommandBuffer::CommandFn commandFn) const;
+  VORTEX_API virtual bool HasTimer() const = 0;
 
-  // Memory allocator
-  VORTEX_API VmaAllocator Allocator() const;
-  VORTEX_API LayoutManager& GetLayoutManager();
-  VORTEX_API PipelineCache& GetPipelineCache();
-  VORTEX_API vk::ShaderModule GetShaderModule(const SpirvBinary& spirv);
+  VORTEX_API virtual void Execute(CommandBuffer::CommandFn commandFn) const = 0;
+  VORTEX_API virtual Handle::ShaderModule CreateShaderModule(const SpirvBinary& spirv) = 0;
 
-private:
-  vk::PhysicalDevice mPhysicalDevice;
-  DynamicDispatcher mLoader;
-  int mFamilyIndex;
-  vk::UniqueDevice mDevice;
-  vk::Queue mQueue;
-  vk::UniqueCommandPool mCommandPool;
-  vk::UniqueDescriptorPool mDescriptorPool;
-  VmaAllocator mAllocator;
+  /**
+   * @brief Create, cache and return a descriptor layout given the pipeline
+   * layout
+   * @param layout pipeline layout
+   * @return cached descriptor set layout
+   */
+  VORTEX_API virtual Handle::BindGroupLayout CreateBindGroupLayout(
+      const SPIRV::ShaderLayouts& layout) = 0;
 
-  std::unique_ptr<CommandBuffer> mCommandBuffer;
-  std::map<const uint32_t*, vk::UniqueShaderModule> mShaders;
-  LayoutManager mLayoutManager;
-  PipelineCache mPipelineCache;
+  /**
+   * @brief create, cache and return a vulkan pipeline layout given the layout
+   * @param layout pipeline layout
+   * @return vulkan pipeline layout
+   */
+  VORTEX_API virtual Handle::PipelineLayout CreatePipelineLayout(
+      const SPIRV::ShaderLayouts& layout) = 0;
+
+  VORTEX_API virtual BindGroup CreateBindGroup(const Handle::BindGroupLayout& bindGroupLayout,
+                                               const SPIRV::ShaderLayouts& layout,
+                                               const std::vector<BindingInput>& bindingInputs) = 0;
+
+  /**
+   * @brief Create a graphics pipeline
+   * @param builder
+   * @param renderState
+   * @return
+   */
+  VORTEX_API virtual Handle::Pipeline CreateGraphicsPipeline(
+      const GraphicsPipelineDescriptor& builder,
+      const RenderState& renderState) = 0;
+
+  /**
+   * @brief Create a compute pipeline
+   * @param shader
+   * @param layout
+   * @param specConstInfo
+   */
+  VORTEX_API virtual Handle::Pipeline CreateComputePipeline(Handle::ShaderModule shader,
+                                                            Handle::PipelineLayout layout,
+                                                            SpecConstInfo specConstInfo = {}) = 0;
 };
 
 }  // namespace Renderer

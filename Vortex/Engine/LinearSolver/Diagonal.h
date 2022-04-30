@@ -28,7 +28,7 @@ public:
                        Renderer::GenericBuffer& b,
                        Renderer::GenericBuffer& pressure) override;
 
-  void Record(vk::CommandBuffer) override;
+  void Record(Renderer::CommandEncoder& commandEncoder) override;
 
 private:
   Renderer::GenericBuffer* mPressure;

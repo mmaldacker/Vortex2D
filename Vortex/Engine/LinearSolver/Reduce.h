@@ -33,7 +33,7 @@ public:
      * @brief Record the reduce operation.
      * @param commandBuffer the command buffer to record into.
      */
-    VORTEX_API void Record(vk::CommandBuffer commandBuffer);
+    VORTEX_API void Record(Renderer::CommandEncoder& command);
 
     friend class Reduce;
 

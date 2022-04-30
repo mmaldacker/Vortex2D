@@ -38,19 +38,18 @@ Advection::Advection(Renderer::Device& device,
     , mAdvectParticlesCmd(device, false)
 {
   mAdvectVelocityCmd.Record(
-      [&](vk::CommandBuffer commandBuffer)
+      [&](Renderer::CommandEncoder& command)
       {
-        commandBuffer.debugMarkerBeginEXT({"Velocity advect", {{0.15f, 0.46f, 0.19f, 1.0f}}},
-                                          mDevice.Loader());
-        mVelocityAdvectBound.PushConstant(commandBuffer, dt);
-        mVelocityAdvectBound.Record(commandBuffer);
-        velocity.Output().Barrier(commandBuffer,
-                                  vk::ImageLayout::eGeneral,
-                                  vk::AccessFlagBits::eShaderWrite,
-                                  vk::ImageLayout::eGeneral,
-                                  vk::AccessFlagBits::eShaderRead);
-        velocity.CopyBack(commandBuffer);
-        commandBuffer.debugMarkerEndEXT(mDevice.Loader());
+        command.DebugMarkerBegin("Velocity advect", {0.15f, 0.46f, 0.19f, 1.0f});
+        mVelocityAdvectBound.PushConstant(command, dt);
+        mVelocityAdvectBound.Record(command);
+        velocity.Output().Barrier(command,
+                                  Renderer::ImageLayout::General,
+                                  Renderer::Access::Write,
+                                  Renderer::ImageLayout::General,
+                                  Renderer::Access::Read);
+        velocity.CopyBack(command);
+        command.DebugMarkerEnd();
       });
 }
 
@@ -63,19 +62,18 @@ void Advection::AdvectBind(Density& density)
 {
   mAdvectBound = mAdvect.Bind({mVelocity, density, density.mFieldBack});
   mAdvectCmd.Record(
-      [&](vk::CommandBuffer commandBuffer)
+      [&](Renderer::CommandEncoder& command)
       {
-        commandBuffer.debugMarkerBeginEXT({"Density advect", {{0.86f, 0.14f, 0.52f, 1.0f}}},
-                                          mDevice.Loader());
-        mAdvectBound.PushConstant(commandBuffer, mDt);
-        mAdvectBound.Record(commandBuffer);
-        density.mFieldBack.Barrier(commandBuffer,
-                                   vk::ImageLayout::eGeneral,
-                                   vk::AccessFlagBits::eShaderWrite,
-                                   vk::ImageLayout::eGeneral,
-                                   vk::AccessFlagBits::eShaderRead);
-        density.CopyFrom(commandBuffer, density.mFieldBack);
-        commandBuffer.debugMarkerEndEXT(mDevice.Loader());
+        command.DebugMarkerBegin("Density advect", {0.86f, 0.14f, 0.52f, 1.0f});
+        mAdvectBound.PushConstant(command, mDt);
+        mAdvectBound.Record(command);
+        density.mFieldBack.Barrier(command,
+                                   Renderer::ImageLayout::General,
+                                   Renderer::Access::Write,
+                                   Renderer::ImageLayout::General,
+                                   Renderer::Access::Read);
+        density.CopyFrom(command, density.mFieldBack);
+        command.DebugMarkerEnd();
       });
 }
 
@@ -95,15 +93,13 @@ void Advection::AdvectParticleBind(
   mAdvectParticlesBound = mAdvectParticles.Bind(Renderer::ComputeSize{mSize},
                                                 {particles, dispatchParams, mVelocity, levelSet});
   mAdvectParticlesCmd.Record(
-      [&](vk::CommandBuffer commandBuffer)
+      [&](Renderer::CommandEncoder& command)
       {
-        commandBuffer.debugMarkerBeginEXT({"Particle advect", {{0.09f, 0.17f, 0.36f, 1.0f}}},
-                                          mDevice.Loader());
-        mAdvectParticlesBound.PushConstant(commandBuffer, mDt);
-        mAdvectParticlesBound.RecordIndirect(commandBuffer, dispatchParams);
-        particles.Barrier(
-            commandBuffer, vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead);
-        commandBuffer.debugMarkerEndEXT(mDevice.Loader());
+        command.DebugMarkerBegin("Particle advect", {0.09f, 0.17f, 0.36f, 1.0f});
+        mAdvectParticlesBound.PushConstant(command, mDt);
+        mAdvectParticlesBound.RecordIndirect(command, dispatchParams);
+        particles.Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
+        command.DebugMarkerEnd();
       });
 }
 

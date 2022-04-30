@@ -28,7 +28,7 @@ float PressureRigidbody_VelocityTest(float scale)
 
   Fluid::SmokeWorld world(*device, size, dt, Fluid::Velocity::InterpolationMode::Cubic);
 
-  Fluid::Density density(*device, size, vk::Format::eR8G8B8A8Unorm);
+  Fluid::Density density(*device, size, Renderer::Format::R8G8B8A8Unorm);
   world.FieldBind(density);
 
   auto fluidClear = std::make_shared<Renderer::Clear>(glm::vec4{-1.0f, 0.0f, 0.0f, 0.0f});
@@ -60,7 +60,7 @@ float PressureRigidbody_VelocityTest(float scale)
   auto params = Fluid::IterativeParams(1e-5f);
   world.Step(params);
 
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
   auto forces = rigidbody->GetForces();
   float force = forces.velocity.x / (mass * scale);
@@ -71,7 +71,7 @@ float PressureRigidbody_VelocityTest(float scale)
   EXPECT_NEAR(forces.angular_velocity / (inertia * std::pow(scale, 4.0f)), 0.0f, 0.1f);
   EXPECT_NEAR(forces.velocity.y / (mass * scale), 0.0f, 0.1f);
 
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
   return force;
 }
@@ -105,7 +105,7 @@ float PressureRigidbody_RotationTest(float scale)
 
   Fluid::SmokeWorld world(*device, size, dt, Fluid::Velocity::InterpolationMode::Cubic);
 
-  Fluid::Density density(*device, size, vk::Format::eR8G8B8A8Unorm);
+  Fluid::Density density(*device, size, Renderer::Format::R8G8B8A8Unorm);
   world.FieldBind(density);
 
   auto fluidClear = std::make_shared<Renderer::Clear>(glm::vec4{-1.0f, 0.0f, 0.0f, 0.0f});
@@ -143,7 +143,7 @@ float PressureRigidbody_RotationTest(float scale)
   auto params = Fluid::IterativeParams(1e-5f);
   world.Step(params);
 
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
   auto forces = rigidbody->GetForces();
   float force = forces.angular_velocity / (inertia * std::pow(scale, 4.0f));
@@ -154,7 +154,7 @@ float PressureRigidbody_RotationTest(float scale)
   EXPECT_NEAR(forces.velocity.x / (mass * scale), 0.0f, 0.1f);
   EXPECT_NEAR(forces.velocity.y / (mass * scale), 0.0f, 0.1f);
 
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
   return force;
 }
@@ -198,7 +198,7 @@ TEST(WorldTests, Velocity)
   auto params = Fluid::IterativeParams(1e-5f);
   world.Step(params);
 
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
   float value = 10.0f / size.x;
   std::vector<glm::vec2> velocityData(size.x * size.y, {-value, -value});
@@ -214,7 +214,7 @@ TEST(CflTets, Max)
   Fluid::Cfl cfl(*device, size, velocity);
 
   Renderer::Texture input(
-      *device, size.x, size.y, vk::Format::eR32G32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
+      *device, size.x, size.y, Renderer::Format::R32G32Sfloat, Renderer::MemoryUsage::Cpu);
 
   std::random_device rd;
   std::mt19937 gen(rd());
@@ -235,8 +235,7 @@ TEST(CflTets, Max)
   }
 
   input.CopyFrom(velocityData);
-  device->Execute([&](vk::CommandBuffer commandBuffer)
-                  { velocity.CopyFrom(commandBuffer, input); });
+  device->Execute([&](Renderer::CommandEncoder& command) { velocity.CopyFrom(command, input); });
 
   cfl.Compute();
   EXPECT_NEAR(1.0f / (max * size.x), cfl.Get(), 1e-4f);

@@ -79,18 +79,18 @@ TEST(PressureTest, LinearEquationSetup_Simple)
   sim.add_force(0.01f);
 
   Velocity velocity(*device, size);
-  Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-  Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+  Texture solidPhi(*device, size.x, size.y, Format::R32Sfloat);
+  Texture liquidPhi(*device, size.x, size.y, Format::R32Sfloat);
 
   BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
 
-  LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
-  Buffer<glm::ivec2> valid(*device, size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  LinearSolver::Data data(*device, size, MemoryUsage::Cpu);
+  Buffer<glm::ivec2> valid(*device, size.x * size.y, MemoryUsage::Cpu);
 
   Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
 
   pressure.BuildLinearEquation();
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
   CheckDiagonal(size, data.Diagonal, sim, 1e-3f);  // FIXME can we reduce error tolerance?
   CheckWeights(size, data.Lower, sim, 1e-3f);      // FIXME can we reduce error tolerance?
@@ -110,18 +110,18 @@ TEST(PressureTest, LinearEquationSetup_Complex)
   sim.add_force(0.01f);
 
   Velocity velocity(*device, size);
-  Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-  Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+  Texture solidPhi(*device, size.x, size.y, Format::R32Sfloat);
+  Texture liquidPhi(*device, size.x, size.y, Format::R32Sfloat);
 
   BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
 
-  LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
-  Buffer<glm::ivec2> valid(*device, size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  LinearSolver::Data data(*device, size, MemoryUsage::Cpu);
+  Buffer<glm::ivec2> valid(*device, size.x * size.y, MemoryUsage::Cpu);
 
   Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
 
   pressure.BuildLinearEquation();
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
   CheckDiagonal(size, data.Diagonal, sim, 1e-3f);  // FIXME can we reduce error tolerance?
   CheckWeights(size, data.Lower, sim, 1e-3f);      // FIXME can we reduce error tolerance?
@@ -133,23 +133,22 @@ TEST(PressureTest, ZeroDivs)
   glm::ivec2 size(50);
 
   Velocity velocity(*device, size);
-  Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-  Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+  Texture solidPhi(*device, size.x, size.y, Format::R32Sfloat);
+  Texture liquidPhi(*device, size.x, size.y, Format::R32Sfloat);
 
-  Texture input(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
+  Texture input(*device, size.x, size.y, Format::R32Sfloat, MemoryUsage::Cpu);
   std::vector<float> inputData(size.x * size.y);
   DrawSquare(size.x, size.y, inputData, {10.0f, 10.0f}, {30.0f, 30.0f}, -1.0f);
   input.CopyFrom(inputData);
-  device->Execute([&](vk::CommandBuffer commandBuffer)
-                  { liquidPhi.CopyFrom(commandBuffer, input); });
+  device->Execute([&](CommandEncoder& command) { liquidPhi.CopyFrom(command, input); });
 
-  LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
-  Buffer<glm::ivec2> valid(*device, size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  LinearSolver::Data data(*device, size, MemoryUsage::Cpu);
+  Buffer<glm::ivec2> valid(*device, size.x * size.y, MemoryUsage::Cpu);
 
   Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
 
   pressure.BuildLinearEquation();
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
   std::vector<float> divOutputData(size.x * size.y);
   CopyTo(data.B, divOutputData);
@@ -175,12 +174,12 @@ TEST(PressureTest, Project_Simple)
   sim.add_force(0.01f);
 
   Velocity velocity(*device, size);
-  Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-  Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+  Texture solidPhi(*device, size.x, size.y, Format::R32Sfloat);
+  Texture liquidPhi(*device, size.x, size.y, Format::R32Sfloat);
 
   BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
 
-  LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
+  LinearSolver::Data data(*device, size, MemoryUsage::Cpu);
 
   std::vector<float> computedPressureData(size.x * size.y, 0.0f);
   for (std::size_t i = 0; i < computedPressureData.size(); i++)
@@ -189,12 +188,12 @@ TEST(PressureTest, Project_Simple)
   }
   CopyFrom(data.X, computedPressureData);
 
-  Buffer<glm::ivec2> valid(*device, size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<glm::ivec2> valid(*device, size.x * size.y, MemoryUsage::Cpu);
 
   Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
 
   pressure.ApplyPressure();
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
   CheckVelocity(*device, size, velocity, sim);
   CheckValid(size, sim, valid);
@@ -213,12 +212,12 @@ TEST(PressureTest, Project_Complex)
   sim.add_force(0.01f);
 
   Velocity velocity(*device, size);
-  Texture solidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
-  Texture liquidPhi(*device, size.x, size.y, vk::Format::eR32Sfloat);
+  Texture solidPhi(*device, size.x, size.y, Format::R32Sfloat);
+  Texture liquidPhi(*device, size.x, size.y, Format::R32Sfloat);
 
   BuildInputs(*device, size, sim, velocity, solidPhi, liquidPhi);
 
-  LinearSolver::Data data(*device, size, VMA_MEMORY_USAGE_CPU_ONLY);
+  LinearSolver::Data data(*device, size, MemoryUsage::Cpu);
 
   std::vector<float> computedPressureData(size.x * size.y, 0.0f);
   for (std::size_t i = 0; i < computedPressureData.size(); i++)
@@ -227,12 +226,12 @@ TEST(PressureTest, Project_Complex)
   }
   CopyFrom(data.X, computedPressureData);
 
-  Buffer<glm::ivec2> valid(*device, size.x * size.y, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<glm::ivec2> valid(*device, size.x * size.y, MemoryUsage::Cpu);
 
   Pressure pressure(*device, 0.01f, size, data, velocity, solidPhi, liquidPhi, valid);
 
   pressure.ApplyPressure();
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
   CheckVelocity(*device, size, velocity, sim);
   CheckValid(size, sim, valid);

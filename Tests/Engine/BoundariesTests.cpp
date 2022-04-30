@@ -6,6 +6,7 @@
 #include "../Renderer/ShapeDrawer.h"
 #include "Verify.h"
 
+#include <algorithm>
 #include <glm/gtx/io.hpp>
 
 #include <Vortex/Engine/Boundaries.h>
@@ -101,7 +102,7 @@ TEST(BoundariesTests, Square)
 
   std::vector<glm::vec2> points = {{0.0f, 0.0f}, {4.0f, 0.0f}, {4.0f, 4.0f}, {0.0f, 4.0f}};
 
-  auto square = std::make_shared<Polygon>(*device, points, false, 20);
+  auto square = std::make_shared<Vortex::Fluid::Polygon>(*device, points, false, 20);
   square->Position = glm::vec2(5.0f, 10.0f);
 
   std::vector<float> data(size.x * size.y, 100.0f);
@@ -112,11 +113,10 @@ TEST(BoundariesTests, Square)
   auto clear = std::make_shared<Clear>(glm::vec4{100.0f, 0.0f, 0.0f, 0.0f});
 
   levelSet.Record({clear, square}).Submit();
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
-  Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
-  device->Execute([&](vk::CommandBuffer commandBuffer)
-                  { outTexture.CopyFrom(commandBuffer, levelSet); });
+  Texture outTexture(*device, size.x, size.y, Format::R32Sfloat, MemoryUsage::Cpu);
+  device->Execute([&](CommandEncoder& command) { outTexture.CopyFrom(command, levelSet); });
 
   CheckLevelSet(data, outTexture);
 }
@@ -127,7 +127,7 @@ TEST(BoundariesTests, InverseSquare)
 
   std::vector<glm::vec2> points = {{0.0f, 0.0f}, {4.0f, 0.0f}, {4.0f, 4.0f}, {0.0f, 4.0f}};
 
-  auto square = std::make_shared<Polygon>(*device, points, true, 20);
+  auto square = std::make_shared<Vortex::Fluid::Polygon>(*device, points, true, 20);
   square->Position = glm::vec2(5.0f, 10.0f);
 
   std::vector<float> data(size.x * size.y, 100.0f);
@@ -141,11 +141,10 @@ TEST(BoundariesTests, InverseSquare)
   auto clear = std::make_shared<Clear>(glm::vec4{100.0f, 0.0f, 0.0f, 0.0f});
 
   levelSet.Record({clear, square}).Submit();
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
-  Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
-  device->Execute([&](vk::CommandBuffer commandBuffer)
-                  { outTexture.CopyFrom(commandBuffer, levelSet); });
+  Texture outTexture(*device, size.x, size.y, Format::R32Sfloat, MemoryUsage::Cpu);
+  device->Execute([&](CommandEncoder& command) { outTexture.CopyFrom(command, levelSet); });
 
   CheckLevelSet(data, outTexture);
 }
@@ -166,11 +165,10 @@ TEST(BoundariesTests, Circle)
   auto clear = std::make_shared<Clear>(glm::vec4{100.0f, 0.0f, 0.0f, 0.0f});
 
   levelSet.Record({clear, circle}).Submit();
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
-  Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
-  device->Execute([&](vk::CommandBuffer commandBuffer)
-                  { outTexture.CopyFrom(commandBuffer, levelSet); });
+  Texture outTexture(*device, size.x, size.y, Format::R32Sfloat, MemoryUsage::Cpu);
+  device->Execute([&](CommandEncoder& command) { outTexture.CopyFrom(command, levelSet); });
 
   CheckLevelSet(data, outTexture);
 }
@@ -181,10 +179,10 @@ TEST(BoundariesTests, Intersection)
 
   std::vector<glm::vec2> points = {{0.0f, 0.0f}, {4.0f, 0.0f}, {4.0f, 4.0f}, {0.0f, 4.0f}};
 
-  auto square1 = std::make_shared<Polygon>(*device, points, false, 20);
+  auto square1 = std::make_shared<Vortex::Fluid::Polygon>(*device, points, false, 20);
   square1->Position = glm::vec2(5.0f, 10.0f);
 
-  auto square2 = std::make_shared<Polygon>(*device, points, false, 20);
+  auto square2 = std::make_shared<Vortex::Fluid::Polygon>(*device, points, false, 20);
   square2->Position = glm::vec2(12.0f, 10.0f);
 
   std::vector<float> data1(size.x * size.y, 100.0f);
@@ -203,11 +201,10 @@ TEST(BoundariesTests, Intersection)
   auto clear = std::make_shared<Clear>(glm::vec4{100.0f, 0.0f, 0.0f, 0.0f});
 
   levelSet.Record({clear, square1, square2}, UnionBlend).Submit();
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
-  Texture outTexture(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
-  device->Execute([&](vk::CommandBuffer commandBuffer)
-                  { outTexture.CopyFrom(commandBuffer, levelSet); });
+  Texture outTexture(*device, size.x, size.y, Format::R32Sfloat, MemoryUsage::Cpu);
+  device->Execute([&](CommandEncoder& command) { outTexture.CopyFrom(command, levelSet); });
 
   CheckLevelSet(data, outTexture);
 }
@@ -234,26 +231,24 @@ TEST(BoundariesTest, DistanceField)
   LevelSet levelSet(*device, size);
 
   std::vector<float> data(size.x * size.y, 0.1f);
-  Texture localLevelSet(*device, size.x, size.y, vk::Format::eR32Sfloat, VMA_MEMORY_USAGE_CPU_ONLY);
+  Texture localLevelSet(*device, size.x, size.y, Format::R32Sfloat, MemoryUsage::Cpu);
   device->Execute(
-      [&](vk::CommandBuffer commandBuffer)
+      [&](CommandEncoder& command)
       {
         localLevelSet.CopyFrom(data);
-        levelSet.CopyFrom(commandBuffer, localLevelSet);
+        levelSet.CopyFrom(command, localLevelSet);
       });
 
   auto distance = std::make_shared<DistanceField>(*device, levelSet);
   distance->Colour = glm::vec4(0.2f, 1.0f, 0.8f, 1.0f);
 
-  RenderTexture output(*device, size.x, size.y, vk::Format::eR8G8B8A8Unorm);
-  Texture localOutput(
-      *device, size.x, size.y, vk::Format::eR8G8B8A8Unorm, VMA_MEMORY_USAGE_CPU_ONLY);
+  RenderTexture output(*device, size.x, size.y, Format::R8G8B8A8Unorm);
+  Texture localOutput(*device, size.x, size.y, Format::R8G8B8A8Unorm, MemoryUsage::Cpu);
 
   output.Record({distance}).Submit();
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
-  device->Execute([&](vk::CommandBuffer commandBuffer)
-                  { localOutput.CopyFrom(commandBuffer, output); });
+  device->Execute([&](CommandEncoder& command) { localOutput.CopyFrom(command, output); });
 
   auto r = static_cast<uint8_t>(255 * distance->Colour.r);
   auto g = static_cast<uint8_t>(255 * distance->Colour.g);
@@ -269,7 +264,7 @@ TEST(BoundariesTest, Contour)
   const glm::ivec2 size(10);
   const int total = size.x * size.y;
 
-  RenderTexture render(*device, size.x, size.y, vk::Format::eR32Sfloat);
+  RenderTexture render(*device, size.x, size.y, Format::R32Sfloat);
 
   auto rectangle = std::make_shared<Vortex::Fluid::Rectangle>(*device, glm::vec2{2, 2});
   rectangle->Position = {2, 2};
@@ -279,22 +274,22 @@ TEST(BoundariesTest, Contour)
   Contour contour(*device, render, size);
   contour.Generate();
 
-  device->Handle().waitIdle();
+  device->WaitIdle();
 
-  IndirectBuffer<DispatchParams> verticesParams(*device, VMA_MEMORY_USAGE_CPU_ONLY);
-  IndirectBuffer<DispatchParams> indicesParams(*device, VMA_MEMORY_USAGE_CPU_ONLY);
+  IndirectBuffer<DispatchParams> verticesParams(*device, MemoryUsage::Cpu);
+  IndirectBuffer<DispatchParams> indicesParams(*device, MemoryUsage::Cpu);
 
-  Buffer<glm::vec2> vertices(*device, total, VMA_MEMORY_USAGE_CPU_ONLY);
-  Buffer<std::uint32_t> indices(*device, total * 4, VMA_MEMORY_USAGE_CPU_ONLY);
+  Buffer<glm::vec2> vertices(*device, total, MemoryUsage::Cpu);
+  Buffer<std::uint32_t> indices(*device, total * 4, MemoryUsage::Cpu);
 
   device->Execute(
-      [&](vk::CommandBuffer commandBuffer)
+      [&](CommandEncoder& command)
       {
-        verticesParams.CopyFrom(commandBuffer, contour.GetVerticesParam());
-        indicesParams.CopyFrom(commandBuffer, contour.GetIndicesParam());
+        verticesParams.CopyFrom(command, contour.GetVerticesParam());
+        indicesParams.CopyFrom(command, contour.GetIndicesParam());
 
-        vertices.CopyFrom(commandBuffer, contour.GetVertices());
-        indices.CopyFrom(commandBuffer, contour.GetIndices());
+        vertices.CopyFrom(command, contour.GetVertices());
+        indices.CopyFrom(command, contour.GetIndices());
       });
 
   DispatchParams params(0);

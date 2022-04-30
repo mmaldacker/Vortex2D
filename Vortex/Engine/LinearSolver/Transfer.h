@@ -69,7 +69,7 @@ public:
    * @param commandBuffer command buffer to record into.
    * @param level index of bound level sets.
    */
-  VORTEX_API void Prolongate(vk::CommandBuffer commandBuffer, std::size_t level);
+  VORTEX_API void Prolongate(Renderer::CommandEncoder& command, std::size_t level);
 
   /**
    * @brief Restrict the level set, using the bound level sets at the specified
@@ -77,7 +77,7 @@ public:
    * @param commandBuffer command buffer to record into.
    * @param level index of bound level sets.
    */
-  VORTEX_API void Restrict(vk::CommandBuffer commandBuffer, std::size_t level);
+  VORTEX_API void Restrict(Renderer::CommandEncoder& command, std::size_t level);
 
 private:
   Renderer::Device& mDevice;

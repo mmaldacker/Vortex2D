@@ -24,10 +24,7 @@ class RenderCommand;
 class RenderTexture : public RenderTarget, public Texture
 {
 public:
-  VORTEX_API RenderTexture(Device& device,
-                           uint32_t width,
-                           uint32_t height,
-                           vk::Format format);
+  VORTEX_API RenderTexture(Device& device, uint32_t width, uint32_t height, Format format);
 
   VORTEX_API RenderTexture(RenderTexture&& other);
 
@@ -37,8 +34,8 @@ public:
   VORTEX_API void Submit(RenderCommand& renderCommand) override;
 
 private:
-  Device& mDevice;
-  vk::UniqueFramebuffer mFramebuffer;
+  struct Impl;
+  std::unique_ptr<Impl> mImpl;
 };
 
 }  // namespace Renderer

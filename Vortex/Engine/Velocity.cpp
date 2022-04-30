@@ -12,31 +12,30 @@ namespace Vortex
 namespace Fluid
 {
 Velocity::Velocity(Renderer::Device& device, const glm::ivec2& size)
-    : Renderer::RenderTexture(device, size.x, size.y, vk::Format::eR32G32Sfloat)
+    : Renderer::RenderTexture(device, size.x, size.y, Renderer::Format::R32G32Sfloat)
     , mDevice(device)
-    , mOutputVelocity(device, size.x, size.y, vk::Format::eR32G32Sfloat)
-    , mDVelocity(device, size.x, size.y, vk::Format::eR32G32Sfloat)
+    , mOutputVelocity(device, size.x, size.y, Renderer::Format::R32G32Sfloat)
+    , mDVelocity(device, size.x, size.y, Renderer::Format::R32G32Sfloat)
     , mVelocityDiff(device, Renderer::ComputeSize{size}, SPIRV::VelocityDifference_comp)
     , mVelocityDiffBound(mVelocityDiff.Bind({mDVelocity, *this, mOutputVelocity}))
     , mSaveCopyCmd(device, false)
     , mVelocityDiffCmd(device, false)
 {
-  mSaveCopyCmd.Record([&](vk::CommandBuffer commandBuffer)
-                      { mDVelocity.CopyFrom(commandBuffer, *this); });
+  mSaveCopyCmd.Record([&](Renderer::CommandEncoder& command)
+                      { mDVelocity.CopyFrom(command, *this); });
 
   mVelocityDiffCmd.Record(
-      [&](vk::CommandBuffer commandBuffer)
+      [&](Renderer::CommandEncoder& command)
       {
-        commandBuffer.debugMarkerBeginEXT({"Velocity diff", {{0.32f, 0.60f, 0.67f, 1.0f}}},
-                                          mDevice.Loader());
-        mVelocityDiffBound.Record(commandBuffer);
-        mOutputVelocity.Barrier(commandBuffer,
-                                vk::ImageLayout::eGeneral,
-                                vk::AccessFlagBits::eShaderWrite,
-                                vk::ImageLayout::eGeneral,
-                                vk::AccessFlagBits::eShaderRead);
-        mDVelocity.CopyFrom(commandBuffer, mOutputVelocity);
-        commandBuffer.debugMarkerEndEXT(mDevice.Loader());
+        command.DebugMarkerBegin("Velocity diff", {0.32f, 0.60f, 0.67f, 1.0f});
+        mVelocityDiffBound.Record(command);
+        mOutputVelocity.Barrier(command,
+                                Renderer::ImageLayout::General,
+                                Renderer::Access::Write,
+                                Renderer::ImageLayout::General,
+                                Renderer::Access::Read);
+        mDVelocity.CopyFrom(command, mOutputVelocity);
+        command.DebugMarkerEnd();
       });
 }
 
@@ -50,14 +49,14 @@ Renderer::Texture& Velocity::D()
   return mDVelocity;
 }
 
-void Velocity::CopyBack(vk::CommandBuffer commandBuffer)
+void Velocity::CopyBack(Renderer::CommandEncoder& command)
 {
-  CopyFrom(commandBuffer, mOutputVelocity);
+  CopyFrom(command, mOutputVelocity);
 }
 
-void Velocity::Clear(vk::CommandBuffer commandBuffer)
+void Velocity::Clear(Renderer::CommandEncoder& command)
 {
-  RenderTexture::Clear(commandBuffer, std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f});
+  RenderTexture::Clear(command, std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f});
 }
 
 void Velocity::SaveCopy()

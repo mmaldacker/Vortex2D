@@ -72,7 +72,7 @@ struct LinearSolver
   {
     VORTEX_API Data(Renderer::Device& device,
                     const glm::ivec2& size,
-                    VmaMemoryUsage memoryUsage = VMA_MEMORY_USAGE_GPU_ONLY);
+                    Renderer::MemoryUsage memoryUsage = Renderer::MemoryUsage::Gpu);
 
     Renderer::Buffer<float> Diagonal;
     Renderer::Buffer<glm::vec2> Lower;

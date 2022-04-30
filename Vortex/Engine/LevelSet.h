@@ -50,7 +50,7 @@ private:
   Renderer::Texture mLevelSet0;
   Renderer::Texture mLevelSetBack;
 
-  vk::UniqueSampler mSampler;
+  Renderer::Sampler mSampler;
 
   Renderer::Work mExtrapolate;
   Renderer::Work::Bound mExtrapolateBound;

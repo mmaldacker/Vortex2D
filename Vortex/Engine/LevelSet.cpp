@@ -15,49 +15,44 @@ namespace Vortex
 namespace Fluid
 {
 LevelSet::LevelSet(Renderer::Device& device, const glm::ivec2& size, int reinitializeIterations)
-    : Renderer::RenderTexture(device, size.x, size.y, vk::Format::eR32Sfloat)
+    : Renderer::RenderTexture(device, size.x, size.y, Renderer::Format::R32Sfloat)
     , mDevice(device)
-    , mLevelSet0(device, size.x, size.y, vk::Format::eR32Sfloat)
-    , mLevelSetBack(device, size.x, size.y, vk::Format::eR32Sfloat)
-    , mSampler(Renderer::SamplerBuilder()
-                   .AddressMode(vk::SamplerAddressMode::eClampToEdge)
-                   .Create(device.Handle()))
+    , mLevelSet0(device, size.x, size.y, Renderer::Format::R32Sfloat)
+    , mLevelSetBack(device, size.x, size.y, Renderer::Format::R32Sfloat)
+    , mSampler(device, Renderer::Sampler::AddressMode::ClampToEdge)
     , mExtrapolate(device, Renderer::ComputeSize{size}, SPIRV::Extrapolate_comp)
     , mRedistance(device, Renderer::ComputeSize{size}, SPIRV::Redistance_comp)
-    , mRedistanceFront(
-          mRedistance.Bind({{*mSampler, mLevelSet0}, {*mSampler, *this}, mLevelSetBack}))
-    , mRedistanceBack(
-          mRedistance.Bind({{*mSampler, mLevelSet0}, {*mSampler, mLevelSetBack}, *this}))
+    , mRedistanceFront(mRedistance.Bind({{mSampler, mLevelSet0}, {mSampler, *this}, mLevelSetBack}))
+    , mRedistanceBack(mRedistance.Bind({{mSampler, mLevelSet0}, {mSampler, mLevelSetBack}, *this}))
     , mExtrapolateCmd(device, false)
     , mReinitialiseCmd(device, false)
 {
   mReinitialiseCmd.Record(
-      [&, reinitializeIterations](vk::CommandBuffer commandBuffer)
+      [&, reinitializeIterations](Renderer::CommandEncoder& command)
       {
-        commandBuffer.debugMarkerBeginEXT({"Reinitialise", {{0.98f, 0.49f, 0.26f, 1.0f}}},
-                                          mDevice.Loader());
+        command.DebugMarkerBegin("Reinitialise", {0.98f, 0.49f, 0.26f, 1.0f});
 
-        mLevelSet0.CopyFrom(commandBuffer, *this);
+        mLevelSet0.CopyFrom(command, *this);
 
         for (int i = 0; i < reinitializeIterations / 2; i++)
         {
-          mRedistanceFront.PushConstant(commandBuffer, 0.1f);
-          mRedistanceFront.Record(commandBuffer);
-          mLevelSetBack.Barrier(commandBuffer,
-                                vk::ImageLayout::eGeneral,
-                                vk::AccessFlagBits::eShaderWrite,
-                                vk::ImageLayout::eGeneral,
-                                vk::AccessFlagBits::eShaderRead);
-          mRedistanceBack.PushConstant(commandBuffer, 0.1f);
-          mRedistanceBack.Record(commandBuffer);
-          Barrier(commandBuffer,
-                  vk::ImageLayout::eGeneral,
-                  vk::AccessFlagBits::eShaderWrite,
-                  vk::ImageLayout::eGeneral,
-                  vk::AccessFlagBits::eShaderRead);
+          mRedistanceFront.PushConstant(command, 0.1f);
+          mRedistanceFront.Record(command);
+          mLevelSetBack.Barrier(command,
+                                Renderer::ImageLayout::General,
+                                Renderer::Access::Write,
+                                Renderer::ImageLayout::General,
+                                Renderer::Access::Read);
+          mRedistanceBack.PushConstant(command, 0.1f);
+          mRedistanceBack.Record(command);
+          Barrier(command,
+                  Renderer::ImageLayout::General,
+                  Renderer::Access::Write,
+                  Renderer::ImageLayout::General,
+                  Renderer::Access::Read);
         }
 
-        commandBuffer.debugMarkerEndEXT(mDevice.Loader());
+        command.DebugMarkerEnd();
       });
 }
 
@@ -81,17 +76,16 @@ void LevelSet::ExtrapolateBind(Renderer::Texture& solidPhi)
 {
   mExtrapolateBound = mExtrapolate.Bind({solidPhi, *this});
   mExtrapolateCmd.Record(
-      [&](vk::CommandBuffer commandBuffer)
+      [&](Renderer::CommandEncoder& command)
       {
-        commandBuffer.debugMarkerBeginEXT({"Extrapolate phi", {{0.53f, 0.09f, 0.16f, 1.0f}}},
-                                          mDevice.Loader());
-        mExtrapolateBound.Record(commandBuffer);
-        Barrier(commandBuffer,
-                vk::ImageLayout::eGeneral,
-                vk::AccessFlagBits::eShaderWrite,
-                vk::ImageLayout::eGeneral,
-                vk::AccessFlagBits::eShaderRead);
-        commandBuffer.debugMarkerEndEXT(mDevice.Loader());
+        command.DebugMarkerBegin("Extrapolate phi", {0.53f, 0.09f, 0.16f, 1.0f});
+        mExtrapolateBound.Record(command);
+        Barrier(command,
+                Renderer::ImageLayout::General,
+                Renderer::Access::Write,
+                Renderer::ImageLayout::General,
+                Renderer::Access::Read);
+        command.DebugMarkerEnd();
       });
 }
 
