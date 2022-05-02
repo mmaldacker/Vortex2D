@@ -29,7 +29,9 @@ void IncompletePoisson::Bind(Renderer::GenericBuffer& d,
 
 void IncompletePoisson::Record(Renderer::CommandEncoder& command)
 {
+  assert(mPressure != nullptr);
   mIncompletePoissonBound.Record(command);
+  mPressure->Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
 }
 
 }  // namespace Fluid

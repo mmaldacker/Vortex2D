@@ -50,6 +50,7 @@ void Jacobi::Record(Renderer::CommandEncoder& command)
 void Jacobi::Record(Renderer::CommandEncoder& command, int iterations)
 {
   mBackPressure.Clear(command);
+  mBackPressure.Barrier(command, Renderer::Access::Write, Renderer::Access::Write);
 
   for (int i = 0; i < iterations; i++)
   {

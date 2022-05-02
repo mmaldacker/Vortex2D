@@ -9,7 +9,6 @@
 #include <Vortex/Renderer/RenderTexture.h>
 #include <Vortex/Renderer/RenderWindow.h>
 #include <Vortex/Renderer/Shapes.h>
-#include <Vortex/Renderer/Vulkan/Instance.h>
 
 #include <Vortex/Engine/Density.h>
 #include <Vortex/Engine/World.h>

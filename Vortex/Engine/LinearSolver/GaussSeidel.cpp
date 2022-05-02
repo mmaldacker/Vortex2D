@@ -109,10 +109,10 @@ void GaussSeidel::Record(Renderer::CommandEncoder& command, int iterations)
   {
     mGaussSeidelBound.PushConstant(command, mW, 1);
     mGaussSeidelBound.Record(command);
-    mPressure->Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
+    mPressure->Barrier(command, Renderer::Access::Write, Renderer::Access::Write);
     mGaussSeidelBound.PushConstant(command, mW, 0);
     mGaussSeidelBound.Record(command);
-    mPressure->Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
+    mPressure->Barrier(command, Renderer::Access::Write, Renderer::Access::Write);
   }
 }
 
@@ -144,6 +144,7 @@ void LocalGaussSeidel::Bind(Renderer::GenericBuffer& d,
 
 void LocalGaussSeidel::Record(Renderer::CommandEncoder& command)
 {
+  assert(mPressure != nullptr);
   mLocalGaussSeidelBound.Record(command);
   mPressure->Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
 }

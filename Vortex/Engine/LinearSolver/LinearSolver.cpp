@@ -67,6 +67,26 @@ LinearSolver::DebugCopy::DebugCopy(Renderer::Device& device,
       {
         command.DebugMarkerBegin("Debug data copy", {0.30f, 0.01f, 0.19f, 1.0f});
         mDebugDataCopyBound.Record(command);
+        debugData.Diagonal.Barrier(command,
+                                   Renderer::ImageLayout::General,
+                                   Renderer::Access::Write,
+                                   Renderer::ImageLayout::General,
+                                   Renderer::Access::Read);
+        debugData.Lower.Barrier(command,
+                                Renderer::ImageLayout::General,
+                                Renderer::Access::Write,
+                                Renderer::ImageLayout::General,
+                                Renderer::Access::Read);
+        debugData.X.Barrier(command,
+                            Renderer::ImageLayout::General,
+                            Renderer::Access::Write,
+                            Renderer::ImageLayout::General,
+                            Renderer::Access::Read);
+        debugData.B.Barrier(command,
+                            Renderer::ImageLayout::General,
+                            Renderer::Access::Write,
+                            Renderer::ImageLayout::General,
+                            Renderer::Access::Read);
         command.DebugMarkerEnd();
       });
 }

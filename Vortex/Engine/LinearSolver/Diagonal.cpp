@@ -30,7 +30,9 @@ void Diagonal::Bind(Renderer::GenericBuffer& d,
 
 void Diagonal::Record(Renderer::CommandEncoder& command)
 {
+  assert(mPressure != nullptr);
   mDiagonalBound.Record(command);
+  mPressure->Barrier(command, Renderer::Access::Write, Renderer::Access::Read);
 }
 
 }  // namespace Fluid

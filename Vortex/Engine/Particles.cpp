@@ -155,6 +155,11 @@ void ParticleCount::LevelSetBind(LevelSet& levelSet)
       {
         command.DebugMarkerBegin("Particle phi", {0.86f, 0.72f, 0.29f, 1.0f});
         levelSet.Clear(command, std::array<float, 4>{3.0f, 0.0f, 0.0f, 0.0f});
+        levelSet.Barrier(command,
+                         Renderer::ImageLayout::General,
+                         Renderer::Access::Write,
+                         Renderer::ImageLayout::General,
+                         Renderer::Access::Write);
         mParticlePhiBound.Record(command);
         levelSet.Barrier(command,
                          Renderer::ImageLayout::General,

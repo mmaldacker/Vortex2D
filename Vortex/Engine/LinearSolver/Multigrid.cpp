@@ -292,6 +292,7 @@ void Multigrid::RecordVCycle(Renderer::CommandEncoder& command, int depth)
     mTransfer.Restrict(command, depth);
 
     mDatas[depth].X.Clear(command);
+    mDatas[depth].X.Barrier(command, Renderer::Access::Write, Renderer::Access::Write);
 
     RecordVCycle(command, depth + 1);
 
@@ -314,6 +315,7 @@ void Multigrid::RecordFullCycle(Renderer::CommandEncoder& command)
 
   int depth = mDepth.GetMaxDepth() - 1;
   mDatas[depth].X.Clear(command);
+  mDatas[depth].X.Barrier(command, Renderer::Access::Write, Renderer::Access::Write);
   mSmoother.Record(command);
 
   for (int i = depth; i >= 0; i--)

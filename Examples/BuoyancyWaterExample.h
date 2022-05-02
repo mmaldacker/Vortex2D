@@ -23,7 +23,8 @@ class HydrostaticWaterExample : public Runner
 
 public:
   HydrostaticWaterExample(Vortex::Renderer::Device& device, const glm::ivec2& size, float dt)
-      : world(device, size, dt, 2, Vortex::Fluid::Velocity::InterpolationMode::Linear)
+      : dt(dt)
+      , world(device, size, dt, 2, Vortex::Fluid::Velocity::InterpolationMode::Linear)
       , rWorld(b2Vec2(0.0f, gravityForce))
       , solver(rWorld)
       , circle1(device,
