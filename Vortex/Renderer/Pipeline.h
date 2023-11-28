@@ -128,10 +128,11 @@ inline void InsertSpecConst(SpecConstInfo&) {}
 template <typename Arg, typename... Args>
 inline void InsertSpecConst(SpecConstInfo& specConstInfo, Arg&& arg, Args&&... args)
 {
+  std::size_t argSize = sizeof(arg.value);
   auto offset = static_cast<uint32_t>(specConstInfo.data.size());
-  specConstInfo.data.resize(offset + sizeof(Arg));
-  std::memcpy(&specConstInfo.data[offset], &arg.value, sizeof(Arg));
-  specConstInfo.mapEntries.push_back({arg.id, offset, sizeof(Arg)});
+  specConstInfo.data.resize(offset + argSize);
+  std::memcpy(&specConstInfo.data[offset], &arg.value, argSize);
+  specConstInfo.mapEntries.push_back({arg.id, offset, argSize});
 
   InsertSpecConst(specConstInfo, std::forward<Args>(args)...);
 }
